@@ -6,6 +6,7 @@
  */
 
 import dotenv from 'dotenv';
+
 dotenv.config({ path: '.env.local' });
 
 export function validateEnvironment() {
@@ -16,20 +17,20 @@ export function validateEnvironment() {
       name: 'NEXTAUTH_URL',
       value: process.env.NEXTAUTH_URL,
       description: 'NextAuth.js base URL',
-      example: 'http://localhost:3000'
+      example: 'http://localhost:3000',
     },
     {
       name: 'NEXTAUTH_SECRET',
       value: process.env.NEXTAUTH_SECRET,
       description: 'NextAuth.js encryption secret',
-      example: 'base64-encoded-32-byte-string'
+      example: 'base64-encoded-32-byte-string',
     },
     {
       name: 'MONGODB_URI',
       value: process.env.MONGODB_URI,
       description: 'MongoDB connection string',
-      example: 'mongodb+srv://user:pass@cluster.mongodb.net/dbname'
-    }
+      example: 'mongodb+srv://user:pass@cluster.mongodb.net/dbname',
+    },
   ];
 
   const sanityVars = [
@@ -37,20 +38,20 @@ export function validateEnvironment() {
       name: 'NEXT_PUBLIC_SANITY_PROJECT_ID',
       value: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
       description: 'Sanity project ID',
-      required: false
+      required: false,
     },
     {
       name: 'NEXT_PUBLIC_SANITY_DATASET',
       value: process.env.NEXT_PUBLIC_SANITY_DATASET,
       description: 'Sanity dataset (e.g., production)',
-      required: false
+      required: false,
     },
     {
       name: 'SANITY_API_TOKEN',
       value: process.env.SANITY_API_TOKEN,
       description: 'Sanity API token',
-      required: false
-    }
+      required: false,
+    },
   ];
 
   let allValid = true;

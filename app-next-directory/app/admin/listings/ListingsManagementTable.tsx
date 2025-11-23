@@ -1,12 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useTransition, useCallback } from 'react';
-import {
-  fetchJsonWithRetry,
-  getDefaultTimeout,
-  RequestTimeoutError,
-} from '@/lib/http/request';
+import { useCallback, useEffect, useState, useTransition } from 'react';
 import { getUserFacingMessage } from '@/lib/error-handler';
+import { fetchJsonWithRetry, getDefaultTimeout, RequestTimeoutError } from '@/lib/http/request';
 import {
   isListingTypeValue,
   isListingWorkflowStatus,
@@ -60,7 +56,10 @@ async function fetchListingStats(): Promise<ListingStats> {
   });
 }
 
-async function updateListing(listingId: string, action: 'suspend' | 'publish' | 'unpublish' | 'feature' | 'unfeature') {
+async function updateListing(
+  listingId: string,
+  action: 'suspend' | 'publish' | 'unpublish' | 'feature' | 'unfeature'
+) {
   return fetchJsonWithRetry<{ message: string }>(
     '/api/admin/listings',
     {
@@ -96,9 +95,9 @@ async function deleteListing(listingId: string) {
 
 function formatTimeAgo(dateString: string | null): string {
   if (!dateString) return 'Never';
-  
+
   const date = new Date(dateString);
-  if (isNaN(date.getTime())) return 'Unknown';
+  if (Number.isNaN(date.getTime())) return 'Unknown';
 
   const now = new Date();
   const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
@@ -120,7 +119,9 @@ function StatusBadge({ status }: { status: 'published' | 'unpublished' | 'pendin
   };
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusClasses[status]}`}>
+    <span
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusClasses[status]}`}
+    >
       {status.charAt(0).toUpperCase() + status.slice(1)}
     </span>
   );
@@ -136,7 +137,9 @@ function ModerationBadge({ status }: { status: 'pending' | 'approved' | 'rejecte
   };
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusClasses[status]}`}>
+    <span
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusClasses[status]}`}
+    >
       {status.charAt(0).toUpperCase() + status.slice(1)}
     </span>
   );
@@ -161,7 +164,9 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-  const [actionStatus, setActionStatus] = useState<{ listingId: string; message: string } | null>(null);
+  const [actionStatus, setActionStatus] = useState<{ listingId: string; message: string } | null>(
+    null
+  );
   const [statsError, setStatsError] = useState<string | null>(null);
 
   const loadListings = useCallback(
@@ -183,9 +188,10 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
           type: data.filters.type,
         }));
       } catch (err) {
-        const timeoutMessage = err instanceof RequestTimeoutError
-          ? 'Loading listings is taking longer than expected. Please try again.'
-          : undefined;
+        const timeoutMessage =
+          err instanceof RequestTimeoutError
+            ? 'Loading listings is taking longer than expected. Please try again.'
+            : undefined;
         setError(timeoutMessage ?? getUserFacingMessage(err, 'Failed to load listings'));
       } finally {
         setLoading(false);
@@ -208,7 +214,7 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
     void loadListings(1, '', null, null);
     void loadStats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loadListings, loadStats]);
 
   const handleSearch = (searchValue: string) => {
     setFilters(prev => ({ ...prev, search: searchValue }));
@@ -239,7 +245,10 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
     });
   };
 
-  const handleListingAction = async (listingId: string, action: 'suspend' | 'publish' | 'unpublish' | 'feature' | 'unfeature') => {
+  const handleListingAction = async (
+    listingId: string,
+    action: 'suspend' | 'publish' | 'unpublish' | 'feature' | 'unfeature'
+  ) => {
     try {
       setActionStatus({ listingId, message: 'Processing...' });
       await updateListing(listingId, action);
@@ -253,13 +262,18 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
 
       setTimeout(() => setActionStatus(null), 2000);
     } catch (err) {
-      setActionStatus({ listingId, message: getUserFacingMessage(err, 'Failed to update listing') });
+      setActionStatus({
+        listingId,
+        message: getUserFacingMessage(err, 'Failed to update listing'),
+      });
       setTimeout(() => setActionStatus(null), 3000);
     }
   };
 
   const handleDeleteListing = async (listingId: string, listingName: string) => {
-    if (!confirm(`Are you sure you want to delete "${listingName}"? This action cannot be undone.`)) {
+    if (
+      !confirm(`Are you sure you want to delete "${listingName}"? This action cannot be undone.`)
+    ) {
       return;
     }
 
@@ -276,7 +290,10 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
 
       setTimeout(() => setActionStatus(null), 2000);
     } catch (err) {
-      setActionStatus({ listingId, message: getUserFacingMessage(err, 'Failed to delete listing') });
+      setActionStatus({
+        listingId,
+        message: getUserFacingMessage(err, 'Failed to delete listing'),
+      });
       setTimeout(() => setActionStatus(null), 3000);
     }
   };
@@ -284,8 +301,13 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
   if (loading && listings.length === 0) {
     return (
       <div className="p-8 text-center" data-testid="listings-loading">
-        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" role="status">
-          <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">Loading...</span>
+        <div
+          className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+          role="status"
+        >
+          <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+            Loading...
+          </span>
         </div>
         <p className="mt-4 text-gray-600">Loading listings...</p>
       </div>
@@ -297,7 +319,10 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
       <div className="p-8 text-center" data-testid="listings-error">
         <p className="text-red-600">{error}</p>
         <button
-          onClick={() => void loadListings(pagination.page, filters.search, filters.status, filters.type)}
+          type="button"
+          onClick={() =>
+            void loadListings(pagination.page, filters.search, filters.status, filters.type)
+          }
           className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
         >
           Retry
@@ -309,7 +334,10 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
   return (
     <div className="p-6">
       {stats ? (
-        <div className="mb-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" data-testid="listings-stats">
+        <div
+          className="mb-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"
+          data-testid="listings-stats"
+        >
           <div className="bg-gray-50 p-4 rounded-lg">
             <p className="text-sm text-gray-600">Total</p>
             <p className="text-2xl font-bold text-gray-900">{stats.totalListings}</p>
@@ -346,13 +374,13 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
           type="text"
           placeholder="Search listings..."
           value={filters.search}
-          onChange={(e) => handleSearch(e.target.value)}
+          onChange={e => handleSearch(e.target.value)}
           className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           data-testid="search-input"
         />
         <select
           value={filters.status ?? ''}
-          onChange={(e) => handleStatusFilter(e.target.value || null)}
+          onChange={e => handleStatusFilter(e.target.value || null)}
           className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           data-testid="status-filter"
         >
@@ -364,14 +392,17 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
         </select>
         <select
           value={filters.type ?? ''}
-          onChange={(e) => handleTypeFilter(e.target.value || null)}
+          onChange={e => handleTypeFilter(e.target.value || null)}
           className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           data-testid="type-filter"
         >
           <option value="">All Types</option>
-          {stats && Object.keys(stats.listingsByType).map(type => (
-            <option key={type} value={type}>{type}</option>
-          ))}
+          {stats &&
+            Object.keys(stats.listingsByType).map(type => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
         </select>
       </div>
 
@@ -410,7 +441,7 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
                 </td>
               </tr>
             ) : (
-              listings.map((listing) => (
+              listings.map(listing => (
                 <tr key={listing.id} data-testid={`listing-row-${listing.id}`}>
                   <td className="px-6 py-4">
                     <div className="text-sm font-medium text-gray-900">{listing.name}</div>
@@ -443,6 +474,7 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
                       <div className="flex gap-2">
                         {listing.status !== 'published' && (
                           <button
+                            type="button"
                             onClick={() => void handleListingAction(listing.id, 'publish')}
                             className="text-emerald-600 hover:text-emerald-900"
                             title="Publish"
@@ -452,6 +484,7 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
                         )}
                         {listing.status === 'published' && (
                           <button
+                            type="button"
                             onClick={() => void handleListingAction(listing.id, 'unpublish')}
                             className="text-gray-600 hover:text-gray-900"
                             title="Unpublish"
@@ -460,6 +493,7 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
                           </button>
                         )}
                         <button
+                          type="button"
                           onClick={() => void handleListingAction(listing.id, 'suspend')}
                           className="text-amber-600 hover:text-amber-900"
                           title="Suspend"
@@ -468,6 +502,7 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
                         </button>
                         {!listing.isFeatured && (
                           <button
+                            type="button"
                             onClick={() => void handleListingAction(listing.id, 'feature')}
                             className="text-purple-600 hover:text-purple-900"
                             title="Feature"
@@ -477,6 +512,7 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
                         )}
                         {listing.isFeatured && (
                           <button
+                            type="button"
                             onClick={() => void handleListingAction(listing.id, 'unfeature')}
                             className="text-gray-600 hover:text-gray-900"
                             title="Unfeature"
@@ -485,6 +521,7 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
                           </button>
                         )}
                         <button
+                          type="button"
                           onClick={() => void handleDeleteListing(listing.id, listing.name)}
                           className="text-red-600 hover:text-red-900"
                           title="Delete"
@@ -504,10 +541,13 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
       {pagination.totalPages > 1 && (
         <div className="mt-6 flex items-center justify-between">
           <div className="text-sm text-gray-700">
-            Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.totalCount)} of {pagination.totalCount} listings
+            Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
+            {Math.min(pagination.page * pagination.limit, pagination.totalCount)} of{' '}
+            {pagination.totalCount} listings
           </div>
           <div className="flex gap-2">
             <button
+              type="button"
               onClick={() => handlePageChange(pagination.page - 1)}
               disabled={!pagination.hasPrevPage || isPending}
               className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
@@ -518,6 +558,7 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
               Page {pagination.page} of {pagination.totalPages}
             </span>
             <button
+              type="button"
               onClick={() => handlePageChange(pagination.page + 1)}
               disabled={!pagination.hasNextPage || isPending}
               className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"

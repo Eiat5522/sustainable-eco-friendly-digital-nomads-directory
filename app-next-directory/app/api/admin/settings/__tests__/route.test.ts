@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, beforeAll, beforeEach } from '@jest/globals';
+import { beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 jest.mock('@/lib/auth', () => ({
   __esModule: true,
@@ -23,7 +23,6 @@ jest.mock('@/lib/sanity/client', () => {
   };
 });
 
-import { auth } from '@/lib/auth';
 
 const authMockModule = jest.requireMock('@/lib/auth') as { auth: jest.Mock };
 const clientMockModule = jest.requireMock('@/lib/sanity/client') as {
@@ -83,7 +82,7 @@ describe('/api/admin/settings', () => {
 
     it('returns existing settings when they exist', async () => {
       mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
-      
+
       const mockSettings = {
         _id: 'settings-1',
         _type: 'adminSettings',
@@ -102,7 +101,7 @@ describe('/api/admin/settings', () => {
         autoBackup: false,
         backupFrequency: 'weekly',
       };
-      
+
       mockFetch.mockResolvedValue(mockSettings);
 
       const request = { url: 'https://example.com/api/admin/settings' } as any;
@@ -151,7 +150,7 @@ describe('/api/admin/settings', () => {
         url: 'https://example.com/api/admin/settings',
         json: async () => ({ settings: {} }),
       } as any;
-      
+
       const response = await POST(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -169,7 +168,7 @@ describe('/api/admin/settings', () => {
         url: 'https://example.com/api/admin/settings',
         json: async () => ({}),
       } as any;
-      
+
       const response = await POST(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -182,26 +181,26 @@ describe('/api/admin/settings', () => {
     it('creates new settings when none exist', async () => {
       mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
       mockFetch.mockResolvedValue(null);
-      
+
       const newSettings = {
         siteName: 'New Site',
         siteDescription: 'New Description',
         maintenanceMode: true,
       };
-      
+
       const createdSettings = {
         _id: 'settings-1',
         _type: 'adminSettings',
         ...newSettings,
       };
-      
+
       mockCreate.mockResolvedValue(createdSettings);
 
       const request = {
         url: 'https://example.com/api/admin/settings',
         json: async () => ({ settings: newSettings }),
       } as any;
-      
+
       const response = await POST(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -216,33 +215,33 @@ describe('/api/admin/settings', () => {
 
     it('updates existing settings', async () => {
       mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
-      
+
       const existingSettings = {
         _id: 'settings-1',
         _type: 'adminSettings',
         siteName: 'Old Site',
         siteDescription: 'Old Description',
       };
-      
+
       mockFetch.mockResolvedValue(existingSettings);
-      
+
       const updatedData = {
         siteName: 'Updated Site',
         maintenanceMode: true,
       };
-      
+
       const updatedSettings = {
         ...existingSettings,
         ...updatedData,
       };
-      
+
       mockCommit.mockResolvedValue(updatedSettings);
 
       const request = {
         url: 'https://example.com/api/admin/settings',
         json: async () => ({ settings: updatedData }),
       } as any;
-      
+
       const response = await POST(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -252,10 +251,12 @@ describe('/api/admin/settings', () => {
       expect(json.message).toBe('Settings saved successfully');
       expect(mockFetch).toHaveBeenCalledTimes(1);
       expect(mockPatch).toHaveBeenCalledWith('settings-1');
-      expect(mockSet).toHaveBeenCalledWith(expect.objectContaining({
-        _type: 'adminSettings',
-        ...updatedData,
-      }));
+      expect(mockSet).toHaveBeenCalledWith(
+        expect.objectContaining({
+          _type: 'adminSettings',
+          ...updatedData,
+        })
+      );
       expect(mockCommit).toHaveBeenCalledTimes(1);
       expect(mockCreate).not.toHaveBeenCalled();
     });
@@ -268,7 +269,7 @@ describe('/api/admin/settings', () => {
         url: 'https://example.com/api/admin/settings',
         json: async () => ({ settings: { siteName: 'Test' } }),
       } as any;
-      
+
       const response = await POST(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -293,7 +294,10 @@ describe('/api/admin/settings', () => {
     it('updates lastBackupDate when settings exist', async () => {
       mockAuth.mockResolvedValue({ user: { role: 'admin', id: 'admin-1' } } as any);
       mockFetch.mockResolvedValue({ _id: 'settings-1' });
-      mockCommit.mockResolvedValue({ _id: 'settings-1', lastBackupDate: '2024-01-01T00:00:00.000Z' });
+      mockCommit.mockResolvedValue({
+        _id: 'settings-1',
+        lastBackupDate: '2024-01-01T00:00:00.000Z',
+      });
 
       const request = { url: 'https://example.com/api/admin/settings/backup' } as any;
       const response = await BACKUP_POST(request, { params: Promise.resolve({}) });
@@ -309,7 +313,7 @@ describe('/api/admin/settings', () => {
         expect.objectContaining({
           lastBackupDate: expect.any(String),
           _type: 'adminSettings',
-        }),
+        })
       );
       expect(mockCommit).toHaveBeenCalled();
     });
@@ -317,7 +321,11 @@ describe('/api/admin/settings', () => {
     it('creates settings document when missing', async () => {
       mockAuth.mockResolvedValue({ user: { role: 'superAdmin', id: 'super-1' } } as any);
       mockFetch.mockResolvedValue(null);
-      mockCreate.mockResolvedValue({ _id: 'settings-2', _type: 'adminSettings', lastBackupDate: '2024-01-01T00:00:00.000Z' });
+      mockCreate.mockResolvedValue({
+        _id: 'settings-2',
+        _type: 'adminSettings',
+        lastBackupDate: '2024-01-01T00:00:00.000Z',
+      });
 
       const request = { url: 'https://example.com/api/admin/settings/backup' } as any;
       const response = await BACKUP_POST(request, { params: Promise.resolve({}) });
@@ -330,7 +338,7 @@ describe('/api/admin/settings', () => {
         expect.objectContaining({
           _type: 'adminSettings',
           lastBackupDate: expect.any(String),
-        }),
+        })
       );
     });
 

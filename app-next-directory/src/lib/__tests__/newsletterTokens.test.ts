@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterAll, jest } from '@jest/globals';
+import { afterAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 type SignChain = {
   setProtectedHeader: jest.MockedFunction<(header: { alg: string }) => SignChain>;

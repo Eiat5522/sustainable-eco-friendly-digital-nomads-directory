@@ -3,7 +3,7 @@
  */
 
 // Since SWC module resolution makes mocking difficult, let's test behavior instead of implementation
-import { describe, it, expect } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
 import { ApiResponseHandler } from '../api-response';
 
 describe('ApiResponseHandler', () => {

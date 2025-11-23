@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, beforeEach, beforeAll } from '@jest/globals';
+import { beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 jest.mock('@/lib/auth', () => ({
   __esModule: true,
@@ -10,8 +10,6 @@ jest.mock('@/lib/admin/analytics', () => ({
   runBulkOperation: jest.fn(),
 }));
 
-import { auth } from '@/lib/auth';
-import { runBulkOperation } from '@/lib/admin/analytics';
 
 const authMockModule = jest.requireMock('@/lib/auth') as { auth: jest.Mock };
 const analyticsMockModule = jest.requireMock('@/lib/admin/analytics') as {
@@ -33,7 +31,6 @@ describe('/api/admin/bulk-operations', () => {
     mockAuth.mockReset();
     mockRunBulk.mockReset();
   });
-
 
   it('requires admin for GET', async () => {
     mockAuth.mockResolvedValue({ user: { role: 'user' } } as any);
@@ -64,9 +61,7 @@ describe('/api/admin/bulk-operations', () => {
     expect(response.status).toBe(200);
     expect(Array.isArray(json.operations)).toBe(true);
     expect(json.operations).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ id: 'publishListings' }),
-      ])
+      expect.arrayContaining([expect.objectContaining({ id: 'publishListings' })])
     );
   });
 
@@ -87,9 +82,12 @@ describe('/api/admin/bulk-operations', () => {
   it('requires authentication and validates payload', async () => {
     mockAuth.mockResolvedValue({ user: { role: 'user' } } as any);
 
-    const forbidden = await POST({ json: () => Promise.resolve({ operation: 'publishListings', ids: ['1'] }) } as any, {
-      params: Promise.resolve({}),
-    });
+    const forbidden = await POST(
+      { json: () => Promise.resolve({ operation: 'publishListings', ids: ['1'] }) } as any,
+      {
+        params: Promise.resolve({}),
+      }
+    );
     expect(forbidden.status).toBe(403);
 
     mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
@@ -100,9 +98,12 @@ describe('/api/admin/bulk-operations', () => {
     expect(missingOperation.status).toBe(400);
     expect(missingOperationJson.error).toBe('operation is required');
 
-    const missingIds = await POST({ json: () => Promise.resolve({ operation: 'publishListings', ids: [] }) } as any, {
-      params: Promise.resolve({}),
-    });
+    const missingIds = await POST(
+      { json: () => Promise.resolve({ operation: 'publishListings', ids: [] }) } as any,
+      {
+        params: Promise.resolve({}),
+      }
+    );
     const missingIdsJson = await missingIds.json();
     expect(missingIds.status).toBe(400);
     expect(missingIdsJson.error).toMatch(/ids must contain at least one/);
@@ -112,17 +113,26 @@ describe('/api/admin/bulk-operations', () => {
     mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
 
     const overLimitIds = Array.from({ length: 1001 }, (_, i) => `id-${i}`);
-    const overLimit = await POST({ json: () => Promise.resolve({ operation: 'publishListings', ids: overLimitIds }) } as any, {
-      params: Promise.resolve({}),
-    });
+    const overLimit = await POST(
+      { json: () => Promise.resolve({ operation: 'publishListings', ids: overLimitIds }) } as any,
+      {
+        params: Promise.resolve({}),
+      }
+    );
     const overLimitJson = await overLimit.json();
     expect(overLimit.status).toBe(400);
     expect(overLimitJson.error).toMatch(/maximum length/);
 
     const request = {
-      json: () => Promise.resolve({ operation: 'publishListings', ids: ['  listing-1  ', '', 'listing-2'] }),
+      json: () =>
+        Promise.resolve({ operation: 'publishListings', ids: ['  listing-1  ', '', 'listing-2'] }),
     } as any;
-    mockRunBulk.mockResolvedValue({ operation: 'publishListings', total: 2, succeeded: 2, failed: [] });
+    mockRunBulk.mockResolvedValue({
+      operation: 'publishListings',
+      total: 2,
+      succeeded: 2,
+      failed: [],
+    });
     const response = await POST(request, { params: Promise.resolve({}) });
     expect(response.status).toBe(200);
     expect(mockRunBulk).toHaveBeenCalledWith({
@@ -141,7 +151,8 @@ describe('/api/admin/bulk-operations', () => {
     });
 
     const request = {
-      json: () => Promise.resolve({ operation: 'publishListings', ids: ['listing-1', 'listing-2'] }),
+      json: () =>
+        Promise.resolve({ operation: 'publishListings', ids: ['listing-1', 'listing-2'] }),
     } as any;
 
     const response = await POST(request, { params: Promise.resolve({}) });

@@ -26,16 +26,14 @@ jest.mock('@/components/auth/SocialAuthRow', () => ({
 
 jest.mock('@/components/ui/neo-input', () => ({
   NeoInput: ({ asChild, children, ...props }: any) => (
-    <input data-testid={props.id ?? props.name} {...props}>
-      {children}
-    </input>
+    <input data-testid={props.id ?? props.name} {...props}/>
   ),
 }));
 
 jest.mock('@/components/ui/neo-button', () => ({
   NeoButton: ({ children, asChild = false, ...props }: any) =>
     asChild ? (
-      <>{children}</>
+      children
     ) : (
       <button data-testid="neo-button" {...props}>
         {children}
@@ -82,8 +80,12 @@ describe('SignupPageContent', () => {
       expect.objectContaining({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Jane Doe', email: 'jane@example.com', password: 'secretpass' }),
-      }),
+        body: JSON.stringify({
+          name: 'Jane Doe',
+          email: 'jane@example.com',
+          password: 'secretpass',
+        }),
+      })
     );
 
     expect(signInMock).toHaveBeenCalledWith(
@@ -92,7 +94,7 @@ describe('SignupPageContent', () => {
         email: 'jane@example.com',
         password: 'secretpass',
         callbackUrl: '/',
-      }),
+      })
     );
   });
 

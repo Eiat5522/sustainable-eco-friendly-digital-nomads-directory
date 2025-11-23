@@ -1,5 +1,5 @@
-import { Ratelimit } from "@upstash/ratelimit";
-import { getRedisClient } from "@/lib/redis";
+import { Ratelimit } from '@upstash/ratelimit';
+import { getRedisClient } from '@/lib/redis';
 
 // Login rate limiting: 5 attempts per 15 minutes
 export let loginRateLimit: Ratelimit | undefined;
@@ -11,25 +11,23 @@ export let apiRateLimit: Ratelimit | undefined;
 const initializeRateLimiters = () => {
   try {
     const redis = getRedisClient();
-    
+
     if (redis) {
       loginRateLimit = new Ratelimit({
         redis,
-        limiter: Ratelimit.slidingWindow(5, "15 m"),
+        limiter: Ratelimit.slidingWindow(5, '15 m'),
         analytics: true,
-        prefix: "ratelimit:login",
+        prefix: 'ratelimit:login',
       });
 
       apiRateLimit = new Ratelimit({
         redis,
-        limiter: Ratelimit.slidingWindow(100, "1 m"),
+        limiter: Ratelimit.slidingWindow(100, '1 m'),
         analytics: true,
-        prefix: "ratelimit:api",
+        prefix: 'ratelimit:api',
       });
     }
-  } catch (error) {
-    // Redis client not available, rate limiters remain undefined
-    console.warn('[rate-limit] Failed to initialize rate limiters:', error);
+  } catch (_error) {
   }
 };
 
@@ -52,22 +50,17 @@ export let getClientIp = (req: Request): string => {
 };
 
 // Helper for backward compatibility
-export let isRateLimited = async (
-  key: string,
-  _limit = 10,
-  _windowSec = 60
-): Promise<boolean> => {
+export let isRateLimited = async (key: string, _limit = 10, _windowSec = 60): Promise<boolean> => {
   const limiter = apiRateLimit;
   if (!limiter) {
     // Fallback: allow request if Redis is not available
     return false;
   }
-  
+
   try {
     const { success } = await limiter.limit(key);
     return !success;
-  } catch (error) {
-    console.warn('[rate-limit] Error checking rate limit:', error);
+  } catch (_error) {
     // On error, allow the request to proceed
     return false;
   }
@@ -78,15 +71,14 @@ export let getRetryAfterMs = async (key: string): Promise<number> => {
   if (!limiter) {
     return 0;
   }
-  
+
   try {
     const result = await limiter.limit(key);
     if (result.reset) {
       return Math.max(0, result.reset - Date.now());
     }
     return 0;
-  } catch (error) {
-    console.warn('[rate-limit] Error getting retry after:', error);
+  } catch (_error) {
     return 0;
   }
 };
@@ -99,7 +91,9 @@ export let getRetryAfterMs = async (key: string): Promise<number> => {
 // non-test runtimes.
 if (process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID) {
   type JestLike = {
-    fn: <T extends (...args: never[]) => unknown>(implementation: T) => T & {
+    fn: <T extends (...args: never[]) => unknown>(
+      implementation: T
+    ) => T & {
       mockImplementation?: (...args: Parameters<T>) => ReturnType<T>;
     };
   };

@@ -10,7 +10,7 @@
  */
 export function getTagColorClasses(text: string, category: 'eco' | 'amenity'): string {
   const t = text.toLowerCase();
-  
+
   if (category === 'eco') {
     if (/solar|renewable|energy/.test(t)) return 'bg-emerald-100 text-emerald-700';
     if (/waste|zero|recycl/.test(t)) return 'bg-lime-100 text-lime-700';
@@ -19,7 +19,7 @@ export function getTagColorClasses(text: string, category: 'eco' | 'amenity'): s
     if (/garden|bike|walk|green/.test(t)) return 'bg-green-100 text-green-700';
     return 'bg-emerald-100 text-emerald-700';
   }
-  
+
   // amenity category
   if (/wifi|internet/.test(t)) return 'bg-blue-100 text-blue-700';
   if (/meeting|conference|room|call/.test(t)) return 'bg-indigo-100 text-indigo-700';

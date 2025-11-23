@@ -72,7 +72,9 @@ describe('SanityBatchProcessor', () => {
 
   it('validates listings and returns early when validateOnly is true', async () => {
     const invalidListing = { ...baseListing, name: '' };
-    const result = await processor.createListingsBatch([baseListing, invalidListing], { validateOnly: true });
+    const result = await processor.createListingsBatch([baseListing, invalidListing], {
+      validateOnly: true,
+    });
 
     expect(result.successCount).toBe(0);
     expect(result.failureCount).toBe(1);
@@ -90,7 +92,11 @@ describe('SanityBatchProcessor', () => {
 
     uploadBatchMock.mockResolvedValue({
       successful: [
-        { asset: { _id: 'image-1' }, metadata: { width: 100, height: 50, size: 12, format: 'jpeg' }, url: 'url' },
+        {
+          asset: { _id: 'image-1' },
+          metadata: { width: 100, height: 50, size: 12, format: 'jpeg' },
+          url: 'url',
+        },
       ],
       failed: [{ file: listing.images![0], error: 'oops' }],
       total: 1,
@@ -106,7 +112,10 @@ describe('SanityBatchProcessor', () => {
 
     const result = await processor.createListingsBatch([listing], { concurrency: 1 });
 
-    expect(uploadBatchMock).toHaveBeenCalledWith(listing.images, expect.objectContaining({ concurrency: 2 }));
+    expect(uploadBatchMock).toHaveBeenCalledWith(
+      listing.images,
+      expect.objectContaining({ concurrency: 2 })
+    );
     expect(sanityCreateMock).toHaveBeenCalledTimes(2);
     expect(result.successCount).toBe(1);
     expect(result.successful[0].id).toBe('listing-1');
@@ -126,7 +135,10 @@ describe('SanityBatchProcessor', () => {
   it('skips image processing when skipImages is enabled', async () => {
     sanityCreateMock.mockResolvedValue({ _id: 'listing-2' });
 
-    const listing: Listing = { ...baseListing, images: [new File([new Uint8Array([1])], 'skip.jpg', { type: 'image/jpeg' })] };
+    const listing: Listing = {
+      ...baseListing,
+      images: [new File([new Uint8Array([1])], 'skip.jpg', { type: 'image/jpeg' })],
+    };
 
     const result = await processor.createListingsBatch([listing], { skipImages: true });
 
@@ -144,7 +156,7 @@ describe('SanityBatchProcessor', () => {
         { id: 'a', data: { name: 'First' } },
         { id: 'b', data: { name: 'Second' } },
       ],
-      { onProgress: progress },
+      { onProgress: progress }
     );
 
     expect(progress).toHaveBeenCalledWith(0, 2, 'Updating listing');
@@ -167,14 +179,29 @@ describe('SanityBatchProcessor', () => {
   it('enforces validation rules for individual listings', () => {
     const cases: Array<{ listing: Partial<Listing>; message: string }> = [
       { listing: { ...baseListing, name: ' ' }, message: 'Name is required' },
-      { listing: { ...baseListing, type: 'invalid' }, message: 'Valid type is required (accommodation, coworking, cafe, activity)' },
+      {
+        listing: { ...baseListing, type: 'invalid' },
+        message: 'Valid type is required (accommodation, coworking, cafe, activity)',
+      },
       { listing: { ...baseListing, city: '' }, message: 'City is required' },
       { listing: { ...baseListing, country: '' }, message: 'Country is required' },
       { listing: { ...baseListing, website: 'not-a-url' }, message: 'Invalid website URL' },
-      { listing: { ...baseListing, coordinates: { lat: 200, lng: 0 } as any }, message: 'Invalid latitude' },
-      { listing: { ...baseListing, coordinates: { lat: 0, lng: -200 } as any }, message: 'Invalid longitude' },
-      { listing: { ...baseListing, ecoTags: Array(11).fill('tag') }, message: 'Eco tags must be an array with max 10 items' },
-      { listing: { ...baseListing, images: new Array(21).fill({}) as any }, message: 'Maximum 20 images allowed per listing' },
+      {
+        listing: { ...baseListing, coordinates: { lat: 200, lng: 0 } as any },
+        message: 'Invalid latitude',
+      },
+      {
+        listing: { ...baseListing, coordinates: { lat: 0, lng: -200 } as any },
+        message: 'Invalid longitude',
+      },
+      {
+        listing: { ...baseListing, ecoTags: Array(11).fill('tag') },
+        message: 'Eco tags must be an array with max 10 items',
+      },
+      {
+        listing: { ...baseListing, images: new Array(21).fill({}) as any },
+        message: 'Maximum 20 images allowed per listing',
+      },
     ];
 
     for (const { listing, message } of cases) {

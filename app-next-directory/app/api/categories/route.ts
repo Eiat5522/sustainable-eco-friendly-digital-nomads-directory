@@ -1,9 +1,9 @@
-import { client } from '@/lib/sanity/client';
 import { groq } from 'next-sanity';
-import { ApiResponseHandler } from '@/utils/api-response';
+import { cacheHelpers } from '@/lib/cache-strategy';
 import { DEFAULT_CATEGORIES } from '@/lib/constants/categories';
 import { structuredLogger } from '@/lib/logger';
-import { cacheHelpers } from '@/lib/cache-strategy';
+import { client } from '@/lib/sanity/client';
+import { ApiResponseHandler } from '@/utils/api-response';
 
 // Cache for 24 hours - categories rarely change
 export const revalidate = 86400; // 24 hours
@@ -15,7 +15,7 @@ export async function GET() {
         groq`array::unique(*[_type == "listing" && defined(category)].category)`
       );
     });
-    
+
     // If CMS returns nothing, fall back to default list
     if (!Array.isArray(categories) || categories.length === 0) {
       const fallback = await getDefaultCategories();
@@ -25,9 +25,13 @@ export async function GET() {
   } catch (error) {
     structuredLogger.error('Categories API error', error, { component: 'categories-api' });
     const status =
-      typeof error === 'object' && error !== null && typeof (error as { status?: unknown }).status === 'number'
+      typeof error === 'object' &&
+      error !== null &&
+      typeof (error as { status?: unknown }).status === 'number'
         ? (error as { status: number }).status
-        : typeof error === 'object' && error !== null && typeof (error as { statusCode?: unknown }).statusCode === 'number'
+        : typeof error === 'object' &&
+            error !== null &&
+            typeof (error as { statusCode?: unknown }).statusCode === 'number'
           ? (error as { statusCode: number }).statusCode
           : 500;
     // Fall back to default list on error

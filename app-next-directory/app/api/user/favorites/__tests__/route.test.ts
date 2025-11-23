@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { NextRequest } from 'next/server';
 
 // We'll mock the modules the route imports so tests don't need to mutate exported _testControl
@@ -9,8 +9,16 @@ const mockedDelete = jest.fn();
 const mockedEnsureSanityUser = jest.fn();
 
 jest.mock('@/lib/auth', () => ({ auth: (...args: any[]) => mockedAuth(...args) }));
-jest.mock('@/lib/sanity/client', () => ({ client: { fetch: (...args: any[]) => mockedFetch(...args), createOrReplace: (...args: any[]) => mockedCreateOrReplace(...args), delete: (...args: any[]) => mockedDelete(...args) } }));
-jest.mock('@/lib/sanity/user', () => ({ ensureSanityUser: (...args: any[]) => mockedEnsureSanityUser(...args) }));
+jest.mock('@/lib/sanity/client', () => ({
+  client: {
+    fetch: (...args: any[]) => mockedFetch(...args),
+    createOrReplace: (...args: any[]) => mockedCreateOrReplace(...args),
+    delete: (...args: any[]) => mockedDelete(...args),
+  },
+}));
+jest.mock('@/lib/sanity/user', () => ({
+  ensureSanityUser: (...args: any[]) => mockedEnsureSanityUser(...args),
+}));
 
 let GET: any;
 let POST: any;
@@ -62,7 +70,7 @@ describe('/api/user/favorites', () => {
       });
       mockedEnsureSanityUser.mockResolvedValue({ _id: 'sanity-1' });
       mockedFetch.mockResolvedValue([{ _id: 'fav-1', listing: { name: 'Test' } }]);
-      
+
       const response = await GET();
       const json = await response.json();
 
@@ -102,12 +110,12 @@ describe('/api/user/favorites', () => {
   describe('POST', () => {
     it('returns 401 when not authenticated', async () => {
       mockedAuth.mockResolvedValue(null);
-      
+
       const request = new NextRequest('http://localhost/api/user/favorites', {
         method: 'POST',
         body: JSON.stringify({ slug: 'test' }),
       });
-      
+
       const response = await POST(request);
       const json = await response.json();
 
@@ -120,8 +128,8 @@ describe('/api/user/favorites', () => {
       });
       mockedEnsureSanityUser.mockResolvedValue({ _id: 'sanity-1' });
       mockedFetch.mockResolvedValue({ _id: 'listing-1' });
-  mockedCreateOrReplace.mockResolvedValue({ _id: 'fav-1' });
-  routeTestControl.parseBodyOverride = async () => ({ slug: 'test-listing' });
+      mockedCreateOrReplace.mockResolvedValue({ _id: 'fav-1' });
+      routeTestControl.parseBodyOverride = async () => ({ slug: 'test-listing' });
 
       const request = new NextRequest('http://localhost/api/user/favorites', {
         method: 'POST',
@@ -138,7 +146,7 @@ describe('/api/user/favorites', () => {
       mockedAuth.mockResolvedValue({
         user: { id: 'user-1', email: 'test@example.com', name: 'Test', role: 'user' },
       });
-  routeTestControl.parseBodyOverride = async () => {
+      routeTestControl.parseBodyOverride = async () => {
         throw new Error('bad body');
       };
 
@@ -160,7 +168,7 @@ describe('/api/user/favorites', () => {
 
     it('validates that the listing slug is provided', async () => {
       mockedAuth.mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
-  routeTestControl.parseBodyOverride = async () => ({ slug: '' });
+      routeTestControl.parseBodyOverride = async () => ({ slug: '' });
 
       const request = new NextRequest('http://localhost/api/user/favorites', {
         method: 'POST',
@@ -176,7 +184,7 @@ describe('/api/user/favorites', () => {
     it('returns 500 when the Sanity user lookup fails', async () => {
       mockedAuth.mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
       mockedEnsureSanityUser.mockResolvedValue(null);
-  routeTestControl.parseBodyOverride = async () => ({ slug: 'test' });
+      routeTestControl.parseBodyOverride = async () => ({ slug: 'test' });
 
       const request = new NextRequest('http://localhost/api/user/favorites', {
         method: 'POST',
@@ -193,7 +201,7 @@ describe('/api/user/favorites', () => {
       mockedAuth.mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
       mockedEnsureSanityUser.mockResolvedValue({ _id: 'sanity-1' });
       mockedFetch.mockResolvedValue(null);
-  routeTestControl.parseBodyOverride = async () => ({ slug: 'missing-listing' });
+      routeTestControl.parseBodyOverride = async () => ({ slug: 'missing-listing' });
 
       const request = new NextRequest('http://localhost/api/user/favorites', {
         method: 'POST',
@@ -212,7 +220,7 @@ describe('/api/user/favorites', () => {
       mockedFetch.mockResolvedValue({ _id: 'listing-1' });
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       mockedCreateOrReplace.mockRejectedValue(new Error('sanity failure'));
-  routeTestControl.parseBodyOverride = async () => ({ slug: 'listing' });
+      routeTestControl.parseBodyOverride = async () => ({ slug: 'listing' });
 
       const request = new NextRequest('http://localhost/api/user/favorites', {
         method: 'POST',
@@ -236,7 +244,7 @@ describe('/api/user/favorites', () => {
       mockedFetch
         .mockResolvedValueOnce({ _id: 'listing-1' })
         .mockResolvedValueOnce({ _id: 'fav-1' });
-  routeTestControl.parseBodyOverride = async () => ({ slug: 'test-listing' });
+      routeTestControl.parseBodyOverride = async () => ({ slug: 'test-listing' });
 
       const request = new NextRequest('http://localhost/api/user/favorites', {
         method: 'DELETE',
@@ -251,7 +259,7 @@ describe('/api/user/favorites', () => {
 
     it('returns 400 when the slug is missing from the payload', async () => {
       mockedAuth.mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
-  routeTestControl.parseBodyOverride = async () => ({ slug: '' });
+      routeTestControl.parseBodyOverride = async () => ({ slug: '' });
 
       const request = new NextRequest('http://localhost/api/user/favorites', {
         method: 'DELETE',
@@ -267,7 +275,7 @@ describe('/api/user/favorites', () => {
     it('returns 404 when the listing lookup fails', async () => {
       mockedAuth.mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
       mockedFetch.mockResolvedValueOnce(null);
-  routeTestControl.parseBodyOverride = async () => ({ slug: 'missing' });
+      routeTestControl.parseBodyOverride = async () => ({ slug: 'missing' });
 
       const request = new NextRequest('http://localhost/api/user/favorites', {
         method: 'DELETE',
@@ -282,10 +290,8 @@ describe('/api/user/favorites', () => {
 
     it('returns a friendly message when no favorite exists', async () => {
       mockedAuth.mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
-      mockedFetch
-        .mockResolvedValueOnce({ _id: 'listing-1' })
-        .mockResolvedValueOnce(null);
-  routeTestControl.parseBodyOverride = async () => ({ slug: 'test-listing' });
+      mockedFetch.mockResolvedValueOnce({ _id: 'listing-1' }).mockResolvedValueOnce(null);
+      routeTestControl.parseBodyOverride = async () => ({ slug: 'test-listing' });
 
       const request = new NextRequest('http://localhost/api/user/favorites', {
         method: 'DELETE',
@@ -304,7 +310,7 @@ describe('/api/user/favorites', () => {
         .mockResolvedValueOnce({ _id: 'listing-1' })
         .mockRejectedValueOnce(new Error('sanity down'));
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-  routeTestControl.parseBodyOverride = async () => ({ slug: 'listing' });
+      routeTestControl.parseBodyOverride = async () => ({ slug: 'listing' });
 
       const request = new NextRequest('http://localhost/api/user/favorites', {
         method: 'DELETE',

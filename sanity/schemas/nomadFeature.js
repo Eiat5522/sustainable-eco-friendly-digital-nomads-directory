@@ -13,25 +13,26 @@ export default {
       name: 'name',
       title: 'Name',
       type: 'string',
-      validation: Rule => Rule.required()
+      validation: Rule => Rule.required(),
     },
     {
-      ...slugField
+      ...slugField,
     },
     {
       ...descriptionField,
-      validation: Rule => Rule.required().max(200).error('A clear, concise description is required')
+      validation: Rule =>
+        Rule.required().max(200).error('A clear, concise description is required'),
     },
     {
       name: 'icon',
       title: 'Icon',
-      ...imageWithAlt
-    }
+      ...imageWithAlt,
+    },
   ],
   preview: {
     select: {
       title: 'name',
-      media: 'icon'
-    }
-  }
-}
+      media: 'icon',
+    },
+  },
+};

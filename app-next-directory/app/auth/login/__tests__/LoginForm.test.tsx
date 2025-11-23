@@ -1,4 +1,3 @@
-import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import LoginForm from '../LoginForm';
@@ -19,7 +18,8 @@ jest.mock('@/lib/auth/callbackUrl', () => ({
 const signInMock = jest.requireMock('next-auth/react').signIn as jest.Mock;
 const useRouterMock = jest.requireMock('next/navigation').useRouter as jest.Mock;
 const useSearchParamsMock = jest.requireMock('next/navigation').useSearchParams as jest.Mock;
-const sanitizeCallbackUrlMock = jest.requireMock('@/lib/auth/callbackUrl').sanitizeCallbackUrl as jest.Mock;
+const sanitizeCallbackUrlMock = jest.requireMock('@/lib/auth/callbackUrl')
+  .sanitizeCallbackUrl as jest.Mock;
 
 const buildSearchParams = (params: Record<string, string> = {}) => ({
   get: (key: string) => params[key] ?? null,
@@ -47,9 +47,7 @@ describe('LoginForm', () => {
     fireEvent.submit(form!);
 
     expect(await screen.findByText('Enter a valid email address.')).toBeInTheDocument();
-    expect(
-      await screen.findByText('Enter your password (min 8 characters).'),
-    ).toBeInTheDocument();
+    expect(await screen.findByText('Enter your password (min 8 characters).')).toBeInTheDocument();
     await waitFor(() => {
       expect(signInMock).not.toHaveBeenCalled();
     });
@@ -57,10 +55,7 @@ describe('LoginForm', () => {
 
   it.each([
     ['CredentialsSignin', /invalid email or password/i],
-    [
-      'OAuthAccountNotLinked',
-      /linked to a different sign-in method/i,
-    ],
+    ['OAuthAccountNotLinked', /linked to a different sign-in method/i],
     ['AccessDenied', /access denied/i],
     ['Configuration', /auth configuration issue/i],
     ['TotallyUnknown', /unable to sign in/i],
@@ -73,9 +68,7 @@ describe('LoginForm', () => {
   });
 
   it('submits credentials and navigates using sanitized callback url', async () => {
-    useSearchParamsMock.mockReturnValue(
-      buildSearchParams({ callbackUrl: '/dashboard' }),
-    );
+    useSearchParamsMock.mockReturnValue(buildSearchParams({ callbackUrl: '/dashboard' }));
     sanitizeCallbackUrlMock.mockReturnValue('/dashboard');
     const routerReplace = jest.fn();
     useRouterMock.mockReturnValue({ replace: routerReplace });
@@ -109,9 +102,7 @@ describe('LoginForm', () => {
     const routerReplace = jest.fn();
     useRouterMock.mockReturnValue({ replace: routerReplace });
 
-    useSearchParamsMock.mockReturnValue(
-      buildSearchParams({ callbackUrl: 'https://evil.example' }),
-    );
+    useSearchParamsMock.mockReturnValue(buildSearchParams({ callbackUrl: 'https://evil.example' }));
 
     sanitizeCallbackUrlMock
       .mockReturnValueOnce(null) // initial memoized callback value
@@ -146,9 +137,7 @@ describe('LoginForm', () => {
   });
 
   it('uses the callbackUrl fallback when signIn resolves without a url', async () => {
-    useSearchParamsMock.mockReturnValue(
-      buildSearchParams({ callbackUrl: '/dashboard' }),
-    );
+    useSearchParamsMock.mockReturnValue(buildSearchParams({ callbackUrl: '/dashboard' }));
     const routerReplace = jest.fn();
     useRouterMock.mockReturnValue({ replace: routerReplace });
 

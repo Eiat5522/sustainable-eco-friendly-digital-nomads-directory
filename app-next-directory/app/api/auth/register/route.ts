@@ -1,8 +1,8 @@
+import bcrypt from 'bcryptjs';
 import { type NextRequest, NextResponse } from 'next/server';
 import connect from '@/lib/dbConnect';
-import User from '@/models/User';
 import structuredLogger from '@/lib/logger';
-import bcrypt from 'bcryptjs';
+import User from '@/models/User';
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,7 +15,6 @@ export async function POST(request: NextRequest) {
         component: 'auth',
         error: errorForLog.message,
       });
-      console.warn('[register] Failed to parse request body', errorForLog);
       return NextResponse.json(
         { success: false, error: { message: 'Invalid request body', code: 'INVALID_INPUT' } },
         { status: 400 }
@@ -29,7 +28,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { name, email, password } = body as Partial<{ name: string; email: string; password: string }>;
+    const { name, email, password } = body as Partial<{
+      name: string;
+      email: string;
+      password: string;
+    }>;
     const missingRequiredField =
       typeof name !== 'string' ||
       typeof email !== 'string' ||
@@ -56,8 +59,9 @@ export async function POST(request: NextRequest) {
           data: null,
           error: {
             code: 'MISSING_DB_CONFIG',
-            message: 'MONGODB_URI not configured in environment; registration disabled in this environment'
-          }
+            message:
+              'MONGODB_URI not configured in environment; registration disabled in this environment',
+          },
         },
         { status: 503, headers: { 'Retry-After': '60' } }
       );
@@ -84,9 +88,10 @@ export async function POST(request: NextRequest) {
       role: 'user',
     });
 
-    const safeUser = (createdUserDoc && typeof createdUserDoc === 'object' && 'toObject' in createdUserDoc)
-      ? (createdUserDoc as { toObject: () => Record<string, unknown> }).toObject()
-      : (createdUserDoc as Record<string, unknown>);
+    const safeUser =
+      createdUserDoc && typeof createdUserDoc === 'object' && 'toObject' in createdUserDoc
+        ? (createdUserDoc as { toObject: () => Record<string, unknown> }).toObject()
+        : (createdUserDoc as Record<string, unknown>);
 
     const userResponse = {
       _id: String(safeUser._id ?? ''),
@@ -95,10 +100,7 @@ export async function POST(request: NextRequest) {
       role: typeof safeUser.role === 'string' ? safeUser.role : 'user',
     };
 
-    return NextResponse.json(
-      { success: true, data: { user: userResponse } },
-      { status: 201 }
-    );
+    return NextResponse.json({ success: true, data: { user: userResponse } }, { status: 201 });
   } catch (error) {
     // Handle errors (e.g., DB connection, hashing, creation)
     structuredLogger.authError('registration', error, { component: 'auth' });

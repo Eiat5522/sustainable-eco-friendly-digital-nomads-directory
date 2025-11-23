@@ -1,11 +1,11 @@
 import {
+  CACHE_CONFIGS,
   cachedQuery,
+  cacheHelpers,
   generateCacheKey,
   getCacheMetrics,
-  resetCacheMetrics,
   invalidateCache,
-  cacheHelpers,
-  CACHE_CONFIGS,
+  resetCacheMetrics,
 } from '../cache-strategy';
 import { getRedisClient } from '../redis';
 
@@ -154,7 +154,7 @@ describe('Cache Strategy', () => {
       expect(result).toEqual({ test: 'old' });
 
       // Should trigger background revalidation
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 100));
       expect(queryFn).toHaveBeenCalled();
     });
 
@@ -241,11 +241,9 @@ describe('Cache Strategy', () => {
       await cacheHelpers.categories(queryFn);
 
       expect(queryFn).toHaveBeenCalled();
-      expect(mockRedis.set).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.any(String),
-        { ex: CACHE_CONFIGS.STATIC.ttl }
-      );
+      expect(mockRedis.set).toHaveBeenCalledWith(expect.any(String), expect.any(String), {
+        ex: CACHE_CONFIGS.STATIC.ttl,
+      });
     });
 
     it('should cache amenities with tags', async () => {
@@ -253,10 +251,7 @@ describe('Cache Strategy', () => {
 
       await cacheHelpers.amenities(queryFn);
 
-      expect(mockRedis.sadd).toHaveBeenCalledWith(
-        'tag:amenities',
-        expect.any(String)
-      );
+      expect(mockRedis.sadd).toHaveBeenCalledWith('tag:amenities', expect.any(String));
     });
 
     it('should cache eco tags with static config', async () => {
@@ -324,12 +319,12 @@ describe('Cache Strategy', () => {
       expect(metrics2).toBeDefined();
       expect(metrics1?.misses).toBe(1);
       expect(metrics2?.misses).toBe(1);
-      
+
       // Now create a cache hit for key1
       const cachedData = { data: { test: 'value' }, timestamp: Date.now(), tags: [] };
       mockRedis.get.mockResolvedValueOnce(JSON.stringify(cachedData));
       await cachedQuery('key1', queryFn, { ttl: 60, prefix: 'test' });
-      
+
       const updatedMetrics1 = getCacheMetrics('test:key1');
       expect(updatedMetrics1?.hits).toBe(1);
       expect(updatedMetrics1?.misses).toBe(1);

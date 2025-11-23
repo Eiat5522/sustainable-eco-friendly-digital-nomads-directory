@@ -84,9 +84,7 @@ test.describe('Performance & Load Testing', () => {
       const promises = [];
 
       for (let i = 0; i < concurrentRequests; i++) {
-        promises.push(
-          request.get('/api/listings')
-        );
+        promises.push(request.get('/api/listings'));
       }
 
       const results = await Promise.all(promises);
@@ -136,7 +134,9 @@ test.describe('Performance & Load Testing', () => {
       });
 
       // Scroll through image gallery to trigger lazy loading
-      await page.locator('[data-testid="image-gallery"]').evaluate((el: HTMLElement) => el.scrollIntoView());
+      await page
+        .locator('[data-testid="image-gallery"]')
+        .evaluate((el: HTMLElement) => el.scrollIntoView());
       await page.waitForTimeout(2000); // Allow images to load
 
       const afterImagesMemory = await page.evaluate(() => {

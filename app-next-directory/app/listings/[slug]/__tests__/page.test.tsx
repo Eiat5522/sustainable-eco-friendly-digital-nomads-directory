@@ -1,6 +1,5 @@
-import React from 'react';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
-import { beforeAll, afterAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 const mockClientFetch = jest.fn();
 const mockTransformToDetailDTO = jest.fn();
@@ -98,7 +97,9 @@ describe('app/listings/[slug]/page', () => {
     process.env.NEXT_PUBLIC_E2E = '1';
     const pageModule = await importPageModule();
 
-    const element = await pageModule.default({ params: Promise.resolve({ slug: 'banyan-tree-phuket' }) });
+    const element = await pageModule.default({
+      params: Promise.resolve({ slug: 'banyan-tree-phuket' }),
+    });
     render(element);
 
     expect(screen.getByTestId('listing-detail-view')).toBeInTheDocument();
@@ -228,7 +229,9 @@ describe('app/listings/[slug]/page', () => {
     mockClientFetch.mockResolvedValueOnce(null);
 
     const pageModule = await importPageModule();
-    const metadata = await pageModule.generateMetadata({ params: Promise.resolve({ slug: 'missing' }) });
+    const metadata = await pageModule.generateMetadata({
+      params: Promise.resolve({ slug: 'missing' }),
+    });
 
     expect(metadata).toEqual({ title: 'Listing not found' });
   });
@@ -244,7 +247,9 @@ describe('app/listings/[slug]/page', () => {
     });
 
     const pageModule = await importPageModule();
-    const metadata = await pageModule.generateMetadata({ params: Promise.resolve({ slug: 'ocean-escape' }) });
+    const metadata = await pageModule.generateMetadata({
+      params: Promise.resolve({ slug: 'ocean-escape' }),
+    });
 
     expect(metadata).toEqual({
       title: 'Ocean Escape',
@@ -279,7 +284,9 @@ describe('app/listings/[slug]/page', () => {
       json: async () => ({ error: 'boom' }),
     });
 
-    const element = await pageModule.default({ params: Promise.resolve({ slug: 'mountain-base' }) });
+    const element = await pageModule.default({
+      params: Promise.resolve({ slug: 'mountain-base' }),
+    });
     render(element);
 
     expect(renderListingDetailView).toHaveBeenCalledWith(

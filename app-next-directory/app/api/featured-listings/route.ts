@@ -2,6 +2,7 @@
 import { structuredLogger } from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
 import type { SanityImage } from '@/types/appView';
+
 interface FeaturedListing {
   _id: string;
   name: string;
@@ -47,9 +48,9 @@ interface FeaturedListing {
 }
 
 import { groq } from 'next-sanity';
-import { ApiResponseHandler } from '@/utils/api-response';
 import { mockFeaturedVenues } from '@/components/sections/featuredVenuesMockData';
 import { isSanityConfigured } from '@/lib/sanity/env';
+import { ApiResponseHandler } from '@/utils/api-response';
 
 export async function GET() {
   const startTime = performance.now();
@@ -152,14 +153,16 @@ export async function GET() {
     });
 
     // Transform to FeaturedListingDTO shape expected by the frontend
-    const dtoListings = (listings ?? []).map((listing) => {
+    const dtoListings = (listings ?? []).map(listing => {
       const amenityNames = Array.isArray(listing.amenities)
         ? listing.amenities
-            .map((amenity) => (amenity && typeof amenity.name === 'string' ? amenity.name : null))
+            .map(amenity => (amenity && typeof amenity.name === 'string' ? amenity.name : null))
             .filter((name): name is string => typeof name === 'string' && name.length > 0)
         : [];
       const ecoFocusTags = Array.isArray(listing.ecoFocusTags)
-        ? listing.ecoFocusTags.filter((tag): tag is string => typeof tag === 'string' && tag.length > 0)
+        ? listing.ecoFocusTags.filter(
+            (tag): tag is string => typeof tag === 'string' && tag.length > 0
+          )
         : [];
 
       return {
@@ -195,8 +198,8 @@ export async function GET() {
       details: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString(),
       performance: {
-        totalTimeMs: (endTime - startTime).toFixed(2)
-      }
+        totalTimeMs: (endTime - startTime).toFixed(2),
+      },
     });
   }
 }

@@ -93,6 +93,16 @@
           }
         }
       }
+    },
+    {
+      "includes": ["**/instrumentation.ts", "**/logger.ts", "**/alert-service.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
     }
   ]
 }

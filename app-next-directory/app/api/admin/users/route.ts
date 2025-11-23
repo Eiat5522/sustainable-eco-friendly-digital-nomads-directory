@@ -1,9 +1,9 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import type { UserRole } from '@/types/auth';
-import { client } from '@/lib/sanity/client';
-import { structuredLogger } from '@/lib/logger';
 import { getDefaultTimeout, withRequestTimeout } from '@/lib/http/request';
+import { structuredLogger } from '@/lib/logger';
+import { client } from '@/lib/sanity/client';
+import type { UserRole } from '@/types/auth';
 
 type RouteContext = { params: Promise<Record<string, never>> };
 
@@ -39,7 +39,10 @@ export async function GET(request: NextRequest, _context: RouteContext) {
 
     const url = new URL(request.url);
     const page = Math.max(1, parseInt(url.searchParams.get('page') as string, 10) || 1);
-    const limit = Math.min(100, Math.max(10, parseInt(url.searchParams.get('limit') as string, 10) || 20));
+    const limit = Math.min(
+      100,
+      Math.max(10, parseInt(url.searchParams.get('limit') as string, 10) || 20)
+    );
     const search = url.searchParams.get('search')?.trim() || '';
     const roleFilter = url.searchParams.get('role') as UserRole | null;
 
@@ -52,7 +55,19 @@ export async function GET(request: NextRequest, _context: RouteContext) {
     }
 
     let roleCondition = '';
-    if (roleFilter && ['admin', 'user', 'editor', 'venueOwner', 'superAdmin', 'moderator', 'contentEditor', 'unidentifiedUser'].includes(roleFilter)) {
+    if (
+      roleFilter &&
+      [
+        'admin',
+        'user',
+        'editor',
+        'venueOwner',
+        'superAdmin',
+        'moderator',
+        'contentEditor',
+        'unidentifiedUser',
+      ].includes(roleFilter)
+    ) {
       roleCondition = `&& role == "${roleFilter}"`;
     }
 
@@ -70,16 +85,18 @@ export async function GET(request: NextRequest, _context: RouteContext) {
 
     const [users, totalCount] = await withRequestTimeout(
       Promise.all([
-        client.fetch<Array<{
-          _id: string;
-          name?: string | null;
-          email?: string | null;
-          role?: UserRole;
-          _createdAt?: string;
-          lastActiveAt?: string | null;
-          status?: 'active' | 'inactive';
-        }>>(query),
-        client.fetch<number>(countQuery)
+        client.fetch<
+          Array<{
+            _id: string;
+            name?: string | null;
+            email?: string | null;
+            role?: UserRole;
+            _createdAt?: string;
+            lastActiveAt?: string | null;
+            status?: 'active' | 'inactive';
+          }>
+        >(query),
+        client.fetch<number>(countQuery),
       ]),
       getDefaultTimeout(),
       'Fetching admin users timed out'
@@ -144,12 +161,27 @@ export async function PATCH(request: NextRequest, _context: RouteContext) {
 
     // Only superAdmin can change roles
     if (newRole && !ensureSuperAdmin(sessionUser)) {
-      return NextResponse.json({ 
-        error: 'SuperAdmin access required for role changes' 
-      }, { status: 403 });
+      return NextResponse.json(
+        {
+          error: 'SuperAdmin access required for role changes',
+        },
+        { status: 403 }
+      );
     }
 
-    if (newRole && !['admin', 'user', 'editor', 'venueOwner', 'superAdmin', 'moderator', 'contentEditor', 'unidentifiedUser'].includes(newRole)) {
+    if (
+      newRole &&
+      ![
+        'admin',
+        'user',
+        'editor',
+        'venueOwner',
+        'superAdmin',
+        'moderator',
+        'contentEditor',
+        'unidentifiedUser',
+      ].includes(newRole)
+    ) {
       return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
     }
 
@@ -169,10 +201,18 @@ export async function PATCH(request: NextRequest, _context: RouteContext) {
     }
 
     // Prevent self-demotion for superAdmin
-    if (newRole && sessionUser?.id === userIdValue && sessionUser?.role === 'superAdmin' && newRole !== 'superAdmin') {
-      return NextResponse.json({
-        error: 'Cannot change your own superAdmin role'
-      }, { status: 400 });
+    if (
+      newRole &&
+      sessionUser?.id === userIdValue &&
+      sessionUser?.role === 'superAdmin' &&
+      newRole !== 'superAdmin'
+    ) {
+      return NextResponse.json(
+        {
+          error: 'Cannot change your own superAdmin role',
+        },
+        { status: 400 }
+      );
     }
 
     const updateData: Record<string, unknown> = {};
@@ -208,7 +248,10 @@ export async function DELETE(request: NextRequest, _context: RouteContext) {
     const sessionUser = session?.user as SessionUser;
 
     if (!ensureSuperAdmin(sessionUser)) {
-      return NextResponse.json({ error: 'SuperAdmin access required for user deletion' }, { status: 403 });
+      return NextResponse.json(
+        { error: 'SuperAdmin access required for user deletion' },
+        { status: 403 }
+      );
     }
 
     const body = await request.json().catch(() => null);

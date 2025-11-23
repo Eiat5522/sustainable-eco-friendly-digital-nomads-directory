@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, jest, afterEach } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 const mockedGetFeaturedListings = jest.fn();
 
@@ -33,11 +33,7 @@ describe('API /api/listings/featured route handler', () => {
   });
 
   it('returns limited number of featured listings when request provides a limit', async () => {
-    getFeaturedListingsSpy.mockResolvedValueOnce([
-      { _id: 'a' },
-      { _id: 'b' },
-      { _id: 'c' },
-    ] as any);
+    getFeaturedListingsSpy.mockResolvedValueOnce([{ _id: 'a' }, { _id: 'b' }, { _id: 'c' }] as any);
 
     const response = await GET(new Request('http://localhost/api/listings/featured?limit=2'));
     const { status, body } = await parseResponse(response);
@@ -48,7 +44,9 @@ describe('API /api/listings/featured route handler', () => {
   });
 
   it('uses default limit when query parameter is missing', async () => {
-    getFeaturedListingsSpy.mockResolvedValueOnce(Array.from({ length: 10 }, (_, index) => ({ _id: `id-${index}` })) as any);
+    getFeaturedListingsSpy.mockResolvedValueOnce(
+      Array.from({ length: 10 }, (_, index) => ({ _id: `id-${index}` })) as any
+    );
 
     const response = await GET(new Request('http://localhost/api/listings/featured'));
     const { status, body } = await parseResponse(response);

@@ -1,21 +1,21 @@
-import {
-  fetchModerationQueue,
-  fetchAdminAnalytics,
-  performModerationAction,
-  runBulkOperation,
-  analyzeContent,
-  summarizeModerationQueue,
-  BULK_OPERATION_BATCH_SIZE,
-  BULK_OPERATION_MAX_CONCURRENCY,
-} from '../analytics';
+import structuredLogger from '@/lib/logger';
+import { client } from '@/lib/sanity/client';
 import type {
   BulkOperationType,
   ListingWorkflowPatch,
   ModerationAction,
   ModerationHistoryEntry,
 } from '../analytics';
-import structuredLogger from '@/lib/logger';
-import { client } from '@/lib/sanity/client';
+import {
+  analyzeContent,
+  BULK_OPERATION_BATCH_SIZE,
+  BULK_OPERATION_MAX_CONCURRENCY,
+  fetchAdminAnalytics,
+  fetchModerationQueue,
+  performModerationAction,
+  runBulkOperation,
+  summarizeModerationQueue,
+} from '../analytics';
 
 jest.mock('@/lib/sanity/client', () => {
   const fetch = jest.fn();
@@ -90,7 +90,7 @@ const createMockTransaction = ({
       set: jest.fn<MockPatchApi, [ListingWorkflowPatch]>(),
     };
 
-    patchApi.set.mockImplementation((payload) => {
+    patchApi.set.mockImplementation(payload => {
       onSet?.(payload);
       return patchApi;
     });
@@ -132,10 +132,7 @@ describe('admin analytics helpers', () => {
         itemType: 'listing',
         itemName: 'Eco Hub',
         itemId: 'listing-1',
-        userReports: [
-          { _key: 'report-1' },
-          { _key: 'report-2' },
-        ],
+        userReports: [{ _key: 'report-1' }, { _key: 'report-2' }],
       },
       {
         _id: 'mod-2',
@@ -167,7 +164,10 @@ describe('admin analytics helpers', () => {
       },
     ]);
 
-    expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining('*[_type == "moderationStatus"'), { limit: 2 });
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining('*[_type == "moderationStatus"'),
+      { limit: 2 }
+    );
   });
 
   it('returns aggregated analytics snapshot', async () => {
@@ -247,7 +247,7 @@ describe('admin analytics helpers', () => {
       pendingModeration: 0,
     });
     expect(snapshot.moderationQueue).toEqual([]);
-    expect(Object.values(snapshot.userRoles).every((value) => value === 0)).toBe(true);
+    expect(Object.values(snapshot.userRoles).every(value => value === 0)).toBe(true);
   });
 
   it('throws on unsupported moderation action', async () => {
@@ -353,15 +353,21 @@ describe('admin analytics helpers', () => {
     const patchChain = createMockPatchChain();
     patchMock.mockReturnValue(patchChain as unknown as ReturnType<typeof client.patch>);
 
-    const result = await performModerationAction({ moderationId: 'mod-1', actorId: 'admin-1', action: 'approve' });
+    const result = await performModerationAction({
+      moderationId: 'mod-1',
+      actorId: 'admin-1',
+      action: 'approve',
+    });
 
     expect(result).toBeNull();
   });
 
   it('runs bulk operations across all ids', async () => {
     const setCalls: ListingWorkflowPatch[] = [];
-    const transactionInstance = createMockTransaction({ onSet: (payload) => setCalls.push(payload) });
-    transactionMock.mockReturnValue(transactionInstance as unknown as ReturnType<typeof client.transaction>);
+    const transactionInstance = createMockTransaction({ onSet: payload => setCalls.push(payload) });
+    transactionMock.mockReturnValue(
+      transactionInstance as unknown as ReturnType<typeof client.transaction>
+    );
 
     const result = await runBulkOperation({ operation: 'publishListings', ids: ['a', 'b'] });
 
@@ -382,8 +388,12 @@ describe('admin analytics helpers', () => {
 
   it('applies unpublish patches when requested', async () => {
     const patchSets: ListingWorkflowPatch[] = [];
-    const transactionInstance = createMockTransaction({ onSet: (payload) => patchSets.push(payload) });
-    transactionMock.mockReturnValue(transactionInstance as unknown as ReturnType<typeof client.transaction>);
+    const transactionInstance = createMockTransaction({
+      onSet: payload => patchSets.push(payload),
+    });
+    transactionMock.mockReturnValue(
+      transactionInstance as unknown as ReturnType<typeof client.transaction>
+    );
 
     await runBulkOperation({ operation: 'unpublishListings', ids: ['listing-1'] });
 
@@ -395,8 +405,12 @@ describe('admin analytics helpers', () => {
 
   it('marks listings as featured during feature bulk operations', async () => {
     const featurePayloads: ListingWorkflowPatch[] = [];
-    const transactionInstance = createMockTransaction({ onSet: (payload) => featurePayloads.push(payload) });
-    transactionMock.mockReturnValue(transactionInstance as unknown as ReturnType<typeof client.transaction>);
+    const transactionInstance = createMockTransaction({
+      onSet: payload => featurePayloads.push(payload),
+    });
+    transactionMock.mockReturnValue(
+      transactionInstance as unknown as ReturnType<typeof client.transaction>
+    );
 
     await runBulkOperation({ operation: 'featureListings', ids: ['listing-2'] });
 
@@ -411,7 +425,9 @@ describe('admin analytics helpers', () => {
     const transactionInstance = createMockTransaction({
       commitImplementation: () => Promise.reject(new Error('boom')),
     });
-    transactionMock.mockReturnValue(transactionInstance as unknown as ReturnType<typeof client.transaction>);
+    transactionMock.mockReturnValue(
+      transactionInstance as unknown as ReturnType<typeof client.transaction>
+    );
 
     const result = await runBulkOperation({ operation: 'featureListings', ids: ['a'] });
 
@@ -441,9 +457,14 @@ describe('admin analytics helpers', () => {
 
   it('deduplicates ids before running bulk operations', async () => {
     const transactionInstance = createMockTransaction();
-    transactionMock.mockReturnValue(transactionInstance as unknown as ReturnType<typeof client.transaction>);
+    transactionMock.mockReturnValue(
+      transactionInstance as unknown as ReturnType<typeof client.transaction>
+    );
 
-    const result = await runBulkOperation({ operation: 'publishListings', ids: ['a', 'a', 'b', 'b'] });
+    const result = await runBulkOperation({
+      operation: 'publishListings',
+      ids: ['a', 'a', 'b', 'b'],
+    });
 
     expect(transactionInstance.patch).toHaveBeenCalledTimes(2);
     expect(result).toEqual({ operation: 'publishListings', total: 2, succeeded: 2, failed: [] });
@@ -471,7 +492,12 @@ describe('admin analytics helpers', () => {
     expect(transactions).toHaveLength(2);
     expect(transactions[0].patch).toHaveBeenCalledTimes(BULK_OPERATION_BATCH_SIZE);
     expect(transactions[1].patch).toHaveBeenCalledTimes(totalIds - BULK_OPERATION_BATCH_SIZE);
-    expect(result).toEqual({ operation: 'publishListings', total: totalIds, succeeded: totalIds, failed: [] });
+    expect(result).toEqual({
+      operation: 'publishListings',
+      total: totalIds,
+      succeeded: totalIds,
+      failed: [],
+    });
     const expectedConcurrency = Math.min(BULK_OPERATION_MAX_CONCURRENCY, 2);
     expect(mockedLogger.performance).toHaveBeenCalledWith(
       'admin.bulk.publishListings',
@@ -495,21 +521,22 @@ describe('admin analytics helpers', () => {
 
   it('summarizes moderation queue statistics', async () => {
     const oldest = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString();
-    fetchMock
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([
-        {
-          _id: '1',
-          _createdAt: oldest,
-          status: 'pending',
-          itemType: 'listing',
-          itemName: 'Eco',
-          itemId: '1',
-          userReports: [],
-        },
-      ]);
+    fetchMock.mockResolvedValueOnce([]).mockResolvedValueOnce([
+      {
+        _id: '1',
+        _createdAt: oldest,
+        status: 'pending',
+        itemType: 'listing',
+        itemName: 'Eco',
+        itemId: '1',
+        userReports: [],
+      },
+    ]);
 
-    await expect(summarizeModerationQueue()).resolves.toEqual({ queueSize: 0, oldestItemAgeHours: null });
+    await expect(summarizeModerationQueue()).resolves.toEqual({
+      queueSize: 0,
+      oldestItemAgeHours: null,
+    });
     const stats = await summarizeModerationQueue();
 
     expect(stats.queueSize).toBe(1);
@@ -518,8 +545,22 @@ describe('admin analytics helpers', () => {
 
   it('ignores invalid timestamps when summarizing moderation queue', async () => {
     fetchMock.mockResolvedValue([
-      { _id: '1', _createdAt: 'not-a-date', status: 'pending', itemType: 'listing', itemName: 'Eco', itemId: '1' },
-      { _id: '2', _createdAt: new Date().toISOString(), status: 'pending', itemType: 'listing', itemName: 'Eco', itemId: '2' },
+      {
+        _id: '1',
+        _createdAt: 'not-a-date',
+        status: 'pending',
+        itemType: 'listing',
+        itemName: 'Eco',
+        itemId: '1',
+      },
+      {
+        _id: '2',
+        _createdAt: new Date().toISOString(),
+        status: 'pending',
+        itemType: 'listing',
+        itemName: 'Eco',
+        itemId: '2',
+      },
     ]);
 
     const summary = await summarizeModerationQueue();
@@ -535,10 +576,14 @@ describe('admin analytics helpers', () => {
 
     const result = await analyzeContent({ type: 'listing', windowDays: 10 });
 
-    expect(fetchMock).toHaveBeenNthCalledWith(1, expect.stringContaining('count(*[_type == $type])'), {
-      type: 'listing',
-      windowStart: expect.any(String),
-    });
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining('count(*[_type == $type])'),
+      {
+        type: 'listing',
+        windowStart: expect.any(String),
+      }
+    );
     expect(result).toEqual({
       type: 'listing',
       totals: {
@@ -554,9 +599,7 @@ describe('admin analytics helpers', () => {
   });
 
   it('handles content analysis when no documents are returned', async () => {
-    fetchMock
-      .mockResolvedValueOnce(undefined)
-      .mockResolvedValueOnce(undefined);
+    fetchMock.mockResolvedValueOnce(undefined).mockResolvedValueOnce(undefined);
 
     const result = await analyzeContent({ type: 'listing' });
 

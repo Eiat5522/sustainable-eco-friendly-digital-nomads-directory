@@ -1,9 +1,9 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { http, HttpResponse } from 'msw';
-import { CityCarousel } from '../CityCarousel';
 import useEmblaCarousel from 'embla-carousel-react';
+import { HttpResponse, http } from 'msw';
 import { server } from '../../../test-helpers/msw-server-bridge';
+import { CityCarousel } from '../CityCarousel';
 
 jest.mock('embla-carousel-react');
 jest.mock('embla-carousel-autoplay', () => ({
@@ -34,11 +34,7 @@ describe('CityCarousel', () => {
     emblaApiMock.canScrollNext.mockReturnValue(true);
     mockedUseEmblaCarousel.mockReturnValue([jest.fn(), emblaApiMock as any]);
 
-    server.use(
-      http.get('/api/cities', () =>
-        HttpResponse.json({ cities: mockCities })
-      )
-    );
+    server.use(http.get('/api/cities', () => HttpResponse.json({ cities: mockCities })));
   });
 
   afterEach(() => {
@@ -96,9 +92,7 @@ describe('CityCarousel', () => {
   });
 
   it('shows an error message if fetching cities fails', async () => {
-    server.use(
-      http.get('/api/cities', () => new HttpResponse(null, { status: 500 }))
-    );
+    server.use(http.get('/api/cities', () => new HttpResponse(null, { status: 500 })));
 
     render(<CityCarousel />);
 
@@ -108,11 +102,7 @@ describe('CityCarousel', () => {
   });
 
   it('does not render carousel if no cities are returned', async () => {
-    server.use(
-      http.get('/api/cities', () =>
-        HttpResponse.json({ cities: [] })
-      )
-    );
+    server.use(http.get('/api/cities', () => HttpResponse.json({ cities: [] })));
 
     render(<CityCarousel />);
 
@@ -127,11 +117,7 @@ describe('CityCarousel', () => {
     const fallbackCities = [
       { id: 'city-101', name: 'Hoi An', slug: '', country: 'Vietnam', imageUrl: null },
     ];
-    server.use(
-      http.get('/api/cities', () =>
-        HttpResponse.json({ cities: fallbackCities })
-      )
-    );
+    server.use(http.get('/api/cities', () => HttpResponse.json({ cities: fallbackCities })));
 
     render(<CityCarousel />);
 

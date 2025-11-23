@@ -2,14 +2,14 @@ import { expect, test } from '@playwright/test';
 
 test.describe('Search & Filter UX', () => {
   test.beforeEach(async ({ page }) => {
-  // Set up test environment with predictable data
-  await page.goto('/?testMode=true');
-    
-  // Wait for the page to load and initialize
-  await page.waitForLoadState('networkidle');
-    
-  // Ensure we're in a controlled test environment
-  await expect(page.locator('[data-test-mode="true"]')).toBeVisible();
+    // Set up test environment with predictable data
+    await page.goto('/?testMode=true');
+
+    // Wait for the page to load and initialize
+    await page.waitForLoadState('networkidle');
+
+    // Ensure we're in a controlled test environment
+    await expect(page.locator('[data-test-mode="true"]')).toBeVisible();
   });
 
   test('search interface is accessible and responsive', async ({ page }) => {
@@ -35,25 +35,25 @@ test.describe('Search & Filter UX', () => {
   });
 
   test('search with filters shows correct results', async ({ page }) => {
-      // Mock API responses for predictable testing
-      await page.route('/api/listings*', async route => {
-        await route.fulfill({
-          json: {
-            data: [
-              {
-                id: 'test-listing-1',
-                title: 'Eco Coworking Bangkok',
-                category: 'coworking',
-                city: 'Bangkok',
-                ecoTags: ['solar-powered', 'green-building'],
-                sustainabilityScore: 85
-              }
-            ],
-            totalCount: 1,
-            hasMore: false
-          }
-        });
+    // Mock API responses for predictable testing
+    await page.route('/api/listings*', async route => {
+      await route.fulfill({
+        json: {
+          data: [
+            {
+              id: 'test-listing-1',
+              title: 'Eco Coworking Bangkok',
+              category: 'coworking',
+              city: 'Bangkok',
+              ecoTags: ['solar-powered', 'green-building'],
+              sustainabilityScore: 85,
+            },
+          ],
+          totalCount: 1,
+          hasMore: false,
+        },
       });
+    });
 
     // Open filter panel
     await page.getByRole('button', { name: 'Filters' }).click();
@@ -71,9 +71,9 @@ test.describe('Search & Filter UX', () => {
     await expect(page).toHaveURL(/city=Bangkok/);
     await expect(page).toHaveURL(/ecoTags=solar-powered/);
 
-      // Verify results with controlled test data
+    // Verify results with controlled test data
     const listings = page.locator('[data-testid="listing-card"]');
-      await expect(listings).toHaveCount(expectedResultsCount);
+    await expect(listings).toHaveCount(expectedResultsCount);
 
     // Check first listing matches filters
     const firstListing = listings.first();
@@ -182,7 +182,7 @@ test.describe('Search & Filter UX', () => {
     });
 
     test('handles keyboard navigation within filters', async ({ page }) => {
-    await page.getByRole('button', { name: 'Filters' }).click();
+      await page.getByRole('button', { name: 'Filters' }).click();
 
       // Tab through filter controls
       await page.keyboard.press('Tab');
@@ -208,11 +208,11 @@ test.describe('Search & Filter UX', () => {
       );
       const firstFocusable = focusable.first();
       const lastFocusable = focusable.last();
-      
+
       await firstFocusable.focus();
       await page.keyboard.press('Shift+Tab');
       await expect(lastFocusable).toBeFocused();
-      
+
       await lastFocusable.focus();
       await page.keyboard.press('Tab');
       await expect(firstFocusable).toBeFocused();
@@ -242,16 +242,16 @@ test.describe('Search & Filter UX', () => {
     });
 
     test('handles empty search results', async ({ page }) => {
-        // Mock empty API response for predictable testing
-        await page.route('/api/listings*', async route => {
-          await route.fulfill({
-            json: {
-              data: [],
-              totalCount: 0,
-              hasMore: false
-            }
-          });
+      // Mock empty API response for predictable testing
+      await page.route('/api/listings*', async route => {
+        await route.fulfill({
+          json: {
+            data: [],
+            totalCount: 0,
+            hasMore: false,
+          },
         });
+      });
 
       // Search with unlikely term
       await page.fill('input[type="search"]', 'xyznonexistentlocation123');
@@ -309,7 +309,10 @@ test.describe('Search & Filter UX', () => {
             if (input.startsWith('#')) {
               let hex = input.slice(1);
               if (hex.length === 3) {
-                hex = hex.split('').map(char => char + char).join('');
+                hex = hex
+                  .split('')
+                  .map(char => char + char)
+                  .join('');
               }
               if (hex.length === 6) {
                 const r = parseInt(hex.slice(0, 2), 16) / 255;
@@ -411,7 +414,8 @@ test.describe('Search & Filter UX', () => {
       const interactiveElements = await page.$$('button, [role="button"], a, input, select');
       for (const element of interactiveElements) {
         const boundingBox = await element.boundingBox();
-        if (boundingBox) { // Null check for boundingBox
+        if (boundingBox) {
+          // Null check for boundingBox
           const { width, height } = boundingBox;
           expect(width).toBeGreaterThanOrEqual(44); // Min touch target size
           expect(height).toBeGreaterThanOrEqual(44);

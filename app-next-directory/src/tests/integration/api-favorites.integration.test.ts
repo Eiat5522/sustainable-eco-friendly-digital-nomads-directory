@@ -1,9 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { GET, POST, DELETE, _testControl } from '../../../app/api/user/favorites/route';
 import { createTestData } from '@/tests/helpers/test-data';
+import { _testControl, DELETE, GET, POST } from '../../../app/api/user/favorites/route';
 
 if (!_testControl) {
-  throw new Error('_testControl is unavailable. Ensure NODE_ENV is "test" when running integration tests.');
+  throw new Error(
+    '_testControl is unavailable. Ensure NODE_ENV is "test" when running integration tests.'
+  );
 }
 
 type FavoriteDoc = {
@@ -14,7 +16,7 @@ type FavoriteDoc = {
 };
 
 const data = createTestData();
-const sessionUser = data.users.find((user) => user.role === 'user') ?? data.users[0];
+const sessionUser = data.users.find(user => user.role === 'user') ?? data.users[0];
 const listing = data.listings[0];
 
 const favoritesStore: FavoriteDoc[] = [];
@@ -52,53 +54,55 @@ describe('API /api/user/favorites integration', () => {
       _id: sanityUserId,
     });
 
-    _testControl.clientFetchOverride = jest.fn(async (query: string, params?: Record<string, any>) => {
-      if (query.includes('_type == "listing"') && query.includes('slug.current')) {
-        if (params?.slug === listing.slug?.current) {
-          return { _id: listing._id };
+    _testControl.clientFetchOverride = jest.fn(
+      async (query: string, params?: Record<string, any>) => {
+        if (query.includes('_type == "listing"') && query.includes('slug.current')) {
+          if (params?.slug === listing.slug?.current) {
+            return { _id: listing._id };
+          }
+          return null;
         }
+
+        if (query.includes('_type == "userFavorite"') && query.includes('listing ->')) {
+          return favoritesStore
+            .filter(favorite => favorite.userId === params?.sanityUserId)
+            .map(favorite => ({
+              _id: favorite._id,
+              createdAt: favorite.createdAt,
+              listing: {
+                _id: listing._id,
+                name: listing.name,
+                slug: listing.slug?.current,
+                type: listing.type,
+                category: listing.category,
+                priceRange: listing.priceRange,
+                shortDescription: listing.shortDescription,
+                primaryImage: listing.primaryImage ?? null,
+                mainImage: listing.mainImage ?? null,
+                ecoFocusTags: (listing.ecoFocusTags ?? []).map((tag: any) =>
+                  typeof tag === 'string' ? { name: tag } : { name: tag?.name }
+                ),
+                digitalNomadFeatures: (listing.digitalNomadFeatures ?? []).map((feature: any) =>
+                  typeof feature === 'string' ? { name: feature } : { name: feature?.name }
+                ),
+                city: listing.city
+                  ? { name: listing.city.name, country: listing.city.country ?? '' }
+                  : null,
+              },
+            }));
+        }
+
+        if (query.includes('_type == "userFavorite"') && query.includes('[0]')) {
+          const target = favoritesStore.find(
+            favorite =>
+              favorite.userId === params?.userId && favorite.listingId === params?.listingId
+          );
+          return target ? { _id: target._id } : null;
+        }
+
         return null;
       }
-
-      if (query.includes('_type == "userFavorite"') && query.includes('listing ->')) {
-        return favoritesStore
-          .filter((favorite) => favorite.userId === params?.sanityUserId)
-          .map((favorite) => ({
-            _id: favorite._id,
-            createdAt: favorite.createdAt,
-            listing: {
-              _id: listing._id,
-              name: listing.name,
-              slug: listing.slug?.current,
-              type: listing.type,
-              category: listing.category,
-              priceRange: listing.priceRange,
-              shortDescription: listing.shortDescription,
-              primaryImage: listing.primaryImage ?? null,
-              mainImage: listing.mainImage ?? null,
-              ecoFocusTags: (listing.ecoFocusTags ?? []).map((tag: any) =>
-                typeof tag === 'string' ? { name: tag } : { name: tag?.name }
-              ),
-              digitalNomadFeatures: (listing.digitalNomadFeatures ?? []).map((feature: any) =>
-                typeof feature === 'string' ? { name: feature } : { name: feature?.name }
-              ),
-              city: listing.city
-                ? { name: listing.city.name, country: listing.city.country ?? '' }
-                : null,
-            },
-          }));
-      }
-
-      if (query.includes('_type == "userFavorite"') && query.includes('[0]')) {
-        const target = favoritesStore.find(
-          (favorite) =>
-            favorite.userId === params?.userId && favorite.listingId === params?.listingId
-        );
-        return target ? { _id: target._id } : null;
-      }
-
-      return null;
-    });
+    );
 
     _testControl.clientCreateOrReplaceOverride = jest.fn(async (doc: any) => {
       const entry: FavoriteDoc = {
@@ -108,7 +112,7 @@ describe('API /api/user/favorites integration', () => {
         createdAt: doc.createdAt,
       };
 
-      const existingIndex = favoritesStore.findIndex((favorite) => favorite._id === doc._id);
+      const existingIndex = favoritesStore.findIndex(favorite => favorite._id === doc._id);
       if (existingIndex >= 0) {
         favoritesStore[existingIndex] = entry;
       } else {
@@ -119,7 +123,7 @@ describe('API /api/user/favorites integration', () => {
     });
 
     _testControl.clientDeleteOverride = jest.fn(async (id: string) => {
-      const index = favoritesStore.findIndex((favorite) => favorite._id === id);
+      const index = favoritesStore.findIndex(favorite => favorite._id === id);
       if (index >= 0) {
         favoritesStore.splice(index, 1);
       }

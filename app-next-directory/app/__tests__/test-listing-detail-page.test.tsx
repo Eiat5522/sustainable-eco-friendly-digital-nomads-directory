@@ -1,7 +1,5 @@
 import '@testing-library/jest-dom';
-import React from 'react';
 import { render, screen } from '@testing-library/react';
-
 
 const mockListingDetailData = {
   name: 'Mock Listing',
@@ -54,15 +52,17 @@ describe('ListingDetailTestPage', () => {
     expect(screen.getByTestId('mock-listing-view')).toBeInTheDocument();
     expect(screen.getByTestId('listing-name')).toHaveTextContent('Mock Listing');
 
-    const [callArgs] = mockListingDetailView.mock.calls as Array<[
-      {
-        listing: typeof mockListingDetailData;
-        reviews: typeof mockReviewsData;
-        relatedListings: typeof mockRelatedListingsData;
-        isSignedIn: boolean;
-        isFavorited: boolean;
-      }
-    ]>;
+    const [callArgs] = mockListingDetailView.mock.calls as Array<
+      [
+        {
+          listing: typeof mockListingDetailData;
+          reviews: typeof mockReviewsData;
+          relatedListings: typeof mockRelatedListingsData;
+          isSignedIn: boolean;
+          isFavorited: boolean;
+        },
+      ]
+    >;
 
     expect(callArgs[0].listing).toBe(mockListingDetailData);
     expect(callArgs[0].reviews).toBe(mockReviewsData);
@@ -82,9 +82,7 @@ describe('ListingDetailTestPage', () => {
 
     render(<ListingDetailTestPage />);
 
-    expect(
-      screen.getByText('This test page is not available in production.')
-    ).toBeInTheDocument();
+    expect(screen.getByText('This test page is not available in production.')).toBeInTheDocument();
     expect(mockListingDetailView).not.toHaveBeenCalled();
   });
 

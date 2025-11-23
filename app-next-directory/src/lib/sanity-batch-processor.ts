@@ -4,77 +4,77 @@
  * Date: May 24, 2025
  */
 
-import type { SanityDocument } from '@/types/sanity'
-import type { SanityDocumentInput } from './sanity-http-client'
-import { sanityHTTPClient } from './sanity-http-client'
-import { imageUploader } from './sanity-image-uploader'
+import type { SanityDocument } from '@/types/sanity';
+import type { SanityDocumentInput } from './sanity-http-client';
+import { sanityHTTPClient } from './sanity-http-client';
+import { imageUploader } from './sanity-image-uploader';
 
 // Validation schemas
 export interface ListingValidationSchema {
-  name: string
-  type: string
-  city: string
-  country: string
-  description?: string
-  website?: string
-  images?: File[]
-  ecoTags?: string[]
-  address?: string
+  name: string;
+  type: string;
+  city: string;
+  country: string;
+  description?: string;
+  website?: string;
+  images?: File[];
+  ecoTags?: string[];
+  address?: string;
   coordinates?: {
-    lat: number
-    lng: number
-  }
+    lat: number;
+    lng: number;
+  };
 }
 
 // Batch operation result
 export interface BatchProcessResult<TSuccess, TFailure = TSuccess> {
-  successful: Array<{ id: string; data: TSuccess }>
-  failed: Array<{ data: TFailure; error: string; index: number }>
-  total: number
-  successCount: number
-  failureCount: number
-  duration: number
-  summary: string
+  successful: Array<{ id: string; data: TSuccess }>;
+  failed: Array<{ data: TFailure; error: string; index: number }>;
+  total: number;
+  successCount: number;
+  failureCount: number;
+  duration: number;
+  summary: string;
 }
 
 // Progress callback type
-export type ProgressCallback = (completed: number, total: number, stage: string) => void
+export type ProgressCallback = (completed: number, total: number, stage: string) => void;
 
-type SanityDocumentResult = SanityDocument & Record<string, unknown>
+type SanityDocumentResult = SanityDocument & Record<string, unknown>;
 
-type UpdatePayload = { id: string; data: Record<string, unknown> }
+type UpdatePayload = { id: string; data: Record<string, unknown> };
 
 type ProcessedListingPayload = {
-  _type: 'listing'
-  name: string
-  type: string
-  city: string
-  country: string
-  description?: string
-  website?: string
-  address?: string
-  ecoTags: string[]
-  createdAt: string
-  status: string
+  _type: 'listing';
+  name: string;
+  type: string;
+  city: string;
+  country: string;
+  description?: string;
+  website?: string;
+  address?: string;
+  ecoTags: string[];
+  createdAt: string;
+  status: string;
   coordinates?: {
-    lat: number
-    lng: number
-    _type: 'geopoint'
-  }
+    lat: number;
+    lng: number;
+    _type: 'geopoint';
+  };
   images?: Array<{
-    _type: 'image'
+    _type: 'image';
     asset: {
-      _type: 'reference'
-      _ref: string
-    }
-    alt: string
-  }>
-}
+      _type: 'reference';
+      _ref: string;
+    };
+    alt: string;
+  }>;
+};
 
 export class SanityBatchProcessor {
-  private defaultConcurrency = 5
-  private retryAttempts = 3
-  private retryDelay = 1000
+  private defaultConcurrency = 5;
+  private retryAttempts = 3;
+  private retryDelay = 1000;
 
   /**
    * Batch create listings with validation and image processing
@@ -82,16 +82,19 @@ export class SanityBatchProcessor {
   async createListingsBatch(
     listings: ListingValidationSchema[],
     options: {
-      concurrency?: number
-      onProgress?: ProgressCallback
-      validateOnly?: boolean
-      skipImages?: boolean
+      concurrency?: number;
+      onProgress?: ProgressCallback;
+      validateOnly?: boolean;
+      skipImages?: boolean;
     } = {}
   ): Promise<BatchProcessResult<SanityDocumentResult, ListingValidationSchema>> {
-    const startTime = Date.now()
-    const { concurrency = this.defaultConcurrency, onProgress, validateOnly = false, skipImages = false } = options
-
-    console.log(`🚀 Starting batch processing of ${listings.length} listings`)
+    const startTime = Date.now();
+    const {
+      concurrency = this.defaultConcurrency,
+      onProgress,
+      validateOnly = false,
+      skipImages = false,
+    } = options;
 
     const result: BatchProcessResult<SanityDocumentResult, ListingValidationSchema> = {
       successful: [],
@@ -100,69 +103,64 @@ export class SanityBatchProcessor {
       successCount: 0,
       failureCount: 0,
       duration: 0,
-      summary: ''
-    }
+      summary: '',
+    };
 
     // Step 1: Validation
-    onProgress?.(0, listings.length, 'Validating listings')
-    const validationResults = await this.validateListings(listings)
+    onProgress?.(0, listings.length, 'Validating listings');
+    const validationResults = await this.validateListings(listings);
 
     if (validationResults.failed.length > 0) {
-      console.log(`⚠️ Validation failed for ${validationResults.failed.length} listings`)
-      result.failed = validationResults.failed
-      result.failureCount = validationResults.failed.length
+      result.failed = validationResults.failed;
+      result.failureCount = validationResults.failed.length;
     }
 
     if (validateOnly) {
-      result.duration = Date.now() - startTime
-      result.summary = `Validation complete: ${validationResults.successful.length} valid, ${validationResults.failed.length} invalid`
-      return result
+      result.duration = Date.now() - startTime;
+      result.summary = `Validation complete: ${validationResults.successful.length} valid, ${validationResults.failed.length} invalid`;
+      return result;
     }
 
-    const validListings = validationResults.successful.map(v => v.data)
+    const validListings = validationResults.successful.map(v => v.data);
 
     // Step 2: Process in batches
     for (let i = 0; i < validListings.length; i += concurrency) {
-      const batch = validListings.slice(i, i + concurrency)
+      const batch = validListings.slice(i, i + concurrency);
       const batchPromises = batch.map(async (listing, batchIndex) => {
-        const globalIndex = i + batchIndex
+        const globalIndex = i + batchIndex;
 
         try {
-          onProgress?.(globalIndex, listings.length, 'Processing listing')
+          onProgress?.(globalIndex, listings.length, 'Processing listing');
 
           // Process listing with retry logic
-          const processedListing = await this.processListingWithRetry(listing, skipImages)
+          const processedListing = await this.processListingWithRetry(listing, skipImages);
 
           result.successful.push({
             id: processedListing._id,
-            data: processedListing
-          })
-          result.successCount++
-
+            data: processedListing,
+          });
+          result.successCount++;
         } catch (error) {
-          console.error(`❌ Failed to process listing ${globalIndex}:`, error)
           result.failed.push({
             data: listing,
             error: error instanceof Error ? error.message : 'Unknown error',
-            index: globalIndex
-          })
-          result.failureCount++
+            index: globalIndex,
+          });
+          result.failureCount++;
         }
-      })
+      });
 
-      await Promise.all(batchPromises)
+      await Promise.all(batchPromises);
 
       // Brief pause between batches to avoid rate limiting
       if (i + concurrency < validListings.length) {
-        await new Promise(resolve => setTimeout(resolve, 200))
+        await new Promise(resolve => setTimeout(resolve, 200));
       }
     }
 
-    result.duration = Date.now() - startTime
-    result.summary = `Processed ${result.total} listings in ${(result.duration / 1000).toFixed(2)}s: ${result.successCount} successful, ${result.failureCount} failed`
-
-    console.log(`✅ Batch processing complete: ${result.summary}`)
-    return result
+    result.duration = Date.now() - startTime;
+    result.summary = `Processed ${result.total} listings in ${(result.duration / 1000).toFixed(2)}s: ${result.successCount} successful, ${result.failureCount} failed`;
+    return result;
   }
 
   /**
@@ -178,25 +176,25 @@ export class SanityBatchProcessor {
       successCount: 0,
       failureCount: 0,
       duration: 0,
-      summary: ''
-    }
+      summary: '',
+    };
 
     listings.forEach((listing, index) => {
       try {
-        this.validateSingleListing(listing)
-        result.successful.push({ id: `temp-${index}`, data: listing })
-        result.successCount++
+        this.validateSingleListing(listing);
+        result.successful.push({ id: `temp-${index}`, data: listing });
+        result.successCount++;
       } catch (error) {
         result.failed.push({
           data: listing,
           error: error instanceof Error ? error.message : 'Validation failed',
-          index
-        })
-        result.failureCount++
+          index,
+        });
+        result.failureCount++;
       }
-    })
+    });
 
-    return result
+    return result;
   }
 
   /**
@@ -205,49 +203,52 @@ export class SanityBatchProcessor {
   private validateSingleListing(listing: ListingValidationSchema): void {
     // Required fields
     if (!listing.name || listing.name.trim().length === 0) {
-      throw new Error('Name is required')
+      throw new Error('Name is required');
     }
 
-    if (!listing.type || !['accommodation', 'coworking', 'cafe', 'activity'].includes(listing.type)) {
-      throw new Error('Valid type is required (accommodation, coworking, cafe, activity)')
+    if (
+      !listing.type ||
+      !['accommodation', 'coworking', 'cafe', 'activity'].includes(listing.type)
+    ) {
+      throw new Error('Valid type is required (accommodation, coworking, cafe, activity)');
     }
 
     if (!listing.city || listing.city.trim().length === 0) {
-      throw new Error('City is required')
+      throw new Error('City is required');
     }
 
     if (!listing.country || listing.country.trim().length === 0) {
-      throw new Error('Country is required')
+      throw new Error('Country is required');
     }
 
     // Validate website URL if provided
     if (listing.website) {
       try {
-        new URL(listing.website)
+        new URL(listing.website);
       } catch {
-        throw new Error('Invalid website URL')
+        throw new Error('Invalid website URL');
       }
     }
 
     // Validate coordinates if provided
     if (listing.coordinates) {
-      const { lat, lng } = listing.coordinates
+      const { lat, lng } = listing.coordinates;
       if (typeof lat !== 'number' || lat < -90 || lat > 90) {
-        throw new Error('Invalid latitude')
+        throw new Error('Invalid latitude');
       }
       if (typeof lng !== 'number' || lng < -180 || lng > 180) {
-        throw new Error('Invalid longitude')
+        throw new Error('Invalid longitude');
       }
     }
 
     // Validate eco tags
     if (listing.ecoTags && (!Array.isArray(listing.ecoTags) || listing.ecoTags.length > 10)) {
-      throw new Error('Eco tags must be an array with max 10 items')
+      throw new Error('Eco tags must be an array with max 10 items');
     }
 
     // Validate images
     if (listing.images && listing.images.length > 20) {
-      throw new Error('Maximum 20 images allowed per listing')
+      throw new Error('Maximum 20 images allowed per listing');
     }
   }
 
@@ -260,20 +261,19 @@ export class SanityBatchProcessor {
   ): Promise<SanityDocumentResult> {
     for (let attempt = 1; attempt <= this.retryAttempts; attempt++) {
       try {
-        return await this.processSingleListing(listing, skipImages)
+        return await this.processSingleListing(listing, skipImages);
       } catch (error) {
-        console.log(`Attempt ${attempt}/${this.retryAttempts} failed for listing "${listing.name}"`)
 
         if (attempt === this.retryAttempts) {
-          throw error
+          throw error;
         }
 
         // Exponential backoff
-        await new Promise(resolve => setTimeout(resolve, this.retryDelay * attempt))
+        await new Promise(resolve => setTimeout(resolve, this.retryDelay * attempt));
       }
     }
 
-    throw new Error('Max retry attempts exceeded')
+    throw new Error('Max retry attempts exceeded');
   }
 
   /**
@@ -295,49 +295,45 @@ export class SanityBatchProcessor {
       ecoTags: listing.ecoTags || [],
       createdAt: new Date().toISOString(),
       status: 'pending',
-    }
+    };
 
     // Add coordinates if provided
     if (listing.coordinates) {
       payload.coordinates = {
         lat: listing.coordinates.lat,
         lng: listing.coordinates.lng,
-        _type: 'geopoint'
-      }
+        _type: 'geopoint',
+      };
     }
 
     // Process images if not skipped
     if (!skipImages && listing.images && listing.images.length > 0) {
-      console.log(`📸 Processing ${listing.images.length} images for "${listing.name}"`)
 
       const imageResults = await imageUploader.uploadBatch(listing.images, {
         concurrency: 2,
-        onProgress: (completed, total) => {
-          console.log(`   Images: ${completed}/${total}`)
-        }
-      })
+        onProgress: (_completed, _total) => {
+        },
+      });
 
       if (imageResults.successful.length > 0) {
         payload.images = imageResults.successful.map(result => ({
           _type: 'image',
           asset: {
             _type: 'reference',
-            _ref: result.asset._id
+            _ref: result.asset._id,
           },
-          alt: `${listing.name} image`
-        }))
+          alt: `${listing.name} image`,
+        }));
       }
 
       if (imageResults.failed.length > 0) {
-        console.warn(`⚠️ ${imageResults.failed.length} images failed for "${listing.name}"`)
       }
     }
 
     // Create listing in Sanity
-    const result = await sanityHTTPClient.create(payload as SanityDocumentInput)
-    console.log(`✅ Created listing: ${listing.name} (${result._id})`)
+    const result = await sanityHTTPClient.create(payload as SanityDocumentInput);
 
-    return result as SanityDocumentResult
+    return result as SanityDocumentResult;
   }
 
   /**
@@ -346,14 +342,12 @@ export class SanityBatchProcessor {
   async updateListingsBatch(
     updates: Array<UpdatePayload>,
     options: {
-      concurrency?: number
-      onProgress?: ProgressCallback
+      concurrency?: number;
+      onProgress?: ProgressCallback;
     } = {}
   ): Promise<BatchProcessResult<SanityDocumentResult, UpdatePayload>> {
-    const startTime = Date.now()
-    const { concurrency = this.defaultConcurrency, onProgress } = options
-
-    console.log(`🔄 Starting batch update of ${updates.length} listings`)
+    const startTime = Date.now();
+    const { concurrency = this.defaultConcurrency, onProgress } = options;
 
     const result: BatchProcessResult<SanityDocumentResult, UpdatePayload> = {
       successful: [],
@@ -362,48 +356,44 @@ export class SanityBatchProcessor {
       successCount: 0,
       failureCount: 0,
       duration: 0,
-      summary: ''
-    }
+      summary: '',
+    };
 
     // Process updates in batches
     for (let i = 0; i < updates.length; i += concurrency) {
-      const batch = updates.slice(i, i + concurrency)
+      const batch = updates.slice(i, i + concurrency);
       const batchPromises = batch.map(async (update, batchIndex) => {
-        const globalIndex = i + batchIndex
+        const globalIndex = i + batchIndex;
 
         try {
-          onProgress?.(globalIndex, updates.length, 'Updating listing')
+          onProgress?.(globalIndex, updates.length, 'Updating listing');
 
           const updated = await sanityHTTPClient.update(update.id, {
             ...update.data,
-            updatedAt: new Date().toISOString()
-          })
+            updatedAt: new Date().toISOString(),
+          });
 
           result.successful.push({
             id: update.id,
-            data: updated as SanityDocumentResult
-          })
-          result.successCount++
-
+            data: updated as SanityDocumentResult,
+          });
+          result.successCount++;
         } catch (error) {
-          console.error(`❌ Failed to update listing ${update.id}:`, error)
           result.failed.push({
             data: update,
             error: error instanceof Error ? error.message : 'Unknown error',
-            index: globalIndex
-          })
-          result.failureCount++
+            index: globalIndex,
+          });
+          result.failureCount++;
         }
-      })
+      });
 
-      await Promise.all(batchPromises)
+      await Promise.all(batchPromises);
     }
 
-    result.duration = Date.now() - startTime
-    result.summary = `Updated ${result.total} listings in ${(result.duration / 1000).toFixed(2)}s: ${result.successCount} successful, ${result.failureCount} failed`
-
-    console.log(`✅ Batch update complete: ${result.summary}`)
-    return result
+    result.duration = Date.now() - startTime;
+    result.summary = `Updated ${result.total} listings in ${(result.duration / 1000).toFixed(2)}s: ${result.successCount} successful, ${result.failureCount} failed`;
+    return result;
   }
 
   /**
@@ -412,14 +402,12 @@ export class SanityBatchProcessor {
   async deleteListingsBatch(
     ids: string[],
     options: {
-      concurrency?: number
-      onProgress?: ProgressCallback
+      concurrency?: number;
+      onProgress?: ProgressCallback;
     } = {}
   ): Promise<BatchProcessResult<string>> {
-    const startTime = Date.now()
-    const { concurrency = this.defaultConcurrency, onProgress } = options
-
-    console.log(`🗑️ Starting batch deletion of ${ids.length} listings`)
+    const startTime = Date.now();
+    const { concurrency = this.defaultConcurrency, onProgress } = options;
 
     const result: BatchProcessResult<string> = {
       successful: [],
@@ -428,54 +416,50 @@ export class SanityBatchProcessor {
       successCount: 0,
       failureCount: 0,
       duration: 0,
-      summary: ''
-    }
+      summary: '',
+    };
 
     // Process deletions in batches
     for (let i = 0; i < ids.length; i += concurrency) {
-      const batch = ids.slice(i, i + concurrency)
+      const batch = ids.slice(i, i + concurrency);
       const batchPromises = batch.map(async (id, batchIndex) => {
-        const globalIndex = i + batchIndex
+        const globalIndex = i + batchIndex;
 
         try {
-          onProgress?.(globalIndex, ids.length, 'Deleting listing')
+          onProgress?.(globalIndex, ids.length, 'Deleting listing');
 
-          await sanityHTTPClient.delete(id)
+          await sanityHTTPClient.delete(id);
 
           result.successful.push({
             id,
-            data: id
-          })
-          result.successCount++
-
+            data: id,
+          });
+          result.successCount++;
         } catch (error) {
-          console.error(`❌ Failed to delete listing ${id}:`, error)
           result.failed.push({
             data: id,
             error: error instanceof Error ? error.message : 'Unknown error',
-            index: globalIndex
-          })
-          result.failureCount++
+            index: globalIndex,
+          });
+          result.failureCount++;
         }
-      })
+      });
 
-      await Promise.all(batchPromises)
+      await Promise.all(batchPromises);
     }
 
-    result.duration = Date.now() - startTime
-    result.summary = `Deleted ${result.total} listings in ${(result.duration / 1000).toFixed(2)}s: ${result.successCount} successful, ${result.failureCount} failed`
-
-    console.log(`✅ Batch deletion complete: ${result.summary}`)
-    return result
+    result.duration = Date.now() - startTime;
+    result.summary = `Deleted ${result.total} listings in ${(result.duration / 1000).toFixed(2)}s: ${result.successCount} successful, ${result.failureCount} failed`;
+    return result;
   }
 }
 
 // Export singleton instance
-export const batchProcessor = new SanityBatchProcessor()
+export const batchProcessor = new SanityBatchProcessor();
 
 // Convenience functions
-export const createListingsBatch = batchProcessor.createListingsBatch.bind(batchProcessor)
-export const updateListingsBatch = batchProcessor.updateListingsBatch.bind(batchProcessor)
-export const deleteListingsBatch = batchProcessor.deleteListingsBatch.bind(batchProcessor)
+export const createListingsBatch = batchProcessor.createListingsBatch.bind(batchProcessor);
+export const updateListingsBatch = batchProcessor.updateListingsBatch.bind(batchProcessor);
+export const deleteListingsBatch = batchProcessor.deleteListingsBatch.bind(batchProcessor);
 
-export default batchProcessor
+export default batchProcessor;

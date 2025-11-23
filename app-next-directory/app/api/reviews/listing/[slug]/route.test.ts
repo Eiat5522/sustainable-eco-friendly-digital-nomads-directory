@@ -1,19 +1,18 @@
-import { describe, it, expect, beforeEach, beforeAll, jest } from '@jest/globals';
+import { beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 jest.mock('@/utils/db-helpers', () => ({ __esModule: true, getCollection: jest.fn() }));
 jest.mock('@/utils/api-response', () => ({
   __esModule: true,
   ApiResponseHandler: {
-    error: jest.fn((message: string) => 
-      new Response(JSON.stringify({ error: message }), { status: 500 })
+    error: jest.fn(
+      (message: string) => new Response(JSON.stringify({ error: message }), { status: 500 })
     ),
-    success: jest.fn((data: unknown) => 
-      new Response(JSON.stringify({ success: true, data }), { status: 200 })
+    success: jest.fn(
+      (data: unknown) => new Response(JSON.stringify({ success: true, data }), { status: 200 })
     ),
   },
 }));
 
-import { getCollection } from '@/utils/db-helpers';
 
 const dbHelpersMock = jest.requireMock('@/utils/db-helpers') as { getCollection: jest.Mock };
 const mockGetCollection = dbHelpersMock.getCollection;
@@ -64,12 +63,12 @@ describe('API /api/reviews/listing/[slug]', () => {
       },
     ];
     const mockCollection = createMockCollection(mockReviews, 2);
-    
+
     mockGetCollection.mockResolvedValue(mockCollection);
 
     const req = new Request('http://localhost/api/reviews/listing/eco-lodge-bali');
     const res = await GET(req, { params: Promise.resolve({ slug: 'eco-lodge-bali' }) });
-    
+
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.success).toBe(true);
@@ -97,12 +96,12 @@ describe('API /api/reviews/listing/[slug]', () => {
       [{ _id: 'review11', listingSlug: 'eco-lodge-bali' }],
       25
     );
-    
+
     mockGetCollection.mockResolvedValue(mockCollection);
 
     const req = new Request('http://localhost/api/reviews/listing/eco-lodge-bali?page=2');
     const res = await GET(req, { params: Promise.resolve({ slug: 'eco-lodge-bali' }) });
-    
+
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.data.pagination.page).toBe(2);
@@ -115,12 +114,12 @@ describe('API /api/reviews/listing/[slug]', () => {
       listingSlug: 'eco-lodge-bali',
     }));
     const mockCollection = createMockCollection(mockReviews, 50);
-    
+
     mockGetCollection.mockResolvedValue(mockCollection);
 
     const req = new Request('http://localhost/api/reviews/listing/eco-lodge-bali?limit=5');
     const res = await GET(req, { params: Promise.resolve({ slug: 'eco-lodge-bali' }) });
-    
+
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.data.pagination.limit).toBe(5);
@@ -133,12 +132,12 @@ describe('API /api/reviews/listing/[slug]', () => {
       [{ _id: 'review31', listingSlug: 'eco-lodge-bali' }],
       100
     );
-    
+
     mockGetCollection.mockResolvedValue(mockCollection);
 
     const req = new Request('http://localhost/api/reviews/listing/eco-lodge-bali?page=3&limit=20');
     const res = await GET(req, { params: Promise.resolve({ slug: 'eco-lodge-bali' }) });
-    
+
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.data.pagination).toMatchObject({
@@ -153,12 +152,12 @@ describe('API /api/reviews/listing/[slug]', () => {
 
   it('returns empty array when no reviews found for slug', async () => {
     const mockCollection = createMockCollection([], 0);
-    
+
     mockGetCollection.mockResolvedValue(mockCollection);
 
     const req = new Request('http://localhost/api/reviews/listing/non-existent-slug');
     const res = await GET(req, { params: Promise.resolve({ slug: 'non-existent-slug' }) });
-    
+
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.data.reviews).toEqual([]);
@@ -175,12 +174,12 @@ describe('API /api/reviews/listing/[slug]', () => {
       { _id: 'review1', status: 'approved' },
       { _id: 'review2', status: 'approved' },
     ]);
-    
+
     mockGetCollection.mockResolvedValue(mockCollection);
 
     const req = new Request('http://localhost/api/reviews/listing/eco-lodge-bali');
     const res = await GET(req, { params: Promise.resolve({ slug: 'eco-lodge-bali' }) });
-    
+
     expect(res.status).toBe(200);
     expect(mockCollection.find).toHaveBeenCalledWith({
       listingSlug: 'eco-lodge-bali',
@@ -193,23 +192,23 @@ describe('API /api/reviews/listing/[slug]', () => {
       { _id: 'review1', createdAt: new Date('2024-01-15') },
       { _id: 'review2', createdAt: new Date('2024-01-14') },
     ]);
-    
+
     mockGetCollection.mockResolvedValue(mockCollection);
 
     const req = new Request('http://localhost/api/reviews/listing/eco-lodge-bali');
     await GET(req, { params: Promise.resolve({ slug: 'eco-lodge-bali' }) });
-    
+
     expect(mockCollection._mockCursor.sort).toHaveBeenCalledWith({ createdAt: -1 });
   });
 
   it('calculates pagination pages correctly', async () => {
     const mockCollection = createMockCollection([], 45);
-    
+
     mockGetCollection.mockResolvedValue(mockCollection);
 
     const req = new Request('http://localhost/api/reviews/listing/eco-lodge-bali?limit=10');
     const res = await GET(req, { params: Promise.resolve({ slug: 'eco-lodge-bali' }) });
-    
+
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.data.pagination.pages).toBe(5); // Math.ceil(45 / 10) = 5
@@ -219,12 +218,12 @@ describe('API /api/reviews/listing/[slug]', () => {
     const mockCollection = createMockCollection([
       { _id: 'review1', listingSlug: 'eco-lodge-bali-2024' },
     ]);
-    
+
     mockGetCollection.mockResolvedValue(mockCollection);
 
     const req = new Request('http://localhost/api/reviews/listing/eco-lodge-bali-2024');
     const res = await GET(req, { params: Promise.resolve({ slug: 'eco-lodge-bali-2024' }) });
-    
+
     expect(res.status).toBe(200);
     expect(mockCollection.find).toHaveBeenCalledWith({
       listingSlug: 'eco-lodge-bali-2024',
@@ -237,7 +236,7 @@ describe('API /api/reviews/listing/[slug]', () => {
 
     const req = new Request('http://localhost/api/reviews/listing/eco-lodge-bali');
     const res = await GET(req, { params: Promise.resolve({ slug: 'eco-lodge-bali' }) });
-    
+
     expect(res.status).toBe(500);
     const json = await res.json();
     expect(json.error).toBe('Failed to fetch listing reviews');
@@ -250,17 +249,17 @@ describe('API /api/reviews/listing/[slug]', () => {
       limit: jest.fn().mockReturnThis(),
       toArray: jest.fn().mockRejectedValue(new Error('Query execution failed')),
     };
-    
+
     const mockCollection = {
       find: jest.fn().mockReturnValue(mockCursor),
       countDocuments: jest.fn().mockResolvedValue(10),
     };
-    
+
     mockGetCollection.mockResolvedValue(mockCollection);
 
     const req = new Request('http://localhost/api/reviews/listing/eco-lodge-bali');
     const res = await GET(req, { params: Promise.resolve({ slug: 'eco-lodge-bali' }) });
-    
+
     expect(res.status).toBe(500);
   });
 
@@ -278,12 +277,12 @@ describe('API /api/reviews/listing/[slug]', () => {
       },
     ];
     const mockCollection = createMockCollection(mockReviews, 1);
-    
+
     mockGetCollection.mockResolvedValue(mockCollection);
 
     const req = new Request('http://localhost/api/reviews/listing/eco-lodge-bali');
     const res = await GET(req, { params: Promise.resolve({ slug: 'eco-lodge-bali' }) });
-    
+
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json).toHaveProperty('success', true);

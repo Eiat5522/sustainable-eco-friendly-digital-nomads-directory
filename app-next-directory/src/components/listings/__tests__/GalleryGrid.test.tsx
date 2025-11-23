@@ -23,14 +23,7 @@ describe('GalleryGrid', () => {
   });
 
   it('normalizes input sources and renders accessible thumbnails', () => {
-    render(
-      <GalleryGrid
-        images={[
-          { url: 'first.jpg', alt: 'First image' },
-          'second.jpg',
-        ]}
-      />
-    );
+    render(<GalleryGrid images={[{ url: 'first.jpg', alt: 'First image' }, 'second.jpg']} />);
 
     const thumbnails = screen.getAllByTestId('gallery-thumbnail');
     expect(thumbnails).toHaveLength(2);
@@ -45,7 +38,10 @@ describe('GalleryGrid', () => {
   it('supports lightbox navigation and closes with keyboard shortcuts', async () => {
     render(
       <GalleryGrid
-        images={[{ url: 'first.jpg', alt: 'First image' }, { url: 'second.jpg', alt: 'Second image' }]}
+        images={[
+          { url: 'first.jpg', alt: 'First image' },
+          { url: 'second.jpg', alt: 'Second image' },
+        ]}
       />
     );
 
@@ -70,11 +66,7 @@ describe('GalleryGrid', () => {
   });
 
   it('traps focus within the modal controls while open', async () => {
-    render(
-      <GalleryGrid
-        images={[{ url: 'one.jpg' }, { url: 'two.jpg' }]}
-      />
-    );
+    render(<GalleryGrid images={[{ url: 'one.jpg' }, { url: 'two.jpg' }]} />);
 
     const user = userEvent.setup();
     const [firstThumbnail] = screen.getAllByTestId('gallery-thumbnail');

@@ -41,7 +41,8 @@ describe('analyzeContent script', () => {
       {
         _id: '2',
         name: 'Listing Two',
-        shortDescription: 'Another listing with detailed description and plenty of words to meet the threshold',
+        shortDescription:
+          'Another listing with detailed description and plenty of words to meet the threshold',
         longDescription: Array.from({ length: 60 }, (_, index) => `detail-${index}`).join(' '),
         primary_image_url: 'https://example.com/image.jpg',
         eco_features: ['Solar'],
@@ -57,7 +58,13 @@ describe('analyzeContent script', () => {
 
     expect(result.thinContent).toHaveLength(1);
     expect(result.missingMetadata[0].missingFields).toEqual(
-      expect.arrayContaining(['longDescription', 'primary_image_url', 'eco_features', 'amenities', 'city'])
+      expect.arrayContaining([
+        'longDescription',
+        'primary_image_url',
+        'eco_features',
+        'amenities',
+        'city',
+      ])
     );
     expect(result.duplicateContent[0]).toMatchObject({ listing1Id: '1', listing2Id: '2' });
 
@@ -100,7 +107,10 @@ describe('analyzeContent script', () => {
 
     expect(result.thinContent).toHaveLength(0);
     expect(result.missingMetadata).toEqual([
-      expect.objectContaining({ listingId: '10', missingFields: expect.arrayContaining(['primary_image_url', 'city']) }),
+      expect.objectContaining({
+        listingId: '10',
+        missingFields: expect.arrayContaining(['primary_image_url', 'city']),
+      }),
     ]);
     expect(result.duplicateContent).toHaveLength(0);
     expect(mkdirMock).toHaveBeenLastCalledWith('/tmp/project/reports', { recursive: true });

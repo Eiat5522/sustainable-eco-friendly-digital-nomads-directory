@@ -1,11 +1,11 @@
 // Stubs for GROQ query functions to resolve TypeError in tests
 import type {
   ListingStats,
-  WorkspaceResult,
-  SearchResult,
   NearbyVenue,
-  VenueSummary
-} from '@/types/query-types'
+  SearchResult,
+  VenueSummary,
+  WorkspaceResult,
+} from '@/types/query-types';
 
 export async function getDigitalNomadVenueSummary(): Promise<VenueSummary> {
   return {
@@ -16,16 +16,16 @@ export async function getDigitalNomadVenueSummary(): Promise<VenueSummary> {
       priceDistribution: [
         { range: 'budget', count: 3 },
         { range: 'moderate', count: 5 },
-        { range: 'premium', count: 2 }
-      ]
+        { range: 'premium', count: 2 },
+      ],
     },
     cafes: {
       total: 15,
       laptopFriendly: 10,
       withGoodWifi: 12,
-      withoutTimeLimits: 7
-    }
-  }
+      withoutTimeLimits: 7,
+    },
+  };
 }
 
 export async function getDigitalNomadWorkspaces(minWifiSpeed: number): Promise<WorkspaceResult[]> {
@@ -39,10 +39,10 @@ export async function getDigitalNomadWorkspaces(minWifiSpeed: number): Promise<W
       powerOutlets: 'plenty',
       location: {
         city: 'Bangkok',
-        coordinates: { lat: 13.7563, lng: 100.5018 }
-      }
-    }
-  ]
+        coordinates: { lat: 13.7563, lng: 100.5018 },
+      },
+    },
+  ];
 }
 
 export async function getListingStats(): Promise<ListingStats> {
@@ -50,19 +50,17 @@ export async function getListingStats(): Promise<ListingStats> {
     totalListings: 25,
     byCategory: [
       { category: 'coworking', count: 10 },
-      { category: 'cafe', count: 15 }
+      { category: 'cafe', count: 15 },
     ],
     topCities: [
       { city: 'Bangkok', country: 'Thailand', count: 10 },
       { city: 'Chiang Mai', country: 'Thailand', count: 8 },
       { city: 'Phuket', country: 'Thailand', count: 7 },
       { city: 'Ubud', country: 'Indonesia', count: 5 },
-      { city: 'Canggu', country: 'Indonesia', count: 4 }
+      { city: 'Canggu', country: 'Indonesia', count: 4 },
     ],
-    averageRatings: [
-      { listing: 'Coworking A', avgRating: 4.5 }
-    ]
-  }
+    averageRatings: [{ listing: 'Coworking A', avgRating: 4.5 }],
+  };
 }
 
 export async function getNearbyListings(
@@ -76,9 +74,9 @@ export async function getNearbyListings(
       distance: 500,
       location: { coordinates: { lat: coords.lat, lng: coords.lng } },
       type: 'coworking',
-      city: 'Bangkok'
-    }
-  ]
+      city: 'Bangkok',
+    },
+  ];
 }
 
 export async function searchListings(_query: string): Promise<SearchResult[]> {
@@ -90,7 +88,7 @@ export async function searchListings(_query: string): Promise<SearchResult[]> {
       type: 'coworking',
       description: 'A great coworking space',
       city: 'Bangkok',
-      primaryImage: { asset: { url: 'https://example.com/image.jpg' } }
-    }
-  ]
+      primaryImage: { asset: { url: 'https://example.com/image.jpg' } },
+    },
+  ];
 }

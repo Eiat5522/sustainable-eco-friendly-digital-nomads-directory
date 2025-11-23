@@ -37,9 +37,12 @@ describe('PasswordResetToken model', () => {
     expect(indexes).toEqual(
       expect.arrayContaining([
         [expect.objectContaining({ userId: 1 }), expect.objectContaining({ unique: true })],
-        [expect.objectContaining({ expiresAt: 1 }), expect.objectContaining({ expireAfterSeconds: 0 })],
+        [
+          expect.objectContaining({ expiresAt: 1 }),
+          expect.objectContaining({ expireAfterSeconds: 0 }),
+        ],
         [expect.objectContaining({ tokenHash: 1 }), expect.any(Object)],
-      ]),
+      ])
     );
   });
 

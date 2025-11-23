@@ -1,11 +1,20 @@
-"use client";
-import { useState } from 'react';
-import { Leaf, MapPin, Wifi, DollarSign, Thermometer, Shield, Footprints, Wind } from 'lucide-react';
+'use client';
 import type { LucideIcon } from 'lucide-react';
+import {
+  DollarSign,
+  Footprints,
+  Leaf,
+  MapPin,
+  Shield,
+  Thermometer,
+  Wifi,
+  Wind,
+} from 'lucide-react';
 import Image from 'next/image';
-import { NeoBadge } from '@/components/ui/neo-badge';
+import { useState } from 'react';
 import { RelatedListings } from '@/components/listings/RelatedListings';
-import type { CityDTO, CityDetailDTO, InternetSpeedDTO, ListingSummaryDTO } from '@/types/dto';
+import { NeoBadge } from '@/components/ui/neo-badge';
+import type { CityDetailDTO, CityDTO, InternetSpeedDTO, ListingSummaryDTO } from '@/types/dto';
 
 interface CityDetailViewProps {
   city: CityDTO | CityDetailDTO;
@@ -20,7 +29,13 @@ export function CityDetailView({ city, listings }: CityDetailViewProps) {
   }
 
   // Config map for Quick Facts to reduce repetition and centralize formatting
-  type QuickFactField = 'internetSpeed' | 'costOfLiving' | 'climate' | 'safety' | 'walkability' | 'airQuality';
+  type QuickFactField =
+    | 'internetSpeed'
+    | 'costOfLiving'
+    | 'climate'
+    | 'safety'
+    | 'walkability'
+    | 'airQuality';
   type QuickFactConfig = Readonly<{
     field: QuickFactField;
     icon: LucideIcon;
@@ -33,9 +48,11 @@ export function CityDetailView({ city, listings }: CityDetailViewProps) {
     }
 
     const candidate = value as Partial<InternetSpeedDTO>;
-    const hasDownload = typeof candidate.download === 'number' && Number.isFinite(candidate.download);
+    const hasDownload =
+      typeof candidate.download === 'number' && Number.isFinite(candidate.download);
     const hasUpload = typeof candidate.upload === 'number' && Number.isFinite(candidate.upload);
-    const hasLastTested = typeof candidate.lastTested === 'string' && candidate.lastTested.trim().length > 0;
+    const hasLastTested =
+      typeof candidate.lastTested === 'string' && candidate.lastTested.trim().length > 0;
 
     return hasDownload || hasUpload || hasLastTested;
   };
@@ -43,8 +60,14 @@ export function CityDetailView({ city, listings }: CityDetailViewProps) {
   const formatInternetSpeed = (value: unknown): string | null => {
     if (typeof value === 'number' && Number.isFinite(value)) return `${value} Mbps avg`;
     if (isInternetSpeedDTO(value)) {
-      const download = typeof value.download === 'number' && Number.isFinite(value.download) ? value.download : undefined;
-      const upload = typeof value.upload === 'number' && Number.isFinite(value.upload) ? value.upload : undefined;
+      const download =
+        typeof value.download === 'number' && Number.isFinite(value.download)
+          ? value.download
+          : undefined;
+      const upload =
+        typeof value.upload === 'number' && Number.isFinite(value.upload)
+          ? value.upload
+          : undefined;
 
       if (download !== undefined && upload !== undefined) return `${download}↓ / ${upload}↑ Mbps`;
       if (download !== undefined) return `${download} Mbps down`;
@@ -55,11 +78,31 @@ export function CityDetailView({ city, listings }: CityDetailViewProps) {
 
   const quickFactsConfig: readonly QuickFactConfig[] = [
     { field: 'internetSpeed', icon: Wifi, formatter: formatInternetSpeed },
-    { field: 'costOfLiving', icon: DollarSign, formatter: (v) => (typeof v === 'string' && v.trim() ? v : null) },
-    { field: 'climate', icon: Thermometer, formatter: (v) => (typeof v === 'string' && v.trim() ? v : null) },
-    { field: 'safety', icon: Shield, formatter: (v) => (typeof v === 'string' && v.trim() ? v : null) },
-    { field: 'walkability', icon: Footprints, formatter: (v) => (typeof v === 'string' && v.trim() ? v : null) },
-    { field: 'airQuality', icon: Wind, formatter: (v) => (typeof v === 'string' && v.trim() ? v : null) },
+    {
+      field: 'costOfLiving',
+      icon: DollarSign,
+      formatter: v => (typeof v === 'string' && v.trim() ? v : null),
+    },
+    {
+      field: 'climate',
+      icon: Thermometer,
+      formatter: v => (typeof v === 'string' && v.trim() ? v : null),
+    },
+    {
+      field: 'safety',
+      icon: Shield,
+      formatter: v => (typeof v === 'string' && v.trim() ? v : null),
+    },
+    {
+      field: 'walkability',
+      icon: Footprints,
+      formatter: v => (typeof v === 'string' && v.trim() ? v : null),
+    },
+    {
+      field: 'airQuality',
+      icon: Wind,
+      formatter: v => (typeof v === 'string' && v.trim() ? v : null),
+    },
   ] as const;
 
   // Transform listings to match RelatedListing interface
@@ -72,7 +115,7 @@ export function CityDetailView({ city, listings }: CityDetailViewProps) {
       imageUrl: listing.imageUrl!, // We filtered out undefined imageUrls above
       city: listing.city,
       priceRange: listing.priceRange || 'moderate',
-      ecoFocusTags: listing.ecoFocusTags || []
+      ecoFocusTags: listing.ecoFocusTags || [],
     }));
 
   const listingsSection = (
@@ -111,34 +154,38 @@ export function CityDetailView({ city, listings }: CityDetailViewProps) {
         </div>
       )}
 
-      {isCityDetailDTO(city) && city.sustainabilityInitiatives && city.sustainabilityInitiatives.length > 0 && (
-        <div className="bg-green-50 rounded-xl p-6">
-          <h3 className="heading-sm mb-4 flex items-center gap-2">
-            <Leaf size={20} className="text-green-600" />
-            Sustainability Initiatives
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {city.sustainabilityInitiatives.map((initiative, idx) => (
-              <NeoBadge key={idx} variant="success" size="sm">
-                {initiative}
-              </NeoBadge>
-            ))}
+      {isCityDetailDTO(city) &&
+        city.sustainabilityInitiatives &&
+        city.sustainabilityInitiatives.length > 0 && (
+          <div className="bg-green-50 rounded-xl p-6">
+            <h3 className="heading-sm mb-4 flex items-center gap-2">
+              <Leaf size={20} className="text-green-600" />
+              Sustainability Initiatives
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {city.sustainabilityInitiatives.map((initiative, idx) => (
+                <NeoBadge key={idx} variant="success" size="sm">
+                  {initiative}
+                </NeoBadge>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {'digitalNomadFeatures' in city && city.digitalNomadFeatures && city.digitalNomadFeatures.length > 0 && (
-        <div className="bg-blue-50 rounded-xl p-6">
-          <h3 className="heading-sm mb-4">Digital Nomad Features</h3>
-          <div className="flex flex-wrap gap-2">
-            {city.digitalNomadFeatures.map((feature, idx) => (
-              <NeoBadge key={idx} variant="outline" size="sm">
-                {feature}
-              </NeoBadge>
-            ))}
+      {'digitalNomadFeatures' in city &&
+        city.digitalNomadFeatures &&
+        city.digitalNomadFeatures.length > 0 && (
+          <div className="bg-blue-50 rounded-xl p-6">
+            <h3 className="heading-sm mb-4">Digital Nomad Features</h3>
+            <div className="flex flex-wrap gap-2">
+              {city.digitalNomadFeatures.map((feature, idx) => (
+                <NeoBadge key={idx} variant="outline" size="sm">
+                  {feature}
+                </NeoBadge>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
       {city.highlights && city.highlights.length > 0 && (
         <div className="flex flex-wrap gap-2">
@@ -191,9 +238,7 @@ export function CityDetailView({ city, listings }: CityDetailViewProps) {
           )}
         </div>
 
-        <div className="flex flex-col gap-8">
-          {aboutSection}
-        </div>
+        <div className="flex flex-col gap-8">{aboutSection}</div>
       </div>
     </section>
   );

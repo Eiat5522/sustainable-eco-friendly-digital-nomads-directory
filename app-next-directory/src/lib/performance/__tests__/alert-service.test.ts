@@ -1,11 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { __TEST_ONLY__, processMetricForAlert } from '../alert-service';
 import {
   ALERT_DESTINATION_CONFIG,
-  ALERTING_THRESHOLDS,
   ALERT_SEVERITY,
+  ALERTING_THRESHOLDS,
   NOTIFICATION_CHANNELS,
 } from '../alerting-thresholds';
-import { __TEST_ONLY__, processMetricForAlert } from '../alert-service';
 
 describe('performance alert service', () => {
   let originalEnv: string | undefined;
@@ -28,7 +28,8 @@ describe('performance alert service', () => {
 
     fetchMock = jest.fn();
     originalFetch = globalThis.fetch;
-    (globalThis as { fetch?: typeof globalThis.fetch }).fetch = fetchMock as unknown as typeof globalThis.fetch;
+    (globalThis as { fetch?: typeof globalThis.fetch }).fetch =
+      fetchMock as unknown as typeof globalThis.fetch;
 
     consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
     consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});

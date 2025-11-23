@@ -17,7 +17,6 @@ if (!emailRegex.test(fromAddressForValidation)) {
 
 export async function sendMail(opts: { to: string; subject: string; html: string; text?: string }) {
   if (!resendApiKey) {
-    console.warn('[email] RESEND_API_KEY not set; skipping send');
     return { skipped: true } as const;
   }
   try {
@@ -34,7 +33,7 @@ export async function sendMail(opts: { to: string; subject: string; html: string
     structuredLogger.emailError('send email', error, {
       to: opts.to, // Will be redacted by logger
       subject: opts.subject,
-      component: 'email-service'
+      component: 'email-service',
     });
     return { error: error instanceof Error ? error.message : 'Unknown error' } as const;
   }
@@ -92,4 +91,3 @@ export async function buildNewsletterConfirmEmail(to: string, token: string) {
   `;
   return { to, subject, html, link };
 }
-

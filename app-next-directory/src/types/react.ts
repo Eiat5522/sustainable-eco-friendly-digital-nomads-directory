@@ -14,4 +14,3 @@ export type StrictProps<P extends object = Record<string, never>> = PropsWithChi
 export type StrictComponent<P extends object = Record<string, never>> = (
   props: StrictProps<P>
 ) => ReactElement | null;
-

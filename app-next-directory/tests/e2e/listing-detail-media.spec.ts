@@ -1,8 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Listing detail media & fallbacks', () => {
   test.beforeEach(async ({ page }) => {
-    await page.route('**/api/auth/session', async (route) => {
+    await page.route('**/api/auth/session', async route => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -41,7 +41,9 @@ test.describe('Listing detail media & fallbacks', () => {
     await expect(lightbox).not.toBeVisible();
   });
 
-  test('related listings fall back to placeholder imagery when missing thumbnails', async ({ page }) => {
+  test('related listings fall back to placeholder imagery when missing thumbnails', async ({
+    page,
+  }) => {
     const fallbackCard = page
       .locator('[data-testid="related-listing-card"]')
       .filter({ hasText: 'Eco Resort Koh Samui' });
@@ -60,7 +62,7 @@ test.describe('Listing detail media & fallbacks', () => {
     const description = page.locator('[data-testid="long-description"]');
     await expect(description).toBeVisible();
 
-    const beforeMetrics = await description.evaluate((el) => ({
+    const beforeMetrics = await description.evaluate(el => ({
       scrollHeight: el.scrollHeight,
       clientHeight: el.clientHeight,
       expanded: el.getAttribute('data-expanded'),
@@ -79,7 +81,7 @@ test.describe('Listing detail media & fallbacks', () => {
     await expect(toggle).toHaveAttribute('aria-expanded', 'true');
     await expect(description).toHaveAttribute('data-expanded', 'true');
 
-    const afterMetrics = await description.evaluate((el) => ({
+    const afterMetrics = await description.evaluate(el => ({
       scrollHeight: el.scrollHeight,
       clientHeight: el.clientHeight,
     }));

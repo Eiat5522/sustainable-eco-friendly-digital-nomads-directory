@@ -6,7 +6,7 @@
  * 3. Custom redirect paths
  */
 
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 // Mock Next.js modules
 const mockDisable = jest.fn();
@@ -21,7 +21,7 @@ let GET: typeof import('../route').GET;
 describe('Preview Exit API - GET /api/preview/exit', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
-    
+
     // Dynamically import the route handler
     const routeModule = await import('../route');
     GET = routeModule.GET;
@@ -51,7 +51,9 @@ describe('Preview Exit API - GET /api/preview/exit', () => {
     });
 
     it('should redirect to custom path when specified', async () => {
-      const request = new Request('http://localhost/api/preview/exit?redirect=/listings/eco-workspace');
+      const request = new Request(
+        'http://localhost/api/preview/exit?redirect=/listings/eco-workspace'
+      );
 
       const response = await GET(request);
 
@@ -69,7 +71,9 @@ describe('Preview Exit API - GET /api/preview/exit', () => {
     });
 
     it('should handle redirect to blog page', async () => {
-      const request = new Request('http://localhost/api/preview/exit?redirect=/blog/sustainable-travel');
+      const request = new Request(
+        'http://localhost/api/preview/exit?redirect=/blog/sustainable-travel'
+      );
 
       const response = await GET(request);
 
@@ -119,7 +123,9 @@ describe('Preview Exit API - GET /api/preview/exit', () => {
     });
 
     it('should handle encoded redirect paths', async () => {
-      const request = new Request('http://localhost/api/preview/exit?redirect=%2Flistings%2Feco-workspace');
+      const request = new Request(
+        'http://localhost/api/preview/exit?redirect=%2Flistings%2Feco-workspace'
+      );
 
       const response = await GET(request);
 
@@ -215,7 +221,9 @@ describe('Preview Exit API - GET /api/preview/exit', () => {
     });
 
     it('should handle nested path redirect', async () => {
-      const request = new Request('http://localhost/api/preview/exit?redirect=/admin/dashboard/stats');
+      const request = new Request(
+        'http://localhost/api/preview/exit?redirect=/admin/dashboard/stats'
+      );
 
       const response = await GET(request);
 
@@ -226,7 +234,9 @@ describe('Preview Exit API - GET /api/preview/exit', () => {
 
   describe('Multiple Query Parameters', () => {
     it('should extract redirect parameter from multiple params', async () => {
-      const request = new Request('http://localhost/api/preview/exit?foo=bar&redirect=/listings&baz=qux');
+      const request = new Request(
+        'http://localhost/api/preview/exit?foo=bar&redirect=/listings&baz=qux'
+      );
 
       const response = await GET(request);
 
@@ -235,7 +245,9 @@ describe('Preview Exit API - GET /api/preview/exit', () => {
     });
 
     it('should ignore other query parameters', async () => {
-      const request = new Request('http://localhost/api/preview/exit?session=123&redirect=/home&debug=true');
+      const request = new Request(
+        'http://localhost/api/preview/exit?session=123&redirect=/home&debug=true'
+      );
 
       const response = await GET(request);
 

@@ -45,6 +45,6 @@ AnalyticsEventSchema.index({ userId: 1, timestamp: -1 });
 AnalyticsEventSchema.index({ sessionId: 1, timestamp: -1 });
 AnalyticsEventSchema.index({ timestamp: -1, eventType: 1 });
 
-console.log('📊 AnalyticsEvent indexes configured');
-
-export const AnalyticsEvent = mongoose.models.AnalyticsEvent || mongoose.model<IAnalyticsEvent>('AnalyticsEvent', AnalyticsEventSchema);
+export const AnalyticsEvent =
+  mongoose.models.AnalyticsEvent ||
+  mongoose.model<IAnalyticsEvent>('AnalyticsEvent', AnalyticsEventSchema);

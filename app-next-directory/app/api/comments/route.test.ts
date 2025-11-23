@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 // Mock external deps used in the route
 // Ensure NextResponse is mocked before importing the route so module imports
@@ -28,11 +28,11 @@ jest.mock('@/lib/sanity/user', () => ({
   ensureSanityUser: mockEnsureSanityUser,
 }));
 
-// Import after mocks to receive mocked versions
-import { GET, POST } from './route';
+import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { client } from '@/lib/sanity/client';
-import { NextResponse } from 'next/server';
+// Import after mocks to receive mocked versions
+import { GET, POST } from './route';
 
 describe('API /api/comments', () => {
   beforeEach(() => {
@@ -98,7 +98,9 @@ describe('API /api/comments', () => {
       const invalidPage = await GET(new Request('http://localhost/api/comments?postId=p1&page=0'));
       expect(invalidPage.status).toBe(400);
 
-      const invalidLimit = await GET(new Request('http://localhost/api/comments?postId=p1&limit=0'));
+      const invalidLimit = await GET(
+        new Request('http://localhost/api/comments?postId=p1&limit=0')
+      );
       expect(invalidLimit.status).toBe(400);
     });
 
@@ -127,7 +129,9 @@ describe('API /api/comments', () => {
     });
 
     it('rejects users without comment permissions', async () => {
-      (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'unidentifiedUser', name: 'User' } });
+      (auth as jest.Mock).mockResolvedValueOnce({
+        user: { id: 'user1', role: 'unidentifiedUser', name: 'User' },
+      });
       const req = new Request('http://localhost/api/comments', {
         method: 'POST',
         body: JSON.stringify({ content: 'Permission check', postId: 'p1' }),
@@ -135,7 +139,9 @@ describe('API /api/comments', () => {
 
       const res = await POST(req);
       expect(res.status).toBe(403);
-      await expect(res.json()).resolves.toEqual({ error: 'Forbidden: Insufficient permissions to create comments' });
+      await expect(res.json()).resolves.toEqual({
+        error: 'Forbidden: Insufficient permissions to create comments',
+      });
       expect(client.create).not.toHaveBeenCalled();
     });
 
@@ -169,9 +175,14 @@ describe('API /api/comments', () => {
     });
 
     it('creates a comment and revalidates tag', async () => {
-      (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user', name: 'User', email: 'u@example.com' } });
+      (auth as jest.Mock).mockResolvedValueOnce({
+        user: { id: 'user1', role: 'user', name: 'User', email: 'u@example.com' },
+      });
       mockEnsureSanityUser.mockResolvedValueOnce({ _id: 'sanityUser1', _type: 'user' });
-      (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'p1', slug: { current: 'post-slug' } });
+      (client.getDocument as jest.Mock).mockResolvedValueOnce({
+        _id: 'p1',
+        slug: { current: 'post-slug' },
+      });
       (client.create as jest.Mock).mockResolvedValueOnce({ _id: 'comment1', _type: 'comment' });
 
       const req = new Request('http://localhost/api/comments', {
@@ -194,7 +205,9 @@ describe('API /api/comments', () => {
     });
 
     it('creates a comment without revalidating when the post has no slug', async () => {
-      (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user', name: 'User' } });
+      (auth as jest.Mock).mockResolvedValueOnce({
+        user: { id: 'user1', role: 'user', name: 'User' },
+      });
       (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'p1' });
       (client.create as jest.Mock).mockResolvedValueOnce({ _id: 'comment1', _type: 'comment' });
 
@@ -210,7 +223,10 @@ describe('API /api/comments', () => {
 
     it('still succeeds when revalidateTag encounters an error', async () => {
       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
-      (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'p1', slug: { current: 'sluggy' } });
+      (client.getDocument as jest.Mock).mockResolvedValueOnce({
+        _id: 'p1',
+        slug: { current: 'sluggy' },
+      });
       (client.create as jest.Mock).mockResolvedValueOnce({ _id: 'comment2' });
 
       const res = await POST(
@@ -321,7 +337,9 @@ describe('API /api/comments', () => {
     });
 
     it('returns 500 when ensureSanityUser throws an unexpected error', async () => {
-      (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user', name: 'User', email: 'u@example.com' } });
+      (auth as jest.Mock).mockResolvedValueOnce({
+        user: { id: 'user1', role: 'user', name: 'User', email: 'u@example.com' },
+      });
       mockEnsureSanityUser.mockRejectedValueOnce(new Error('Sanity user failure'));
       (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'p1' });
 
@@ -337,9 +355,14 @@ describe('API /api/comments', () => {
     });
 
     it('still creates a comment if user has no email', async () => {
-      (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user', name: 'User' } });
+      (auth as jest.Mock).mockResolvedValueOnce({
+        user: { id: 'user1', role: 'user', name: 'User' },
+      });
       mockEnsureSanityUser.mockResolvedValueOnce({ _id: 'sanityUser1', _type: 'user' });
-      (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'p1', slug: { current: 'post-slug' } });
+      (client.getDocument as jest.Mock).mockResolvedValueOnce({
+        _id: 'p1',
+        slug: { current: 'post-slug' },
+      });
       (client.create as jest.Mock).mockResolvedValueOnce({ _id: 'comment1', _type: 'comment' });
 
       const req = new Request('http://localhost/api/comments', {

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 jest.mock('@/lib/rate-limit');
 jest.mock('@/lib/tokens');
@@ -57,11 +57,11 @@ const loggerMock = jest.requireMock('@/lib/logger') as {
 
 let POST: typeof import('../route').POST;
 
-const createLeanResult = <T,>(value: T) => ({
+const createLeanResult = <T>(value: T) => ({
   lean: jest.fn().mockResolvedValue(value),
 });
 
-const createSelectResult = <T,>(value: T) => ({
+const createSelectResult = <T>(value: T) => ({
   select: jest.fn().mockResolvedValue(value),
 });
 
@@ -117,7 +117,7 @@ describe('POST /api/auth/reset-password', () => {
       createRequest(
         { token: 'sample-token', password: 'Password123!' },
         { 'x-request-id': 'req-1' }
-      ),
+      )
     );
 
     expect(response.status).toBe(429);
@@ -139,7 +139,7 @@ describe('POST /api/auth/reset-password', () => {
       createRequest(
         { token: 'token', password: 'Password123!' },
         { 'content-type': 'text/plain', traceparent: '00-abc123' }
-      ),
+      )
     );
 
     expect(mockDbConnect).toHaveBeenCalled();
@@ -158,18 +158,30 @@ describe('POST /api/auth/reset-password', () => {
   it('returns 400 when reset token is missing or expired', async () => {
     mockFindOne.mockReturnValueOnce(createLeanResult(null));
 
-    const responseMissing = await POST(createRequest({ token: 'token-00001', password: 'Password123!' }));
+    const responseMissing = await POST(
+      createRequest({ token: 'token-00001', password: 'Password123!' })
+    );
     expect(responseMissing.status).toBe(400);
 
-    const expiredDoc = { _id: 'token-id', userId: 'user-42', expiresAt: new Date(Date.now() - 10_000) };
+    const expiredDoc = {
+      _id: 'token-id',
+      userId: 'user-42',
+      expiresAt: new Date(Date.now() - 10_000),
+    };
     mockFindOne.mockReturnValueOnce(createLeanResult(expiredDoc));
 
-    const responseExpired = await POST(createRequest({ token: 'token-00002', password: 'Password123!' }));
+    const responseExpired = await POST(
+      createRequest({ token: 'token-00002', password: 'Password123!' })
+    );
     expect(responseExpired.status).toBe(400);
   });
 
   it('returns 404 when the user cannot be found', async () => {
-    const validDoc = { _id: 'token-id', userId: 'user-100', expiresAt: new Date(Date.now() + 60_000) };
+    const validDoc = {
+      _id: 'token-id',
+      userId: 'user-100',
+      expiresAt: new Date(Date.now() + 60_000),
+    };
     mockFindOne.mockReturnValueOnce(createLeanResult(validDoc));
     mockFindById.mockReturnValueOnce(createSelectResult(null));
 
@@ -224,7 +236,7 @@ describe('POST /api/auth/reset-password', () => {
       createRequest(
         { token: 'valid-token', password: 'Password123!' },
         { 'x-request-id': 'req-777' }
-      ),
+      )
     );
 
     expect(response.status).toBe(200);

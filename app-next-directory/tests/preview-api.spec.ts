@@ -1,11 +1,11 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 // Preview API Test Suite
 test.describe('Preview API Routes', () => {
   // Mock environment setup
   const mockEnv = {
     NODE_ENV: process.env.NODE_ENV || 'test',
-    PREVIEW_SECRET: process.env.PREVIEW_SECRET || ''
+    PREVIEW_SECRET: process.env.PREVIEW_SECRET || '',
   };
 
   test('preview route should set preview mode cookie', async ({ request }) => {
@@ -27,7 +27,7 @@ test.describe('Preview API Routes', () => {
 
       // Mock the environment check in the API route
       await request.get('/api/mock-env', {
-        headers: { 'x-test-node-env': mockEnv.NODE_ENV }
+        headers: { 'x-test-node-env': mockEnv.NODE_ENV },
       });
 
       const response = await request.get('/api/preview');
@@ -48,7 +48,9 @@ test.describe('Preview API Routes', () => {
 
     const headers = response.headers();
     expect(headers['set-cookie']).toBeTruthy();
-    expect(headers['set-cookie']).toContain('__previewMode=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT');
+    expect(headers['set-cookie']).toContain(
+      '__previewMode=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT'
+    );
   });
 
   test('preview route should handle missing redirect parameter', async ({ request }) => {
@@ -62,7 +64,9 @@ test.describe('Preview API Routes', () => {
 
   test('preview route should respect custom redirect', async ({ request }) => {
     const customRedirect = '/listings/test-listing';
-    const response = await request.get(`/api/preview?redirect=${encodeURIComponent(customRedirect)}`);
+    const response = await request.get(
+      `/api/preview?redirect=${encodeURIComponent(customRedirect)}`
+    );
     expect(response.ok()).toBeTruthy();
 
     const headers = response.headers();
@@ -72,7 +76,9 @@ test.describe('Preview API Routes', () => {
   test('preview route should sanitize redirect parameter', async ({ request }) => {
     // Attempt to redirect to external URL
     const maliciousRedirect = 'https://malicious-site.com';
-    const response = await request.get(`/api/preview?redirect=${encodeURIComponent(maliciousRedirect)}`);
+    const response = await request.get(
+      `/api/preview?redirect=${encodeURIComponent(maliciousRedirect)}`
+    );
     expect(response.ok()).toBeTruthy();
 
     // Should default to home page for security
@@ -82,7 +88,9 @@ test.describe('Preview API Routes', () => {
 
   test('exit-preview route should redirect to last page', async ({ request }) => {
     const lastPage = '/listings';
-    const response = await request.get(`/api/exit-preview?redirect=${encodeURIComponent(lastPage)}`);
+    const response = await request.get(
+      `/api/exit-preview?redirect=${encodeURIComponent(lastPage)}`
+    );
     expect(response.ok()).toBeTruthy();
 
     const headers = response.headers();
@@ -91,9 +99,9 @@ test.describe('Preview API Routes', () => {
 
   test('preview route should handle concurrent requests', async ({ request }) => {
     // Send multiple preview requests simultaneously
-    const requests = Array(5).fill(null).map(() =>
-      request.get('/api/preview?redirect=/')
-    );
+    const requests = Array(5)
+      .fill(null)
+      .map(() => request.get('/api/preview?redirect=/'));
 
     const responses = await Promise.all(requests);
 
@@ -118,8 +126,8 @@ test.describe('Preview API Routes', () => {
       await request.get('/api/mock-env', {
         headers: {
           'x-test-node-env': mockEnv.NODE_ENV,
-          'x-test-preview-secret': mockEnv.PREVIEW_SECRET
-        }
+          'x-test-preview-secret': mockEnv.PREVIEW_SECRET,
+        },
       });
 
       // Request without secret should fail

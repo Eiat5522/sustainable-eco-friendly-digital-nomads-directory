@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
 const mockUseSession = jest.fn();
 const favoriteShowcaseProps: Array<{ listings: any[]; onRemove: (id: string) => void }> = [];
@@ -20,13 +20,17 @@ jest.mock('@/components/layout/Footer', () => ({
 jest.mock('lucide-react', () => ({
   Heart: (props: React.SVGAttributes<SVGElement>) => <svg data-testid="icon-heart" {...props} />,
   Loader2: (props: React.SVGAttributes<SVGElement>) => <svg data-testid="icon-loader" {...props} />,
-  MessageSquare: (props: React.SVGAttributes<SVGElement>) => <svg data-testid="icon-message" {...props} />,
+  MessageSquare: (props: React.SVGAttributes<SVGElement>) => (
+    <svg data-testid="icon-message" {...props} />
+  ),
   Star: (props: React.SVGAttributes<SVGElement>) => <svg data-testid="icon-star" {...props} />,
   Edit: (props: React.SVGAttributes<SVGElement>) => <svg data-testid="icon-edit" {...props} />,
 }));
 
 jest.mock('@/components/ui/neo-card', () => ({
-  NeoCard: ({ children }: { children: React.ReactNode }) => <div data-testid="neo-card">{children}</div>,
+  NeoCard: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="neo-card">{children}</div>
+  ),
   NeoCardContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   NeoCardHeader: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   NeoCardTitle: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
@@ -34,18 +38,35 @@ jest.mock('@/components/ui/neo-card', () => ({
 }));
 
 jest.mock('@/components/ui/neo-badge', () => ({
-  NeoBadge: ({ children }: { children: React.ReactNode }) => <span data-testid="neo-badge">{children}</span>,
+  NeoBadge: ({ children }: { children: React.ReactNode }) => (
+    <span data-testid="neo-badge">{children}</span>
+  ),
 }));
 
 jest.mock('@/components/ui/neo-button', () => ({
-  NeoButton: ({ children, asChild = false, ...rest }: { children: React.ReactNode; asChild?: boolean }) =>
-    asChild ? <>{children}</> : <button type="button" data-testid="neo-button" {...rest}>{children}</button>,
+  NeoButton: ({
+    children,
+    asChild = false,
+    ...rest
+  }: {
+    children: React.ReactNode;
+    asChild?: boolean;
+  }) =>
+    asChild ? (
+      children
+    ) : (
+      <button type="button" data-testid="neo-button" {...rest}>
+        {children}
+      </button>
+    ),
 }));
 
 jest.mock('@/components/profile/ProfileEditForm', () => ({
   ProfileEditForm: ({ onSuccess }: { currentName: string; onSuccess: () => void }) => (
     <div data-testid="profile-edit-form">
-      <button type="button" onClick={onSuccess}>Save</button>
+      <button type="button" onClick={onSuccess}>
+        Save
+      </button>
     </div>
   ),
 }));
@@ -56,8 +77,13 @@ jest.mock('../profile/FavoriteListingsShowcase', () => ({
     return (
       <div data-testid="favorite-showcase">
         <span data-testid="favorites-count">{props.listings.length}</span>
-        {props.listings.map((listing) => (
-          <button key={listing.id} type="button" onClick={() => props.onRemove(listing.id)} data-testid={`remove-${listing.id}`}>
+        {props.listings.map(listing => (
+          <button
+            key={listing.id}
+            type="button"
+            onClick={() => props.onRemove(listing.id)}
+            data-testid={`remove-${listing.id}`}
+          >
             Remove {listing.id}
           </button>
         ))}
@@ -151,7 +177,10 @@ describe('ProfilePage', () => {
     render(<ProfilePage />);
 
     expect(screen.getByText('Sign in to view your profile')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Go to sign in' })).toHaveAttribute('href', '/auth/login');
+    expect(screen.getByRole('link', { name: 'Go to sign in' })).toHaveAttribute(
+      'href',
+      '/auth/login'
+    );
   });
 
   it('loads and renders favorites for authenticated users', async () => {
@@ -193,7 +222,8 @@ describe('ProfilePage', () => {
       ],
     };
 
-    const fetchMock = jest.fn()
+    const fetchMock = jest
+      .fn()
       .mockResolvedValueOnce({
         ok: true,
         json: async () => favoritesResponse,
@@ -260,7 +290,8 @@ describe('ProfilePage', () => {
       update: jest.fn(),
     });
 
-    const fetchMock = jest.fn()
+    const fetchMock = jest
+      .fn()
       .mockResolvedValueOnce({
         ok: true,
         json: async () => ({ favorites: [] }),

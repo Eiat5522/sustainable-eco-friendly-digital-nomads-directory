@@ -1,6 +1,6 @@
 // Auth types
 // Type augmentation for next-auth modules
-declare module "next-auth/jwt" {
+declare module 'next-auth/jwt' {
   interface JWT {
     id: string;
     role?: UserRole;
@@ -12,7 +12,15 @@ declare module "next-auth/jwt" {
   }
 }
 
-export type UserRole = 'admin' | 'user' | 'editor' | 'venueOwner' | 'superAdmin' | 'moderator' | 'unidentifiedUser' | 'contentEditor';
+export type UserRole =
+  | 'admin'
+  | 'user'
+  | 'editor'
+  | 'venueOwner'
+  | 'superAdmin'
+  | 'moderator'
+  | 'unidentifiedUser'
+  | 'contentEditor';
 
 // Define page access permissions
 export interface PagePermissions {
@@ -75,37 +83,70 @@ export interface FeaturePermissions {
 }
 
 // Complete access control matrix as per audit requirements
-export const ACCESS_CONTROL_MATRIX: Record<UserRole, {
-  pages: {
-    home: PagePermissions;
-    listings: PagePermissions;
-    listingDetail: PagePermissions;
-    createListing: PagePermissions;
-    editListing: PagePermissions;
-    manageListing: PagePermissions;
-    reviews: PagePermissions;
-    profile: PagePermissions;
-    admin: PagePermissions;
-    analytics: PagePermissions;
-    settings: PagePermissions;
-    contact: PagePermissions;
-    about: PagePermissions;
-    blog: PagePermissions;
-  };
-  features: FeaturePermissions;
-}> = {
+export const ACCESS_CONTROL_MATRIX: Record<
+  UserRole,
+  {
+    pages: {
+      home: PagePermissions;
+      listings: PagePermissions;
+      listingDetail: PagePermissions;
+      createListing: PagePermissions;
+      editListing: PagePermissions;
+      manageListing: PagePermissions;
+      reviews: PagePermissions;
+      profile: PagePermissions;
+      admin: PagePermissions;
+      analytics: PagePermissions;
+      settings: PagePermissions;
+      contact: PagePermissions;
+      about: PagePermissions;
+      blog: PagePermissions;
+    };
+    features: FeaturePermissions;
+  }
+> = {
   admin: {
     pages: {
       home: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
       listings: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
-      listingDetail: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
-      createListing: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
-      editListing: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
-      manageListing: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
+      listingDetail: {
+        canView: true,
+        canCreate: true,
+        canEdit: true,
+        canDelete: true,
+        canManage: true,
+      },
+      createListing: {
+        canView: true,
+        canCreate: true,
+        canEdit: true,
+        canDelete: true,
+        canManage: true,
+      },
+      editListing: {
+        canView: true,
+        canCreate: true,
+        canEdit: true,
+        canDelete: true,
+        canManage: true,
+      },
+      manageListing: {
+        canView: true,
+        canCreate: true,
+        canEdit: true,
+        canDelete: true,
+        canManage: true,
+      },
       reviews: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
       profile: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
       admin: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
-      analytics: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
+      analytics: {
+        canView: true,
+        canCreate: true,
+        canEdit: true,
+        canDelete: true,
+        canManage: true,
+      },
       settings: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
       contact: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
       about: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
@@ -152,14 +193,44 @@ export const ACCESS_CONTROL_MATRIX: Record<UserRole, {
     pages: {
       home: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
       listings: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
-      listingDetail: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
-      createListing: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
-      editListing: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
-      manageListing: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
+      listingDetail: {
+        canView: true,
+        canCreate: true,
+        canEdit: true,
+        canDelete: true,
+        canManage: true,
+      },
+      createListing: {
+        canView: true,
+        canCreate: true,
+        canEdit: true,
+        canDelete: true,
+        canManage: true,
+      },
+      editListing: {
+        canView: true,
+        canCreate: true,
+        canEdit: true,
+        canDelete: true,
+        canManage: true,
+      },
+      manageListing: {
+        canView: true,
+        canCreate: true,
+        canEdit: true,
+        canDelete: true,
+        canManage: true,
+      },
       reviews: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
       profile: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
       admin: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
-      analytics: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
+      analytics: {
+        canView: true,
+        canCreate: true,
+        canEdit: true,
+        canDelete: true,
+        canManage: true,
+      },
       settings: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
       contact: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
       about: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
@@ -205,18 +276,84 @@ export const ACCESS_CONTROL_MATRIX: Record<UserRole, {
   moderator: {
     pages: {
       home: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      listings: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: true },
-      listingDetail: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
-      createListing: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      editListing: { canView: false, canCreate: false, canEdit: true, canDelete: false, canManage: false },
-      manageListing: { canView: false, canCreate: false, canEdit: true, canDelete: false, canManage: true },
-      reviews: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: true },
-      profile: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
+      listings: {
+        canView: true,
+        canCreate: false,
+        canEdit: true,
+        canDelete: false,
+        canManage: true,
+      },
+      listingDetail: {
+        canView: true,
+        canCreate: false,
+        canEdit: true,
+        canDelete: false,
+        canManage: false,
+      },
+      createListing: {
+        canView: false,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      editListing: {
+        canView: false,
+        canCreate: false,
+        canEdit: true,
+        canDelete: false,
+        canManage: false,
+      },
+      manageListing: {
+        canView: false,
+        canCreate: false,
+        canEdit: true,
+        canDelete: false,
+        canManage: true,
+      },
+      reviews: {
+        canView: true,
+        canCreate: false,
+        canEdit: true,
+        canDelete: false,
+        canManage: true,
+      },
+      profile: {
+        canView: true,
+        canCreate: false,
+        canEdit: true,
+        canDelete: false,
+        canManage: false,
+      },
       admin: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: true },
-      analytics: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      settings: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      contact: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
-      about: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      analytics: {
+        canView: false,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      settings: {
+        canView: false,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      contact: {
+        canView: true,
+        canCreate: false,
+        canEdit: true,
+        canDelete: false,
+        canManage: false,
+      },
+      about: {
+        canView: true,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
       blog: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: true },
     },
     features: {
@@ -259,18 +396,90 @@ export const ACCESS_CONTROL_MATRIX: Record<UserRole, {
   venueOwner: {
     pages: {
       home: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      listings: { canView: true, canCreate: true, canEdit: false, canDelete: false, canManage: false },
-      listingDetail: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      createListing: { canView: true, canCreate: true, canEdit: false, canDelete: false, canManage: false },
-      editListing: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
-      manageListing: { canView: true, canCreate: false, canEdit: true, canDelete: true, canManage: true },
-      reviews: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      profile: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
-      admin: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      analytics: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      settings: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      contact: { canView: true, canCreate: true, canEdit: false, canDelete: false, canManage: false },
-      about: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      listings: {
+        canView: true,
+        canCreate: true,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      listingDetail: {
+        canView: true,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      createListing: {
+        canView: true,
+        canCreate: true,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      editListing: {
+        canView: true,
+        canCreate: false,
+        canEdit: true,
+        canDelete: false,
+        canManage: false,
+      },
+      manageListing: {
+        canView: true,
+        canCreate: false,
+        canEdit: true,
+        canDelete: true,
+        canManage: true,
+      },
+      reviews: {
+        canView: true,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      profile: {
+        canView: true,
+        canCreate: false,
+        canEdit: true,
+        canDelete: false,
+        canManage: false,
+      },
+      admin: {
+        canView: false,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      analytics: {
+        canView: true,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      settings: {
+        canView: false,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      contact: {
+        canView: true,
+        canCreate: true,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      about: {
+        canView: true,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
       blog: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
     },
     features: {
@@ -313,18 +522,90 @@ export const ACCESS_CONTROL_MATRIX: Record<UserRole, {
   user: {
     pages: {
       home: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      listings: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      listingDetail: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      createListing: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      editListing: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      manageListing: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      reviews: { canView: true, canCreate: true, canEdit: false, canDelete: false, canManage: false },
-      profile: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
-      admin: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      analytics: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      settings: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      contact: { canView: true, canCreate: true, canEdit: false, canDelete: false, canManage: false },
-      about: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      listings: {
+        canView: true,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      listingDetail: {
+        canView: true,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      createListing: {
+        canView: true,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      editListing: {
+        canView: false,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      manageListing: {
+        canView: false,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      reviews: {
+        canView: true,
+        canCreate: true,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      profile: {
+        canView: true,
+        canCreate: false,
+        canEdit: true,
+        canDelete: false,
+        canManage: false,
+      },
+      admin: {
+        canView: false,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      analytics: {
+        canView: false,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      settings: {
+        canView: false,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      contact: {
+        canView: true,
+        canCreate: true,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      about: {
+        canView: true,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
       blog: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
     },
     features: {
@@ -367,17 +648,77 @@ export const ACCESS_CONTROL_MATRIX: Record<UserRole, {
   editor: {
     pages: {
       home: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
-      listings: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: true },
-      listingDetail: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
-      createListing: { canView: true, canCreate: true, canEdit: false, canDelete: false, canManage: false },
-      editListing: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
-      manageListing: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: true },
+      listings: {
+        canView: true,
+        canCreate: true,
+        canEdit: true,
+        canDelete: false,
+        canManage: true,
+      },
+      listingDetail: {
+        canView: true,
+        canCreate: false,
+        canEdit: true,
+        canDelete: false,
+        canManage: false,
+      },
+      createListing: {
+        canView: true,
+        canCreate: true,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      editListing: {
+        canView: true,
+        canCreate: false,
+        canEdit: true,
+        canDelete: false,
+        canManage: false,
+      },
+      manageListing: {
+        canView: true,
+        canCreate: false,
+        canEdit: true,
+        canDelete: false,
+        canManage: true,
+      },
       reviews: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: true },
-      profile: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
-      admin: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      analytics: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      settings: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      contact: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: false },
+      profile: {
+        canView: true,
+        canCreate: false,
+        canEdit: true,
+        canDelete: false,
+        canManage: false,
+      },
+      admin: {
+        canView: false,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      analytics: {
+        canView: true,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      settings: {
+        canView: false,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      contact: {
+        canView: true,
+        canCreate: true,
+        canEdit: true,
+        canDelete: false,
+        canManage: false,
+      },
       about: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: false },
       blog: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: true },
     },
@@ -421,17 +762,77 @@ export const ACCESS_CONTROL_MATRIX: Record<UserRole, {
   contentEditor: {
     pages: {
       home: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
-      listings: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: true },
-      listingDetail: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
-      createListing: { canView: true, canCreate: true, canEdit: false, canDelete: false, canManage: false },
-      editListing: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
-      manageListing: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: true },
+      listings: {
+        canView: true,
+        canCreate: true,
+        canEdit: true,
+        canDelete: false,
+        canManage: true,
+      },
+      listingDetail: {
+        canView: true,
+        canCreate: false,
+        canEdit: true,
+        canDelete: false,
+        canManage: false,
+      },
+      createListing: {
+        canView: true,
+        canCreate: true,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      editListing: {
+        canView: true,
+        canCreate: false,
+        canEdit: true,
+        canDelete: false,
+        canManage: false,
+      },
+      manageListing: {
+        canView: true,
+        canCreate: false,
+        canEdit: true,
+        canDelete: false,
+        canManage: true,
+      },
       reviews: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: true },
-      profile: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
-      admin: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      analytics: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      settings: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      contact: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: false },
+      profile: {
+        canView: true,
+        canCreate: false,
+        canEdit: true,
+        canDelete: false,
+        canManage: false,
+      },
+      admin: {
+        canView: false,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      analytics: {
+        canView: true,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      settings: {
+        canView: false,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      contact: {
+        canView: true,
+        canCreate: true,
+        canEdit: true,
+        canDelete: false,
+        canManage: false,
+      },
       about: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: false },
       blog: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: true },
     },
@@ -475,18 +876,90 @@ export const ACCESS_CONTROL_MATRIX: Record<UserRole, {
   unidentifiedUser: {
     pages: {
       home: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      listings: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      listingDetail: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      createListing: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      editListing: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      manageListing: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      reviews: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      profile: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      admin: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      analytics: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      settings: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      contact: { canView: true, canCreate: true, canEdit: false, canDelete: false, canManage: false },
-      about: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      listings: {
+        canView: true,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      listingDetail: {
+        canView: true,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      createListing: {
+        canView: false,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      editListing: {
+        canView: false,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      manageListing: {
+        canView: false,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      reviews: {
+        canView: true,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      profile: {
+        canView: false,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      admin: {
+        canView: false,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      analytics: {
+        canView: false,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      settings: {
+        canView: false,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      contact: {
+        canView: true,
+        canCreate: true,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      about: {
+        canView: true,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
       blog: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
     },
     features: {
@@ -525,26 +998,26 @@ export const ACCESS_CONTROL_MATRIX: Record<UserRole, {
       deleteAllComments: false,
       moderateComments: false,
     },
-  }
+  },
 };
 
 // Utility functions for permission checking
-export function getUserPermissions(role: UserRole): { pages: typeof ACCESS_CONTROL_MATRIX[UserRole]['pages']; features: FeaturePermissions } {
+export function getUserPermissions(role: UserRole): {
+  pages: (typeof ACCESS_CONTROL_MATRIX)[UserRole]['pages'];
+  features: FeaturePermissions;
+} {
   return ACCESS_CONTROL_MATRIX[role];
 }
 
 export function hasPagePermission(
   role: UserRole,
-  page: keyof typeof ACCESS_CONTROL_MATRIX[UserRole]['pages'],
+  page: keyof (typeof ACCESS_CONTROL_MATRIX)[UserRole]['pages'],
   action: keyof PagePermissions
 ): boolean {
   return ACCESS_CONTROL_MATRIX[role].pages[page][action];
 }
 
-export function hasFeaturePermission(
-  role: UserRole,
-  feature: keyof FeaturePermissions
-): boolean {
+export function hasFeaturePermission(role: UserRole, feature: keyof FeaturePermissions): boolean {
   return ACCESS_CONTROL_MATRIX[role].features[feature];
 }
 

@@ -1,10 +1,10 @@
 import type {
   SearchFilters,
-  SustainabilityScore,
-  SortOption,
+  SearchParamRecord,
   SearchResult,
   SearchResults,
-  SearchParamRecord
+  SortOption,
+  SustainabilityScore,
 } from '../search';
 
 describe('search types', () => {
@@ -13,7 +13,7 @@ describe('search types', () => {
       const filters: SearchFilters = {
         query: 'coworking',
         ecoTags: [],
-        hasDigitalNomadFeatures: false
+        hasDigitalNomadFeatures: false,
       };
       expect(filters.query).toBe('coworking');
       expect(filters.ecoTags).toHaveLength(0);
@@ -25,19 +25,19 @@ describe('search types', () => {
         query: '',
         category: 'coworking',
         ecoTags: [],
-        hasDigitalNomadFeatures: false
+        hasDigitalNomadFeatures: false,
       };
       const filters2: SearchFilters = {
         query: '',
         category: 'cafe',
         ecoTags: [],
-        hasDigitalNomadFeatures: false
+        hasDigitalNomadFeatures: false,
       };
       const filters3: SearchFilters = {
         query: '',
         category: 'accommodation',
         ecoTags: [],
-        hasDigitalNomadFeatures: false
+        hasDigitalNomadFeatures: false,
       };
       expect(filters1.category).toBe('coworking');
       expect(filters2.category).toBe('cafe');
@@ -49,7 +49,7 @@ describe('search types', () => {
         query: '',
         city: 'Bangkok',
         ecoTags: [],
-        hasDigitalNomadFeatures: false
+        hasDigitalNomadFeatures: false,
       };
       expect(filters.city).toBe('Bangkok');
     });
@@ -58,7 +58,7 @@ describe('search types', () => {
       const filters: SearchFilters = {
         query: '',
         ecoTags: ['solar-power', 'recycling', 'organic'],
-        hasDigitalNomadFeatures: false
+        hasDigitalNomadFeatures: false,
       };
       expect(filters.ecoTags).toHaveLength(3);
       expect(filters.ecoTags).toContain('organic');
@@ -68,7 +68,7 @@ describe('search types', () => {
       const filters: SearchFilters = {
         query: '',
         ecoTags: [],
-        hasDigitalNomadFeatures: true
+        hasDigitalNomadFeatures: true,
       };
       expect(filters.hasDigitalNomadFeatures).toBe(true);
     });
@@ -78,7 +78,7 @@ describe('search types', () => {
         query: '',
         ecoTags: [],
         hasDigitalNomadFeatures: false,
-        minSustainabilityScore: 4
+        minSustainabilityScore: 4,
       };
       expect(filters.minSustainabilityScore).toBe(4);
     });
@@ -88,7 +88,7 @@ describe('search types', () => {
         query: '',
         ecoTags: [],
         hasDigitalNomadFeatures: false,
-        maxPriceRange: 1000
+        maxPriceRange: 1000,
       };
       expect(filters.maxPriceRange).toBe(1000);
     });
@@ -101,7 +101,7 @@ describe('search types', () => {
         ecoTags: ['organic', 'zero-waste'],
         hasDigitalNomadFeatures: true,
         minSustainabilityScore: 3,
-        maxPriceRange: 500
+        maxPriceRange: 500,
       };
       expect(filters.query).toBe('eco cafe');
       expect(filters.category).toBe('cafe');
@@ -117,8 +117,8 @@ describe('search types', () => {
           ecoInitiatives: 5,
           wasteManagement: 4,
           energyEfficiency: 4,
-          localSourcing: 5
-        }
+          localSourcing: 5,
+        },
       };
       expect(score.score).toBe(4.5);
       expect(score.factors.ecoInitiatives).toBe(5);
@@ -131,8 +131,8 @@ describe('search types', () => {
           ecoInitiatives: 4,
           wasteManagement: 3,
           energyEfficiency: 4,
-          localSourcing: 4
-        }
+          localSourcing: 4,
+        },
       };
       expect(score.factors.wasteManagement).toBe(3);
       expect(score.factors.energyEfficiency).toBe(4);
@@ -140,8 +140,14 @@ describe('search types', () => {
 
     it('should handle different score values', () => {
       const scores: SustainabilityScore[] = [
-        { score: 1, factors: { ecoInitiatives: 1, wasteManagement: 1, energyEfficiency: 1, localSourcing: 1 } },
-        { score: 5, factors: { ecoInitiatives: 5, wasteManagement: 5, energyEfficiency: 5, localSourcing: 5 } }
+        {
+          score: 1,
+          factors: { ecoInitiatives: 1, wasteManagement: 1, energyEfficiency: 1, localSourcing: 1 },
+        },
+        {
+          score: 5,
+          factors: { ecoInitiatives: 5, wasteManagement: 5, energyEfficiency: 5, localSourcing: 5 },
+        },
       ];
       expect(scores[0].score).toBe(1);
       expect(scores[1].score).toBe(5);
@@ -153,13 +159,19 @@ describe('search types', () => {
       const sort: SortOption = {
         field: 'relevance',
         direction: 'desc',
-        label: 'Relevance'
+        label: 'Relevance',
       };
       expect(sort.field).toBe('relevance');
     });
 
     it('should accept all field types', () => {
-      const fields: SortOption['field'][] = ['relevance', 'price', 'rating', 'sustainability', 'distance'];
+      const fields: SortOption['field'][] = [
+        'relevance',
+        'price',
+        'rating',
+        'sustainability',
+        'distance',
+      ];
       fields.forEach(field => {
         const sort: SortOption = { field, direction: 'asc', label: field };
         expect(sort.field).toBe(field);
@@ -168,7 +180,11 @@ describe('search types', () => {
 
     it('should accept both direction values', () => {
       const sortAsc: SortOption = { field: 'price', direction: 'asc', label: 'Price Low to High' };
-      const sortDesc: SortOption = { field: 'price', direction: 'desc', label: 'Price High to Low' };
+      const sortDesc: SortOption = {
+        field: 'price',
+        direction: 'desc',
+        label: 'Price High to Low',
+      };
       expect(sortAsc.direction).toBe('asc');
       expect(sortDesc.direction).toBe('desc');
     });
@@ -177,7 +193,7 @@ describe('search types', () => {
       const sort: SortOption = {
         field: 'rating',
         direction: 'desc',
-        label: 'Highest Rated'
+        label: 'Highest Rated',
       };
       expect(sort.label).toBe('Highest Rated');
     });
@@ -193,16 +209,16 @@ describe('search types', () => {
         category: 'coworking',
         city: {
           name: 'Bangkok',
-          slug: 'bangkok'
+          slug: 'bangkok',
         },
         primaryImage: {
           asset: {
             _ref: 'image-ref',
-            url: 'https://example.com/image.jpg'
-          }
+            url: 'https://example.com/image.jpg',
+          },
         },
         ecoTags: ['solar-power', 'recycling'],
-        nomadFeatures: ['wifi', 'meeting-rooms']
+        nomadFeatures: ['wifi', 'meeting-rooms'],
       };
       expect(result._id).toBe('listing-123');
       expect(result.name).toBe('Eco Coworking');
@@ -219,11 +235,11 @@ describe('search types', () => {
         city: {
           name: 'Test City',
           slug: 'test-city',
-          coordinates: { lat: 13.7563, lng: 100.5018 }
+          coordinates: { lat: 13.7563, lng: 100.5018 },
         },
         primaryImage: { asset: { _ref: 'ref', url: 'url' } },
         ecoTags: [],
-        nomadFeatures: []
+        nomadFeatures: [],
       };
       expect(result.city.coordinates?.lat).toBe(13.7563);
     });
@@ -239,7 +255,7 @@ describe('search types', () => {
         coordinates: { lat: 13.7563, lng: 100.5018 },
         primaryImage: { asset: { _ref: 'ref', url: 'url' } },
         ecoTags: [],
-        nomadFeatures: []
+        nomadFeatures: [],
       };
       expect(result.coordinates?.lat).toBe(13.7563);
     });
@@ -254,10 +270,10 @@ describe('search types', () => {
         city: { name: 'Test', slug: 'test' },
         primaryImage: {
           asset: { _ref: 'ref', url: 'url' },
-          alt: 'Image description'
+          alt: 'Image description',
         },
         ecoTags: [],
-        nomadFeatures: []
+        nomadFeatures: [],
       };
       expect(result.primaryImage.alt).toBe('Image description');
     });
@@ -273,7 +289,7 @@ describe('search types', () => {
         primaryImage: { asset: { _ref: 'ref', url: 'url' } },
         ecoTags: [],
         nomadFeatures: [],
-        priceRange: { min: 100, max: 500, currency: 'THB' }
+        priceRange: { min: 100, max: 500, currency: 'THB' },
       };
       expect(result.priceRange?.min).toBe(100);
       expect(result.priceRange?.currency).toBe('THB');
@@ -291,7 +307,7 @@ describe('search types', () => {
         ecoTags: [],
         nomadFeatures: [],
         rating: 4.5,
-        sustainabilityScore: 4.2
+        sustainabilityScore: 4.2,
       };
       expect(result.rating).toBe(4.5);
       expect(result.sustainabilityScore).toBe(4.2);
@@ -308,7 +324,7 @@ describe('search types', () => {
         primaryImage: { asset: { _ref: 'ref', url: 'url' } },
         ecoTags: [],
         nomadFeatures: [],
-        _score: 0.85
+        _score: 0.85,
       };
       expect(result._score).toBe(0.85);
     });
@@ -322,8 +338,8 @@ describe('search types', () => {
           total: 0,
           page: 1,
           totalPages: 0,
-          hasMore: false
-        }
+          hasMore: false,
+        },
       };
       expect(results.results).toHaveLength(0);
       expect(results.pagination.total).toBe(0);
@@ -339,7 +355,7 @@ describe('search types', () => {
         city: { name: 'Bangkok', slug: 'bangkok' },
         primaryImage: { asset: { _ref: 'ref', url: 'url' } },
         ecoTags: [],
-        nomadFeatures: []
+        nomadFeatures: [],
       };
 
       const results: SearchResults = {
@@ -348,8 +364,8 @@ describe('search types', () => {
           total: 1,
           page: 1,
           totalPages: 1,
-          hasMore: false
-        }
+          hasMore: false,
+        },
       };
       expect(results.results).toHaveLength(1);
       expect(results.pagination.hasMore).toBe(false);
@@ -362,8 +378,8 @@ describe('search types', () => {
           total: 100,
           page: 3,
           totalPages: 10,
-          hasMore: true
-        }
+          hasMore: true,
+        },
       };
       expect(results.pagination.page).toBe(3);
       expect(results.pagination.totalPages).toBe(10);
@@ -375,14 +391,14 @@ describe('search types', () => {
     it('should accept string values', () => {
       const params: SearchParamRecord = {
         query: 'test',
-        category: 'coworking'
+        category: 'coworking',
       };
       expect(params.query).toBe('test');
     });
 
     it('should accept string array values', () => {
       const params: SearchParamRecord = {
-        tags: ['tag1', 'tag2', 'tag3']
+        tags: ['tag1', 'tag2', 'tag3'],
       };
       expect(Array.isArray(params.tags)).toBe(true);
     });
@@ -390,7 +406,7 @@ describe('search types', () => {
     it('should accept undefined values', () => {
       const params: SearchParamRecord = {
         query: 'test',
-        optional: undefined
+        optional: undefined,
       };
       expect(params.optional).toBeUndefined();
     });
@@ -400,7 +416,7 @@ describe('search types', () => {
         query: 'test',
         tags: ['tag1', 'tag2'],
         optional: undefined,
-        city: 'Bangkok'
+        city: 'Bangkok',
       };
       expect(params.query).toBe('test');
       expect(params.tags).toHaveLength(2);
@@ -416,7 +432,7 @@ describe('search types', () => {
         city: 'Bangkok',
         ecoTags: ['solar-power'],
         hasDigitalNomadFeatures: true,
-        minSustainabilityScore: 4
+        minSustainabilityScore: 4,
       };
 
       const mockResult: SearchResult = {
@@ -430,7 +446,7 @@ describe('search types', () => {
         ecoTags: ['solar-power', 'recycling'],
         nomadFeatures: ['wifi', 'meeting-rooms'],
         sustainabilityScore: 4.5,
-        rating: 4.8
+        rating: 4.8,
       };
 
       const results: SearchResults = {
@@ -439,8 +455,8 @@ describe('search types', () => {
           total: 1,
           page: 1,
           totalPages: 1,
-          hasMore: false
-        }
+          hasMore: false,
+        },
       };
 
       expect(filters.query).toBe('eco coworking');

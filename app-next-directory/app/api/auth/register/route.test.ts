@@ -29,17 +29,19 @@ jest.mock('@/lib/auth', () => ({
   auth: jest.fn(),
 }));
 
-import { POST as registerPOST } from './route';
-import { GET as authGET } from '../test/route';
-import connect from '@/lib/dbConnect';
-import User from '@/models/User';
 import bcrypt from 'bcryptjs';
 import { auth } from '@/lib/auth';
+import connect from '@/lib/dbConnect';
+import User from '@/models/User';
+import { GET as authGET } from '../test/route';
+import { POST as registerPOST } from './route';
 
 const mockConnect = connect as jest.MockedFunction<typeof connect>;
 const mockUserFindOne = User.findOne as jest.MockedFunction<typeof User.findOne>;
 const mockUserCreate = User.create as jest.MockedFunction<typeof User.create>;
-const mockBcryptHash = bcrypt.hash as jest.MockedFunction<(data: string | Buffer, saltOrRounds: string | number) => Promise<string>>;
+const mockBcryptHash = bcrypt.hash as jest.MockedFunction<
+  (data: string | Buffer, saltOrRounds: string | number) => Promise<string>
+>;
 const mockAuth = auth as jest.MockedFunction<() => Promise<any>>;
 
 /**
@@ -197,7 +199,10 @@ describe('Registration API Routes', () => {
 
       expect(response.status).toBe(400);
       expect(body.error.code).toBe('INVALID_INPUT');
-      expect(warnSpy).toHaveBeenCalledWith('[register] Failed to parse request body', expect.any(Error));
+      expect(warnSpy).toHaveBeenCalledWith(
+        '[register] Failed to parse request body',
+        expect.any(Error)
+      );
       warnSpy.mockRestore();
     });
 
@@ -370,9 +375,7 @@ describe('Registration API Routes', () => {
 
     test('rejects whitespace-only fields', async () => {
       const req = {
-        json: jest
-          .fn()
-          .mockResolvedValue({ name: '   ', email: '   ', password: '   ' }),
+        json: jest.fn().mockResolvedValue({ name: '   ', email: '   ', password: '   ' }),
       } as any;
 
       const response = await registerPOST(req);
@@ -419,7 +422,7 @@ describe('Registration API Routes', () => {
           email: 'test@example.com',
           role: 'user',
           name: 'Test User',
-        }
+        },
       });
 
       const response = await authGET(new NextRequest('http://localhost/api/auth/test'));
@@ -463,7 +466,7 @@ describe('Registration API Routes', () => {
           email: 'test@example.com',
           role: 'user',
           name: 'Test User',
-        }
+        },
       });
 
       const response = await authGET(new NextRequest('http://localhost/api/auth/test'));

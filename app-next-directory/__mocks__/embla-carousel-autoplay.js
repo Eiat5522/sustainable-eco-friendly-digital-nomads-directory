@@ -1,5 +1,5 @@
 // Mock for embla-carousel-autoplay
-const Autoplay = (options) => {
+const Autoplay = options => {
   return {
     init: () => {},
     destroy: () => {},

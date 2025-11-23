@@ -66,26 +66,26 @@ if (shouldMockMongo) {
 
   if (process.env.NODE_ENV === 'development') {
     const globalWithMongo = global as typeof globalThis & {
-      _mongoClientPromise?: Promise<MongoClient>
-    }
+      _mongoClientPromise?: Promise<MongoClient>;
+    };
 
     if (!globalWithMongo._mongoClientPromise) {
       const client = new MongoClient(uri, options);
-      globalWithMongo._mongoClientPromise = client.connect()
-        .then((clientInstance) => clientInstance)
-        .catch((error) => {
+      globalWithMongo._mongoClientPromise = client
+        .connect()
+        .then(clientInstance => clientInstance)
+        .catch(error => {
           globalWithMongo._mongoClientPromise = undefined;
-          console.error('MongoDB connection failed:', error?.message ?? error);
           throw error;
         });
     }
     clientPromise = globalWithMongo._mongoClientPromise as Promise<MongoClient>;
   } else {
     const client = new MongoClient(uri, options);
-    clientPromise = client.connect()
-      .then((clientInstance) => clientInstance)
-      .catch((error) => {
-        console.error('MongoDB connection failed:', error?.message ?? error);
+    clientPromise = client
+      .connect()
+      .then(clientInstance => clientInstance)
+      .catch(error => {
         throw error;
       });
   }

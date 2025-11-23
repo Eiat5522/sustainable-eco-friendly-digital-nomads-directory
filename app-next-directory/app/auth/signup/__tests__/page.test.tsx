@@ -25,7 +25,8 @@ jest.mock('next/navigation', () => ({
 
 const authMock = jest.requireMock('@/lib/auth').auth as jest.Mock;
 const getBaseUrlMock = jest.requireMock('@/lib/absolute-url').getBaseUrl as jest.Mock;
-const sanitizeCallbackUrlMock = jest.requireMock('@/lib/auth/callbackUrl').sanitizeCallbackUrl as jest.Mock;
+const sanitizeCallbackUrlMock = jest.requireMock('@/lib/auth/callbackUrl')
+  .sanitizeCallbackUrl as jest.Mock;
 
 describe('SignupPage (server)', () => {
   beforeEach(() => {
@@ -42,7 +43,9 @@ describe('SignupPage (server)', () => {
 
     const SignupPage = (await import('../page')).default;
 
-    await expect(SignupPage({ searchParams: { callbackUrl: '/dashboard' } })).rejects.toThrow('redirect');
+    await expect(SignupPage({ searchParams: { callbackUrl: '/dashboard' } })).rejects.toThrow(
+      'redirect'
+    );
 
     expect(getBaseUrlMock).toHaveBeenCalledTimes(1);
     expect(sanitizeCallbackUrlMock).toHaveBeenCalledWith('/dashboard', 'https://example.com');
@@ -59,7 +62,9 @@ describe('SignupPage (server)', () => {
 
     const SignupPage = (await import('../page')).default;
 
-    await expect(SignupPage({ searchParams: { callbackUrl: '/account' } })).rejects.toThrow('redirect');
+    await expect(SignupPage({ searchParams: { callbackUrl: '/account' } })).rejects.toThrow(
+      'redirect'
+    );
 
     expect(sanitizeCallbackUrlMock).toHaveBeenCalledWith('/account', undefined);
     expect(redirectMock).toHaveBeenCalledWith('/fallback');
@@ -70,7 +75,7 @@ describe('SignupPage (server)', () => {
 
     const SignupPage = (await import('../page')).default;
     const element = await SignupPage({});
-    render(<>{element}</>);
+    render(element);
 
     expect(screen.getByTestId('signup-content')).toBeInTheDocument();
     expect(redirectMock).not.toHaveBeenCalled();

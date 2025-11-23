@@ -2,12 +2,12 @@
  * @jest-environment node
  */
 
-import { describe, it, expect } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
 import {
-  getPriceRangeDisplay,
-  getPriceRangeInfo,
-  getPriceRangeEmoji,
   getAccommodationPriceDisplay,
+  getPriceRangeDisplay,
+  getPriceRangeEmoji,
+  getPriceRangeInfo,
   PRICE_RANGE_MAP,
   type PriceRange,
 } from '../priceRange';
@@ -22,8 +22,8 @@ describe('priceRange', () => {
 
     it('should have correct structure for each category', () => {
       const categories: PriceRange[] = ['budget', 'moderate', 'premium'];
-      
-      categories.forEach((category) => {
+
+      categories.forEach(category => {
         const info = PRICE_RANGE_MAP[category];
         expect(info).toHaveProperty('label');
         expect(info).toHaveProperty('estimatedRange');

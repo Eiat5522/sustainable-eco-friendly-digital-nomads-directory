@@ -96,22 +96,34 @@ describe('SanityImageUploader', () => {
       description: 'Example image',
     });
 
-    expect(uploadAssetMock).toHaveBeenCalledWith(expect.any(File), expect.objectContaining({
-      filename: 'photo.jpg',
-      contentType: 'image/jpeg',
-      title: 'Sample',
-      description: 'Example image',
-    }));
+    expect(uploadAssetMock).toHaveBeenCalledWith(
+      expect.any(File),
+      expect.objectContaining({
+        filename: 'photo.jpg',
+        contentType: 'image/jpeg',
+        title: 'Sample',
+        description: 'Example image',
+      })
+    );
     expect(result.asset._id).toBe('asset-123');
-    expect(result.metadata).toMatchObject({ width: 1024, height: 768, size: file.size, format: 'jpeg' });
+    expect(result.metadata).toMatchObject({
+      width: 1024,
+      height: 768,
+      size: file.size,
+      format: 'jpeg',
+    });
     expect(result.metadata.blurHash).toContain('data:image/svg+xml;base64');
-    expect(result.url).toContain('https://cdn.sanity.io/images/proj/dataset/asset-123-800x600.webp');
+    expect(result.url).toContain(
+      'https://cdn.sanity.io/images/proj/dataset/asset-123-800x600.webp'
+    );
   });
 
   it('throws a descriptive error when validation fails', async () => {
     const invalidFile = new File([new Uint8Array([1])], 'note.txt', { type: 'text/plain' });
 
-    await expect(uploader.uploadImage(invalidFile)).rejects.toThrow('Unsupported file type: text/plain');
+    await expect(uploader.uploadImage(invalidFile)).rejects.toThrow(
+      'Unsupported file type: text/plain'
+    );
     expect(uploadAssetMock).not.toHaveBeenCalled();
   });
 

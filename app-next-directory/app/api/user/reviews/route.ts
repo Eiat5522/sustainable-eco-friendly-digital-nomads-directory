@@ -1,9 +1,9 @@
+import { randomUUID } from 'node:crypto';
 import type { Collection } from 'mongodb';
 import { NextResponse } from 'next/server';
-import { randomUUID } from 'node:crypto';
 import { auth } from '@/lib/auth';
-import { getCollection } from '@/utils/db-helpers';
 import { structuredLogger } from '@/lib/logger';
+import { getCollection } from '@/utils/db-helpers';
 
 type SessionUser = {
   id?: string | null;
@@ -71,7 +71,10 @@ export function normaliseListing(doc: ListingDoc): NormalisedListing | null {
     return null;
   }
 
-  const name = typeof doc.name === 'string' && doc.name.trim().length > 0 ? doc.name.trim() : 'Untitled listing';
+  const name =
+    typeof doc.name === 'string' && doc.name.trim().length > 0
+      ? doc.name.trim()
+      : 'Untitled listing';
 
   return { slug, name };
 }
@@ -85,15 +88,15 @@ export function normaliseReview(doc: ReviewDoc): NormalisedReview | null {
   const comment = typeof doc.comment === 'string' ? doc.comment : '';
   let createdAt: string;
   try {
-    createdAt = doc.createdAt instanceof Date
-      ? doc.createdAt.toISOString()
-      : typeof doc.createdAt === 'string' && doc.createdAt.trim().length > 0
-        ? new Date(doc.createdAt).toISOString()
-        : new Date().toISOString();
+    createdAt =
+      doc.createdAt instanceof Date
+        ? doc.createdAt.toISOString()
+        : typeof doc.createdAt === 'string' && doc.createdAt.trim().length > 0
+          ? new Date(doc.createdAt).toISOString()
+          : new Date().toISOString();
   } catch (_e) {
     createdAt = new Date().toISOString();
   }
-
 
   let reviewerName: string | undefined;
   if (typeof doc.userName === 'string' && doc.userName.trim().length > 0) {
@@ -108,11 +111,12 @@ export function normaliseReview(doc: ReviewDoc): NormalisedReview | null {
         ? doc.user.image.trim()
         : undefined;
 
-  const id = typeof doc._id === 'string'
-    ? doc._id
-    : doc._id && typeof doc._id === 'object' && 'toString' in doc._id
-      ? String((doc._id as { toString: () => string }).toString())
-      : randomUUID();
+  const id =
+    typeof doc._id === 'string'
+      ? doc._id
+      : doc._id && typeof doc._id === 'object' && 'toString' in doc._id
+        ? String((doc._id as { toString: () => string }).toString())
+        : randomUUID();
 
   return {
     id,

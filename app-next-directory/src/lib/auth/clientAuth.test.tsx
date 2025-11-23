@@ -1,17 +1,17 @@
 /// <reference types="@testing-library/jest-dom" />
-import React from 'react';
+
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useSession, signIn, signOut } from 'next-auth/react';
-import {
-  AuthProvider,
-  useAuthContext,
-  Authenticated,
-  RequireRole,
-  RequirePermission,
-  AdminOnly,
-} from './clientAuth';
+import { signIn, signOut, useSession } from 'next-auth/react';
 import type { UserRole } from '../../types/auth';
+import {
+  AdminOnly,
+  Authenticated,
+  AuthProvider,
+  RequirePermission,
+  RequireRole,
+  useAuthContext,
+} from './clientAuth';
 
 jest.mock('next-auth/react', () => ({
   useSession: jest.fn(),
@@ -35,7 +35,7 @@ describe('clientAuth context and helpers', () => {
     };
 
     expect(() => render(<Consumer />)).toThrow(
-      'useAuthContext must be used within an AuthProvider',
+      'useAuthContext must be used within an AuthProvider'
     );
   });
 
@@ -79,7 +79,7 @@ describe('clientAuth context and helpers', () => {
         hasFeaturePermission={hasFeaturePermissionMock as any}
       >
         <Consumer />
-      </AuthProvider>,
+      </AuthProvider>
     );
 
     expect(screen.getByTestId('is-auth')).toHaveTextContent('yes');
@@ -107,7 +107,7 @@ describe('clientAuth context and helpers', () => {
           <Authenticated>
             <div>Protected</div>
           </Authenticated>
-        </AuthProvider>,
+        </AuthProvider>
       );
 
       expect(screen.getByTestId('loading')).toBeInTheDocument();
@@ -124,7 +124,7 @@ describe('clientAuth context and helpers', () => {
           <Authenticated>
             <div data-testid="protected">Protected</div>
           </Authenticated>
-        </AuthProvider>,
+        </AuthProvider>
       );
 
       expect(screen.getByTestId('protected')).toBeInTheDocument();
@@ -138,7 +138,7 @@ describe('clientAuth context and helpers', () => {
           <Authenticated fallback={<div data-testid="fallback">Please sign in</div>}>
             <div data-testid="protected">Protected</div>
           </Authenticated>
-        </AuthProvider>,
+        </AuthProvider>
       );
 
       expect(screen.queryByTestId('protected')).not.toBeInTheDocument();
@@ -152,10 +152,10 @@ describe('clientAuth context and helpers', () => {
 
       render(
         <AuthProvider>
-          <RequireRole role="admin">
+          <RequireRole >
             <div>Admin section</div>
           </RequireRole>
-        </AuthProvider>,
+        </AuthProvider>
       );
 
       expect(screen.getByTestId('loading')).toBeInTheDocument();
@@ -169,10 +169,10 @@ describe('clientAuth context and helpers', () => {
 
       render(
         <AuthProvider>
-          <RequireRole role="admin">
+          <RequireRole >
             <div data-testid="role-pass">Allowed</div>
           </RequireRole>
-        </AuthProvider>,
+        </AuthProvider>
       );
 
       expect(screen.getByTestId('role-pass')).toBeInTheDocument();
@@ -186,10 +186,10 @@ describe('clientAuth context and helpers', () => {
 
       render(
         <AuthProvider>
-          <RequireRole role="admin" fallback={<div data-testid="role-fallback">Denied</div>}>
+          <RequireRole fallback={<div data-testid="role-fallback">Denied</div>}>
             <div data-testid="role-pass">Allowed</div>
           </RequireRole>
-        </AuthProvider>,
+        </AuthProvider>
       );
 
       expect(screen.queryByTestId('role-pass')).not.toBeInTheDocument();
@@ -206,7 +206,7 @@ describe('clientAuth context and helpers', () => {
           <RequirePermission feature="editContent">
             <div>Feature</div>
           </RequirePermission>
-        </AuthProvider>,
+        </AuthProvider>
       );
 
       expect(screen.getByTestId('loading')).toBeInTheDocument();
@@ -225,7 +225,7 @@ describe('clientAuth context and helpers', () => {
           <RequirePermission feature="editContent">
             <div data-testid="permission-pass">Granted</div>
           </RequirePermission>
-        </AuthProvider>,
+        </AuthProvider>
       );
 
       expect(hasFeaturePermissionMock).toHaveBeenCalledWith('editor', 'editContent');
@@ -248,7 +248,7 @@ describe('clientAuth context and helpers', () => {
           >
             <div data-testid="permission-pass">Granted</div>
           </RequirePermission>
-        </AuthProvider>,
+        </AuthProvider>
       );
 
       expect(screen.queryByTestId('permission-pass')).not.toBeInTheDocument();
@@ -265,7 +265,7 @@ describe('clientAuth context and helpers', () => {
           <AdminOnly>
             <div>Admin</div>
           </AdminOnly>
-        </AuthProvider>,
+        </AuthProvider>
       );
 
       expect(screen.getByTestId('loading')).toBeInTheDocument();
@@ -282,7 +282,7 @@ describe('clientAuth context and helpers', () => {
           <AdminOnly>
             <div data-testid="admin-pass">Admin Area</div>
           </AdminOnly>
-        </AuthProvider>,
+        </AuthProvider>
       );
 
       expect(screen.getByTestId('admin-pass')).toBeInTheDocument();
@@ -299,7 +299,7 @@ describe('clientAuth context and helpers', () => {
           <AdminOnly>
             <div data-testid="super-pass">Super Admin</div>
           </AdminOnly>
-        </AuthProvider>,
+        </AuthProvider>
       );
 
       expect(screen.getByTestId('super-pass')).toBeInTheDocument();
@@ -316,7 +316,7 @@ describe('clientAuth context and helpers', () => {
           <AdminOnly fallback={<div data-testid="admin-fallback">Restricted</div>}>
             <div data-testid="admin-pass">Admin Area</div>
           </AdminOnly>
-        </AuthProvider>,
+        </AuthProvider>
       );
 
       expect(screen.queryByTestId('admin-pass')).not.toBeInTheDocument();

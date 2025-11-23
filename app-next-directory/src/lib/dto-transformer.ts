@@ -1,28 +1,29 @@
-import { urlFor } from '@/lib/sanity/client';
-import type {
-  SanityListing,
-  SanityImage,
-  SanityCoworkingDetails,
-  SanityCafeDetails,
-  SanityRestaurantDetails,
-  SanityActivitiesDetails,
-  SanityAccommodationDetails,
-} from '@/types/sanity.types';
-import { asISODateString, isISODateString } from '@/types/dto';
-import type { BlogSummaryDTO, BlogDetailDTO } from '@/types/dto';
+import type { PortableTextBlock } from '@portabletext/types';
 import { isImageAssetId } from '@sanity/asset-utils';
-import { ALLOWED_CATEGORIES } from './constants/categories';
+import { urlFor } from '@/lib/sanity/client';
 // Ensure we have a consistent image union for DTO mapping; add a dedicated type if
 // Sanity introduces a distinct gallery image schema in the future.
 import type {
+  BlogDetailDTO,
+  BlogSummaryDTO,
+  FeaturedListingDTO,
   ListingDetailDTO,
   ListingSummaryDTO,
-  FeaturedListingDTO,
   Money,
   OpeningHour,
   Percentage0To100,
 } from '@/types/dto';
-import type { PortableTextBlock } from '@portabletext/types';
+import { asISODateString, isISODateString } from '@/types/dto';
+import type {
+  SanityAccommodationDetails,
+  SanityActivitiesDetails,
+  SanityCafeDetails,
+  SanityCoworkingDetails,
+  SanityImage,
+  SanityListing,
+  SanityRestaurantDetails,
+} from '@/types/sanity.types';
+import { ALLOWED_CATEGORIES } from './constants/categories';
 
 // --- Interfaces for Sanity Data Structures ---
 
@@ -91,8 +92,7 @@ interface ValidCoworkingPlan extends CoworkingPlanIn {
 
 function isSanityImage(img: unknown): img is SanityImage | string {
   // Accept only valid Sanity image asset ids/refs using Sanity helper
-  const isAssetRef = (s: unknown): s is string =>
-    typeof s === 'string' && isImageAssetId(s);
+  const isAssetRef = (s: unknown): s is string => typeof s === 'string' && isImageAssetId(s);
 
   // Plain string must match the asset‐ref/id pattern
   if (isAssetRef(img)) return true;
@@ -151,15 +151,28 @@ export const imageOrFallback = (img: unknown, w: number, h: number): string => {
   return FALLBACK_IMAGE;
 };
 
-const toMoney = (amount?: number, currency = 'THB', unit?: 'night' | 'meal' | 'hour'): Money | undefined =>
-  typeof amount === 'number' ? { amount, currency, unit } : undefined;
+const toMoney = (
+  amount?: number,
+  currency = 'THB',
+  unit?: 'night' | 'meal' | 'hour'
+): Money | undefined => (typeof amount === 'number' ? { amount, currency, unit } : undefined);
 
-const toOpening = (arr?: Array<{ day: string; opens: string; closes: string }>): OpeningHour[] | undefined =>
+const toOpening = (
+  arr?: Array<{ day: string; opens: string; closes: string }>
+): OpeningHour[] | undefined =>
   Array.isArray(arr) ? arr.map(({ day, opens, closes }) => ({ day, opens, closes })) : undefined;
 
 // Sanitize Sanity geopoint input to ensure consumers get { lat, lng } or undefined
-function toGeoPoint(geo?: { lat?: number; lng?: number } | null): { lat: number; lng: number } | undefined {
-  if (geo && typeof geo.lat === 'number' && typeof geo.lng === 'number' && !isNaN(geo.lat) && !isNaN(geo.lng)) {
+function toGeoPoint(
+  geo?: { lat?: number; lng?: number } | null
+): { lat: number; lng: number } | undefined {
+  if (
+    geo &&
+    typeof geo.lat === 'number' &&
+    typeof geo.lng === 'number' &&
+    !isNaN(geo.lat) &&
+    !isNaN(geo.lng)
+  ) {
     return { lat: geo.lat, lng: geo.lng };
   }
   return undefined;
@@ -177,13 +190,17 @@ function toPercentage0To100(val: unknown): Percentage0To100 | undefined {
 
 // Safely map amenities, filtering out null/undefined and preserving fields
 const toAmenities = (
-  amenities?: Array<{
-    _id?: string
-    name?: string
-    slug?: { current?: string }
-    icon?: string
-    category?: string
-  } | null | undefined>
+  amenities?: Array<
+    | {
+        _id?: string;
+        name?: string;
+        slug?: { current?: string };
+        icon?: string;
+        category?: string;
+      }
+    | null
+    | undefined
+  >
 ) =>
   (amenities ?? [])
     .filter((a): a is NonNullable<typeof a> => a != null)
@@ -198,9 +215,7 @@ const toAmenities = (
 // Shared helpers for simple name extraction and string validation
 const ignoredIsNonEmptyString = (x: unknown): x is string => typeof x === 'string' && x.length > 0;
 
-const toNames = (
-  arr?: ReadonlyArray<{ name?: string } | null | undefined>
-): string[] => {
+const toNames = (arr?: ReadonlyArray<{ name?: string } | null | undefined>): string[] => {
   const seen = new Set<string>();
   const canon = (s: string) => s.normalize('NFKC').toLocaleLowerCase();
   const out: string[] = [];
@@ -232,7 +247,9 @@ export function transformToFeaturedDTO(sanityListing: SanityListing): FeaturedLi
   };
 }
 
-export function transformToSummaryDTO(sanityListing: DereferencedSanityListing | SanityListing): ListingSummaryDTO {
+export function transformToSummaryDTO(
+  sanityListing: DereferencedSanityListing | SanityListing
+): ListingSummaryDTO {
   const imageUrl = imageOrFallback(sanityListing.primaryImage, 500, 300);
 
   // Use type guard or more specific interfaces where possible instead of 'as'
@@ -241,17 +258,12 @@ export function transformToSummaryDTO(sanityListing: DereferencedSanityListing |
   const listing = sanityListing as DereferencedSanityListing;
 
   // Ensure slug is always a string
-  const slug = typeof listing.slug === 'string'
-    ? listing.slug
-    : listing.slug?.current ?? '';
+  const slug = typeof listing.slug === 'string' ? listing.slug : (listing.slug?.current ?? '');
 
   // Coerce optional strings to undefined when null/invalid
-  const shortDescription = typeof listing.shortDescription === 'string'
-    ? listing.shortDescription
-    : undefined;
-  const address = typeof listing.address === 'string'
-    ? listing.address
-    : undefined;
+  const shortDescription =
+    typeof listing.shortDescription === 'string' ? listing.shortDescription : undefined;
+  const address = typeof listing.address === 'string' ? listing.address : undefined;
 
   // Validate listing type or fallback to a safe default to satisfy schema
   const rawType = listing.type;
@@ -266,7 +278,9 @@ export function transformToSummaryDTO(sanityListing: DereferencedSanityListing |
       const ignoredU = new URL(websiteRaw, 'https://example.com');
       // If provided string already absolute, keep it; if it was relative, drop it
       if (/^https?:\/\//i.test(websiteRaw)) website = websiteRaw;
-    } catch { /* ignore invalid */ }
+    } catch {
+      /* ignore invalid */
+    }
   }
 
   // Normalize nested city
@@ -276,7 +290,9 @@ export function transformToSummaryDTO(sanityListing: DereferencedSanityListing |
         name: listing.city.name,
         slug: listing.city.slug?.current ?? '',
         country: listing.city.country,
-        sustainabilityScore: toPercentage0To100(listing.city.sustainabilityScore) as Percentage0To100 | undefined,
+        sustainabilityScore: toPercentage0To100(listing.city.sustainabilityScore) as
+          | Percentage0To100
+          | undefined,
         highlights: listing.city.highlights,
       }
     : null;
@@ -303,7 +319,9 @@ export function transformToDetailDTO(sanityListing: SanityListing): ListingDetai
 
   const galleryImages = (sanityListing.galleryImages ?? [])
     .map((img: unknown) => imageOrFallback(img, 800, 600))
-    .filter((u: unknown): u is string => typeof u === 'string' && u.length > 0 && u !== FALLBACK_IMAGE);
+    .filter(
+      (u: unknown): u is string => typeof u === 'string' && u.length > 0 && u !== FALLBACK_IMAGE
+    );
 
   // Build discriminated union by type
   if (sanityListing.type === 'coworking' && sanityListing.coworkingDetails) {
@@ -317,20 +335,25 @@ export function transformToDetailDTO(sanityListing: SanityListing): ListingDetai
       contactPhone: sanityListing.contactPhone,
       contactEmail: sanityListing.contactEmail,
       coworkingDetails: {
-       pricingPlans: (Array.isArray(s.pricingPlans) ? (s.pricingPlans as Array<CoworkingPlanIn>) : [])
-        .filter((p): p is ValidCoworkingPlan => // Use the new ValidCoworkingPlan interface
-          typeof p.type === 'string' && typeof p.period === 'string' && Number.isFinite(p.price)
+        pricingPlans: (Array.isArray(s.pricingPlans)
+          ? (s.pricingPlans as Array<CoworkingPlanIn>)
+          : []
         )
-        .map(p => ({
-          type: p.type,
-          price: toMoney(p.price, 'THB', 'hour') as Money,
-          period: p.period,
-          features: p.features,
-        })),
+          .filter(
+            (p): p is ValidCoworkingPlan =>
+              // Use the new ValidCoworkingPlan interface
+              typeof p.type === 'string' && typeof p.period === 'string' && Number.isFinite(p.price)
+          )
+          .map(p => ({
+            type: p.type,
+            price: toMoney(p.price, 'THB', 'hour') as Money,
+            period: p.period,
+            features: p.features,
+          })),
 
         openingHours: toOpening(s.openingHours),
-        internetSpeed: s.internetSpeed
-      }
+        internetSpeed: s.internetSpeed,
+      },
     };
     return detailDTO;
   }
@@ -350,8 +373,8 @@ export function transformToDetailDTO(sanityListing: SanityListing): ListingDetai
         priceIndication: s.priceIndication,
         menuHighlights: s.menuHighlights,
         noiseLevel: s.noiseLevel,
-        workPolicy: s.workPolicy
-      }
+        workPolicy: s.workPolicy,
+      },
     };
     return detailDTO;
   }
@@ -371,8 +394,8 @@ export function transformToDetailDTO(sanityListing: SanityListing): ListingDetai
         cuisineType: s.cuisineType,
         operatingHours: undefined,
         dietaryOptions: s.dietaryOptions,
-        averageMealPrice: toMoney(avg, 'THB', 'meal')
-      }
+        averageMealPrice: toMoney(avg, 'THB', 'meal'),
+      },
     };
     return detailDTO;
   }
@@ -395,7 +418,7 @@ export function transformToDetailDTO(sanityListing: SanityListing): ListingDetai
         activityType: s.activityType,
         duration,
         skillLevel: s.skillLevel,
-      }
+      },
     };
     return detailDTO;
   }
@@ -416,13 +439,15 @@ export function transformToDetailDTO(sanityListing: SanityListing): ListingDetai
         roomTypes: s.roomTypesAvailable
           ?.map((r: { type?: string }) => r.type)
           .filter((type): type is string => typeof type === 'string'),
-        minimumStay: s.minimumStay
-      }
+        minimumStay: s.minimumStay,
+      },
     };
     return detailDTO;
   }
   // For unexpected types, throw an error to prevent runtime issues
-  throw new Error(`Unsupported listing type: ${sanityListing.type}. Expected one of: coworking, cafe, restaurant, activities, accommodation`);
+  throw new Error(
+    `Unsupported listing type: ${sanityListing.type}. Expected one of: coworking, cafe, restaurant, activities, accommodation`
+  );
 }
 
 // ===== Blog transformers =====
@@ -455,7 +480,9 @@ export function transformToBlogSummaryDTO(doc: RawBlogDocument, w = 800, h = 450
 export function transformToBlogDetailDTO(doc: RawBlogDocument): BlogDetailDTO {
   const summary = transformToBlogSummaryDTO(doc, 1200, 630);
   const related = Array.isArray(doc?.relatedPosts)
-    ? (doc.relatedPosts as unknown[]).filter(Boolean).map((p: unknown) => transformToBlogSummaryDTO(p as RawBlogDocument))
+    ? (doc.relatedPosts as unknown[])
+        .filter(Boolean)
+        .map((p: unknown) => transformToBlogSummaryDTO(p as RawBlogDocument))
     : undefined;
   const authorImageUrl = imageOrFallback(doc?.authorImage, 96, 96);
   return {

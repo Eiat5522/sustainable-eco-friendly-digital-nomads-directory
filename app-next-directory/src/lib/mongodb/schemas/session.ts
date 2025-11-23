@@ -8,40 +8,40 @@ type SessionIndex = Pick<IndexDescription, 'unique' | 'expireAfterSeconds'> & {
 export const sessionSchema = {
   validator: {
     $jsonSchema: {
-      bsonType: "object",
-      required: ["sessionToken", "userId", "expires"],
+      bsonType: 'object',
+      required: ['sessionToken', 'userId', 'expires'],
       properties: {
         sessionToken: {
-          bsonType: "string",
-          description: "Session token must be a string and is required"
+          bsonType: 'string',
+          description: 'Session token must be a string and is required',
         },
         userId: {
-          bsonType: "string",
-          description: "User ID must be a string and is required"
+          bsonType: 'string',
+          description: 'User ID must be a string and is required',
         },
         expires: {
-          bsonType: "date",
-          description: "Expiry date must be a date and is required"
+          bsonType: 'date',
+          description: 'Expiry date must be a date and is required',
         },
         lastAccessed: {
-          bsonType: "date",
-          description: "Last accessed timestamp"
+          bsonType: 'date',
+          description: 'Last accessed timestamp',
         },
         userAgent: {
-          bsonType: "string",
-          description: "User agent string from the client"
+          bsonType: 'string',
+          description: 'User agent string from the client',
         },
         ipAddress: {
-          bsonType: "string",
-          description: "IP address of the client"
-        }
-      }
-    }
-  }
+          bsonType: 'string',
+          description: 'IP address of the client',
+        },
+      },
+    },
+  },
 };
 
 export const sessionIndexes: SessionIndex[] = [
   { key: { sessionToken: 1 }, unique: true },
   { key: { userId: 1 } },
-  { key: { expires: 1 }, expireAfterSeconds: 0 }
+  { key: { expires: 1 }, expireAfterSeconds: 0 },
 ];

@@ -70,7 +70,10 @@ describe('User model', () => {
   const invokeSaveHook = async (doc: any, next = jest.fn()) => {
     const { default: User } = await loadModule();
     const schema = User.schema as any;
-    const hook = schema.preHooks.get('save')?.[0] as (this: any, next: (err?: unknown) => void) => Promise<void>;
+    const hook = schema.preHooks.get('save')?.[0] as (
+      this: any,
+      next: (err?: unknown) => void
+    ) => Promise<void>;
     await hook.call(doc, next);
     return next;
   };
@@ -131,7 +134,10 @@ describe('User model', () => {
 
     const next = jest.fn();
     const schema = User.schema as any;
-    const hook = schema.preHooks.get('save')?.[0] as (this: any, next: (err?: unknown) => void) => Promise<void>;
+    const hook = schema.preHooks.get('save')?.[0] as (
+      this: any,
+      next: (err?: unknown) => void
+    ) => Promise<void>;
     await hook.call(doc, next);
 
     expect(next).toHaveBeenCalledTimes(1);

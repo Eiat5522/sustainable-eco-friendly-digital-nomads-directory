@@ -1,13 +1,16 @@
-import { jsonToSanityListing, calculateEcoRating } from '../adapters';
-import type { JsonListing } from '@/types/sanity-compatible-json';
 import { ListingCategory, PriceRange } from '@/types/enums';
+import type { JsonListing } from '@/types/sanity-compatible-json';
+import { calculateEcoRating, jsonToSanityListing } from '../adapters';
 
 // Mock Date for deterministic createdAt/updatedAt
 const MOCK_DATE = '2023-01-01T00:00:00.000Z';
 beforeAll(() => {
-  jest.spyOn(global, 'Date').mockImplementation(() => ({
-    toISOString: () => MOCK_DATE,
-  } as any));
+  jest.spyOn(global, 'Date').mockImplementation(
+    () =>
+      ({
+        toISOString: () => MOCK_DATE,
+      }) as any
+  );
 });
 
 describe('jsonToSanityListing', () => {
@@ -17,30 +20,31 @@ describe('jsonToSanityListing', () => {
     slug: { current: 'eco-space-coworking' },
     type: ListingCategory.COWORKING,
     shortDescription: 'A sustainable coworking space',
-    longDescription: 'A long eco-friendly description for digital nomads with sustainable practices.',
+    longDescription:
+      'A long eco-friendly description for digital nomads with sustainable practices.',
     address: '123 Green Road, Bangkok',
     website: 'https://ecospace.com',
     phone: '+66 2 123 4567',
     email: 'hello@ecospace.com',
     location: {
       lat: 13.7563,
-      lng: 100.5018
+      lng: 100.5018,
     },
     city: {
       _id: 'bangkok-city-id',
       name: 'Bangkok',
       slug: { current: 'bangkok' },
       listingCount: 25,
-      country: 'Thailand'
+      country: 'Thailand',
     },
     primaryImage: {
       _type: 'image',
       asset: {
         _ref: 'image-main-ref',
         _type: 'reference',
-        url: 'https://example.com/main.jpg'
+        url: 'https://example.com/main.jpg',
       },
-      alt: 'Main image'
+      alt: 'Main image',
     },
     galleryImages: [
       {
@@ -48,59 +52,60 @@ describe('jsonToSanityListing', () => {
         asset: {
           _ref: 'image-gallery-1',
           _type: 'reference',
-          url: 'https://example.com/gallery1.jpg'
+          url: 'https://example.com/gallery1.jpg',
         },
-        alt: 'Gallery image 1'
-      }
+        alt: 'Gallery image 1',
+      },
     ],
     ecoTags: [
       {
         _id: 'solar-tag',
         name: 'Solar Powered',
-        _type: 'reference'
+        _type: 'reference',
       },
       {
         _id: 'recycling-tag',
         name: 'Recycling Program',
-        _type: 'reference'
-      }
+        _type: 'reference',
+      },
     ],
     digitalNomadFeatures: ['High-speed WiFi', '24/7 Access', 'Meeting Rooms'],
     priceRange: PriceRange.MODERATE,
     lastVerifiedDate: '2023-01-01',
     sourceUrls: ['https://ecospace.com'],
-
   };
 
   it('should convert a full JsonListing to SanityListing format', () => {
     const result = jsonToSanityListing(baseJsonListing);
-    
+
     // Adapter should generate _id from slug if not provided
     expect(result._id).toBe('listing-eco-space-coworking');
     expect(result.type).toBe(ListingCategory.COWORKING);
     expect(result.createdAt).toBe(MOCK_DATE);
     expect(result.updatedAt).toBe(MOCK_DATE);
-    
+
     expect(result.name).toBe('Eco Space Coworking');
     expect(result.slug).toEqual({ current: 'eco-space-coworking' });
- 
+
     expect(result.shortDescription).toBe('A sustainable coworking space');
-    expect(result.longDescription).toBe('A long eco-friendly description for digital nomads with sustainable practices.');
-    
+    expect(result.longDescription).toBe(
+      'A long eco-friendly description for digital nomads with sustainable practices.'
+    );
+
     expect(result.city).toEqual({
       _id: 'bangkok-city-id',
       name: 'Bangkok',
       slug: { current: 'bangkok' },
       listingCount: 25,
-      country: 'Thailand'
+      country: 'Thailand',
     });
-    
+
     expect(result.location).toEqual({
       lat: 13.7563,
       lng: 100.5018,
-      coordinates: [100.5018, 13.7563] // [lng, lat] for GeoJSON
+      coordinates: [100.5018, 13.7563], // [lng, lat] for GeoJSON
     });
-    
+
     expect(result.ecoTags).toHaveLength(2);
     expect(result.ecoTags?.[0]).toEqual({
       _id: 'solar-tag',
@@ -108,10 +113,14 @@ describe('jsonToSanityListing', () => {
       _type: 'reference',
       slug: { current: 'solar-powered' },
       description: '',
-      listingCount: 0
+      listingCount: 0,
     });
-    
-    expect(result.digitalNomadFeatures).toEqual(['High-speed WiFi', '24/7 Access', 'Meeting Rooms']);
+
+    expect(result.digitalNomadFeatures).toEqual([
+      'High-speed WiFi',
+      '24/7 Access',
+      'Meeting Rooms',
+    ]);
     expect(result.priceRange).toBe(PriceRange.MODERATE);
   });
 
@@ -120,11 +129,11 @@ describe('jsonToSanityListing', () => {
       _type: 'listing',
       name: 'Simple Café',
       slug: { current: 'simple-cafe' },
-      type: ListingCategory.CAFE
+      type: ListingCategory.CAFE,
     };
-    
+
     const result = jsonToSanityListing(minimalListing);
-    
+
     expect(result.name).toBe('Simple Café');
     expect(result.slug).toEqual({ current: 'simple-cafe' });
     expect(result.type).toBe(ListingCategory.CAFE);
@@ -140,9 +149,9 @@ describe('jsonToSanityListing', () => {
       _type: 'listing',
       name: 'Test Listing',
       slug: { current: 'test-listing' },
-      type: ListingCategory.COWORKING
+      type: ListingCategory.COWORKING,
     };
-    
+
     const result = jsonToSanityListing(listingWithoutId);
     expect(result._id).toBe('listing-test-listing');
   });
@@ -152,10 +161,10 @@ describe('jsonToSanityListing', () => {
       _type: 'listing',
       name: 'Test Listing',
       slug: { current: 'test-listing' },
-      type: ListingCategory.COWORKING
+      type: ListingCategory.COWORKING,
     };
     // removed _id property, not valid for JsonListing
-    
+
     const result = jsonToSanityListing(listingWithId);
     // Adapter should generate _id from slug if not provided
     expect(result._id).toBe('listing-test-listing');
@@ -168,9 +177,9 @@ describe('calculateEcoRating', () => {
       _type: 'listing',
       name: 'Test',
       slug: { current: 'test' },
-      type: ListingCategory.CAFE
+      type: ListingCategory.CAFE,
     };
-    
+
     expect(calculateEcoRating(minimalListing)).toBe(50);
   });
 
@@ -184,10 +193,10 @@ describe('calculateEcoRating', () => {
         { _id: '1', name: 'Tag 1', _type: 'reference' },
         { _id: '2', name: 'Tag 2', _type: 'reference' },
         { _id: '3', name: 'Tag 3', _type: 'reference' },
-        { _id: '4', name: 'Tag 4', _type: 'reference' }
-      ]
+        { _id: '4', name: 'Tag 4', _type: 'reference' },
+      ],
     };
-    
+
     expect(calculateEcoRating(listingWith4Tags)).toBe(80); // 50 + 30 (max for tags)
   });
 
@@ -197,9 +206,10 @@ describe('calculateEcoRating', () => {
       name: 'Test',
       slug: { current: 'test' },
       type: ListingCategory.CAFE,
-      longDescription: 'This is a very long description with detailed eco information that exceeds fifty characters'
+      longDescription:
+        'This is a very long description with detailed eco information that exceeds fifty characters',
     };
-    
+
     expect(calculateEcoRating(listingWithDetails)).toBe(60); // 50 + 10
   });
 
@@ -209,9 +219,9 @@ describe('calculateEcoRating', () => {
       name: 'Test',
       slug: { current: 'test' },
       type: ListingCategory.CAFE,
-      digitalNomadFeatures: ['WiFi', 'Power outlets']
+      digitalNomadFeatures: ['WiFi', 'Power outlets'],
     };
-    
+
     expect(calculateEcoRating(listingWithFeatures)).toBe(55); // 50 + 5
   });
 
@@ -226,12 +236,13 @@ describe('calculateEcoRating', () => {
         { _id: '2', name: 'Tag 2', _type: 'reference' },
         { _id: '3', name: 'Tag 3', _type: 'reference' },
         { _id: '4', name: 'Tag 4', _type: 'reference' },
-        { _id: '5', name: 'Tag 5', _type: 'reference' }
+        { _id: '5', name: 'Tag 5', _type: 'reference' },
       ],
-      longDescription: 'This is a very long description with detailed eco information that exceeds fifty characters and provides comprehensive sustainability details',
-      digitalNomadFeatures: ['WiFi', 'Power outlets', 'Meeting rooms']
+      longDescription:
+        'This is a very long description with detailed eco information that exceeds fifty characters and provides comprehensive sustainability details',
+      digitalNomadFeatures: ['WiFi', 'Power outlets', 'Meeting rooms'],
     };
-    
+
     expect(calculateEcoRating(maxScoreListing)).toBe(95); // 50 + 30 + 10 + 5 = 95 (< 100)
   });
 });

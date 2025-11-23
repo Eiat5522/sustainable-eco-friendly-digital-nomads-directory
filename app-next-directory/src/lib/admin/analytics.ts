@@ -69,16 +69,12 @@ type AdminAnalyticsTuple = [
   number,
   number,
   AdminModerationEntry[],
-  AdminRoleCounts
+  AdminRoleCounts,
 ];
 
 async function fetchRoleCounts(): Promise<AdminRoleCounts> {
   const counts = await withRequestTimeout<number[]>(
-    Promise.all(
-      ROLE_QUERIES.map(({ query }) =>
-        client.fetch<number>(query) as Promise<number>
-      )
-    ),
+    Promise.all(ROLE_QUERIES.map(({ query }) => client.fetch<number>(query) as Promise<number>)),
     getDefaultTimeout(),
     'Fetching admin role counts timed out'
   );
@@ -168,7 +164,9 @@ export async function fetchAdminAnalytics(): Promise<AdminAnalyticsSnapshot> {
       client.fetch<number>('count(*[_type == "user"])') as Promise<number>,
       client.fetch<number>('count(*[_type == "listing"])') as Promise<number>,
       client.fetch<number>('count(*[_type == "review"])') as Promise<number>,
-      client.fetch<number>('count(*[_type == "moderationStatus" && status == "pending"])') as Promise<number>,
+      client.fetch<number>(
+        'count(*[_type == "moderationStatus" && status == "pending"])'
+      ) as Promise<number>,
       fetchModerationQueue(),
       fetchRoleCounts(),
     ]) as Promise<AdminAnalyticsTuple>,
@@ -179,10 +177,9 @@ export async function fetchAdminAnalytics(): Promise<AdminAnalyticsSnapshot> {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
   const weeklySignups = await withRequestTimeout<number>(
-    client.fetch<number>(
-      'count(*[_type == "user" && _createdAt >= $sevenDaysAgo])',
-      { sevenDaysAgo: sevenDaysAgo.toISOString() }
-    ) as Promise<number>,
+    client.fetch<number>('count(*[_type == "user" && _createdAt >= $sevenDaysAgo])', {
+      sevenDaysAgo: sevenDaysAgo.toISOString(),
+    }) as Promise<number>,
     getDefaultTimeout(),
     'Fetching weekly signups timed out'
   );
@@ -254,11 +251,7 @@ export async function performModerationAction({
   const timestamp = new Date().toISOString();
   const patch = client
     .patch(moderationId)
-    .set(
-      status
-        ? { status, lastActionAt: timestamp }
-        : { lastActionAt: timestamp }
-    )
+    .set(status ? { status, lastActionAt: timestamp } : { lastActionAt: timestamp })
     .setIfMissing(createEmptyModerationHistory())
     .append('moderationHistory', [createModerationHistoryEntry(action, actorId, notes, timestamp)]);
 
@@ -336,7 +329,7 @@ const commitBatch = async (
   const transaction = client.transaction();
 
   for (const id of batchIds) {
-    transaction.patch(id, (patch) => patch.set(patchFactory(timestamp)));
+    transaction.patch(id, patch => patch.set(patchFactory(timestamp)));
   }
 
   const batchStart = now();
@@ -365,7 +358,7 @@ const commitBatch = async (
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return {
       succeeded: [],
-      failed: batchIds.map((id) => ({ id, reason: 'commitFailed', errorMessage })),
+      failed: batchIds.map(id => ({ id, reason: 'commitFailed', errorMessage })),
     };
   }
 };
@@ -438,20 +431,21 @@ type FeatureWorkflowPatch = {
 
 export type ListingWorkflowPatch = PublishWorkflowPatch | FeatureWorkflowPatch;
 
-const BULK_OPERATION_PATCH: Record<BulkOperationType, (timestamp: string) => ListingWorkflowPatch> = {
-  publishListings: (timestamp) => ({
-    'adminWorkflow.status': 'published',
-    'adminWorkflow.lastChangedAt': timestamp,
-  }),
-  unpublishListings: (timestamp) => ({
-    'adminWorkflow.status': 'unpublished',
-    'adminWorkflow.lastChangedAt': timestamp,
-  }),
-  featureListings: (timestamp) => ({
-    'adminWorkflow.isFeatured': true,
-    'adminWorkflow.lastChangedAt': timestamp,
-  }),
-};
+const BULK_OPERATION_PATCH: Record<BulkOperationType, (timestamp: string) => ListingWorkflowPatch> =
+  {
+    publishListings: timestamp => ({
+      'adminWorkflow.status': 'published',
+      'adminWorkflow.lastChangedAt': timestamp,
+    }),
+    unpublishListings: timestamp => ({
+      'adminWorkflow.status': 'unpublished',
+      'adminWorkflow.lastChangedAt': timestamp,
+    }),
+    featureListings: timestamp => ({
+      'adminWorkflow.isFeatured': true,
+      'adminWorkflow.lastChangedAt': timestamp,
+    }),
+  };
 
 type BulkOperationResult = {
   operation: BulkOperationType;
@@ -465,7 +459,10 @@ type BulkOperationInput = {
   ids: string[];
 };
 
-export async function runBulkOperation({ operation, ids }: BulkOperationInput): Promise<BulkOperationResult> {
+export async function runBulkOperation({
+  operation,
+  ids,
+}: BulkOperationInput): Promise<BulkOperationResult> {
   const uniqueIds = dedupeIds(ids);
   if (!uniqueIds.length) {
     return { operation, total: 0, succeeded: 0, failed: [] };
@@ -532,7 +529,10 @@ export type ContentAnalysisSnapshot = {
   };
 };
 
-export async function analyzeContent({ type, windowDays = 30 }: ContentAnalysisInput): Promise<ContentAnalysisSnapshot> {
+export async function analyzeContent({
+  type,
+  windowDays = 30,
+}: ContentAnalysisInput): Promise<ContentAnalysisSnapshot> {
   const windowStart = new Date();
   windowStart.setDate(windowStart.getDate() - windowDays);
 
@@ -543,10 +543,12 @@ export async function analyzeContent({ type, windowDays = 30 }: ContentAnalysisI
     "recent": count(*[_type == $type && _createdAt >= $windowStart])
   }`;
 
-  const result = await client.fetch<{ all: number; flagged: number; pendingModeration: number; recent: number }>(
-    query,
-    { type, windowStart: windowStart.toISOString() }
-  );
+  const result = await client.fetch<{
+    all: number;
+    flagged: number;
+    pendingModeration: number;
+    recent: number;
+  }>(query, { type, windowStart: windowStart.toISOString() });
 
   const reports = await client.fetch<number>(
     'sum(*[_type == $type && defined(reports)][]{"reportCount": count(reports)}.reportCount)',

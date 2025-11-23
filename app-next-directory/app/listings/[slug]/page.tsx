@@ -1,21 +1,25 @@
 export const revalidate = 300; // ISR: revalidate every 5 minutes
-import { cache } from 'react';
-import { ListingDetailView } from '@/components/listings/ListingDetailView';
-import { mockListingDetail, mockRelatedListings, mockReviews } from '@/components/listings/listingDetailMockData';
-import { structuredLogger as logger } from '@/lib/logger';
-import { client } from '@/lib/sanity/client';
-import { groq } from 'next-sanity';
-import { transformToDetailDTO } from '@/lib/dto-transformer';
-import type { SanityListing } from '@/types/sanity.types';
-import type { CityDTO } from '@/types/dto';
-import type { ListingDetailDTO } from '@/types/dto';
+
+import type { Collection, Filter } from 'mongodb';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { Header } from '@/components/layout/Header';
+import { groq } from 'next-sanity';
+import { cache } from 'react';
 import { Footer } from '@/components/layout/Footer';
+import { Header } from '@/components/layout/Header';
+import { ListingDetailView } from '@/components/listings/ListingDetailView';
+import {
+  mockListingDetail,
+  mockRelatedListings,
+  mockReviews,
+} from '@/components/listings/listingDetailMockData';
+import { transformToDetailDTO } from '@/lib/dto-transformer';
+import { structuredLogger as logger } from '@/lib/logger';
+import { client } from '@/lib/sanity/client';
 import type { UserRole } from '@/types/auth';
+import type { CityDTO, ListingDetailDTO } from '@/types/dto';
+import type { SanityListing } from '@/types/sanity.types';
 import { getCollection } from '@/utils/db-helpers';
-import type { Collection, Filter } from 'mongodb';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -90,7 +94,9 @@ const e2eFixtures: Record<string, ListingFixture> = {
   },
 };
 
-function isPriceRange(value: string | null | undefined): value is 'budget' | 'moderate' | 'premium' {
+function isPriceRange(
+  value: string | null | undefined
+): value is 'budget' | 'moderate' | 'premium' {
   return value === 'budget' || value === 'moderate' || value === 'premium';
 }
 
@@ -116,9 +122,7 @@ function cloneFixture(fixture: ListingFixture) {
   };
 }
 
-function extractTagNames(
-  tags?: RelatedListingRecord['ecoFocusTags']
-): string[] {
+function extractTagNames(tags?: RelatedListingRecord['ecoFocusTags']): string[] {
   if (!Array.isArray(tags)) return [];
   const names: string[] = [];
   for (const tag of tags) {
@@ -126,7 +130,12 @@ function extractTagNames(
       names.push(tag);
       continue;
     }
-    if (tag && typeof tag === 'object' && typeof tag.name === 'string' && tag.name.trim().length > 0) {
+    if (
+      tag &&
+      typeof tag === 'object' &&
+      typeof tag.name === 'string' &&
+      tag.name.trim().length > 0
+    ) {
       names.push(tag.name.trim());
     }
   }
@@ -197,15 +206,23 @@ const fetchListingBySlug = cache(async (slug: string): Promise<ListingDetailDTO 
 });
 
 async function fetchRelatedListings(cityId?: string, excludeId?: string) {
-  if (!cityId) return [] as Array<{
-    id: string; name: string; slug: string; imageUrl: string; city: string | CityDTO | null; priceRange: 'budget'|'moderate'|'premium'; ecoFocusTags: string[];
-  }>;
+  if (!cityId)
+    return [] as Array<{
+      id: string;
+      name: string;
+      slug: string;
+      imageUrl: string;
+      city: string | CityDTO | null;
+      priceRange: 'budget' | 'moderate' | 'premium';
+      ecoFocusTags: string[];
+    }>;
   try {
-    const records = await client.fetch<RelatedListingRecord[]>(RELATED_QUERY, { cityId, excludeId });
-    return records.map((record) => {
-      const priceRange = isPriceRange(record.priceRange)
-        ? record.priceRange
-        : 'moderate';
+    const records = await client.fetch<RelatedListingRecord[]>(RELATED_QUERY, {
+      cityId,
+      excludeId,
+    });
+    return records.map(record => {
+      const priceRange = isPriceRange(record.priceRange) ? record.priceRange : 'moderate';
 
       return {
         id: record._id ?? '',
@@ -233,10 +250,7 @@ async function fetchReviews(listingSlug: string, userId?: string): Promise<Revie
 
     const filter: Filter<ReviewDocument> = { listingSlug };
     if (userId) {
-      filter.$or = [
-        { status: 'approved' },
-        { status: 'pending', user: userId },
-      ];
+      filter.$or = [{ status: 'approved' }, { status: 'pending', user: userId }];
     } else {
       filter.status = 'approved';
     }
@@ -321,7 +335,10 @@ async function fetchReviews(listingSlug: string, userId?: string): Promise<Revie
 async function checkIsFavorited(listingId: string, userId?: string): Promise<boolean> {
   if (!userId) return false;
   try {
-    const favorite = await client.fetch<{ _id?: string | null } | null>(FAVORITE_QUERY, { userId, listingId });
+    const favorite = await client.fetch<{ _id?: string | null } | null>(FAVORITE_QUERY, {
+      userId,
+      listingId,
+    });
     return Boolean(favorite?._id);
   } catch (error) {
     logger.error('Failed to check favorite status', error, {
@@ -383,14 +400,14 @@ export default async function ListingPage({ params }: Props) {
     <>
       <Header />
       <main>
-          <ListingDetailView
-            listing={listing}
-            reviews={reviews}
-            relatedListings={relatedListings}
-            isSignedIn={isSignedIn}
-            isFavorited={isFavorited}
-            userId={userId}
-          />
+        <ListingDetailView
+          listing={listing}
+          reviews={reviews}
+          relatedListings={relatedListings}
+          isSignedIn={isSignedIn}
+          isFavorited={isFavorited}
+          userId={userId}
+        />
       </main>
       <Footer />
     </>

@@ -1,5 +1,4 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { ImageCarousel } from '../ImageCarousel';
 
@@ -10,21 +9,12 @@ jest.mock('next/image', () => ({
     const { fill, priority, alt = '', ...rest } = props;
     return (
       // eslint-disable-next-line @next/next/no-img-element
-      <img
-        {...rest}
-        alt={alt}
-        fill={fill?.toString()}
-        priority={priority?.toString()}
-      />
+      <img {...rest} alt={alt} fill={fill?.toString()} priority={priority?.toString()} />
     );
   },
 }));
 
-const mockImages = [
-  '/images/test-1.jpg',
-  '/images/test-2.jpg',
-  '/images/test-3.jpg',
-];
+const mockImages = ['/images/test-1.jpg', '/images/test-2.jpg', '/images/test-3.jpg'];
 
 describe('ImageCarousel', () => {
   it('renders nothing when no images are provided', () => {

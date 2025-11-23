@@ -71,7 +71,7 @@ export type GeoPoint = Readonly<{ lat: number; lng: number }>;
 // Shared internet speed shape (readonly)
 export type InternetSpeedDTO = Readonly<{
   download: number; // Mbps
-  upload: number;   // Mbps
+  upload: number; // Mbps
   lastTested?: string; // ISO datetime
 }>;
 
@@ -82,7 +82,12 @@ export type InternetSpeedValue = number | InternetSpeedDTO;
 export type ListingStatusDTO = 'draft' | 'pending' | 'published' | 'archived' | 'flagged';
 export type VerificationStatusDTO = 'unverified' | 'verified' | 'needs_verification';
 // Moderation is used mainly for reviews; included here for completeness in downstream DTOs if needed
-export type ModerationStatusDTO = 'pending' | 'approved' | 'rejected' | 'changes_needed' | 'flagged';
+export type ModerationStatusDTO =
+  | 'pending'
+  | 'approved'
+  | 'rejected'
+  | 'changes_needed'
+  | 'flagged';
 
 /** 0–100 sustainability index; higher is better */
 export type Percentage0To100 = number & { __brand: 'Percentage0To100' };
@@ -105,10 +110,10 @@ export interface ListingSummaryDTO extends BaseListingDTO {
 
 // Featured listings DTO (minimal fields for homepage)
 export type FeaturedListingDTO = Pick<BaseListingDTO, 'id' | 'name' | 'slug' | 'imageUrl'> & {
-  city: string;           // Just city name for simple display
+  city: string; // Just city name for simple display
   amenityNames: string[]; // Just amenity names
   ecoFocusTags?: string[]; // Optional eco features/tags
-  featured?: boolean;     // Flag used for star badge on cards
+  featured?: boolean; // Flag used for star badge on cards
 };
 
 // Full detail DTO as a discriminated union keyed by `type`
@@ -160,27 +165,42 @@ export type ListingDetailDTO =
   | (ListingDetailShared & {
       type: 'coworking';
       coworkingDetails: CoworkingDetails;
-      cafeDetails?: never; restaurantDetails?: never; activityDetails?: never; accommodationDetails?: never;
+      cafeDetails?: never;
+      restaurantDetails?: never;
+      activityDetails?: never;
+      accommodationDetails?: never;
     })
   | (ListingDetailShared & {
       type: 'cafe';
       cafeDetails: CafeDetails;
-      coworkingDetails?: never; restaurantDetails?: never; activityDetails?: never; accommodationDetails?: never;
+      coworkingDetails?: never;
+      restaurantDetails?: never;
+      activityDetails?: never;
+      accommodationDetails?: never;
     })
   | (ListingDetailShared & {
       type: 'restaurant';
       restaurantDetails: RestaurantDetails;
-      coworkingDetails?: never; cafeDetails?: never; activityDetails?: never; accommodationDetails?: never;
+      coworkingDetails?: never;
+      cafeDetails?: never;
+      activityDetails?: never;
+      accommodationDetails?: never;
     })
   | (ListingDetailShared & {
       type: 'activities';
       activityDetails: ActivityDetails;
-      coworkingDetails?: never; cafeDetails?: never; restaurantDetails?: never; accommodationDetails?: never;
+      coworkingDetails?: never;
+      cafeDetails?: never;
+      restaurantDetails?: never;
+      accommodationDetails?: never;
     })
   | (ListingDetailShared & {
       type: 'accommodation';
       accommodationDetails: AccommodationDetails;
-      coworkingDetails?: never; cafeDetails?: never; restaurantDetails?: never; activityDetails?: never;
+      coworkingDetails?: never;
+      cafeDetails?: never;
+      restaurantDetails?: never;
+      activityDetails?: never;
     });
 
 // ===== Dashboard DTOs =====
@@ -307,7 +327,8 @@ export interface BlogSummaryDTO {
   title: string;
   slug: string; // normalized string slug
   excerpt?: string;
-  imageUrl?: string;  imageDimensions?: ImageDimensionsDTO;
+  imageUrl?: string;
+  imageDimensions?: ImageDimensionsDTO;
   tags?: string[];
   authorName?: string;
   publishedAt?: ISODateString; // ISO datetime
@@ -322,8 +343,7 @@ export const asISODateString = (s: string): ISODateString => s as ISODateString;
 const ISO_DATE_TIME_RE =
   /^\d{4}-\d{2}-\d{2}(?:[T\s]\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?(?:Z|[+-]\d{2}:?\d{2})?)?$/;
 
-export const isISODateString = (s: string): s is ISODateString =>
-  ISO_DATE_TIME_RE.test(s);
+export const isISODateString = (s: string): s is ISODateString => ISO_DATE_TIME_RE.test(s);
 
 export function assertISODateString(s: string): asserts s is ISODateString {
   if (!isISODateString(s)) throw new TypeError('Invalid ISO 8601 date/time string');

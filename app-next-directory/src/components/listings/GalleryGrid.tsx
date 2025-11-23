@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import React, { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import Image from 'next/image';
+import React, { useEffect, useRef, useState } from 'react';
 
 type Props = {
   images: string[] | Array<{ url: string; alt?: string }>;
   fallback?: string;
 };
 
-export default function GalleryGrid({ images, fallback = "/placeholder_image.png" }: Props) {
+export default function GalleryGrid({ images, fallback = '/placeholder_image.png' }: Props) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const lastTriggerRef = useRef<HTMLButtonElement | null>(null);
   const closeBtnRef = useRef<HTMLButtonElement | null>(null);
@@ -16,25 +16,26 @@ export default function GalleryGrid({ images, fallback = "/placeholder_image.png
   const nextBtnRef = useRef<HTMLButtonElement | null>(null);
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const hasValidImages = Array.isArray(images) && images.length > 0;
-  
+
   // Normalize images to string array, handling both string[] and object[] formats
-  const normalizedImages = hasValidImages 
-    ? images.map((img) => typeof img === 'string' ? img : img.url).filter((src) => src)
+  const normalizedImages = hasValidImages
+    ? images.map(img => (typeof img === 'string' ? img : img.url)).filter(src => src)
     : [];
-  
+
   // For better UX, only filter out fallback if ALL images are the same fallback
   // This allows mixed galleries and testing scenarios
-  const allAreFallback = normalizedImages.length > 0 && normalizedImages.every(src => src === fallback);
+  const allAreFallback =
+    normalizedImages.length > 0 && normalizedImages.every(src => src === fallback);
   const cleanImages = allAreFallback ? [] : normalizedImages;
-    
+
   // Show gallery even with fallback images for testing purposes
   const toShow: string[] = cleanImages;
 
   // Precompute alt texts for thumbnails to avoid O(n^2) behavior from repeated findIndex calls
   // Map each src in toShow to the corresponding original image's alt (or null)
-  const altTexts: Array<string | null> = toShow.map((src) => {
+  const altTexts: Array<string | null> = toShow.map(src => {
     if (!hasValidImages) return null;
-    const originalIdx = images.findIndex((img) => (typeof img === 'string' ? img : img.url) === src);
+    const originalIdx = images.findIndex(img => (typeof img === 'string' ? img : img.url) === src);
     const originalImg = originalIdx >= 0 ? images[originalIdx] : null;
     if (originalImg && typeof originalImg === 'object') return originalImg.alt ?? null;
     return null;
@@ -49,45 +50,45 @@ export default function GalleryGrid({ images, fallback = "/placeholder_image.png
   };
 
   const goPrev = React.useCallback(() => {
-    setOpenIndex((i) => (i === null ? null : (i - 1 + toShow.length) % toShow.length));
+    setOpenIndex(i => (i === null ? null : (i - 1 + toShow.length) % toShow.length));
   }, [toShow.length]);
 
   const goNext = React.useCallback(() => {
-    setOpenIndex((i) => (i === null ? null : (i + 1) % toShow.length));
+    setOpenIndex(i => (i === null ? null : (i + 1) % toShow.length));
   }, [toShow.length]);
 
   // Keyboard handling: ESC to close, arrows to navigate while modal is open
   useEffect(() => {
     if (openIndex === null) return;
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+      if (e.key === 'Escape') {
         e.preventDefault();
         closeModal();
-      } else if (e.key === "ArrowLeft") {
+      } else if (e.key === 'ArrowLeft') {
         e.preventDefault();
         goPrev();
-      } else if (e.key === "ArrowRight") {
+      } else if (e.key === 'ArrowRight') {
         e.preventDefault();
         goNext();
       }
     };
-    window.addEventListener("keydown", onKeyDown as EventListener);
+    window.addEventListener('keydown', onKeyDown as EventListener);
     // Focus the close button when opening
     queueMicrotask(() => closeBtnRef.current?.focus());
     return () => {
-      window.removeEventListener("keydown", onKeyDown as EventListener);
+      window.removeEventListener('keydown', onKeyDown as EventListener);
     };
-  }, [openIndex, goPrev, goNext]);
+  }, [openIndex, goPrev, goNext, closeModal]);
 
   // Simple focus trap inside the dialog for Tab/Shift+Tab
   const onDialogKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key !== "Tab") return;
+    if (e.key !== 'Tab') return;
     const focusables = [closeBtnRef.current, prevBtnRef.current, nextBtnRef.current].filter(
       (el): el is HTMLButtonElement => !!el
     );
     if (focusables.length === 0) return;
     const current = document.activeElement as HTMLElement | null;
-    const idx = focusables.findIndex((el) => el === current);
+    const idx = focusables.indexOf(current);
     if (e.shiftKey) {
       // Move focus backward when cycling with Shift+Tab.
       if (idx <= 0) {
@@ -116,7 +117,7 @@ export default function GalleryGrid({ images, fallback = "/placeholder_image.png
         {toShow.map((src, idx) => (
           <button
             key={idx}
-            onClick={(e) => {
+            onClick={e => {
               lastTriggerRef.current = e.currentTarget;
               setOpenIndex(idx);
             }}
@@ -129,7 +130,7 @@ export default function GalleryGrid({ images, fallback = "/placeholder_image.png
               src={src}
               alt={altTexts[idx] ?? `Gallery image ${idx + 1}`}
               fill
-              className="object-cover hover:scale-105 transition-transform duration-300" 
+              className="object-cover hover:scale-105 transition-transform duration-300"
             />
           </button>
         ))}
@@ -147,7 +148,10 @@ export default function GalleryGrid({ images, fallback = "/placeholder_image.png
           onKeyDown={onDialogKeyDown}
           data-testid="gallery-lightbox"
         >
-          <div className="relative w-full max-w-4xl max-h-[90vh] mx-auto" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="relative w-full max-w-4xl max-h-[90vh] mx-auto"
+            onClick={e => e.stopPropagation()}
+          >
             <button
               ref={closeBtnRef}
               onClick={closeModal}

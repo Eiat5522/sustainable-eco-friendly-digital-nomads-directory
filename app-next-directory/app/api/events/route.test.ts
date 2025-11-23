@@ -11,11 +11,12 @@ import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals
 const fetchMock = jest.fn();
 
 // Mock the Sanity client used by the route to intercept .fetch calls
-jest.mock('@/lib/sanity/client', () => ({ client: { fetch: (...args: any[]) => fetchMock(...args) } }));
+jest.mock('@/lib/sanity/client', () => ({
+  client: { fetch: (...args: any[]) => fetchMock(...args) },
+}));
 
 let GET: any;
 
-import { jest as _jest } from '@jest/globals';
 
 describe('Events API - GET /api/events', () => {
   beforeEach(() => {

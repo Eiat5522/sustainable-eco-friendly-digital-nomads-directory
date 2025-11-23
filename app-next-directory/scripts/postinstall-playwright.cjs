@@ -1,15 +1,12 @@
-const { execSync } = require('child_process');
+const { execSync } = require('node:child_process');
 
 const { CI, SKIP_PLAYWRIGHT_INSTALL, NODE_ENV } = process.env;
 
 // Helper to check if environment variable is truthy
-const isEnvTrue = (value) => value === '1' || value === 'true';
+const isEnvTrue = value => value === '1' || value === 'true';
 
 // Skip installation in CI (handled separately with caching) or if explicitly disabled
-const shouldSkip = 
-  isEnvTrue(SKIP_PLAYWRIGHT_INSTALL) ||
-  isEnvTrue(CI) ||
-  NODE_ENV === 'production';
+const shouldSkip = isEnvTrue(SKIP_PLAYWRIGHT_INSTALL) || isEnvTrue(CI) || NODE_ENV === 'production';
 
 if (shouldSkip) {
   console.log('[postinstall-playwright] Skipping browser installation (CI or disabled)');
@@ -18,21 +15,20 @@ if (shouldSkip) {
 
 // Detect package manager from npm_config_user_agent for consistent usage throughout
 const { npm_config_user_agent: UA } = process.env;
-const runner = UA && UA.includes('pnpm') ? 'pnpm exec'
-  : UA && UA.includes('yarn') ? 'yarn exec'
-  : 'npx';
+const runner =
+  UA?.includes('pnpm') ? 'pnpm exec' : UA?.includes('yarn') ? 'yarn exec' : 'npx';
 
 // Check if browsers are already installed using Playwright CLI
 let browsersInstalled = false;
 try {
   // Use playwright CLI to list browser files and verify chromium availability
   const checkCmd = `${runner} playwright list-files chromium`;
-  execSync(checkCmd, { 
+  execSync(checkCmd, {
     stdio: 'pipe',
-    timeout: 5000 
+    timeout: 5000,
   });
   browsersInstalled = true;
-} catch (err) {
+} catch (_err) {
   // Browsers not installed or check failed
   browsersInstalled = false;
 }
@@ -52,16 +48,16 @@ try {
   // Install browsers without --with-deps to avoid system dependency issues during postinstall
   // Note: CI workflows use --with-deps separately with better error handling and caching
   const installCmd = `${runner} playwright install chromium`;
-  execSync(installCmd, { 
+  execSync(installCmd, {
     stdio: 'inherit',
-    timeout: 300000 // 5 minute timeout
+    timeout: 300000, // 5 minute timeout
   });
   console.log('[postinstall-playwright] Browser installation complete');
 } catch (err) {
   // Get workspace name dynamically from package.json for better portability
   const packageJson = require('../package.json');
   const workspaceName = packageJson.name || 'app-next-directory';
-  
+
   console.warn('');
   console.warn('⚠️  [postinstall-playwright] Browser installation failed (non-fatal)');
   console.warn('   This is a known issue with Playwright installation progress reporting.');

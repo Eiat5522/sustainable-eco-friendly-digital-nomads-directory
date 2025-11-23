@@ -2,8 +2,8 @@
  * @jest-environment node
  */
 
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
-import { isSanityConfigured, getSanityMissingEnvMessage } from '../env';
+import { afterEach, describe, expect, it } from '@jest/globals';
+import { getSanityMissingEnvMessage, isSanityConfigured } from '../env';
 
 // Test constants to reduce duplication
 const TEST_PROJECT_ID = 'test-project';
@@ -72,7 +72,7 @@ describe('Sanity Environment Utilities', () => {
 
     it('returns true with different valid dataset names', () => {
       const datasets = [TEST_DATASET, 'staging', 'development', 'test'];
-      
+
       datasets.forEach(dataset => {
         process.env[ENV_VAR_PROJECT_ID] = 'test-project';
         process.env[ENV_VAR_DATASET] = dataset;
@@ -82,7 +82,7 @@ describe('Sanity Environment Utilities', () => {
 
     it('returns true with valid alphanumeric project IDs', () => {
       const projectIds = ['abc123', 'project-123', 'test_project', 'p1'];
-      
+
       projectIds.forEach(projectId => {
         process.env[ENV_VAR_PROJECT_ID] = projectId;
         process.env[ENV_VAR_DATASET] = TEST_DATASET;

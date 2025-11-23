@@ -1,10 +1,10 @@
+import type { NextRequest } from 'next/server';
+import { groq } from 'next-sanity';
+import { transformToBlogDetailDTO } from '@/lib/dto-transformer';
 import structuredLogger from '@/lib/logger';
 import { client as sanityClient } from '@/lib/sanity/client';
-import { ApiResponseHandler } from '@/utils/api-response';
-import { groq } from 'next-sanity';
-import type { NextRequest } from 'next/server';
-import { transformToBlogDetailDTO } from '@/lib/dto-transformer';
 import { incrementViewCount as persistentIncrementViewCount } from '@/lib/viewCountPersistence';
+import { ApiResponseHandler } from '@/utils/api-response';
 
 type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<unknown>;
 type TransformFn = typeof transformToBlogDetailDTO;
@@ -240,10 +240,7 @@ const postQuery = groq`
 `;
 
 // GET endpoint for fetching a single blog post
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
-) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   try {
     const { slug } = await params;
 
@@ -261,8 +258,6 @@ export async function GET(
       if (!post) {
         return ApiResponseHandler.notFound('Blog post');
       }
-
-      console.error('Error fetching blog post: unexpected payload shape');
       return ApiResponseHandler.notFound('Blog post');
     }
 
@@ -282,9 +277,7 @@ export async function GET(
 
     // Return a single canonical payload shape
     return ApiResponseHandler.success(response);
-
   } catch (error) {
-    console.error('Error fetching blog post:', error);
 
     if (error instanceof Error) {
       if (error.message.includes('fetch failed')) {
@@ -309,8 +302,6 @@ async function trackViewCount(postId: string): Promise<number> {
     // Use persistent storage in production
     return await persistentIncrementViewCount(postId);
   } catch (error) {
-    // Fallback to in-memory tracking if database fails
-    console.error('Failed to persist view count, using in-memory fallback:', error);
     structuredLogger.error('Blog view count persistence failed', error, {
       component: 'blog-view-count-fallback',
       postId,
@@ -320,10 +311,7 @@ async function trackViewCount(postId: string): Promise<number> {
 }
 
 // PUT endpoint for updating view count (optional)
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
-) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   try {
     const { slug } = await params;
     const body = await request.json();
@@ -344,16 +332,11 @@ export async function PUT(
 
       const viewCount = await trackViewCount(post._id);
 
-      return ApiResponseHandler.success(
-        { viewCount },
-        'View count updated successfully'
-      );
+      return ApiResponseHandler.success({ viewCount }, 'View count updated successfully');
     }
 
     return ApiResponseHandler.error('Invalid action', 400);
-
-  } catch (error) {
-    console.error('Error updating blog post:', error);
+  } catch (_error) {
     return ApiResponseHandler.error('Failed to update blog post', 500);
   }
 }

@@ -1,9 +1,9 @@
 import type {
-  ModerationStatus,
-  ReportReason,
-  Report,
+  ContentGuidelines,
   ModerationAction,
-  ContentGuidelines
+  ModerationStatus,
+  Report,
+  ReportReason,
 } from '../moderation';
 
 describe('moderation types', () => {
@@ -67,7 +67,7 @@ describe('moderation types', () => {
         'spam',
         'not_eco_friendly',
         'misleading_sustainability_claims',
-        'other'
+        'other',
       ];
       expect(reasons).toHaveLength(6);
     });
@@ -82,7 +82,7 @@ describe('moderation types', () => {
         description: 'This looks like spam',
         status: 'pending',
         createdAt: new Date('2024-01-15'),
-        updatedAt: new Date('2024-01-15')
+        updatedAt: new Date('2024-01-15'),
       };
       expect(report.id).toBe('report-123');
       expect(report.status).toBe('pending');
@@ -97,7 +97,7 @@ describe('moderation types', () => {
         description: 'Information is incorrect',
         status: 'pending',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
       expect(report.reporterId).toBe('user-123');
     });
@@ -110,7 +110,7 @@ describe('moderation types', () => {
         description: 'Content is inappropriate',
         status: 'pending',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
       expect(report.reporterId).toBeUndefined();
     });
@@ -124,7 +124,7 @@ describe('moderation types', () => {
         evidence: 'https://example.com/proof.jpg',
         status: 'pending',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
       expect(report.evidence).toBe('https://example.com/proof.jpg');
     });
@@ -140,7 +140,7 @@ describe('moderation types', () => {
         createdAt: new Date('2024-01-01'),
         updatedAt: new Date('2024-01-02'),
         moderatorId: 'mod-123',
-        moderatorNotes: 'Confirmed as spam'
+        moderatorNotes: 'Confirmed as spam',
       };
       expect(report.status).toBe('approved');
       expect(report.moderatorId).toBe('mod-123');
@@ -150,7 +150,7 @@ describe('moderation types', () => {
     it('should track creation and update dates', () => {
       const createdAt = new Date('2024-01-01');
       const updatedAt = new Date('2024-01-05');
-      
+
       const report: Report = {
         id: 'report-5',
         listingId: 'listing-5',
@@ -158,9 +158,9 @@ describe('moderation types', () => {
         description: 'Other issue',
         status: 'rejected',
         createdAt,
-        updatedAt
+        updatedAt,
       };
-      
+
       expect(report.createdAt).toEqual(createdAt);
       expect(report.updatedAt).toEqual(updatedAt);
     });
@@ -174,7 +174,7 @@ describe('moderation types', () => {
         moderatorId: 'mod-789',
         action: 'approve',
         reason: 'Content meets guidelines',
-        createdAt: new Date()
+        createdAt: new Date(),
       };
       expect(action.action).toBe('approve');
     });
@@ -186,7 +186,7 @@ describe('moderation types', () => {
         moderatorId: 'mod-1',
         action: 'reject',
         reason: 'Does not meet sustainability criteria',
-        createdAt: new Date()
+        createdAt: new Date(),
       };
       expect(action.action).toBe('reject');
     });
@@ -198,7 +198,7 @@ describe('moderation types', () => {
         moderatorId: 'mod-2',
         action: 'flag',
         reason: 'Requires additional review',
-        createdAt: new Date()
+        createdAt: new Date(),
       };
       expect(action.action).toBe('flag');
     });
@@ -210,7 +210,7 @@ describe('moderation types', () => {
         moderatorId: 'mod-3',
         action: 'request_changes',
         reason: 'Information needs updating',
-        createdAt: new Date()
+        createdAt: new Date(),
       };
       expect(action.action).toBe('request_changes');
     });
@@ -222,7 +222,7 @@ describe('moderation types', () => {
         moderatorId: 'mod-4',
         action: 'approve',
         reason: 'Approved',
-        createdAt: new Date()
+        createdAt: new Date(),
       };
       expect(action.changes).toBeUndefined();
     });
@@ -239,16 +239,16 @@ describe('moderation types', () => {
             field: 'description',
             currentValue: 'Old description',
             suggestedValue: 'New description',
-            reason: 'More accurate information needed'
+            reason: 'More accurate information needed',
           },
           {
             field: 'address',
             currentValue: '123 Old St',
             suggestedValue: '456 New Ave',
-            reason: 'Address has changed'
-          }
+            reason: 'Address has changed',
+          },
         ],
-        createdAt: new Date()
+        createdAt: new Date(),
       };
       expect(action.changes).toHaveLength(2);
       expect(action.changes?.[0].field).toBe('description');
@@ -262,7 +262,7 @@ describe('moderation types', () => {
         action: 'request_changes',
         reason: 'Changes needed',
         changes: [],
-        createdAt: new Date()
+        createdAt: new Date(),
       };
       expect(action.changes).toHaveLength(0);
     });
@@ -274,7 +274,7 @@ describe('moderation types', () => {
         id: 'guideline-1',
         category: 'coworking',
         rules: [],
-        lastUpdated: new Date()
+        lastUpdated: new Date(),
       };
       expect(guidelines.category).toBe('coworking');
     });
@@ -289,11 +289,11 @@ describe('moderation types', () => {
             description: 'Must demonstrate sustainable practices',
             examples: {
               good: ['Uses renewable energy', 'Composts waste'],
-              bad: ['No recycling program', 'Single-use plastics']
-            }
-          }
+              bad: ['No recycling program', 'Single-use plastics'],
+            },
+          },
         ],
-        lastUpdated: new Date()
+        lastUpdated: new Date(),
       };
       expect(guidelines.rules).toHaveLength(1);
       expect(guidelines.rules[0].title).toBe('Eco-Friendly Practices');
@@ -309,19 +309,19 @@ describe('moderation types', () => {
             description: 'Environmental practices',
             examples: {
               good: ['Solar panels', 'Water conservation'],
-              bad: ['Excessive water use', 'No recycling']
-            }
+              bad: ['Excessive water use', 'No recycling'],
+            },
           },
           {
             title: 'Accessibility',
             description: 'Facility access requirements',
             examples: {
               good: ['Wheelchair ramps', 'Accessible rooms'],
-              bad: ['Stairs only', 'No accessible facilities']
-            }
-          }
+              bad: ['Stairs only', 'No accessible facilities'],
+            },
+          },
         ],
-        lastUpdated: new Date()
+        lastUpdated: new Date(),
       };
       expect(guidelines.rules).toHaveLength(2);
     });
@@ -335,20 +335,12 @@ describe('moderation types', () => {
             title: 'Local Sourcing',
             description: 'Use local ingredients',
             examples: {
-              good: [
-                'Sources from local farms',
-                'Seasonal menu',
-                'Local suppliers listed'
-              ],
-              bad: [
-                'Imports all ingredients',
-                'No local partnerships',
-                'Frozen foods only'
-              ]
-            }
-          }
+              good: ['Sources from local farms', 'Seasonal menu', 'Local suppliers listed'],
+              bad: ['Imports all ingredients', 'No local partnerships', 'Frozen foods only'],
+            },
+          },
         ],
-        lastUpdated: new Date()
+        lastUpdated: new Date(),
       };
       expect(guidelines.rules[0].examples.good).toHaveLength(3);
       expect(guidelines.rules[0].examples.bad).toHaveLength(3);
@@ -360,7 +352,7 @@ describe('moderation types', () => {
         id: 'guideline-5',
         category: 'activities',
         rules: [],
-        lastUpdated: date
+        lastUpdated: date,
       };
       expect(guidelines.lastUpdated).toEqual(date);
     });
@@ -376,7 +368,7 @@ describe('moderation types', () => {
         description: 'Information is outdated',
         status: 'pending',
         createdAt: new Date('2024-01-01'),
-        updatedAt: new Date('2024-01-01')
+        updatedAt: new Date('2024-01-01'),
       };
 
       expect(report.status).toBe('pending');
@@ -392,10 +384,10 @@ describe('moderation types', () => {
             field: 'description',
             currentValue: 'Old info',
             suggestedValue: 'Updated info',
-            reason: 'Information is outdated'
-          }
+            reason: 'Information is outdated',
+          },
         ],
-        createdAt: new Date('2024-01-02')
+        createdAt: new Date('2024-01-02'),
       };
 
       expect(action.listingId).toBe(report.listingId);
@@ -410,7 +402,7 @@ describe('moderation types', () => {
           description: 'Spam',
           status: 'pending',
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         },
         {
           id: '2',
@@ -419,7 +411,7 @@ describe('moderation types', () => {
           description: 'Spam',
           status: 'approved',
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         },
         {
           id: '3',
@@ -428,13 +420,13 @@ describe('moderation types', () => {
           description: 'Spam',
           status: 'rejected',
           createdAt: new Date(),
-          updatedAt: new Date()
-        }
+          updatedAt: new Date(),
+        },
       ];
 
       const pending = reports.filter(r => r.status === 'pending');
       const approved = reports.filter(r => r.status === 'approved');
-      
+
       expect(pending).toHaveLength(1);
       expect(approved).toHaveLength(1);
     });
@@ -445,14 +437,14 @@ describe('moderation types', () => {
           id: 'g1',
           category: 'coworking',
           rules: [],
-          lastUpdated: new Date()
+          lastUpdated: new Date(),
         },
         {
           id: 'g2',
           category: 'cafe',
           rules: [],
-          lastUpdated: new Date()
-        }
+          lastUpdated: new Date(),
+        },
       ];
 
       const coworkingGuidelines = allGuidelines.find(g => g.category === 'coworking');

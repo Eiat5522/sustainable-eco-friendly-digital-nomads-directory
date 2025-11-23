@@ -1,6 +1,5 @@
-"use client";
+'use client';
 
-import React from 'react';
 import { useCounter } from '@/hooks/useCounter';
 
 interface AnimatedNumberProps {
@@ -23,5 +22,11 @@ export function AnimatedNumber({
   className,
 }: AnimatedNumberProps) {
   const { formatted } = useCounter({ start, end: value, duration, decimals });
-  return <span className={className}>{prefix}{formatted}{suffix}</span>;
+  return (
+    <span className={className}>
+      {prefix}
+      {formatted}
+      {suffix}
+    </span>
+  );
 }

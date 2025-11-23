@@ -3,5 +3,5 @@ export const ApiResponseHandler = {
   error: jest.fn(),
   notFound: jest.fn(),
   unauthorized: jest.fn(),
-  forbidden: jest.fn()
+  forbidden: jest.fn(),
 };

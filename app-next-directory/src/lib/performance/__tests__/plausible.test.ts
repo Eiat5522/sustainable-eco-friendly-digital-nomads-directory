@@ -3,13 +3,13 @@ jest.mock('../budgets.ts', () => ({
   shouldAlert: jest.fn(),
 }));
 
+import { shouldAlert } from '../budgets.ts';
 import {
+  dependencies,
   PERFORMANCE_EVENTS,
   reportPerformanceEvent,
   usePerformanceTracking,
-  dependencies,
 } from '../plausible-integration.ts';
-import { shouldAlert } from '../budgets.ts';
 
 describe('plausible-integration', () => {
   let mockPlausible: jest.Mock;
@@ -23,7 +23,7 @@ describe('plausible-integration', () => {
     mockPlausible = jest.fn();
     originalWindow = dependencies.window;
     dependencies.window = {
-        plausible: mockPlausible,
+      plausible: mockPlausible,
     } as any;
   });
 
@@ -209,9 +209,9 @@ describe('plausible-integration', () => {
         'CUSTOM_MARK',
       ];
 
-      categories.forEach((category) => {
+      categories.forEach(category => {
         mockPlausible.mockClear();
-        
+
         reportPerformanceEvent({
           name: 'test-metric',
           value: 100,
@@ -284,14 +284,14 @@ describe('plausible-integration', () => {
   describe('usePerformanceTracking', () => {
     it('should return tracking function', () => {
       const { trackPerformance } = usePerformanceTracking();
-      
+
       expect(trackPerformance).toBeDefined();
       expect(typeof trackPerformance).toBe('function');
     });
 
     it('should track performance with CUSTOM_MARK category', () => {
       const { trackPerformance } = usePerformanceTracking();
-      
+
       trackPerformance({
         name: 'user-interaction',
         value: 150,
@@ -307,7 +307,7 @@ describe('plausible-integration', () => {
 
     it('should track performance with metadata', () => {
       const { trackPerformance } = usePerformanceTracking();
-      
+
       trackPerformance({
         name: 'button-click',
         value: 50,
@@ -329,7 +329,7 @@ describe('plausible-integration', () => {
 
     it('should handle multiple tracking calls', () => {
       const { trackPerformance } = usePerformanceTracking();
-      
+
       trackPerformance({ name: 'event1', value: 100 });
       trackPerformance({ name: 'event2', value: 200 });
       trackPerformance({ name: 'event3', value: 300 });
@@ -340,7 +340,7 @@ describe('plausible-integration', () => {
     it('should work when plausible is not initialized', () => {
       dependencies.window = {} as any;
       const { trackPerformance } = usePerformanceTracking();
-      
+
       expect(() => {
         trackPerformance({ name: 'test', value: 100 });
       }).not.toThrow();
@@ -353,7 +353,7 @@ describe('plausible-integration', () => {
     it('should check for alerts on tracked performance', () => {
       (shouldAlert as jest.Mock).mockReturnValue(null);
       const { trackPerformance } = usePerformanceTracking();
-      
+
       trackPerformance({
         name: 'searchResults',
         value: 600,
@@ -371,7 +371,7 @@ describe('plausible-integration', () => {
         timestamp: Date.now(),
       };
       (shouldAlert as jest.Mock).mockReturnValue(mockAlert);
-      
+
       const { trackPerformance } = usePerformanceTracking();
       trackPerformance({
         name: 'searchResults',

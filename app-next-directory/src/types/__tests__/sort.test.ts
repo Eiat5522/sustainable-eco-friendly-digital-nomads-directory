@@ -1,4 +1,4 @@
-import { type SortOption, DEFAULT_SORT_OPTIONS } from '../sort';
+import { DEFAULT_SORT_OPTIONS, type SortOption } from '../sort';
 
 describe('sort types and constants', () => {
   describe('SortOption interface', () => {
@@ -6,7 +6,7 @@ describe('sort types and constants', () => {
       const option: SortOption = {
         field: 'name',
         displayName: 'Name',
-        direction: 'asc'
+        direction: 'asc',
       };
       expect(option.field).toBe('name');
       expect(option.displayName).toBe('Name');
@@ -17,7 +17,7 @@ describe('sort types and constants', () => {
       const option: SortOption = {
         field: 'rating',
         displayName: 'Rating',
-        direction: 'desc'
+        direction: 'desc',
       };
       expect(option.field).toBe('rating');
       expect(option.displayName).toBe('Rating');
@@ -28,7 +28,7 @@ describe('sort types and constants', () => {
       const options: SortOption[] = [
         { field: 'price', displayName: 'Price', direction: 'asc' },
         { field: 'date', displayName: 'Date', direction: 'desc' },
-        { field: 'popularity', displayName: 'Popularity', direction: 'desc' }
+        { field: 'popularity', displayName: 'Popularity', direction: 'desc' },
       ];
       expect(options).toHaveLength(3);
       expect(options[0].field).toBe('price');
@@ -129,7 +129,7 @@ describe('sort types and constants', () => {
       const customSort: SortOption = {
         field: 'distance',
         displayName: 'Distance',
-        direction: 'asc'
+        direction: 'asc',
       };
       const allOptions = [...DEFAULT_SORT_OPTIONS, customSort];
       expect(allOptions).toHaveLength(6);
@@ -139,7 +139,7 @@ describe('sort types and constants', () => {
     it('should allow creating sort option arrays', () => {
       const sortOptions: SortOption[] = [
         { field: 'name', displayName: 'Name A-Z', direction: 'asc' },
-        { field: 'name', displayName: 'Name Z-A', direction: 'desc' }
+        { field: 'name', displayName: 'Name Z-A', direction: 'desc' },
       ];
       expect(sortOptions).toHaveLength(2);
       expect(sortOptions[0].direction).toBe('asc');
@@ -152,7 +152,7 @@ describe('sort types and constants', () => {
       const option: SortOption = {
         field: '',
         displayName: 'Test',
-        direction: 'asc'
+        direction: 'asc',
       };
       expect(option.field).toBe('');
     });
@@ -161,7 +161,7 @@ describe('sort types and constants', () => {
       const option: SortOption = {
         field: '_createdAt',
         displayName: 'Created At',
-        direction: 'desc'
+        direction: 'desc',
       };
       expect(option.field).toBe('_createdAt');
     });

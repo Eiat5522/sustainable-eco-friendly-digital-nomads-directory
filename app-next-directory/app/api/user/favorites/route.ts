@@ -1,9 +1,9 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { client } from '@/lib/sanity/client';
-import type { UserRole } from '@/types/auth';
-import { ensureSanityUser } from '@/lib/sanity/user';
 import { getRequestContext, structuredLogger } from '@/lib/logger';
+import { client } from '@/lib/sanity/client';
+import { ensureSanityUser } from '@/lib/sanity/user';
+import type { UserRole } from '@/types/auth';
 
 type AuthFn = () => Promise<unknown>;
 type EnsureUserFn = (args: {
@@ -14,7 +14,9 @@ type EnsureUserFn = (args: {
 }) => Promise<{ _id?: string } | null>;
 type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<unknown>;
 type CreateOrReplaceDocument = Parameters<typeof client.createOrReplace>[0];
-type CreateOrReplaceFn = (doc: CreateOrReplaceDocument) => ReturnType<typeof client.createOrReplace>;
+type CreateOrReplaceFn = (
+  doc: CreateOrReplaceDocument
+) => ReturnType<typeof client.createOrReplace>;
 type DeleteFn = (id: string) => Promise<unknown>;
 type ParseBodyFn = (request: NextRequest) => Promise<unknown>;
 
@@ -55,7 +57,11 @@ export async function GET() {
   const session = await authFn();
 
   // session may be untyped in tests; cast to unknown before accessing .user
-  const user = (session as { user?: { id?: string; role?: UserRole; email?: string | null; name?: string | null } })?.user;
+  const user = (
+    session as {
+      user?: { id?: string; role?: UserRole; email?: string | null; name?: string | null };
+    }
+  )?.user;
   const userId: string | undefined = user?.id;
   const userRole: UserRole | undefined = user?.role;
 
@@ -148,7 +154,11 @@ export async function POST(request: NextRequest) {
 
   const session = await authFn();
 
-  const user = (session as { user?: { id?: string; role?: UserRole; email?: string | null; name?: string | null } })?.user;
+  const user = (
+    session as {
+      user?: { id?: string; role?: UserRole; email?: string | null; name?: string | null };
+    }
+  )?.user;
   const userId: string | undefined = user?.id;
   const userRole: UserRole = user?.role || 'unidentifiedUser';
 
@@ -177,7 +187,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Resolve listing by slug to get its Sanity ID
-    const listing = await fetchFn(`*[_type == "listing" && slug.current == $slug][0]{ _id }`, { slug }) as { _id: string } | null;
+    const listing = (await fetchFn(`*[_type == "listing" && slug.current == $slug][0]{ _id }`, {
+      slug,
+    })) as { _id: string } | null;
     if (!listing?._id) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
     }
@@ -195,7 +207,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       favorited: true,
       message: 'Added to favorites',
-      favoriteId: (favorite as { _id: string })._id
+      favoriteId: (favorite as { _id: string })._id,
     });
   } catch (error) {
     structuredLogger.error('Failed to add favorite', error, {
@@ -216,7 +228,11 @@ export async function DELETE(request: NextRequest) {
 
   const session = await authFn();
 
-  const user = (session as { user?: { id?: string; role?: UserRole; email?: string | null; name?: string | null } })?.user;
+  const user = (
+    session as {
+      user?: { id?: string; role?: UserRole; email?: string | null; name?: string | null };
+    }
+  )?.user;
   const userId: string | undefined = user?.id;
   const userRole: UserRole | undefined = user?.role;
 
@@ -234,28 +250,30 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Resolve listing by slug to get its Sanity ID
-    const listing = await fetchFn(`*[_type == "listing" && slug.current == $slug][0]{ _id }`, { slug }) as { _id: string } | null;
+    const listing = (await fetchFn(`*[_type == "listing" && slug.current == $slug][0]{ _id }`, {
+      slug,
+    })) as { _id: string } | null;
     if (!listing?._id) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
     }
     const listingId = listing._id;
 
     // Find and remove the favorite
-    const existingFavorite = await fetchFn(
+    const existingFavorite = (await fetchFn(
       `*[_type == "userFavorite" && user._ref == $userId && listing._ref == $listingId][0]`,
       { userId, listingId }
-    ) as { _id: string } | null;
+    )) as { _id: string } | null;
 
     if (existingFavorite) {
       await deleteFn(existingFavorite._id);
-      return NextResponse.json({ 
-        favorited: false, 
-        message: 'Removed from favorites' 
+      return NextResponse.json({
+        favorited: false,
+        message: 'Removed from favorites',
       });
     } else {
-      return NextResponse.json({ 
-        favorited: false, 
-        message: 'Not in favorites' 
+      return NextResponse.json({
+        favorited: false,
+        message: 'Not in favorites',
       });
     }
   } catch (error) {

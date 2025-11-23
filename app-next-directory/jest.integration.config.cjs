@@ -1,6 +1,6 @@
 const baseConfig = require('./jest.config.cjs');
 
-const unique = (items) => Array.from(new Set(items.filter(Boolean)));
+const unique = items => Array.from(new Set(items.filter(Boolean)));
 
 const integrationTestPatterns = [
   '<rootDir>/src/**/*.integration.test.(ts|js)',
@@ -9,9 +9,7 @@ const integrationTestPatterns = [
 
 module.exports = {
   ...baseConfig,
-  displayName: baseConfig.displayName
-    ? `${baseConfig.displayName} (integration)`
-    : 'integration',
+  displayName: baseConfig.displayName ? `${baseConfig.displayName} (integration)` : 'integration',
   testEnvironment: 'node',
   setupFilesAfterEnv: unique([
     ...(baseConfig.setupFilesAfterEnv ?? []),
@@ -19,6 +17,6 @@ module.exports = {
   ]),
   testMatch: integrationTestPatterns,
   testPathIgnorePatterns: (baseConfig.testPathIgnorePatterns ?? []).filter(
-    (pattern) => !pattern.includes('(int|integration)')
+    pattern => !pattern.includes('(int|integration)')
   ),
 };

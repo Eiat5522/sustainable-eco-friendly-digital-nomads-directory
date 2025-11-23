@@ -1,11 +1,11 @@
 import type {
   AppCity,
-  SanityImage,
-  SanityGalleryImage,
+  AppFilterState,
   AppListingCard,
   AppListingDetail,
   AppReview,
-  AppFilterState
+  SanityGalleryImage,
+  SanityImage,
 } from '../appView';
 
 describe('appView types', () => {
@@ -14,7 +14,7 @@ describe('appView types', () => {
       const city: AppCity = {
         id: 'city-123',
         name: 'Bangkok',
-        slug: 'bangkok'
+        slug: 'bangkok',
       };
       expect(city.id).toBe('city-123');
       expect(city.name).toBe('Bangkok');
@@ -29,9 +29,9 @@ describe('appView types', () => {
         sustainabilityScore: 90,
         highlights: ['Mountains', 'Digital Nomad Hub'],
         primaryImage: {
-          asset: { _id: 'img-1', url: 'https://example.com/img.jpg' }
+          asset: { _id: 'img-1', url: 'https://example.com/img.jpg' },
         },
-        description: 'Beautiful mountain city'
+        description: 'Beautiful mountain city',
       };
       expect(city.sustainabilityScore).toBe(90);
       expect(city.highlights).toContain('Mountains');
@@ -41,7 +41,7 @@ describe('appView types', () => {
   describe('SanityImage and SanityGalleryImage types', () => {
     it('should accept SanityImage', () => {
       const image: SanityImage = {
-        asset: { _id: 'img-1', url: 'https://example.com/img.jpg' }
+        asset: { _id: 'img-1', url: 'https://example.com/img.jpg' },
       };
       expect(image.asset.url).toBeDefined();
     });
@@ -49,7 +49,7 @@ describe('appView types', () => {
     it('should accept SanityGalleryImage with _key', () => {
       const image: SanityGalleryImage = {
         _key: 'gallery-1',
-        asset: { _id: 'img-1', url: 'https://example.com/img.jpg' }
+        asset: { _id: 'img-1', url: 'https://example.com/img.jpg' },
       };
       expect(image._key).toBe('gallery-1');
     });
@@ -64,9 +64,9 @@ describe('appView types', () => {
         city: {
           id: 'city-1',
           name: 'Bangkok',
-          slug: 'bangkok'
+          slug: 'bangkok',
         },
-        ecoFocusTags: ['solar-power', 'recycling']
+        ecoFocusTags: ['solar-power', 'recycling'],
       };
       expect(card.id).toBe('listing-123');
       expect(card.ecoFocusTags).toContain('solar-power');
@@ -78,7 +78,7 @@ describe('appView types', () => {
         name: 'Test Listing',
         slug: 'test-listing',
         city: null,
-        ecoFocusTags: []
+        ecoFocusTags: [],
       };
       expect(card.city).toBeNull();
     });
@@ -95,19 +95,19 @@ describe('appView types', () => {
         website: 'https://example.com',
         imageUrl: 'https://example.com/img.jpg',
         primaryImage: {
-          asset: { _id: 'img-1', url: 'https://example.com/img.jpg' }
+          asset: { _id: 'img-1', url: 'https://example.com/img.jpg' },
         },
         galleryImages: [
           {
             _key: 'img-1',
-            asset: { _id: 'img-1', url: 'https://example.com/gallery1.jpg' }
-          }
+            asset: { _id: 'img-1', url: 'https://example.com/gallery1.jpg' },
+          },
         ],
         type: 'coworking',
         shortDescription: 'Great workspace',
         address: '123 Main St',
         category: 'coworking',
-        location: { lat: 13.7563, lng: 100.5018 }
+        location: { lat: 13.7563, lng: 100.5018 },
       };
       expect(card.priceRange).toBe('moderate');
       expect(card.location?.lat).toBe(13.7563);
@@ -121,7 +121,7 @@ describe('appView types', () => {
         name: 'Detail Listing',
         slug: 'detail-listing',
         city: null,
-        ecoFocusTags: []
+        ecoFocusTags: [],
       };
       expect(detail.id).toBe('listing-1');
     });
@@ -134,7 +134,7 @@ describe('appView types', () => {
         city: null,
         ecoFocusTags: [],
         contactPhone: '+66-123-4567',
-        contactEmail: 'info@example.com'
+        contactEmail: 'info@example.com',
       };
       expect(detail.contactPhone).toBe('+66-123-4567');
       expect(detail.contactEmail).toBe('info@example.com');
@@ -148,7 +148,7 @@ describe('appView types', () => {
         city: null,
         ecoFocusTags: [],
         shortDescription: 'Short desc',
-        longDescription: 'Long description here'
+        longDescription: 'Long description here',
       };
       expect(detail.shortDescription).toBe('Short desc');
     });
@@ -161,14 +161,10 @@ describe('appView types', () => {
         city: null,
         ecoFocusTags: [],
         coworkingDetails: {
-          pricingPlans: [
-            { type: 'daily', price: 300, period: 'day' }
-          ],
-          openingHours: [
-            { day: 'Monday', opens: '09:00', closes: '18:00' }
-          ],
-          internetSpeed: { download: 100, upload: 50 }
-        }
+          pricingPlans: [{ type: 'daily', price: 300, period: 'day' }],
+          openingHours: [{ day: 'Monday', opens: '09:00', closes: '18:00' }],
+          internetSpeed: { download: 100, upload: 50 },
+        },
       };
       expect(detail.coworkingDetails?.pricingPlans).toHaveLength(1);
     });
@@ -185,11 +181,11 @@ describe('appView types', () => {
           pricePerNightThb: { min: 500, max: 2000 },
           roomTypesAvailable: [
             { type: 'Single', pricePerNight: 500 },
-            { type: 'Double', pricePerNight: 800 }
+            { type: 'Double', pricePerNight: 800 },
           ],
           minimumStay: 2,
-          coworkingPartnership: { hasPartnership: true, partner: 'Local Cowork' }
-        }
+          coworkingPartnership: { hasPartnership: true, partner: 'Local Cowork' },
+        },
       };
       expect(detail.accommodationDetails?.accommodationType).toBe('Hotel');
       expect(detail.accommodationDetails?.minimumStay).toBe(2);
@@ -203,9 +199,7 @@ describe('appView types', () => {
         city: null,
         ecoFocusTags: [],
         cafeDetails: {
-          openingHours: [
-            { day: 'Monday', opens: '07:00', closes: '19:00' }
-          ],
+          openingHours: [{ day: 'Monday', opens: '07:00', closes: '19:00' }],
           priceIndication: '$-$$',
           menuHighlights: ['Organic coffee', 'Pastries'],
           workspaceAmenities: ['WiFi', 'Power outlets'],
@@ -213,8 +207,8 @@ describe('appView types', () => {
           noiseLevel: 'moderate',
           powerOutlets: { availability: 'every table' },
           workPolicy: { laptopsAllowed: true, timeLimit: 4 },
-          veganFriendly: { isVeganFriendly: true, veganOptions: 5 }
-        }
+          veganFriendly: { isVeganFriendly: true, veganOptions: 5 },
+        },
       };
       expect(detail.cafeDetails?.noiseLevel).toBe('moderate');
     });
@@ -234,8 +228,8 @@ describe('appView types', () => {
           dietaryOptions: ['Vegetarian', 'Vegan'],
           seating: ['Indoor', 'Outdoor'],
           workFriendly: ['WiFi available'],
-          averageMealPriceThb: { min: 150, max: 500 }
-        }
+          averageMealPriceThb: { min: 150, max: 500 },
+        },
       };
       expect(detail.restaurantDetails?.cuisineType).toContain('Thai');
     });
@@ -256,18 +250,18 @@ describe('appView types', () => {
           ecoScore: {
             score: 4.5,
             certifications: ['Eco Tour'],
-            justification: 'Low impact'
+            justification: 'Low impact',
           },
           languages: ['English', 'Thai'],
           accessibility: {
             wheelchairAccessible: false,
-            mobilityLevel: 'moderate'
+            mobilityLevel: 'moderate',
           },
           seasonality: {
             bestMonths: ['November', 'December', 'January'],
-            weatherDependent: true
-          }
-        }
+            weatherDependent: true,
+          },
+        },
       };
       expect(detail.activitiesDetails?.activityType).toBe('Hiking');
     });
@@ -287,9 +281,9 @@ describe('appView types', () => {
             rating: 5,
             comment: 'Great place!',
             createdAt: '2024-01-15',
-            user: { name: 'John Doe' }
-          }
-        ]
+            user: { name: 'John Doe' },
+          },
+        ],
       };
       expect(detail.reviews).toHaveLength(1);
     });
@@ -306,8 +300,8 @@ describe('appView types', () => {
         createdAt: '2024-01-15T10:00:00Z',
         user: {
           name: 'Jane Smith',
-          image: 'https://example.com/avatar.jpg'
-        }
+          image: 'https://example.com/avatar.jpg',
+        },
       };
       expect(review.rating).toBe(4);
       expect(review.user.name).toBe('Jane Smith');
@@ -321,7 +315,7 @@ describe('appView types', () => {
         rating: 5,
         comment: 'Excellent!',
         createdAt: '2024-01-15',
-        user: { name: 'Bob Johnson' }
+        user: { name: 'Bob Johnson' },
       };
       expect(review.user.image).toBeUndefined();
     });
@@ -335,7 +329,7 @@ describe('appView types', () => {
         ecoFocusTags: [],
         digitalNomadFeatures: [],
         priceRanges: [],
-        searchQuery: ''
+        searchQuery: '',
       };
       expect(filters.location).toBeNull();
       expect(filters.categories).toHaveLength(0);
@@ -349,7 +343,7 @@ describe('appView types', () => {
         digitalNomadFeatures: ['wifi', 'desk'],
         priceRanges: ['budget', 'moderate'],
         searchQuery: 'eco workspace',
-        sort: { field: 'rating', direction: 'desc' }
+        sort: { field: 'rating', direction: 'desc' },
       };
       expect(filters.location).toBe('Bangkok');
       expect(filters.categories).toContain('coworking');
@@ -363,7 +357,7 @@ describe('appView types', () => {
         ecoFocusTags: [],
         digitalNomadFeatures: [],
         priceRanges: [],
-        searchQuery: 'test'
+        searchQuery: 'test',
       };
       expect(filters.location).toBeNull();
     });
@@ -376,13 +370,13 @@ describe('appView types', () => {
         name: 'Test Listing',
         slug: 'test-listing',
         city: { id: 'city-1', name: 'Bangkok', slug: 'bangkok' },
-        ecoFocusTags: ['solar']
+        ecoFocusTags: ['solar'],
       };
 
       const detail: AppListingDetail = {
         ...card,
         shortDescription: 'A great place',
-        contactEmail: 'info@example.com'
+        contactEmail: 'info@example.com',
       };
 
       expect(detail.id).toBe(card.id);
@@ -397,7 +391,7 @@ describe('appView types', () => {
           slug: 'coworking-1',
           city: { id: 'city-1', name: 'Bangkok', slug: 'bangkok' },
           ecoFocusTags: ['solar'],
-          type: 'coworking'
+          type: 'coworking',
         },
         {
           id: '2',
@@ -405,8 +399,8 @@ describe('appView types', () => {
           slug: 'cafe-1',
           city: { id: 'city-1', name: 'Bangkok', slug: 'bangkok' },
           ecoFocusTags: ['recycling'],
-          type: 'cafe'
-        }
+          type: 'cafe',
+        },
       ];
 
       const filters: AppFilterState = {
@@ -415,11 +409,12 @@ describe('appView types', () => {
         ecoFocusTags: [],
         digitalNomadFeatures: [],
         priceRanges: [],
-        searchQuery: ''
+        searchQuery: '',
       };
 
       const filtered = listings.filter(
-        listing => filters.categories.length === 0 || filters.categories.includes(listing.type || '')
+        listing =>
+          filters.categories.length === 0 || filters.categories.includes(listing.type || '')
       );
 
       expect(filtered).toHaveLength(1);

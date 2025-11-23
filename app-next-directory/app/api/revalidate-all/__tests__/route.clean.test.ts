@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { NextRequest } from 'next/server';
 
 // Module-level mock for revalidatePath so real Next internals are never called
@@ -36,7 +36,7 @@ describe('/api/revalidate-all (clean)', () => {
 
   it('returns 401 when token missing', async () => {
     mockValidateRevalidationToken.mockReturnValue(false);
-    
+
     const request = new NextRequest('http://localhost:3000/api/revalidate-all');
     const response = await POST(request);
     const json = await response.json();
@@ -48,7 +48,7 @@ describe('/api/revalidate-all (clean)', () => {
 
   it('revalidates with valid token', async () => {
     mockValidateRevalidationToken.mockReturnValue(true);
-    
+
     const request = new NextRequest(`http://localhost:3000/api/revalidate-all?token=${validToken}`);
     const response = await POST(request);
     const json = await response.json();

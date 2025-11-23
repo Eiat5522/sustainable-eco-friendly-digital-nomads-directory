@@ -1,16 +1,16 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import type { UserRole } from '@/types/auth';
-import { client } from '@/lib/sanity/client';
 import { structuredLogger } from '@/lib/logger';
+import { client } from '@/lib/sanity/client';
 import type {
   AdminSettings,
+  AdminSettingsError,
   AdminSettingsResponse,
   AdminSettingsSaveRequest,
   AdminSettingsSaveResponse,
-  AdminSettingsError,
 } from '@/types/admin-settings';
 import { DEFAULT_ADMIN_SETTINGS } from '@/types/admin-settings';
+import type { UserRole } from '@/types/auth';
 
 type RouteContext = { params: Promise<Record<string, never>> };
 
@@ -40,7 +40,7 @@ export async function GET(_request: NextRequest, _context: RouteContext) {
 
     // Query for admin settings document
     const query = `*[_type == "adminSettings"][0]`;
-    
+
     let settings = await client.fetch<AdminSettings | null>(query);
 
     // If no settings exist, return defaults
@@ -48,10 +48,7 @@ export async function GET(_request: NextRequest, _context: RouteContext) {
       settings = { ...DEFAULT_ADMIN_SETTINGS } as AdminSettings;
     }
 
-    return NextResponse.json<AdminSettingsResponse>(
-      { settings },
-      { status: 200 }
-    );
+    return NextResponse.json<AdminSettingsResponse>({ settings }, { status: 200 });
   } catch (error) {
     structuredLogger.error('Error fetching admin settings', error, {
       route: '/api/admin/settings',
@@ -85,8 +82,8 @@ export async function POST(request: NextRequest, _context: RouteContext) {
     }
 
     // Parse request body
-    const body = await request.json() as AdminSettingsSaveRequest;
-    
+    const body = (await request.json()) as AdminSettingsSaveRequest;
+
     if (!body.settings) {
       return NextResponse.json<AdminSettingsError>(
         { error: 'Settings data is required' },
@@ -100,18 +97,19 @@ export async function POST(request: NextRequest, _context: RouteContext) {
 
     let savedSettings: AdminSettings;
 
-    if (existingSettings && existingSettings._id) {
+    if (existingSettings?._id) {
       // Update existing settings
-      savedSettings = await client
+      savedSettings = (await client
         .patch(existingSettings._id)
         .set({
           ...body.settings,
           _type: 'adminSettings',
         })
-        .commit() as AdminSettings;
+        .commit()) as AdminSettings;
     } else {
       // Create new settings document
-      const { _type: ignored_defaultTypeIgnored, ...defaultSettings } = DEFAULT_ADMIN_SETTINGS;
+      // biome-ignore lint/correctness/noUnusedVariables: _type is intentionally destructured to exclude from defaultSettings
+      const { _type, ...defaultSettings } = DEFAULT_ADMIN_SETTINGS;
       savedSettings = await client.create<AdminSettings>({
         _type: 'adminSettings',
         ...defaultSettings,

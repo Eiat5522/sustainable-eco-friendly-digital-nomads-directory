@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { NextRequest } from 'next/server';
 
 const mockedFetch = jest.fn();
@@ -6,11 +6,18 @@ const mockedIsE2ERun = jest.fn();
 const mockedBuildE2EResponse = jest.fn();
 
 // Mock sanity client, e2e fixture utilities and ensure route uses these mocks
-jest.mock('@/lib/sanity/client', () => ({ client: { fetch: (...args: any[]) => mockedFetch(...args) } }));
-jest.mock('@/data/e2e/discovery-fixtures', () => ({ isE2ERun: () => mockedIsE2ERun(), buildE2ESearchResponse: (...args: any[]) => mockedBuildE2EResponse(...args) }));
+jest.mock('@/lib/sanity/client', () => ({
+  client: { fetch: (...args: any[]) => mockedFetch(...args) },
+}));
+jest.mock('@/data/e2e/discovery-fixtures', () => ({
+  isE2ERun: () => mockedIsE2ERun(),
+  buildE2ESearchResponse: (...args: any[]) => mockedBuildE2EResponse(...args),
+}));
 
-const createRequest = (input: ConstructorParameters<typeof NextRequest>[0], init?: ConstructorParameters<typeof NextRequest>[1]) =>
-  new NextRequest(input, init);
+const createRequest = (
+  input: ConstructorParameters<typeof NextRequest>[0],
+  init?: ConstructorParameters<typeof NextRequest>[1]
+) => new NextRequest(input, init);
 
 let GET: any;
 let POST: any;
@@ -34,13 +41,11 @@ describe('/api/search', () => {
 
   describe('GET', () => {
     it('returns search results with default pagination', async () => {
-      const mockResults = [
-        { _id: '1', name: 'Test Listing 1', slug: 'test-1' },
-      ];
+      const mockResults = [{ _id: '1', name: 'Test Listing 1', slug: 'test-1' }];
       mockedFetch
         .mockResolvedValueOnce(mockResults) // results query
         .mockResolvedValueOnce(10); // count query
-      
+
       const request = createRequest('http://localhost:3000/api/search?q=test');
       const response = await GET(request);
       const json = await response.json();
@@ -60,7 +65,7 @@ describe('/api/search', () => {
     it('throws error when too many category filters provided', async () => {
       const tooManyCategories = Array.from({ length: 51 }, (_, i) => `cat-${i}`);
       const url = `http://localhost:3000/api/search?${tooManyCategories.map(c => `category=${c}`).join('&')}`;
-      
+
       const request = createRequest(url);
       const response = await GET(request);
       const json = await response.json();
@@ -72,7 +77,7 @@ describe('/api/search', () => {
     it('throws error when too many destination filters provided', async () => {
       const tooManyDestinations = Array.from({ length: 51 }, (_, i) => `dest-${i}`);
       const url = `http://localhost:3000/api/search?${tooManyDestinations.map(d => `destination=${d}`).join('&')}`;
-      
+
       const request = createRequest(url);
       const response = await GET(request);
       const json = await response.json();
@@ -84,7 +89,7 @@ describe('/api/search', () => {
     it('throws error when too many amenity filters provided', async () => {
       const tooManyAmenities = Array.from({ length: 51 }, (_, i) => `amenity-${i}`);
       const url = `http://localhost:3000/api/search?${tooManyAmenities.map(a => `amenities=${a}`).join('&')}`;
-      
+
       const request = createRequest(url);
       const response = await GET(request);
       const json = await response.json();
@@ -96,7 +101,7 @@ describe('/api/search', () => {
     it('throws error when too many nomad feature filters provided', async () => {
       const tooManyFeatures = Array.from({ length: 51 }, (_, i) => `feature-${i}`);
       const url = `http://localhost:3000/api/search?${tooManyFeatures.map(f => `nomadFeatures=${f}`).join('&')}`;
-      
+
       const request = createRequest(url);
       const response = await GET(request);
       const json = await response.json();
@@ -109,7 +114,7 @@ describe('/api/search', () => {
       mockedFetch
         .mockResolvedValueOnce([]) // results
         .mockResolvedValueOnce(100); // count
-      
+
       const request = createRequest('http://localhost:3000/api/search?page=2&limit=20');
       const response = await GET(request);
       const json = await response.json();
@@ -124,11 +129,11 @@ describe('/api/search', () => {
     });
 
     it('handles category filters', async () => {
-      mockedFetch
-        .mockResolvedValueOnce([])
-        .mockResolvedValueOnce(0);
-      
-      const request = createRequest('http://localhost:3000/api/search?category=cafe&category=coworking');
+      mockedFetch.mockResolvedValueOnce([]).mockResolvedValueOnce(0);
+
+      const request = createRequest(
+        'http://localhost:3000/api/search?category=cafe&category=coworking'
+      );
       const response = await GET(request);
       const json = await response.json();
 
@@ -143,7 +148,7 @@ describe('/api/search', () => {
         .mockResolvedValueOnce([]) // results
         .mockResolvedValueOnce(0) // count
         .mockResolvedValueOnce(mockFacetData); // facets
-      
+
       const request = createRequest('http://localhost:3000/api/search?facets=true');
       const response = await GET(request);
       const json = await response.json();
@@ -156,7 +161,7 @@ describe('/api/search', () => {
 
     it('handles search errors', async () => {
       mockedFetch.mockRejectedValue(new Error('Sanity error'));
-      
+
       const request = createRequest('http://localhost:3000/api/search?q=test');
       const response = await GET(request);
       const json = await response.json();
@@ -168,7 +173,7 @@ describe('/api/search', () => {
     it('validates query length', async () => {
       const longQuery = 'a'.repeat(300);
       mockedFetch.mockRejectedValue(new Error('Search query too long'));
-      
+
       const request = createRequest(`http://localhost:3000/api/search?q=${longQuery}`);
       const response = await GET(request);
       const json = await response.json();
@@ -200,7 +205,9 @@ describe('/api/search', () => {
         filters: {},
       });
 
-      const request = createRequest('http://localhost:3000/api/search?e2eScenario=fail-once&retry=1');
+      const request = createRequest(
+        'http://localhost:3000/api/search?e2eScenario=fail-once&retry=1'
+      );
       const response = await GET(request);
       const json = await response.json();
 
@@ -247,19 +254,15 @@ describe('/api/search', () => {
 
   describe('POST', () => {
     it('handles JSON body search', async () => {
-      const mockResults = [
-        { _id: '1', name: 'Test Listing 1' },
-      ];
-      mockedFetch
-        .mockResolvedValueOnce(mockResults)
-        .mockResolvedValueOnce(5);
-      
-  routeTestControl.parseBodyOverride = async () => ({ query: 'test', page: 1, limit: 10 });
+      const mockResults = [{ _id: '1', name: 'Test Listing 1' }];
+      mockedFetch.mockResolvedValueOnce(mockResults).mockResolvedValueOnce(5);
+
+      routeTestControl.parseBodyOverride = async () => ({ query: 'test', page: 1, limit: 10 });
 
       const request = createRequest('http://localhost:3000/api/search', {
         method: 'POST',
       });
-      
+
       const response = await POST(request);
       const json = await response.json();
 
@@ -277,7 +280,7 @@ describe('/api/search', () => {
       const request = createRequest('http://localhost:3000/api/search', {
         method: 'POST',
       });
-      
+
       const response = await POST(request);
       const json = await response.json();
 
@@ -286,10 +289,8 @@ describe('/api/search', () => {
     });
 
     it('handles filters in POST body', async () => {
-      mockedFetch
-        .mockResolvedValueOnce([])
-        .mockResolvedValueOnce(0);
-      
+      mockedFetch.mockResolvedValueOnce([]).mockResolvedValueOnce(0);
+
       routeTestControl.parseBodyOverride = async () => ({
         query: 'test',
         category: ['cafe'],
@@ -301,7 +302,7 @@ describe('/api/search', () => {
       const request = createRequest('http://localhost:3000/api/search', {
         method: 'POST',
       });
-      
+
       const response = await POST(request);
       const json = await response.json();
 
@@ -313,13 +314,13 @@ describe('/api/search', () => {
 
     it('handles POST errors', async () => {
       mockedFetch.mockRejectedValue(new Error('Database error'));
-      
-  routeTestControl.parseBodyOverride = async () => ({ query: 'test' });
+
+      routeTestControl.parseBodyOverride = async () => ({ query: 'test' });
 
       const request = createRequest('http://localhost:3000/api/search', {
         method: 'POST',
       });
-      
+
       const response = await POST(request);
       const json = await response.json();
 
@@ -335,15 +336,15 @@ describe('/api/search', () => {
         filters: {},
       });
 
-      routeTestControl.parseBodyOverride = async () => ({ 
+      routeTestControl.parseBodyOverride = async () => ({
         query: 'test',
-        e2eScenario: 'fail-once'
+        e2eScenario: 'fail-once',
       });
 
       const request = createRequest('http://localhost:3000/api/search', {
         method: 'POST',
       });
-      
+
       const response = await POST(request);
       const json = await response.json();
 
@@ -359,16 +360,16 @@ describe('/api/search', () => {
         filters: {},
       });
 
-      routeTestControl.parseBodyOverride = async () => ({ 
+      routeTestControl.parseBodyOverride = async () => ({
         query: 'test',
         e2eScenario: 'fail-once',
-        retry: 'token'
+        retry: 'token',
       });
 
       const request = createRequest('http://localhost:3000/api/search', {
         method: 'POST',
       });
-      
+
       const response = await POST(request);
       const json = await response.json();
 
@@ -384,15 +385,15 @@ describe('/api/search', () => {
         filters: {},
       });
 
-      routeTestControl.parseBodyOverride = async () => ({ 
+      routeTestControl.parseBodyOverride = async () => ({
         query: 'test',
-        e2eScenario: 'timeout'
+        e2eScenario: 'timeout',
       });
 
       const request = createRequest('http://localhost:3000/api/search', {
         method: 'POST',
       });
-      
+
       const startTime = Date.now();
       const response = await POST(request);
       const elapsed = Date.now() - startTime;
@@ -414,15 +415,15 @@ describe('/api/search', () => {
         filters: {},
       });
 
-      routeTestControl.parseBodyOverride = async () => ({ 
+      routeTestControl.parseBodyOverride = async () => ({
         query: 'test',
-        facets: true
+        facets: true,
       });
 
       const request = createRequest('http://localhost:3000/api/search', {
         method: 'POST',
       });
-      
+
       const response = await POST(request);
       const json = await response.json();
 
@@ -431,24 +432,24 @@ describe('/api/search', () => {
     });
 
     it('handles non-real-client fetch function call', async () => {
-  routeTestControl.clientFetchOverride = undefined;
+      routeTestControl.clientFetchOverride = undefined;
       mockedIsE2ERun.mockReturnValue(false);
 
       // Mock the Sanity client
       const mockClient = {
-        fetch: jest.fn().mockResolvedValueOnce([]).mockResolvedValueOnce(0)
+        fetch: jest.fn().mockResolvedValueOnce([]).mockResolvedValueOnce(0),
       };
-      
+
       // This test verifies the fallback to client.fetch when no override is set
-  routeTestControl.parseBodyOverride = async () => ({ query: 'test' });
+      routeTestControl.parseBodyOverride = async () => ({ query: 'test' });
 
       const request = createRequest('http://localhost:3000/api/search', {
         method: 'POST',
       });
-      
+
       // Set up mock to use real client path
       mockedFetch.mockResolvedValueOnce([]).mockResolvedValueOnce(0);
-      
+
       const response = await POST(request);
 
       expect(response.status).toBe(200);

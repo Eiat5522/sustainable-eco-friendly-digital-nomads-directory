@@ -16,16 +16,18 @@ function ensureMonthKey(date: Date): string {
   return `${year}-${month}`;
 }
 
-let indexPromise: Promise<string | void> | null = null;
+let indexPromise: Promise<string | undefined> | null = null;
 
 async function getMetricsCollection() {
   const collection = await getCollection(COLLECTION_NAME);
   if (!indexPromise) {
-    indexPromise = collection.createIndex({ listingId: 1, month: 1 }, { unique: true }).catch((error: unknown) => {
-      if (!(error instanceof Error) || !error.message.includes('already exists')) {
-        throw error;
-      }
-    });
+    indexPromise = collection
+      .createIndex({ listingId: 1, month: 1 }, { unique: true })
+      .catch((error: unknown) => {
+        if (!(error instanceof Error) || !error.message.includes('already exists')) {
+          throw error;
+        }
+      });
   }
   return collection as {
     updateOne: typeof import('mongodb').Collection.prototype.updateOne;
@@ -34,7 +36,10 @@ async function getMetricsCollection() {
   };
 }
 
-export async function recordListingView(listingId: string, viewedAt: Date = new Date()): Promise<void> {
+export async function recordListingView(
+  listingId: string,
+  viewedAt: Date = new Date()
+): Promise<void> {
   if (!listingId) throw new Error('listingId is required to record a view');
   const collection = await getMetricsCollection();
   const month = ensureMonthKey(viewedAt);
@@ -45,13 +50,13 @@ export async function recordListingView(listingId: string, viewedAt: Date = new 
       $set: { updatedAt: viewedAt },
       $setOnInsert: { createdAt: viewedAt },
     },
-    { upsert: true },
+    { upsert: true }
   );
 }
 
 export async function getMonthlyViewCounts(
   listingIds: string[],
-  monthKeys: string[],
+  monthKeys: string[]
 ): Promise<Map<string, Map<string, number>>> {
   if (listingIds.length === 0 || monthKeys.length === 0) {
     return new Map();

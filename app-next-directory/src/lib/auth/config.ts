@@ -32,23 +32,22 @@ let cachedAdminEmails: string[] | null = null;
 
 export function getAdminEmails(): string[] {
   if (cachedAdminEmails === null) {
-    const raw = process.env.AUTH_ADMIN_EMAILS ?? ''
+    const raw = process.env.AUTH_ADMIN_EMAILS ?? '';
     cachedAdminEmails = raw
       .split(/[\s,]+/)
-      .map((s) => s.trim().toLowerCase())
-      .filter((s) => {
+      .map(s => s.trim().toLowerCase())
+      .filter(s => {
         if (s.length === 0) {
-          return false
+          return false;
         }
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)
-      })
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
+      });
   }
-  return cachedAdminEmails
+  return cachedAdminEmails;
 }
 
 export function isAdminEmail(email?: string | null): boolean {
-  if (!email) return false
-  const e = email.trim().toLowerCase()
-  return getAdminEmails().includes(e)
+  if (!email) return false;
+  const e = email.trim().toLowerCase();
+  return getAdminEmails().includes(e);
 }
-

@@ -6,9 +6,5 @@
     "moduleResolution": "NodeNext",
     "target": "ES2022"
   },
-  "include": [
-    "next.config.*",
-    "scripts/**/*",
-    "src/server/**/*"
-  ]
+  "include": ["next.config.*", "scripts/**/*", "src/server/**/*"]
 }

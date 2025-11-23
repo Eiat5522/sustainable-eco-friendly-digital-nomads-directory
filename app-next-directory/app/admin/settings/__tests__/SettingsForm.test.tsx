@@ -1,4 +1,4 @@
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { SettingsForm } from '../SettingsForm';
@@ -200,7 +200,9 @@ describe('SettingsForm', () => {
     await user.click(saveButton);
 
     await waitFor(() => {
-      expect(screen.getByTestId('success-message')).toHaveTextContent('Settings saved successfully');
+      expect(screen.getByTestId('success-message')).toHaveTextContent(
+        'Settings saved successfully'
+      );
     });
   });
 
@@ -290,7 +292,9 @@ describe('SettingsForm', () => {
     await user.click(backupButton);
 
     await waitFor(() => {
-      expect(screen.getByTestId('backup-status-message')).toHaveTextContent('Backup completed successfully');
+      expect(screen.getByTestId('backup-status-message')).toHaveTextContent(
+        'Backup completed successfully'
+      );
     });
   });
 

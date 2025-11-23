@@ -7,8 +7,8 @@ const sampleReviews = [
     comment: 'Loved the solar-powered workspaces and community events focused on sustainability.',
     user: { name: 'Jordan Rivers' },
     createdAt: '2024-05-01T12:00:00Z',
-    status: 'approved' as const
-  }
+    status: 'approved' as const,
+  },
 ];
 
 type SearchParams = {
@@ -23,7 +23,11 @@ function pickFirst(value: string | string[] | undefined) {
   return value;
 }
 
-export default async function TestReviewsPage({ searchParams }: { searchParams?: SearchParams | Promise<SearchParams> }) {
+export default async function TestReviewsPage({
+  searchParams,
+}: {
+  searchParams?: SearchParams | Promise<SearchParams>;
+}) {
   const resolved = await Promise.resolve(searchParams ?? ({} as SearchParams));
   const signedInValue = pickFirst(resolved?.signedIn);
   const presetValue = pickFirst(resolved?.preset);

@@ -1,4 +1,4 @@
-import type { Ratelimit as UpstashRatelimit, RatelimitConfig } from '@upstash/ratelimit';
+import type { RatelimitConfig, Ratelimit as UpstashRatelimit } from '@upstash/ratelimit';
 import type { Redis } from '@upstash/redis';
 import mongoose from 'mongoose';
 
@@ -28,10 +28,15 @@ let ratelimitModulePromise: Promise<{ Ratelimit: typeof UpstashRatelimit }> | nu
 const getRatelimitCtor = async (): Promise<typeof UpstashRatelimit> => {
   if (!RatelimitCtor) {
     if (!ratelimitModulePromise) {
-      ratelimitModulePromise = import('@upstash/ratelimit') as Promise<{ Ratelimit: typeof UpstashRatelimit }>;
+      ratelimitModulePromise = import('@upstash/ratelimit') as Promise<{
+        Ratelimit: typeof UpstashRatelimit;
+      }>;
     }
     const mod = await ratelimitModulePromise;
-    RatelimitCtor = mod.Ratelimit ?? ((mod as unknown as { default?: typeof UpstashRatelimit }).default ?? (mod as unknown as typeof UpstashRatelimit));
+    RatelimitCtor =
+      mod.Ratelimit ??
+      (mod as unknown as { default?: typeof UpstashRatelimit }).default ??
+      (mod as unknown as typeof UpstashRatelimit);
   }
   return RatelimitCtor;
 };
@@ -40,8 +45,9 @@ let loginRateLimiter: InstanceType<typeof UpstashRatelimit> | undefined;
 
 const getTestRateLimiterOverride = (): InstanceType<typeof UpstashRatelimit> | undefined => {
   if (isTestEnvironment) {
-    const override = (globalThis as { __TEST_LOGIN_RATE_LIMITER__?: InstanceType<typeof UpstashRatelimit> })
-      .__TEST_LOGIN_RATE_LIMITER__;
+    const override = (
+      globalThis as { __TEST_LOGIN_RATE_LIMITER__?: InstanceType<typeof UpstashRatelimit> }
+    ).__TEST_LOGIN_RATE_LIMITER__;
     if (override) {
       return override;
     }
@@ -69,7 +75,11 @@ const loadValidator = async (): Promise<Validator> => {
 // behaviour; no test-only mutation occurs here.
 
 const createSlidingWindowLimiter = (ctor: typeof UpstashRatelimit) => {
-  const maybeStatic = (ctor as unknown as { slidingWindow?: (limit: number, window: string) => RatelimitConfig['limiter'] }).slidingWindow;
+  const maybeStatic = (
+    ctor as unknown as {
+      slidingWindow?: (limit: number, window: string) => RatelimitConfig['limiter'];
+    }
+  ).slidingWindow;
   if (typeof maybeStatic === 'function') {
     return maybeStatic(LOGIN_WINDOW_LIMIT, LOGIN_WINDOW_DURATION);
   }
@@ -165,19 +175,24 @@ export const buildRateLimiter = (redis: Redis | undefined) => {
       }
 
       if (typeof ctor === 'function') {
-         
-        loginRateLimiter = new (ctor as new (config: RatelimitConfig) => InstanceType<typeof UpstashRatelimit>)(config);
+        loginRateLimiter = new (
+          ctor as new (
+            config: RatelimitConfig
+          ) => InstanceType<typeof UpstashRatelimit>
+        )(config);
       } else {
         const defaultCtor = (ctor as unknown as { default?: unknown }).default;
         if (typeof defaultCtor === 'function') {
-           
-          loginRateLimiter = new (defaultCtor as new (config: RatelimitConfig) => InstanceType<typeof UpstashRatelimit>)(config);
+          loginRateLimiter = new (
+            defaultCtor as new (
+              config: RatelimitConfig
+            ) => InstanceType<typeof UpstashRatelimit>
+          )(config);
         } else {
           loginRateLimiter = undefined;
         }
       }
-    } catch (error) {
-      console.warn('[auth] Failed to initialize login rate limiter', error);
+    } catch (_error) {
       loginRateLimiter = undefined;
       if (isTestEnvironment) {
         lastRateLimiterConfigForTests = undefined;
@@ -189,8 +204,7 @@ export const buildRateLimiter = (redis: Redis | undefined) => {
 let initialRedis: Redis | undefined;
 try {
   initialRedis = getRedisClient();
-} catch (error) {
-  console.warn('[auth] Failed to obtain Redis client during initialization', error);
+} catch (_error) {
   initialRedis = undefined;
 }
 
@@ -198,12 +212,11 @@ buildRateLimiter(initialRedis);
 
 // Ensure handler registration uses normalization
 if (typeof onRedisClientChange === 'function') {
-  onRedisClientChange((newClient) => {
+  onRedisClientChange(newClient => {
     try {
       const normalized = normalizeRedisClient(newClient);
       buildRateLimiter(normalized);
-    } catch (error) {
-      console.warn('[auth] Failed to rebuild login rate limiter', error);
+    } catch (_error) {
     }
   });
 }
@@ -213,8 +226,7 @@ export async function enforceLoginRateLimit(identifier: string): Promise<LoginRa
   if (!override && loginRateLimiterPromise) {
     try {
       await loginRateLimiterPromise;
-    } catch (error) {
-      console.warn('[auth] Login ratelimiter initialisation error; allowing attempt', error);
+    } catch (_error) {
     }
   }
 
@@ -236,8 +248,7 @@ export async function enforceLoginRateLimit(identifier: string): Promise<LoginRa
       remaining: result.remaining,
       reset: result.reset,
     };
-  } catch (error) {
-    console.warn('[auth] Login ratelimiter error; allowing attempt', error);
+  } catch (_error) {
     return { success: true } as const;
   }
 }
@@ -257,7 +268,6 @@ export async function recordLoginAttempt(params: {
   // and block disposable domains before writing audit artifacts.
   const rawEmail = params?.email;
   if (typeof rawEmail !== 'string') {
-    console.warn('[auth] Skipping login attempt record due to invalid email', { email: rawEmail });
     return;
   }
 
@@ -265,7 +275,6 @@ export async function recordLoginAttempt(params: {
   const trimmedEmail = rawEmail.trim();
 
   if (!validator.isEmail(trimmedEmail)) {
-    console.warn('[auth] Skipping login attempt record due to invalid email', { email: rawEmail });
     return;
   }
 
@@ -273,8 +282,7 @@ export async function recordLoginAttempt(params: {
 
   try {
     await dbConnect();
-  } catch (error) {
-    console.warn('[auth] Failed to record login attempt', error);
+  } catch (_error) {
     return;
   }
 
@@ -290,13 +298,11 @@ export async function recordLoginAttempt(params: {
     const collection = mongoose.connection.collection('loginattempts');
     await collection.insertOne({ ...document });
     return;
-  } catch (collectionError) {
-    console.warn('[auth] Failed to record login attempt', collectionError);
+  } catch (_collectionError) {
     try {
       await LoginAttempt.create(document);
       return;
-    } catch (modelError) {
-      console.warn('[auth] Failed to record login attempt', modelError ?? collectionError);
+    } catch (_modelError) {
     }
   }
 }

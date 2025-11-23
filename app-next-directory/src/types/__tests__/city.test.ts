@@ -7,7 +7,7 @@ describe('city types', () => {
         id: 'city-123',
         name: 'Bangkok',
         slug: 'bangkok',
-        country: 'Thailand'
+        country: 'Thailand',
       };
       expect(city.id).toBe('city-123');
       expect(city.name).toBe('Bangkok');
@@ -22,7 +22,7 @@ describe('city types', () => {
         sustainabilityScore: 90,
         highlights: ['Mountains', 'Digital Nomad Hub'],
         imageUrl: 'https://example.com/chiang-mai.jpg',
-        description: 'Beautiful city in northern Thailand'
+        description: 'Beautiful city in northern Thailand',
       };
       expect(city.sustainabilityScore).toBe(90);
       expect(city.highlights).toContain('Digital Nomad Hub');
@@ -34,20 +34,20 @@ describe('city types', () => {
           id: 'city-1',
           name: 'Bangkok',
           slug: 'bangkok',
-          country: 'Thailand'
+          country: 'Thailand',
         },
         {
           id: 'city-2',
           name: 'Lisbon',
           slug: 'lisbon',
-          country: 'Portugal'
+          country: 'Portugal',
         },
         {
           id: 'city-3',
           name: 'Bali',
           slug: 'bali',
-          country: 'Indonesia'
-        }
+          country: 'Indonesia',
+        },
       ];
       expect(cities).toHaveLength(3);
       expect(cities[1].name).toBe('Lisbon');

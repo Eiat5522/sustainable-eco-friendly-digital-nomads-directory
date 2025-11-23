@@ -1,4 +1,3 @@
-
 // Dynamic imports to avoid missing package errors at compile time
 // These packages are mocked in tests and would need to be installed for production use
 type AnalyticsInstance = {
@@ -6,7 +5,9 @@ type AnalyticsInstance = {
   track: (name: string, properties?: unknown) => Promise<void>;
   identify: (userId: string, traits?: unknown) => Promise<void>;
 };
-type AnalyticsFactory = ((options: { app: string; plugins?: unknown[] }) => AnalyticsInstance) | null;
+type AnalyticsFactory =
+  | ((options: { app: string; plugins?: unknown[] }) => AnalyticsInstance)
+  | null;
 type GoogleAnalyticsPlugin = (options: {
   measurementIds: string[];
   config?: { debug?: boolean };
@@ -21,7 +22,7 @@ try {
   const analyticsModule = require('analytics');
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const googleAnalyticsModule = require('@analytics/google-analytics');
-  
+
   // Handle both default exports and direct exports
   Analytics = analyticsModule.default || analyticsModule;
   googleAnalytics = googleAnalyticsModule.default || googleAnalyticsModule;
@@ -44,29 +45,38 @@ const POSTHOG_HOST = process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://app.postho
 if (typeof window !== 'undefined' && POSTHOG_TOKEN) {
   posthog.init(POSTHOG_TOKEN, {
     api_host: POSTHOG_HOST,
-    loaded: (posthog) => {
+    loaded: posthog => {
       if (process.env.NODE_ENV === 'development') posthog.debug();
     },
   });
 }
 
 // Initialize analytics instance with GA4, Vercel, and PostHog
-const analytics = Analytics && googleAnalytics ? Analytics({
-  app: 'sustainable-eco-nomads',
-  plugins: [
-    googleAnalytics({
-      measurementIds: [GA_MEASUREMENT_ID || ''],
-      config: {
-        debug: process.env.NODE_ENV === 'development'
-      }
-    })
-  ]
-}) : {
-  // Fallback when packages are not installed
-  page: async (_options?: unknown) => { /* noop */ },
-  track: async (_name: string, _properties?: unknown) => { /* noop */ },
-  identify: async (_userId: string, _traits?: unknown) => { /* noop */ },
-};
+const analytics =
+  Analytics && googleAnalytics
+    ? Analytics({
+        app: 'sustainable-eco-nomads',
+        plugins: [
+          googleAnalytics({
+            measurementIds: [GA_MEASUREMENT_ID || ''],
+            config: {
+              debug: process.env.NODE_ENV === 'development',
+            },
+          }),
+        ],
+      })
+    : {
+        // Fallback when packages are not installed
+        page: async (_options?: unknown) => {
+          /* noop */
+        },
+        track: async (_name: string, _properties?: unknown) => {
+          /* noop */
+        },
+        identify: async (_userId: string, _traits?: unknown) => {
+          /* noop */
+        },
+      };
 
 // Initialize Vercel Analytics
 // VercelAnalytics is a React component, not an analytics instance with .track/.identify methods.
@@ -106,12 +116,11 @@ export const trackPageView = async ({ title, path, referrer, search }: PageViewE
       title,
       path,
       referrer,
-      search
+      search,
     });
 
     // VercelAnalytics does not support .track; use only as a component in your layout.
-  } catch (error) {
-    console.error('Error tracking pageview:', error);
+  } catch (_error) {
   }
 };
 
@@ -121,8 +130,7 @@ export const trackEvent = async ({ name, properties }: CustomEvent) => {
     await analytics.track(name, properties);
 
     // VercelAnalytics does not support .track; use only as a component in your layout.
-  } catch (error) {
-    console.error('Error tracking event:', error);
+  } catch (_error) {
   }
 };
 
@@ -132,8 +140,7 @@ export const identifyUser = async (userId: string, traits?: Record<string, unkno
     await analytics.identify(userId, traits);
 
     // VercelAnalytics does not support .identify; use only as a component in your layout.
-  } catch (error) {
-    console.error('Error identifying user:', error);
+  } catch (_error) {
   }
 };
 
@@ -171,7 +178,7 @@ export const EventNames = {
 
   // Performance events
   ERROR_OCCURRED: 'error_occurred',
-  API_LATENCY: 'api_latency'
+  API_LATENCY: 'api_latency',
 } as const;
 
 // Event property types for type safety

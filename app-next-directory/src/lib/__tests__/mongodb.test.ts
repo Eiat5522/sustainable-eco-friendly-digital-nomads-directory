@@ -40,7 +40,10 @@ describe('mongodb client module', () => {
     await expect(collection.insertOne?.({})).resolves.toEqual({ insertedId: 'mock' });
     await expect(collection.createIndexes?.()).resolves.toEqual({});
     await expect(collection.findOne?.({})).resolves.toBeNull();
-    await expect(collection.updateOne?.({}, {})).resolves.toEqual({ matchedCount: 0, modifiedCount: 0 });
+    await expect(collection.updateOne?.({}, {})).resolves.toEqual({
+      matchedCount: 0,
+      modifiedCount: 0,
+    });
     await expect(collection.deleteOne?.({})).resolves.toEqual({ deletedCount: 0 });
   });
 
@@ -57,14 +60,18 @@ describe('mongodb client module', () => {
     process.env.NODE_ENV = 'production';
     delete process.env.MONGODB_URI;
 
-    await expect(import('../mongodb.ts')).rejects.toThrow('Please add your MongoDB URI to .env.local');
+    await expect(import('../mongodb.ts')).rejects.toThrow(
+      'Please add your MongoDB URI to .env.local'
+    );
   });
 
   it('points to the development env file when URI is missing locally', async () => {
     process.env.NODE_ENV = 'development';
     delete process.env.MONGODB_URI;
 
-    await expect(import('../mongodb.ts')).rejects.toThrow('Please add your MongoDB URI to .env.development');
+    await expect(import('../mongodb.ts')).rejects.toThrow(
+      'Please add your MongoDB URI to .env.development'
+    );
   });
 
   it('reuses a single connection promise in development mode', async () => {
@@ -131,7 +138,10 @@ describe('mongodb client module', () => {
 
     const mod = await import('../mongodb.ts');
     await expect(mod.default).resolves.toBe(clientInstance);
-    expect(MongoClient).toHaveBeenCalledWith('mongodb://localhost:27017/test', expect.objectContaining({ maxPoolSize: 10 }));
+    expect(MongoClient).toHaveBeenCalledWith(
+      'mongodb://localhost:27017/test',
+      expect.objectContaining({ maxPoolSize: 10 })
+    );
   });
 
   it('reuses an existing cached promise in development without reconnecting', async () => {

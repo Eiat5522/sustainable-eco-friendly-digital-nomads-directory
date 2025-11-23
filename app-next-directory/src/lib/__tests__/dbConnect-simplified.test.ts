@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 const connectMock = jest.fn();
 const mongooseMock = {
@@ -50,11 +50,13 @@ describe('dbConnect helper', () => {
       const second = await dbConnect();
 
       expect(connectMock).toHaveBeenCalledTimes(1);
-      expect(connectMock).toHaveBeenCalledWith('mongodb://localhost:27017/testdb', { bufferCommands: false });
+      expect(connectMock).toHaveBeenCalledWith('mongodb://localhost:27017/testdb', {
+        bufferCommands: false,
+      });
       expect(first).toBe(connection);
       expect(second).toBe(connection);
       expect(dbConnect.mock.calls.length).toBe(2);
-      expect(dbConnect.mock.results.map((r) => r.type)).toEqual(['return', 'return']);
+      expect(dbConnect.mock.results.map(r => r.type)).toEqual(['return', 'return']);
     });
 
     it('deduplicates concurrent connection attempts', async () => {
@@ -62,7 +64,7 @@ describe('dbConnect helper', () => {
       const connection = { connection: { readyState: 1 } } as unknown as typeof mongooseMock;
 
       let resolveConnect: (value: unknown) => void = () => {};
-      const connectPromise = new Promise<unknown>((resolve) => {
+      const connectPromise = new Promise<unknown>(resolve => {
         resolveConnect = resolve;
       });
       connectMock.mockReturnValueOnce(connectPromise);
@@ -134,7 +136,9 @@ describe('dbConnect helper', () => {
     jest.resetModules();
     resetGlobalMongoose();
 
-    await expect(import('../dbConnect')).rejects.toThrow('MONGODB_URI environment variable is required');
+    await expect(import('../dbConnect')).rejects.toThrow(
+      'MONGODB_URI environment variable is required'
+    );
   });
 
   it('uses real caching logic outside of Jest environments', async () => {

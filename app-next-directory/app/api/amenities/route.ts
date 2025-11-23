@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { client } from '@/lib/sanity';
 import { cacheHelpers } from '@/lib/cache-strategy';
+import { client } from '@/lib/sanity';
 
 // Cache for 24 hours - amenities rarely change
 export const revalidate = 86400; // 24 hours

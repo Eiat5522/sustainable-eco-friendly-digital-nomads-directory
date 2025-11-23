@@ -1,5 +1,5 @@
-import { ApiResponseHandler } from '@/utils/api-response';
 import { client } from '@/lib/sanity/client';
+import { ApiResponseHandler } from '@/utils/api-response';
 
 type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<unknown>;
 type NodeEnvFn = () => string | undefined;
@@ -37,11 +37,6 @@ export async function GET(): Promise<Response> {
 
     // Test Sanity connection in non-production environments
     if (nodeEnv !== 'production') {
-      console.log('Testing Sanity connection...');
-      console.log('Sanity Config:', {
-        projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
-        dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
-      });
     }
     // Simple query to test connection
     const result = await fetchFn(`*[_type == "listing"][0...1] {
@@ -50,7 +45,6 @@ export async function GET(): Promise<Response> {
     }`);
 
     if (nodeEnv !== 'production') {
-      console.log('Test query result:', JSON.stringify(result, null, 2));
     }
 
     return ApiResponseHandler.success({
@@ -59,10 +53,9 @@ export async function GET(): Promise<Response> {
         projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
         dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
       },
-      testResult: result
+      testResult: result,
     });
-  } catch (error) {
-    console.error('Sanity test error:', error);
+  } catch (_error) {
     return ApiResponseHandler.error('Sanity connection failed', 500);
   }
 }

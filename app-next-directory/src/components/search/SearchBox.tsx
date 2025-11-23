@@ -1,11 +1,10 @@
-'use client'
+'use client';
 
-import React from 'react'
-import { NeoCard } from '@/components/ui/neo-card'
-import { DigitalNomadSearch } from './DigitalNomadSearch'
+import { NeoCard } from '@/components/ui/neo-card';
+import { DigitalNomadSearch } from './DigitalNomadSearch';
 
 interface SearchBoxProps {
-  placeholder?: string
+  placeholder?: string;
 }
 
 export function SearchBox({ placeholder }: SearchBoxProps) {
@@ -15,8 +14,7 @@ export function SearchBox({ placeholder }: SearchBoxProps) {
         <DigitalNomadSearch placeholder={placeholder} />
       </div>
     </NeoCard>
-  )
+  );
 }
 
-export default SearchBox
-
+export default SearchBox;

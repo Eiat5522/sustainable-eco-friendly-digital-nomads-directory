@@ -1,10 +1,22 @@
 import '@testing-library/jest-dom';
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 
 const mockReviewsSection = jest.fn(
-  ({ reviews, isSignedIn, listingId }: { reviews: unknown[]; isSignedIn: boolean; listingId: string }) => (
-    <div data-testid="mock-reviews" data-count={reviews.length} data-signed-in={isSignedIn} data-listing-id={listingId}>
+  ({
+    reviews,
+    isSignedIn,
+    listingId,
+  }: {
+    reviews: unknown[];
+    isSignedIn: boolean;
+    listingId: string;
+  }) => (
+    <div
+      data-testid="mock-reviews"
+      data-count={reviews.length}
+      data-signed-in={isSignedIn}
+      data-listing-id={listingId}
+    >
       Reviews Mock
     </div>
   )
@@ -30,9 +42,9 @@ describe('TestReviewsPage', () => {
     expect(screen.getByRole('heading', { name: 'Test Reviews Section' })).toBeInTheDocument();
     expect(mockReviewsSection).toHaveBeenCalledTimes(1);
 
-    const [callArgs] = mockReviewsSection.mock.calls as Array<[
-      { reviews: unknown[]; isSignedIn: boolean; listingId: string }
-    ]>;
+    const [callArgs] = mockReviewsSection.mock.calls as Array<
+      [{ reviews: unknown[]; isSignedIn: boolean; listingId: string }]
+    >;
 
     expect(callArgs[0].reviews).toEqual([]);
     expect(callArgs[0].isSignedIn).toBe(false);
@@ -53,15 +65,16 @@ describe('TestReviewsPage', () => {
 
     render(view);
 
-    const [callArgs] = mockReviewsSection.mock.calls as Array<[
-      { reviews: Array<{ id: string }>; isSignedIn: boolean; listingId: string }
-    ]>;
+    const [callArgs] = mockReviewsSection.mock.calls as Array<
+      [{ reviews: Array<{ id: string }>; isSignedIn: boolean; listingId: string }]
+    >;
 
     expect(callArgs[0].reviews).toEqual([
       {
         id: 'existing-review-1',
         rating: 4,
-        comment: 'Loved the solar-powered workspaces and community events focused on sustainability.',
+        comment:
+          'Loved the solar-powered workspaces and community events focused on sustainability.',
         user: { name: 'Jordan Rivers' },
         createdAt: '2024-05-01T12:00:00Z',
         status: 'approved',
@@ -84,9 +97,9 @@ describe('TestReviewsPage', () => {
 
     render(view);
 
-    const [callArgs] = mockReviewsSection.mock.calls as Array<[
-      { reviews: unknown[]; isSignedIn: boolean; listingId: string }
-    ]>;
+    const [callArgs] = mockReviewsSection.mock.calls as Array<
+      [{ reviews: unknown[]; isSignedIn: boolean; listingId: string }]
+    >;
 
     expect(callArgs[0].isSignedIn).toBe(true);
     expect(callArgs[0].reviews).toHaveLength(1);

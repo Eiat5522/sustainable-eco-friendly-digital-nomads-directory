@@ -1,5 +1,5 @@
-import { builder } from './client';
 import type { SanityImageSource } from '../../types/external/sanity-image';
+import { builder } from './client';
 
 export function urlFor(source: SanityImageSource) {
   // Gracefully handle null or undefined sources

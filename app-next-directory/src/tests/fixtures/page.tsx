@@ -1,20 +1,20 @@
-import React from 'react'
 
-import type { TestData } from '.'
+
+import type { TestData } from '.';
 import {
   integrationCities,
   integrationFavorites,
   integrationListings,
   integrationReviews,
   integrationUsers,
-} from '.'
+} from '.';
 
 export interface IntegrationFixturesSummary {
-  listings: number
-  users: number
-  cities: number
-  favorites: number
-  reviews: number
+  listings: number;
+  users: number;
+  cities: number;
+  favorites: number;
+  reviews: number;
 }
 
 export const summaryOrder: Array<keyof IntegrationFixturesSummary> = [
@@ -23,7 +23,7 @@ export const summaryOrder: Array<keyof IntegrationFixturesSummary> = [
   'cities',
   'favorites',
   'reviews',
-]
+];
 
 export function buildIntegrationFixturesSummary(): IntegrationFixturesSummary {
   return {
@@ -32,25 +32,25 @@ export function buildIntegrationFixturesSummary(): IntegrationFixturesSummary {
     cities: integrationCities.length,
     favorites: integrationFavorites.length,
     reviews: integrationReviews.length,
-  }
+  };
 }
 
 export default function IntegrationFixturesPage() {
-  const summary = buildIntegrationFixturesSummary()
+  const summary = buildIntegrationFixturesSummary();
 
   return (
     <main data-testid="integration-fixtures-page">
       <header>
         <h1>Integration Test Fixtures</h1>
         <p>
-          Static dataset used by integration suites to simulate listings, users, cities, favorites and
-          reviews.
+          Static dataset used by integration suites to simulate listings, users, cities, favorites
+          and reviews.
         </p>
       </header>
 
       <section aria-label="Fixture summary" data-testid="fixture-summary">
         <dl>
-          {summaryOrder.map((key) => (
+          {summaryOrder.map(key => (
             <div key={key} data-testid={`fixture-summary-${key}`}>
               <dt>{key}</dt>
               <dd data-testid={`fixture-summary-${key}-value`}>{summary[key]}</dd>
@@ -65,13 +65,11 @@ export default function IntegrationFixturesPage() {
           {integrationListings.map((listing: TestData['listings'][number]) => (
             <li key={listing._id} data-testid="fixture-listing-item">
               <span data-testid="fixture-listing-name">{listing.name}</span>
-              <span data-testid="fixture-listing-city">
-                {listing.city?.name ?? 'Unknown City'}
-              </span>
+              <span data-testid="fixture-listing-city">{listing.city?.name ?? 'Unknown City'}</span>
             </li>
           ))}
         </ul>
       </section>
     </main>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, beforeAll, beforeEach } from '@jest/globals';
+import { beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 jest.mock('@/lib/auth', () => ({
   __esModule: true,
@@ -29,7 +29,6 @@ jest.mock('@/lib/logger', () => ({
   },
 }));
 
-import { auth } from '@/lib/auth';
 
 const authMockModule = jest.requireMock('@/lib/auth') as { auth: jest.Mock };
 const clientMockModule = jest.requireMock('@/lib/sanity/client') as {
@@ -186,10 +185,7 @@ describe('/api/admin/users', () => {
       "status": coalesce(status, "active")
     }`
     );
-    expect(mockFetch).toHaveBeenNthCalledWith(
-      2,
-      'count(*[_type == "user"  ])'
-    );
+    expect(mockFetch).toHaveBeenNthCalledWith(2, 'count(*[_type == "user"  ])');
   });
 
   it('handles errors when fetching users', async () => {
@@ -298,11 +294,12 @@ describe('/api/admin/users', () => {
     mockAuth.mockResolvedValue({ user: { role: 'superAdmin', id: 'super-1' } } as any);
 
     const request = {
-      json: () => Promise.resolve({
-        userId: 'user-123',
-        role: 'moderator',
-        status: 'inactive',
-      }),
+      json: () =>
+        Promise.resolve({
+          userId: 'user-123',
+          role: 'moderator',
+          status: 'inactive',
+        }),
     } as any;
 
     const response = await PATCH(request, { params: Promise.resolve({}) });
@@ -419,7 +416,7 @@ describe('/api/admin/users', () => {
     expect(mockSet).toHaveBeenCalledWith(
       expect.objectContaining({
         status: 'inactive',
-      }),
+      })
     );
   });
 

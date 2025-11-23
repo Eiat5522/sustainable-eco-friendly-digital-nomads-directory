@@ -21,14 +21,17 @@ function normalizeError(error: unknown): Error {
 
 export function logError(error: unknown, context: ErrorContext): void {
   const normalized = normalizeError(error);
-  logger.error({
-    err: normalized,
-    scope: context.scope,
-    action: context.action,
-    userId: context.userId,
-    component: context.component,
-    details: context.details,
-  }, normalized.message);
+  logger.error(
+    {
+      err: normalized,
+      scope: context.scope,
+      action: context.action,
+      userId: context.userId,
+      component: context.component,
+      details: context.details,
+    },
+    normalized.message
+  );
 }
 
 export function createRouteError(
@@ -41,7 +44,10 @@ export function createRouteError(
   return ApiResponseHandler.error(fallbackMessage, status);
 }
 
-export function getUserFacingMessage(error: unknown, fallback = 'Something went wrong. Please try again.'): string {
+export function getUserFacingMessage(
+  error: unknown,
+  fallback = 'Something went wrong. Please try again.'
+): string {
   if (error instanceof Error && error.message) {
     return error.message;
   }

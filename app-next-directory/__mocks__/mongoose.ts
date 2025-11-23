@@ -3,9 +3,15 @@ const noop = () => {};
 
 class ObjectIdMock {
   private _id: string;
-  constructor(id?: string) { this._id = id || Math.random().toString(16).slice(2).padEnd(24, '0'); }
-  toString() { return this._id; }
-  toHexString() { return this._id; }
+  constructor(id?: string) {
+    this._id = id || Math.random().toString(16).slice(2).padEnd(24, '0');
+  }
+  toString() {
+    return this._id;
+  }
+  toHexString() {
+    return this._id;
+  }
 }
 
 // Types used inside this mock
@@ -37,7 +43,7 @@ class SchemaMock {
   // expose preHooks so tests / mock can inspect and the model factory can run them
   public preHooks: Map<string, Hook[]> = new Map();
   private indexList: Array<[Record<string, unknown>, Record<string, unknown>]> = [];
-  
+
   constructor(definition?: Record<string, PathOptions>, options?: Record<string, unknown>) {
     this.options = options || {};
     // Store paths for later retrieval
@@ -54,7 +60,7 @@ class SchemaMock {
       });
     }
   }
-  
+
   getInstanceType(fieldDef?: PathOptions) {
     // Determine the string representation of the instance type for schema.path emulation
     if (!fieldDef || !fieldDef.type) return 'Mixed';
@@ -62,24 +68,31 @@ class SchemaMock {
     if (fieldDef.type === Number) return 'Number';
     if (fieldDef.type === Boolean) return 'Boolean';
     if (fieldDef.type === Date) return 'Date';
-    if (fieldDef.type === ObjectIdMock || (fieldDef.type && (fieldDef.type as any).name === 'ObjectId')) return 'ObjectId';
+    if (
+      fieldDef.type === ObjectIdMock ||
+      (fieldDef.type && (fieldDef.type as any).name === 'ObjectId')
+    )
+      return 'ObjectId';
     if (Array.isArray((fieldDef as any).type)) return 'Array';
     return 'Mixed';
   }
 
   path(pathName: string) {
-    return this.paths[pathName] || {
-      path: pathName,
-      options: {} as Record<string, unknown>,
-      isRequired: false,
-    } as PathDef;
+    return (
+      this.paths[pathName] ||
+      ({
+        path: pathName,
+        options: {} as Record<string, unknown>,
+        isRequired: false,
+      } as PathDef)
+    );
   }
-  
+
   pre(hookNames: string | string[], fn?: Hook) {
     // Normalize to array
     const names = Array.isArray(hookNames) ? hookNames : [hookNames];
     if (typeof fn === 'function') {
-      names.forEach((n) => {
+      names.forEach(n => {
         const arr = this.preHooks.get(n) || [];
         arr.push(fn);
         this.preHooks.set(n, arr);
@@ -90,13 +103,15 @@ class SchemaMock {
     return this.preHooks;
   }
 
-  post(..._args: unknown[]) { return this; }
-  
+  post(..._args: unknown[]) {
+    return this;
+  }
+
   index(fields: Record<string, unknown>, options?: Record<string, unknown>) {
     this.indexList.push([fields, options || {}]);
     return this;
   }
-  
+
   indexes() {
     return this.indexList;
   }
@@ -113,11 +128,15 @@ const createModelMock = (modelName: string, schema?: SchemaMock) => {
 
     const _store: Record<string, unknown> = {};
 
-    if (schema && schema.paths) {
+    if (schema?.paths) {
       Object.keys(schema.paths).forEach(key => {
         const pathDef = schema.paths[key];
-        const opts = (pathDef && pathDef.options) ? pathDef.options as PathOptions : {} as PathOptions;
-        const hasSetter = !!(opts && (opts.lowercase || opts.trim || typeof opts.set === 'function'));
+        const opts =
+          pathDef?.options ? (pathDef.options as PathOptions) : ({} as PathOptions);
+        const hasSetter = !!(
+          opts &&
+          (opts.lowercase || opts.trim || typeof opts.set === 'function')
+        );
 
         const initialVal = Object.hasOwn(instance, key) ? instance[key] : undefined;
 
@@ -125,7 +144,9 @@ const createModelMock = (modelName: string, schema?: SchemaMock) => {
           Object.defineProperty(instance, key, {
             configurable: true,
             enumerable: true,
-            get() { return _store[key]; },
+            get() {
+              return _store[key];
+            },
             set(val: unknown) {
               let v: unknown = val;
               if (v !== undefined && v !== null && typeof v === 'string') {
@@ -133,15 +154,23 @@ const createModelMock = (modelName: string, schema?: SchemaMock) => {
                 if (opts.lowercase) v = (v as string).toLowerCase();
               }
               if (typeof opts.set === 'function') {
-                try { v = opts.set(v); } catch (_e) { /* ignore */ }
+                try {
+                  v = opts.set(v);
+                } catch (_e) {
+                  /* ignore */
+                }
               }
               _store[key] = v;
-            }
+            },
           });
         }
 
         if (initialVal !== undefined) {
-          try { instance[key] = initialVal; } catch (_e) { instance[key] = initialVal; }
+          try {
+            instance[key] = initialVal;
+          } catch (_e) {
+            instance[key] = initialVal;
+          }
         } else if (opts && (opts as PathOptions).default !== undefined) {
           const defaultVal = (opts as PathOptions).default;
           let def = defaultVal;
@@ -164,7 +193,11 @@ const createModelMock = (modelName: string, schema?: SchemaMock) => {
             if (opts.trim) v = (v as string).trim();
             if (opts.lowercase) v = (v as string).toLowerCase();
             if (typeof opts.set === 'function') {
-              try { v = opts.set(v); } catch (_e) { /* ignore */ }
+              try {
+                v = opts.set(v);
+              } catch (_e) {
+                /* ignore */
+              }
             }
             instance[key] = v;
           }
@@ -181,8 +214,8 @@ const createModelMock = (modelName: string, schema?: SchemaMock) => {
     // Run any registered pre('validate') hooks to emulate Mongoose behavior so
     // model-level pre('validate') normalization runs immediately in tests.
     try {
-      const validateHooks = (schema && schema.preHooks && schema.preHooks.get('validate')) || [];
-      validateHooks.forEach((h) => {
+      const validateHooks = (schema?.preHooks?.get('validate')) || [];
+      validateHooks.forEach(h => {
         try {
           // Support both (next) => {} and function() { ... }
           if ((h as Hook).length >= 1) {
@@ -224,12 +257,15 @@ const createModelMock = (modelName: string, schema?: SchemaMock) => {
 };
 
 function isValidObjectId(id: unknown): boolean {
-  if (id == null) { return false; }
-  const value = typeof id === 'string'
-    ? id
-    : typeof (id as { toString?: () => string }).toString === 'function'
-      ? (id as { toString: () => string }).toString()
-      : '';
+  if (id == null) {
+    return false;
+  }
+  const value =
+    typeof id === 'string'
+      ? id
+      : typeof (id as { toString?: () => string }).toString === 'function'
+        ? (id as { toString: () => string }).toString()
+        : '';
   return /^[a-fA-F0-9]{24}$/.test(value);
 }
 
@@ -258,7 +294,7 @@ const mongoose = {
       // whose `.schema` is undefined. Real Mongoose returns `undefined`
       // from `models[name]` when the model hasn't been compiled yet.
       return modelsCache[key];
-    }
+    },
   }),
   connect: jest.fn().mockResolvedValue({ readyState: 1, connection: { readyState: 1 } }),
   connection: {
@@ -266,7 +302,11 @@ const mongoose = {
     once: noop,
     readyState: 1,
     collection: jest.fn((_name: string) => ({
-      insertOne: jest.fn(async (doc: Record<string, unknown>) => { collectionStore[_name] = collectionStore[_name] || []; collectionStore[_name].push(doc); return { acknowledged: true }; }),
+      insertOne: jest.fn(async (doc: Record<string, unknown>) => {
+        collectionStore[_name] = collectionStore[_name] || [];
+        collectionStore[_name].push(doc);
+        return { acknowledged: true };
+      }),
       createIndexes: jest.fn().mockResolvedValue({}),
       findOne: jest.fn().mockResolvedValue(null),
       updateOne: jest.fn().mockResolvedValue({ matchedCount: 1 }),

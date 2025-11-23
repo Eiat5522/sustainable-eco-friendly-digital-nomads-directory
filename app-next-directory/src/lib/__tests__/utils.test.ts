@@ -1,4 +1,4 @@
-import { describe, it, expect } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
 import { cn } from '../utils';
 
 describe('Utils', () => {
@@ -35,9 +35,9 @@ describe('Utils', () => {
 
     it('should handle objects with conditional classes', () => {
       const result = cn({
-        'active': true,
-        'disabled': false,
-        'loading': true
+        active: true,
+        disabled: false,
+        loading: true,
       });
       expect(result).toBe('active loading');
     });

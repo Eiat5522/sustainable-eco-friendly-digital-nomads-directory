@@ -1,8 +1,7 @@
-
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { NeoButton } from '@/components/ui/neo-button';
 import type { ListingManagementSummary } from '@/types/listings';
 
@@ -32,16 +31,14 @@ function toListingManagementSummary(value: unknown): ListingManagementSummary | 
   }
 
   const record = value as Record<string, unknown>;
-  const id = typeof record._id === 'string'
-    ? record._id
-    : typeof record.id === 'string'
-      ? record.id
-      : null;
-  const name = typeof record.name === 'string'
-    ? record.name
-    : typeof record.title === 'string'
-      ? record.title
-      : null;
+  const id =
+    typeof record._id === 'string' ? record._id : typeof record.id === 'string' ? record.id : null;
+  const name =
+    typeof record.name === 'string'
+      ? record.name
+      : typeof record.title === 'string'
+        ? record.title
+        : null;
 
   if (!id || !name) {
     return null;
@@ -125,7 +122,7 @@ export function VenueListingManagement() {
           throw new Error('Failed to delete listing');
         }
 
-        setListings(listings.filter((listing) => listing._id !== id));
+        setListings(listings.filter(listing => listing._id !== id));
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to delete listing');
       }
@@ -151,14 +148,22 @@ export function VenueListingManagement() {
         <table className="min-w-full divide-y divide-neo-border/60 text-left text-sm">
           <thead className="bg-neo-surface/80 text-xs uppercase tracking-wide text-neo-text-secondary">
             <tr>
-              <th scope="col" className="px-4 py-3">Listing Name</th>
-              <th scope="col" className="px-4 py-3">City</th>
-              <th scope="col" className="px-4 py-3">Status</th>
-              <th scope="col" className="px-4 py-3">Actions</th>
+              <th scope="col" className="px-4 py-3">
+                Listing Name
+              </th>
+              <th scope="col" className="px-4 py-3">
+                City
+              </th>
+              <th scope="col" className="px-4 py-3">
+                Status
+              </th>
+              <th scope="col" className="px-4 py-3">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-neo-border/40 bg-white/90">
-            {listings.map((listing) => (
+            {listings.map(listing => (
               <tr key={listing._id}>
                 <td className="px-4 py-4">{listing.name}</td>
                 <td className="px-4 py-4">{listing.city}</td>
@@ -167,11 +172,7 @@ export function VenueListingManagement() {
                   <NeoButton asChild variant="secondary" size="sm" className="mr-2">
                     <Link href={`/dashboard/listings/edit/${listing._id}`}>Edit</Link>
                   </NeoButton>
-                  <NeoButton
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDelete(listing._id)}
-                  >
+                  <NeoButton variant="outline" size="sm" onClick={() => handleDelete(listing._id)}>
                     Delete
                   </NeoButton>
                 </td>

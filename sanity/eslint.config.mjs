@@ -3,7 +3,12 @@ import studio from '@sanity/eslint-config-studio';
 export default [
   ...studio,
   {
-    files: ['migrate-city-references.js', 'migrate-legacy-fields.js', 'migrate-orphan-favorites.js', 'sanity.config.js'],
+    files: [
+      'migrate-city-references.js',
+      'migrate-legacy-fields.js',
+      'migrate-orphan-favorites.js',
+      'sanity.config.js',
+    ],
     languageOptions: {
       globals: {
         console: 'readonly',

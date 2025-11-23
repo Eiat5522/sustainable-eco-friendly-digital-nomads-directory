@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
-import { http, HttpResponse } from 'msw';
-import { server } from '@/mocks/server';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { HttpResponse, http } from 'msw';
 import { NextRequest } from 'next/server';
+import { server } from '@/mocks/server';
 
 const createRequest = () => new NextRequest('http://localhost/api/featured-listings');
 
@@ -14,7 +14,14 @@ const sampleSanityListing = {
   city: { _id: 'city-bangkok', name: 'Bangkok', slug: 'bangkok', country: 'Thailand' },
   ecoFocusTags: ['Solar Powered'],
   digitalNomadFeatures: ['24/7 Access'],
-  amenities: [{ _id: 'amenity-1', name: 'Fast WiFi', description: 'Fiber', badge: { asset: { url: 'https://example.com/badge.png' } } }],
+  amenities: [
+    {
+      _id: 'amenity-1',
+      name: 'Fast WiFi',
+      description: 'Fiber',
+      badge: { asset: { url: 'https://example.com/badge.png' } },
+    },
+  ],
   primaryImage: { asset: { url: 'https://example.com/hero.jpg' } },
   galleryImages: [{ asset: { url: 'https://example.com/gallery.jpg' } }],
   location: { lat: 13.75, lng: 100.5 },
@@ -66,8 +73,9 @@ describe('Featured Listings API (MSW)', () => {
 
   it('handles Sanity fetch failures gracefully', async () => {
     server.use(
-      http.get('https://:projectId.api.sanity.io/v:apiVersion/data/query/:dataset', () =>
-        new Response(null, { status: 500 })
+      http.get(
+        'https://:projectId.api.sanity.io/v:apiVersion/data/query/:dataset',
+        () => new Response(null, { status: 500 })
       )
     );
 

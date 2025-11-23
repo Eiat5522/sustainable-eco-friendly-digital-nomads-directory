@@ -1,13 +1,9 @@
-import { NextResponse, type NextRequest } from 'next/server';
-import { auth } from '@/lib/auth';
-import type { UserRole } from '@/types/auth';
+import { type NextRequest, NextResponse } from 'next/server';
 import { fetchAdminAnalytics } from '@/lib/admin/analytics';
-import {
-  RequestTimeoutError,
-  getDefaultTimeout,
-  withRequestTimeout,
-} from '@/lib/http/request';
+import { auth } from '@/lib/auth';
+import { getDefaultTimeout, RequestTimeoutError, withRequestTimeout } from '@/lib/http/request';
 import { structuredLogger } from '@/lib/logger';
+import type { UserRole } from '@/types/auth';
 
 type RouteContext = { params: Promise<Record<string, never>> };
 
@@ -30,7 +26,7 @@ export async function GET(_request: NextRequest, _context: RouteContext) {
       getDefaultTimeout(),
       'Fetching admin statistics timed out'
     );
-    
+
     // Transform to match the expected stats API format
     const stats = {
       totalUsers: analytics.overview.totalUsers,

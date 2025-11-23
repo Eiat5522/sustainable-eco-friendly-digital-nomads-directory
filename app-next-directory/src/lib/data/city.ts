@@ -1,8 +1,4 @@
-import { cachedClient } from '@/lib/sanity/cached-client';
 import { groq } from 'next-sanity';
-import { transformToSummaryDTO } from '@/lib/dto-transformer';
-import type { DereferencedSanityListing } from '@/lib/dto-transformer';
-import type { CityDTO, CityDetailDTO, ListingSummaryDTO } from '@/types/dto';
 import {
   getE2ECityDetail,
   getE2ECityList,
@@ -10,6 +6,10 @@ import {
   getE2EListingsForCity,
   isE2ERun,
 } from '@/data/e2e/discovery-fixtures';
+import type { DereferencedSanityListing } from '@/lib/dto-transformer';
+import { transformToSummaryDTO } from '@/lib/dto-transformer';
+import { cachedClient } from '@/lib/sanity/cached-client';
+import type { CityDetailDTO, CityDTO, ListingSummaryDTO } from '@/types/dto';
 
 type SanityImageDimensions = { width?: number; height?: number };
 type SanityImageAsset = { url?: string; metadata?: { dimensions?: SanityImageDimensions } };
@@ -72,7 +72,7 @@ type SanityCityDetail = SanityCitySummary & {
 const normaliseNamedValues = (values?: StringOrNamedValue[]): string[] =>
   Array.isArray(values)
     ? values
-        .map((value) => {
+        .map(value => {
           if (typeof value === 'string') {
             return value;
           }
@@ -86,12 +86,14 @@ const resolveImageDimensions = (dimensions?: SanityImageDimensions | null) => {
     return undefined;
   }
 
-  const width = typeof dimensions.width === 'number' && Number.isFinite(dimensions.width)
-    ? dimensions.width
-    : undefined;
-  const height = typeof dimensions.height === 'number' && Number.isFinite(dimensions.height)
-    ? dimensions.height
-    : undefined;
+  const width =
+    typeof dimensions.width === 'number' && Number.isFinite(dimensions.width)
+      ? dimensions.width
+      : undefined;
+  const height =
+    typeof dimensions.height === 'number' && Number.isFinite(dimensions.height)
+      ? dimensions.height
+      : undefined;
 
   if (width === undefined && height === undefined) {
     return undefined;
@@ -103,9 +105,10 @@ const resolveImageDimensions = (dimensions?: SanityImageDimensions | null) => {
 // Map raw Sanity city to CityDTO
 function toCityDTO(raw: SanityCitySummary | null | undefined): CityDTO | null {
   if (!raw || typeof raw !== 'object') return null;
-  const sustainability = typeof raw.sustainabilityScore === 'number'
-    ? Math.max(0, Math.min(100, raw.sustainabilityScore))
-    : undefined;
+  const sustainability =
+    typeof raw.sustainabilityScore === 'number'
+      ? Math.max(0, Math.min(100, raw.sustainabilityScore))
+      : undefined;
 
   const dimensions = resolveImageDimensions(raw.primaryImage?.asset?.metadata?.dimensions ?? null);
 
@@ -139,7 +142,7 @@ function toCityDetailDTO(raw: SanityCityDetail | null | undefined): CityDetailDT
 
   const galleryUrls: string[] = Array.isArray(raw.galleryImages)
     ? raw.galleryImages
-        .map((img) => (typeof img?.asset?.url === 'string' ? img.asset.url : undefined))
+        .map(img => (typeof img?.asset?.url === 'string' ? img.asset.url : undefined))
         .filter((url): url is string => typeof url === 'string' && url.trim().length > 0)
     : [];
 
@@ -178,7 +181,9 @@ export async function getCityBySlug(slug: string): Promise<CityDTO | null> {
     }
   }`;
 
-  const raw = await cachedClient.fetch<SanityCitySummary | null>(getCitySummaryBySlugQuery, { slug });
+  const raw = await cachedClient.fetch<SanityCitySummary | null>(getCitySummaryBySlugQuery, {
+    slug,
+  });
   return toCityDTO(raw);
 }
 
@@ -216,7 +221,9 @@ export async function getCityDetailBySlug(slug: string): Promise<CityDetailDTO |
     }
   }`;
 
-  const raw = await cachedClient.fetch<SanityCityDetail | null>(getCityFullDetailsBySlugQuery, { slug });
+  const raw = await cachedClient.fetch<SanityCityDetail | null>(getCityFullDetailsBySlugQuery, {
+    slug,
+  });
   return toCityDetailDTO(raw);
 }
 
@@ -258,15 +265,16 @@ export async function getListingsByCityId(cityId: string): Promise<ListingSummar
     }
   }`;
 
-  const listingsRaw = await cachedClient.fetch<ListingSummarySource[]>(getPublishedListingsInCityQuery, { cityId });
+  const listingsRaw = await cachedClient.fetch<ListingSummarySource[]>(
+    getPublishedListingsInCityQuery,
+    { cityId }
+  );
 
   return listingsRaw.map((listing: ListingSummarySource) =>
     transformToSummaryDTO({
       ...listing,
       slug: { current: listing.slug },
-      city: listing.city
-        ? { ...listing.city, slug: { current: listing.city.slug } }
-        : undefined
+      city: listing.city ? { ...listing.city, slug: { current: listing.city.slug } } : undefined,
     } as DereferencedSanityListing)
   );
 }
@@ -305,9 +313,11 @@ export async function getAllCitySlugs(): Promise<string[]> {
     const cities = getE2ECityList(100);
     return cities.map(city => city.slug);
   }
-  
+
   const getAllCitySlugsQuery = groq`*[_type == "city"].slug.current`;
-  
+
   const slugs = await cachedClient.fetch<string[]>(getAllCitySlugsQuery);
-  return Array.isArray(slugs) ? slugs.filter((slug): slug is string => typeof slug === 'string' && slug.length > 0) : [];
+  return Array.isArray(slugs)
+    ? slugs.filter((slug): slug is string => typeof slug === 'string' && slug.length > 0)
+    : [];
 }

@@ -1,11 +1,11 @@
-import { createClient } from 'next-sanity'
+import { createClient } from 'next-sanity';
 
 export const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
   apiVersion: '2025-05-15',
   useCdn: process.env.NODE_ENV === 'production',
-})
+});
 
 export const previewClient = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
@@ -13,14 +13,14 @@ export const previewClient = createClient({
   apiVersion: '2025-05-15',
   useCdn: false,
   perspective: 'previewDrafts',
-})
+});
 
 export function getClient(preview = false) {
-  return preview ? previewClient : client
+  return preview ? previewClient : client;
 }
 
 export function validatePreviewToken(token: string | null): boolean {
-  return token === process.env.SANITY_PREVIEW_SECRET
+  return token === process.env.SANITY_PREVIEW_SECRET;
 }
 
 import { cachedClient } from './sanity/cached-client';
@@ -42,7 +42,7 @@ export async function fetchBySlug(type: string, slug: string, preview = false) {
     const client = getClient(true);
     return client.fetch(FETCH_BY_SLUG_QUERY, { type, slug });
   }
-    return cachedClient.fetch(FETCH_BY_SLUG_QUERY, { type, slug });
+  return cachedClient.fetch(FETCH_BY_SLUG_QUERY, { type, slug });
 }
 
 // GraphQL configuration

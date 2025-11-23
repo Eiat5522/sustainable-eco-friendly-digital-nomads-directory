@@ -1,5 +1,4 @@
-import React from 'react';
-import { render, screen, waitFor, fireEvent, act, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { UserManagementTable } from '../UserManagementTable';
 
 describe('UserManagementTable', () => {
@@ -147,7 +146,9 @@ describe('UserManagementTable', () => {
     const firstRow = screen.getByTestId('user-row-user-1');
     expect(within(firstRow).queryByRole('combobox')).toBeNull();
 
-    const searchInput = screen.getByPlaceholderText('Search by name or email...') as HTMLInputElement;
+    const searchInput = screen.getByPlaceholderText(
+      'Search by name or email...'
+    ) as HTMLInputElement;
     fireEvent.change(searchInput, { target: { value: 'alice' } });
 
     await waitFor(() => {
@@ -158,7 +159,9 @@ describe('UserManagementTable', () => {
       );
     });
 
-    const roleFilter = screen.getByLabelText('Filter by role', { selector: 'select' }) as HTMLSelectElement;
+    const roleFilter = screen.getByLabelText('Filter by role', {
+      selector: 'select',
+    }) as HTMLSelectElement;
     fireEvent.change(roleFilter, { target: { value: 'editor' } });
 
     await waitFor(() => {
@@ -266,7 +269,9 @@ describe('UserManagementTable', () => {
     fireEvent.change(select, { target: { value: 'admin' } });
 
     await waitFor(() => {
-      expect(screen.getByRole('status')).toHaveTextContent('Cannot change your own Super Admin role');
+      expect(screen.getByRole('status')).toHaveTextContent(
+        'Cannot change your own Super Admin role'
+      );
     });
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
@@ -289,7 +294,10 @@ describe('UserManagementTable', () => {
 
     fetchMock
       .mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValue(listResponse) })
-      .mockResolvedValueOnce({ ok: false, json: jest.fn().mockResolvedValue({ error: 'Unable to update status' }) });
+      .mockResolvedValueOnce({
+        ok: false,
+        json: jest.fn().mockResolvedValue({ error: 'Unable to update status' }),
+      });
 
     render(<UserManagementTable currentUserRole="superAdmin" currentUserId="super-1" />);
 
@@ -379,45 +387,39 @@ describe('UserManagementTable', () => {
       .mockResolvedValueOnce(
         Promise.resolve({
           ok: true,
-          json: jest
-            .fn()
-            .mockResolvedValue(
-              createUsersResponse(baseUsers, {
-                pagination: { page: 2, totalPages: 3, hasNextPage: true, hasPrevPage: true },
-              })
-            ),
+          json: jest.fn().mockResolvedValue(
+            createUsersResponse(baseUsers, {
+              pagination: { page: 2, totalPages: 3, hasNextPage: true, hasPrevPage: true },
+            })
+          ),
         })
       )
       .mockResolvedValueOnce(
         Promise.resolve({
           ok: true,
-          json: jest
-            .fn()
-            .mockResolvedValue(
-              createUsersResponse(baseUsers, {
-                pagination: { page: 1, totalPages: 3, hasNextPage: true, hasPrevPage: false },
-              })
-            ),
+          json: jest.fn().mockResolvedValue(
+            createUsersResponse(baseUsers, {
+              pagination: { page: 1, totalPages: 3, hasNextPage: true, hasPrevPage: false },
+            })
+          ),
         })
       )
       .mockResolvedValueOnce(
         Promise.resolve({
           ok: true,
-          json: jest
-            .fn()
-            .mockResolvedValue(
-              createUsersResponse(baseUsers, {
-                pagination: { page: 2, totalPages: 3, hasNextPage: true, hasPrevPage: true },
-              })
-            ),
+          json: jest.fn().mockResolvedValue(
+            createUsersResponse(baseUsers, {
+              pagination: { page: 2, totalPages: 3, hasNextPage: true, hasPrevPage: true },
+            })
+          ),
         })
       );
 
     render(<UserManagementTable currentUserRole="superAdmin" currentUserId="super-1" />);
 
     await screen.findByTestId('user-row-paged-user');
-    const pageIndicators = screen.getAllByText((_, element) =>
-      element?.textContent?.replace(/\s+/g, ' ').trim() === 'Showing page 2 of 3'
+    const pageIndicators = screen.getAllByText(
+      (_, element) => element?.textContent?.replace(/\s+/g, ' ').trim() === 'Showing page 2 of 3'
     );
     expect(pageIndicators.length).toBeGreaterThan(0);
 
@@ -464,7 +466,10 @@ describe('UserManagementTable', () => {
 
     fetchMock
       .mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValue(initialResponse) })
-      .mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValue({ message: 'User deleted successfully' }) })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: jest.fn().mockResolvedValue({ message: 'User deleted successfully' }),
+      })
       .mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValue(reloadResponse) });
 
     const confirmSpy = global.confirm as jest.Mock;

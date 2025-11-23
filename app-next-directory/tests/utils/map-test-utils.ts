@@ -1,5 +1,4 @@
 import type { Page } from '@playwright/test';
-import type { Listing } from '@/types/listings';
 
 export async function waitForMapLoad(page: Page) {
   await page.waitForSelector('#map');
@@ -10,7 +9,11 @@ export async function getMapBounds(page: Page) {
   return await page.evaluate(() => {
     // Robustly retrieve Leaflet map instance from window
     const leaflet = window.L;
-    if (!leaflet || typeof leaflet.map !== 'object' || typeof leaflet.map.getBounds !== 'function') {
+    if (
+      !leaflet ||
+      typeof leaflet.map !== 'object' ||
+      typeof leaflet.map.getBounds !== 'function'
+    ) {
       throw new Error('Leaflet map instance is not available or not initialized on window.L.map');
     }
     const bounds = leaflet.map.getBounds();
@@ -18,18 +21,21 @@ export async function getMapBounds(page: Page) {
       north: bounds.getNorth(),
       south: bounds.getSouth(),
       east: bounds.getEast(),
-      west: bounds.getWest()
+      west: bounds.getWest(),
     };
   });
 }
 
 export async function panMap(page: Page, lat: number, lng: number) {
-  await page.evaluate(({ lat, lng }) => {
-    const map = window.L?.map;
-    if (map) {
-      map.panTo([lat, lng]);
-    }
-  }, { lat, lng });
+  await page.evaluate(
+    ({ lat, lng }) => {
+      const map = window.L?.map;
+      if (map) {
+        map.panTo([lat, lng]);
+      }
+    },
+    { lat, lng }
+  );
 }
 
 export async function getVisibleMarkers(page: Page) {
@@ -37,7 +43,7 @@ export async function getVisibleMarkers(page: Page) {
     const markers = document.querySelectorAll('.marker-icon');
     return Array.from(markers).map(marker => ({
       text: marker.textContent,
-      isVisible: marker.getBoundingClientRect().top > 0
+      isVisible: marker.getBoundingClientRect().top > 0,
     }));
   });
 }
@@ -55,6 +61,6 @@ export async function getPopupContent(page: Page) {
   return {
     title: await popup.locator('h3').textContent(),
     address: await popup.locator('.text-gray-600').textContent(),
-    tags: await popup.locator('.bg-green-100').allTextContents()
+    tags: await popup.locator('.bg-green-100').allTextContents(),
   };
 }

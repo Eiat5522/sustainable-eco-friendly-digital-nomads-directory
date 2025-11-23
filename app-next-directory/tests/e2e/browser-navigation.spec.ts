@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 
 const HOME_PAGE = '/';
 const LISTINGS_PAGE = '/listings';
@@ -6,7 +6,7 @@ const LISTING_DETAIL = '/listings/banyan-tree-phuket';
 const SEARCH_PAGE = '/search';
 
 async function mockAnonymousSession(page: Page) {
-  await page.route('**/api/auth/session', async (route) => {
+  await page.route('**/api/auth/session', async route => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -35,7 +35,7 @@ async function mockListingsAPI(page: Page) {
     },
   ];
 
-  await page.route('**/api/listings**', async (route) => {
+  await page.route('**/api/listings**', async route => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -58,7 +58,7 @@ async function mockListingDetailAPI(page: Page) {
     reviews: [],
   };
 
-  await page.route('**/api/listings/banyan-tree-phuket**', async (route) => {
+  await page.route('**/api/listings/banyan-tree-phuket**', async route => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',

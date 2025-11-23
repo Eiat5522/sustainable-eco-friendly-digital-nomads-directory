@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
-
-import { ListingCategoryDetails } from '../ListingCategoryDetails';
 import type { ListingDetailDTO } from '@/types/dto';
+import { ListingCategoryDetails } from '../ListingCategoryDetails';
 
 const sharedListing = {
   id: 'listing-1',
@@ -18,15 +17,17 @@ describe('ListingCategoryDetails', () => {
   it('renders accommodation details', () => {
     render(
       <ListingCategoryDetails
-        listing={{
-          ...sharedListing,
-          type: 'accommodation',
-          accommodationDetails: {
-            accommodationType: 'Hotel',
-            minimumStay: 2,
-            roomTypes: ['Suite'],
-          },
-        } as ListingDetailDTO}
+        listing={
+          {
+            ...sharedListing,
+            type: 'accommodation',
+            accommodationDetails: {
+              accommodationType: 'Hotel',
+              minimumStay: 2,
+              roomTypes: ['Suite'],
+            },
+          } as ListingDetailDTO
+        }
       />
     );
 
@@ -39,21 +40,23 @@ describe('ListingCategoryDetails', () => {
   it('renders coworking details', () => {
     render(
       <ListingCategoryDetails
-        listing={{
-          ...sharedListing,
-          type: 'coworking',
-          coworkingDetails: {
-            pricingPlans: [
-              {
-                type: 'daily',
-                price: { amount: 250, currency: 'USD', unit: 'day' },
-                period: 'day',
-                features: ['Desk'],
-              },
-            ],
-            internetSpeed: { download: 100, upload: 50 },
-          },
-        } as ListingDetailDTO}
+        listing={
+          {
+            ...sharedListing,
+            type: 'coworking',
+            coworkingDetails: {
+              pricingPlans: [
+                {
+                  type: 'daily',
+                  price: { amount: 250, currency: 'USD', unit: 'day' },
+                  period: 'day',
+                  features: ['Desk'],
+                },
+              ],
+              internetSpeed: { download: 100, upload: 50 },
+            },
+          } as ListingDetailDTO
+        }
       />
     );
 
@@ -65,15 +68,17 @@ describe('ListingCategoryDetails', () => {
   it('renders cafe details', () => {
     render(
       <ListingCategoryDetails
-        listing={{
-          ...sharedListing,
-          type: 'cafe',
-          cafeDetails: {
-            priceIndication: '$$',
-            menuHighlights: ['Latte'],
-            noiseLevel: 'quiet',
-          },
-        } as ListingDetailDTO}
+        listing={
+          {
+            ...sharedListing,
+            type: 'cafe',
+            cafeDetails: {
+              priceIndication: '$$',
+              menuHighlights: ['Latte'],
+              noiseLevel: 'quiet',
+            },
+          } as ListingDetailDTO
+        }
       />
     );
 
@@ -86,15 +91,17 @@ describe('ListingCategoryDetails', () => {
   it('renders restaurant details', () => {
     render(
       <ListingCategoryDetails
-        listing={{
-          ...sharedListing,
-          type: 'restaurant',
-          restaurantDetails: {
-            cuisineType: ['Thai', 'Vegan'],
-            dietaryOptions: ['Gluten-Free'],
-            averageMealPrice: { amount: 250, currency: 'THB', unit: 'meal' },
-          },
-        } as ListingDetailDTO}
+        listing={
+          {
+            ...sharedListing,
+            type: 'restaurant',
+            restaurantDetails: {
+              cuisineType: ['Thai', 'Vegan'],
+              dietaryOptions: ['Gluten-Free'],
+              averageMealPrice: { amount: 250, currency: 'THB', unit: 'meal' },
+            },
+          } as ListingDetailDTO
+        }
       />
     );
 
@@ -108,16 +115,18 @@ describe('ListingCategoryDetails', () => {
   it('renders activity details', () => {
     render(
       <ListingCategoryDetails
-        listing={{
-          ...sharedListing,
-          type: 'activities',
-          activityDetails: {
-            activityType: 'Hiking',
-            duration: 'Half day',
-            skillLevel: 'Intermediate',
-            languages: ['English', 'Thai'],
-          },
-        } as ListingDetailDTO}
+        listing={
+          {
+            ...sharedListing,
+            type: 'activities',
+            activityDetails: {
+              activityType: 'Hiking',
+              duration: 'Half day',
+              skillLevel: 'Intermediate',
+              languages: ['English', 'Thai'],
+            },
+          } as ListingDetailDTO
+        }
       />
     );
 
@@ -131,15 +140,16 @@ describe('ListingCategoryDetails', () => {
   it('returns null when no details exist for the listing', () => {
     const { container } = render(
       <ListingCategoryDetails
-        listing={{
-          ...sharedListing,
-          type: 'cafe',
-          cafeDetails: undefined,
-        } as ListingDetailDTO}
+        listing={
+          {
+            ...sharedListing,
+            type: 'cafe',
+            cafeDetails: undefined,
+          } as ListingDetailDTO
+        }
       />
     );
 
     expect(container.firstChild).toBeNull();
   });
 });
-

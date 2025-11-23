@@ -1,18 +1,18 @@
 // NOTE: This file tests deprecated types. Use appView.ts or sanity.types.ts for new code.
 
+import { ListingCategory, PriceRange } from '../enums';
 import type {
-  ListingType,
-  PriceRangeType,
-  LocalCity,
+  AccommodationListing,
+  ActivitiesListing,
+  CafeListing,
+  CoworkingListing,
   EcoTag,
   Listing,
-  CoworkingListing,
-  CafeListing,
-  AccommodationListing,
+  ListingType,
+  LocalCity,
+  PriceRangeType,
   RestaurantListing,
-  ActivitiesListing
 } from '../listing';
-import { ListingCategory, PriceRange } from '../enums';
 
 describe('listing types (deprecated)', () => {
   describe('Type aliases', () => {
@@ -34,7 +34,7 @@ describe('listing types (deprecated)', () => {
         name: 'Bangkok',
         slug: 'bangkok',
         listingCount: 50,
-        country: 'Thailand'
+        country: 'Thailand',
       };
       expect(city.slug).toBe('bangkok');
     });
@@ -45,7 +45,7 @@ describe('listing types (deprecated)', () => {
         name: 'Chiang Mai',
         slug: { current: 'chiang-mai' },
         listingCount: 30,
-        country: 'Thailand'
+        country: 'Thailand',
       };
       expect(typeof city.slug).toBe('object');
     });
@@ -59,7 +59,7 @@ describe('listing types (deprecated)', () => {
         slug: { current: 'solar-power' },
         description: 'Uses solar energy',
         listingCount: 25,
-        icon: 'solar-icon'
+        icon: 'solar-icon',
       };
       expect(tag.name).toBe('Solar Power');
       expect(tag.listingCount).toBe(25);
@@ -71,7 +71,7 @@ describe('listing types (deprecated)', () => {
         name: 'Recycling',
         slug: { current: 'recycling' },
         description: 'Has recycling program',
-        listingCount: 40
+        listingCount: 40,
       };
       expect(tag.icon).toBeUndefined();
     });
@@ -89,10 +89,10 @@ describe('listing types (deprecated)', () => {
           name: 'Bangkok',
           slug: { current: 'bangkok' },
           listingCount: 50,
-          country: 'Thailand'
+          country: 'Thailand',
         },
         ecoTags: [],
-        address: '123 Main St'
+        address: '123 Main St',
       };
       expect(listing._id).toBe('listing-123');
       expect(listing.type).toBe('coworking');
@@ -109,15 +109,15 @@ describe('listing types (deprecated)', () => {
           name: 'Bangkok',
           slug: 'bangkok',
           listingCount: 50,
-          country: 'Thailand'
+          country: 'Thailand',
         },
         ecoTags: [],
         address: 'Address',
         location: {
           lat: 13.7563,
           lng: 100.5018,
-          coordinates: [100.5018, 13.7563]
-        }
+          coordinates: [100.5018, 13.7563],
+        },
       };
       expect(listing.location?.lat).toBe(13.7563);
     });
@@ -133,24 +133,24 @@ describe('listing types (deprecated)', () => {
           name: 'Bangkok',
           slug: 'bangkok',
           listingCount: 50,
-          country: 'Thailand'
+          country: 'Thailand',
         },
         ecoTags: [],
         address: 'Address',
         primaryImage: {
           asset: {
             _ref: 'image-abc',
-            url: 'https://example.com/image.jpg'
-          }
+            url: 'https://example.com/image.jpg',
+          },
         },
         galleryImages: [
           {
             asset: {
               _ref: 'image-1',
-              url: 'https://example.com/gallery1.jpg'
-            }
-          }
-        ]
+              url: 'https://example.com/gallery1.jpg',
+            },
+          },
+        ],
       };
       expect(listing.primaryImage).toBeDefined();
       expect(listing.galleryImages).toHaveLength(1);
@@ -169,7 +169,7 @@ describe('listing types (deprecated)', () => {
           name: 'Bangkok',
           slug: 'bangkok',
           listingCount: 50,
-          country: 'Thailand'
+          country: 'Thailand',
         },
         ecoTags: [],
         address: 'Address',
@@ -186,8 +186,8 @@ describe('listing types (deprecated)', () => {
           lockers: true,
           eventSpace: false,
           petFriendly: false,
-          accessibility: true
-        }
+          accessibility: true,
+        },
       };
       expect(listing.type).toBe('coworking');
       expect(listing.coworkingDetails.internetSpeed).toBe(100);
@@ -204,7 +204,7 @@ describe('listing types (deprecated)', () => {
           name: 'Bangkok',
           slug: 'bangkok',
           listingCount: 50,
-          country: 'Thailand'
+          country: 'Thailand',
         },
         ecoTags: [],
         address: 'Address',
@@ -215,8 +215,8 @@ describe('listing types (deprecated)', () => {
           noiseLevel: 'moderate',
           veganOptions: true,
           glutenFree: true,
-          organicOptions: true
-        }
+          organicOptions: true,
+        },
       };
       expect(listing.type).toBe('cafe');
       expect(listing.cafeDetails.wifi).toBe(true);
@@ -233,7 +233,7 @@ describe('listing types (deprecated)', () => {
           name: 'Bangkok',
           slug: 'bangkok',
           listingCount: 50,
-          country: 'Thailand'
+          country: 'Thailand',
         },
         ecoTags: [],
         address: 'Address',
@@ -248,8 +248,8 @@ describe('listing types (deprecated)', () => {
           workspace: true,
           pool: false,
           airConditioning: true,
-          heating: false
-        }
+          heating: false,
+        },
       };
       expect(listing.type).toBe('accommodation');
       expect(listing.accommodationDetails.minStay).toBe(2);
@@ -266,7 +266,7 @@ describe('listing types (deprecated)', () => {
           name: 'Bangkok',
           slug: 'bangkok',
           listingCount: 50,
-          country: 'Thailand'
+          country: 'Thailand',
         },
         ecoTags: [],
         address: 'Address',
@@ -277,8 +277,8 @@ describe('listing types (deprecated)', () => {
           delivery: true,
           takeaway: true,
           reservation: true,
-          outdoorSeating: true
-        }
+          outdoorSeating: true,
+        },
       };
       expect(listing.type).toBe('restaurant');
       expect(listing.restaurantDetails.cuisine).toContain('Thai');
@@ -295,7 +295,7 @@ describe('listing types (deprecated)', () => {
           name: 'Bangkok',
           slug: 'bangkok',
           listingCount: 50,
-          country: 'Thailand'
+          country: 'Thailand',
         },
         ecoTags: [],
         address: 'Address',
@@ -305,11 +305,11 @@ describe('listing types (deprecated)', () => {
           difficulty: 'moderate',
           groupSize: {
             min: 2,
-            max: 10
+            max: 10,
           },
           seasonality: ['spring', 'summer'],
-          equipment: true
-        }
+          equipment: true,
+        },
       };
       expect(listing.type).toBe('activities');
       expect(listing.activitiesDetails.difficulty).toBe('moderate');
@@ -328,7 +328,7 @@ describe('listing types (deprecated)', () => {
           name: 'Bangkok',
           slug: 'bangkok',
           listingCount: 50,
-          country: 'Thailand'
+          country: 'Thailand',
         },
         ecoTags: [],
         address: 'Address',
@@ -345,10 +345,10 @@ describe('listing types (deprecated)', () => {
           lockers: false,
           eventSpace: false,
           petFriendly: false,
-          accessibility: false
-        }
+          accessibility: false,
+        },
       };
-      
+
       expect(coworkingListing.type).toBe('coworking');
     });
   });

@@ -47,7 +47,8 @@ describe('tests/fixtures/index', () => {
   });
 
   it('reinitialises integration fixtures when the module graph is re-evaluated', async () => {
-    createTestData.mockImplementationOnce(() => ({ ...baseData }))
+    createTestData
+      .mockImplementationOnce(() => ({ ...baseData }))
       .mockImplementationOnce(() => ({ ...secondData }));
 
     await jest.isolateModulesAsync(async () => {

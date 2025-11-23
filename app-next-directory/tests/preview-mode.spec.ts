@@ -12,7 +12,10 @@ test.describe('Preview Mode Functionality', () => {
 
     // Store preview cookie
     const cookies = await page.context().cookies();
-    previewCookie = cookies.find(cookie => cookie.name === '__previewMode') || { name: '', value: '' };
+    previewCookie = cookies.find(cookie => cookie.name === '__previewMode') || {
+      name: '',
+      value: '',
+    };
     expect(previewCookie.name).toBeTruthy();
   });
 

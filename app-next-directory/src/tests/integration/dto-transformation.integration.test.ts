@@ -6,82 +6,79 @@
 
 import { describe, expect, it } from '@jest/globals';
 import {
+  transformToBlogDetailDTO,
+  transformToBlogSummaryDTO,
+  transformToDetailDTO,
   transformToFeaturedDTO,
   transformToSummaryDTO,
-  transformToDetailDTO,
-  transformToBlogSummaryDTO,
-  transformToBlogDetailDTO,
 } from '@/lib/dto-transformer';
+import type { CityDTO, FeaturedListingDTO, ListingDetailDTO, ListingSummaryDTO } from '@/types/dto';
 import type { SanityListing } from '@/types/sanity.types';
-import type {
-  FeaturedListingDTO,
-  ListingSummaryDTO,
-  ListingDetailDTO,
-  CityDTO,
-} from '@/types/dto';
 
 // Mock realistic Sanity data structure returned from GROQ queries
-const createMockSanityListing = (overrides: Partial<SanityListing> = {}): SanityListing => ({
-  _id: 'listing-integration-test-1',
-  _type: 'listing',
-  name: 'Eco Integration Test Workspace',
-  slug: { current: 'eco-integration-test-workspace' },
-  type: 'coworking',
-  shortDescription: 'A sustainable coworking space for digital nomads',
-  longDescription: 'Located in the heart of Bangkok, this workspace offers high-speed internet, eco-friendly amenities, and a vibrant community of remote workers committed to sustainability.',
-  address: '123 Sukhumvit Road, Bangkok',
-  location: { lat: 13.7563, lng: 100.5018 },
-  priceRange: { min: 200, max: 500 },
-  website: 'https://eco-workspace.example.com',
-  primaryImage: 'image-primary-test',
-  galleryImages: ['image-gallery-1', 'image-gallery-2', 'image-gallery-3'],
-  ecoFocusTags: [
-    { _type: 'reference', _ref: 'tag-solar' },
-    { _type: 'reference', _ref: 'tag-recycling' },
-  ],
-  digitalNomadFeatures: [
-    { _type: 'reference', _ref: 'feature-wifi' },
-    { _type: 'reference', _ref: 'feature-quiet-zones' },
-  ],
-  amenities: [
-    { _type: 'reference', _ref: 'amenity-coffee' },
-    { _type: 'reference', _ref: 'amenity-bike-parking' },
-  ],
-  city: {
-    _type: 'reference',
-    _ref: 'city-bangkok',
-    _weak: false,
-  },
-  contactEmail: 'info@eco-workspace.example.com',
-  contactPhone: '+66 2 123 4567',
-  sustainabilityScore: 92,
-  moderation: { status: 'published' },
-  coworkingDetails: {
-    pricingPlans: [
-      {
-        type: 'Hot Desk',
-        price: 250,
-        period: 'day',
-        features: ['Fast WiFi', 'Coffee & Tea', 'Meeting Rooms'],
-      },
-      {
-        type: 'Dedicated Desk',
-        price: 400,
-        period: 'day',
-        features: ['Private Desk', 'Storage Locker', 'Priority Booking'],
-      },
+const createMockSanityListing = (overrides: Partial<SanityListing> = {}): SanityListing =>
+  ({
+    _id: 'listing-integration-test-1',
+    _type: 'listing',
+    name: 'Eco Integration Test Workspace',
+    slug: { current: 'eco-integration-test-workspace' },
+    type: 'coworking',
+    shortDescription: 'A sustainable coworking space for digital nomads',
+    longDescription:
+      'Located in the heart of Bangkok, this workspace offers high-speed internet, eco-friendly amenities, and a vibrant community of remote workers committed to sustainability.',
+    address: '123 Sukhumvit Road, Bangkok',
+    location: { lat: 13.7563, lng: 100.5018 },
+    priceRange: { min: 200, max: 500 },
+    website: 'https://eco-workspace.example.com',
+    primaryImage: 'image-primary-test',
+    galleryImages: ['image-gallery-1', 'image-gallery-2', 'image-gallery-3'],
+    ecoFocusTags: [
+      { _type: 'reference', _ref: 'tag-solar' },
+      { _type: 'reference', _ref: 'tag-recycling' },
     ],
-    openingHours: [
-      { day: 'Monday', opens: '08:00', closes: '20:00' },
-      { day: 'Tuesday', opens: '08:00', closes: '20:00' },
-      { day: 'Wednesday', opens: '08:00', closes: '20:00' },
-      { day: 'Thursday', opens: '08:00', closes: '20:00' },
-      { day: 'Friday', opens: '08:00', closes: '20:00' },
+    digitalNomadFeatures: [
+      { _type: 'reference', _ref: 'feature-wifi' },
+      { _type: 'reference', _ref: 'feature-quiet-zones' },
     ],
-    internetSpeed: '500 Mbps',
-  },
-  ...overrides,
-} as unknown as SanityListing);
+    amenities: [
+      { _type: 'reference', _ref: 'amenity-coffee' },
+      { _type: 'reference', _ref: 'amenity-bike-parking' },
+    ],
+    city: {
+      _type: 'reference',
+      _ref: 'city-bangkok',
+      _weak: false,
+    },
+    contactEmail: 'info@eco-workspace.example.com',
+    contactPhone: '+66 2 123 4567',
+    sustainabilityScore: 92,
+    moderation: { status: 'published' },
+    coworkingDetails: {
+      pricingPlans: [
+        {
+          type: 'Hot Desk',
+          price: 250,
+          period: 'day',
+          features: ['Fast WiFi', 'Coffee & Tea', 'Meeting Rooms'],
+        },
+        {
+          type: 'Dedicated Desk',
+          price: 400,
+          period: 'day',
+          features: ['Private Desk', 'Storage Locker', 'Priority Booking'],
+        },
+      ],
+      openingHours: [
+        { day: 'Monday', opens: '08:00', closes: '20:00' },
+        { day: 'Tuesday', opens: '08:00', closes: '20:00' },
+        { day: 'Wednesday', opens: '08:00', closes: '20:00' },
+        { day: 'Thursday', opens: '08:00', closes: '20:00' },
+        { day: 'Friday', opens: '08:00', closes: '20:00' },
+      ],
+      internetSpeed: '500 Mbps',
+    },
+    ...overrides,
+  }) as unknown as SanityListing;
 
 describe('DTO Integration Tests - Transformation with Realistic Sanity Data', () => {
   describe('transformToFeaturedDTO', () => {
@@ -182,12 +179,7 @@ describe('DTO Integration Tests - Transformation with Realistic Sanity Data', ()
 
     it('should normalize amenity names and remove duplicates', () => {
       const listingWithDuplicates = createMockSanityListing({
-        amenities: [
-          { name: 'WiFi' },
-          { name: 'wifi' },
-          { name: ' WiFi ' },
-          { name: 'Coffee' },
-        ],
+        amenities: [{ name: 'WiFi' }, { name: 'wifi' }, { name: ' WiFi ' }, { name: 'Coffee' }],
       } as any);
 
       const dto = transformToSummaryDTO(listingWithDuplicates);
@@ -229,7 +221,7 @@ describe('DTO Integration Tests - Transformation with Realistic Sanity Data', ()
 
       expect(dto.type).toBe('coworking');
       expect(dto.coworkingDetails).toBeDefined();
-      
+
       if (dto.type === 'coworking') {
         expect(dto.coworkingDetails?.pricingPlans).toHaveLength(2);
         expect(dto.coworkingDetails?.pricingPlans?.[0]).toMatchObject({
@@ -253,7 +245,7 @@ describe('DTO Integration Tests - Transformation with Realistic Sanity Data', ()
       } as any);
 
       const dto = transformToDetailDTO(listingWithInvalidPlans);
-      
+
       if (dto.type === 'coworking') {
         expect(dto.coworkingDetails?.pricingPlans).toHaveLength(1);
         expect(dto.coworkingDetails?.pricingPlans?.[0].type).toBe('Valid Plan');
@@ -264,9 +256,7 @@ describe('DTO Integration Tests - Transformation with Realistic Sanity Data', ()
       const cafeListing = createMockSanityListing({
         type: 'cafe',
         cafeDetails: {
-          openingHours: [
-            { day: 'Monday', opens: '07:00', closes: '19:00' },
-          ],
+          openingHours: [{ day: 'Monday', opens: '07:00', closes: '19:00' }],
           priceIndication: 'affordable',
           menuHighlights: ['Organic Coffee', 'Vegan Pastries'],
           noiseLevel: 'Moderate',
@@ -335,11 +325,7 @@ describe('DTO Integration Tests - Transformation with Realistic Sanity Data', ()
         accommodationDetails: {
           accommodationType: 'Eco Hotel',
           pricePerNightThb: { min: 1200, max: 2500 },
-          roomTypesAvailable: [
-            { type: 'Single' },
-            { type: 'Double' },
-            { type: 'Suite' },
-          ],
+          roomTypesAvailable: [{ type: 'Single' }, { type: 'Double' }, { type: 'Suite' }],
           minimumStay: 2,
         },
       } as any);
@@ -378,7 +364,7 @@ describe('DTO Integration Tests - Transformation with Realistic Sanity Data', ()
       } as any);
 
       const dto = transformToDetailDTO(listingWithGallery);
-      
+
       expect(dto.galleryImages).toBeDefined();
       expect(Array.isArray(dto.galleryImages)).toBe(true);
       expect(dto.galleryImages.length).toBeGreaterThan(0);
@@ -484,7 +470,7 @@ describe('DTO Integration Tests - Transformation with Realistic Sanity Data', ()
 
     it('should ensure Money type has correct structure', () => {
       const dto = transformToDetailDTO(createMockSanityListing());
-      
+
       if (dto.type === 'coworking' && dto.coworkingDetails?.pricingPlans) {
         const plan = dto.coworkingDetails.pricingPlans[0];
         expect(plan.price).toHaveProperty('amount');
@@ -496,7 +482,7 @@ describe('DTO Integration Tests - Transformation with Realistic Sanity Data', ()
 
     it('should ensure OpeningHour type is properly structured', () => {
       const dto = transformToDetailDTO(createMockSanityListing());
-      
+
       if (dto.type === 'coworking' && dto.coworkingDetails?.openingHours) {
         const hours = dto.coworkingDetails.openingHours[0];
         expect(hours).toHaveProperty('day');

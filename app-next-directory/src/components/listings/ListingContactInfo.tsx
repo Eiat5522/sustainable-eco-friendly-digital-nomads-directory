@@ -74,34 +74,35 @@ export function ListingContactInfo({ listing }: ListingContactInfoProps) {
     },
   ];
 
-  const visibleItems = items.filter((item) => Boolean(item.value));
+  const visibleItems = items.filter(item => Boolean(item.value));
   if (visibleItems.length === 0) {
     return null;
   }
 
   return (
     <div className="space-y-4">
-      {visibleItems.map(({ key, icon: Icon, label, value, button, iconClassName, valueClassName, alignTop }) => (
-        <div key={key} className={`flex ${alignTop ? 'items-start' : 'items-center'} gap-3`}>
-          <Icon size={20} className={iconClassName ?? 'text-neo-text-secondary'} />
-          <div className="flex-1">
-            <span className="font-medium">{label}</span>
-            <p className={valueClassName ?? 'text-neo-text-secondary text-sm'}>{value}</p>
+      {visibleItems.map(
+        ({ key, icon: Icon, label, value, button, iconClassName, valueClassName, alignTop }) => (
+          <div key={key} className={`flex ${alignTop ? 'items-start' : 'items-center'} gap-3`}>
+            <Icon size={20} className={iconClassName ?? 'text-neo-text-secondary'} />
+            <div className="flex-1">
+              <span className="font-medium">{label}</span>
+              <p className={valueClassName ?? 'text-neo-text-secondary text-sm'}>{value}</p>
+            </div>
+            {button ? (
+              <NeoButton variant="outline" size="sm" asChild>
+                <a
+                  href={button.href}
+                  target={button.label === 'Visit' ? '_blank' : undefined}
+                  rel={button.label === 'Visit' ? 'noopener noreferrer' : undefined}
+                >
+                  {button.label}
+                </a>
+              </NeoButton>
+            ) : null}
           </div>
-          {button ? (
-            <NeoButton variant="outline" size="sm" asChild>
-              <a
-                href={button.href}
-                target={button.label === 'Visit' ? '_blank' : undefined}
-                rel={button.label === 'Visit' ? 'noopener noreferrer' : undefined}
-              >
-                {button.label}
-              </a>
-            </NeoButton>
-          ) : null}
-        </div>
-      ))}
+        )
+      )}
     </div>
   );
 }
-

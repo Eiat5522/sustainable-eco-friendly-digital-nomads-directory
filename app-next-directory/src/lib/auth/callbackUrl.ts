@@ -10,7 +10,11 @@ export function decodeCallbackUrl(raw?: string | null): string | null {
       previous = decoded;
       decoded = decodeURIComponent(decoded);
       iterations++;
-    } while (decoded !== previous && /%[0-9A-Fa-f]{2}/.test(decoded) && iterations < MAX_ITERATIONS);
+    } while (
+      decoded !== previous &&
+      /%[0-9A-Fa-f]{2}/.test(decoded) &&
+      iterations < MAX_ITERATIONS
+    );
     return decoded;
   } catch {
     return null;

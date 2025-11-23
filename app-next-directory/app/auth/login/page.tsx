@@ -1,13 +1,13 @@
-import { NeoCard, NeoCardContent, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
-import SocialAuthRow from '@/components/auth/SocialAuthRow';
-import LoginForm from './LoginForm';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
 import Link from 'next/link';
-import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import SocialAuthRow from '@/components/auth/SocialAuthRow';
+import { Footer } from '@/components/layout/Footer';
+import { Header } from '@/components/layout/Header';
+import { NeoCard, NeoCardContent, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
 import { getBaseUrl } from '@/lib/absolute-url';
+import { auth } from '@/lib/auth';
 import { sanitizeCallbackUrl } from '@/lib/auth/callbackUrl';
+import LoginForm from './LoginForm';
 
 type LoginPageSearchParams = Readonly<{ callbackUrl?: string | string[] }>;
 
@@ -36,16 +36,32 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       <Header />
       <div className="relative min-h-screen flex items-center justify-center px-4">
         {/* Background accents */}
-        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-br from-neo-secondary/10 via-white to-neo-primary/10" />
-        <div aria-hidden="true" className="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-neo-primary/10 blur-3xl" />
-        <div aria-hidden="true" className="absolute -bottom-24 -right-24 w-72 h-72 rounded-full bg-neo-secondary/10 blur-3xl" />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 bg-gradient-to-br from-neo-secondary/10 via-white to-neo-primary/10"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-neo-primary/10 blur-3xl"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute -bottom-24 -right-24 w-72 h-72 rounded-full bg-neo-secondary/10 blur-3xl"
+        />
         <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
           {/* Left panel */}
           <div className="hidden md:flex flex-col justify-center p-8 rounded-xl neo-card bg-gradient-to-br from-white to-neo-secondary/5">
-            <h2 className="heading-lg mb-3" id="welcome-heading">Welcome back</h2>
-            <p className="body-md">Log in to manage your listings, save favorites, and discover eco-friendly spots for digital nomads.</p>
+            <h2 className="heading-lg mb-3" id="welcome-heading">
+              Welcome back
+            </h2>
+            <p className="body-md">
+              Log in to manage your listings, save favorites, and discover eco-friendly spots for
+              digital nomads.
+            </p>
             <div className="mt-8" aria-labelledby="social-signin-heading-left">
-              <h3 id="social-signin-heading-left" className="sr-only">Social sign-in options</h3>
+              <h3 id="social-signin-heading-left" className="sr-only">
+                Social sign-in options
+              </h3>
               <SocialAuthRow />
             </div>
           </div>
@@ -57,7 +73,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             <NeoCardContent>
               <LoginForm />
               <div className="mt-6 md:hidden" aria-labelledby="social-signin-heading-mobile">
-                <h3 id="social-signin-heading-mobile" className="sr-only">Social sign-in options</h3>
+                <h3 id="social-signin-heading-mobile" className="sr-only">
+                  Social sign-in options
+                </h3>
                 <SocialAuthRow />
               </div>
               <p className="mt-6 text-sm text-center">
@@ -77,4 +95,3 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     </>
   );
 }
-

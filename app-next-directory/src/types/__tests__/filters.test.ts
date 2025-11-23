@@ -1,11 +1,11 @@
+import { ListingCategory } from '../enums';
 import type {
-  FilterOperator,
   FilterCondition,
   FilterGroup,
+  FilterOperator,
+  FilterResults,
   ListingFilters,
-  FilterResults
 } from '../filters';
-import { ListingCategory } from '../enums';
 
 describe('filters types', () => {
   describe('FilterOperator type', () => {
@@ -24,7 +24,7 @@ describe('filters types', () => {
     it('should accept basic filter condition', () => {
       const condition: FilterCondition = {
         field: 'category',
-        value: 'coworking'
+        value: 'coworking',
       };
       expect(condition.field).toBe('category');
       expect(condition.value).toBe('coworking');
@@ -34,7 +34,7 @@ describe('filters types', () => {
       const condition: FilterCondition = {
         field: 'searchQuery',
         value: 'wifi',
-        operator: 'AND'
+        operator: 'AND',
       };
       expect(condition.operator).toBe('AND');
     });
@@ -42,15 +42,15 @@ describe('filters types', () => {
     it('should accept condition with different value types', () => {
       const stringCondition: FilterCondition = {
         field: 'location',
-        value: 'Bangkok'
+        value: 'Bangkok',
       };
       const numberCondition: FilterCondition = {
         field: 'maxPriceRange',
-        value: 1000
+        value: 1000,
       };
       const arrayCondition: FilterCondition = {
         field: 'ecoTags',
-        value: ['solar', 'recycling']
+        value: ['solar', 'recycling'],
       };
 
       expect(typeof stringCondition.value).toBe('string');
@@ -62,10 +62,8 @@ describe('filters types', () => {
   describe('FilterGroup interface', () => {
     it('should accept basic filter group', () => {
       const group: FilterGroup = {
-        conditions: [
-          { field: 'category', value: 'coworking' }
-        ],
-        operator: 'AND'
+        conditions: [{ field: 'category', value: 'coworking' }],
+        operator: 'AND',
       };
       expect(group.conditions).toHaveLength(1);
       expect(group.operator).toBe('AND');
@@ -76,9 +74,9 @@ describe('filters types', () => {
         conditions: [
           { field: 'category', value: 'coworking' },
           { field: 'location', value: 'Bangkok' },
-          { field: 'maxPriceRange', value: 500 }
+          { field: 'maxPriceRange', value: 500 },
         ],
-        operator: 'AND'
+        operator: 'AND',
       };
       expect(group.conditions).toHaveLength(3);
     });
@@ -87,7 +85,7 @@ describe('filters types', () => {
       const group: FilterGroup = {
         conditions: [],
         operator: 'OR',
-        isEnabled: true
+        isEnabled: true,
       };
       expect(group.isEnabled).toBe(true);
     });
@@ -96,7 +94,7 @@ describe('filters types', () => {
       const group: FilterGroup = {
         conditions: [],
         operator: 'AND',
-        label: 'Price Filters'
+        label: 'Price Filters',
       };
       expect(group.label).toBe('Price Filters');
     });
@@ -106,7 +104,7 @@ describe('filters types', () => {
         conditions: [{ field: 'category', value: 'cafe' }],
         operator: 'OR',
         isEnabled: false,
-        label: 'Cafe Filters'
+        label: 'Cafe Filters',
       };
       expect(group.isEnabled).toBe(false);
       expect(group.label).toBe('Cafe Filters');
@@ -121,21 +119,21 @@ describe('filters types', () => {
 
     it('should accept searchQuery filter', () => {
       const filters: ListingFilters = {
-        searchQuery: 'coffee shop'
+        searchQuery: 'coffee shop',
       };
       expect(filters.searchQuery).toBe('coffee shop');
     });
 
     it('should accept category filter with enum', () => {
       const filters: ListingFilters = {
-        category: ListingCategory.COWORKING
+        category: ListingCategory.COWORKING,
       };
       expect(filters.category).toBe('coworking');
     });
 
     it('should accept location filter', () => {
       const filters: ListingFilters = {
-        location: 'Chiang Mai'
+        location: 'Chiang Mai',
       };
       expect(filters.location).toBe('Chiang Mai');
     });
@@ -143,7 +141,7 @@ describe('filters types', () => {
     it('should accept array filters', () => {
       const filters: ListingFilters = {
         ecoTags: ['solar-power', 'recycling'],
-        nomadFeatures: ['wifi', 'quiet']
+        nomadFeatures: ['wifi', 'quiet'],
       };
       expect(filters.ecoTags).toHaveLength(2);
       expect(filters.nomadFeatures).toHaveLength(2);
@@ -152,7 +150,7 @@ describe('filters types', () => {
     it('should accept price range filters', () => {
       const filters: ListingFilters = {
         minPriceRange: 100,
-        maxPriceRange: 1000
+        maxPriceRange: 1000,
       };
       expect(filters.minPriceRange).toBe(100);
       expect(filters.maxPriceRange).toBe(1000);
@@ -160,7 +158,7 @@ describe('filters types', () => {
 
     it('should accept sustainability score filter', () => {
       const filters: ListingFilters = {
-        sustainabilityScore: 4
+        sustainabilityScore: 4,
       };
       expect(filters.sustainabilityScore).toBe(4);
     });
@@ -169,7 +167,7 @@ describe('filters types', () => {
       const filters: ListingFilters = {
         latitude: 13.7563,
         longitude: 100.5018,
-        radius: 5
+        radius: 5,
       };
       expect(filters.latitude).toBe(13.7563);
       expect(filters.longitude).toBe(100.5018);
@@ -178,14 +176,14 @@ describe('filters types', () => {
 
     it('should accept accommodation type filter', () => {
       const filters: ListingFilters = {
-        accommodationType: ['hostel', 'hotel', 'apartment']
+        accommodationType: ['hostel', 'hotel', 'apartment'],
       };
       expect(filters.accommodationType).toHaveLength(3);
     });
 
     it('should accept eco certification filter', () => {
       const filters: ListingFilters = {
-        ecoCertification: 'Green Key'
+        ecoCertification: 'Green Key',
       };
       expect(filters.ecoCertification).toBe('Green Key');
     });
@@ -194,19 +192,17 @@ describe('filters types', () => {
       const filters: ListingFilters = {
         combinations: [
           {
-            conditions: [
-              { field: 'category', value: 'coworking' }
-            ],
-            operator: 'AND'
-          }
-        ]
+            conditions: [{ field: 'category', value: 'coworking' }],
+            operator: 'AND',
+          },
+        ],
       };
       expect(filters.combinations).toHaveLength(1);
     });
 
     it('should accept combination operator', () => {
       const filters: ListingFilters = {
-        combinationOperator: 'OR'
+        combinationOperator: 'OR',
       };
       expect(filters.combinationOperator).toBe('OR');
     });
@@ -227,7 +223,7 @@ describe('filters types', () => {
         accommodationType: ['hostel'],
         ecoCertification: 'LEED',
         combinations: [],
-        combinationOperator: 'AND'
+        combinationOperator: 'AND',
       };
       expect(filters.searchQuery).toBe('eco cafe');
       expect(filters.category).toBe('cafe');
@@ -241,7 +237,7 @@ describe('filters types', () => {
         data: [],
         total: 0,
         page: 1,
-        totalPages: 0
+        totalPages: 0,
       };
       expect(results.data).toHaveLength(0);
       expect(results.total).toBe(0);
@@ -251,11 +247,11 @@ describe('filters types', () => {
       const results: FilterResults<{ id: string; name: string }> = {
         data: [
           { id: '1', name: 'Item 1' },
-          { id: '2', name: 'Item 2' }
+          { id: '2', name: 'Item 2' },
         ],
         total: 2,
         page: 1,
-        totalPages: 1
+        totalPages: 1,
       };
       expect(results.data).toHaveLength(2);
       expect(results.total).toBe(2);
@@ -270,7 +266,7 @@ describe('filters types', () => {
         data: [{ id: 'test', value: 100 }],
         total: 1,
         page: 1,
-        totalPages: 1
+        totalPages: 1,
       };
       expect(results.data[0].value).toBe(100);
     });
@@ -280,7 +276,7 @@ describe('filters types', () => {
         data: ['a', 'b', 'c'],
         total: 10,
         page: 2,
-        totalPages: 4
+        totalPages: 4,
       };
       expect(results.page).toBe(2);
       expect(results.totalPages).toBe(4);
@@ -295,23 +291,23 @@ describe('filters types', () => {
           {
             conditions: [
               { field: 'category', value: 'coworking' },
-              { field: 'location', value: 'Bangkok' }
+              { field: 'location', value: 'Bangkok' },
             ],
             operator: 'AND',
             isEnabled: true,
-            label: 'Bangkok Coworking'
+            label: 'Bangkok Coworking',
           },
           {
             conditions: [
               { field: 'category', value: 'cafe' },
-              { field: 'ecoTags', value: ['organic'] }
+              { field: 'ecoTags', value: ['organic'] },
             ],
             operator: 'AND',
             isEnabled: true,
-            label: 'Organic Cafes'
-          }
+            label: 'Organic Cafes',
+          },
         ],
-        combinationOperator: 'OR'
+        combinationOperator: 'OR',
       };
       expect(filters.combinations).toHaveLength(2);
       expect(filters.combinationOperator).toBe('OR');
@@ -319,12 +315,12 @@ describe('filters types', () => {
 
     it('should support building filters incrementally', () => {
       const filters: ListingFilters = {};
-      
+
       filters.searchQuery = 'workspace';
       filters.category = ListingCategory.COWORKING;
       filters.ecoTags = ['solar-power'];
       filters.maxPriceRange = 1000;
-      
+
       expect(filters.searchQuery).toBeDefined();
       expect(filters.category).toBe('coworking');
       expect(filters.ecoTags).toContain('solar-power');
@@ -336,7 +332,7 @@ describe('filters types', () => {
         data: [],
         total: 0,
         page: 1,
-        totalPages: 0
+        totalPages: 0,
       };
       expect(results.data).toHaveLength(0);
     });
@@ -344,16 +340,16 @@ describe('filters types', () => {
     it('should handle large result sets', () => {
       const largeData = Array.from({ length: 100 }, (_, i) => ({
         id: `item-${i}`,
-        value: i
+        value: i,
       }));
-      
+
       const results: FilterResults<{ id: string; value: number }> = {
         data: largeData,
         total: 1000,
         page: 5,
-        totalPages: 10
+        totalPages: 10,
       };
-      
+
       expect(results.data).toHaveLength(100);
       expect(results.total).toBe(1000);
     });

@@ -144,8 +144,8 @@ export async function searchListings(
       total,
       page,
       totalPages: Math.ceil(total / limit),
-      hasMore: start + limit < total
-    }
+      hasMore: start + limit < total,
+    },
   };
 }
 
@@ -171,12 +171,15 @@ export async function getSearchSuggestions(
 
   // Extract and flatten unique suggestions
   const suggestions = new Set<string>();
-  results.forEach((result) => {
-    if (typeof result.name === 'string' && result.name.toLowerCase().includes(query.toLowerCase())) {
+  results.forEach(result => {
+    if (
+      typeof result.name === 'string' &&
+      result.name.toLowerCase().includes(query.toLowerCase())
+    ) {
       suggestions.add(result.name);
     }
     if (Array.isArray(result.keywords)) {
-      result.keywords.forEach((keyword) => {
+      result.keywords.forEach(keyword => {
         if (typeof keyword === 'string' && keyword.toLowerCase().includes(query.toLowerCase())) {
           suggestions.add(keyword);
         }

@@ -1,3 +1,4 @@
+import { getLifetimeViewCounts, getMonthlyViewCounts } from '@/lib/metrics/listing-views';
 import { client } from '@/lib/sanity/client';
 import { ensureSanityUser } from '@/lib/sanity/user';
 import type { UserRole } from '@/types/auth';
@@ -10,7 +11,6 @@ import type {
   UserDashboardPayloadDTO,
   VenueOwnerDashboardDTO,
 } from '@/types/dto';
-import { getLifetimeViewCounts, getMonthlyViewCounts } from '@/lib/metrics/listing-views';
 
 const DEFAULT_MONTHS = 3;
 const monthLabelFormatter = new Intl.DateTimeFormat('en', {
@@ -103,7 +103,7 @@ export function groupByListing<T extends { listingId: string }>(docs: T[]): Map<
 
 export async function getUserDashboardData(
   sessionUser: SessionUser | null | undefined,
-  options: { months?: number } = {},
+  options: { months?: number } = {}
 ): Promise<DashboardPayload | null> {
   if (!sessionUser?.id) {
     return null;
@@ -148,45 +148,53 @@ export async function getUserDashboardData(
             "city": city->name
           }
         }`,
-        { userId: id },
+        { userId: id }
       ),
       client.fetch<RawUserReviewDoc[]>(
         `*[_type == "review" && user._ref == $userId]{
           rating,
           "createdAt": coalesce(_updatedAt, _createdAt)
         }`,
-        { userId: id },
+        { userId: id }
       ),
     ]);
 
     const normalizedFavorites: FavoriteSummary[] = favorites
-      .filter((fav): fav is Required<RawFavoriteDoc> & { listing: { _id: string } } => Boolean(fav?.listing?._id))
-      .map((fav) => ({
+      .filter((fav): fav is Required<RawFavoriteDoc> & { listing: { _id: string } } =>
+        Boolean(fav?.listing?._id)
+      )
+      .map(fav => ({
         id: fav._id ?? fav.listing._id,
         createdAt: fav.createdAt ?? new Date().toISOString(),
         listing: {
           id: fav.listing._id,
           name: fav.listing.name ?? 'Unknown listing',
-          slug: typeof fav.listing.slug === 'string' ? fav.listing.slug : fav.listing.slug?.current ?? null,
-          city: typeof fav.listing.city === 'string' ? fav.listing.city : fav.listing.city?.name ?? null,
+          slug:
+            typeof fav.listing.slug === 'string'
+              ? fav.listing.slug
+              : (fav.listing.slug?.current ?? null),
+          city:
+            typeof fav.listing.city === 'string'
+              ? fav.listing.city
+              : (fav.listing.city?.name ?? null),
         },
       }));
 
     const normalizedReviews: UserReviewDoc[] = userReviews
       .filter((review): review is Required<RawUserReviewDoc> => typeof review?.rating === 'number')
-      .map((review) => ({
+      .map(review => ({
         rating: review.rating ?? 0,
         createdAt: review.createdAt ?? new Date().toISOString(),
       }));
 
     const totalReviewSum = normalizedReviews.reduce((sum, review) => sum + review.rating, 0);
 
-    const monthlyRegular: ListingMonthlyMetrics[] = buckets.map((bucket) => {
-      const monthReviews = normalizedReviews.filter((review) => {
+    const monthlyRegular: ListingMonthlyMetrics[] = buckets.map(bucket => {
+      const monthReviews = normalizedReviews.filter(review => {
         const createdAt = new Date(review.createdAt);
         return createdAt >= bucket.start && createdAt < bucket.end;
       });
-      const monthFavorites = normalizedFavorites.filter((fav) => {
+      const monthFavorites = normalizedFavorites.filter(fav => {
         const createdAt = new Date(fav.createdAt);
         return createdAt >= bucket.start && createdAt < bucket.end;
       });
@@ -240,13 +248,22 @@ export async function getUserDashboardData(
         city->{ name }
       }
     }`,
-    { userId: id },
+    { userId: id }
   );
 
   const ownedListings = userDoc?.ownedListings ?? [];
   const listingInfos: ListingInfo[] = ownedListings
-    .filter((listing): listing is { _id: string; name?: string; slug?: { current?: string }; city?: { name?: string } } => Boolean(listing?._id))
-    .map((listing) => ({
+    .filter(
+      (
+        listing
+      ): listing is {
+        _id: string;
+        name?: string;
+        slug?: { current?: string };
+        city?: { name?: string };
+      } => Boolean(listing?._id)
+    )
+    .map(listing => ({
       id: listing._id,
       name: listing.name ?? 'Untitled listing',
       slug: listing.slug?.current ?? null,
@@ -271,7 +288,7 @@ export async function getUserDashboardData(
           favoritesCount: 0,
           viewCount: null,
         },
-        monthlyTotals: buckets.map((bucket) => ({
+        monthlyTotals: buckets.map(bucket => ({
           month: bucket.key,
           label: bucket.label,
           reviewCount: 0,
@@ -284,50 +301,52 @@ export async function getUserDashboardData(
     };
   }
 
-  const listingIds = listingInfos.map((listing) => listing.id);
-  const monthKeys = buckets.map((bucket) => bucket.key);
+  const listingIds = listingInfos.map(listing => listing.id);
+  const monthKeys = buckets.map(bucket => bucket.key);
 
-  const [reviews, favorites, analytics, monthlyViewMetrics, lifetimeViewTotals] = await Promise.all([
-    client.fetch<ReviewDoc[]>(
-      `*[_type == "review" && listing._ref in $listingIds]{
+  const [reviews, favorites, analytics, monthlyViewMetrics, lifetimeViewTotals] = await Promise.all(
+    [
+      client.fetch<ReviewDoc[]>(
+        `*[_type == "review" && listing._ref in $listingIds]{
         "listingId": listing._ref,
         rating,
         "createdAt": coalesce(_updatedAt, _createdAt)
       }`,
-      { listingIds },
-    ),
-    client.fetch<FavoriteDoc[]>(
-      `*[_type == "userFavorite" && listing._ref in $listingIds]{
+        { listingIds }
+      ),
+      client.fetch<FavoriteDoc[]>(
+        `*[_type == "userFavorite" && listing._ref in $listingIds]{
         "listingId": listing._ref,
         "createdAt": coalesce(createdAt, _createdAt)
       }`,
-      { listingIds },
-    ),
-    client.fetch<AnalyticsDoc[]>(
-      `*[_type == "listingAnalytics" && listing._ref in $listingIds]{
+        { listingIds }
+      ),
+      client.fetch<AnalyticsDoc[]>(
+        `*[_type == "listingAnalytics" && listing._ref in $listingIds]{
         "listingId": listing._ref,
         viewCount,
         lastUpdated
       }`,
-      { listingIds },
-    ),
-    getMonthlyViewCounts(listingIds, monthKeys),
-    getLifetimeViewCounts(listingIds),
-  ]);
+        { listingIds }
+      ),
+      getMonthlyViewCounts(listingIds, monthKeys),
+      getLifetimeViewCounts(listingIds),
+    ]
+  );
 
-  const reviewsSince = reviews.filter((review) => new Date(review.createdAt) >= rangeStart);
-  const favoritesSince = favorites.filter((fav) => new Date(fav.createdAt) >= rangeStart);
+  const reviewsSince = reviews.filter(review => new Date(review.createdAt) >= rangeStart);
+  const favoritesSince = favorites.filter(fav => new Date(fav.createdAt) >= rangeStart);
 
   const reviewsByListing = groupByListing(reviewsSince);
   const favoritesByListing = groupByListing(favoritesSince);
   const allReviewsByListing = groupByListing(reviews);
   const allFavoritesByListing = groupByListing(favorites);
   const analyticsByListing = new Map<string, AnalyticsDoc>();
-  analytics.forEach((doc) => {
+  analytics.forEach(doc => {
     analyticsByListing.set(doc.listingId, doc);
   });
 
-  const monthlyTotalsBase = buckets.map((bucket) => ({
+  const monthlyTotalsBase = buckets.map(bucket => ({
     month: bucket.key,
     label: bucket.label,
     reviewCount: 0,
@@ -347,7 +366,7 @@ export async function getUserDashboardData(
     hasMonthlyViewData = true;
   }
 
-  const listings: ListingDashboardMetrics[] = listingInfos.map((listing) => {
+  const listings: ListingDashboardMetrics[] = listingInfos.map(listing => {
     const listingReviews = reviewsByListing.get(listing.id) ?? [];
     const recentFavorites = favoritesByListing.get(listing.id) ?? [];
     const lifetimeReviews = allReviewsByListing.get(listing.id) ?? [];
@@ -359,7 +378,10 @@ export async function getUserDashboardData(
       totalViewCount += lifetimeViewCount;
     }
 
-    const lifetimeReviewSum = lifetimeReviews.reduce((sum, review) => sum + (review.rating ?? 0), 0);
+    const lifetimeReviewSum = lifetimeReviews.reduce(
+      (sum, review) => sum + (review.rating ?? 0),
+      0
+    );
     const lifetimeReviewCount = lifetimeReviews.length;
 
     totalReviewSum += lifetimeReviewSum;
@@ -383,11 +405,11 @@ export async function getUserDashboardData(
       if (!totalsEntry || !ratingAccumulator) {
         throw new Error('Monthly aggregates are out of sync with bucket definitions');
       }
-      const monthReviews = listingReviews.filter((review) => {
+      const monthReviews = listingReviews.filter(review => {
         const createdAt = new Date(review.createdAt);
         return createdAt >= bucket.start && createdAt < bucket.end;
       });
-      const monthFavorites = recentFavorites.filter((fav) => {
+      const monthFavorites = recentFavorites.filter(fav => {
         const createdAt = new Date(fav.createdAt);
         return createdAt >= bucket.start && createdAt < bucket.end;
       });

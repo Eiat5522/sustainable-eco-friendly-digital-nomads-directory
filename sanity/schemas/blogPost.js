@@ -1,5 +1,5 @@
 // Sanity schema for blog posts
-import { imageWithAlt } from './fields'
+import { imageWithAlt } from './fields';
 
 export default {
   name: 'blogPost',
@@ -37,7 +37,7 @@ export default {
     {
       name: 'primaryImage',
       title: 'Primary Image',
-      ...imageWithAlt
+      ...imageWithAlt,
     },
     {
       name: 'excerpt',
@@ -55,6 +55,6 @@ export default {
       title: 'Tags',
       type: 'array',
       of: [{ type: 'string' }],
-    }
-  ]
-}
+    },
+  ],
+};

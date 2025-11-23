@@ -1,8 +1,8 @@
 import mongoose, {
-  Schema,
-  type Document,
   type CallbackWithoutResultAndOptionalError,
+  type Document,
   type HydratedDocument,
+  Schema,
   type UpdateQuery,
   type UpdateWithAggregationPipeline,
 } from 'mongoose';
@@ -79,7 +79,10 @@ NewsletterSubscriberSchema.pre(
 // This runs on validate so newly constructed documents get the expected shape in tests.
 NewsletterSubscriberSchema.pre(
   'validate',
-  function (this: HydratedDocument<INewsletterSubscriber> & { createdAt?: Date; updatedAt?: Date }, next) {
+  function (
+    this: HydratedDocument<INewsletterSubscriber> & { createdAt?: Date; updatedAt?: Date },
+    next
+  ) {
     if (typeof this.email !== 'undefined' && this.email !== null) {
       this.email = normalizeEmail(this.email);
     }
@@ -114,7 +117,10 @@ if (existing?.schema) {
     delete mongoose.models[modelName];
   }
 
-  NewsletterSubscriberModel = mongoose.model<INewsletterSubscriber>(modelName, NewsletterSubscriberSchema);
+  NewsletterSubscriberModel = mongoose.model<INewsletterSubscriber>(
+    modelName,
+    NewsletterSubscriberSchema
+  );
 }
 
 try {

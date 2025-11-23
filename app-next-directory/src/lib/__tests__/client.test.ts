@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { searchListings } from '../client';
 
 describe('client', () => {
@@ -45,9 +45,7 @@ describe('client', () => {
     });
 
     it('should return empty array on network error', async () => {
-      (global.fetch as any).mockRejectedValueOnce(
-        new Error('Network error')
-      );
+      (global.fetch as any).mockRejectedValueOnce(new Error('Network error'));
 
       const result = await searchListings('test query');
 

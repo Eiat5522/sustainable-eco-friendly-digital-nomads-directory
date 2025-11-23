@@ -1,22 +1,22 @@
 'use client';
 
-import { useState } from 'react';
-import { useSession, signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { signIn, useSession } from 'next-auth/react';
+import { useState } from 'react';
 import { jsonPostOptions } from '@/lib/http/request';
 
 export const resolveCallbackUrl = (loc?: { href?: string | null }) => {
   try {
-    const href = (loc ?? globalThis?.location)?.href
+    const href = (loc ?? globalThis?.location)?.href;
     if (typeof href === 'string' && href.length > 0) {
-      return href
+      return href;
     }
   } catch (_error) {
     // Ignore environment navigation issues and fall back to login route
   }
 
-  return '/auth/login'
-}
+  return '/auth/login';
+};
 
 export default function CommentForm({ postId }: Readonly<{ postId: string }>) {
   const { data: session, status } = useSession();
@@ -46,7 +46,7 @@ export default function CommentForm({ postId }: Readonly<{ postId: string }>) {
     try {
       setIsSubmitting(true);
       setError(null);
-      
+
       const res = await fetch('/api/comments', jsonPostOptions({ content: trimmed, postId }));
 
       if (res.status === 401) {
@@ -82,10 +82,8 @@ export default function CommentForm({ postId }: Readonly<{ postId: string }>) {
         }
 
         setError(resolvedMessage ?? 'Failed to submit comment');
-        console.error(`Failed to submit comment: ${res.status} ${res.statusText}`, errorText);
       }
-    } catch (err) {
-      console.error('Failed to submit comment', err);
+    } catch (_err) {
       setError('Failed to submit comment. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -117,8 +115,10 @@ export default function CommentForm({ postId }: Readonly<{ postId: string }>) {
 
   return (
     <form onSubmit={handleSubmit} className="mt-8">
-      <label htmlFor="comment" className="sr-only">Comment</label>
-      
+      <label htmlFor="comment" className="sr-only">
+        Comment
+      </label>
+
       {error && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
           {error}
@@ -129,7 +129,7 @@ export default function CommentForm({ postId }: Readonly<{ postId: string }>) {
         id="comment"
         name="content"
         value={content}
-        onChange={(e) => setContent(e.target.value)}
+        onChange={e => setContent(e.target.value)}
         placeholder="Write a comment..."
         className="w-full p-4 bg-white border-4 border-black rounded-lg shadow-lg focus:outline-none focus:ring-4 focus:ring-yellow-400 transition-all duration-300 ease-in-out"
         rows={4}
@@ -146,7 +146,9 @@ export default function CommentForm({ postId }: Readonly<{ postId: string }>) {
         Submit Comment
       </button>
       {submitted && (
-        <p className="mt-3 text-sm text-gray-600">Thanks! Your comment was submitted and awaits approval.</p>
+        <p className="mt-3 text-sm text-gray-600">
+          Thanks! Your comment was submitted and awaits approval.
+        </p>
       )}
     </form>
   );

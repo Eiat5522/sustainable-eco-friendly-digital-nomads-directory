@@ -1,5 +1,5 @@
 import pino from 'pino';
-import util from 'util';
+import util from 'node:util';
 
 // Environment check for safe logging configuration
 const isProduction = process.env.NODE_ENV === 'production';
@@ -26,7 +26,7 @@ const redactPaths = [
   'req.headers.cookie',
   'res.headers["set-cookie"]',
   'err.config.headers.authorization',
-  'error.config.headers.authorization'
+  'error.config.headers.authorization',
 ];
 
 type HeaderGetter = (name: string) => string | null | undefined;
@@ -71,7 +71,10 @@ type SanitizedError = Record<string, unknown> | undefined;
 const toRedacted = (value: string | undefined): string | undefined =>
   value ? '[REDACTED]' : undefined;
 
-const getHeaderValue = (headers: HeaderCollection | undefined, name: string): string | undefined => {
+const getHeaderValue = (
+  headers: HeaderCollection | undefined,
+  name: string
+): string | undefined => {
   if (!headers) return undefined;
 
   const lower = name.toLowerCase();
@@ -104,11 +107,11 @@ const shouldRedactKey = (key: string): boolean =>
 // Create base logger configuration
 const loggerConfig: pino.LoggerOptions = {
   level: isE2E ? 'silent' : isProduction ? 'info' : isDevelopment ? 'debug' : 'silent',
-  
+
   // Redaction configuration for security
   redact: {
     paths: redactPaths,
-    censor: '[REDACTED]'
+    censor: '[REDACTED]',
   },
 
   // Serialization for common objects
@@ -147,9 +150,10 @@ const loggerConfig: pino.LoggerOptions = {
     },
     user: (user: UserLike | undefined) => {
       const email = typeof user?.email === 'string' ? user.email : undefined;
-      const maskedEmail = email && email.includes('@')
-        ? `${email.substring(0, 3)}***@${email.split('@')[1] ?? ''}`
-        : undefined;
+      const maskedEmail =
+        email?.includes('@')
+          ? `${email.substring(0, 3)}***@${email.split('@')[1] ?? ''}`
+          : undefined;
 
       return {
         id: user?.id,
@@ -164,8 +168,8 @@ const loggerConfig: pino.LoggerOptions = {
     pid: process.pid,
     hostname: process.env.HOSTNAME || 'unknown',
     service: 'sustainable-nomads-directory',
-    version: process.env.npm_package_version || '0.1.0'
-  }
+    version: process.env.npm_package_version || '0.1.0',
+  },
 };
 
 // Configure pretty printing for development
@@ -226,15 +230,15 @@ export const structuredLogger = {
   debug: (msg: string, context?: LogContext) => {
     logger.debug(context, msg);
   },
-  
+
   info: (msg: string, context?: LogContext) => {
     logger.info(context, msg);
   },
-  
+
   warn: (msg: string, context?: LogContext) => {
     logger.warn(context, msg);
   },
-  
+
   error: (msg: string, error?: unknown, context?: LogContext) => {
     const sanitizedError = sanitizeError(error);
     const logContext = {
@@ -249,47 +253,53 @@ export const structuredLogger = {
     structuredLogger.error(`API Error in ${endpoint}`, error, {
       ...context,
       path: endpoint,
-      component: 'api'
+      component: 'api',
     });
   },
 
   authError: (action: string, error: unknown, context?: LogContext) => {
     structuredLogger.error(`Auth Error: ${action}`, error, {
       ...context,
-      component: 'auth'
+      component: 'auth',
     });
   },
 
   emailError: (action: string, error: unknown, context?: LogContext) => {
     structuredLogger.error(`Email Error: ${action}`, error, {
       ...context,
-      component: 'email'
+      component: 'email',
     });
   },
 
   middlewareError: (middleware: string, error: unknown, context?: LogContext) => {
     structuredLogger.error(`Middleware Error: ${middleware}`, error, {
       ...context,
-      component: 'middleware'
+      component: 'middleware',
     });
   },
 
   // Performance and operational logging
   performance: (operation: string, duration: number, context?: LogContext) => {
-    logger.info({
-      ...context,
-      duration,
-      component: 'performance'
-    }, `Operation ${operation} completed in ${duration}ms`);
+    logger.info(
+      {
+        ...context,
+        duration,
+        component: 'performance',
+      },
+      `Operation ${operation} completed in ${duration}ms`
+    );
   },
 
   // Security-related logging
   security: (event: string, context?: LogContext) => {
-    logger.warn({
-      ...context,
-      component: 'security'
-    }, `Security Event: ${event}`);
-  }
+    logger.warn(
+      {
+        ...context,
+        component: 'security',
+      },
+      `Security Event: ${event}`
+    );
+  },
 };
 
 // Export the base logger for advanced use cases
@@ -319,7 +329,10 @@ type ConsoleLevel = 'info' | 'warn' | 'error' | 'debug';
 const sanitizeConsoleArg = (arg: unknown): string =>
   typeof arg === 'string' ? arg : util.inspect(arg, { depth: 4, breakLength: 120 });
 
-const formatConsoleInvocation = (level: ConsoleLevel, args: unknown[]): {
+const formatConsoleInvocation = (
+  level: ConsoleLevel,
+  args: unknown[]
+): {
   message: string;
   error?: unknown;
   context: LogContext;

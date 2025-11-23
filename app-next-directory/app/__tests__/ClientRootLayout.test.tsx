@@ -1,16 +1,20 @@
 import '@testing-library/jest-dom';
-import type React from 'react';
 import { render } from '@testing-library/react';
+import type React from 'react';
 import ClientRootLayout from '../ClientRootLayout';
 
 // Mock next-auth/react
 jest.mock('next-auth/react', () => ({
-  SessionProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="session-provider">{children}</div>,
+  SessionProvider: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="session-provider">{children}</div>
+  ),
 }));
 
 // Mock next-themes
 jest.mock('next-themes', () => ({
-  ThemeProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="theme-provider">{children}</div>,
+  ThemeProvider: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="theme-provider">{children}</div>
+  ),
 }));
 
 describe('ClientRootLayout', () => {

@@ -1,5 +1,4 @@
 import '@testing-library/jest-dom';
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 
 const mockGalleryGrid = jest.fn(({ images }: { images: string[] }) => (
@@ -38,8 +37,10 @@ describe('TestGalleryPage', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('Component Below Gallery')).toBeInTheDocument();
     expect(
-      screen.getByText((content) =>
-        content.startsWith('This component is placed below the gallery to test if the gallery images overlap with it.')
+      screen.getByText(content =>
+        content.startsWith(
+          'This component is placed below the gallery to test if the gallery images overlap with it.'
+        )
       )
     ).toBeInTheDocument();
   });
@@ -51,9 +52,9 @@ describe('TestGalleryPage', () => {
 
     expect(mockGalleryGrid).toHaveBeenCalledTimes(2);
 
-    const [fewImagesCall, manyImagesCall] = mockGalleryGrid.mock.calls as Array<[
-      { images: string[] }
-    ]>;
+    const [fewImagesCall, manyImagesCall] = mockGalleryGrid.mock.calls as Array<
+      [{ images: string[] }]
+    >;
 
     expect(fewImagesCall[0].images).toEqual([
       'https://picsum.photos/seed/1/400/300',

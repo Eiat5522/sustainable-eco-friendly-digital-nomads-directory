@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 /**
  * Scroll Down Arrow - Modern landing page indicator

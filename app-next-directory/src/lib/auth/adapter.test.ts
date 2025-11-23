@@ -13,7 +13,6 @@ jest.mock('@/lib/mongodb', () => ({
 }));
 
 import { MongoDBAdapter } from '@auth/mongodb-adapter';
-import clientPromise from '@/lib/mongodb';
 
 const mockMongoDBAdapter = MongoDBAdapter as jest.MockedFunction<typeof MongoDBAdapter>;
 

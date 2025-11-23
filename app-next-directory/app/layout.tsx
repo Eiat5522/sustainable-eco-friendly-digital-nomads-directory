@@ -1,23 +1,23 @@
-import './globals.css'
-import { cookies } from 'next/headers'
-import type React from 'react'
+import './globals.css';
+import { cookies } from 'next/headers';
+import type React from 'react';
 
-import { rootLayoutMetadata } from './layout.metadata'
-export { rootLayoutMetadata as metadata }
+import { rootLayoutMetadata } from './layout.metadata';
+export { rootLayoutMetadata as metadata };
 
-import ClientRootLayout from './ClientRootLayout'
-import { normalizeTheme, themeClass, THEME_INIT_SCRIPT } from '@/utils/theme'
+import { normalizeTheme, THEME_INIT_SCRIPT, themeClass } from '@/utils/theme';
+import ClientRootLayout from './ClientRootLayout';
 
-const BODY_FONT_CLASS = 'font-sans antialiased'
+const BODY_FONT_CLASS = 'font-sans antialiased';
 
 export default async function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
-  const rawTheme = (await cookies()).get('theme')?.value
-  const theme = normalizeTheme(rawTheme)
-  const htmlThemeClass = themeClass(theme)
+  const rawTheme = (await cookies()).get('theme')?.value;
+  const theme = normalizeTheme(rawTheme);
+  const htmlThemeClass = themeClass(theme);
 
   return (
     <html lang="en" className={htmlThemeClass} suppressHydrationWarning>
@@ -26,10 +26,8 @@ export default async function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body className={BODY_FONT_CLASS}>
-        <ClientRootLayout theme={theme}>
-          {children}
-        </ClientRootLayout>
+        <ClientRootLayout theme={theme}>{children}</ClientRootLayout>
       </body>
     </html>
-  )
+  );
 }

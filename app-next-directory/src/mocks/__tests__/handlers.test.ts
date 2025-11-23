@@ -1,10 +1,6 @@
-import { http, HttpResponse } from 'msw';
-import {
-  handlers,
-  setReviewsResponse,
-  setRegisterResponse,
-} from '../handlers';
+import { HttpResponse, http } from 'msw';
 import { createTestData } from '@/tests/helpers/test-data';
+import { handlers, setRegisterResponse, setReviewsResponse } from '../handlers';
 
 // Mock the test data
 jest.mock('@/tests/helpers/test-data', () => ({
@@ -53,8 +49,12 @@ describe('MSW Handlers', () => {
 
   beforeEach(() => {
     (createTestData as jest.Mock).mockReturnValue(mockData);
-    const { getFavoritesForUser, getReviewsForListing, listCities } = require('@/tests/helpers/test-data');
-    
+    const {
+      getFavoritesForUser,
+      getReviewsForListing,
+      listCities,
+    } = require('@/tests/helpers/test-data');
+
     (getFavoritesForUser as jest.Mock).mockReturnValue([
       { id: 'fav-1', listingId: 'listing-1', createdAt: '2024-01-01' },
     ]);
@@ -83,10 +83,12 @@ describe('MSW Handlers', () => {
   });
 
   it('should include handlers for common API endpoints', () => {
-    const handlerPaths = handlers.map((handler: typeof http.get) => {
-      // Extract the path from the handler
-      return (handler as unknown as { info: { path: string } }).info?.path;
-    }).filter(Boolean);
+    const handlerPaths = handlers
+      .map((handler: typeof http.get) => {
+        // Extract the path from the handler
+        return (handler as unknown as { info: { path: string } }).info?.path;
+      })
+      .filter(Boolean);
 
     // Just verify we have handlers - specific path checking is fragile
     expect(handlers.length).toBeGreaterThan(0);
@@ -136,7 +138,7 @@ describe('MSW Handlers', () => {
 
   describe('Handler functionality', () => {
     it('should have http handlers with proper structure', () => {
-      handlers.forEach((handler) => {
+      handlers.forEach(handler => {
         expect(handler).toBeDefined();
         expect(typeof handler).toBe('object');
       });
@@ -187,7 +189,7 @@ describe('MSW Handlers', () => {
         'error',
       ];
 
-      modes.forEach((mode) => {
+      modes.forEach(mode => {
         const handler = setReviewsResponse(mode);
         expect(handler).toBeDefined();
       });
@@ -196,7 +198,7 @@ describe('MSW Handlers', () => {
     it('should provide setRegisterResponse for different scenarios', () => {
       const modes: Array<'success' | 'error'> = ['success', 'error'];
 
-      modes.forEach((mode) => {
+      modes.forEach(mode => {
         const handler = setRegisterResponse(mode);
         expect(handler).toBeDefined();
       });
@@ -217,16 +219,16 @@ describe('MSW Handlers', () => {
   describe('Data filtering', () => {
     it('should have handlers that can filter listings', () => {
       const data = createTestData();
-      const filtered = data.listings.filter((listing: typeof mockData.listings[0]) => 
+      const filtered = data.listings.filter((listing: (typeof mockData.listings)[0]) =>
         listing.name.toLowerCase().includes('test')
       );
-      
+
       expect(filtered.length).toBeGreaterThan(0);
     });
 
     it('should have handlers that can map listing data', () => {
       const data = createTestData();
-      const mapped = data.listings.map((listing: typeof mockData.listings[0]) => ({
+      const mapped = data.listings.map((listing: (typeof mockData.listings)[0]) => ({
         id: listing._id,
         name: listing.name,
       }));
@@ -267,7 +269,7 @@ describe('MSW Handlers', () => {
 
   describe('Handler coverage tests', () => {
     it('should have GET search handler', () => {
-      const searchHandlers = handlers.filter((h) => {
+      const searchHandlers = handlers.filter(h => {
         const info = (h as any).info;
         return info?.path?.includes('/api/search');
       });
@@ -275,7 +277,7 @@ describe('MSW Handlers', () => {
     });
 
     it('should have POST search handler', () => {
-      const postSearchHandlers = handlers.filter((h) => {
+      const postSearchHandlers = handlers.filter(h => {
         const info = (h as any).info;
         return info?.method === 'POST';
       });
@@ -283,7 +285,7 @@ describe('MSW Handlers', () => {
     });
 
     it('should have cities handler', () => {
-      const citiesHandlers = handlers.filter((h) => {
+      const citiesHandlers = handlers.filter(h => {
         const info = (h as any).info;
         return info?.path?.includes('/api/cities');
       });
@@ -291,7 +293,7 @@ describe('MSW Handlers', () => {
     });
 
     it('should have listings handler', () => {
-      const listingsHandlers = handlers.filter((h) => {
+      const listingsHandlers = handlers.filter(h => {
         const info = (h as any).info;
         return info?.path?.includes('/api/listings') || info?.path?.includes('/api/test-listings');
       });
@@ -299,7 +301,7 @@ describe('MSW Handlers', () => {
     });
 
     it('should have reviews handlers', () => {
-      const reviewsHandlers = handlers.filter((h) => {
+      const reviewsHandlers = handlers.filter(h => {
         const info = (h as any).info;
         return info?.path?.includes('/api/reviews');
       });
@@ -307,7 +309,7 @@ describe('MSW Handlers', () => {
     });
 
     it('should have auth handlers', () => {
-      const authHandlers = handlers.filter((h) => {
+      const authHandlers = handlers.filter(h => {
         const info = (h as any).info;
         return info?.path?.includes('/api/auth');
       });
@@ -315,7 +317,7 @@ describe('MSW Handlers', () => {
     });
 
     it('should have contact handler', () => {
-      const contactHandlers = handlers.filter((h) => {
+      const contactHandlers = handlers.filter(h => {
         const info = (h as any).info;
         return info?.path?.includes('/api/contact');
       });
@@ -323,7 +325,7 @@ describe('MSW Handlers', () => {
     });
 
     it('should have favorites handler', () => {
-      const favoritesHandlers = handlers.filter((h) => {
+      const favoritesHandlers = handlers.filter(h => {
         const info = (h as any).info;
         return info?.path?.includes('/api/user/favorites');
       });
@@ -331,7 +333,7 @@ describe('MSW Handlers', () => {
     });
 
     it('should have categories handler', () => {
-      const categoriesHandlers = handlers.filter((h) => {
+      const categoriesHandlers = handlers.filter(h => {
         const info = (h as any).info;
         return info?.path?.includes('/api/categories');
       });
@@ -339,7 +341,7 @@ describe('MSW Handlers', () => {
     });
 
     it('should have amenities handler', () => {
-      const amenitiesHandlers = handlers.filter((h) => {
+      const amenitiesHandlers = handlers.filter(h => {
         const info = (h as any).info;
         return info?.path?.includes('/api/amenities');
       });
@@ -347,7 +349,7 @@ describe('MSW Handlers', () => {
     });
 
     it('should have featured listings handler', () => {
-      const featuredHandlers = handlers.filter((h) => {
+      const featuredHandlers = handlers.filter(h => {
         const info = (h as any).info;
         return info?.path?.includes('/api/featured-listings');
       });
@@ -355,7 +357,7 @@ describe('MSW Handlers', () => {
     });
 
     it('should have suggestions handler', () => {
-      const suggestionsHandlers = handlers.filter((h) => {
+      const suggestionsHandlers = handlers.filter(h => {
         const info = (h as any).info;
         return info?.path?.includes('/api/search/suggestions');
       });
@@ -363,7 +365,7 @@ describe('MSW Handlers', () => {
     });
 
     it('should have hello endpoint handler', () => {
-      const helloHandlers = handlers.filter((h) => {
+      const helloHandlers = handlers.filter(h => {
         const info = (h as any).info;
         return info?.path?.includes('/api/hello');
       });
@@ -426,27 +428,29 @@ describe('MSW Handlers', () => {
 
   describe('HTTP method coverage', () => {
     it('should have both GET and POST handlers', () => {
-      const getMethods = handlers.filter((h) => {
+      const getMethods = handlers.filter(h => {
         const info = (h as any).info;
         return info?.method === 'GET';
       });
-      const postMethods = handlers.filter((h) => {
+      const postMethods = handlers.filter(h => {
         const info = (h as any).info;
         return info?.method === 'POST';
       });
-      
+
       expect(getMethods.length).toBeGreaterThan(0);
       expect(postMethods.length).toBeGreaterThan(0);
     });
 
     it('should have multiple endpoints covered', () => {
       const uniquePaths = new Set(
-        handlers.map((h) => {
-          const info = (h as any).info;
-          return info?.path;
-        }).filter(Boolean)
+        handlers
+          .map(h => {
+            const info = (h as any).info;
+            return info?.path;
+          })
+          .filter(Boolean)
       );
-      
+
       expect(uniquePaths.size).toBeGreaterThan(10);
     });
   });
@@ -457,7 +461,11 @@ describe('MSW Handlers', () => {
     });
 
     it('should import required helper functions', () => {
-      const { getFavoritesForUser, getReviewsForListing, listCities } = require('@/tests/helpers/test-data');
+      const {
+        getFavoritesForUser,
+        getReviewsForListing,
+        listCities,
+      } = require('@/tests/helpers/test-data');
       expect(getFavoritesForUser).toBeDefined();
       expect(getReviewsForListing).toBeDefined();
       expect(listCities).toBeDefined();
@@ -479,7 +487,7 @@ describe('MSW Handlers', () => {
 
     it('should support different status codes', () => {
       const statusCodes = [200, 201, 400, 401, 403, 404, 409, 500];
-      statusCodes.forEach((status) => {
+      statusCodes.forEach(status => {
         const response = HttpResponse.json({}, { status });
         expect(response).toBeDefined();
         expect(response.status).toBe(status);

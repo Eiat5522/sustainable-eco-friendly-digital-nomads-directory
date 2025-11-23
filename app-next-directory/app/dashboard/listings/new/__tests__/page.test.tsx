@@ -38,11 +38,14 @@ describe('NewListingPage', () => {
 
     await user.click(screen.getByRole('button', { name: /trigger-save/i }));
 
-    expect(global.fetch).toHaveBeenCalledWith('/api/listings', expect.objectContaining({
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(mockFormSubmission),
-    }));
+    expect(global.fetch).toHaveBeenCalledWith(
+      '/api/listings',
+      expect.objectContaining({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(mockFormSubmission),
+      })
+    );
     expect(pushMock).toHaveBeenCalledWith('/dashboard/listings');
   });
 

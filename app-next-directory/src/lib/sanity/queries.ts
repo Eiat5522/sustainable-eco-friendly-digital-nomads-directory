@@ -126,16 +126,7 @@ async function getFeaturedListings(limit = 10, _preview = false) {
 }
 
 // Export all functions
-export {
-  getAllCities,
-  getAllEcoTags,
-  getLatestBlogPosts,
-  getListingBySlug,
-  getFeaturedListings,
-};
+export { getAllCities, getAllEcoTags, getLatestBlogPosts, getListingBySlug, getFeaturedListings };
 
 // Additional alias export
 export const getCity = getListingBySlug;
-
-
-

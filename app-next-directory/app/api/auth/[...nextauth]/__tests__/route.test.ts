@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 // Mock the auth library
 const mockAuthGET = jest.fn();
@@ -23,7 +23,7 @@ describe('NextAuth Route Handler', () => {
     jest.clearAllMocks();
     consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    
+
     // Set default mock responses
     mockAuthGET.mockResolvedValue(new Response('OK', { status: 200 }));
     mockAuthPOST.mockResolvedValue(new Response('OK', { status: 200 }));
@@ -64,10 +64,7 @@ describe('NextAuth Route Handler', () => {
 
       await GET(request);
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        '[auth route] incoming GET',
-        '/api/auth/signin'
-      );
+      expect(consoleLogSpy).toHaveBeenCalledWith('[auth route] incoming GET', '/api/auth/signin');
     });
 
     it('handles errors during URL parsing gracefully', async () => {
@@ -87,13 +84,10 @@ describe('NextAuth Route Handler', () => {
     });
 
     it('passes through NextAuth response', async () => {
-      const mockResponse = new Response(
-        JSON.stringify({ user: { id: '123' } }),
-        {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
+      const mockResponse = new Response(JSON.stringify({ user: { id: '123' } }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
       mockAuthGET.mockResolvedValue(mockResponse);
 
       const request = new Request('https://example.com/api/auth/session', {
@@ -140,10 +134,7 @@ describe('NextAuth Route Handler', () => {
 
       await POST(request);
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        '[auth route] incoming POST',
-        '/api/auth/signin'
-      );
+      expect(consoleLogSpy).toHaveBeenCalledWith('[auth route] incoming POST', '/api/auth/signin');
     });
 
     it('handles errors during URL parsing in POST', async () => {
@@ -163,13 +154,10 @@ describe('NextAuth Route Handler', () => {
     });
 
     it('passes through NextAuth POST response', async () => {
-      const mockResponse = new Response(
-        JSON.stringify({ url: '/dashboard' }),
-        {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
+      const mockResponse = new Response(JSON.stringify({ url: '/dashboard' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
       mockAuthPOST.mockResolvedValue(mockResponse);
 
       const request = new Request('https://example.com/api/auth/signin', {
@@ -224,7 +212,7 @@ describe('NextAuth Route Handler', () => {
 
       // Check that console.log was called with the incoming GET message
       const calls = consoleLogSpy.mock.calls;
-      const hasIncomingGetLog = calls.some(call => 
+      const hasIncomingGetLog = calls.some(call =>
         call.some(arg => typeof arg === 'string' && arg.includes('[auth route] incoming GET'))
       );
       expect(hasIncomingGetLog).toBe(true);

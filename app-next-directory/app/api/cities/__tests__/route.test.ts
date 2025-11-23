@@ -10,7 +10,7 @@
  * 3. Response structure validation
  */
 
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 const mockGetCitiesList = jest.fn();
 

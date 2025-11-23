@@ -9,18 +9,12 @@ describe('CityError boundary', () => {
     mockReset.mockReset();
   });
 
-  afterEach(() => {
-  });
+  afterEach(() => {});
 
   it('renders the fallback UI with retry controls and error details in non-production environments', async () => {
     const { default: CityError } = await import('../error');
 
-    render(
-      <CityError
-        error={new Error('Boom')}
-        reset={mockReset}
-      />
-    );
+    render(<CityError error={new Error('Boom')} reset={mockReset} />);
 
     expect(
       screen.getByRole('heading', { name: 'Something went wrong loading this city' })
@@ -34,12 +28,7 @@ describe('CityError boundary', () => {
     const { default: CityError } = await import('../error');
     const user = userEvent.setup();
 
-    render(
-      <CityError
-        error={new Error('Boom')}
-        reset={mockReset}
-      />
-    );
+    render(<CityError error={new Error('Boom')} reset={mockReset} />);
 
     await user.click(screen.getByRole('button', { name: 'Retry' }));
 
@@ -51,12 +40,7 @@ describe('CityError boundary', () => {
     process.env.NODE_ENV = 'production';
     const { default: CityError } = await import('../error');
 
-    render(
-      <CityError
-        error={new Error('Hidden')}
-        reset={mockReset}
-      />
-    );
+    render(<CityError error={new Error('Hidden')} reset={mockReset} />);
 
     expect(screen.queryByText('Hidden')).not.toBeInTheDocument();
     process.env.NODE_ENV = NODE_ENV;

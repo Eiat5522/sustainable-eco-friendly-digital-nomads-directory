@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { structuredLogger } from '@/lib/logger';
 import { _createAnalyticsHandler as createAnalyticsHandler } from './route';
 
@@ -66,7 +66,9 @@ describe('/api/user/analytics GET', () => {
     };
     fetchDashboardMock.mockResolvedValueOnce(dashboardPayload);
 
-    const response = await GET(createRequest('http://localhost/api/user/analytics?months=18') as any);
+    const response = await GET(
+      createRequest('http://localhost/api/user/analytics?months=18') as any
+    );
 
     expect(authMock).toHaveBeenCalled();
     expect(fetchDashboardMock).toHaveBeenCalledWith(
@@ -76,7 +78,7 @@ describe('/api/user/analytics GET', () => {
         name: 'Analytics User',
         email: 'analytics@example.com',
       },
-      { months: 12 },
+      { months: 12 }
     );
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({
@@ -113,10 +115,9 @@ describe('/api/user/analytics GET', () => {
 
     await GET(createRequest('http://localhost/api/user/analytics?months=abc') as any);
 
-    expect(fetchDashboardMock).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'user-456' }),
-      { months: 3 }
-    );
+    expect(fetchDashboardMock).toHaveBeenCalledWith(expect.objectContaining({ id: 'user-456' }), {
+      months: 3,
+    });
   });
 
   it('clamps the month window to at least one month when zero or negative is provided', async () => {
@@ -124,15 +125,18 @@ describe('/api/user/analytics GET', () => {
       user: { id: 'user-456', role: 'user' },
       generatedAt: '2024-04-01T00:00:00.000Z',
       range: { months: 1, from: '2024-03-01T00:00:00.000Z', to: '2024-04-01T00:00:00.000Z' },
-      data: { kind: 'user', metrics: { favoritesCount: 0, reviewsWritten: 0, avgRatingGiven: 0 }, monthly: [] },
+      data: {
+        kind: 'user',
+        metrics: { favoritesCount: 0, reviewsWritten: 0, avgRatingGiven: 0 },
+        monthly: [],
+      },
     });
 
     await GET(createRequest('http://localhost/api/user/analytics?months=0') as any);
 
-    expect(fetchDashboardMock).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'user-456' }),
-      { months: 1 }
-    );
+    expect(fetchDashboardMock).toHaveBeenCalledWith(expect.objectContaining({ id: 'user-456' }), {
+      months: 1,
+    });
   });
 
   it('returns 404 when analytics data is missing', async () => {

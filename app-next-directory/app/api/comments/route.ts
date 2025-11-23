@@ -1,9 +1,9 @@
-import { auth } from '@/lib/auth';
-import { client } from '@/lib/sanity/client';
 import { revalidateTag } from 'next/cache';
-import { hasFeaturePermission, type UserRole } from '@/types/auth';
 import { NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
 import { getRequestContext, structuredLogger } from '@/lib/logger';
+import { client } from '@/lib/sanity/client';
+import { hasFeaturePermission, type UserRole } from '@/types/auth';
 
 const MAX_LIMIT = 50;
 const DEFAULT_LIMIT = 20;
@@ -18,7 +18,8 @@ type PaginationParams = {
 };
 
 function successResponse<T>(data: T, status = 200, message?: string) {
-  const payload = message === undefined ? { success: true, data } : { success: true, data, message };
+  const payload =
+    message === undefined ? { success: true, data } : { success: true, data, message };
   if (typeof NextResponse?.json === 'function') {
     const response = NextResponse.json(payload, { status });
     if (response) {
@@ -52,9 +53,9 @@ function errorResponse(message: string, status: number, details?: unknown) {
   } as Response;
 }
 
-function parsePagination(request: Request):
-  | { ok: true; params: PaginationParams }
-  | { ok: false; response: Response } {
+function parsePagination(
+  request: Request
+): { ok: true; params: PaginationParams } | { ok: false; response: Response } {
   if (!request || typeof request.url !== 'string') {
     return { ok: false, response: errorResponse('Missing postId', 400) };
   }
@@ -150,13 +151,19 @@ export async function GET(request: Request) {
       component: 'api/comments',
       postId,
     });
-    return errorResponse('Failed to fetch comments', 500, error instanceof Error ? error.message : String(error));
+    return errorResponse(
+      'Failed to fetch comments',
+      500,
+      error instanceof Error ? error.message : String(error)
+    );
   }
 }
 
 export async function POST(request: Request) {
   const session = await auth();
-  const user = session?.user as { id?: string; role?: UserRole; name?: string | null; email?: string | null } | undefined;
+  const user = session?.user as
+    | { id?: string; role?: UserRole; name?: string | null; email?: string | null }
+    | undefined;
   const userId = user?.id;
   const role = user?.role ?? 'unidentifiedUser';
 

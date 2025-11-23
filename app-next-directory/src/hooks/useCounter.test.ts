@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { useCounter } from './useCounter';
 
 describe('useCounter', () => {
@@ -38,7 +38,9 @@ describe('useCounter', () => {
   });
 
   it('animates from the start to the end value using the default easing', () => {
-    const { result, unmount } = renderHook(() => useCounter({ start: 10, end: 20, duration: 1000 }));
+    const { result, unmount } = renderHook(() =>
+      useCounter({ start: 10, end: 20, duration: 1000 })
+    );
 
     expect(result.current.value).toBe(10);
     expect(result.current.formatted).toBe('10');
@@ -60,7 +62,7 @@ describe('useCounter', () => {
 
   it('formats the value with the requested number of decimal places', () => {
     const { result } = renderHook(() =>
-      useCounter({ start: 0, end: 1, duration: 1000, decimals: 2, easing: (t) => t })
+      useCounter({ start: 0, end: 1, duration: 1000, decimals: 2, easing: t => t })
     );
 
     runNextFrame(0);

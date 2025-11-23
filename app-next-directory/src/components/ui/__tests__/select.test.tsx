@@ -1,13 +1,13 @@
 import { render, screen } from '@testing-library/react';
 import {
   Select,
-  SelectGroup,
-  SelectValue,
-  SelectTrigger,
   SelectContent,
-  SelectLabel,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectSeparator,
+  SelectTrigger,
+  SelectValue,
 } from '../select';
 
 // Mock Radix UI Select components

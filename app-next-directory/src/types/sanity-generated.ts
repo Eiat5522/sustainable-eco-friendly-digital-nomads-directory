@@ -5,7 +5,7 @@
 
 // Import schema types from main Sanity directory
 export type {
-  SanityListing,
   SanityCity,
-  SanityEcoTag
-} from '@/types/sanity.types'
+  SanityEcoTag,
+  SanityListing,
+} from '@/types/sanity.types';

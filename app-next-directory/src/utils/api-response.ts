@@ -46,27 +46,20 @@ export interface ApiResponse<T = unknown> {
 export const ApiResponseHandler = {
   success: <T>(data: T, message?: string) => {
     const payload: ApiResponse<T> =
-      message === undefined
-        ? { success: true, data }
-        : { success: true, data, message };
+      message === undefined ? { success: true, data } : { success: true, data, message };
     return createJsonResponse(payload);
   },
-  error: (
-    error: string,
-    status: number = 400,
-    details?: unknown
-  ) => {
-    
+  error: (error: string, status: number = 400, details?: unknown) => {
     const payload: ApiResponse<never> & { details?: unknown } = { success: false, error };
-    
+
     if (details !== undefined) {
       payload.details = details;
     }
-    
+
     return createJsonResponse(payload, { status });
   },
-    
-    notFound(resource?: string) {
+
+  notFound(resource?: string) {
     const msg = resource ? `${resource} not found` : 'Resource not found';
     return createJsonResponse({ success: false, error: msg }, { status: 404 });
   },

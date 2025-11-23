@@ -1,8 +1,8 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { HeroSection } from '../HeroSection';
 import { useRouter } from 'next/navigation';
+import { HeroSection } from '../HeroSection';
 
 jest.mock('next/navigation', () => ({
   __esModule: true,
@@ -15,12 +15,7 @@ jest.mock('lucide-react', () => ({
 
 jest.mock('@/components/ui/neo-input', () => ({
   NeoInput: ({ onChange, value, ...props }: any) => (
-    <input
-      data-testid="hero-search-input"
-      value={value}
-      onChange={onChange}
-      {...props}
-    />
+    <input data-testid="hero-search-input" value={value} onChange={onChange} {...props} />
   ),
 }));
 

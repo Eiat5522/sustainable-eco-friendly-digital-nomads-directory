@@ -1,5 +1,5 @@
-import React from 'react';
 import { render } from '@testing-library/react';
+import React from 'react';
 import '@testing-library/jest-dom';
 import { Textarea } from '../textarea';
 
@@ -26,7 +26,7 @@ describe('Textarea', () => {
   it('allows ref access to textarea methods', () => {
     const ref = React.createRef<HTMLTextAreaElement>();
     render(<Textarea ref={ref} />);
-    
+
     expect(ref.current).toBeInstanceOf(HTMLTextAreaElement);
     if (ref.current) {
       expect(typeof ref.current.focus).toBe('function');

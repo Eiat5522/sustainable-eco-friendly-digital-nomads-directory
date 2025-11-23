@@ -1,17 +1,14 @@
 import type { NextRequest } from 'next/server';
-import { ApiResponseHandler } from '@/utils/api-response';
-import { getListingsByCityId } from '@/lib/data/city';
 import { getE2EListingsForCity } from '@/data/e2e/discovery-fixtures';
+import { getListingsByCityId } from '@/lib/data/city';
 import { isSanityConfigured } from '@/lib/sanity/env';
+import { ApiResponseHandler } from '@/utils/api-response';
 
 type RouteContext = {
   params: Promise<{ id: string }>;
 };
 
-export async function GET(
-  request: NextRequest,
-  context: RouteContext
-) {
+export async function GET(_request: NextRequest, context: RouteContext) {
   const { id } = await context.params;
   if (!isSanityConfigured()) {
     const fallbackListings = getE2EListingsForCity(id);
@@ -30,13 +27,9 @@ export async function GET(
 
     return ApiResponseHandler.success({ listings });
   } catch (error) {
-    return ApiResponseHandler.error(
-      'Failed to fetch listings',
-      500,
-      {
-        details: error instanceof Error ? error.message : 'Unknown error',
-        timestamp: new Date().toISOString(),
-      }
-    );
+    return ApiResponseHandler.error('Failed to fetch listings', 500, {
+      details: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString(),
+    });
   }
 }

@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 
 // Import the component as a module to avoid React hook execution during test setup
 const ErrorComponent = () => {
@@ -53,18 +52,31 @@ describe('Listings Error Component', () => {
     render(<Error error={mockError} reset={mockReset} />);
 
     const container = screen.getByText('Something went wrong!').parentElement;
-    expect(container).toHaveClass('flex', 'flex-col', 'items-center', 'justify-center', 'min-h-screen');
+    expect(container).toHaveClass(
+      'flex',
+      'flex-col',
+      'items-center',
+      'justify-center',
+      'min-h-screen'
+    );
 
     const heading = screen.getByText('Something went wrong!');
     expect(heading).toHaveClass('text-2xl', 'font-bold', 'mb-4');
 
     const button = screen.getByText('Try again');
-    expect(button).toHaveClass('px-4', 'py-2', 'bg-blue-500', 'text-white', 'rounded', 'hover:bg-blue-600');
+    expect(button).toHaveClass(
+      'px-4',
+      'py-2',
+      'bg-blue-500',
+      'text-white',
+      'rounded',
+      'hover:bg-blue-600'
+    );
   });
 
   it('should handle error with digest property', () => {
     const ErrorComponent = require('../error').default;
-    
+
     const errorWithDigest = Object.assign(new Error('Error with digest'), {
       digest: 'abc123',
     });
@@ -76,7 +88,7 @@ describe('Listings Error Component', () => {
 
   it('should re-log error when error prop changes', () => {
     const ErrorComponent = require('../error').default;
-    
+
     const { rerender } = render(<ErrorComponent error={mockError} reset={mockReset} />);
 
     expect(console.error).toHaveBeenCalledTimes(1);

@@ -1,5 +1,4 @@
 import '@testing-library/jest-dom';
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 
 const notFoundMock = jest.fn(() => {
@@ -209,9 +208,9 @@ describe('BlogPostPage', () => {
       json: async () => ({}),
     } as Response);
 
-    await expect(
-      pageModule.default({ params: { slug: 'missing-post' } })
-    ).rejects.toThrow('NEXT_NOT_FOUND');
+    await expect(pageModule.default({ params: { slug: 'missing-post' } })).rejects.toThrow(
+      'NEXT_NOT_FOUND'
+    );
     expect(notFoundMock).toHaveBeenCalledTimes(1);
   });
 });

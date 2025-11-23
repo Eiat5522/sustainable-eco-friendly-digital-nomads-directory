@@ -5,8 +5,8 @@
  */
 
 // Convert to CommonJS-compatible synchronous config so Node can load this file
-const path = require('path');
-const fs = require('fs');
+const path = require('node:path');
+const fs = require('node:fs');
 
 // Attempt to load pathsToModuleNameMapper from ts-jest if available. If not,
 // fall back to a no-op mapper so the rest of the config still works.
@@ -17,7 +17,7 @@ try {
   if (tsJest && typeof tsJest.pathsToModuleNameMapper === 'function') {
     pathsToModuleNameMapper = tsJest.pathsToModuleNameMapper;
   }
-} catch (e) {
+} catch (_e) {
   // ignore - we'll fallback to an empty mapper
 }
 
@@ -26,11 +26,11 @@ let compilerOptions = {};
 try {
   const tsconfigRaw = fs.readFileSync(path.resolve(__dirname, './tsconfig.json'), 'utf8');
   compilerOptions = JSON.parse(tsconfigRaw || '{}').compilerOptions || {};
-} catch (e) {
+} catch (_e) {
   // ignore - leave compilerOptions empty
 }
 
-const useMockedMongoose = process.env.JEST_USE_REAL_MONGOOSE === '1' ? false : true;
+const useMockedMongoose = process.env.JEST_USE_REAL_MONGOOSE !=='1';
 
 const moduleNameMapper = {
   // Common Next/DOM/library mocks – adjust paths if needed
@@ -81,7 +81,7 @@ const moduleNameMapper = {
   // TS path aliases from tsconfig.json (resolved at runtime). If
   // ts-jest isn't available, this will be a no-op.
   ...pathsToModuleNameMapper(
-    compilerOptions && compilerOptions.paths ? compilerOptions.paths : {},
+    compilerOptions?.paths ? compilerOptions.paths : {},
     { prefix: '<rootDir>/' }
   ),
   '^@/utils/api-response$': '<rootDir>/src/mocks/api-response.ts',

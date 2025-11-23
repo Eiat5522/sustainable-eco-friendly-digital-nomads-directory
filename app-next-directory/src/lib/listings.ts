@@ -1,9 +1,12 @@
 // src/lib/listings.ts
 // Maps a raw Sanity listing result to AppListingDetail DTO
-import type { AppListingDetail, AppListingCard } from '@/types/appView';
-
 // Narrow unknown raw to Sanity listing-shaped object (not AppListingCard) with required fields
-import type { SanityImage, SanityGalleryImage } from '@/types/appView';
+import type {
+  AppListingCard,
+  AppListingDetail,
+  SanityGalleryImage,
+  SanityImage,
+} from '@/types/appView';
 
 type TagValue = string | { name?: string | null };
 
@@ -17,7 +20,7 @@ const normalizeTags = (tags?: TagValue[]) => {
   if (!Array.isArray(tags)) return [];
 
   return tags
-    .map(tag => (typeof tag === 'string' ? tag : tag?.name ?? ''))
+    .map(tag => (typeof tag === 'string' ? tag : (tag?.name ?? '')))
     .filter(isNonEmptyString)
     .map(tag => tag.trim());
 };
@@ -93,8 +96,7 @@ export function isSanityListing(raw: unknown): raw is SanityListingRaw {
   if (!isRecord(raw)) return false;
 
   const hasId = typeof raw._id === 'string' && raw._id.trim().length > 0;
-  const hasName =
-    typeof raw.name === 'string' && raw.name.trim().length > 0;
+  const hasName = typeof raw.name === 'string' && raw.name.trim().length > 0;
   const hasSlug =
     isRecord(raw.slug) &&
     raw.slug._type === 'slug' &&
@@ -130,10 +132,8 @@ export function mapSanityListingToCard(raw: unknown): AppListingCard {
     shortDescription: raw.shortDescription,
     address: raw.address,
     category: raw.category,
-    location: raw.location
-      ? { lat: raw.location.lat, lng: raw.location.lng }
-      : undefined,
-    type: raw.type
+    location: raw.location ? { lat: raw.location.lat, lng: raw.location.lng } : undefined,
+    type: raw.type,
   };
 }
 export function mapSanityListingToAppListingDetail(raw: SanityListingRaw): AppListingDetail {
@@ -152,9 +152,7 @@ export function mapSanityListingToAppListingDetail(raw: SanityListingRaw): AppLi
     type: raw.type,
     category: raw.category,
     address: raw.address,
-    location: raw.location
-      ? { lat: raw.location.lat, lng: raw.location.lng }
-      : undefined,
+    location: raw.location ? { lat: raw.location.lat, lng: raw.location.lng } : undefined,
     primaryImage: raw.primaryImage,
     galleryImages: raw.galleryImages,
     ecoFocusTags: normalizeTags(raw.ecoFocusTags),
@@ -166,35 +164,31 @@ export function mapSanityListingToAppListingDetail(raw: SanityListingRaw): AppLi
     longDescription: raw.longDescription,
     lastVerifiedDate: raw.lastVerifiedDate,
     reviews: Array.isArray(raw.reviews)
-      ? raw.reviews
-          .filter(isSanityReviewRaw)
-          .map((review) => ({
-        id: review?._id ?? '',
-        listingId: raw._id,
-        userId: review?.user?._id ?? '',
-        rating: typeof review?.rating === 'number' ? review.rating : 0,
-        comment: review?.comment ?? '',
-        user:
-          review?.user && typeof review.user === 'object'
-            ? {
-                name: String(review.user?.name ?? '').trim() || 'Anonymous',
-                image: typeof review.user?.image === 'string'
-                  ? (review.user.image.trim() || undefined)
-                  : undefined
-
-              }
-            : { name: 'Anonymous' },
-        createdAt: review?.createdAt ?? new Date().toISOString()
-      }))
+      ? raw.reviews.filter(isSanityReviewRaw).map(review => ({
+          id: review?._id ?? '',
+          listingId: raw._id,
+          userId: review?.user?._id ?? '',
+          rating: typeof review?.rating === 'number' ? review.rating : 0,
+          comment: review?.comment ?? '',
+          user:
+            review?.user && typeof review.user === 'object'
+              ? {
+                  name: String(review.user?.name ?? '').trim() || 'Anonymous',
+                  image:
+                    typeof review.user?.image === 'string'
+                      ? review.user.image.trim() || undefined
+                      : undefined,
+                }
+              : { name: 'Anonymous' },
+          createdAt: review?.createdAt ?? new Date().toISOString(),
+        }))
       : [],
     amenities: Array.isArray(raw.amenities)
-      ? raw.amenities
-          .filter(isSanityAmenityRaw)
-        .map((amenity) => ({
+      ? raw.amenities.filter(isSanityAmenityRaw).map(amenity => ({
           _id: amenity?._id ?? '',
           name: amenity?.name ?? '',
           description: amenity?.description ?? undefined,
-          badge: amenity?.badge ?? undefined
+          badge: amenity?.badge ?? undefined,
         }))
       : [],
     coworkingDetails: raw.coworkingDetails,

@@ -1,8 +1,8 @@
 import React from 'react';
 import {
-  TitleComponent,
   ChildOnlyComponent,
   MissingPropDeclaration,
+  TitleComponent,
   WrongPropName,
 } from '../strict-component-type-tests';
 

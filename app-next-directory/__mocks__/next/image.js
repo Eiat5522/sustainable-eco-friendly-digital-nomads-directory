@@ -1,7 +1,16 @@
 const React = require('react');
 
 const NextImageMock = React.forwardRef(function NextImageMock(
-  { src = '', alt = '', fill: _fill, priority: _priority, loader: _loader, quality: _quality, style, ...rest },
+  {
+    src = '',
+    alt = '',
+    fill: _fill,
+    priority: _priority,
+    loader: _loader,
+    quality: _quality,
+    style,
+    ...rest
+  },
   ref
 ) {
   const combinedStyle = style ? { ...style } : undefined;

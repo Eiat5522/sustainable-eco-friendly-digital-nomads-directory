@@ -158,14 +158,13 @@ test.describe('Listing Management E2E', () => {
       const concurrentUsers = {
         user1: {
           email: `concurrent-user1-${Date.now()}@example.com`,
-          password: 'ConcurrentUser1Pass123!'
+          password: 'ConcurrentUser1Pass123!',
         },
         user2: {
           email: `concurrent-user2-${Date.now()}@example.com`,
-          password: 'ConcurrentUser2Pass123!'
-        }
+          password: 'ConcurrentUser2Pass123!',
+        },
       };
-
 
       // Create two user pages
       const userPage1 = await context.newPage();
@@ -175,8 +174,16 @@ test.describe('Listing Management E2E', () => {
       const user1Email = 'user1@example.com';
       const user2Email = 'user2@example.com';
       createdResources.users.push(user1Email, user2Email);
-      await TestHelpers.loginAsUser(userPage1, concurrentUsers.user1.email, concurrentUsers.user1.password);
-      await TestHelpers.loginAsUser(userPage2, concurrentUsers.user2.email, concurrentUsers.user2.password);
+      await TestHelpers.loginAsUser(
+        userPage1,
+        concurrentUsers.user1.email,
+        concurrentUsers.user1.password
+      );
+      await TestHelpers.loginAsUser(
+        userPage2,
+        concurrentUsers.user2.email,
+        concurrentUsers.user2.password
+      );
 
       // Navigate to listing
       await userPage1.goto(`/listings/${listing.id}`);
@@ -257,11 +264,15 @@ test.describe('Listing Management E2E', () => {
     for (const listingId of createdResources.listings) {
       await request.delete(`/api/listings/manage/${listingId}`);
     }
-    
+
     // Clean up test users
     const response = await request.post('/api/test/cleanup', {
       data: {
-        emails: [...createdResources.users, testData.users.regular.email, testData.users.owner.email],
+        emails: [
+          ...createdResources.users,
+          testData.users.regular.email,
+          testData.users.owner.email,
+        ],
       },
     });
     expect(response.ok()).toBeTruthy();

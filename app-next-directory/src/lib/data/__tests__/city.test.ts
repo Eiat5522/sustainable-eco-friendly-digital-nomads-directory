@@ -1,9 +1,9 @@
 import {
+  getAllCitySlugs,
+  getCitiesList,
   getCityBySlug,
   getCityDetailBySlug,
   getListingsByCityId,
-  getCitiesList,
-  getAllCitySlugs,
 } from '../city';
 
 jest.mock('@/lib/sanity/cached-client', () => ({
@@ -15,7 +15,7 @@ jest.mock('@/lib/sanity/client', () => ({
 }));
 
 jest.mock('@/lib/dto-transformer', () => ({
-  transformToSummaryDTO: jest.fn((value) => ({ id: value._id, name: value.name })),
+  transformToSummaryDTO: jest.fn(value => ({ id: value._id, name: value.name })),
 }));
 
 jest.mock('@/data/e2e/discovery-fixtures', () => ({
@@ -78,7 +78,10 @@ describe('city data helpers', () => {
       highlights: ['Sunshine'],
       description: 'Great city',
       primaryImage: {
-        asset: { url: 'https://example.com/image.jpg', metadata: { dimensions: { width: 800, height: 600 } } },
+        asset: {
+          url: 'https://example.com/image.jpg',
+          metadata: { dimensions: { width: 800, height: 600 } },
+        },
       },
     });
 
@@ -105,7 +108,12 @@ describe('city data helpers', () => {
       country: 'Portugal',
       sustainabilityScore: -5,
       highlights: 'not-an-array',
-      primaryImage: { asset: { url: 'https://example.com/porto.jpg', metadata: { dimensions: { width: 'wide' } } } },
+      primaryImage: {
+        asset: {
+          url: 'https://example.com/porto.jpg',
+          metadata: { dimensions: { width: 'wide' } },
+        },
+      },
     });
 
     const result = await getCityBySlug('porto');
@@ -164,7 +172,12 @@ describe('city data helpers', () => {
       sustainabilityInitiatives: ['Recycling'],
       digitalNomadFeatures: [{ name: 'Coworking' }],
       galleryImages: [{ asset: { url: 'https://example.com/gallery.jpg' } }, null],
-      primaryImage: { asset: { url: 'https://example.com/cover.jpg', metadata: { dimensions: { width: 800, height: 600 } } } },
+      primaryImage: {
+        asset: {
+          url: 'https://example.com/cover.jpg',
+          metadata: { dimensions: { width: 800, height: 600 } },
+        },
+      },
     });
 
     const result = await getCityDetailBySlug('lisbon');

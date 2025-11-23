@@ -1,46 +1,46 @@
-"use client";
+'use client';
 
-import { useEffect, useMemo, useState } from "react";
-import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { NeoInput } from "@/components/ui/neo-input";
-import { NeoButton } from "@/components/ui/neo-button";
-import SocialAuthRow from "@/components/auth/SocialAuthRow";
-import { sanitizeCallbackUrl } from "@/lib/auth/callbackUrl";
+import { useRouter, useSearchParams } from 'next/navigation';
+import { signIn } from 'next-auth/react';
+import { useEffect, useMemo, useState } from 'react';
+import SocialAuthRow from '@/components/auth/SocialAuthRow';
+import { NeoButton } from '@/components/ui/neo-button';
+import { NeoInput } from '@/components/ui/neo-input';
+import { sanitizeCallbackUrl } from '@/lib/auth/callbackUrl';
 
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const sanitizedCallbackUrl = useMemo(() => {
-    const raw = searchParams.get("callbackUrl");
-    const origin = typeof window !== "undefined" ? window.location.origin : undefined;
+    const raw = searchParams.get('callbackUrl');
+    const origin = typeof window !== 'undefined' ? window.location.origin : undefined;
     return sanitizeCallbackUrl(raw, origin);
   }, [searchParams]);
 
-  const callbackUrl = sanitizedCallbackUrl ?? "/";
+  const callbackUrl = sanitizedCallbackUrl ?? '/';
 
   // Map NextAuth error codes from querystring to user-friendly messages
   const queryError = useMemo(() => {
-    const e = searchParams.get("error");
-    if (!e) return "";
+    const e = searchParams.get('error');
+    if (!e) return '';
     switch (e) {
-      case "CredentialsSignin":
-        return "Invalid email or password.";
-      case "OAuthAccountNotLinked":
-        return "This email is linked to a different sign-in method. Sign in with the original provider or reset your password.";
-      case "AccessDenied":
-        return "Access denied. Please try again or contact support.";
-      case "Configuration":
-        return "Auth configuration issue. Please try again later.";
+      case 'CredentialsSignin':
+        return 'Invalid email or password.';
+      case 'OAuthAccountNotLinked':
+        return 'This email is linked to a different sign-in method. Sign in with the original provider or reset your password.';
+      case 'AccessDenied':
+        return 'Access denied. Please try again or contact support.';
+      case 'Configuration':
+        return 'Auth configuration issue. Please try again later.';
       default:
-        return "Unable to sign in. Please try again.";
+        return 'Unable to sign in. Please try again.';
     }
   }, [searchParams]);
 
@@ -50,17 +50,17 @@ export default function LoginForm() {
 
   const validate = () => {
     let valid = true;
-    setEmailError("");
-    setPasswordError("");
+    setEmailError('');
+    setPasswordError('');
     const trimmedEmail = email.trim();
     const trimmedPassword = password;
     const emailRegex = /.+@.+\..+/;
     if (!trimmedEmail || !emailRegex.test(trimmedEmail)) {
-      setEmailError("Enter a valid email address.");
+      setEmailError('Enter a valid email address.');
       valid = false;
     }
     if (!trimmedPassword || trimmedPassword.length < 8) {
-      setPasswordError("Enter your password (min 8 characters).");
+      setPasswordError('Enter your password (min 8 characters).');
       valid = false;
     }
     return valid;
@@ -68,13 +68,13 @@ export default function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setError('');
     if (!validate()) {
       return;
     }
     setIsLoading(true);
     try {
-      const res = await signIn("credentials", {
+      const res = await signIn('credentials', {
         email: email.trim().toLowerCase(),
         password,
         redirect: false,
@@ -82,15 +82,15 @@ export default function LoginForm() {
       });
       if (res?.error) {
         setError(
-          res.error === "CredentialsSignin"
-            ? "Invalid email or password."
-            : "Unable to sign in. Please try again."
+          res.error === 'CredentialsSignin'
+            ? 'Invalid email or password.'
+            : 'Unable to sign in. Please try again.'
         );
         return;
       }
       // Prefer router navigation if a URL is present
       if (res?.url) {
-        const origin = typeof window !== "undefined" ? window.location.origin : undefined;
+        const origin = typeof window !== 'undefined' ? window.location.origin : undefined;
         const safeUrl = sanitizeCallbackUrl(res.url, origin);
         if (safeUrl) router.replace(safeUrl);
         else if (res.url) window.location.href = res.url;
@@ -98,9 +98,8 @@ export default function LoginForm() {
       } else {
         router.replace(callbackUrl);
       }
-    } catch (err) {
-      console.error("Login failed:", err);
-      setError("Something went wrong. Please try again.");
+    } catch (_err) {
+      setError('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -108,38 +107,46 @@ export default function LoginForm() {
 
   return (
     <div>
-      <form onSubmit={handleSubmit} className="space-y-4" aria-describedby={error ? "form-error" : undefined}>
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-4"
+        aria-describedby={error ? 'form-error' : undefined}
+      >
         <NeoInput
           type="email"
           placeholder="Email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={e => setEmail(e.target.value)}
           required
           autoComplete="email"
           aria-label="Email"
           disabled={isLoading}
           aria-disabled={isLoading}
           aria-invalid={!!emailError}
-          aria-describedby={emailError ? "email-error" : undefined}
+          aria-describedby={emailError ? 'email-error' : undefined}
         />
         {emailError ? (
-          <p id="email-error" className="text-red-500 text-xs" aria-live="polite">{emailError}</p>
+          <p id="email-error" className="text-red-500 text-xs" aria-live="polite">
+            {emailError}
+          </p>
         ) : null}
         <NeoInput
           type="password"
           placeholder="Password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={e => setPassword(e.target.value)}
           required
           autoComplete="current-password"
           aria-label="Password"
           disabled={isLoading}
           aria-disabled={isLoading}
           aria-invalid={!!passwordError}
-          aria-describedby={passwordError ? "password-error" : undefined}
+          aria-describedby={passwordError ? 'password-error' : undefined}
         />
         {passwordError ? (
-          <p id="password-error" className="text-red-500 text-xs" aria-live="polite">{passwordError}</p>
+          <p id="password-error" className="text-red-500 text-xs" aria-live="polite">
+            {passwordError}
+          </p>
         ) : null}
         {error ? (
           <p id="form-error" role="alert" aria-live="polite" className="text-red-500 text-sm">
@@ -147,7 +154,7 @@ export default function LoginForm() {
           </p>
         ) : null}
         <NeoButton type="submit" className="w-full" disabled={isLoading} aria-disabled={isLoading}>
-          {isLoading ? "Signing in…" : "Login"}
+          {isLoading ? 'Signing in…' : 'Login'}
         </NeoButton>
       </form>
 
@@ -166,4 +173,3 @@ export default function LoginForm() {
     </div>
   );
 }
-

@@ -18,10 +18,7 @@ function loadEnv(): EnvVars {
   if (cachedEnv) return cachedEnv;
   const parsed = envSchema.safeParse(process.env);
   if (!parsed.success) {
-    throw new Error(
-      'Invalid environment variables: ' +
-        JSON.stringify(parsed.error.format())
-    );
+    throw new Error('Invalid environment variables: ' + JSON.stringify(parsed.error.format()));
   }
   cachedEnv = parsed.data;
   return cachedEnv;

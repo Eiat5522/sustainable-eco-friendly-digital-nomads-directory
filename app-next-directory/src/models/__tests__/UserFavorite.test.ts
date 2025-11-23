@@ -30,7 +30,7 @@ describe('UserFavorite model', () => {
     const indexes = (UserFavorite.schema as any).indexes();
 
     const compound = indexes.find(
-      (entry: any) => entry[0].userId === 1 && entry[0].listingId === 1 && entry[1]?.unique === true,
+      (entry: any) => entry[0].userId === 1 && entry[0].listingId === 1 && entry[1]?.unique === true
     );
 
     expect(compound).toBeDefined();

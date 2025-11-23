@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useTransition, type FormEvent } from 'react';
+import { type FormEvent, useState, useTransition } from 'react';
 import type { ModerationAction } from '@/lib/admin/analytics';
 import {
-  RequestTimeoutError,
   extractErrorMessage,
   fetchWithTimeout,
   getDefaultTimeout,
+  RequestTimeoutError,
 } from '@/lib/http/request';
 
 type ModerationActionsProps = {
@@ -89,7 +89,7 @@ export function ModerationActions({ moderationId, itemName }: ModerationActionsP
           aria-disabled={isPending}
           aria-label={`View notes for ${itemName}`}
           className="text-sm text-gray-700 hover:text-gray-900 disabled:text-gray-400"
-          onClick={() => setNotesOpen((open) => !open)}
+          onClick={() => setNotesOpen(open => !open)}
         >
           Notes
         </button>
@@ -115,14 +115,17 @@ export function ModerationActions({ moderationId, itemName }: ModerationActionsP
         </button>
       </div>
       {notesOpen && (
-        <form onSubmit={handleNotesSubmit} className="flex flex-col space-y-2 text-xs text-gray-600">
+        <form
+          onSubmit={handleNotesSubmit}
+          className="flex flex-col space-y-2 text-xs text-gray-600"
+        >
           <label htmlFor={`moderation-notes-${moderationId}`} className="font-medium text-gray-700">
             Moderator notes
           </label>
           <textarea
             id={`moderation-notes-${moderationId}`}
             value={notes}
-            onChange={(event) => setNotes(event.target.value)}
+            onChange={event => setNotes(event.target.value)}
             rows={3}
             className="w-full rounded border border-gray-200 p-2 focus:outline-none focus:ring focus:ring-emerald-200"
             placeholder="Document context or next steps"
@@ -159,7 +162,11 @@ export function ModerationActions({ moderationId, itemName }: ModerationActionsP
         </form>
       )}
       {feedback && (
-        <p role="status" className="text-xs text-gray-500" data-testid={`moderation-feedback-${moderationId}`}>
+        <p
+          role="status"
+          className="text-xs text-gray-500"
+          data-testid={`moderation-feedback-${moderationId}`}
+        >
           {feedback}
         </p>
       )}

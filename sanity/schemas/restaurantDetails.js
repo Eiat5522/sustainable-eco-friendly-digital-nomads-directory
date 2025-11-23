@@ -7,7 +7,8 @@ export default {
   name: 'restaurantDetails',
   title: 'Restaurant Details',
   type: 'object',
-  validation: Rule => Rule.required().error('Restaurant details are required for restaurant listings'),
+  validation: Rule =>
+    Rule.required().error('Restaurant details are required for restaurant listings'),
   fields: [
     // Cuisine type (at least one required)
     {
@@ -19,18 +20,22 @@ export default {
         list: [
           { title: '🇹🇭 Thai', value: 'thai', description: 'Traditional Thai cuisine' },
           { title: '🌍 International', value: 'international', description: 'Global fusion' },
-          { title: '🥬 Vegan/Vegetarian', value: 'vegan_vegetarian', description: 'Plant-based options' },
+          {
+            title: '🥬 Vegan/Vegetarian',
+            value: 'vegan_vegetarian',
+            description: 'Plant-based options',
+          },
           { title: '🫒 Mediterranean', value: 'mediterranean', description: 'Mediterranean diet' },
           { title: '🍱 Japanese', value: 'japanese', description: 'Japanese cuisine' },
           { title: '🍛 Indian', value: 'indian', description: 'Indian dishes' },
           { title: '🔄 Fusion', value: 'fusion', description: 'Creative fusion' },
           { title: '🌱 Raw/Health', value: 'raw_health', description: 'Raw and health food' },
           { title: '🥘 Local Fusion', value: 'local_fusion', description: 'Local with a twist' },
-          { title: '🥗 Clean Eating', value: 'clean_eating', description: 'Healthy focus' }
+          { title: '🥗 Clean Eating', value: 'clean_eating', description: 'Healthy focus' },
         ],
-        layout: 'grid'
+        layout: 'grid',
       },
-      validation: Rule => Rule.required().min(1).error('Please specify at least one cuisine type')
+      validation: Rule => Rule.required().min(1).error('Please specify at least one cuisine type'),
     },
     // Price range (required, radio)
     {
@@ -42,18 +47,18 @@ export default {
           { title: '$ (Under $10)', value: 'budget', description: 'Budget-friendly options' },
           { title: '$$ ($10-25)', value: 'moderate', description: 'Moderately priced' },
           { title: '$$$ ($25-50)', value: 'expensive', description: 'Higher-end dining' },
-          { title: '$$$$ ($50+)', value: 'luxury', description: 'Premium dining experience' }
+          { title: '$$$$ ($50+)', value: 'luxury', description: 'Premium dining experience' },
         ],
-        layout: 'radio'
+        layout: 'radio',
       },
-      validation: Rule => Rule.required().error('Price range is required')
+      validation: Rule => Rule.required().error('Price range is required'),
     },
     // Operating hours (required)
     {
       name: 'operatingHours',
       title: 'Operating Hours',
       type: 'string',
-      validation: Rule => Rule.required().error('Operating hours are required')
+      validation: Rule => Rule.required().error('Operating hours are required'),
     },
     // Sustainability initiatives (at least two)
     {
@@ -70,10 +75,11 @@ export default {
           { title: 'Plastic-Free', value: 'plastic_free' },
           { title: 'Food Waste Reduction', value: 'food_waste_reduction' },
           { title: 'Sustainable Seafood', value: 'sustainable_seafood' },
-          { title: 'Farm-to-Table', value: 'farm_to_table' }
-        ]
+          { title: 'Farm-to-Table', value: 'farm_to_table' },
+        ],
       },
-      validation: Rule => Rule.min(2).error('Please specify at least two sustainability initiatives')
+      validation: Rule =>
+        Rule.min(2).error('Please specify at least two sustainability initiatives'),
     },
     // Dietary options (at least one)
     {
@@ -89,10 +95,10 @@ export default {
           { title: 'Dairy-Free', value: 'dairy_free' },
           { title: 'Raw', value: 'raw' },
           { title: 'Keto', value: 'keto' },
-          { title: 'Halal', value: 'halal' }
-        ]
+          { title: 'Halal', value: 'halal' },
+        ],
       },
-      validation: Rule => Rule.min(1).error('Please specify available dietary options')
+      validation: Rule => Rule.min(1).error('Please specify available dietary options'),
     },
     // Seating options (at least one)
     {
@@ -106,10 +112,10 @@ export default {
           { title: 'Outdoor Garden', value: 'outdoor_garden' },
           { title: 'Rooftop', value: 'rooftop' },
           { title: 'Bar Seating', value: 'bar' },
-          { title: 'Private Rooms', value: 'private_rooms' }
-        ]
+          { title: 'Private Rooms', value: 'private_rooms' },
+        ],
       },
-      validation: Rule => Rule.min(1).error('Please specify available seating options')
+      validation: Rule => Rule.min(1).error('Please specify available seating options'),
     },
     // Work-friendly features (optional)
     {
@@ -123,9 +129,9 @@ export default {
           { title: 'Power Outlets', value: 'power_outlets' },
           { title: 'Large Tables', value: 'large_tables' },
           { title: 'Quiet Areas', value: 'quiet_areas' },
-          { title: 'Long Stay Friendly', value: 'long_stay_friendly' }
-        ]
-      }
+          { title: 'Long Stay Friendly', value: 'long_stay_friendly' },
+        ],
+      },
     },
     // Average meal price (min/max)
     {
@@ -133,10 +139,23 @@ export default {
       title: 'Average Meal Price (THB)',
       type: 'object',
       fields: [
-        { name: 'min', title: 'Minimum Price', type: 'number', validation: Rule => Rule.required().min(0) },
-        { name: 'max', title: 'Maximum Price', type: 'number', validation: Rule => Rule.required().min(0) }
+        {
+          name: 'min',
+          title: 'Minimum Price',
+          type: 'number',
+          validation: Rule => Rule.required().min(0),
+        },
+        {
+          name: 'max',
+          title: 'Maximum Price',
+          type: 'number',
+          validation: Rule => Rule.required().min(0),
+        },
       ],
-      validation: Rule => Rule.custom(prices => (prices?.max < prices?.min ? 'Maximum price must be greater than minimum price' : true))
-    }
-  ]
-}
+      validation: Rule =>
+        Rule.custom(prices =>
+          prices?.max < prices?.min ? 'Maximum price must be greater than minimum price' : true
+        ),
+    },
+  ],
+};

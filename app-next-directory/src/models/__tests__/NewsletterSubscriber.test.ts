@@ -87,7 +87,10 @@ describe('NewsletterSubscriber model', () => {
   it('skips normalization when update payload does not include email', async () => {
     const NewsletterSubscriber = await loadModel();
     const schema = NewsletterSubscriber.schema as any;
-    const hook = schema.preHooks.get('updateOne')?.[0] as (this: { getUpdate: () => any }, next: () => void) => void;
+    const hook = schema.preHooks.get('updateOne')?.[0] as (
+      this: { getUpdate: () => any },
+      next: () => void
+    ) => void;
 
     const update = { $set: { confirmedAt: new Date() } };
     const context = { getUpdate: () => update };
@@ -99,7 +102,10 @@ describe('NewsletterSubscriber model', () => {
   it('normalizes email values nested inside $set payloads', async () => {
     const NewsletterSubscriber = await loadModel();
     const schema = NewsletterSubscriber.schema as any;
-    const hook = schema.preHooks.get('updateOne')?.[0] as (this: { getUpdate: () => any }, next: () => void) => void;
+    const hook = schema.preHooks.get('updateOne')?.[0] as (
+      this: { getUpdate: () => any },
+      next: () => void
+    ) => void;
 
     const update = { $set: { email: '  nested@example.COM  ' } };
     const context = { getUpdate: () => update };

@@ -49,8 +49,10 @@ function shouldCache(request: CacheRequest): boolean {
   }
 
   // Don't cache API routes except specific ones
-  if (request.nextUrl.pathname.startsWith('/api/') &&
-      !request.nextUrl.pathname.match(/^\/api\/(listings|cities|categories)$/)) {
+  if (
+    request.nextUrl.pathname.startsWith('/api/') &&
+    !request.nextUrl.pathname.match(/^\/api\/(listings|cities|categories)$/)
+  ) {
     return false;
   }
 
@@ -98,10 +100,7 @@ export function getCacheConfig(request: { nextUrl: { pathname: string } }): Cach
  * Generates cache control header value
  */
 export function getCacheControlValue(config: CacheConfig): string {
-  const directives = [
-    config.isPrivate ? 'private' : 'public',
-    `max-age=${config.maxAge}`,
-  ];
+  const directives = [config.isPrivate ? 'private' : 'public', `max-age=${config.maxAge}`];
 
   if (config.staleWhileRevalidate) {
     directives.push(`stale-while-revalidate=${config.staleWhileRevalidate}`);
@@ -127,16 +126,10 @@ export async function cacheMiddleware(
   const cacheConfig = getCacheConfig(request);
 
   // Set cache headers
-  response.headers.set(
-    'Cache-Control',
-    getCacheControlValue(cacheConfig)
-  );
+  response.headers.set('Cache-Control', getCacheControlValue(cacheConfig));
 
   // Set Surrogate-Control for CDN
-  response.headers.set(
-    'Surrogate-Control',
-    `max-age=${cacheConfig.maxAge}`
-  );
+  response.headers.set('Surrogate-Control', `max-age=${cacheConfig.maxAge}`);
 
   // Add Vary header to ensure proper caching
   response.headers.append('Vary', 'Cookie');
@@ -155,7 +148,7 @@ export async function invalidateCache(path: string): Promise<void> {
     structuredLogger.middlewareError('cache invalidation', error, {
       component: 'cache',
       operation: 'invalidate',
-      path: path
+      path: path,
     });
   }
 }
@@ -169,7 +162,7 @@ export async function purgeCache(): Promise<void> {
   } catch (error) {
     structuredLogger.middlewareError('cache purge', error, {
       component: 'cache',
-      operation: 'purge_all'
+      operation: 'purge_all',
     });
   }
 }

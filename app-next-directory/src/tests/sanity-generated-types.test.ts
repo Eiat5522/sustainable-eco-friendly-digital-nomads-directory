@@ -3,14 +3,8 @@
  * Validates that generated types work correctly with GROQ queries
  */
 
-import { describe, it, expect } from '@jest/globals';
-import type {
-  Listing,
-  City,
-  EcoTag,
-  BlogPost,
-  Review
-} from '@/types/sanity.types';
+import { describe, expect, it } from '@jest/globals';
+import type { City, Listing, } from '@/types/sanity.types';
 
 describe('Sanity Generated Types', () => {
   describe('Type Structure Validation', () => {
@@ -23,13 +17,11 @@ describe('Sanity Generated Types', () => {
         _updatedAt: '2025-01-01T00:00:00Z',
         _rev: 'test-rev',
         name: 'Test Listing',
-        amenities: [
-          { _ref: 'amenity-ref', _type: 'reference', _key: 'amenity-ref' }
-        ],
+        amenities: [{ _ref: 'amenity-ref', _type: 'reference', _key: 'amenity-ref' }],
         coworkingDetails: {
           _type: 'coworkingDetails',
-          internetSpeed: { download: 100, upload: 50 }
-        }
+          internetSpeed: { download: 100, upload: 50 },
+        },
       };
 
       expect(mockListing._type).toBe('listing');
@@ -53,10 +45,10 @@ describe('Sanity Generated Types', () => {
             _type: 'reference',
             _weak: false,
           },
-          alt: 'Test image'
+          alt: 'Test image',
         },
         sustainabilityScore: 85,
-        highlights: ['Great for nomads', 'Eco-friendly']
+        highlights: ['Great for nomads', 'Eco-friendly'],
       };
 
       expect(mockCity._id).toBe('city-id');
@@ -74,7 +66,7 @@ describe('Sanity Generated Types', () => {
         _type: 'listing',
         _createdAt: '2025-01-01T00:00:00Z',
         _updatedAt: '2025-01-01T00:00:00Z',
-        _rev: 'minimal-rev'
+        _rev: 'minimal-rev',
       };
 
       expect(minimalListing._id).toBe('minimal-id');
@@ -92,8 +84,8 @@ describe('Sanity Generated Types', () => {
         _rev: 'partial-rev',
         coworkingDetails: {
           _type: 'coworkingDetails',
-          internetSpeed: { download: 50 }
-        }
+          internetSpeed: { download: 50 },
+        },
       };
 
       expect(listingWithPartialDetails.coworkingDetails?.internetSpeed?.download).toBe(50);
@@ -109,9 +101,7 @@ describe('Sanity Generated Types', () => {
         _createdAt: '2025-01-01T00:00:00Z',
         _updatedAt: '2025-01-01T00:00:00Z',
         _rev: 'ref-rev',
-        amenities: [
-          { _ref: 'amenity-1', _type: 'reference', _key: 'amenity-1' }
-        ]
+        amenities: [{ _ref: 'amenity-1', _type: 'reference', _key: 'amenity-1' }],
       };
 
       expect(listingWithReferences.amenities?.[0]?._ref).toBe('amenity-1');
@@ -131,14 +121,20 @@ describe('Sanity Generated Types', () => {
         restaurantDetails: {
           _type: 'restaurantDetails',
           cuisineType: ['thai', 'vegan'],
-          priceRange: 'moderate'
+          priceRange: 'moderate',
         },
         coworkingDetails: {
           _type: 'coworkingDetails',
           pricingPlans: [
-            { _key: 'daily', _type: 'coworkingPricingPlan', type: 'day pass', price: 10, period: 'day' }
-          ]
-        }
+            {
+              _key: 'daily',
+              _type: 'coworkingPricingPlan',
+              type: 'day pass',
+              price: 10,
+              period: 'day',
+            },
+          ],
+        },
       };
 
       expect(Array.isArray(listingWithArrays.restaurantDetails?.cuisineType)).toBe(true);

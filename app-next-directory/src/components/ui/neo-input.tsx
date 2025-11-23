@@ -1,7 +1,7 @@
-import * as React from "react"
-import { cn } from "@/lib/utils"
+import * as React from 'react';
+import { cn } from '@/lib/utils';
 
-export type NeoInputProps = React.InputHTMLAttributes<HTMLInputElement>
+export type NeoInputProps = React.InputHTMLAttributes<HTMLInputElement>;
 
 const NeoInput = React.forwardRef<HTMLInputElement, NeoInputProps>(
   ({ className, type = 'text', ...props }, ref) => {
@@ -9,15 +9,15 @@ const NeoInput = React.forwardRef<HTMLInputElement, NeoInputProps>(
       <input
         type={type}
         className={cn(
-          "neo-input flex h-12 w-full rounded-lg px-4 py-3 text-base placeholder:text-neo-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+          'neo-input flex h-12 w-full rounded-lg px-4 py-3 text-base placeholder:text-neo-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50',
           className
         )}
         ref={ref}
         {...props}
       />
-    )
+    );
   }
-)
-NeoInput.displayName = "NeoInput"
+);
+NeoInput.displayName = 'NeoInput';
 
-export { NeoInput }
+export { NeoInput };

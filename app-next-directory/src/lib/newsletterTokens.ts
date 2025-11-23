@@ -41,4 +41,3 @@ export async function verifyNewsletterConfirmToken(token: string): Promise<{ ema
   if (!email) throw new Error('Invalid token payload: missing email');
   return { email };
 }
-

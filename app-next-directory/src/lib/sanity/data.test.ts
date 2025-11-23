@@ -2,8 +2,8 @@
  * Tests for data.ts - Sanity data fetching functions
  */
 
-import { getListingData } from './data';
 import { client } from './client';
+import { getListingData } from './data';
 
 // Mock the client module
 jest.mock('./client', () => ({
@@ -14,7 +14,7 @@ jest.mock('./client', () => ({
 
 // Mock the listings module
 jest.mock('@/lib/listings', () => ({
-  mapSanityListingToAppListingDetail: jest.fn((listing) => ({
+  mapSanityListingToAppListingDetail: jest.fn(listing => ({
     ...listing,
     mapped: true,
   })),
@@ -22,7 +22,7 @@ jest.mock('@/lib/listings', () => ({
 
 describe('data.ts', () => {
   const mockClient = client as jest.Mocked<typeof client>;
-  
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -168,7 +168,7 @@ describe('data.ts', () => {
       await getListingData('test-slug');
 
       const query = mockClient.fetch.mock.calls[0][0];
-      
+
       // Verify key fields are in the query
       expect(query).toContain('_id');
       expect(query).toContain('name');

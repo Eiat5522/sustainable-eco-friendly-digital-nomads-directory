@@ -1,17 +1,18 @@
-
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import { VenueListingForm } from '../../../components/VenueListingForm';
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import type { ListingFormValues } from '../../../components/VenueListingForm';
+import { VenueListingForm } from '../../../components/VenueListingForm';
 
 export default function EditListingPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
   const idParam = params?.id;
   const listingId = Array.isArray(idParam) ? idParam[0] : idParam;
-  const [listing, setListing] = useState<(ListingFormValues & Record<string, unknown>) | null>(null);
+  const [listing, setListing] = useState<(ListingFormValues & Record<string, unknown>) | null>(
+    null
+  );
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

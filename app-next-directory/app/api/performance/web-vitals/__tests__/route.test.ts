@@ -7,7 +7,7 @@
  * 4. Error handling
  */
 
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 // Mock the alert service
 const mockProcessMetricForAlert = jest.fn();
@@ -39,7 +39,7 @@ describe('Web Vitals Performance API - POST /api/performance/web-vitals', () => 
     jest.clearAllMocks();
     process.env = { ...originalEnv, NODE_ENV: 'test' };
     mockProcessMetricForAlert.mockResolvedValue(undefined);
-    
+
     // Dynamically import the route handler
     const routeModule = await import('../route');
     POST = routeModule.POST;
@@ -342,7 +342,9 @@ describe('Web Vitals Performance API - POST /api/performance/web-vitals', () => 
       await POST(request);
 
       expect(consoleErrorSpy).toHaveBeenCalled();
-      expect(consoleErrorSpy.mock.calls[0][0]).toContain('[Performance API] Error processing metrics');
+      expect(consoleErrorSpy.mock.calls[0][0]).toContain(
+        '[Performance API] Error processing metrics'
+      );
       consoleErrorSpy.mockRestore();
     });
 

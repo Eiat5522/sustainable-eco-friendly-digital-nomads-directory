@@ -1,14 +1,17 @@
-
 import { getRedisClient } from '../redis';
 import { client } from './client';
 
 const CACHE_TTL_SECONDS = 60 * 60; // 1 hour
 const inflightRequests = new Map<string, Promise<unknown>>();
 
-async function fetchAndCache<T>(query: string, params: Record<string, unknown>, ttl: number): Promise<T> {
+async function fetchAndCache<T>(
+  query: string,
+  params: Record<string, unknown>,
+  ttl: number
+): Promise<T> {
   const sortedKeys = Object.keys(params).sort();
   const key = `sanity:${query}:${JSON.stringify(params, sortedKeys)}`;
-  
+
   const redis = getRedisClient();
 
   if (redis) {
@@ -17,8 +20,7 @@ async function fetchAndCache<T>(query: string, params: Record<string, unknown>, 
       if (cachedData) {
         return JSON.parse(cachedData);
       }
-    } catch (error) {
-      console.warn('Cache read failed, falling through to fetch:', error);
+    } catch (_error) {
     }
   }
 
@@ -34,8 +36,7 @@ async function fetchAndCache<T>(query: string, params: Record<string, unknown>, 
       if (redis) {
         try {
           await redis.set(key, JSON.stringify(data), { ex: ttl });
-        } catch (error) {
-          console.warn('Cache write failed, continuing without Redis:', error);
+        } catch (_error) {
         }
       }
       return data;
@@ -43,7 +44,7 @@ async function fetchAndCache<T>(query: string, params: Record<string, unknown>, 
       inflightRequests.delete(key);
     }
   })();
-  
+
   inflightRequests.set(key, fetchPromise);
   return fetchPromise;
 }

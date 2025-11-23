@@ -6,9 +6,7 @@ import { DEFAULT_CATEGORIES } from '@/lib/constants/categories';
 import type { InternetSpeedValue } from './dto';
 
 // Shared primitives
-export const GeoPointSchema = z
-  .object({ lat: z.number(), lng: z.number() })
-  .strict();
+export const GeoPointSchema = z.object({ lat: z.number(), lng: z.number() }).strict();
 
 export const ImageDimensionsDTOSchema = z
   .object({ width: z.number().optional(), height: z.number().optional() })
@@ -67,11 +65,7 @@ export const ListingStatusDTOSchema = z.enum([
   'flagged',
 ]);
 
-export const VerificationStatusDTOSchema = z.enum([
-  'unverified',
-  'verified',
-  'needs_verification',
-]);
+export const VerificationStatusDTOSchema = z.enum(['unverified', 'verified', 'needs_verification']);
 
 export const BaseListingDTOSchema = z
   .object({
@@ -280,9 +274,7 @@ export function parseCityDetailDTO(
 
 export function parseListingSummaryArray(
   input: unknown
-):
-  | { ok: true; data: z.infer<typeof ListingSummaryDTOArraySchema> }
-  | { ok: false; error: string } {
+): { ok: true; data: z.infer<typeof ListingSummaryDTOArraySchema> } | { ok: false; error: string } {
   const result = ListingSummaryDTOArraySchema.safeParse(input);
   if (result.success) return { ok: true, data: result.data };
   return { ok: false, error: result.error.toString() };

@@ -35,7 +35,10 @@ export default class ServerTiming {
 
   getHeaderValue(): string {
     return this.metrics
-      .map(({ name, duration, description }) => `${name};dur=${duration.toFixed(2)}${description ? `;desc="${description}"` : ''}`)
+      .map(
+        ({ name, duration, description }) =>
+          `${name};dur=${duration.toFixed(2)}${description ? `;desc="${description}"` : ''}`
+      )
       .join(', ');
   }
 }
@@ -53,11 +56,10 @@ export const serverTimingMiddleware = (_request: NextRequest) => {
   res.headers.set('Server-Timing', timing.getHeaderValue());
 
   if (process.env.NODE_ENV === 'development') {
-    console.log('[Server Timing]', timing.getMetrics().map(m => ({ metric: `server_${m.name}`, value: Math.round(m.duration) })));
   }
 
   return res;
-}
+};
 
 export const config = {
   matcher: ['/api/:path*', '/((?!_next/static|_next/image|favicon.ico).*)'],

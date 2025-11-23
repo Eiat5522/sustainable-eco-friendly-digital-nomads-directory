@@ -1,12 +1,12 @@
-import { getToken } from 'next-auth/jwt';
 import { type NextRequest, NextResponse } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 import {
-    ACCESS_CONTROL_MATRIX,
-    hasFeaturePermission,
-    hasPagePermission,
-    type PagePermissions,
-    ROLE_HIERARCHY,
-    type UserRole
+  ACCESS_CONTROL_MATRIX,
+  hasFeaturePermission,
+  hasPagePermission,
+  type PagePermissions,
+  ROLE_HIERARCHY,
+  type UserRole,
 } from '../../types/auth';
 
 /**
@@ -19,7 +19,7 @@ import {
  */
 export async function withAuthMatrix(
   request: NextRequest,
-  page?: keyof typeof ACCESS_CONTROL_MATRIX[UserRole]['pages'] | null,
+  page?: keyof (typeof ACCESS_CONTROL_MATRIX)[UserRole]['pages'] | null,
   action?: keyof PagePermissions | null,
   isApiRoute: boolean = false,
   resourceOwnership?: { userId: string; resourceOwnerId: string },
@@ -30,7 +30,7 @@ export async function withAuthMatrix(
   // Get the token from the request
   const token = await getToken({
     req: request,
-    secret: process.env.NEXTAUTH_SECRET
+    secret: process.env.NEXTAUTH_SECRET,
   });
 
   // Determine user role - default to unidentifiedUser if no token
@@ -43,14 +43,14 @@ export async function withAuthMatrix(
         JSON.stringify({
           error: 'Authentication required',
           code: 'AUTH_REQUIRED',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         }),
         {
           status: 401,
           headers: {
             'Content-Type': 'application/json',
-            'WWW-Authenticate': 'Bearer'
-          }
+            'WWW-Authenticate': 'Bearer',
+          },
         }
       );
     }
@@ -69,11 +69,11 @@ export async function withAuthMatrix(
           code: 'PERMISSION_DENIED',
           requiredPermission: `${page}.${action}`,
           userRole,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         }),
         {
           status: 403,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         }
       );
     }
@@ -134,13 +134,13 @@ export async function withAuthMatrix(
  */
 export async function withAuthApiFeature(
   request: NextRequest,
-  feature: keyof typeof ACCESS_CONTROL_MATRIX[UserRole]['features'],
+  feature: keyof (typeof ACCESS_CONTROL_MATRIX)[UserRole]['features'],
   resourceOwnership?: { userId: string; resourceOwnerId: string },
   hasFeaturePermissionFn: typeof hasFeaturePermission = hasFeaturePermission
 ) {
   const token = await getToken({
     req: request,
-    secret: process.env.NEXTAUTH_SECRET
+    secret: process.env.NEXTAUTH_SECRET,
   });
 
   // If no token
@@ -149,14 +149,14 @@ export async function withAuthApiFeature(
       JSON.stringify({
         error: 'Authentication required',
         code: 'AUTH_REQUIRED',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       }),
       {
         status: 401,
         headers: {
           'Content-Type': 'application/json',
-          'WWW-Authenticate': 'Bearer'
-        }
+          'WWW-Authenticate': 'Bearer',
+        },
       }
     );
   }
@@ -166,9 +166,18 @@ export async function withAuthApiFeature(
 
   // Handle ownership-based permissions
   if (!hasPermission && resourceOwnership) {
-    const ownPermissions = ['editOwnListings', 'deleteOwnListings', 'editOwnReviews', 'deleteOwnReviews', 'editOwnProfile'];
+    const ownPermissions = [
+      'editOwnListings',
+      'deleteOwnListings',
+      'editOwnReviews',
+      'deleteOwnReviews',
+      'editOwnProfile',
+    ];
 
-    if (ownPermissions.includes(feature) && resourceOwnership.userId === resourceOwnership.resourceOwnerId) {
+    if (
+      ownPermissions.includes(feature) &&
+      resourceOwnership.userId === resourceOwnership.resourceOwnerId
+    ) {
       return NextResponse.next();
     }
   }
@@ -180,11 +189,11 @@ export async function withAuthApiFeature(
         code: 'PERMISSION_DENIED',
         requiredFeature: feature,
         userRole,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       }),
       {
         status: 403,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       }
     );
   }
@@ -205,7 +214,7 @@ export async function withMinimumRole(
 ) {
   const token = await getToken({
     req: request,
-    secret: process.env.NEXTAUTH_SECRET
+    secret: process.env.NEXTAUTH_SECRET,
   });
 
   const userRole: UserRole = (token?.role as UserRole) || 'unidentifiedUser';
@@ -213,10 +222,10 @@ export async function withMinimumRole(
 
   if (isApiRoute) {
     if (!token) {
-      return new NextResponse(
-        JSON.stringify({ error: 'Authentication required' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-      );
+      return new NextResponse(JSON.stringify({ error: 'Authentication required' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     if (!hasMinimumRole) {
@@ -225,7 +234,7 @@ export async function withMinimumRole(
           error: 'Insufficient role level',
           requiredRole,
           userRole,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         }),
         { status: 403, headers: { 'Content-Type': 'application/json' } }
       );
@@ -255,7 +264,7 @@ export async function withMinimumRole(
 export async function getUserFromToken(request: NextRequest) {
   const token = await getToken({
     req: request,
-    secret: process.env.NEXTAUTH_SECRET
+    secret: process.env.NEXTAUTH_SECRET,
   });
 
   if (!token) {
@@ -267,17 +276,13 @@ export async function getUserFromToken(request: NextRequest) {
     email: token.email as string,
     name: token.name as string,
     role: (token.role as UserRole) || 'defaultUser',
-    permissions: ACCESS_CONTROL_MATRIX[(token.role as UserRole) || 'defaultUser']
+    permissions: ACCESS_CONTROL_MATRIX[(token.role as UserRole) || 'defaultUser'],
   };
 }
 
 // Legacy compatibility - keep the old withAuth function but mark as deprecated
 /** @deprecated Use withAuthMatrix instead for audit compliance */
-export async function withAuth(
-  request: NextRequest,
-  requiredRoles?: string[]
-) {
-  console.warn('withAuth is deprecated. Use withAuthMatrix for audit compliance.');
+export async function withAuth(request: NextRequest, requiredRoles?: string[]) {
 
   const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
   if (!token) {

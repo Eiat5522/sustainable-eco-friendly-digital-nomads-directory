@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('ReviewsSection E2E Tests', () => {
   // Test using the home page initially to see if we can create a simple test page
@@ -6,22 +6,22 @@ test.describe('ReviewsSection E2E Tests', () => {
 
   test.beforeEach(async ({ page }) => {
     // Mock auth session for different test scenarios
-    await page.route('**/api/auth/session', async (route) => {
+    await page.route('**/api/auth/session', async route => {
       // Default to no session (will be overridden in specific tests)
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({})
+        body: JSON.stringify({}),
       });
     });
 
-    // Mock reviews API 
-    await page.route('**/api/reviews', async (route) => {
+    // Mock reviews API
+    await page.route('**/api/reviews', async route => {
       if (route.request().method() === 'GET') {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify([])
+          body: JSON.stringify([]),
         });
       } else {
         // Will be handled by specific tests
@@ -35,11 +35,11 @@ test.describe('ReviewsSection E2E Tests', () => {
   test.describe('Non-authenticated user: Sign-in prompt and callback URL', () => {
     test('should show sign-in prompt with correct callbackUrl', async ({ page }) => {
       // Mock unauthenticated session
-      await page.route('**/api/auth/session', async (route) => {
+      await page.route('**/api/auth/session', async route => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify({}) // No user means unauthenticated
+          body: JSON.stringify({}), // No user means unauthenticated
         });
       });
 
@@ -87,7 +87,7 @@ test.describe('ReviewsSection E2E Tests', () => {
 
     test('should navigate to login with callbackUrl when Sign In clicked', async ({ page }) => {
       // Mock auth login page
-      await page.route('**/auth/login*', async (route) => {
+      await page.route('**/auth/login*', async route => {
         await route.fulfill({
           status: 200,
           contentType: 'text/html',
@@ -98,12 +98,16 @@ test.describe('ReviewsSection E2E Tests', () => {
                 <p>URL: ${route.request().url()}</p>
               </body>
             </html>
-          `
+          `,
         });
       });
 
       // Set up test page with sign-in link
-      await page.goto('data:text/html,<html><body><a href="/auth/login?callbackUrl=' + encodeURIComponent('http://localhost:3000/test-page') + '">Sign In</a></body></html>');
+      await page.goto(
+        'data:text/html,<html><body><a href="/auth/login?callbackUrl=' +
+          encodeURIComponent('http://localhost:3000/test-page') +
+          '">Sign In</a></body></html>'
+      );
 
       // Click the sign-in link
       await page.click('text=Sign In');
@@ -121,7 +125,7 @@ test.describe('ReviewsSection E2E Tests', () => {
       let reviewSubmissionAttempted = false;
 
       // Mock authenticated session initially
-      await page.route('**/api/auth/session', async (route) => {
+      await page.route('**/api/auth/session', async route => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -129,20 +133,20 @@ test.describe('ReviewsSection E2E Tests', () => {
             user: {
               id: 'test-user',
               name: 'Test User',
-              email: 'test@example.com'
-            }
-          })
+              email: 'test@example.com',
+            },
+          }),
         });
       });
 
       // Mock reviews API to return 401
-      await page.route('**/api/reviews', async (route) => {
+      await page.route('**/api/reviews', async route => {
         if (route.request().method() === 'POST') {
           reviewSubmissionAttempted = true;
           await route.fulfill({
             status: 401,
             contentType: 'application/json',
-            body: JSON.stringify({ error: 'Unauthorized' })
+            body: JSON.stringify({ error: 'Unauthorized' }),
           });
         } else {
           await route.continue();
@@ -150,7 +154,7 @@ test.describe('ReviewsSection E2E Tests', () => {
       });
 
       // Mock auth login page
-      await page.route('**/auth/login*', async (route) => {
+      await page.route('**/auth/login*', async route => {
         await route.fulfill({
           status: 200,
           contentType: 'text/html',
@@ -161,7 +165,7 @@ test.describe('ReviewsSection E2E Tests', () => {
                 <p>Redirected due to 401</p>
               </body>
             </html>
-          `
+          `,
         });
       });
 
@@ -212,7 +216,7 @@ test.describe('ReviewsSection E2E Tests', () => {
 
     test('should show success message on 200 response', async ({ page }) => {
       // Mock authenticated session
-      await page.route('**/api/auth/session', async (route) => {
+      await page.route('**/api/auth/session', async route => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -220,14 +224,14 @@ test.describe('ReviewsSection E2E Tests', () => {
             user: {
               id: 'test-user',
               name: 'Test User',
-              email: 'test@example.com'
-            }
-          })
+              email: 'test@example.com',
+            },
+          }),
         });
       });
 
       // Mock successful reviews API response
-      await page.route('**/api/reviews', async (route) => {
+      await page.route('**/api/reviews', async route => {
         if (route.request().method() === 'POST') {
           await route.fulfill({
             status: 200,
@@ -236,8 +240,8 @@ test.describe('ReviewsSection E2E Tests', () => {
               id: 'new-review-id',
               rating: 5,
               comment: 'Test review',
-              approved: false
-            })
+              approved: false,
+            }),
           });
         } else {
           await route.continue();

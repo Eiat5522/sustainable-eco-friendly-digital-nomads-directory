@@ -71,4 +71,4 @@ export interface SearchResults {
   };
 }
 
-export type SearchParamRecord = Record<string, string | string[] | undefined>
+export type SearchParamRecord = Record<string, string | string[] | undefined>;

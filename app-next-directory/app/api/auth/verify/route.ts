@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
+import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
-import User from '@/models/User';
-import EmailVerificationToken from '@/models/EmailVerificationToken';
+import { getRequestContext, structuredLogger } from '@/lib/logger';
+import { getClientIp, getRetryAfterMs, isRateLimited } from '@/lib/rate-limit';
 import { hashToken } from '@/lib/tokens';
-import { getClientIp, isRateLimited, getRetryAfterMs } from '@/lib/rate-limit';
-import { structuredLogger, getRequestContext } from '@/lib/logger';
+import EmailVerificationToken from '@/models/EmailVerificationToken';
+import User from '@/models/User';
 
 // GET /api/auth/verify?token=...
 export async function GET(req: Request) {
@@ -22,7 +22,7 @@ export async function GET(req: Request) {
     const key = `auth:verify:${ip}`;
     if (await isRateLimited(key, 10, 60)) {
       const url = new URL('/auth/login?verified=0', req.url);
-      url.searchParams.set('limited', Math.ceil(await getRetryAfterMs(key) / 1000).toString());
+      url.searchParams.set('limited', Math.ceil((await getRetryAfterMs(key)) / 1000).toString());
       return NextResponse.redirect(url);
     }
 

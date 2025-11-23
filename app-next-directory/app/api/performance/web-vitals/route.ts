@@ -33,8 +33,7 @@ async function storePerformanceData(_metricData: EnhancedMetricData): Promise<bo
 
     // In production, we would store in a database
     return true;
-  } catch (error) {
-    console.error('[Performance Storage] Error storing metric:', error);
+  } catch (_error) {
     return false;
   }
 }
@@ -54,22 +53,25 @@ export async function POST(request: Request) {
 
     // Check metrics against thresholds and add status
     if (metricsData.name) {
-      const budget = PERFORMANCE_BUDGETS.pageLoad[metricsData.name as keyof typeof PERFORMANCE_BUDGETS.pageLoad];
+      const budget =
+        PERFORMANCE_BUDGETS.pageLoad[metricsData.name as keyof typeof PERFORMANCE_BUDGETS.pageLoad];
       if (budget) {
-      enhancedData.status =
-        metricsData.value <= budget.target ? 'good' :
-        metricsData.value <= budget.acceptable ? 'needs-improvement' :
-        'poor';
+        enhancedData.status =
+          metricsData.value <= budget.target
+            ? 'good'
+            : metricsData.value <= budget.acceptable
+              ? 'needs-improvement'
+              : 'poor';
       }
     }
 
     // Store the enhanced data
     const stored = await storePerformanceData(enhancedData);
     if (!stored) {
-      return new Response(
-        JSON.stringify({ error: 'Failed to store performance data' }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'Failed to store performance data' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     // Process metric for alerting — call service with (category, name, value, additionalInfo)
@@ -78,22 +80,24 @@ export async function POST(request: Request) {
         'performance',
         enhancedData.name || 'Unknown',
         enhancedData.value || 0,
-        { status: enhancedData.status || 'unknown', page: enhancedData.page, timestamp: enhancedData.timestamp }
+        {
+          status: enhancedData.status || 'unknown',
+          page: enhancedData.page,
+          timestamp: enhancedData.timestamp,
+        }
       );
-    } catch (alertError) {
-      console.error('[Performance API] Alert processing failed:', alertError);
+    } catch (_alertError) {
     }
 
-    return new Response(
-      JSON.stringify({ success: true, data: enhancedData }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
-    );
-  } catch (error) {
-    console.error('[Performance API] Error processing metrics:', error);
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ success: true, data: enhancedData }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (_error) {
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }
 

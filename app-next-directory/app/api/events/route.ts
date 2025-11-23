@@ -1,5 +1,5 @@
-import { client } from '@/lib/sanity/client';
 import { structuredLogger } from '@/lib/logger';
+import { client } from '@/lib/sanity/client';
 
 type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<unknown>;
 
@@ -37,7 +37,8 @@ export async function GET(_request: Request) {
 
     const fetchFn =
       _testControl?.clientFetchOverride ??
-      ((queryString: string, params?: Record<string, unknown>) => client.fetch(queryString, params));
+      ((queryString: string, params?: Record<string, unknown>) =>
+        client.fetch(queryString, params));
     const events = await fetchFn(query, { now });
 
     return new Response(JSON.stringify({ success: true, data: events }), {
@@ -45,9 +46,9 @@ export async function GET(_request: Request) {
     });
   } catch (error) {
     structuredLogger.error('Events API Error', error, { component: 'events-api' });
-    return new Response(
-      JSON.stringify({ success: false, error: 'Failed to fetch events' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ success: false, error: 'Failed to fetch events' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }

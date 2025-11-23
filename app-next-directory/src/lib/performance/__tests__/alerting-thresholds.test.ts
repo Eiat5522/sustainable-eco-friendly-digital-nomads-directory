@@ -1,4 +1,9 @@
-import { ALERT_SEVERITY, NOTIFICATION_CHANNELS, getAlertSeverity, getNotificationChannels } from '../alerting-thresholds';
+import {
+  ALERT_SEVERITY,
+  getAlertSeverity,
+  getNotificationChannels,
+  NOTIFICATION_CHANNELS,
+} from '../alerting-thresholds';
 
 describe('alerting-thresholds', () => {
   describe('getAlertSeverity', () => {
@@ -26,14 +31,22 @@ describe('alerting-thresholds', () => {
     it('returns configured destinations for a metric and severity', () => {
       const channels = getNotificationChannels('pageLoad', 'FCP', ALERT_SEVERITY.ERROR);
       expect(channels).toEqual(
-        expect.arrayContaining([NOTIFICATION_CHANNELS.CONSOLE, NOTIFICATION_CHANNELS.EMAIL, NOTIFICATION_CHANNELS.SLACK])
+        expect.arrayContaining([
+          NOTIFICATION_CHANNELS.CONSOLE,
+          NOTIFICATION_CHANNELS.EMAIL,
+          NOTIFICATION_CHANNELS.SLACK,
+        ])
       );
     });
 
     it('falls back to default destinations when no custom mapping exists', () => {
       const channels = getNotificationChannels('pageLoad', 'FCP', ALERT_SEVERITY.CRITICAL);
       expect(channels).toEqual(
-        expect.arrayContaining([NOTIFICATION_CHANNELS.CONSOLE, NOTIFICATION_CHANNELS.EMAIL, NOTIFICATION_CHANNELS.SLACK])
+        expect.arrayContaining([
+          NOTIFICATION_CHANNELS.CONSOLE,
+          NOTIFICATION_CHANNELS.EMAIL,
+          NOTIFICATION_CHANNELS.SLACK,
+        ])
       );
     });
   });

@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import Autoplay from 'embla-carousel-autoplay';
+import useEmblaCarousel from 'embla-carousel-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { NeoButton } from '@/components/ui/neo-button';
 import type { CityDTO } from '@/types/dto';
-import useEmblaCarousel from 'embla-carousel-react';
-import Autoplay from 'embla-carousel-autoplay';
 
 type ApiResponse = { success?: boolean; cities?: CityDTO[] };
 
@@ -17,9 +17,7 @@ export function CityCarousel() {
   const [error, setError] = useState<string | null>(null);
 
   // Embla carousel setup
-  const autoplay = useRef(
-    Autoplay({ delay: 4000, stopOnInteraction: false })
-  );
+  const autoplay = useRef(Autoplay({ delay: 4000, stopOnInteraction: false }));
   const [viewportRef, emblaApi] = useEmblaCarousel(
     {
       align: 'start',
@@ -64,7 +62,7 @@ export function CityCarousel() {
           json = await res.json();
         } catch {}
         // Accept fallback responses even when status is 503
-        const list = (json && 'cities' in json && Array.isArray(json.cities)) ? json.cities : [];
+        const list = json && 'cities' in json && Array.isArray(json.cities) ? json.cities : [];
         if (!cancelled) {
           if (list.length > 0) {
             const sliced = list.slice(0, 8);
@@ -74,8 +72,7 @@ export function CityCarousel() {
             setError('Error: failed to fetch cities');
           }
         }
-      } catch (err) {
-        console.error('Failed to fetch cities:', err);
+      } catch (_err) {
         if (!cancelled) setError('Error: failed to fetch cities');
       } finally {
         if (!cancelled) {
@@ -90,7 +87,7 @@ export function CityCarousel() {
   }, []);
 
   const sanitizedCities = cities
-    .map((city) => {
+    .map(city => {
       const safeSlug = typeof city.slug === 'string' ? city.slug.trim() : '';
       const safeId = typeof city.id === 'string' ? city.id.trim() : '';
       const safeName = typeof city.name === 'string' ? city.name.trim() : '';
@@ -102,7 +99,7 @@ export function CityCarousel() {
         _fallbackId: safeId,
       };
     })
-    .filter((city) => city.slug && city.slug.length > 0);
+    .filter(city => city.slug && city.slug.length > 0);
 
   return (
     <section className="py-16 bg-gradient-to-r from-green-50 to-blue-50">
@@ -110,17 +107,19 @@ export function CityCarousel() {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h2 className="heading-lg">Featured Cities</h2>
-            <p className="body-lg text-neo-text-secondary">Discover your next eco-friendly destination</p>
+            <p className="body-lg text-neo-text-secondary">
+              Discover your next eco-friendly destination
+            </p>
           </div>
         </div>
 
         {loading && (
-          <p className="body-md text-neo-text-secondary" aria-live="polite">Loading cities…</p>
+          <p className="body-md text-neo-text-secondary" aria-live="polite">
+            Loading cities…
+          </p>
         )}
 
-        {error && !loading && (
-          <p className="body-md text-red-600">{error}</p>
-        )}
+        {error && !loading && <p className="body-md text-red-600">{error}</p>}
 
         {!loading && !error && sanitizedCities.length > 0 && (
           <div className="relative">
@@ -145,9 +144,11 @@ export function CityCarousel() {
             >
               <div className="flex gap-6" role="list">
                 {sanitizedCities.map((city, index) => {
-                  const key = city._originalSlug || city._fallbackId || city.name || `city-${index}`;
+                  const key =
+                    city._originalSlug || city._fallbackId || city.name || `city-${index}`;
                   const slugSegment = city.slug;
-                  const displayName = city.name && city.name.length > 0 ? city.name : 'Explore City';
+                  const displayName =
+                    city.name && city.name.length > 0 ? city.name : 'Explore City';
                   return (
                     <div
                       key={key}
@@ -187,15 +188,13 @@ export function CityCarousel() {
                           <div className="absolute inset-x-0 bottom-0 p-3 bg-black/60 text-white">
                             <div className="flex items-center justify-between">
                               <span className="font-bold">{displayName}</span>
-                             {typeof city.sustainabilityScore === 'number' && (
+                              {typeof city.sustainabilityScore === 'number' && (
                                 <span className="text-xs bg-emerald-400 text-black px-2 py-0.5 rounded-full font-bold">
                                   {city.sustainabilityScore}%
                                 </span>
                               )}
                             </div>
-                            {city.country && (
-                              <p className="text-xs opacity-90">{city.country}</p>
-                            )}
+                            {city.country && <p className="text-xs opacity-90">{city.country}</p>}
                           </div>
                         </div>
                       </Link>

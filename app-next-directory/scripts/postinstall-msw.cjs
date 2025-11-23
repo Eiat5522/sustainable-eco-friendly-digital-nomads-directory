@@ -1,6 +1,6 @@
-const { existsSync } = require('fs');
-const { execSync } = require('child_process');
-const path = require('path');
+const { existsSync } = require('node:fs');
+const { execSync } = require('node:child_process');
+const path = require('node:path');
 
 const { CI, NODE_ENV, npm_config_user_agent: UA } = process.env;
 const workerPath = path.resolve(__dirname, '../public/mockServiceWorker.js');
@@ -11,9 +11,8 @@ const hasPublicDir = existsSync(path.resolve(__dirname, '../public'));
 const shouldInit = hasPublicDir && !hasWorker && !isCi && env !== 'production';
 
 if (shouldInit) {
-  const runner = UA && UA.includes('pnpm') ? 'pnpm dlx'
-    : UA && UA.includes('yarn') ? 'yarn dlx'
-    : 'npx -y';
+  const runner =
+    UA?.includes('pnpm') ? 'pnpm dlx' : UA?.includes('yarn') ? 'yarn dlx' : 'npx -y';
   const cmd = `${runner} msw init public --save`;
   try {
     console.log(`[postinstall-msw] Initializing MSW: ${cmd}`);

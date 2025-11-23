@@ -54,9 +54,7 @@ describe('TestimonialsSection', () => {
   it('renders all testimonials and their associated metadata', () => {
     render(<TestimonialsSection />);
 
-    expect(
-      screen.getByRole('heading', { level: 2, name: 'What Nomads Say' })
-    ).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'What Nomads Say' })).toBeInTheDocument();
 
     const testimonials = screen.getAllByTestId('neo-card');
     expect(testimonials).toHaveLength(4);

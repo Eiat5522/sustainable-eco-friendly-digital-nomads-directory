@@ -1,4 +1,4 @@
-import type { ButtonProps, BadgeProps, SelectProps, InputProps } from '../ui';
+import type { BadgeProps, ButtonProps, InputProps, SelectProps } from '../ui';
 
 describe('ui component types', () => {
   describe('ButtonProps interface', () => {
@@ -6,7 +6,7 @@ describe('ui component types', () => {
       const props: ButtonProps = {
         variant: 'default',
         size: 'default',
-        children: 'Click me'
+        children: 'Click me',
       };
       expect(props.variant).toBe('default');
       expect(props.size).toBe('default');
@@ -49,7 +49,7 @@ describe('ui component types', () => {
         size: 'lg',
         onClick,
         className: 'test-class',
-        children: 'Submit'
+        children: 'Submit',
       };
       expect(props.variant).toBe('outline');
       expect(props.size).toBe('lg');
@@ -68,7 +68,7 @@ describe('ui component types', () => {
       const props: ButtonProps = {
         disabled: true,
         type: 'submit',
-        'aria-label': 'Submit button'
+        'aria-label': 'Submit button',
       };
       expect(props.disabled).toBe(true);
       expect(props.type).toBe('submit');
@@ -80,7 +80,7 @@ describe('ui component types', () => {
     it('should accept default variant badge props', () => {
       const props: BadgeProps = {
         variant: 'default',
-        children: 'New'
+        children: 'New',
       };
       expect(props.variant).toBe('default');
       expect(props.children).toBe('New');
@@ -113,7 +113,7 @@ describe('ui component types', () => {
         variant: 'secondary',
         onClick,
         className: 'test-badge',
-        children: 'Badge Text'
+        children: 'Badge Text',
       };
       expect(props.variant).toBe('secondary');
       expect(props.className).toBe('test-badge');
@@ -124,7 +124,7 @@ describe('ui component types', () => {
       const props: BadgeProps = {
         id: 'badge-1',
         'data-testid': 'test-badge',
-        title: 'Badge tooltip'
+        title: 'Badge tooltip',
       };
       expect(props.id).toBe('badge-1');
       expect(props['data-testid']).toBe('test-badge');
@@ -138,9 +138,9 @@ describe('ui component types', () => {
       const props: SelectProps = {
         options: [
           { value: 'opt1', label: 'Option 1' },
-          { value: 'opt2', label: 'Option 2' }
+          { value: 'opt2', label: 'Option 2' },
         ],
-        onValueChange
+        onValueChange,
       };
       expect(props.options).toHaveLength(2);
       expect(props.onValueChange).toBe(onValueChange);
@@ -150,7 +150,7 @@ describe('ui component types', () => {
       const onValueChange = jest.fn();
       const props: SelectProps = {
         options: [],
-        onValueChange
+        onValueChange,
       };
       expect(props.options).toHaveLength(0);
     });
@@ -159,7 +159,7 @@ describe('ui component types', () => {
       const props: SelectProps = {
         options: [],
         onValueChange: jest.fn(),
-        className: 'select-custom'
+        className: 'select-custom',
       };
       expect(props.className).toBe('select-custom');
     });
@@ -168,7 +168,7 @@ describe('ui component types', () => {
       const onValueChange = jest.fn();
       const props: SelectProps = {
         options: [{ value: 'test', label: 'Test' }],
-        onValueChange
+        onValueChange,
       };
       props.onValueChange('test');
       expect(onValueChange).toHaveBeenCalledWith('test');
@@ -180,7 +180,7 @@ describe('ui component types', () => {
         onValueChange: jest.fn(),
         disabled: true,
         name: 'select-field',
-        id: 'my-select'
+        id: 'my-select',
       };
       expect(props.disabled).toBe(true);
       expect(props.name).toBe('select-field');
@@ -192,11 +192,11 @@ describe('ui component types', () => {
         { value: '1', label: 'First' },
         { value: '2', label: 'Second' },
         { value: '3', label: 'Third' },
-        { value: '4', label: 'Fourth' }
+        { value: '4', label: 'Fourth' },
       ];
       const props: SelectProps = {
         options,
-        onValueChange: jest.fn()
+        onValueChange: jest.fn(),
       };
       expect(props.options).toHaveLength(4);
       expect(props.options[2].label).toBe('Third');
@@ -206,7 +206,7 @@ describe('ui component types', () => {
   describe('InputProps interface', () => {
     it('should accept basic input props', () => {
       const props: InputProps = {
-        className: 'input-custom'
+        className: 'input-custom',
       };
       expect(props.className).toBe('input-custom');
     });
@@ -223,7 +223,7 @@ describe('ui component types', () => {
         value: 'test value',
         disabled: false,
         name: 'input-field',
-        id: 'my-input'
+        id: 'my-input',
       };
       expect(props.type).toBe('text');
       expect(props.placeholder).toBe('Enter text');
@@ -238,7 +238,7 @@ describe('ui component types', () => {
         className: 'custom-input',
         type: 'email',
         required: true,
-        autoComplete: 'email'
+        autoComplete: 'email',
       };
       expect(props.className).toBe('custom-input');
       expect(props.type).toBe('email');
@@ -251,7 +251,7 @@ describe('ui component types', () => {
       const onFocus = jest.fn();
       const props: InputProps = {
         onChange,
-        onFocus
+        onFocus,
       };
       expect(props.onChange).toBe(onChange);
       expect(props.onFocus).toBe(onFocus);
@@ -263,7 +263,7 @@ describe('ui component types', () => {
       const buttons: ButtonProps[] = [
         { variant: 'default', children: 'Save' },
         { variant: 'outline', children: 'Cancel' },
-        { variant: 'ghost', children: 'Reset' }
+        { variant: 'ghost', children: 'Reset' },
       ];
       expect(buttons).toHaveLength(3);
     });
@@ -271,7 +271,7 @@ describe('ui component types', () => {
     it('should allow creating array of badge props', () => {
       const badges: BadgeProps[] = [
         { variant: 'default', children: 'New' },
-        { variant: 'secondary', children: 'Updated' }
+        { variant: 'secondary', children: 'Updated' },
       ];
       expect(badges).toHaveLength(2);
     });
@@ -281,26 +281,24 @@ describe('ui component types', () => {
         options: [
           { value: 'coworking', label: 'Coworking Space' },
           { value: 'cafe', label: 'Café' },
-          { value: 'accommodation', label: 'Accommodation' }
+          { value: 'accommodation', label: 'Accommodation' },
         ],
-        onValueChange: (value) => {
+        onValueChange: value => {
           expect(['coworking', 'cafe', 'accommodation']).toContain(value);
         },
-        className: 'category-select'
+        className: 'category-select',
       };
       props.onValueChange('coworking');
     });
 
     it('should support conditional rendering patterns', () => {
       const getButtonProps = (isPrimary: boolean): ButtonProps => {
-        return isPrimary
-          ? { variant: 'default', size: 'lg' }
-          : { variant: 'outline', size: 'sm' };
+        return isPrimary ? { variant: 'default', size: 'lg' } : { variant: 'outline', size: 'sm' };
       };
-      
+
       const primaryProps = getButtonProps(true);
       const secondaryProps = getButtonProps(false);
-      
+
       expect(primaryProps.variant).toBe('default');
       expect(secondaryProps.variant).toBe('outline');
     });

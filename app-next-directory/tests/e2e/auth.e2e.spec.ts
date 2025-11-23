@@ -29,4 +29,3 @@ test.describe('Authentication System (Playwright)', () => {
     await expect(page).toHaveURL(/\/login$/);
   });
 });
-

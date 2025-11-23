@@ -19,10 +19,10 @@ export default {
       options: {
         list: [
           { title: '$', value: '$' },
-          { title: '$$', value: '$$' }
-        ]
+          { title: '$$', value: '$$' },
+        ],
       },
-      validation: Rule => Rule.required().error('Price indication is required')
+      validation: Rule => Rule.required().error('Price indication is required'),
     },
     // Menu highlights (at least 2)
     {
@@ -43,12 +43,12 @@ export default {
               { title: 'Craft Beer/Wine', value: 'craft_beer_wine' },
               { title: 'Organic Ingredients', value: 'organic_ingredients' },
               { title: 'Gluten-Free Options', value: 'gluten_free_options' },
-              { title: 'Plant-Based Menu', value: 'plant_based_menu' }
-            ]
-          }
-        }
+              { title: 'Plant-Based Menu', value: 'plant_based_menu' },
+            ],
+          },
+        },
       ],
-      validation: Rule => Rule.min(2).error('Please select at least 2 menu highlights')
+      validation: Rule => Rule.min(2).error('Please select at least 2 menu highlights'),
     },
     // Workspace amenities (at least 1)
     {
@@ -62,17 +62,21 @@ export default {
           { title: 'Power Outlets', value: 'power_outlets' },
           { title: 'Large Tables', value: 'large_tables' },
           { title: 'Quiet Zones', value: 'quiet_zones' },
-          { title: 'Outdoor Seating', value: 'outdoor_seating' }
-        ]
+          { title: 'Outdoor Seating', value: 'outdoor_seating' },
+        ],
       },
-      validation: Rule => Rule.min(1).error('Please specify workspace amenities')
+      validation: Rule => Rule.min(1).error('Please specify workspace amenities'),
     },
     // Maximum recommended stay (hours, required)
     {
       name: 'maxRecommendedStay',
       title: 'Maximum Recommended Stay (hours)',
       type: 'number',
-      validation: Rule => Rule.required().min(1).max(12).error('Please specify a reasonable maximum stay duration between 1-12 hours')
+      validation: Rule =>
+        Rule.required()
+          .min(1)
+          .max(12)
+          .error('Please specify a reasonable maximum stay duration between 1-12 hours'),
     },
     // Typical noise level (required)
     {
@@ -85,10 +89,10 @@ export default {
           { title: 'Low Hum', value: 'low' },
           { title: 'Moderate', value: 'moderate' },
           { title: 'Energetic', value: 'high' },
-          { title: 'Very Loud', value: 'very_loud' }
-        ]
+          { title: 'Very Loud', value: 'very_loud' },
+        ],
       },
-      validation: Rule => Rule.required()
+      validation: Rule => Rule.required(),
     },
     // Power outlet availability (object)
     {
@@ -106,17 +110,17 @@ export default {
               { title: 'Good (Most Tables)', value: 'good' },
               { title: 'Limited (Some Tables)', value: 'limited' },
               { title: 'Very Limited', value: 'very_limited' },
-              { title: 'None', value: 'none' }
-            ]
-          }
+              { title: 'None', value: 'none' },
+            ],
+          },
         },
         {
           name: 'notes',
           title: 'Notes',
           type: 'text',
-          rows: 2
-        }
-      ]
+          rows: 2,
+        },
+      ],
     },
     // Work policy (object)
     {
@@ -125,7 +129,12 @@ export default {
       type: 'object',
       fields: [
         { name: 'laptopsAllowed', title: 'Laptops Allowed', type: 'boolean' },
-        { name: 'timeLimit', title: 'Time Limit (minutes)', type: 'number', validation: Rule => Rule.min(0) },
+        {
+          name: 'timeLimit',
+          title: 'Time Limit (minutes)',
+          type: 'number',
+          validation: Rule => Rule.min(0),
+        },
         {
           name: 'peakHoursPolicy',
           title: 'Peak Hours Policy',
@@ -134,12 +143,12 @@ export default {
             list: [
               { title: 'Always Welcome', value: 'always' },
               { title: 'Limited During Peak', value: 'limited_peak' },
-              { title: 'Not Allowed During Peak', value: 'no_peak' }
-            ]
-          }
+              { title: 'Not Allowed During Peak', value: 'no_peak' },
+            ],
+          },
         },
-        { name: 'peakHours', title: 'Peak Hours', type: 'string' }
-      ]
+        { name: 'peakHours', title: 'Peak Hours', type: 'string' },
+      ],
     },
     // Vegan friendly (object)
     {
@@ -148,8 +157,13 @@ export default {
       type: 'object',
       fields: [
         { name: 'isVeganFriendly', title: 'Is Vegan Friendly', type: 'boolean' },
-        { name: 'veganOptions', title: 'Percentage of Vegan Options', type: 'number', validation: Rule => Rule.min(0).max(100) }
-      ]
-    }
-  ]
-}
+        {
+          name: 'veganOptions',
+          title: 'Percentage of Vegan Options',
+          type: 'number',
+          validation: Rule => Rule.min(0).max(100),
+        },
+      ],
+    },
+  ],
+};

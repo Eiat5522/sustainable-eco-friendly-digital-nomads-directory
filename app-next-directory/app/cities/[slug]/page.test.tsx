@@ -1,23 +1,28 @@
 /** @jest-environment jsdom */
 
-import '@testing-library/jest-dom'
-import { render, screen } from '@testing-library/react'
-import CityPage, { generateStaticParams } from './page'
-import { getCityBySlug, getCityDetailBySlug, getListingsByCityId, getAllCitySlugs } from '@/lib/data/city'
-import { structuredLogger } from '@/lib/logger'
+import '@testing-library/jest-dom';
+import { render, screen } from '@testing-library/react';
+import {
+  getAllCitySlugs,
+  getCityBySlug,
+  getCityDetailBySlug,
+  getListingsByCityId,
+} from '@/lib/data/city';
+import { structuredLogger } from '@/lib/logger';
+import CityPage, { generateStaticParams } from './page';
 
 jest.mock('@/lib/data/city', () => ({
   getCityBySlug: jest.fn(),
   getCityDetailBySlug: jest.fn(),
   getListingsByCityId: jest.fn(),
   getAllCitySlugs: jest.fn(),
-}))
+}));
 
 jest.mock('@/lib/logger', () => ({
   structuredLogger: {
     error: jest.fn(),
   },
-}))
+}));
 
 jest.mock('@/components/city/CityDetailView', () => ({
   CityDetailView: ({ city, listings }: any) => (
@@ -31,15 +36,15 @@ jest.mock('@/components/city/CityDetailView', () => ({
       </div>
     </div>
   ),
-}))
+}));
 
 jest.mock('@/components/layout/Header', () => ({
   Header: () => <header>Header</header>,
-}))
+}));
 
 jest.mock('@/components/layout/Footer', () => ({
   Footer: () => <footer>Footer</footer>,
-}))
+}));
 
 describe('CityPage', () => {
   const mockCity = {
@@ -62,7 +67,7 @@ describe('CityPage', () => {
     sustainabilityInitiatives: [],
     digitalNomadFeatures: [],
     galleryImages: [],
-  }
+  };
 
   const mockListings = [
     {
@@ -91,56 +96,56 @@ describe('CityPage', () => {
       },
       shortDescription: 'desc 2',
     },
-  ]
+  ];
 
   beforeEach(() => {
-    jest.clearAllMocks()
-  })
+    jest.clearAllMocks();
+  });
 
   it('should render the city details and listings when data is fetched successfully', async () => {
-    ;(getCityDetailBySlug as jest.Mock).mockResolvedValue(mockCity)
-    ;(getListingsByCityId as jest.Mock).mockResolvedValue(mockListings)
+    (getCityDetailBySlug as jest.Mock).mockResolvedValue(mockCity);
+    (getListingsByCityId as jest.Mock).mockResolvedValue(mockListings);
 
-    const Page = await CityPage({ params: { slug: 'test-city' } })
-    render(Page)
+    const Page = await CityPage({ params: { slug: 'test-city' } });
+    render(Page);
 
-    expect(screen.getByTestId('city-name')).toHaveTextContent('Test City')
-    expect(screen.getByTestId('city-description')).toHaveTextContent('A city for testing.')
-    expect(screen.getByTestId('listings')).toHaveTextContent('Test Listing 1')
-    expect(screen.getByTestId('listings')).toHaveTextContent('Test Listing 2')
-  })
+    expect(screen.getByTestId('city-name')).toHaveTextContent('Test City');
+    expect(screen.getByTestId('city-description')).toHaveTextContent('A city for testing.');
+    expect(screen.getByTestId('listings')).toHaveTextContent('Test Listing 1');
+    expect(screen.getByTestId('listings')).toHaveTextContent('Test Listing 2');
+  });
 
   it('should render the city details with no listings when the city is found but has no listings', async () => {
-    ;(getCityDetailBySlug as jest.Mock).mockResolvedValue(mockCity)
-    ;(getListingsByCityId as jest.Mock).mockResolvedValue([])
+    (getCityDetailBySlug as jest.Mock).mockResolvedValue(mockCity);
+    (getListingsByCityId as jest.Mock).mockResolvedValue([]);
 
-    const Page = await CityPage({ params: { slug: 'test-city' } })
-    render(Page)
+    const Page = await CityPage({ params: { slug: 'test-city' } });
+    render(Page);
 
-    expect(screen.getByTestId('city-name')).toHaveTextContent('Test City')
-    expect(screen.getByTestId('city-description')).toHaveTextContent('A city for testing.')
-    expect(screen.getByTestId('listings')).toBeEmptyDOMElement()
-  })
+    expect(screen.getByTestId('city-name')).toHaveTextContent('Test City');
+    expect(screen.getByTestId('city-description')).toHaveTextContent('A city for testing.');
+    expect(screen.getByTestId('listings')).toBeEmptyDOMElement();
+  });
 
   it('should render a fallback city when city data is not found', async () => {
-    ;(getCityDetailBySlug as jest.Mock).mockResolvedValue(null)
-    ;(getCityBySlug as jest.Mock).mockResolvedValue(null)
-    ;(getListingsByCityId as jest.Mock).mockResolvedValue([])
+    (getCityDetailBySlug as jest.Mock).mockResolvedValue(null);
+    (getCityBySlug as jest.Mock).mockResolvedValue(null);
+    (getListingsByCityId as jest.Mock).mockResolvedValue([]);
 
-    const Page = await CityPage({ params: { slug: 'test-city' } })
-    render(Page)
+    const Page = await CityPage({ params: { slug: 'test-city' } });
+    render(Page);
 
-    expect(screen.getByTestId('city-name')).toHaveTextContent('Test City')
+    expect(screen.getByTestId('city-name')).toHaveTextContent('Test City');
     expect(screen.getByTestId('city-description')).toHaveTextContent(
-      'Preview data: city details unavailable.',
-    )
-  })
+      'Preview data: city details unavailable.'
+    );
+  });
 
   it('should log an error and render a fallback city when city data fetching fails', async () => {
-    ;(getCityDetailBySlug as jest.Mock).mockRejectedValue(new Error('Fetch error'))
+    (getCityDetailBySlug as jest.Mock).mockRejectedValue(new Error('Fetch error'));
 
-    const Page = await CityPage({ params: { slug: 'test-city' } })
-    render(Page)
+    const Page = await CityPage({ params: { slug: 'test-city' } });
+    render(Page);
 
     expect(structuredLogger.error).toHaveBeenCalledWith(
       'City fetch failed',
@@ -153,17 +158,17 @@ describe('CityPage', () => {
         component: 'city-page',
         operation: 'fetch_city_data',
         slug: 'test-city',
-      },
-    )
-    expect(screen.getByTestId('city-name')).toHaveTextContent('Test City')
-  })
+      }
+    );
+    expect(screen.getByTestId('city-name')).toHaveTextContent('Test City');
+  });
 
   it('should log an error when listing data is invalid', async () => {
-    ;(getCityDetailBySlug as jest.Mock).mockResolvedValue(mockCity)
-    ;(getListingsByCityId as jest.Mock).mockResolvedValue([{ id: 1, name: 'Invalid Listing' }])
+    (getCityDetailBySlug as jest.Mock).mockResolvedValue(mockCity);
+    (getListingsByCityId as jest.Mock).mockResolvedValue([{ id: 1, name: 'Invalid Listing' }]);
 
-    const Page = await CityPage({ params: { slug: 'test-city' } })
-    render(Page)
+    const Page = await CityPage({ params: { slug: 'test-city' } });
+    render(Page);
 
     expect(structuredLogger.error).toHaveBeenCalledWith(
       'Invalid ListingSummaryDTO validation failed',
@@ -174,51 +179,47 @@ describe('CityPage', () => {
         cityId: '1',
         slug: 'test-city',
         validationError: expect.any(String),
-      },
-    )
-  })
-})
+      }
+    );
+  });
+});
 
 describe('generateStaticParams', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-  })
+    jest.clearAllMocks();
+  });
 
   it('should return an array of params with city slugs', async () => {
-    const mockSlugs = ['tokyo', 'new-york', 'london']
-    ;(getAllCitySlugs as jest.Mock).mockResolvedValue(mockSlugs)
+    const mockSlugs = ['tokyo', 'new-york', 'london'];
+    (getAllCitySlugs as jest.Mock).mockResolvedValue(mockSlugs);
 
-    const result = await generateStaticParams()
+    const result = await generateStaticParams();
 
-    expect(result).toEqual([
-      { slug: 'tokyo' },
-      { slug: 'new-york' },
-      { slug: 'london' },
-    ])
-    expect(getAllCitySlugs).toHaveBeenCalledTimes(1)
-  })
+    expect(result).toEqual([{ slug: 'tokyo' }, { slug: 'new-york' }, { slug: 'london' }]);
+    expect(getAllCitySlugs).toHaveBeenCalledTimes(1);
+  });
 
   it('should return an empty array if fetching slugs fails', async () => {
-    ;(getAllCitySlugs as jest.Mock).mockRejectedValue(new Error('Fetch error'))
+    (getAllCitySlugs as jest.Mock).mockRejectedValue(new Error('Fetch error'));
 
-    const result = await generateStaticParams()
+    const result = await generateStaticParams();
 
-    expect(result).toEqual([])
+    expect(result).toEqual([]);
     expect(structuredLogger.error).toHaveBeenCalledWith(
       'Failed to generate static params for city pages',
       expect.any(Error),
       {
         component: 'city-page',
         operation: 'generateStaticParams',
-      },
-    )
-  })
+      }
+    );
+  });
 
   it('should return an empty array if getAllCitySlugs returns empty array', async () => {
-    ;(getAllCitySlugs as jest.Mock).mockResolvedValue([])
+    (getAllCitySlugs as jest.Mock).mockResolvedValue([]);
 
-    const result = await generateStaticParams()
+    const result = await generateStaticParams();
 
-    expect(result).toEqual([])
-  })
-})
+    expect(result).toEqual([]);
+  });
+});

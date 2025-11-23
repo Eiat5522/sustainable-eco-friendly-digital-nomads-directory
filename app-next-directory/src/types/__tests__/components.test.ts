@@ -1,10 +1,10 @@
 import type {
-  FilterOperator,
+  BadgeProps,
+  ButtonProps,
   FilterCondition,
   FilterGroup,
+  FilterOperator,
   FilterValues,
-  BadgeProps,
-  ButtonProps
 } from '../components';
 
 describe('components types', () => {
@@ -24,7 +24,7 @@ describe('components types', () => {
     it('should accept string value condition', () => {
       const condition: FilterCondition = {
         field: 'category',
-        value: 'coworking'
+        value: 'coworking',
       };
       expect(condition.field).toBe('category');
       expect(condition.value).toBe('coworking');
@@ -33,7 +33,7 @@ describe('components types', () => {
     it('should accept number value condition', () => {
       const condition: FilterCondition = {
         field: 'maxPrice',
-        value: 1000
+        value: 1000,
       };
       expect(typeof condition.value).toBe('number');
       expect(condition.value).toBe(1000);
@@ -42,7 +42,7 @@ describe('components types', () => {
     it('should accept boolean value condition', () => {
       const condition: FilterCondition = {
         field: 'hasWifi',
-        value: true
+        value: true,
       };
       expect(typeof condition.value).toBe('boolean');
       expect(condition.value).toBe(true);
@@ -52,7 +52,7 @@ describe('components types', () => {
       const condition: FilterCondition = {
         field: 'location',
         value: 'Bangkok',
-        operator: 'AND'
+        operator: 'AND',
       };
       expect(condition.operator).toBe('AND');
     });
@@ -60,7 +60,7 @@ describe('components types', () => {
     it('should accept condition without operator', () => {
       const condition: FilterCondition = {
         field: 'type',
-        value: 'cafe'
+        value: 'cafe',
       };
       expect(condition.operator).toBeUndefined();
     });
@@ -69,10 +69,8 @@ describe('components types', () => {
   describe('FilterGroup interface', () => {
     it('should accept basic filter group', () => {
       const group: FilterGroup = {
-        conditions: [
-          { field: 'category', value: 'coworking' }
-        ],
-        operator: 'AND'
+        conditions: [{ field: 'category', value: 'coworking' }],
+        operator: 'AND',
       };
       expect(group.conditions).toHaveLength(1);
       expect(group.operator).toBe('AND');
@@ -83,9 +81,9 @@ describe('components types', () => {
         conditions: [
           { field: 'category', value: 'coworking' },
           { field: 'location', value: 'Bangkok' },
-          { field: 'hasWifi', value: true }
+          { field: 'hasWifi', value: true },
         ],
-        operator: 'AND'
+        operator: 'AND',
       };
       expect(group.conditions).toHaveLength(3);
     });
@@ -93,7 +91,7 @@ describe('components types', () => {
     it('should accept empty conditions array', () => {
       const group: FilterGroup = {
         conditions: [],
-        operator: 'OR'
+        operator: 'OR',
       };
       expect(group.conditions).toHaveLength(0);
     });
@@ -102,7 +100,7 @@ describe('components types', () => {
       const group: FilterGroup = {
         conditions: [],
         operator: 'AND',
-        isEnabled: true
+        isEnabled: true,
       };
       expect(group.isEnabled).toBe(true);
     });
@@ -111,7 +109,7 @@ describe('components types', () => {
       const group: FilterGroup = {
         conditions: [],
         operator: 'OR',
-        label: 'Price Filters'
+        label: 'Price Filters',
       };
       expect(group.label).toBe('Price Filters');
     });
@@ -121,7 +119,7 @@ describe('components types', () => {
         conditions: [{ field: 'test', value: 'value' }],
         operator: 'AND',
         isEnabled: false,
-        label: 'Test Group'
+        label: 'Test Group',
       };
       expect(group.isEnabled).toBe(false);
       expect(group.label).toBe('Test Group');
@@ -136,28 +134,28 @@ describe('components types', () => {
 
     it('should accept searchQuery', () => {
       const values: FilterValues = {
-        searchQuery: 'eco cafe'
+        searchQuery: 'eco cafe',
       };
       expect(values.searchQuery).toBe('eco cafe');
     });
 
     it('should accept category', () => {
       const values: FilterValues = {
-        category: 'coworking'
+        category: 'coworking',
       };
       expect(values.category).toBe('coworking');
     });
 
     it('should accept location', () => {
       const values: FilterValues = {
-        location: 'Chiang Mai'
+        location: 'Chiang Mai',
       };
       expect(values.location).toBe('Chiang Mai');
     });
 
     it('should accept ecoTags array', () => {
       const values: FilterValues = {
-        ecoTags: ['solar-power', 'recycling', 'organic']
+        ecoTags: ['solar-power', 'recycling', 'organic'],
       };
       expect(values.ecoTags).toHaveLength(3);
       expect(values.ecoTags).toContain('organic');
@@ -165,21 +163,21 @@ describe('components types', () => {
 
     it('should accept nomadFeatures array', () => {
       const values: FilterValues = {
-        nomadFeatures: ['wifi', 'meeting-rooms', 'quiet']
+        nomadFeatures: ['wifi', 'meeting-rooms', 'quiet'],
       };
       expect(values.nomadFeatures).toHaveLength(3);
     });
 
     it('should accept minRating', () => {
       const values: FilterValues = {
-        minRating: 4
+        minRating: 4,
       };
       expect(values.minRating).toBe(4);
     });
 
     it('should accept maxPriceRange', () => {
       const values: FilterValues = {
-        maxPriceRange: 1000
+        maxPriceRange: 1000,
       };
       expect(values.maxPriceRange).toBe(1000);
     });
@@ -189,16 +187,16 @@ describe('components types', () => {
         combinations: [
           {
             conditions: [{ field: 'category', value: 'cafe' }],
-            operator: 'AND'
-          }
-        ]
+            operator: 'AND',
+          },
+        ],
       };
       expect(values.combinations).toHaveLength(1);
     });
 
     it('should accept combinationOperator', () => {
       const values: FilterValues = {
-        combinationOperator: 'OR'
+        combinationOperator: 'OR',
       };
       expect(values.combinationOperator).toBe('OR');
     });
@@ -213,7 +211,7 @@ describe('components types', () => {
         minRating: 3,
         maxPriceRange: 500,
         combinations: [],
-        combinationOperator: 'AND'
+        combinationOperator: 'AND',
       };
       expect(values.searchQuery).toBe('workspace');
       expect(values.minRating).toBe(3);
@@ -223,7 +221,7 @@ describe('components types', () => {
   describe('BadgeProps interface', () => {
     it('should accept default variant', () => {
       const props: BadgeProps = {
-        variant: 'default'
+        variant: 'default',
       };
       expect(props.variant).toBe('default');
     });
@@ -240,7 +238,7 @@ describe('components types', () => {
       const props: BadgeProps = {
         className: 'custom-badge',
         id: 'badge-1',
-        'data-testid': 'test-badge'
+        'data-testid': 'test-badge',
       };
       expect(props.className).toBe('custom-badge');
       expect(props.id).toBe('badge-1');
@@ -250,7 +248,7 @@ describe('components types', () => {
     it('should accept onClick handler', () => {
       const onClick = jest.fn();
       const props: BadgeProps = {
-        onClick
+        onClick,
       };
       expect(props.onClick).toBe(onClick);
     });
@@ -260,7 +258,7 @@ describe('components types', () => {
         variant: 'secondary',
         className: 'my-badge',
         onClick: jest.fn(),
-        title: 'Badge title'
+        title: 'Badge title',
       };
       expect(props.variant).toBe('secondary');
       expect(props.className).toBe('my-badge');
@@ -270,7 +268,7 @@ describe('components types', () => {
   describe('ButtonProps interface', () => {
     it('should accept default variant', () => {
       const props: ButtonProps = {
-        variant: 'default'
+        variant: 'default',
       };
       expect(props.variant).toBe('default');
     });
@@ -293,7 +291,7 @@ describe('components types', () => {
 
     it('should accept asChild prop', () => {
       const props: ButtonProps = {
-        asChild: true
+        asChild: true,
       };
       expect(props.asChild).toBe(true);
     });
@@ -303,7 +301,7 @@ describe('components types', () => {
         type: 'submit',
         disabled: true,
         className: 'custom-button',
-        'aria-label': 'Submit button'
+        'aria-label': 'Submit button',
       };
       expect(props.type).toBe('submit');
       expect(props.disabled).toBe(true);
@@ -313,7 +311,7 @@ describe('components types', () => {
     it('should accept onClick handler', () => {
       const onClick = jest.fn();
       const props: ButtonProps = {
-        onClick
+        onClick,
       };
       expect(props.onClick).toBe(onClick);
     });
@@ -325,7 +323,7 @@ describe('components types', () => {
         asChild: false,
         type: 'button',
         disabled: false,
-        className: 'my-button'
+        className: 'my-button',
       };
       expect(props.variant).toBe('outline');
       expect(props.size).toBe('lg');
@@ -336,11 +334,11 @@ describe('components types', () => {
   describe('Integration scenarios', () => {
     it('should support filter building workflow', () => {
       const values: FilterValues = {};
-      
+
       values.searchQuery = 'eco workspace';
       values.category = 'coworking';
       values.ecoTags = ['solar-power'];
-      
+
       expect(values.searchQuery).toBeDefined();
       expect(values.category).toBe('coworking');
     });
@@ -351,25 +349,25 @@ describe('components types', () => {
           {
             conditions: [
               { field: 'category', value: 'coworking' },
-              { field: 'location', value: 'Bangkok' }
+              { field: 'location', value: 'Bangkok' },
             ],
             operator: 'AND',
             isEnabled: true,
-            label: 'Bangkok Coworking'
+            label: 'Bangkok Coworking',
           },
           {
             conditions: [
               { field: 'category', value: 'cafe' },
-              { field: 'hasWifi', value: true }
+              { field: 'hasWifi', value: true },
             ],
             operator: 'AND',
             isEnabled: true,
-            label: 'WiFi Cafes'
-          }
+            label: 'WiFi Cafes',
+          },
         ],
-        combinationOperator: 'OR'
+        combinationOperator: 'OR',
       };
-      
+
       expect(values.combinations).toHaveLength(2);
       expect(values.combinationOperator).toBe('OR');
     });
@@ -378,33 +376,33 @@ describe('components types', () => {
       const button: ButtonProps = {
         variant: 'default',
         size: 'lg',
-        type: 'submit'
+        type: 'submit',
       };
-      
+
       const badge: BadgeProps = {
         variant: 'secondary',
-        className: 'status-badge'
+        className: 'status-badge',
       };
-      
+
       expect(button.variant).toBe('default');
       expect(badge.variant).toBe('secondary');
     });
 
     it('should handle conditional filter application', () => {
       const baseValues: FilterValues = {
-        searchQuery: 'workspace'
+        searchQuery: 'workspace',
       };
-      
+
       const withLocation: FilterValues = {
         ...baseValues,
-        location: 'Bangkok'
+        location: 'Bangkok',
       };
-      
+
       const withRating: FilterValues = {
         ...withLocation,
-        minRating: 4
+        minRating: 4,
       };
-      
+
       expect(withRating.searchQuery).toBe('workspace');
       expect(withRating.location).toBe('Bangkok');
       expect(withRating.minRating).toBe(4);
@@ -415,15 +413,15 @@ describe('components types', () => {
         {
           conditions: [{ field: 'a', value: 'test' }],
           operator: 'AND',
-          isEnabled: true
+          isEnabled: true,
         },
         {
           conditions: [{ field: 'b', value: 'test' }],
           operator: 'OR',
-          isEnabled: false
-        }
+          isEnabled: false,
+        },
       ];
-      
+
       const enabled = groups.filter(g => g.isEnabled);
       expect(enabled).toHaveLength(1);
     });

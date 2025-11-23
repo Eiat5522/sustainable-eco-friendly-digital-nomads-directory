@@ -13,7 +13,7 @@ beforeAll(() => {
     configurable: true,
     enumerable: true,
     get: () => mockLocation,
-    set: (value) => {
+    set: value => {
       Object.assign(mockLocation, value);
     },
   });

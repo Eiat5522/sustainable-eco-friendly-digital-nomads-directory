@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import { PlausibleAnalyticsProvider } from '../provider';
 import * as plausible from '../index';
+import { PlausibleAnalyticsProvider } from '../provider';
 
 describe('PlausibleAnalyticsProvider', () => {
   it('renders children without modification', () => {

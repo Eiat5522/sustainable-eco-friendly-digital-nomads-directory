@@ -1,15 +1,14 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('Authentication API', () => {
-
   test.describe('POST /api/auth/register', () => {
     test('should register a new user successfully', async ({ request }) => {
       const response = await request.post('/api/auth/register', {
         data: {
           name: 'API Test User',
           email: `apitest+${Date.now()}@example.com`,
-          password: 'password123'
-        }
+          password: 'password123',
+        },
       });
 
       expect(response.status()).toBe(201);
@@ -24,9 +23,9 @@ test.describe('Authentication API', () => {
     test('should return 400 for invalid data', async ({ request }) => {
       const response = await request.post('/api/auth/register', {
         data: {
-          name: 'Test User'
+          name: 'Test User',
           // Missing email and password
-        }
+        },
       });
 
       expect(response.status()).toBe(400);
@@ -44,8 +43,8 @@ test.describe('Authentication API', () => {
         data: {
           name: 'First User',
           email: email,
-          password: 'password123'
-        }
+          password: 'password123',
+        },
       });
 
       // Second registration with same email
@@ -53,8 +52,8 @@ test.describe('Authentication API', () => {
         data: {
           name: 'Second User',
           email: email,
-          password: 'password123'
-        }
+          password: 'password123',
+        },
       });
 
       expect(response.status()).toBe(409);
@@ -68,8 +67,8 @@ test.describe('Authentication API', () => {
         data: {
           name: 'Test User',
           email: 'invalid-email',
-          password: 'password123'
-        }
+          password: 'password123',
+        },
       });
 
       expect(response.status()).toBe(400);
@@ -84,8 +83,8 @@ test.describe('Authentication API', () => {
         data: {
           name: 'Test User',
           email: 'test@example.com',
-          password: '123' // Too short
-        }
+          password: '123', // Too short
+        },
       });
 
       expect(response.status()).toBe(400);
@@ -103,8 +102,8 @@ test.describe('Authentication API', () => {
         data: {
           name: 'Login Test User',
           email: 'logintest@example.com',
-          password: 'password123'
-        }
+          password: 'password123',
+        },
       });
     });
 
@@ -112,8 +111,8 @@ test.describe('Authentication API', () => {
       const response = await request.post('/api/auth/signin', {
         data: {
           email: 'logintest@example.com',
-          password: 'password123'
-        }
+          password: 'password123',
+        },
       });
 
       expect(response.status()).toBe(200);
@@ -128,8 +127,8 @@ test.describe('Authentication API', () => {
       const response = await request.post('/api/auth/signin', {
         data: {
           email: 'logintest@example.com',
-          password: 'wrongpassword'
-        }
+          password: 'wrongpassword',
+        },
       });
 
       expect(response.status()).toBe(401);
@@ -142,8 +141,8 @@ test.describe('Authentication API', () => {
       const response = await request.post('/api/auth/signin', {
         data: {
           email: 'nonexistent@example.com',
-          password: 'password123'
-        }
+          password: 'password123',
+        },
       });
 
       expect(response.status()).toBe(404);
@@ -155,9 +154,9 @@ test.describe('Authentication API', () => {
     test('should validate required fields', async ({ request }) => {
       const response = await request.post('/api/auth/signin', {
         data: {
-          email: 'test@example.com'
+          email: 'test@example.com',
           // Missing password
-        }
+        },
       });
 
       expect(response.status()).toBe(400);
@@ -174,8 +173,8 @@ test.describe('Authentication API', () => {
       const loginResponse = await request.post('/api/auth/signin', {
         data: {
           email: 'logintest@example.com',
-          password: 'password123'
-        }
+          password: 'password123',
+        },
       });
 
       const { token } = await loginResponse.json();
@@ -183,8 +182,8 @@ test.describe('Authentication API', () => {
       // Get session with token
       const sessionResponse = await request.get('/api/auth/session', {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       expect(sessionResponse.status()).toBe(200);
@@ -206,8 +205,8 @@ test.describe('Authentication API', () => {
     test('should return 401 for invalid token', async ({ request }) => {
       const response = await request.get('/api/auth/session', {
         headers: {
-          'Authorization': 'Bearer invalid-token'
-        }
+          Authorization: 'Bearer invalid-token',
+        },
       });
 
       expect(response.status()).toBe(401);
@@ -223,8 +222,8 @@ test.describe('Authentication API', () => {
       const loginResponse = await request.post('/api/auth/signin', {
         data: {
           email: 'logintest@example.com',
-          password: 'password123'
-        }
+          password: 'password123',
+        },
       });
 
       const { token } = await loginResponse.json();
@@ -232,8 +231,8 @@ test.describe('Authentication API', () => {
       // Sign out
       const signoutResponse = await request.post('/api/auth/signout', {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       expect(signoutResponse.status()).toBe(200);
@@ -244,8 +243,8 @@ test.describe('Authentication API', () => {
       // Verify session is invalidated
       const sessionResponse = await request.get('/api/auth/session', {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       expect(sessionResponse.status()).toBe(401);
@@ -263,8 +262,8 @@ test.describe('Authentication API', () => {
             data: {
               name: `Test User ${i}`,
               email: `ratetest${i}@example.com`,
-              password: 'password123'
-            }
+              password: 'password123',
+            },
           })
         );
       }
@@ -285,8 +284,8 @@ test.describe('Authentication API', () => {
           request.post('/api/auth/signin', {
             data: {
               email: 'logintest@example.com',
-              password: 'wrongpassword'
-            }
+              password: 'wrongpassword',
+            },
           })
         );
       }

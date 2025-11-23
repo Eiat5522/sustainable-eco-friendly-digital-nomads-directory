@@ -1,7 +1,5 @@
-import React from 'react';
-import { render, screen, waitFor, fireEvent, act, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { getUserFacingMessage } from '@/lib/error-handler';
 
 // Mock the getUserFacingMessage function
 jest.mock('@/lib/error-handler', () => ({
@@ -13,15 +11,15 @@ jest.mock('@/lib/error-handler', () => ({
     return defaultMessage;
   }),
 }));
-import { ListingsManagementTable } from '../ListingsManagementTable';
+
+import { HttpResponse, http } from 'msw';
 import { setupServer } from 'msw/node';
-import { http, HttpResponse } from 'msw';
 import type {
   ListingManagementItem,
   ListingManagementResponse,
   ListingStats,
 } from '@/types/listings';
-import { __TEST_DATA__ } from '@/src/tests/helpers/test-data';
+import { ListingsManagementTable } from '../ListingsManagementTable';
 
 // Mock the next/navigation module
 const mockPush = jest.fn();
@@ -111,25 +109,31 @@ const handlers = [
 
     if (search) {
       filteredListings = filteredListings.filter(
-        (listing) =>
+        listing =>
           listing.name.toLowerCase().includes(search.toLowerCase()) ||
           listing.slug.toLowerCase().includes(search.toLowerCase())
       );
     }
     if (status) {
-      filteredListings = filteredListings.filter((listing) => listing.status === status);
+      filteredListings = filteredListings.filter(listing => listing.status === status);
     }
     if (type) {
-      filteredListings = filteredListings.filter((listing) => listing.type === type);
-      console.log(`MSW: Filtered by type "${type}". Remaining listings:`, filteredListings.map(l => l.name));
+      filteredListings = filteredListings.filter(listing => listing.type === type);
+      console.log(
+        `MSW: Filtered by type "${type}". Remaining listings:`,
+        filteredListings.map(l => l.name)
+      );
     }
     if (search) {
       filteredListings = filteredListings.filter(
-        (listing) =>
+        listing =>
           listing.name.toLowerCase().includes(search.toLowerCase()) ||
           listing.slug.toLowerCase().includes(search.toLowerCase())
       );
-      console.log(`MSW: Filtered by search "${search}". Remaining listings:`, filteredListings.map(l => l.name));
+      console.log(
+        `MSW: Filtered by search "${search}". Remaining listings:`,
+        filteredListings.map(l => l.name)
+      );
     }
 
     const limit = 20;
@@ -164,7 +168,7 @@ const handlers = [
 
   http.patch('/api/admin/listings', async ({ request }) => {
     const { listingId, action } = await request.json();
-    const listingIndex = mockListings.findIndex((l) => l.id === listingId);
+    const listingIndex = mockListings.findIndex(l => l.id === listingId);
     if (listingIndex > -1) {
       const listing = mockListings[listingIndex];
       switch (action) {
@@ -194,7 +198,7 @@ const handlers = [
   http.delete('/api/admin/listings', async ({ request }) => {
     const { listingId } = await request.json();
     const initialLength = mockListings.length;
-    const newLength = mockListings.filter((l) => l.id !== listingId).length;
+    const newLength = mockListings.filter(l => l.id !== listingId).length;
     if (newLength < initialLength) {
       // In a real scenario, you'd update the actual mockListings array
       // For now, just return success
@@ -254,14 +258,28 @@ describe('ListingsManagementTable', () => {
           if (search === 'cozy') {
             return HttpResponse.json({
               listings: [mockListings[0]], // Only "Cozy Coworking"
-              pagination: { page: 1, limit: 20, totalCount: 1, totalPages: 1, hasNextPage: false, hasPrevPage: false },
+              pagination: {
+                page: 1,
+                limit: 20,
+                totalCount: 1,
+                totalPages: 1,
+                hasNextPage: false,
+                hasPrevPage: false,
+              },
               filters: { search: 'cozy', status: null, type: null },
             });
           }
           // Fallback to original mockListings if search is empty or different
           return HttpResponse.json({
             listings: mockListings,
-            pagination: { page: 1, limit: 20, totalCount: 3, totalPages: 1, hasNextPage: false, hasPrevPage: false },
+            pagination: {
+              page: 1,
+              limit: 20,
+              totalCount: 3,
+              totalPages: 1,
+              hasNextPage: false,
+              hasPrevPage: false,
+            },
             filters: { search: '', status: null, type: null },
           });
         })
@@ -283,7 +301,14 @@ describe('ListingsManagementTable', () => {
         http.get('/api/admin/listings', () => {
           return HttpResponse.json({
             listings: mockListings,
-            pagination: { page: 1, limit: 20, totalCount: 3, totalPages: 1, hasNextPage: false, hasPrevPage: false },
+            pagination: {
+              page: 1,
+              limit: 20,
+              totalCount: 3,
+              totalPages: 1,
+              hasNextPage: false,
+              hasPrevPage: false,
+            },
             filters: { search: '', status: null, type: null },
           });
         })
@@ -332,7 +357,14 @@ describe('ListingsManagementTable', () => {
             const filtered = getInitialMockListings().filter(l => l.type === 'accommodation');
             return HttpResponse.json({
               listings: filtered,
-              pagination: { page: 1, limit: 20, totalCount: filtered.length, totalPages: 1, hasNextPage: false, hasPrevPage: false },
+              pagination: {
+                page: 1,
+                limit: 20,
+                totalCount: filtered.length,
+                totalPages: 1,
+                hasNextPage: false,
+                hasPrevPage: false,
+              },
               filters: { search: null, status: null, type: 'accommodation' },
             });
           }
@@ -340,7 +372,14 @@ describe('ListingsManagementTable', () => {
           const allListings = getInitialMockListings();
           return HttpResponse.json({
             listings: allListings,
-            pagination: { page: 1, limit: 20, totalCount: allListings.length, totalPages: 1, hasNextPage: false, hasPrevPage: false },
+            pagination: {
+              page: 1,
+              limit: 20,
+              totalCount: allListings.length,
+              totalPages: 1,
+              hasNextPage: false,
+              hasPrevPage: false,
+            },
             filters: { search: null, status: null, type: null },
           });
         })
@@ -362,7 +401,14 @@ describe('ListingsManagementTable', () => {
           const allListings = getInitialMockListings();
           return HttpResponse.json({
             listings: allListings,
-            pagination: { page: 1, limit: 20, totalCount: allListings.length, totalPages: 1, hasNextPage: false, hasPrevPage: false },
+            pagination: {
+              page: 1,
+              limit: 20,
+              totalCount: allListings.length,
+              totalPages: 1,
+              hasNextPage: false,
+              hasPrevPage: false,
+            },
             filters: { search: null, status: null, type: null },
           });
         })
@@ -388,13 +434,17 @@ describe('ListingsManagementTable', () => {
       await act(async () => {
         fireEvent.click(publishButton);
       });
-      await waitFor(() => expect(within(spaciousAccommodationRow).getByText('Success!')).toBeInTheDocument());
+      await waitFor(() =>
+        expect(within(spaciousAccommodationRow).getByText('Success!')).toBeInTheDocument()
+      );
       // Verify status badge changes (this might require re-rendering or checking the DOM directly)
       // For now, we just check the success message
     } else {
       // If the button is not found, it means the mock data might have changed or the logic
       // for showing the button is different than expected.
-      console.warn('Publish button not found for Spacious Accommodation. Skipping publish action test.');
+      console.warn(
+        'Publish button not found for Spacious Accommodation. Skipping publish action test.'
+      );
     }
   });
 
@@ -414,17 +464,16 @@ describe('ListingsManagementTable', () => {
     });
 
     await waitFor(() => expect(within(modernCafeRow).getByText('Deleted!')).toBeInTheDocument());
-    expect(confirmSpy).toHaveBeenCalledWith('Are you sure you want to delete "Modern Cafe"? This action cannot be undone.');
+    expect(confirmSpy).toHaveBeenCalledWith(
+      'Are you sure you want to delete "Modern Cafe"? This action cannot be undone.'
+    );
     confirmSpy.mockRestore();
   });
 
   it('displays error message if fetching listings fails', async () => {
     server.use(
       http.get('/api/admin/listings', () => {
-        return HttpResponse.json(
-          { error: 'Internal Server Error' },
-          { status: 500 }
-        );
+        return HttpResponse.json({ error: 'Internal Server Error' }, { status: 500 });
       })
     );
 
@@ -441,10 +490,7 @@ describe('ListingsManagementTable', () => {
   it('displays error message if fetching stats fails', async () => {
     server.use(
       http.get('/api/admin/listings/stats', () => {
-        return HttpResponse.json(
-          { error: 'Internal Server Error' },
-          { status: 500 }
-        );
+        return HttpResponse.json({ error: 'Internal Server Error' }, { status: 500 });
       })
     );
 

@@ -5,6 +5,6 @@
  * @date May 18, 2025
  */
 
-export { ANALYTICS_EVENTS, type ListingEvent, type SearchEvent, type MapEvent } from './config'
-export { usePlausibleAnalytics } from './hooks'
-export { PlausibleAnalyticsProvider } from './provider'
+export { ANALYTICS_EVENTS, type ListingEvent, type MapEvent, type SearchEvent } from './config';
+export { usePlausibleAnalytics } from './hooks';
+export { PlausibleAnalyticsProvider } from './provider';

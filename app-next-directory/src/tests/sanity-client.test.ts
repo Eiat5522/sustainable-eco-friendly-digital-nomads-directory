@@ -8,7 +8,7 @@ jest.mock('@sanity/image-url', () => ({
   })),
 }));
 jest.mock('../lib/sanity/client', () => ({
-  createClient: jest.fn((config) => {
+  createClient: jest.fn(config => {
     const patchChain = {
       set: jest.fn(() => ({
         commit: jest.fn(() => Promise.resolve({})),
@@ -21,13 +21,14 @@ jest.mock('../lib/sanity/client', () => ({
       delete: jest.fn(() => Promise.resolve('')),
       patch: jest.fn(() => patchChain),
       assets: {
-        upload: jest.fn(() => Promise.resolve({ _id: 'mock-asset-id' }))
-      }
+        upload: jest.fn(() => Promise.resolve({ _id: 'mock-asset-id' })),
+      },
     };
 
     return clientMock;
   }),
 }));
+
 /**
  * Sanity HTTP Client Test Suite
  * Day 1 Sprint: API Authentication Testing
@@ -47,7 +48,6 @@ describe('Sanity HTTP Client Test Suite', () => {
 
   // Test suite for the HTTP client
   class SanityClientTester {
-
     async testHealthCheck(): Promise<void> {
       const health = await sanityHTTPClient.healthCheck();
       if (health.status !== 'ok') {
@@ -80,13 +80,13 @@ describe('Sanity HTTP Client Test Suite', () => {
         createdAt: new Date().toISOString(),
         testData: {
           environment: process.env.NODE_ENV,
-          timestamp: Date.now()
-        }
+          timestamp: Date.now(),
+        },
       };
       const created = await sanityHTTPClient.create(testDoc);
       await sanityHTTPClient.update(created._id, {
         title: 'Updated API Test Document',
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       });
       await sanityHTTPClient.delete(created._id);
     }

@@ -1,6 +1,6 @@
-import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { getBaseUrl } from '@/lib/absolute-url';
+import { auth } from '@/lib/auth';
 import { sanitizeCallbackUrl } from '@/lib/auth/callbackUrl';
 import SignupPageContent from './SignupPageContent';
 

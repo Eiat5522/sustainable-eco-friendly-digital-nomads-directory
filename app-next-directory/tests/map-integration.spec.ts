@@ -1,25 +1,25 @@
 import { expect } from '@playwright/test';
-import { test } from './utils/test-fixtures';
-import {
-  waitForMapLoad,
-  getMapBounds,
-  panMap,
-  getVisibleMarkers,
-  clickMarkerByIndex,
-  getPopupContent
-} from './utils/map-test-utils';
 import { applyFilters, clearFilters } from './utils/filter-test-utils';
-import { expectLoading, expectEmptyState } from './utils/test-assertions';
+import {
+  clickMarkerByIndex,
+  getMapBounds,
+  getPopupContent,
+  getVisibleMarkers,
+  panMap,
+  waitForMapLoad,
+} from './utils/map-test-utils';
+import { expectEmptyState, expectLoading } from './utils/test-assertions';
+import { test } from './utils/test-fixtures';
 import { setupMockApi, setupViewport } from './utils/test-setup';
 
 test.describe('Map Integration', () => {
   test.beforeEach(async ({ page, mockListings }) => {
     // Setup mock API response
     await setupMockApi(page, mockListings);
-    
+
     // Navigate to listings page
     await page.goto('/listings');
-    
+
     // Wait for map to load
     await waitForMapLoad(page);
   });
@@ -27,7 +27,7 @@ test.describe('Map Integration', () => {
   test('should display map with markers', async ({ page }) => {
     // Check if map container is rendered
     await expect(page.locator('#map')).toBeVisible();
-    
+
     // Check if markers are added to the map
     await expect(page.locator('.leaflet-marker-icon')).toBeVisible();
   });
@@ -35,7 +35,7 @@ test.describe('Map Integration', () => {
   test('should show marker clusters when zoomed out', async ({ page }) => {
     // Wait for clustering to initialize
     await page.waitForSelector('.custom-marker-cluster');
-    
+
     // Check if cluster icons are visible
     const clusters = await page.locator('.cluster-icon').count();
     expect(clusters).toBeGreaterThan(0);
@@ -105,12 +105,12 @@ test.describe('Map Integration', () => {
     // Apply both category and eco tag filters
     await applyFilters(page, {
       categories: ['coworking'],
-      ecoTags: ['zero-waste']
+      ecoTags: ['zero-waste'],
     });
 
     // Get filtered markers
     const markers = await getVisibleMarkers(page);
-    
+
     // Verify all visible markers are coworking spaces
     markers.forEach(marker => {
       expect(marker.text).toBe('🏢');
@@ -126,7 +126,7 @@ test.describe('Map Integration', () => {
     // Apply filters first
     await applyFilters(page, {
       categories: ['coworking'],
-      ecoTags: ['zero-waste']
+      ecoTags: ['zero-waste'],
     });
 
     const filteredCount = await page.locator('.marker-icon').count();
@@ -154,7 +154,7 @@ test.describe('Map Integration', () => {
       const style = window.getComputedStyle(marker);
       return {
         fontSize: style.fontSize,
-        lineHeight: style.lineHeight
+        lineHeight: style.lineHeight,
       };
     });
 
@@ -166,7 +166,7 @@ test.describe('Map Integration', () => {
     // Apply non-matching filters
     await applyFilters(page, {
       categories: ['coworking'],
-      ecoTags: ['eco-construction', 'water-conservation']
+      ecoTags: ['eco-construction', 'water-conservation'],
     });
 
     // Verify no markers are visible
@@ -180,10 +180,10 @@ test.describe('Map Integration', () => {
   test('should show loading state while fetching', async ({ page }) => {
     // Apply filters to trigger loading state
     await applyFilters(page, { categories: ['coworking'] });
-    
+
     // Verify loading state appears
     await expectLoading(page, true);
-    
+
     // Wait for loading to complete
     await expectLoading(page, false);
   });

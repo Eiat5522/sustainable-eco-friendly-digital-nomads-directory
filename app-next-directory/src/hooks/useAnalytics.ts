@@ -1,12 +1,12 @@
-import {
-    type CustomEvent,
-    type EventProperties,
-    identifyUser,
-    trackEvent,
-    trackPageView
-} from '@/lib/analytics/config';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect } from 'react';
+import {
+  type CustomEvent,
+  type EventProperties,
+  identifyUser,
+  trackEvent,
+  trackPageView,
+} from '@/lib/analytics/config';
 
 export function useAnalytics(options?: { referrer?: string }) {
   const pathname = usePathname();
@@ -19,20 +19,20 @@ export function useAnalytics(options?: { referrer?: string }) {
       title: document.title,
       path: pathname ?? '',
       search: search ? `?${search}` : undefined,
-      referrer: options?.referrer ?? document.referrer
+      referrer: options?.referrer ?? document.referrer,
     });
   }, [pathname, searchParams, options?.referrer]);
 
   // Typed event tracking
-  const track = useCallback(<T extends keyof EventProperties>(
-    eventName: T,
-    properties: EventProperties[T]
-  ) => {
-    return trackEvent({
-      name: eventName,
-      properties
-    });
-  }, []);
+  const track = useCallback(
+    <T extends keyof EventProperties>(eventName: T, properties: EventProperties[T]) => {
+      return trackEvent({
+        name: eventName,
+        properties,
+      });
+    },
+    []
+  );
 
   // Generic event tracking for events without predefined types
   const trackCustomEvent = useCallback((event: CustomEvent) => {
@@ -40,16 +40,13 @@ export function useAnalytics(options?: { referrer?: string }) {
   }, []);
 
   // User identification
-  const identify = useCallback((
-    userId: string,
-    traits?: Record<string, unknown>
-  ) => {
+  const identify = useCallback((userId: string, traits?: Record<string, unknown>) => {
     return identifyUser(userId, traits);
   }, []);
 
   return {
     track,
     trackCustomEvent,
-    identify
+    identify,
   };
 }

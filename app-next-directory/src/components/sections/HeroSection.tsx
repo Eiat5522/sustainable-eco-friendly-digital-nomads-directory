@@ -1,12 +1,12 @@
 'use client';
 
-import type React from 'react';
-import { useState } from 'react';
-import { NeoInput } from '@/components/ui/neo-input';
-import { NeoButton } from '@/components/ui/neo-button';
-import { ScrollDownArrow } from '@/components/ui/scroll-down-arrow';
 import { Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import type React from 'react';
+import { useState } from 'react';
+import { NeoButton } from '@/components/ui/neo-button';
+import { NeoInput } from '@/components/ui/neo-input';
+import { ScrollDownArrow } from '@/components/ui/scroll-down-arrow';
 
 export function HeroSection() {
   const [q, setQ] = useState('');
@@ -25,7 +25,11 @@ export function HeroSection() {
       aria-labelledby="hero-heading"
     >
       {/* Geometric Shapes */}
-      <div className="absolute top-20 left-20 w-32 h-32 bg-neo-secondary rounded-full opacity-80" aria-hidden="true" role="presentation">
+      <div
+        className="absolute top-20 left-20 w-32 h-32 bg-neo-secondary rounded-full opacity-80"
+        aria-hidden="true"
+        role="presentation"
+      >
         <div className="absolute inset-4 bg-neo-border rounded-full"></div>
         <div className="absolute top-8 left-8 w-4 h-16 bg-neo-border rounded-full"></div>
         <div className="absolute top-8 right-8 w-4 h-16 bg-neo-border rounded-full"></div>
@@ -49,17 +53,12 @@ export function HeroSection() {
             A Curated Directory For Sustainable Digital Nomads
           </h1>
           <p className="body-lg text-blue-100 mb-12 max-w-2xl mx-auto">
-            The growing source for all sustainable venues is empowered by the
-            community to ensure you will get the most eco-friendly spaces for
-            your digital nomad journey.
+            The growing source for all sustainable venues is empowered by the community to ensure
+            you will get the most eco-friendly spaces for your digital nomad journey.
           </p>
 
           {/* Search Bar */}
-          <form
-            role="search"
-            onSubmit={handleSubmit}
-            className="relative max-w-2xl mx-auto mb-8"
-          >
+          <form role="search" onSubmit={handleSubmit} className="relative max-w-2xl mx-auto mb-8">
             <div className="relative">
               <Search
                 aria-hidden="true"
@@ -75,9 +74,13 @@ export function HeroSection() {
                 className="pl-12 pr-20 h-16 text-lg bg-white"
                 name="q"
                 value={q}
-                onChange={(e) => setQ(e.target.value)}
+                onChange={e => setQ(e.target.value)}
               />
-              <NeoButton type="submit" className="absolute right-4 top-1/2 -translate-y-1/2" size="md">
+              <NeoButton
+                type="submit"
+                className="absolute right-4 top-1/2 -translate-y-1/2"
+                size="md"
+              >
                 Search
               </NeoButton>
             </div>

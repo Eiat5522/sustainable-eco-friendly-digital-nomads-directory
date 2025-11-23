@@ -7,7 +7,7 @@
  * 4. Redirect behavior
  */
 
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { NextResponse } from 'next/server';
 
 // Mock dbConnect
@@ -44,7 +44,7 @@ describe('Newsletter Confirmation API - GET /api/newsletter/confirm', () => {
     process.env = { ...originalEnv };
     mockDbConnect.mockResolvedValue(undefined);
     mockUpdateOne.mockResolvedValue({ acknowledged: true });
-    
+
     // Dynamically import the route handler
     const routeModule = await import('../route');
     GET = routeModule.GET;
@@ -208,7 +208,9 @@ describe('Newsletter Confirmation API - GET /api/newsletter/confirm', () => {
       process.env.MONGODB_URI = 'mongodb://localhost/test';
       mockVerifyToken.mockResolvedValueOnce({ email: 'test@example.com' });
 
-      const request = new Request('http://localhost/api/newsletter/confirm?token=abc-123_xyz.token');
+      const request = new Request(
+        'http://localhost/api/newsletter/confirm?token=abc-123_xyz.token'
+      );
 
       const response = await GET(request);
 
@@ -257,7 +259,9 @@ describe('Newsletter Confirmation API - GET /api/newsletter/confirm', () => {
 
       const response = await GET(request);
 
-      expect(response.headers.get('location')).toContain('https://example.com/newsletter/confirmed');
+      expect(response.headers.get('location')).toContain(
+        'https://example.com/newsletter/confirmed'
+      );
     });
 
     it('should maintain https protocol in redirect', async () => {

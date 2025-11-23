@@ -13,11 +13,6 @@ export const WebVitalsReporter = (metric: WebVitalsMetric) => {
   };
 
   if (process.env.NODE_ENV === 'development') {
-    console.log('Web Vitals:', {
-      name: metricPayload.name,
-      value: metricPayload.value,
-      delta: metricPayload.delta,
-    });
   }
 
   const url = '/api/performance/web-vitals';
@@ -43,27 +38,30 @@ export const WebVitalsReporter = (metric: WebVitalsMetric) => {
 
 export const reportWebVitals = WebVitalsReporter;
 
-export function measureFunctionTime<T>(fn: () => T, name = 'Function'): T {
+export function measureFunctionTime<T>(fn: () => T, _name = 'Function'): T {
   const start = typeof performance !== 'undefined' ? performance.now() : Date.now();
   const result = fn();
   const end = typeof performance !== 'undefined' ? performance.now() : Date.now();
-  const executionTime = end - start;
+  const _executionTime = end - start;
   if (process.env.NODE_ENV === 'development') {
-    console.debug(`[${name}] Execution time: ${executionTime.toFixed?.(2) ?? executionTime}ms`);
   }
   return result;
 }
 
-export const recordMetric = (name: string, value: number, details: Record<string, unknown> = {}): void => {
+export const recordMetric = (
+  name: string,
+  value: number,
+  details: Record<string, unknown> = {}
+): void => {
   if (process.env.NODE_ENV === 'test') return;
   // placeholder for sampling logic (disabled by default)
   if (Math.random() > 1) return;
   if (process.env.NODE_ENV === 'development') {
-    console.debug(`[Custom Metric] ${name}: ${value}`, details);
   }
   try {
     const body = JSON.stringify({ name, value, details, timestamp: Date.now() });
-    if (typeof fetch !== 'undefined') fetch('/api/performance/custom', { method: 'POST', body, keepalive: true }).catch(() => {});
+    if (typeof fetch !== 'undefined')
+      fetch('/api/performance/custom', { method: 'POST', body, keepalive: true }).catch(() => {});
   } catch {
     // ignore
   }

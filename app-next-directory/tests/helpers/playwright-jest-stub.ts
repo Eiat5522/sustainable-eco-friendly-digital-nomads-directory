@@ -10,61 +10,72 @@
  * with inert `expect`, `devices`, and `request` utilities so that Jest can safely
  * import these modules without executing any Playwright behaviour.
  */
-import { createRequire } from 'module'
-import type { PlaywrightTestArgs, PlaywrightTestOptions, PlaywrightWorkerArgs, PlaywrightWorkerOptions, TestType } from '@playwright/test'
 
-const require = createRequire(import.meta.url)
+import type {
+  PlaywrightTestArgs,
+  PlaywrightTestOptions,
+  PlaywrightWorkerArgs,
+  PlaywrightWorkerOptions,
+  TestType,
+} from '@playwright/test';
+import { createRequire } from 'node:module';
 
-const isPlaywrightRuntime =
-  Boolean(process.env.PLAYWRIGHT_TEST || process.env.PLAYWRIGHT_WORKER_ID || process.env.PW_TEST_HTML_REPORT)
+const require = createRequire(import.meta.url);
 
-let exportedTest: TestType<PlaywrightTestArgs & PlaywrightTestOptions, PlaywrightWorkerArgs & PlaywrightWorkerOptions>
-let exportedExpect: typeof import('@playwright/test').expect
-let exportedDevices: typeof import('@playwright/test').devices
-let exportedRequest: typeof import('@playwright/test').request
+const isPlaywrightRuntime = Boolean(
+  process.env.PLAYWRIGHT_TEST || process.env.PLAYWRIGHT_WORKER_ID || process.env.PW_TEST_HTML_REPORT
+);
 
-const noopAsync = async () => undefined
-const noopSync = () => undefined
+let exportedTest: TestType<
+  PlaywrightTestArgs & PlaywrightTestOptions,
+  PlaywrightWorkerArgs & PlaywrightWorkerOptions
+>;
+let exportedExpect: typeof import('@playwright/test').expect;
+let exportedDevices: typeof import('@playwright/test').devices;
+let exportedRequest: typeof import('@playwright/test').request;
+
+const noopAsync = async () => undefined;
+const noopSync = () => undefined;
 
 const createNoopRequest = () =>
   new Proxy(
     {},
     {
       get: () => noopAsync,
-    },
-  ) as unknown as typeof import('@playwright/test').request
+    }
+  ) as unknown as typeof import('@playwright/test').request;
 
 const attachNoopModifiers = (fn: any) => {
-  fn.skip = noopSync
-  fn.only = noopSync
-  fn.fixme = noopSync
-  fn.fail = noopSync
-  fn.slow = noopSync
-  fn.step = noopAsync
-  fn.setTimeout = noopSync
-  return fn
-}
+  fn.skip = noopSync;
+  fn.only = noopSync;
+  fn.fixme = noopSync;
+  fn.fail = noopSync;
+  fn.slow = noopSync;
+  fn.step = noopAsync;
+  fn.setTimeout = noopSync;
+  return fn;
+};
 
 const createNoopDescribe = () => {
-  const describe = (..._args: unknown[]) => undefined
-  ;(describe as any).only = noopSync
-  ;(describe as any).skip = noopSync
-  ;(describe as any).parallel = noopSync
-  ;(describe as any).serial = noopSync
-  ;(describe as any).configure = noopSync
-  return describe
-}
+  const describe = (..._args: unknown[]) => undefined;
+  (describe as any).only = noopSync;
+  (describe as any).skip = noopSync;
+  (describe as any).parallel = noopSync;
+  (describe as any).serial = noopSync;
+  (describe as any).configure = noopSync;
+  return describe;
+};
 
 const createNoopTest = () => {
-  const testFn: any = (..._args: unknown[]) => undefined
+  const testFn: any = (..._args: unknown[]) => undefined;
 
-  testFn.beforeAll = noopAsync
-  testFn.afterAll = noopAsync
-  testFn.beforeEach = noopAsync
-  testFn.afterEach = noopAsync
-  testFn.use = noopSync
-  testFn.extend = () => testFn
-  testFn.describe = createNoopDescribe()
+  testFn.beforeAll = noopAsync;
+  testFn.afterAll = noopAsync;
+  testFn.beforeEach = noopAsync;
+  testFn.afterEach = noopAsync;
+  testFn.use = noopSync;
+  testFn.extend = () => testFn;
+  testFn.describe = createNoopDescribe();
   testFn.info = () => ({
     project: { name: 'jest-playwright-stub', use: {} },
     workerIndex: 0,
@@ -78,36 +89,39 @@ const createNoopTest = () => {
     snapshotDir: '',
     repeatEachIndex: 0,
     expectedStatus: 'passed',
-  })
+  });
 
-  attachNoopModifiers(testFn)
-  return testFn as TestType<PlaywrightTestArgs & PlaywrightTestOptions, PlaywrightWorkerArgs & PlaywrightWorkerOptions>
-}
+  attachNoopModifiers(testFn);
+  return testFn as TestType<
+    PlaywrightTestArgs & PlaywrightTestOptions,
+    PlaywrightWorkerArgs & PlaywrightWorkerOptions
+  >;
+};
 
 if (isPlaywrightRuntime) {
-  const playwright = require('@playwright/test') as typeof import('@playwright/test')
-  exportedTest = playwright.test
-  exportedExpect = playwright.expect
-  exportedDevices = playwright.devices
-  exportedRequest = playwright.request
+  const playwright = require('@playwright/test') as typeof import('@playwright/test');
+  exportedTest = playwright.test;
+  exportedExpect = playwright.expect;
+  exportedDevices = playwright.devices;
+  exportedRequest = playwright.request;
 } else {
-  exportedTest = createNoopTest()
+  exportedTest = createNoopTest();
   exportedExpect = ((..._args: unknown[]) => {
-    throw new Error('Playwright expect is unavailable outside the Playwright test runner')
-  }) as typeof import('@playwright/test').expect
-  exportedDevices = {} as typeof import('@playwright/test').devices
-  exportedRequest = createNoopRequest()
+    throw new Error('Playwright expect is unavailable outside the Playwright test runner');
+  }) as typeof import('@playwright/test').expect;
+  exportedDevices = {} as typeof import('@playwright/test').devices;
+  exportedRequest = createNoopRequest();
 }
 
-export const test = exportedTest
-export const expect = exportedExpect
-export const devices = exportedDevices
-export const request = exportedRequest
+export const test = exportedTest;
+export const expect = exportedExpect;
+export const devices = exportedDevices;
+export const request = exportedRequest;
 const playwrightJestStub = {
   test,
   expect,
   devices,
   request,
-}
+};
 
-export default playwrightJestStub
+export default playwrightJestStub;

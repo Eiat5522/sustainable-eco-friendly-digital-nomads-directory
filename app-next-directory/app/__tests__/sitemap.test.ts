@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 // Mock the client before import
 jest.mock('@/lib/sanity/client', () => ({
@@ -7,8 +7,8 @@ jest.mock('@/lib/sanity/client', () => ({
   },
 }));
 
-import sitemap from '../sitemap';
 import { client } from '@/lib/sanity/client';
+import sitemap from '../sitemap';
 
 const mockClient = client as jest.Mocked<typeof client>;
 
@@ -55,7 +55,9 @@ describe('sitemap', () => {
 
     const result = await sitemap();
 
-    const homePage = result.find(page => page.url.endsWith('/') || page.url === 'http://localhost:3001');
+    const homePage = result.find(
+      page => page.url.endsWith('/') || page.url === 'http://localhost:3001'
+    );
     const listingsPage = result.find(page => page.url.endsWith('/listings'));
     const citiesPage = result.find(page => page.url.endsWith('/cities'));
 
@@ -69,7 +71,9 @@ describe('sitemap', () => {
 
     const result = await sitemap();
 
-    const homePage = result.find(page => page.url.endsWith('/') || page.url === 'http://localhost:3001');
+    const homePage = result.find(
+      page => page.url.endsWith('/') || page.url === 'http://localhost:3001'
+    );
     const listingsPage = result.find(page => page.url.endsWith('/listings'));
 
     expect(homePage?.changeFrequency).toBe('daily');
@@ -78,7 +82,7 @@ describe('sitemap', () => {
 
   it('handles data fetch gracefully', async () => {
     process.env.NEXT_PUBLIC_SITE_URL = 'https://example.com';
-    
+
     mockClient.fetch
       .mockResolvedValueOnce([
         { slug: 'eco-cafe-bali', _updatedAt: '2024-01-10T00:00:00.000Z' },
@@ -90,7 +94,7 @@ describe('sitemap', () => {
 
     // Should include at least static pages
     expect(result.length).toBeGreaterThanOrEqual(3);
-    
+
     // All entries should have proper structure
     result.forEach(entry => {
       expect(entry.url).toMatch(/^https:\/\/example\.com/);
@@ -102,7 +106,7 @@ describe('sitemap', () => {
 
     // Should have at least static pages
     expect(result.length).toBeGreaterThanOrEqual(3);
-    
+
     // Check that each entry has required fields
     result.forEach(entry => {
       expect(entry).toHaveProperty('url');

@@ -63,7 +63,12 @@ describe('email utilities', () => {
     process.env.RESEND_API_KEY = 'test-api-key';
     const { sendMail } = await importEmailModule();
 
-    const result = await sendMail({ to: 'user@example.com', subject: 'Welcome', html: '<p>Hello</p>', text: 'Hello' });
+    const result = await sendMail({
+      to: 'user@example.com',
+      subject: 'Welcome',
+      html: '<p>Hello</p>',
+      text: 'Hello',
+    });
 
     expect(ResendConstructor).toHaveBeenCalledWith('test-api-key');
     expect(resendSendMock).toHaveBeenCalledWith({
@@ -81,7 +86,11 @@ describe('email utilities', () => {
     resendSendMock.mockRejectedValueOnce(new Error('network error'));
     const { sendMail } = await importEmailModule();
 
-    const result = await sendMail({ to: 'user@example.com', subject: 'Alert', html: '<p>Alert</p>' });
+    const result = await sendMail({
+      to: 'user@example.com',
+      subject: 'Alert',
+      html: '<p>Alert</p>',
+    });
 
     expect(emailErrorMock).toHaveBeenCalledWith('send email', expect.any(Error), {
       to: 'user@example.com',

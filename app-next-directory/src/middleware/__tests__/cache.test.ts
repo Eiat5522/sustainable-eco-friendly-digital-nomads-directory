@@ -124,10 +124,7 @@ describe('cache middleware', () => {
         'Cache-Control',
         'public, max-age=1800, stale-while-revalidate=60'
       );
-      expect(mockSet).toHaveBeenCalledWith(
-        'Surrogate-Control',
-        'max-age=1800'
-      );
+      expect(mockSet).toHaveBeenCalledWith('Surrogate-Control', 'max-age=1800');
       expect(mockAppend).toHaveBeenCalledWith('Vary', 'Cookie');
     });
 
@@ -156,10 +153,7 @@ describe('cache middleware', () => {
         'Cache-Control',
         'public, max-age=86400, stale-while-revalidate=300'
       );
-      expect(mockSet).toHaveBeenCalledWith(
-        'Surrogate-Control',
-        'max-age=86400'
-      );
+      expect(mockSet).toHaveBeenCalledWith('Surrogate-Control', 'max-age=86400');
     });
 
     it('should set cache headers for category pages', async () => {
@@ -187,10 +181,7 @@ describe('cache middleware', () => {
         'Cache-Control',
         'public, max-age=43200, stale-while-revalidate=300'
       );
-      expect(mockSet).toHaveBeenCalledWith(
-        'Surrogate-Control',
-        'max-age=43200'
-      );
+      expect(mockSet).toHaveBeenCalledWith('Surrogate-Control', 'max-age=43200');
     });
 
     it('should set default cache headers for other pages', async () => {
@@ -218,10 +209,7 @@ describe('cache middleware', () => {
         'Cache-Control',
         'public, max-age=3600, stale-while-revalidate=60'
       );
-      expect(mockSet).toHaveBeenCalledWith(
-        'Surrogate-Control',
-        'max-age=3600'
-      );
+      expect(mockSet).toHaveBeenCalledWith('Surrogate-Control', 'max-age=3600');
     });
 
     it('should set private cache for authenticated requests', async () => {
@@ -297,10 +285,7 @@ describe('cache middleware', () => {
 
       await cacheMiddleware(request, response);
 
-      expect(mockSet).toHaveBeenCalledWith(
-        'Cache-Control',
-        expect.stringContaining('public')
-      );
+      expect(mockSet).toHaveBeenCalledWith('Cache-Control', expect.stringContaining('public'));
     });
   });
 

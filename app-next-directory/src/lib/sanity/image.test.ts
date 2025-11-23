@@ -1,10 +1,10 @@
-import { urlFor } from './image';
 import { builder } from './client';
+import { urlFor } from './image';
 
 // Mock the builder object
 jest.mock('./client', () => ({
   builder: {
-    image: jest.fn((source) => ({
+    image: jest.fn(source => ({
       // Mock a chainable image builder
       width: jest.fn().mockReturnThis(),
       height: jest.fn().mockReturnThis(),

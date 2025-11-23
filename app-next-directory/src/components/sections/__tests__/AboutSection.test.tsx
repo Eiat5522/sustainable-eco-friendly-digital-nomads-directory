@@ -12,10 +12,10 @@ jest.mock('next/link', () => ({
 }));
 
 jest.mock('lucide-react', () => ({
-  Leaf: () => <span data-testid="icon" />, 
-  Users: () => <span data-testid="icon" />, 
-  Globe: () => <span data-testid="icon" />, 
-  Heart: () => <span data-testid="icon" />, 
+  Leaf: () => <span data-testid="icon" />,
+  Users: () => <span data-testid="icon" />,
+  Globe: () => <span data-testid="icon" />,
+  Heart: () => <span data-testid="icon" />,
 }));
 
 jest.mock('@/components/ui/neo-card', () => ({
@@ -35,14 +35,17 @@ describe('AboutSection', () => {
   it('renders the mission statement and feature list', () => {
     render(<AboutSection />);
 
-    expect(
-      screen.getByRole('heading', { level: 2, name: 'Who We Are' })
-    ).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'Who We Are' })).toBeInTheDocument();
     expect(
       screen.getByText(/We're on a mission to make sustainable travel accessible/i)
     ).toBeInTheDocument();
 
-    const featureTitles = ['Sustainability First', 'Community Driven', 'Global Network', 'Impact Focused'];
+    const featureTitles = [
+      'Sustainability First',
+      'Community Driven',
+      'Global Network',
+      'Impact Focused',
+    ];
     for (const title of featureTitles) {
       expect(screen.getByRole('heading', { level: 3, name: title })).toBeInTheDocument();
     }
@@ -52,7 +55,9 @@ describe('AboutSection', () => {
     render(<AboutSection />);
 
     const joinCard = screen.getByRole('heading', { level: 3, name: 'Join Our Mission' });
-    const links = within(joinCard.closest('section') ?? screen.getByRole('region', { name: /about/i })).getAllByRole('link');
+    const links = within(
+      joinCard.closest('section') ?? screen.getByRole('region', { name: /about/i })
+    ).getAllByRole('link');
 
     const addVenueLink = screen.getByRole('link', { name: 'Add a Venue' });
     expect(addVenueLink).toHaveAttribute('href', '/venues/new');

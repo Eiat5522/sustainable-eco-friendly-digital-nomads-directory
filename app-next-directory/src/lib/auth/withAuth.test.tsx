@@ -1,11 +1,10 @@
 import { jest } from '@jest/globals';
 import { render, screen, waitFor } from '@testing-library/react';
-import React from 'react';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 // Import the HOCs to be tested
-import { withAuth, withAdminAuth, withUserAuth } from './withAuth';
+import { withAdminAuth, withAuth, withUserAuth } from './withAuth';
 
 // The modules 'next-auth/react' and 'next/navigation' are globally mocked by Jest.
 // We can import them and cast to mocks to control their behavior in tests.
@@ -35,7 +34,7 @@ describe('withAuth HOC', () => {
       const WrappedComponent = withAuth(TestComponent);
 
       render(<WrappedComponent message="Hello World" />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Hello World')).toBeInTheDocument();
       });
@@ -103,7 +102,7 @@ describe('withAuth HOC', () => {
       const WrappedComponent = withAuth(TestComponent, { requiredRole: 'admin' });
 
       render(<WrappedComponent />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Admin Content')).toBeInTheDocument();
       });
@@ -180,7 +179,7 @@ describe('withAdminAuth HOC', () => {
     const WrappedComponent = withAdminAuth(TestComponent);
 
     render(<WrappedComponent />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('Admin Panel')).toBeInTheDocument();
     });
@@ -219,7 +218,7 @@ describe('withUserAuth HOC', () => {
     const WrappedComponent = withUserAuth(TestComponent);
 
     render(<WrappedComponent />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('User Content')).toBeInTheDocument();
     });
@@ -251,7 +250,7 @@ describe('withUserAuth HOC', () => {
     const WrappedComponent = withUserAuth(TestComponent);
 
     render(<WrappedComponent />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('User Content')).toBeInTheDocument();
     });

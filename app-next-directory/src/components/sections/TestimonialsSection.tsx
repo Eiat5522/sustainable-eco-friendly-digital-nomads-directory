@@ -1,21 +1,21 @@
-"use client"
+'use client';
 
-import type React from 'react'
-import Image from 'next/image'
-import Link from 'next/link'
-import { NeoCard, NeoCardContent } from '@/components/ui/neo-card'
-import { NeoBadge } from '@/components/ui/neo-badge'
-import { Star, Quote } from 'lucide-react'
+import { Quote, Star } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import type React from 'react';
+import { NeoBadge } from '@/components/ui/neo-badge';
+import { NeoCard, NeoCardContent } from '@/components/ui/neo-card';
 
 interface Testimonial {
-  id: number
-  name: string
-  role: string
-  location: string
-  avatar: string
-  rating: number
-  text: string
-  venue: string
+  id: number;
+  name: string;
+  role: string;
+  location: string;
+  avatar: string;
+  rating: number;
+  text: string;
+  venue: string;
 }
 
 const testimonials: Testimonial[] = [
@@ -27,7 +27,7 @@ const testimonials: Testimonial[] = [
     avatar: 'https://i.pravatar.cc/150?img=1',
     rating: 5,
     text: 'This platform completely changed how I travel! Finding sustainable coworking spaces and eco-friendly accommodations has never been easier. The community reviews are spot-on.',
-    venue: 'EcoWork Canggu'
+    venue: 'EcoWork Canggu',
   },
   {
     id: 2,
@@ -36,8 +36,8 @@ const testimonials: Testimonial[] = [
     location: 'Currently in Lisbon',
     avatar: 'https://i.pravatar.cc/150?img=2',
     rating: 5,
-    text: 'As someone who cares deeply about environmental impact, this directory is a game-changer. Every venue I\'ve visited through this platform has exceeded my sustainability expectations.',
-    venue: 'Green Bean Cafe'
+    text: "As someone who cares deeply about environmental impact, this directory is a game-changer. Every venue I've visited through this platform has exceeded my sustainability expectations.",
+    venue: 'Green Bean Cafe',
   },
   {
     id: 3,
@@ -46,10 +46,10 @@ const testimonials: Testimonial[] = [
     location: 'Currently in Costa Rica',
     avatar: 'https://i.pravatar.cc/150?img=3',
     rating: 5,
-    text: 'The quality of venues and the focus on sustainability is incredible. I love that I can travel guilt-free knowing I\'m supporting businesses that care about the planet.',
-    venue: 'Bamboo Lodge'
-  }
-]
+    text: "The quality of venues and the focus on sustainability is incredible. I love that I can travel guilt-free knowing I'm supporting businesses that care about the planet.",
+    venue: 'Bamboo Lodge',
+  },
+];
 
 export function TestimonialsSection() {
   return (
@@ -58,13 +58,18 @@ export function TestimonialsSection() {
         <div className="text-center mb-16">
           <h2 className="heading-lg mb-6">What Nomads Say</h2>
           <p className="body-lg max-w-2xl mx-auto text-neo-text-secondary">
-            Real experiences from digital nomads who are making a difference through sustainable travel
+            Real experiences from digital nomads who are making a difference through sustainable
+            travel
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {testimonials.map((testimonial) => (
-            <NeoCard key={testimonial.id} variant="elevated" className="hover:shadow-[16px_16px_0px_0px] transition-all duration-300">
+          {testimonials.map(testimonial => (
+            <NeoCard
+              key={testimonial.id}
+              variant="elevated"
+              className="hover:shadow-[16px_16px_0px_0px] transition-all duration-300"
+            >
               <NeoCardContent className="p-8">
                 {/* Quote Icon */}
                 <div className="w-12 h-12 bg-neo-primary rounded-full flex items-center justify-center mb-6">
@@ -73,21 +78,23 @@ export function TestimonialsSection() {
 
                 {/* Rating */}
                 <div className="flex items-center space-x-1 mb-4">
-  <span className="sr-only">{`${testimonial.rating} out of 5 stars`}</span>
-  {Array.from({ length: 5 }).map((_, i) => (
-    <Star
-      key={i}
-      size={16}
-      className={i < testimonial.rating ? "text-neo-secondary fill-current" : "text-neo-secondary/30"}
-      aria-hidden="true"
-      focusable="false"
-    />
-  ))}
-</div>
+                  <span className="sr-only">{`${testimonial.rating} out of 5 stars`}</span>
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      size={16}
+                      className={
+                        i < testimonial.rating
+                          ? 'text-neo-secondary fill-current'
+                          : 'text-neo-secondary/30'
+                      }
+                      aria-hidden="true"
+                      focusable="false"
+                    />
+                  ))}
+                </div>
                 {/* Testimonial Text */}
-                <blockquote className="body-md mb-6 italic">
-                  “{testimonial.text}”
-                </blockquote>
+                <blockquote className="body-md mb-6 italic">“{testimonial.text}”</blockquote>
 
                 {/* Venue Badge */}
                 <NeoBadge variant="success" size="sm" className="mb-6">
@@ -104,10 +111,11 @@ export function TestimonialsSection() {
                       sizes="48px"
                       className="object-cover"
                       onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-                        e.currentTarget.src = '/images/default-avatar.png'
+                        e.currentTarget.src = '/images/default-avatar.png';
                       }}
                     />
-                  </div>                  <div>
+                  </div>{' '}
+                  <div>
                     <h4 className="heading-sm">{testimonial.name}</h4>
                     <p className="body-sm text-neo-text-secondary">{testimonial.role}</p>
                     <p className="body-sm text-neo-text-secondary">{testimonial.location}</p>
@@ -120,30 +128,33 @@ export function TestimonialsSection() {
 
         {/* Call to Action */}
         <div className="text-center mt-16">
-          <NeoCard variant="flat" className="inline-block p-8 bg-gradient-to-r from-neo-secondary to-orange-400">
+          <NeoCard
+            variant="flat"
+            className="inline-block p-8 bg-gradient-to-r from-neo-secondary to-orange-400"
+          >
             <NeoCardContent>
               <h3 className="heading-md mb-4 text-white">Share Your Experience</h3>
               <p className="body-lg mb-6 text-white max-w-xl">
                 Help fellow nomads by sharing your experiences with sustainable venues
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-<Link
-  href="/write-review"
-  className="neo-button neo-button-hover bg-neo-primary text-white px-6 py-3 rounded-lg font-bold hover:bg-neo-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
->
-  Write a Review
-</Link>
-<Link
-  href="/community"
-  className="neo-button neo-button-hover bg-transparent text-white border border-white px-6 py-3 rounded-lg font-bold hover:bg-white hover:text-neo-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
->
-  Join Community
-</Link>
+                <Link
+                  href="/write-review"
+                  className="neo-button neo-button-hover bg-neo-primary text-white px-6 py-3 rounded-lg font-bold hover:bg-neo-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                >
+                  Write a Review
+                </Link>
+                <Link
+                  href="/community"
+                  className="neo-button neo-button-hover bg-transparent text-white border border-white px-6 py-3 rounded-lg font-bold hover:bg-white hover:text-neo-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                >
+                  Join Community
+                </Link>
               </div>
             </NeoCardContent>
           </NeoCard>
         </div>
       </div>
     </section>
-  )
+  );
 }

@@ -1,16 +1,15 @@
-import React from 'react';
-import { redirect } from 'next/navigation';
-import { auth } from '@/lib/auth';
 import type { Metadata } from 'next';
-import type { UserRole } from '@/types/auth';
+import { redirect } from 'next/navigation';
 import {
-  fetchAdminAnalytics,
   type AdminAnalyticsSnapshot,
   type AdminModerationEntry,
   createEmptyRoleCounts,
+  fetchAdminAnalytics,
 } from '@/lib/admin/analytics';
+import { auth } from '@/lib/auth';
 import { RequestTimeoutError } from '@/lib/http/request';
 import { structuredLogger } from '@/lib/logger';
+import type { UserRole } from '@/types/auth';
 import { ModerationActions } from './ModerationActions';
 
 export const dynamic = 'force-dynamic';
@@ -26,7 +25,7 @@ function formatNumber(num: number): string {
 
 function formatTimeAgo(dateString: string): string {
   const date = new Date(dateString);
-  if (isNaN(date.getTime())) {
+  if (Number.isNaN(date.getTime())) {
     return 'Unknown';
   }
 
@@ -81,7 +80,7 @@ function StatusBadge({ status }: { status: string }) {
 
   const readableStatus = status
     .split('_')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 
   const fallbackClasses = 'bg-gray-50 text-gray-700 border-gray-200';
@@ -120,32 +119,38 @@ type AnalyticsLoadResult = {
   errorMessage?: string;
 };
 
-function isValidModerationEntry(entry: AdminModerationEntry | undefined): entry is AdminModerationEntry {
+function isValidModerationEntry(
+  entry: AdminModerationEntry | undefined
+): entry is AdminModerationEntry {
   return Boolean(
     entry &&
-    typeof entry.id === 'string' &&
-    typeof entry.itemType === 'string' &&
-    typeof entry.itemName === 'string' &&
-    typeof entry.itemId === 'string' &&
-    typeof entry.status === 'string'
+      typeof entry.id === 'string' &&
+      typeof entry.itemType === 'string' &&
+      typeof entry.itemName === 'string' &&
+      typeof entry.itemId === 'string' &&
+      typeof entry.status === 'string'
   );
 }
 
-function normalizeModerationQueue(queue: AdminModerationEntry[] | undefined): AdminModerationEntry[] {
+function normalizeModerationQueue(
+  queue: AdminModerationEntry[] | undefined
+): AdminModerationEntry[] {
   if (!Array.isArray(queue)) {
     return [];
   }
 
   return queue
     .filter((entry): entry is AdminModerationEntry => isValidModerationEntry(entry))
-    .map((entry) => ({
+    .map(entry => ({
       ...entry,
       reports: Number.isFinite(entry.reports) ? entry.reports : 0,
       lastActivity: entry.lastActivity ?? new Date(0).toISOString(),
     }));
 }
 
-function normalizeAnalyticsSnapshot(snapshot: AdminAnalyticsSnapshot | undefined | null): AdminAnalyticsSnapshot | null {
+function normalizeAnalyticsSnapshot(
+  snapshot: AdminAnalyticsSnapshot | undefined | null
+): AdminAnalyticsSnapshot | null {
   if (!snapshot) {
     return null;
   }
@@ -158,7 +163,9 @@ function normalizeAnalyticsSnapshot(snapshot: AdminAnalyticsSnapshot | undefined
       totalListings: Number.isFinite(overview.totalListings) ? overview.totalListings : 0,
       totalReviews: Number.isFinite(overview.totalReviews) ? overview.totalReviews : 0,
       weeklySignups: Number.isFinite(overview.weeklySignups) ? overview.weeklySignups : 0,
-      pendingModeration: Number.isFinite(overview.pendingModeration) ? overview.pendingModeration : 0,
+      pendingModeration: Number.isFinite(overview.pendingModeration)
+        ? overview.pendingModeration
+        : 0,
     },
     userRoles: snapshot.userRoles ?? createEmptyRoleCounts(),
     moderationQueue: normalizeModerationQueue(snapshot.moderationQueue),
@@ -211,7 +218,9 @@ export default async function AdminDashboardPage() {
         <div className="p-8 bg-white shadow-md rounded-lg text-center">
           <h1 className="text-2xl font-semibold text-gray-800 mb-4">Admin Dashboard</h1>
           <p className="text-gray-600">{errorMessage ?? DASHBOARD_ERROR_MESSAGE}</p>
-          <p className="mt-4 text-sm text-gray-500">If the issue persists, please check your network connection or try again later.</p>
+          <p className="mt-4 text-sm text-gray-500">
+            If the issue persists, please check your network connection or try again later.
+          </p>
         </div>
       </div>
     );
@@ -224,7 +233,9 @@ export default async function AdminDashboardPage() {
           <h1 className="text-3xl font-bold text-gray-900" data-testid="admin-dashboard-title">
             Admin Dashboard
           </h1>
-          <p className="mt-2 text-gray-600">Monitor community health and moderate member activity.</p>
+          <p className="mt-2 text-gray-600">
+            Monitor community health and moderate member activity.
+          </p>
           <div className="mt-4 flex items-center space-x-4 text-sm text-gray-500">
             <span>Last refresh: {formatTimeAgo(analytics.generatedAt)}</span>
             <span data-testid="pending-tasks">
@@ -238,10 +249,22 @@ export default async function AdminDashboardPage() {
         <section className="mb-8" data-testid="analytics-overview">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Overview</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <AnalyticsCard title="Active members" value={formatNumber(analytics.overview.totalUsers)} />
-            <AnalyticsCard title="Total listings" value={formatNumber(analytics.overview.totalListings)} />
-            <AnalyticsCard title="Weekly signups" value={formatNumber(analytics.overview.weeklySignups)} />
-            <AnalyticsCard title="Items pending review" value={formatNumber(analytics.overview.pendingModeration)} />
+            <AnalyticsCard
+              title="Active members"
+              value={formatNumber(analytics.overview.totalUsers)}
+            />
+            <AnalyticsCard
+              title="Total listings"
+              value={formatNumber(analytics.overview.totalListings)}
+            />
+            <AnalyticsCard
+              title="Weekly signups"
+              value={formatNumber(analytics.overview.weeklySignups)}
+            />
+            <AnalyticsCard
+              title="Items pending review"
+              value={formatNumber(analytics.overview.pendingModeration)}
+            />
           </div>
         </section>
 
@@ -289,7 +312,7 @@ export default async function AdminDashboardPage() {
                       </td>
                     </tr>
                   ) : (
-                    analytics.moderationQueue.map((item) => (
+                    analytics.moderationQueue.map(item => (
                       <tr key={item.id} data-testid={`moderation-row-${item.id}`}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900">{item.itemName}</div>

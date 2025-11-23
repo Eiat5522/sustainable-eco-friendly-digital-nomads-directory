@@ -1,10 +1,19 @@
+import type { FilterGroup, FilterOperator } from '@/types/components';
+import type { Amenity } from '@/types/sanity';
+import type { SortOption } from '@/types/search';
 import type { PortableTextBlock } from './external/portabletext';
 import type { SanityImageObject } from './external/sanity-image';
-import type { FilterGroup, FilterOperator } from '@/types/components';
-import type { SortOption } from '@/types/search';
-import type { Amenity } from '@/types/sanity';
 
-export type AppCity = { id: string; name: string; slug: string; country?: string; sustainabilityScore?: number; highlights?: string[]; primaryImage?: SanityImage; description?: string; };
+export type AppCity = {
+  id: string;
+  name: string;
+  slug: string;
+  country?: string;
+  sustainabilityScore?: number;
+  highlights?: string[];
+  primaryImage?: SanityImage;
+  description?: string;
+};
 
 export type SanityImage = SanityImageObject;
 
@@ -25,7 +34,8 @@ export type AppListingCard = {
   primaryImage?: SanityImage;
   galleryImages?: SanityGalleryImage[];
   type?: string;
-  shortDescription?: string;  address?: string;
+  shortDescription?: string;
+  address?: string;
   category?: string;
   location?: { lat: number; lng: number };
 };
@@ -38,7 +48,8 @@ export type AppListingDetail = AppListingCard & {
   primaryImage?: SanityImage;
   galleryImages?: SanityGalleryImage[];
   lastVerifiedDate?: string | null;
-  reviews?: AppReview[];  coworkingDetails?: {
+  reviews?: AppReview[];
+  coworkingDetails?: {
     pricingPlans?: Array<{ type: string; price: number | null; period: string }>;
     openingHours?: Array<{ day: string; opens: string; closes: string }>;
     internetSpeed?: { download?: number; upload?: number; lastTested?: string };

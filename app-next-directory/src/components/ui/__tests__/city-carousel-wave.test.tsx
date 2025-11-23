@@ -1,10 +1,10 @@
-import type React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type React from 'react';
 import '@testing-library/jest-dom';
-import CityCarouselWave from '../city-carousel-wave';
-import type { CityDTO } from '@/types/dto';
 import { useRouter } from 'next/navigation';
+import type { CityDTO } from '@/types/dto';
+import CityCarouselWave from '../city-carousel-wave';
 
 // Mock gsap
 jest.mock('gsap', () => ({
@@ -19,12 +19,7 @@ jest.mock('next/image', () => ({
     const { fill, priority, alt = '', ...rest } = props;
     return (
       // eslint-disable-next-line @next/next/no-img-element
-      <img
-        {...rest}
-        alt={alt}
-        fill={fill?.toString()}
-        priority={priority?.toString()}
-      />
+      <img {...rest} alt={alt} fill={fill?.toString()} priority={priority?.toString()} />
     );
   },
 }));
@@ -56,9 +51,30 @@ jest.mock('next/link', () => ({
 }));
 
 const mockCities: CityDTO[] = [
-  { id: '1', name: 'City A', slug: 'city-a', country: 'Country A', imageUrl: '/city-a.jpg', sustainabilityScore: 85 },
-  { id: '2', name: 'City B', slug: 'city-b', country: 'Country B', imageUrl: '/city-b.jpg', sustainabilityScore: 75 },
-  { id: '3', name: 'City C', slug: 'city-c', country: 'Country C', imageUrl: '/city-c.jpg', sustainabilityScore: 55 },
+  {
+    id: '1',
+    name: 'City A',
+    slug: 'city-a',
+    country: 'Country A',
+    imageUrl: '/city-a.jpg',
+    sustainabilityScore: 85,
+  },
+  {
+    id: '2',
+    name: 'City B',
+    slug: 'city-b',
+    country: 'Country B',
+    imageUrl: '/city-b.jpg',
+    sustainabilityScore: 75,
+  },
+  {
+    id: '3',
+    name: 'City C',
+    slug: 'city-c',
+    country: 'Country C',
+    imageUrl: '/city-c.jpg',
+    sustainabilityScore: 55,
+  },
 ];
 
 describe('CityCarouselWave', () => {
@@ -126,7 +142,14 @@ describe('CityCarouselWave', () => {
 
   it('handles image error by showing a placeholder', () => {
     const citiesWithBadImage: CityDTO[] = [
-      { id: '4', name: 'City D', slug: 'city-d', country: 'Country D', imageUrl: 'bad-url', sustainabilityScore: 90 },
+      {
+        id: '4',
+        name: 'City D',
+        slug: 'city-d',
+        country: 'Country D',
+        imageUrl: 'bad-url',
+        sustainabilityScore: 90,
+      },
     ];
     render(<CityCarouselWave cities={citiesWithBadImage} />);
     const image = screen.getByAltText('City D') as HTMLImageElement;

@@ -1,13 +1,17 @@
-'use client'
+'use client';
 
-import { type FormEvent, type KeyboardEvent, useMemo, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useSearchListings, type SearchListing, type SearchRequest } from '@/hooks/useSearchListings'
+import { useRouter } from 'next/navigation';
+import { type FormEvent, type KeyboardEvent, useMemo, useRef, useState } from 'react';
+import {
+  type SearchListing,
+  type SearchRequest,
+  useSearchListings,
+} from '@/hooks/useSearchListings';
 
 interface SearchCategoryOption {
-  label: string
-  value: string
-  ariaLabel?: string
+  label: string;
+  value: string;
+  ariaLabel?: string;
 }
 
 const CATEGORY_OPTIONS: SearchCategoryOption[] = [
@@ -16,26 +20,25 @@ const CATEGORY_OPTIONS: SearchCategoryOption[] = [
   { label: 'Coliving', value: 'coliving' },
   { label: 'Café', value: 'cafe' },
   { label: 'Community Space', value: 'community' },
-]
+];
 
 const FILTER_PRESETS = [
   { key: 'solarPowered', label: 'Solar powered' },
   { key: 'veganFriendly', label: 'Vegan friendly' },
   { key: 'wifiIncluded', label: 'Reliable Wi-Fi' },
-]
+];
 
 interface SearchResultsProps {
-  listings: SearchListing[]
-  totalCount: number
-  hasMore: boolean
-  onClearFilters: () => void
+  listings: SearchListing[];
+  totalCount: number;
+  hasMore: boolean;
+  onClearFilters: () => void;
 }
 
 function SearchResults({ listings, totalCount, hasMore, onClearFilters }: SearchResultsProps) {
   if (listings.length === 0) {
     return (
       <section
-        role="region"
         aria-label="Search results"
         aria-live="polite"
         className="mt-6"
@@ -46,121 +49,129 @@ function SearchResults({ listings, totalCount, hasMore, onClearFilters }: Search
           Clear filters
         </button>
       </section>
-    )
+    );
   }
 
   return (
     <section
-      role="region"
       aria-label="Search results"
       aria-live="polite"
       className="mt-6 space-y-4"
     >
-      <div role="status" className="font-medium" aria-live="polite" aria-label={`${totalCount} results found`}>
+      <div
+        role="status"
+        className="font-medium"
+        aria-live="polite"
+        aria-label={`${totalCount} results found`}
+      >
         {totalCount} results found
       </div>
       <ul className="space-y-3">
-        {listings.map((listing) => (
+        {listings.map(listing => (
           <li key={listing.id} className="rounded border border-border p-3">
             <h3 className="font-semibold">{listing.title}</h3>
-            {listing.city ? (
-              <p className="text-sm text-muted-foreground">{listing.city}</p>
-            ) : null}
+            {listing.city ? <p className="text-sm text-muted-foreground">{listing.city}</p> : null}
             {listing.category ? (
               <p className="text-xs uppercase text-muted-foreground">{listing.category}</p>
             ) : null}
           </li>
         ))}
       </ul>
-      {hasMore ? <p className="text-xs text-muted-foreground">More results available, refine your filters to narrow down.</p> : null}
+      {hasMore ? (
+        <p className="text-xs text-muted-foreground">
+          More results available, refine your filters to narrow down.
+        </p>
+      ) : null}
     </section>
-  )
+  );
 }
 
 export function SearchForm() {
-  const router = useRouter()
-  const { listings, loading, error, searchListings, totalCount, hasMore } = useSearchListings()
-  const [query, setQuery] = useState('')
-  const [category, setCategory] = useState('')
-  const [filters, setFilters] = useState<Record<string, boolean>>({})
-  const [showFilters, setShowFilters] = useState(false)
-  const [lastParams, setLastParams] = useState<SearchRequest | null>(null)
-  const searchInputRef = useRef<HTMLInputElement | null>(null)
-  const categorySelectRef = useRef<HTMLSelectElement | null>(null)
-  const filterButtonRef = useRef<HTMLButtonElement | null>(null)
+  const router = useRouter();
+  const { listings, loading, error, searchListings, totalCount, hasMore } = useSearchListings();
+  const [query, setQuery] = useState('');
+  const [category, setCategory] = useState('');
+  const [filters, setFilters] = useState<Record<string, boolean>>({});
+  const [showFilters, setShowFilters] = useState(false);
+  const [lastParams, setLastParams] = useState<SearchRequest | null>(null);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const categorySelectRef = useRef<HTMLSelectElement | null>(null);
+  const filterButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const activeFilters = useMemo(() => {
-    return Object.fromEntries(
-      Object.entries(filters).filter(([, isEnabled]) => isEnabled)
-    )
-  }, [filters])
+    return Object.fromEntries(Object.entries(filters).filter(([, isEnabled]) => isEnabled));
+  }, [filters]);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+    event.preventDefault();
     const params: SearchRequest = {
       query,
       category: category || undefined,
       filters: { ...activeFilters },
-    }
-    setLastParams(params)
-    void searchListings(params)
+    };
+    setLastParams(params);
+    void searchListings(params);
 
-    const segments: string[] = []
-    if (params.query) segments.push(`search=${encodeURIComponent(params.query)}`)
-    if (params.category) segments.push(`category=${encodeURIComponent(params.category)}`)
+    const segments: string[] = [];
+    if (params.query) segments.push(`search=${encodeURIComponent(params.query)}`);
+    if (params.category) segments.push(`category=${encodeURIComponent(params.category)}`);
     if (Object.keys(activeFilters).length) {
-      segments.push(`filters=${encodeURIComponent(JSON.stringify(activeFilters))}`)
+      segments.push(`filters=${encodeURIComponent(JSON.stringify(activeFilters))}`);
     }
 
-    const next = segments.join('&')
-    router.push(next ? `/search?${next}` : '/search')
-  }
+    const next = segments.join('&');
+    router.push(next ? `/search?${next}` : '/search');
+  };
 
   const handleRetry = () => {
-    const params = lastParams ?? { query, category: category || undefined, filters: { ...activeFilters } }
-    setLastParams(params)
-    void searchListings(params)
-  }
+    const params = lastParams ?? {
+      query,
+      category: category || undefined,
+      filters: { ...activeFilters },
+    };
+    setLastParams(params);
+    void searchListings(params);
+  };
 
   const handleClearFilters = () => {
-    setCategory('')
-    setFilters({})
-    setLastParams({ query: '', filters: {} })
-    setQuery('')
-    void searchListings({ query: '', filters: {} })
-    router.push('/search')
-  }
+    setCategory('');
+    setFilters({});
+    setLastParams({ query: '', filters: {} });
+    setQuery('');
+    void searchListings({ query: '', filters: {} });
+    router.push('/search');
+  };
 
   const toggleFilter = (key: string) => {
-    setFilters((previous) => ({
+    setFilters(previous => ({
       ...previous,
       [key]: !previous[key],
-    }))
-  }
+    }));
+  };
 
   const handleSearchKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key !== 'Tab') return
-    if (event.shiftKey) return
-    event.preventDefault()
-    categorySelectRef.current?.focus()
-  }
+    if (event.key !== 'Tab') return;
+    if (event.shiftKey) return;
+    event.preventDefault();
+    categorySelectRef.current?.focus();
+  };
 
   const handleCategoryKeyDown = (event: KeyboardEvent<HTMLSelectElement>) => {
-    if (event.key !== 'Tab') return
-    event.preventDefault()
+    if (event.key !== 'Tab') return;
+    event.preventDefault();
     if (event.shiftKey) {
-      searchInputRef.current?.focus()
-      return
+      searchInputRef.current?.focus();
+      return;
     }
-    filterButtonRef.current?.focus()
-  }
+    filterButtonRef.current?.focus();
+  };
 
   const handleFilterKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
-    if (event.key !== 'Tab') return
-    if (!event.shiftKey) return
-    event.preventDefault()
-    categorySelectRef.current?.focus()
-  }
+    if (event.key !== 'Tab') return;
+    if (!event.shiftKey) return;
+    event.preventDefault();
+    categorySelectRef.current?.focus();
+  };
 
   return (
     <div className="w-full max-w-3xl">
@@ -179,9 +190,8 @@ export function SearchForm() {
               id="search-input"
               name="search"
               type="search"
-              role="searchbox"
               value={query}
-              onChange={(event) => setQuery(event.target.value)}
+              onChange={event => setQuery(event.target.value)}
               onKeyDown={handleSearchKeyDown}
               ref={searchInputRef}
               placeholder="Find sustainable coworking, cafés, retreats..."
@@ -201,13 +211,13 @@ export function SearchForm() {
               id="category"
               name="category"
               value={category}
-              onChange={(event) => setCategory(event.target.value)}
+              onChange={event => setCategory(event.target.value)}
               onKeyDown={handleCategoryKeyDown}
               ref={categorySelectRef}
               aria-describedby="category-help"
               className="rounded border border-border px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
             >
-              {CATEGORY_OPTIONS.map((option) => (
+              {CATEGORY_OPTIONS.map(option => (
                 <option
                   key={option.value}
                   value={option.value}
@@ -225,7 +235,7 @@ export function SearchForm() {
           <div className="flex items-center justify-between">
             <button
               type="button"
-              onClick={() => setShowFilters((value) => !value)}
+              onClick={() => setShowFilters(value => !value)}
               aria-expanded={showFilters}
               aria-controls="filter-panel"
               className="text-sm font-medium underline hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary rounded-sm px-1 py-1"
@@ -234,8 +244,8 @@ export function SearchForm() {
             >
               {showFilters ? 'Hide filters' : 'Show filters'}
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="rounded bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transition-colors"
             >
               Search
@@ -253,7 +263,7 @@ export function SearchForm() {
       >
         <p className="mb-2 text-sm font-semibold">Refine results</p>
         <div className="flex flex-col gap-2">
-          {FILTER_PRESETS.map((filter) => (
+          {FILTER_PRESETS.map(filter => (
             <label key={filter.key} className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
@@ -267,13 +277,19 @@ export function SearchForm() {
       </div>
 
       {loading ? (
-        <div className="mt-6 flex items-center gap-2 text-sm text-muted-foreground" data-testid="search-loading">
+        <div
+          className="mt-6 flex items-center gap-2 text-sm text-muted-foreground"
+          data-testid="search-loading"
+        >
           <span className="animate-pulse">Searching...</span>
         </div>
       ) : null}
 
       {error ? (
-        <div className="mt-6 rounded border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive" role="alert">
+        <div
+          className="mt-6 rounded border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive"
+          role="alert"
+        >
           <p>{error}</p>
           <button type="button" className="mt-2 underline" onClick={handleRetry}>
             Try again
@@ -288,7 +304,7 @@ export function SearchForm() {
         onClearFilters={handleClearFilters}
       />
     </div>
-  )
+  );
 }
 
-export default SearchForm
+export default SearchForm;

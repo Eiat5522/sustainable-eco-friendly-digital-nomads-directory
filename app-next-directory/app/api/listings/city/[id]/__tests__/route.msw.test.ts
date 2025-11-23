@@ -1,14 +1,13 @@
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
-import { http, HttpResponse } from 'msw';
-import { server } from '@/mocks/server';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { HttpResponse, http } from 'msw';
 import { NextRequest } from 'next/server';
+import { server } from '@/mocks/server';
 
 type RouteContext = {
   params: Promise<{ id: string }>;
 };
 
-const createRequest = (id: string) =>
-  ({ params: Promise.resolve({ id }) } as RouteContext);
+const createRequest = (id: string) => ({ params: Promise.resolve({ id }) }) as RouteContext;
 
 const createNextRequest = () => new NextRequest('http://localhost/api/listings/city/city-bangkok');
 
@@ -75,8 +74,9 @@ describe('Listings/city/[id] API (MSW)', () => {
 
   it('handles Sanity failures gracefully', async () => {
     server.use(
-      http.get('https://:projectId.api.sanity.io/v:apiVersion/data/query/:dataset', () =>
-        new Response(null, { status: 500 })
+      http.get(
+        'https://:projectId.api.sanity.io/v:apiVersion/data/query/:dataset',
+        () => new Response(null, { status: 500 })
       )
     );
 

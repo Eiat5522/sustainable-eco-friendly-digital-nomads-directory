@@ -10,7 +10,11 @@ import type { Page } from '@playwright/test';
  * navigation guard (waitForURL) to a route that's stable after login.
  */
 
-export async function loginAndSave(page: Page, creds: { email: string; password: string }, storagePath: string) {
+export async function loginAndSave(
+  page: Page,
+  creds: { email: string; password: string },
+  storagePath: string
+) {
   // Navigate to login page - update path if different
   await page.goto('/login');
 

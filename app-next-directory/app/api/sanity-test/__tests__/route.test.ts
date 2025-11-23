@@ -1,7 +1,9 @@
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 const mockedFetch = jest.fn();
-jest.mock('@/lib/sanity/client', () => ({ client: { fetch: (...args: any[]) => mockedFetch(...args) } }));
+jest.mock('@/lib/sanity/client', () => ({
+  client: { fetch: (...args: any[]) => mockedFetch(...args) },
+}));
 
 let GET: any;
 let routeTestControl: any;
@@ -29,7 +31,7 @@ describe('/api/sanity-test', () => {
 
   it('returns 404 in production environment', async () => {
     process.env.NODE_ENV = 'production';
-    
+
     const response = await GET();
     const json = await response.json();
 
@@ -42,10 +44,10 @@ describe('/api/sanity-test', () => {
     process.env.NODE_ENV = 'development';
     process.env.NEXT_PUBLIC_SANITY_PROJECT_ID = 'test-project';
     process.env.NEXT_PUBLIC_SANITY_DATASET = 'test-dataset';
-    
+
     const mockResult = [{ _id: 'test-1', title: 'Test Listing' }];
     mockedFetch.mockResolvedValue(mockResult);
-    
+
     const response = await GET();
     const json = await response.json();
 
@@ -62,7 +64,7 @@ describe('/api/sanity-test', () => {
   it('handles Sanity connection errors', async () => {
     process.env.NODE_ENV = 'development';
     mockedFetch.mockRejectedValue(new Error('Connection failed'));
-    
+
     const response = await GET();
     const json = await response.json();
 

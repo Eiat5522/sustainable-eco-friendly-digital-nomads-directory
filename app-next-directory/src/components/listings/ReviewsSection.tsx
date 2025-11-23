@@ -1,16 +1,16 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { NeoCard, NeoCardHeader, NeoCardTitle, NeoCardContent } from '@/components/ui/neo-card';
+import { useEffect, useMemo, useState } from 'react';
 import { NeoButton } from '@/components/ui/neo-button';
+import { NeoCard, NeoCardContent, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
 import { StarRating } from '@/components/ui/StarRating';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
-import { getCurrentHref } from '@/utils/navigation';
 import { jsonPostOptions } from '@/lib/http/request';
+import { getCurrentHref } from '@/utils/navigation';
 
 interface Review {
   id: string;
@@ -32,12 +32,8 @@ interface ReviewsSectionProps {
 }
 
 export const canSubmitReview = (rating: number, comment: string) => {
-
   return rating > 0 && comment.trim().length > 0;
-
 };
-
-
 
 interface SubmittedReviewSummary {
   id: string;
@@ -51,22 +47,15 @@ interface SubmittedReviewSummary {
   };
 }
 
-
-
 interface SubmitReviewOptions {
-
   review: { rating: number; comment: string };
 
   listingId: string;
 
   fetcher: typeof fetch;
-
 }
 
-
-
 interface SubmitReviewPayload {
-
   id?: string;
 
   rating?: number;
@@ -78,148 +67,95 @@ interface SubmitReviewPayload {
   createdAt?: string;
 
   user?: {
-
     name?: string;
 
     image?: string;
-
   };
-
 }
 
-
-
 type SubmitReviewResult =
-
   | { type: 'success'; review?: SubmitReviewPayload | null }
-
   | { type: 'unauthorized' }
-
   | { type: 'forbidden' }
-
   | { type: 'conflict' }
-
   | { type: 'error'; message: string };
 
-
-
-export const submitReview = async ({ review, listingId, fetcher }: SubmitReviewOptions): Promise<SubmitReviewResult> => {
-
+export const submitReview = async ({
+  review,
+  listingId,
+  fetcher,
+}: SubmitReviewOptions): Promise<SubmitReviewResult> => {
   const trimmedComment = review.comment.trim();
 
-
-
   if (!canSubmitReview(review.rating, trimmedComment)) {
-
     return { type: 'error', message: 'Please provide a rating and comment.' };
-
   }
 
-
-
-  const response = await fetcher('/api/reviews', jsonPostOptions({
-    rating: review.rating,
-    comment: trimmedComment,
-    listingId
-  }));
-
-
+  const response = await fetcher(
+    '/api/reviews',
+    jsonPostOptions({
+      rating: review.rating,
+      comment: trimmedComment,
+      listingId,
+    })
+  );
 
   if (response.status === 401) {
-
     return { type: 'unauthorized' };
-
   }
-
-
 
   if (response.status === 403) {
-
     return { type: 'forbidden' };
-
   }
-
-
 
   if (response.status === 409) {
-
     return { type: 'conflict' };
-
   }
 
-
-
   if (response.ok) {
-
     let parsed: SubmitReviewPayload | null = null;
 
-
-
     try {
-
       const data = await response.json();
 
       if (data && typeof data === 'object') {
-
-        const maybePayload = (data as { data?: unknown }).data && typeof (data as { data?: unknown }).data === 'object'
-
-          ? (data as { data: unknown }).data
-
-          : data;
+        const maybePayload =
+          (data as { data?: unknown }).data && typeof (data as { data?: unknown }).data === 'object'
+            ? (data as { data: unknown }).data
+            : data;
 
         if (maybePayload && typeof maybePayload === 'object') {
-
           parsed = maybePayload as SubmitReviewPayload;
-
         }
-
       }
-
     } catch (_error) {
-
       // Ignore JSON parsing issues and treat as success without payload
-
     }
 
-
-
     return { type: 'success', review: parsed };
-
   }
-
-
 
   let message = 'Failed to submit review';
 
-
-
   try {
-
     const errorData = await response.json();
 
     if (errorData && typeof errorData.error === 'string' && errorData.error.trim().length > 0) {
-
       message = errorData.error;
-
     }
-
   } catch (_error) {
-
     // Ignore JSON parsing issues and fall back to the generic message
-
   }
 
-
-
   return { type: 'error', message };
-
 };
 
-
-
-export function ReviewsSection({ reviews, listingId, isSignedIn = false, userId: _userId }: ReviewsSectionProps) {
-
-
+export function ReviewsSection({
+  reviews,
+  listingId,
+  isSignedIn = false,
+  userId: _userId,
+}: ReviewsSectionProps) {
   const [newReview, setNewReview] = useState({ rating: 0, comment: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -263,23 +199,29 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false, userId:
           setSubmittedReview(() => {
             const payload = result.review;
             const now = new Date().toISOString();
-            const id = typeof payload?.id === 'string' && payload.id.trim().length > 0
-              ? payload.id
-              : `pending-${Date.now()}`;
-            const rating = typeof payload?.rating === 'number' ? payload.rating : preparedReview.rating;
-            const comment = typeof payload?.comment === 'string' && payload.comment.trim().length > 0
-              ? payload.comment
-              : preparedReview.comment;
-            const createdAt = typeof payload?.createdAt === 'string' && payload.createdAt.length > 0
-              ? payload.createdAt
-              : now;
+            const id =
+              typeof payload?.id === 'string' && payload.id.trim().length > 0
+                ? payload.id
+                : `pending-${Date.now()}`;
+            const rating =
+              typeof payload?.rating === 'number' ? payload.rating : preparedReview.rating;
+            const comment =
+              typeof payload?.comment === 'string' && payload.comment.trim().length > 0
+                ? payload.comment
+                : preparedReview.comment;
+            const createdAt =
+              typeof payload?.createdAt === 'string' && payload.createdAt.length > 0
+                ? payload.createdAt
+                : now;
             const status: 'pending' | 'approved' = payload?.approved ? 'approved' : 'pending';
-            const userName = typeof payload?.user?.name === 'string' && payload.user.name.trim().length > 0
-              ? payload.user.name.trim()
-              : 'You';
-            const userImage = typeof payload?.user?.image === 'string' && payload.user.image.length > 0
-              ? payload.user.image
-              : undefined;
+            const userName =
+              typeof payload?.user?.name === 'string' && payload.user.name.trim().length > 0
+                ? payload.user.name.trim()
+                : 'You';
+            const userImage =
+              typeof payload?.user?.image === 'string' && payload.user.image.length > 0
+                ? payload.user.image
+                : undefined;
 
             return {
               id,
@@ -299,8 +241,7 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false, userId:
           setError(result.message);
           return;
       }
-    } catch (err) {
-      console.error('Failed to submit review:', err);
+    } catch (_err) {
       setError('Failed to submit review. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -315,7 +256,7 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false, userId:
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
@@ -333,9 +274,10 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false, userId:
     return exists ? pendingReviews : [submittedReview, ...pendingReviews];
   }, [pendingReviews, submittedReview]);
 
-  const averageRating = approvedReviews.length > 0
-    ? approvedReviews.reduce((sum, review) => sum + review.rating, 0) / approvedReviews.length
-    : 0;
+  const averageRating =
+    approvedReviews.length > 0
+      ? approvedReviews.reduce((sum, review) => sum + review.rating, 0) / approvedReviews.length
+      : 0;
 
   return (
     <NeoCard variant="elevated" className="mb-8">
@@ -358,7 +300,7 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false, userId:
         {isSignedIn && (
           <div className="mb-6 p-4 bg-neo-surface border-2 border-neo-border rounded-lg">
             <h3 className="heading-sm mb-4">Add Your Review</h3>
-            
+
             {error && (
               <div
                 className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm"
@@ -378,18 +320,12 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false, userId:
                 <p>Thank you! Your review has been submitted and is pending approval.</p>
                 {submittedReview && (
                   <div className="mt-2 space-y-1" data-testid="submitted-review-details">
-                    <p
-                      className="font-medium"
-                      data-testid="submitted-review-status"
-                    >
+                    <p className="font-medium" data-testid="submitted-review-status">
                       {submittedReview.status === 'approved'
                         ? 'Approved and now visible to the community.'
                         : 'Pending approval'}
                     </p>
-                    <p
-                      className="text-neo-text-secondary"
-                      data-testid="submitted-review-comment"
-                    >
+                    <p className="text-neo-text-secondary" data-testid="submitted-review-comment">
                       {submittedReview.comment}
                     </p>
                   </div>
@@ -436,7 +372,13 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false, userId:
         {!isSignedIn && (
           <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg text-center">
             <p className="body-md text-gray-600 mb-3">Sign in to leave a review</p>
-            <Link href={callbackUrl ? `/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}` : '/auth/login'}>
+            <Link
+              href={
+                callbackUrl
+                  ? `/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`
+                  : '/auth/login'
+              }
+            >
               <NeoButton variant="outline" size="sm">
                 Sign In
               </NeoButton>
@@ -453,9 +395,14 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false, userId:
             </p>
             <div className="space-y-4">
               {pendingQueue.map((review, index) => (
-                <div key={review.id} className="bg-white border border-amber-100 rounded-lg p-4 shadow-sm">
+                <div
+                  key={review.id}
+                  className="bg-white border border-amber-100 rounded-lg p-4 shadow-sm"
+                >
                   <div className="flex items-center gap-3 mb-2">
-                    <h4 className="font-medium text-neo-text-primary">{review.user.name || 'You'}</h4>
+                    <h4 className="font-medium text-neo-text-primary">
+                      {review.user.name || 'You'}
+                    </h4>
                     <StarRating rating={review.rating} size={16} />
                     <span className="text-sm text-neo-text-secondary">
                       {formatDate(review.createdAt)}
@@ -503,18 +450,14 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false, userId:
 
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h4 className="font-medium text-neo-text-primary">
-                        {review.user.name}
-                      </h4>
+                      <h4 className="font-medium text-neo-text-primary">{review.user.name}</h4>
                       <StarRating rating={review.rating} size={16} />
                       <span className="text-sm text-neo-text-secondary">
                         {formatDate(review.createdAt)}
                       </span>
                     </div>
-                    
-                    <p className="body-md text-neo-text-secondary">
-                      {review.comment}
-                    </p>
+
+                    <p className="body-md text-neo-text-secondary">{review.comment}</p>
                   </div>
                 </div>
 

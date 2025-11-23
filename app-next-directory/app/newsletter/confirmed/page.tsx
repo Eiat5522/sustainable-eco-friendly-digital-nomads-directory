@@ -1,36 +1,35 @@
-'use client'
+'use client';
 
-import React from 'react'
-import { useSearchParams } from 'next/navigation'
-import { Header } from '@/components/layout/Header'
-import { Footer } from '@/components/layout/Footer'
-import { NeoCard } from '@/components/ui/neo-card'
-import { NeoButton } from '@/components/ui/neo-button'
-import Link from 'next/link'
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { Footer } from '@/components/layout/Footer';
+import { Header } from '@/components/layout/Header';
+import { NeoButton } from '@/components/ui/neo-button';
+import { NeoCard } from '@/components/ui/neo-card';
 
 function Content() {
-  const params = useSearchParams()
-  const status = params.get('status') || 'success'
+  const params = useSearchParams();
+  const status = params.get('status') || 'success';
 
-  let title = 'Subscription Confirmed'
-  let body = 'Thanks for confirming your subscription. You will start receiving updates soon.'
-  let tone: 'success' | 'warning' | 'error' = 'success'
+  let title = 'Subscription Confirmed';
+  let body = 'Thanks for confirming your subscription. You will start receiving updates soon.';
+  let tone: 'success' | 'warning' | 'error' = 'success';
 
   if (status === 'invalid') {
-    title = 'Invalid or Expired Link'
-    body = 'The confirmation link is invalid or has expired. Please try subscribing again.'
-    tone = 'error'
+    title = 'Invalid or Expired Link';
+    body = 'The confirmation link is invalid or has expired. Please try subscribing again.';
+    tone = 'error';
   } else if (status === 'missing') {
-    title = 'Missing Token'
-    body = 'No confirmation token was provided. Please try the link from your email again.'
-    tone = 'warning'
+    title = 'Missing Token';
+    body = 'No confirmation token was provided. Please try the link from your email again.';
+    tone = 'warning';
   }
 
   const toneClasses = {
     success: 'border-neo-success text-neo-text-primary',
     warning: 'border-yellow-400 text-neo-text-primary',
     error: 'border-rose-400 text-neo-text-primary',
-  }[tone]
+  }[tone];
 
   return (
     <main className="container mx-auto px-4 py-16">
@@ -49,7 +48,7 @@ function Content() {
         </div>
       </NeoCard>
     </main>
-  )
+  );
 }
 
 export default function NewsletterConfirmedPage() {
@@ -59,6 +58,5 @@ export default function NewsletterConfirmedPage() {
       <Content />
       <Footer />
     </div>
-  )
+  );
 }
-

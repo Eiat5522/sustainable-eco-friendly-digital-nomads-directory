@@ -29,7 +29,7 @@ describe('NoListingsFound', () => {
     it('applies container styling', () => {
       const { container } = render(<NoListingsFound />);
       const wrapper = container.firstChild as HTMLElement;
-      
+
       expect(wrapper).toHaveClass('text-center');
       expect(wrapper).toHaveClass('py-12');
     });
@@ -37,7 +37,7 @@ describe('NoListingsFound', () => {
     it('styles the emoji container', () => {
       const { container } = render(<NoListingsFound />);
       const emojiContainer = container.querySelector('.rounded-full');
-      
+
       expect(emojiContainer).toHaveClass('mx-auto');
       expect(emojiContainer).toHaveClass('mb-3');
       expect(emojiContainer).toHaveClass('h-12');
@@ -58,7 +58,7 @@ describe('NoListingsFound', () => {
     it('applies body-sm and text-neo-text-secondary to helper text', () => {
       const { container } = render(<NoListingsFound />);
       const helperText = screen.getByText('Try adjusting filters or check back later.');
-      
+
       expect(helperText).toHaveClass('body-sm');
       expect(helperText).toHaveClass('text-neo-text-secondary');
       expect(helperText).toHaveClass('mt-1');
@@ -87,7 +87,7 @@ describe('NoListingsFound', () => {
 
     it('provides informative text for screen readers', () => {
       render(<NoListingsFound />);
-      
+
       // Screen readers will read the text content
       const statusElement = screen.getByRole('status');
       expect(statusElement).toHaveTextContent('No listings found for this city yet.');
@@ -104,11 +104,11 @@ describe('NoListingsFound', () => {
     it('has correct element hierarchy', () => {
       const { container } = render(<NoListingsFound />);
       const wrapper = container.firstChild as HTMLElement;
-      
+
       // Should contain emoji container
       const emojiContainer = wrapper.querySelector('.rounded-full');
       expect(wrapper).toContainElement(emojiContainer);
-      
+
       // Should contain paragraphs
       const paragraphs = wrapper.querySelectorAll('p');
       expect(paragraphs).toHaveLength(2);
@@ -144,7 +144,7 @@ describe('NoListingsFound', () => {
       const { container } = render(<NoListingsFound />);
       const wrapper = container.firstChild as HTMLElement;
       const children = Array.from(wrapper.children);
-      
+
       // First child should be emoji container
       expect(children[0]).toHaveClass('rounded-full');
       // Second child should be first paragraph
@@ -156,17 +156,17 @@ describe('NoListingsFound', () => {
     it('renders consistently across multiple renders', () => {
       const { rerender, container } = render(<NoListingsFound />);
       const firstRender = container.innerHTML;
-      
+
       rerender(<NoListingsFound />);
       const secondRender = container.innerHTML;
-      
+
       expect(firstRender).toBe(secondRender);
     });
 
     it('has no props but renders the same content', () => {
       const { container: container1 } = render(<NoListingsFound />);
       const { container: container2 } = render(<NoListingsFound />);
-      
+
       expect(container1.innerHTML).toBe(container2.innerHTML);
     });
   });

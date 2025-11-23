@@ -1,17 +1,18 @@
-import { http, HttpResponse } from 'msw'
+import { HttpResponse, http } from 'msw';
+import { mockFeaturedVenues } from '@/components/sections/featuredVenuesMockData';
 import {
   createTestData,
   getFavoritesForUser,
   getReviewsForListing,
   listCities,
-} from '@/tests/helpers/test-data'
-import { mockFeaturedVenues } from '@/components/sections/featuredVenuesMockData'
-import type { AppReview } from '@/types/appView'
-import { sanityHandlers } from './sanity-handlers'
+} from '@/tests/helpers/test-data';
+import type { AppReview } from '@/types/appView';
+import { sanityHandlers } from './sanity-handlers';
 
-const data = createTestData()
+const data = createTestData();
 
-const ok = <Body>(body: Body, status = 200) => HttpResponse.json(body as Record<string, unknown>, { status })
+const ok = <Body>(body: Body, status = 200) =>
+  HttpResponse.json(body as Record<string, unknown>, { status });
 
 interface ListingItem {
   _id: string;
@@ -24,18 +25,18 @@ interface ListingItem {
 export const handlers = [
   // Include Sanity API handlers first for proper interception
   ...sanityHandlers,
-  
+
   http.get('/api/search', ({ request }) => {
-    const url = new URL(request.url)
-    const query = url.searchParams.get('q') ?? ''
+    const url = new URL(request.url);
+    const query = url.searchParams.get('q') ?? '';
     const results = data.listings
       .filter((listing: ListingItem) => listing.name.toLowerCase().includes(query.toLowerCase()))
       .map((listing: ListingItem) => ({
         id: listing._id,
         name: listing.name,
         city: listing.city.name,
-        slug: listing.slug?.current
-      }))
+        slug: listing.slug?.current,
+      }));
 
     return ok({
       data: {
@@ -44,28 +45,28 @@ export const handlers = [
           total: results.length,
           page: 1,
           totalPages: 1,
-          hasMore: false
-        }
-      }
-    })
+          hasMore: false,
+        },
+      },
+    });
   }),
 
   http.post('/api/search', async ({ request }) => {
-    let body: Record<string, unknown> = {}
+    let body: Record<string, unknown> = {};
     try {
-      body = await request.json() as Record<string, unknown>
+      body = (await request.json()) as Record<string, unknown>;
     } catch {
-      body = {}
+      body = {};
     }
-    const query = typeof body?.query === 'string' ? body.query.trim().toLowerCase() : ''
+    const query = typeof body?.query === 'string' ? body.query.trim().toLowerCase() : '';
     const results = data.listings
       .filter((listing: ListingItem) => listing.name.toLowerCase().includes(query))
       .map((listing: ListingItem) => ({
         id: listing._id,
         name: listing.name,
         city: listing.city.name,
-        slug: listing.slug?.current
-      }))
+        slug: listing.slug?.current,
+      }));
 
     return ok({
       results,
@@ -73,9 +74,9 @@ export const handlers = [
         total: results.length,
         page: 1,
         totalPages: 1,
-        hasMore: false
-      }
-    })
+        hasMore: false,
+      },
+    });
   }),
 
   http.get('/api/search/suggestions', () => ok([])),
@@ -83,22 +84,26 @@ export const handlers = [
   http.get('/api/featured-listings', () => ok({ listings: mockFeaturedVenues })),
 
   http.get('/api/categories', () => {
-    const categories = Array.from(new Set(data.listings.map((listing: ListingItem) => listing.type)))
-    return ok({ categories })
+    const categories = Array.from(
+      new Set(data.listings.map((listing: ListingItem) => listing.type))
+    );
+    return ok({ categories });
   }),
 
-  http.get('/api/amenities', () => ok({ 
-    amenities: [
-      { name: 'Wi-Fi' },
-      { name: 'Air Conditioning' },
-      { name: 'Kitchen' },
-      { name: 'Parking' },
-      { name: 'Garden' },
-    ]
-  })),
+  http.get('/api/amenities', () =>
+    ok({
+      amenities: [
+        { name: 'Wi-Fi' },
+        { name: 'Air Conditioning' },
+        { name: 'Kitchen' },
+        { name: 'Parking' },
+        { name: 'Garden' },
+      ],
+    })
+  ),
 
   http.get('/api/cities', () => {
-    const cities = listCities().map((city) => ({
+    const cities = listCities().map(city => ({
       id: city.id,
       name: city.name,
       slug: city.slug,
@@ -106,18 +111,18 @@ export const handlers = [
       description: city.description,
       coordinates: city.coordinates,
       highlights: city.highlights,
-      listingCount: city.listingIds.length
-    }))
-    return ok({ cities })
+      listingCount: city.listingIds.length,
+    }));
+    return ok({ cities });
   }),
 
   http.get('/api/cities/:slug', ({ params }) => {
-    const { slug } = params as { slug: string }
-    const city = listCities().find((entry) => entry.slug === slug)
+    const { slug } = params as { slug: string };
+    const city = listCities().find(entry => entry.slug === slug);
     if (!city) {
-      return ok({ success: false, error: 'City not found' }, 404)
+      return ok({ success: false, error: 'City not found' }, 404);
     }
-    return ok({ success: true, data: city })
+    return ok({ success: true, data: city });
   }),
 
   http.get('/api/hello', () => ok({ message: 'Hello' })),
@@ -126,11 +131,11 @@ export const handlers = [
   http.get('/api/test-lidtings', () => ok({ listings: data.listings })),
 
   http.get('/api/listings', ({ request }) => {
-    const url = new URL(request.url)
-    const citySlug = url.searchParams.get('citySlug')
+    const url = new URL(request.url);
+    const citySlug = url.searchParams.get('citySlug');
     const listings = citySlug
       ? data.listings.filter((listing: ListingItem) => listing.city.slug?.current === citySlug)
-      : data.listings
+      : data.listings;
 
     return ok({
       success: true,
@@ -141,56 +146,60 @@ export const handlers = [
           page: Number(url.searchParams.get('page') ?? '1'),
           limit: Number(url.searchParams.get('limit') ?? listings.length),
           total: listings.length,
-          pages: 1
-        }
-      }
-    })
+          pages: 1,
+        },
+      },
+    });
   }),
 
   http.post('/api/reviews', async ({ request }) => {
-    let body: Record<string, unknown> = {}
+    let body: Record<string, unknown> = {};
     try {
-      body = await request.json() as Record<string, unknown>
+      body = (await request.json()) as Record<string, unknown>;
     } catch {
-      body = {}
+      body = {};
     }
 
-    return ok({
-      success: true,
-      data: {
-        id: 'review-123',
-        rating: body.rating ?? 5,
-        comment: body.comment ?? 'Test review',
-        createdAt: new Date().toISOString()
-      }
-    }, 201)
+    return ok(
+      {
+        success: true,
+        data: {
+          id: 'review-123',
+          rating: body.rating ?? 5,
+          comment: body.comment ?? 'Test review',
+          createdAt: new Date().toISOString(),
+        },
+      },
+      201
+    );
   }),
 
   http.get('/api/reviews', ({ request }) => {
-    const url = new URL(request.url)
-    const listingId = url.searchParams.get('listingId') ?? url.searchParams.get('listing')
-    const reviews = listingId ? getReviewsForListing(listingId) : data.reviews
+    const url = new URL(request.url);
+    const listingId = url.searchParams.get('listingId') ?? url.searchParams.get('listing');
+    const reviews = listingId ? getReviewsForListing(listingId) : data.reviews;
     const average =
       reviews.length === 0
         ? 0
-        : reviews.reduce((sum: number, review: AppReview) => sum + review.rating, 0) / reviews.length
+        : reviews.reduce((sum: number, review: AppReview) => sum + review.rating, 0) /
+          reviews.length;
 
     return ok({
       success: true,
       data: {
         reviews,
         totalReviews: reviews.length,
-        averageRating: Number(average.toFixed(2))
-      }
-    })
+        averageRating: Number(average.toFixed(2)),
+      },
+    });
   }),
 
   http.post('/api/contact', async ({ request }) => {
-    let body: Record<string, unknown> = {}
+    let body: Record<string, unknown> = {};
     try {
-      body = await request.json() as Record<string, unknown>
+      body = (await request.json()) as Record<string, unknown>;
     } catch {
-      body = {}
+      body = {};
     }
     return ok({
       success: true,
@@ -200,15 +209,15 @@ export const handlers = [
         name: body.name ?? 'Test User',
         email: body.email ?? 'test@example.com',
         subject: body.subject ?? 'Test Subject',
-        message: body.message ?? 'Test message'
-      }
-    })
+        message: body.message ?? 'Test message',
+      },
+    });
   }),
 
   http.get('/api/user/favorites', () => {
-    const user = data.users[0]
-    const favorites = getFavoritesForUser(user.id).map((favorite) => {
-      const listing = data.listings.find((item: ListingItem) => item._id === favorite.listingId)
+    const user = data.users[0];
+    const favorites = getFavoritesForUser(user.id).map(favorite => {
+      const listing = data.listings.find((item: ListingItem) => item._id === favorite.listingId);
       return {
         _id: favorite.id,
         createdAt: favorite.createdAt,
@@ -217,13 +226,15 @@ export const handlers = [
               _id: listing._id,
               name: listing.name,
               slug: listing.slug?.current,
-              mainImage: { asset: { url: `https://images.test/listings/${listing.slug?.current}.jpg` } },
-              city: { name: listing.city.name }
+              mainImage: {
+                asset: { url: `https://images.test/listings/${listing.slug?.current}.jpg` },
+              },
+              city: { name: listing.city.name },
             }
-          : null
-      }
-    })
-    return ok({ favorites })
+          : null,
+      };
+    });
+    return ok({ favorites });
   }),
 
   // Auth endpoints
@@ -234,100 +245,111 @@ export const handlers = [
         name: 'Google',
         type: 'oauth',
         signinUrl: '/api/auth/signin/google',
-        callbackUrl: '/api/auth/callback/google'
+        callbackUrl: '/api/auth/callback/google',
       },
       facebook: {
-        id: 'facebook', 
+        id: 'facebook',
         name: 'Facebook',
         type: 'oauth',
         signinUrl: '/api/auth/signin/facebook',
-        callbackUrl: '/api/auth/callback/facebook'
-      }
-    })
+        callbackUrl: '/api/auth/callback/facebook',
+      },
+    });
   }),
 
   http.post('/api/auth/register', async ({ request }) => {
-    let body: Record<string, unknown> = {}
+    let body: Record<string, unknown> = {};
     try {
-      body = await request.json() as Record<string, unknown>
+      body = (await request.json()) as Record<string, unknown>;
     } catch {
-      body = {}
+      body = {};
     }
-    
-    // Simulate successful registration
-    return ok({
-      success: true,
-      emailVerificationRequired: false,
-      data: {
-        id: 'user-123',
-        name: body.name ?? 'Test User',
-        email: body.email ?? 'test@example.com'
-      }
-    }, 201)
-  }),
-]
 
-export const setReviewsResponse = (mode: 'success' | 'unauthorized' | 'forbidden' | 'conflict' | 'error') => {
+    // Simulate successful registration
+    return ok(
+      {
+        success: true,
+        emailVerificationRequired: false,
+        data: {
+          id: 'user-123',
+          name: body.name ?? 'Test User',
+          email: body.email ?? 'test@example.com',
+        },
+      },
+      201
+    );
+  }),
+];
+
+export const setReviewsResponse = (
+  mode: 'success' | 'unauthorized' | 'forbidden' | 'conflict' | 'error'
+) => {
   const reviewsHandler = http.post('/api/reviews', async ({ request }) => {
-    let body: Record<string, unknown> = {}
+    let body: Record<string, unknown> = {};
     try {
-      body = await request.json() as Record<string, unknown>
+      body = (await request.json()) as Record<string, unknown>;
     } catch {
-      body = {}
+      body = {};
     }
 
     switch (mode) {
       case 'unauthorized':
-        return ok({ error: 'Unauthorized' }, 401)
+        return ok({ error: 'Unauthorized' }, 401);
       case 'forbidden':
-        return ok({ error: 'Forbidden' }, 403)
+        return ok({ error: 'Forbidden' }, 403);
       case 'conflict':
-        return ok({ error: 'Review already exists' }, 409)
+        return ok({ error: 'Review already exists' }, 409);
       case 'error':
-        return ok({ error: 'Server error' }, 500)
+        return ok({ error: 'Server error' }, 500);
       default:
-        return ok({
-          success: true,
-          data: {
-            id: 'review-123',
-            rating: body.rating ?? 5,
-            comment: body.comment ?? 'Test review',
-            createdAt: new Date().toISOString()
-          }
-        }, 201)
+        return ok(
+          {
+            success: true,
+            data: {
+              id: 'review-123',
+              rating: body.rating ?? 5,
+              comment: body.comment ?? 'Test review',
+              createdAt: new Date().toISOString(),
+            },
+          },
+          201
+        );
     }
-  })
+  });
 
-  return reviewsHandler
-}
+  return reviewsHandler;
+};
 
 export const setRegisterResponse = (mode: 'success' | 'error') => {
   const registerHandler = http.post('/api/auth/register', async ({ request }) => {
-    let body: Record<string, unknown> = {}
+    let body: Record<string, unknown> = {};
     try {
-      body = await request.json() as Record<string, unknown>
+      body = (await request.json()) as Record<string, unknown>;
     } catch {
-      body = {}
+      body = {};
     }
 
-    const name = typeof body.name === 'string' ? body.name : undefined
-    const email = typeof body.email === 'string' ? body.email : undefined
+    const name = typeof body.name === 'string' ? body.name : undefined;
+    const email = typeof body.email === 'string' ? body.email : undefined;
 
     switch (mode) {
       case 'error':
-        return ok({ error: 'Registration failed' }, 400)
+        return ok({ error: 'Registration failed' }, 400);
       default:
-        return ok({
-          success: true,
-          emailVerificationRequired: false,
-          data: {
-            id: 'user-123',
-            name: name ?? 'Test User',
-            email: email ?? 'test@example.com'
-          }
-        }, 201)
+        return ok(
+          {
+            success: true,
+            emailVerificationRequired: false,
+            data: {
+              id: 'user-123',
+              name: name ?? 'Test User',
+              email: email ?? 'test@example.com',
+            },
+          },
+          201
+        );
     }
-  })
+  });
 
-  return registerHandler
-}
+  return registerHandler;
+};

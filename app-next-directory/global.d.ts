@@ -8,4 +8,3 @@ declare namespace NodeJS {
 
 declare const __TEST_DATA__: import('@/tests/helpers/test-data').TestData | undefined;
 declare const __MONGODB_MEMORY__: boolean | undefined;
-

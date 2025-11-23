@@ -7,7 +7,7 @@
  * 4. Error handling
  */
 
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import type { NextRequest } from 'next/server';
 
 // Mock Next.js revalidatePath
@@ -42,7 +42,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
     jest.clearAllMocks();
     process.env = { ...originalEnv, REVALIDATION_TOKEN: 'test-secret-token' };
     mockRevalidatePath.mockImplementation(() => {});
-    
+
     // Dynamically import the route handler
     const routeModule = await import('../route');
     GET = routeModule.GET;
@@ -55,7 +55,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
   describe('Successful Revalidation', () => {
     it('should revalidate path with valid token', async () => {
       mockValidateRevalidationToken.mockReturnValue(true);
-      
+
       const request = {
         nextUrl: {
           searchParams: {
@@ -82,7 +82,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
 
     it('should add leading slash if path does not have it', async () => {
       mockValidateRevalidationToken.mockReturnValue(true);
-      
+
       const request = {
         nextUrl: {
           searchParams: {
@@ -105,7 +105,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
 
     it('should revalidate homepage', async () => {
       mockValidateRevalidationToken.mockReturnValue(true);
-      
+
       const request = {
         nextUrl: {
           searchParams: {
@@ -128,7 +128,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
 
     it('should revalidate nested paths', async () => {
       mockValidateRevalidationToken.mockReturnValue(true);
-      
+
       const request = {
         nextUrl: {
           searchParams: {
@@ -151,7 +151,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
 
     it('should revalidate paths with hyphens', async () => {
       mockValidateRevalidationToken.mockReturnValue(true);
-      
+
       const request = {
         nextUrl: {
           searchParams: {
@@ -175,7 +175,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
   describe('Token Validation', () => {
     it('should return 401 when token is invalid', async () => {
       mockValidateRevalidationToken.mockReturnValue(false);
-      
+
       const request = {
         nextUrl: {
           searchParams: {
@@ -200,7 +200,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
 
     it('should return 401 when token is missing', async () => {
       mockValidateRevalidationToken.mockReturnValue(false);
-      
+
       const request = {
         nextUrl: {
           searchParams: {
@@ -223,7 +223,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
 
     it('should return 401 for empty token', async () => {
       mockValidateRevalidationToken.mockReturnValue(false);
-      
+
       const request = {
         nextUrl: {
           searchParams: {
@@ -246,7 +246,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
 
     it('should compare token case-sensitively', async () => {
       mockValidateRevalidationToken.mockReturnValue(false);
-      
+
       const request = {
         nextUrl: {
           searchParams: {
@@ -271,7 +271,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
   describe('Path Validation', () => {
     it('should return 400 when path is missing', async () => {
       mockValidateRevalidationToken.mockReturnValue(true);
-      
+
       const request = {
         nextUrl: {
           searchParams: {
@@ -294,7 +294,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
 
     it('should return 400 for path with protocol', async () => {
       mockValidateRevalidationToken.mockReturnValue(true);
-      
+
       const request = {
         nextUrl: {
           searchParams: {
@@ -317,7 +317,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
 
     it('should return 400 for path with directory traversal', async () => {
       mockValidateRevalidationToken.mockReturnValue(true);
-      
+
       const request = {
         nextUrl: {
           searchParams: {
@@ -340,7 +340,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
 
     it('should return 400 for empty path', async () => {
       mockValidateRevalidationToken.mockReturnValue(true);
-      
+
       const request = {
         nextUrl: {
           searchParams: {
@@ -417,7 +417,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
   describe('Response Structure', () => {
     it('should return content-type application/json', async () => {
       mockValidateRevalidationToken.mockReturnValue(true);
-      
+
       const request = {
         nextUrl: {
           searchParams: {
@@ -437,7 +437,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
 
     it('should include success flag and data', async () => {
       mockValidateRevalidationToken.mockReturnValue(true);
-      
+
       const request = {
         nextUrl: {
           searchParams: {
@@ -462,7 +462,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
 
     it('should include timestamp in response', async () => {
       mockValidateRevalidationToken.mockReturnValue(true);
-      
+
       const beforeTime = Date.now();
 
       const request = {
@@ -490,7 +490,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
   describe('Multiple Revalidations', () => {
     it('should handle multiple revalidations in sequence', async () => {
       mockValidateRevalidationToken.mockReturnValue(true);
-      
+
       const paths = ['/listings', '/blog', '/cities'];
 
       for (const path of paths) {

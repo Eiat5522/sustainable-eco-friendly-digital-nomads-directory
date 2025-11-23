@@ -6,8 +6,8 @@
  */
 
 import { jest } from '@jest/globals';
-import { GET } from './route';
 import { client } from '@/lib/sanity';
+import { GET } from './route';
 
 // Mock Sanity client
 jest.mock('@/lib/sanity', () => ({
@@ -29,7 +29,7 @@ describe('Digital Nomad Features API - GET /api/digital-nomad-features', () => {
       const mockFeatures = [
         { _id: '1', name: 'Co-working Space' },
         { _id: '2', name: 'High-Speed Internet' },
-        { _id: '3', name: 'Meeting Rooms' }
+        { _id: '3', name: 'Meeting Rooms' },
       ];
       mockedFetch.mockResolvedValueOnce(mockFeatures);
 

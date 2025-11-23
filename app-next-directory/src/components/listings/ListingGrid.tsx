@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
+import { Star } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { NeoCard, NeoCardHeader, NeoCardTitle, NeoCardContent } from '@/components/ui/neo-card';
-import type { ListingSummaryDTO } from '@/types/dto';
-import { NoListingsFound } from '@/components/listings/NoListingsFound';
-import { Star } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import type { SyntheticEvent } from 'react';
+import { NoListingsFound } from '@/components/listings/NoListingsFound';
+import { NeoCard, NeoCardContent, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
+import { cn } from '@/lib/utils';
+import type { ListingSummaryDTO } from '@/types/dto';
 import { getTagColorClasses } from '@/utils/tag-styles';
 
 interface ListingGridProps {
@@ -21,7 +21,7 @@ export function ListingGrid({ listings }: ListingGridProps) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {listings.map((listing) => (
+      {listings.map(listing => (
         <Link key={listing.id} href={`/listings/${listing.slug}`} className="block h-full">
           <NeoCard
             variant="elevated"
@@ -44,7 +44,9 @@ export function ListingGrid({ listings }: ListingGridProps) {
                   fill
                   sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  onError={(e: SyntheticEvent<HTMLImageElement>) => { e.currentTarget.hidden = true; }}
+                  onError={(e: SyntheticEvent<HTMLImageElement>) => {
+                    e.currentTarget.hidden = true;
+                  }}
                 />
               )}
               {listing.featured && (
@@ -59,20 +61,21 @@ export function ListingGrid({ listings }: ListingGridProps) {
                 {listing.name}
               </NeoCardTitle>
               {listing.city?.name && (
-                <p className="body-sm text-neo-text-secondary mt-1">
-                  {listing.city.name}
-                </p>
+                <p className="body-sm text-neo-text-secondary mt-1">{listing.city.name}</p>
               )}
             </NeoCardHeader>
             {(Array.isArray(listing.ecoFocusTags) && listing.ecoFocusTags.length > 0) ||
-             (Array.isArray(listing.amenityNames) && listing.amenityNames.length > 0) ? (
+            (Array.isArray(listing.amenityNames) && listing.amenityNames.length > 0) ? (
               <NeoCardContent className="mt-auto">
                 {Array.isArray(listing.ecoFocusTags) && listing.ecoFocusTags.length > 0 && (
                   <div className="flex flex-wrap gap-2 mb-2">
                     {listing.ecoFocusTags.slice(0, 3).map((tag, index) => (
                       <span
                         key={`eco-${index}`}
-                        className={cn('px-2 py-1 text-xs rounded-lg font-medium', getTagColorClasses(tag, 'eco'))}
+                        className={cn(
+                          'px-2 py-1 text-xs rounded-lg font-medium',
+                          getTagColorClasses(tag, 'eco')
+                        )}
                       >
                         {tag}
                       </span>
@@ -89,7 +92,10 @@ export function ListingGrid({ listings }: ListingGridProps) {
                     {listing.amenityNames.slice(0, 3).map((name, index) => (
                       <span
                         key={`amenity-${index}`}
-                        className={cn('px-2 py-1 text-xs rounded-lg font-medium', getTagColorClasses(name, 'amenity'))}
+                        className={cn(
+                          'px-2 py-1 text-xs rounded-lg font-medium',
+                          getTagColorClasses(name, 'amenity')
+                        )}
                       >
                         {name}
                       </span>

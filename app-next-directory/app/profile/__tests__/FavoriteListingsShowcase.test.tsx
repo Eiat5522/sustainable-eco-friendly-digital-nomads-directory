@@ -1,5 +1,5 @@
+import { describe, expect, it, jest } from '@jest/globals';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 import { FavoriteListingsShowcase } from '../FavoriteListingsShowcase';
 import type { FavoriteListing } from '../utils';
@@ -87,4 +87,3 @@ describe('FavoriteListingsShowcase', () => {
     expect(screen.getAllByText('Retreat programs').length).toBeGreaterThan(0);
   });
 });
-

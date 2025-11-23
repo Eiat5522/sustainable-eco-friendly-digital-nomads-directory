@@ -1,5 +1,5 @@
-
 import { setupWorker } from 'msw/browser';
+
 describe('MSW browser worker', () => {
   afterEach(() => {
     jest.resetModules();

@@ -1,11 +1,15 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
+import { Edit, Heart, Loader2, MessageSquare, Star } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import { Header } from '@/components/layout/Header';
+import { useEffect, useMemo, useState } from 'react';
 import { Footer } from '@/components/layout/Footer';
+import { Header } from '@/components/layout/Header';
+import { ProfileEditForm } from '@/components/profile/ProfileEditForm';
+import { NeoBadge } from '@/components/ui/neo-badge';
+import { NeoButton } from '@/components/ui/neo-button';
 import {
   NeoCard,
   NeoCardContent,
@@ -13,26 +17,22 @@ import {
   NeoCardHeader,
   NeoCardTitle,
 } from '@/components/ui/neo-card';
-import { NeoBadge } from '@/components/ui/neo-badge';
-import { NeoButton } from '@/components/ui/neo-button';
-import { Heart, Loader2, MessageSquare, Star, Edit } from 'lucide-react';
-import { ProfileEditForm } from '@/components/profile/ProfileEditForm';
-import {
-  normaliseFavorite,
-  normaliseOwnerReviews,
-  formatDate,
-  type FavoriteEntry,
-  type OwnerReviewsResponse,
-} from './utils';
-import type { FavoriteListing, OwnerListingReviews } from './utils';
-import { FavoriteListingsShowcase } from './FavoriteListingsShowcase';
+import type { UserRole } from '@/types/auth';
 import type {
   DashboardTimeSeriesPointDTO,
   RegularUserDashboardDTO,
   UserDashboardPayloadDTO,
   VenueOwnerDashboardDTO,
 } from '@/types/dto';
-import type { UserRole } from '@/types/auth';
+import { FavoriteListingsShowcase } from './FavoriteListingsShowcase';
+import type { FavoriteListing, OwnerListingReviews } from './utils';
+import {
+  type FavoriteEntry,
+  formatDate,
+  normaliseFavorite,
+  normaliseOwnerReviews,
+  type OwnerReviewsResponse,
+} from './utils';
 
 interface FavoritesResponse {
   favorites?: Array<FavoriteEntry | null> | null;
@@ -125,7 +125,7 @@ function MonthlyTrendTable({
           </tr>
         </thead>
         <tbody className="divide-y divide-neo-border/40 bg-white/90">
-          {rows.map((month) => (
+          {rows.map(month => (
             <tr key={month.month}>
               <td className="px-4 py-3 text-neo-text-primary">{month.label}</td>
               <td className="px-4 py-3">{formatCount(month.reviewCount)}</td>
@@ -168,7 +168,7 @@ export default function ProfilePage() {
     if (!source) return 'U';
     return source
       .split(' ')
-      .map((part) => part.trim().charAt(0).toUpperCase())
+      .map(part => part.trim().charAt(0).toUpperCase())
       .join('')
       .slice(0, 2);
   }, [session?.user?.name, session?.user?.email]);
@@ -177,8 +177,7 @@ export default function ProfilePage() {
     try {
       await update();
       setIsEditing(false);
-    } catch (error) {
-      console.error('Failed to refresh session:', error);
+    } catch (_error) {
       alert('Profile updated successfully. Please refresh the page to see changes.');
       setIsEditing(false);
     }
@@ -231,7 +230,8 @@ export default function ProfilePage() {
             return;
           }
           const payload = await res.json().catch(() => ({}));
-          const errorMessage = typeof payload?.error === 'string' ? payload.error : 'Unable to load reviews';
+          const errorMessage =
+            typeof payload?.error === 'string' ? payload.error : 'Unable to load reviews';
           throw new Error(errorMessage);
         }
         const data = (await res.json()) as OwnerReviewsResponseApi;
@@ -294,7 +294,7 @@ export default function ProfilePage() {
 
   const handleRemoveFavorite = async (id: string) => {
     const originalFavorites = favorites;
-    setFavorites((current) => current.filter((favorite) => favorite.id !== id));
+    setFavorites(current => current.filter(favorite => favorite.id !== id));
 
     try {
       const response = await fetch(`/api/user/favorites/${id}`, {
@@ -322,7 +322,10 @@ export default function ProfilePage() {
     >
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 id="favorites-heading" className="heading-md text-neo-text-primary flex items-center gap-2">
+          <h2
+            id="favorites-heading"
+            className="heading-md text-neo-text-primary flex items-center gap-2"
+          >
             <Heart className="h-5 w-5 text-neo-primary" aria-hidden="true" />
             Favorite listings
           </h2>
@@ -347,7 +350,9 @@ export default function ProfilePage() {
       ) : favoritesError ? (
         <NeoCard variant="flat" className="border-4 border-rose-200 bg-rose-50">
           <NeoCardHeader className="pb-2">
-            <NeoCardTitle className="text-base text-rose-700">We couldn&apos;t load your favorites</NeoCardTitle>
+            <NeoCardTitle className="text-base text-rose-700">
+              We couldn&apos;t load your favorites
+            </NeoCardTitle>
           </NeoCardHeader>
           <NeoCardContent className="pt-0 text-sm text-rose-700">{favoritesError}</NeoCardContent>
         </NeoCard>
@@ -355,7 +360,9 @@ export default function ProfilePage() {
         <NeoCard variant="flat" className="border-4 border-neo-border bg-white/90">
           <NeoCardContent className="flex flex-col items-start gap-4 py-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="font-semibold text-neo-text-primary">You haven&apos;t saved any venues yet.</p>
+              <p className="font-semibold text-neo-text-primary">
+                You haven&apos;t saved any venues yet.
+              </p>
               <p className="text-sm text-neo-text-secondary">
                 Explore eco-friendly spaces and tap the heart icon to save your favorites.
               </p>
@@ -380,7 +387,10 @@ export default function ProfilePage() {
     >
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 id="owner-reviews-heading" className="heading-md text-neo-text-primary flex items-center gap-2">
+          <h2
+            id="owner-reviews-heading"
+            className="heading-md text-neo-text-primary flex items-center gap-2"
+          >
             <MessageSquare className="h-5 w-5 text-neo-primary" aria-hidden="true" />
             Reviews for your venues
           </h2>
@@ -408,25 +418,35 @@ export default function ProfilePage() {
       ) : ownerListings.length === 0 ? (
         <NeoCard variant="flat" className="border-4 border-neo-border bg-white/90">
           <NeoCardContent className="py-6 text-sm text-neo-text-secondary">
-            You don&apos;t have any published listings with reviews yet. Listings you create will appear here once guests share
-            their experiences.
+            You don&apos;t have any published listings with reviews yet. Listings you create will
+            appear here once guests share their experiences.
           </NeoCardContent>
         </NeoCard>
       ) : (
         <div className="space-y-6">
-          {ownerListings.map((listing) => {
+          {ownerListings.map(listing => {
             const averageRating =
               listing.reviews.length > 0
-                ? listing.reviews.reduce((sum, review) => sum + review.rating, 0) / listing.reviews.length
+                ? listing.reviews.reduce((sum, review) => sum + review.rating, 0) /
+                  listing.reviews.length
                 : null;
 
             return (
-              <NeoCard key={listing.slug} variant="flat" className="border-4 border-neo-border bg-white/95">
+              <NeoCard
+                key={listing.slug}
+                variant="flat"
+                className="border-4 border-neo-border bg-white/95"
+              >
                 <NeoCardHeader className="space-y-2">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                      <NeoCardTitle className="text-lg text-neo-text-primary">{listing.name}</NeoCardTitle>
-                      <Link href={`/listings/${listing.slug}`} className="text-sm font-medium text-neo-primary hover:underline">
+                      <NeoCardTitle className="text-lg text-neo-text-primary">
+                        {listing.name}
+                      </NeoCardTitle>
+                      <Link
+                        href={`/listings/${listing.slug}`}
+                        className="text-sm font-medium text-neo-primary hover:underline"
+                      >
                         View public listing
                       </Link>
                     </div>
@@ -439,7 +459,9 @@ export default function ProfilePage() {
                         </span>
                       </div>
                     ) : (
-                      <span className="text-xs font-medium text-neo-text-secondary">No reviews yet</span>
+                      <span className="text-xs font-medium text-neo-text-secondary">
+                        No reviews yet
+                      </span>
                     )}
                   </div>
                 </NeoCardHeader>
@@ -450,8 +472,11 @@ export default function ProfilePage() {
                     </p>
                   ) : (
                     <ul className="space-y-4">
-                      {listing.reviews.map((review) => (
-                        <li key={review.id} className="rounded-2xl border-2 border-neo-border/70 bg-white/80 p-4">
+                      {listing.reviews.map(review => (
+                        <li
+                          key={review.id}
+                          className="rounded-2xl border-2 border-neo-border/70 bg-white/80 p-4"
+                        >
                           <div className="flex items-center justify-between gap-3">
                             <div className="flex items-center gap-3">
                               <div className="h-10 w-10 overflow-hidden rounded-full bg-neo-secondary/40">
@@ -470,8 +495,12 @@ export default function ProfilePage() {
                                 )}
                               </div>
                               <div>
-                                <p className="text-sm font-semibold text-neo-text-primary">{review.reviewerName}</p>
-                                <p className="text-xs text-neo-text-secondary">{formatDate(review.createdAt)}</p>
+                                <p className="text-sm font-semibold text-neo-text-primary">
+                                  {review.reviewerName}
+                                </p>
+                                <p className="text-xs text-neo-text-secondary">
+                                  {formatDate(review.createdAt)}
+                                </p>
                               </div>
                             </div>
                             <div className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-1 text-sm font-semibold text-emerald-700">
@@ -498,9 +527,12 @@ export default function ProfilePage() {
   const renderRegularUserDashboard = (data: RegularUserDashboardDTO) => (
     <section aria-labelledby="user-dashboard" className="space-y-8">
       <header className="space-y-2">
-        <h2 id="user-dashboard" className="heading-md">Your activity snapshot</h2>
+        <h2 id="user-dashboard" className="heading-md">
+          Your activity snapshot
+        </h2>
         <p className="text-sm text-neo-text-secondary">
-          Track the favourite listings you have saved and quickly revisit them when planning your next trip.
+          Track the favourite listings you have saved and quickly revisit them when planning your
+          next trip.
         </p>
       </header>
 
@@ -543,12 +575,15 @@ export default function ProfilePage() {
               {data.favorites.length === 0 ? (
                 <tr>
                   <td colSpan={3} className="px-4 py-8 text-center text-sm text-neo-text-secondary">
-                    You have not saved any listings yet. Explore destinations and tap the heart icon to start a shortlist.
+                    You have not saved any listings yet. Explore destinations and tap the heart icon
+                    to start a shortlist.
                   </td>
                 </tr>
               ) : (
-                data.favorites.map((favorite) => {
-                  const href = favorite.listing.slug ? `/listings/${favorite.listing.slug}` : undefined;
+                data.favorites.map(favorite => {
+                  const href = favorite.listing.slug
+                    ? `/listings/${favorite.listing.slug}`
+                    : undefined;
                   return (
                     <tr key={favorite.id}>
                       <td className="px-4 py-4">
@@ -560,10 +595,14 @@ export default function ProfilePage() {
                             {favorite.listing.name}
                           </Link>
                         ) : (
-                          <span className="font-medium text-neo-text-primary">{favorite.listing.name}</span>
+                          <span className="font-medium text-neo-text-primary">
+                            {favorite.listing.name}
+                          </span>
                         )}
                       </td>
-                      <td className="px-4 py-4 text-neo-text-secondary">{favorite.listing.city ?? '—'}</td>
+                      <td className="px-4 py-4 text-neo-text-secondary">
+                        {favorite.listing.city ?? '—'}
+                      </td>
                       <td className="px-4 py-4 text-neo-text-secondary">
                         {new Date(favorite.createdAt).toLocaleDateString()}
                       </td>
@@ -581,9 +620,12 @@ export default function ProfilePage() {
   const renderVenueOwnerDashboard = (data: VenueOwnerDashboardDTO) => (
     <section aria-labelledby="venue-owner-dashboard" className="space-y-10">
       <header className="space-y-2">
-        <h2 id="venue-owner-dashboard" className="heading-md">Listing performance</h2>
+        <h2 id="venue-owner-dashboard" className="heading-md">
+          Listing performance
+        </h2>
         <p className="text-sm text-neo-text-secondary">
-          Showing lifetime metrics plus the last {dashboard?.range.months ?? 3} months of trend data for your published listings.
+          Showing lifetime metrics plus the last {dashboard?.range.months ?? 3} months of trend data
+          for your published listings.
         </p>
       </header>
 
@@ -606,7 +648,11 @@ export default function ProfilePage() {
         <DashboardSummaryCard
           title="Views tracked"
           value={formatCount(data.totals.viewCount)}
-          helper={data.totals.viewCount === null ? 'View analytics not yet enabled' : 'Current total views captured'}
+          helper={
+            data.totals.viewCount === null
+              ? 'View analytics not yet enabled'
+              : 'Current total views captured'
+          }
         />
       </div>
 
@@ -619,7 +665,9 @@ export default function ProfilePage() {
       <div className="space-y-4">
         <div>
           <h3 className="heading-sm">Per-listing snapshot</h3>
-          <p className="text-sm text-neo-text-secondary">Quick glance at the health of each managed listing.</p>
+          <p className="text-sm text-neo-text-secondary">
+            Quick glance at the health of each managed listing.
+          </p>
         </div>
         <div className="overflow-x-auto rounded-2xl border-4 border-neo-border bg-white/95 shadow-[8px_8px_0px_0px_rgba(15,23,42,0.2)]">
           <table className="min-w-full divide-y-2 divide-neo-border/60 text-left text-sm">
@@ -653,8 +701,10 @@ export default function ProfilePage() {
                   </td>
                 </tr>
               ) : (
-                data.listings.map((listing) => {
-                  const href = listing.listing.slug ? `/listings/${listing.listing.slug}` : undefined;
+                data.listings.map(listing => {
+                  const href = listing.listing.slug
+                    ? `/listings/${listing.listing.slug}`
+                    : undefined;
                   return (
                     <tr key={listing.listing.id}>
                       <td className="px-4 py-4">
@@ -666,10 +716,14 @@ export default function ProfilePage() {
                             {listing.listing.name}
                           </Link>
                         ) : (
-                          <span className="font-medium text-neo-text-primary">{listing.listing.name}</span>
+                          <span className="font-medium text-neo-text-primary">
+                            {listing.listing.name}
+                          </span>
                         )}
                       </td>
-                      <td className="px-4 py-4 text-neo-text-secondary">{listing.listing.city ?? '—'}</td>
+                      <td className="px-4 py-4 text-neo-text-secondary">
+                        {listing.listing.city ?? '—'}
+                      </td>
                       <td className="px-4 py-4">{formatAvgRating(listing.summary.avgRating)}</td>
                       <td className="px-4 py-4">{formatCount(listing.summary.reviewCount)}</td>
                       <td className="px-4 py-4">{formatCount(listing.summary.favoritesCount)}</td>
@@ -685,7 +739,7 @@ export default function ProfilePage() {
 
       {data.notices.length > 0 && (
         <div className="space-y-2 rounded-2xl border-4 border-amber-200 bg-amber-50/70 p-4 text-sm text-amber-900 shadow-[6px_6px_0px_0px_rgba(217,119,6,0.25)]">
-          {data.notices.map((notice) => (
+          {data.notices.map(notice => (
             <p key={notice}>{notice}</p>
           ))}
         </div>
@@ -715,7 +769,8 @@ export default function ProfilePage() {
       return (
         <NeoCard variant="flat" className="border-4 border-neo-border bg-white/90">
           <NeoCardContent className="text-sm text-neo-text-secondary">
-            We don&apos;t have monthly trend data for your account yet. Come back after interacting with more listings.
+            We don&apos;t have monthly trend data for your account yet. Come back after interacting
+            with more listings.
           </NeoCardContent>
         </NeoCard>
       );
@@ -726,7 +781,8 @@ export default function ProfilePage() {
         <div className="space-y-4">
           <MonthlyTrendTable rows={dashboard.data.monthlyTotals} showViews />
           <p className="text-xs text-neo-text-tertiary">
-            * View analytics populate once monthly tracking is enabled; otherwise the dashboard shows — for that period.
+            * View analytics populate once monthly tracking is enabled; otherwise the dashboard
+            shows — for that period.
           </p>
         </div>
       );
@@ -765,7 +821,9 @@ export default function ProfilePage() {
             <div className="space-y-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-neo-text-tertiary">Welcome</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-neo-text-tertiary">
+                    Welcome
+                  </p>
                   <h1 className="heading-xl text-neo-text-primary">{displayName}</h1>
                   <p className="text-sm text-neo-text-secondary">
                     Manage your profile, saved venues, and performance insights in one place.
@@ -782,7 +840,7 @@ export default function ProfilePage() {
                 aria-label="Profile navigation"
                 className="flex flex-wrap gap-4 rounded-3xl border-4 border-neo-border bg-neo-surface/60 p-4 shadow-[10px_10px_0px_0px_rgba(15,23,42,0.2)]"
               >
-                {NAV_ITEMS.map((item) => {
+                {NAV_ITEMS.map(item => {
                   const isDisabled = item.id === 'listings' && !ownerRole;
                   const isActive = activeTab === item.id;
                   return (
@@ -798,7 +856,9 @@ export default function ProfilePage() {
                           : 'border-neo-border bg-white text-neo-text-primary shadow-[6px_6px_0px_0px_rgba(15,23,42,0.2)] hover:-translate-y-1 hover:shadow-[10px_10px_0px_0px_rgba(15,23,42,0.35)]'
                       } ${isDisabled ? 'cursor-not-allowed opacity-60 hover:translate-y-0 hover:shadow-[6px_6px_0px_0px_rgba(15,23,42,0.2)]' : ''}`}
                     >
-                      <span className="block text-sm font-semibold uppercase tracking-wide">{item.label}</span>
+                      <span className="block text-sm font-semibold uppercase tracking-wide">
+                        {item.label}
+                      </span>
                       <span className="mt-1 block text-xs text-neo-text-secondary">
                         {isDisabled ? 'For listing owners' : item.helper}
                       </span>
@@ -833,8 +893,14 @@ export default function ProfilePage() {
                           <h2 id="profile-overview" className="heading-lg text-neo-text-primary">
                             {displayName}
                           </h2>
-                          <NeoBadge variant="secondary" size="sm" aria-label={`Account role: ${role}`}>
-                            {role === 'venueOwner' ? 'Venue Owner' : role.charAt(0).toUpperCase() + role.slice(1)}
+                          <NeoBadge
+                            variant="secondary"
+                            size="sm"
+                            aria-label={`Account role: ${role}`}
+                          >
+                            {role === 'venueOwner'
+                              ? 'Venue Owner'
+                              : role.charAt(0).toUpperCase() + role.slice(1)}
                           </NeoBadge>
                         </div>
                         {email && (
@@ -849,7 +915,7 @@ export default function ProfilePage() {
                           <NeoButton
                             variant="secondary"
                             size="sm"
-                            onClick={() => setIsEditing((value) => !value)}
+                            onClick={() => setIsEditing(value => !value)}
                             data-testid="edit-profile-button"
                           >
                             <Edit className="mr-2 h-4 w-4" aria-hidden="true" />
@@ -883,21 +949,29 @@ export default function ProfilePage() {
                     Favourite listing dashboards
                   </h2>
                   {dashboardLoading ? (
-                    <div className="flex items-center gap-3 text-sm text-neo-text-secondary" role="status">
-                      <Loader2 className="h-5 w-5 animate-spin text-neo-primary" aria-hidden="true" />
+                    <div
+                      className="flex items-center gap-3 text-sm text-neo-text-secondary"
+                      role="status"
+                    >
+                      <Loader2
+                        className="h-5 w-5 animate-spin text-neo-primary"
+                        aria-hidden="true"
+                      />
                       Loading favourites analytics…
                     </div>
                   ) : dashboardError ? (
                     <NeoCard variant="flat" className="border-4 border-rose-200 bg-rose-50">
-                      <NeoCardContent className="text-sm text-rose-700">{dashboardError}</NeoCardContent>
+                      <NeoCardContent className="text-sm text-rose-700">
+                        {dashboardError}
+                      </NeoCardContent>
                     </NeoCard>
                   ) : dashboard && dashboard.data.kind === 'user' ? (
                     renderRegularUserDashboard(dashboard.data)
                   ) : (
                     <NeoCard variant="flat" className="border-4 border-neo-border bg-white/90">
                       <NeoCardContent className="text-sm text-neo-text-secondary">
-                        Favourite analytics are available for explorer accounts. As a listing owner you can still manage saved
-                        venues above.
+                        Favourite analytics are available for explorer accounts. As a listing owner
+                        you can still manage saved venues above.
                       </NeoCardContent>
                     </NeoCard>
                   )}
@@ -908,21 +982,26 @@ export default function ProfilePage() {
             {activeTab === 'listings' && (
               <div className="space-y-10">
                 {dashboardLoading && ownerRole ? (
-                  <div className="flex items-center gap-3 text-sm text-neo-text-secondary" role="status">
+                  <div
+                    className="flex items-center gap-3 text-sm text-neo-text-secondary"
+                    role="status"
+                  >
                     <Loader2 className="h-5 w-5 animate-spin text-neo-primary" aria-hidden="true" />
                     Loading listing analytics…
                   </div>
                 ) : dashboardError && ownerRole ? (
                   <NeoCard variant="flat" className="border-4 border-rose-200 bg-rose-50">
-                    <NeoCardContent className="text-sm text-rose-700">{dashboardError}</NeoCardContent>
+                    <NeoCardContent className="text-sm text-rose-700">
+                      {dashboardError}
+                    </NeoCardContent>
                   </NeoCard>
                 ) : ownerRole && dashboard && dashboard.data.kind === 'venueOwner' ? (
                   renderVenueOwnerDashboard(dashboard.data)
                 ) : (
                   <NeoCard variant="flat" className="border-4 border-neo-border bg-white/90">
                     <NeoCardContent className="text-sm text-neo-text-secondary">
-                      Listing analytics are available to venue owners. Save eco-friendly venues in your favourites to start
-                      building insights.
+                      Listing analytics are available to venue owners. Save eco-friendly venues in
+                      your favourites to start building insights.
                     </NeoCardContent>
                   </NeoCard>
                 )}
@@ -936,7 +1015,8 @@ export default function ProfilePage() {
                 <header className="space-y-2">
                   <h2 className="heading-md">Monthly trend dashboards</h2>
                   <p className="text-sm text-neo-text-secondary">
-                    Visualise how your activity has evolved over the past {dashboard?.range.months ?? 3} months.
+                    Visualise how your activity has evolved over the past{' '}
+                    {dashboard?.range.months ?? 3} months.
                   </p>
                 </header>
                 {renderMonthlyTrendSection()}

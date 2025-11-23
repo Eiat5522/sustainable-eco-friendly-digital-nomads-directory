@@ -18,7 +18,9 @@ describe('analytics experiments', () => {
 
   it('returns a configured experiment by id', async () => {
     const { getExperiment } = await import('../experiments');
-    expect(getExperiment('listing-cta-experiment')).toMatchObject({ name: 'Listing CTA Variant Test' });
+    expect(getExperiment('listing-cta-experiment')).toMatchObject({
+      name: 'Listing CTA Variant Test',
+    });
     expect(getExperiment('unknown')).toBeUndefined();
   });
 

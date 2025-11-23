@@ -1,9 +1,9 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import type { UserRole } from '@/types/auth';
-import { client } from '@/lib/sanity/client';
 import { getDefaultTimeout, withRequestTimeout } from '@/lib/http/request';
 import { structuredLogger } from '@/lib/logger';
+import { client } from '@/lib/sanity/client';
+import type { UserRole } from '@/types/auth';
 import {
   isListingModerationState,
   isListingTypeValue,
@@ -31,8 +31,12 @@ type AdminListingProjection = {
 };
 
 function toListingManagementItem(listing: AdminListingProjection): ListingManagementItem {
-  const status = isListingWorkflowStatus(listing.status) ? listing.status : ('draft' as ListingWorkflowStatus);
-  const moderationStatus = isListingModerationState(listing.moderationStatus) ? listing.moderationStatus : null;
+  const status = isListingWorkflowStatus(listing.status)
+    ? listing.status
+    : ('draft' as ListingWorkflowStatus);
+  const moderationStatus = isListingModerationState(listing.moderationStatus)
+    ? listing.moderationStatus
+    : null;
   const type = isListingTypeValue(listing.type) ? listing.type : 'unknown';
 
   return {
@@ -65,7 +69,10 @@ export async function GET(request: NextRequest, _context: RouteContext) {
 
     const url = new URL(request.url);
     const page = Math.max(1, parseInt(url.searchParams.get('page') as string, 10) || 1);
-    const limit = Math.min(100, Math.max(10, parseInt(url.searchParams.get('limit') as string, 10) || 20));
+    const limit = Math.min(
+      100,
+      Math.max(10, parseInt(url.searchParams.get('limit') as string, 10) || 20)
+    );
     const search = url.searchParams.get('search')?.trim() || '';
     const statusParam = url.searchParams.get('status');
     const statusFilter = isListingWorkflowStatus(statusParam) ? statusParam : null;
@@ -86,7 +93,7 @@ export async function GET(request: NextRequest, _context: RouteContext) {
       'draft',
       'pending',
       'published',
-      'unpublished'
+      'unpublished',
     ];
     if (statusFilter && allowedStatusValues.includes(statusFilter as ListingWorkflowStatus)) {
       statusCondition = `&& adminWorkflow.status == "${statusFilter}"`;
@@ -115,7 +122,7 @@ export async function GET(request: NextRequest, _context: RouteContext) {
     const [listings, totalCount] = await withRequestTimeout(
       Promise.all([
         client.fetch<AdminListingProjection[]>(query),
-        client.fetch<number>(countQuery)
+        client.fetch<number>(countQuery),
       ]),
       getDefaultTimeout(),
       'Fetching admin listings timed out'
@@ -163,7 +170,13 @@ export async function PATCH(request: NextRequest, _context: RouteContext) {
     const body = await request.json().catch(() => null);
     const listingId = body?.listingId;
     listingIdValue = typeof listingId === 'string' ? listingId : undefined;
-    const action = body?.action as 'suspend' | 'publish' | 'unpublish' | 'feature' | 'unfeature' | undefined;
+    const action = body?.action as
+      | 'suspend'
+      | 'publish'
+      | 'unpublish'
+      | 'feature'
+      | 'unfeature'
+      | undefined;
 
     if (!listingIdValue) {
       return NextResponse.json({ error: 'listingId is required' }, { status: 400 });

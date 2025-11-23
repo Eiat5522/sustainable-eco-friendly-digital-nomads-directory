@@ -7,7 +7,7 @@
  * 4. Response structure validation (wrapped in city object)
  */
 
-import { jest, beforeAll, beforeEach, describe, it, expect } from '@jest/globals';
+import { beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import type { NextRequest } from 'next/server';
 
 // Mock the city data module before importing
@@ -26,11 +26,11 @@ jest.mock('@/lib/logger', () => ({
   },
 }));
 
-import { getCityBySlug } from '@/lib/data/city';
-import { structuredLogger } from '@/lib/logger';
 
 const cityDataMockModule = jest.requireMock('@/lib/data/city') as { getCityBySlug: jest.Mock };
-const loggerMockModule = jest.requireMock('@/lib/logger') as { structuredLogger: { error: jest.Mock; warn: jest.Mock; info: jest.Mock } };
+const loggerMockModule = jest.requireMock('@/lib/logger') as {
+  structuredLogger: { error: jest.Mock; warn: jest.Mock; info: jest.Mock };
+};
 
 let GET: typeof import('../route').GET;
 
@@ -62,7 +62,7 @@ describe('City Slug API - GET /api/city/[slug]', () => {
 
       const request = {} as NextRequest;
       const context = { params: Promise.resolve({ slug: 'amsterdam' }) };
-      
+
       const response = await GET(request, context);
       const data = await response.json();
 
@@ -89,7 +89,7 @@ describe('City Slug API - GET /api/city/[slug]', () => {
 
       const request = {} as NextRequest;
       const context = { params: Promise.resolve({ slug: 'tokyo' }) };
-      
+
       const response = await GET(request, context);
       const data = await response.json();
 
@@ -112,7 +112,7 @@ describe('City Slug API - GET /api/city/[slug]', () => {
 
       const request = {} as NextRequest;
       const context = { params: Promise.resolve({ slug: 'buenos-aires' }) };
-      
+
       const response = await GET(request, context);
       const data = await response.json();
 
@@ -134,7 +134,7 @@ describe('City Slug API - GET /api/city/[slug]', () => {
 
       const request = {} as NextRequest;
       const context = { params: Promise.resolve({ slug: 'minimal-city' }) };
-      
+
       const response = await GET(request, context);
       const data = await response.json();
 
@@ -150,7 +150,7 @@ describe('City Slug API - GET /api/city/[slug]', () => {
 
       const request = {} as NextRequest;
       const context = { params: Promise.resolve({ slug: 'nonexistent-city' }) };
-      
+
       const response = await GET(request, context);
       const data = await response.json();
 
@@ -165,7 +165,7 @@ describe('City Slug API - GET /api/city/[slug]', () => {
 
       const request = {} as NextRequest;
       const context = { params: Promise.resolve({ slug: 'invalid_slug_format' }) };
-      
+
       const response = await GET(request, context);
       const data = await response.json();
 
@@ -179,7 +179,7 @@ describe('City Slug API - GET /api/city/[slug]', () => {
 
       const request = {} as NextRequest;
       const context = { params: Promise.resolve({ slug: '' }) };
-      
+
       const response = await GET(request, context);
       const data = await response.json();
 
@@ -194,7 +194,7 @@ describe('City Slug API - GET /api/city/[slug]', () => {
 
       const request = {} as NextRequest;
       const context = { params: Promise.resolve({ slug: 'amsterdam' }) };
-      
+
       const response = await GET(request, context);
       const data = await response.json();
 
@@ -208,7 +208,7 @@ describe('City Slug API - GET /api/city/[slug]', () => {
 
       const request = {} as NextRequest;
       const context = { params: Promise.resolve({ slug: 'lisbon' }) };
-      
+
       const response = await GET(request, context);
       const data = await response.json();
 
@@ -222,7 +222,7 @@ describe('City Slug API - GET /api/city/[slug]', () => {
 
       const request = {} as NextRequest;
       const context = { params: Promise.resolve({ slug: 'berlin' }) };
-      
+
       const response = await GET(request, context);
       const data = await response.json();
 
@@ -235,7 +235,7 @@ describe('City Slug API - GET /api/city/[slug]', () => {
 
       const request = {} as NextRequest;
       const context = { params: Promise.resolve({ slug: 'test-city' }) };
-      
+
       await GET(request, context);
 
       expect(mockLogger.error).toHaveBeenCalled();
@@ -248,7 +248,7 @@ describe('City Slug API - GET /api/city/[slug]', () => {
 
       const request = {} as NextRequest;
       const context = { params: Promise.resolve({ slug: 'error-city' }) };
-      
+
       await GET(request, context);
 
       expect(mockLogger.error).toHaveBeenCalled();
@@ -269,9 +269,9 @@ describe('City Slug API - GET /api/city/[slug]', () => {
 
       const request = {} as NextRequest;
       const context = { params: Promise.resolve({ slug: 'test-city' }) };
-      
+
       const response = await GET(request, context);
-      
+
       expect(response.headers.get('content-type')).toContain('application/json');
     });
 
@@ -286,7 +286,7 @@ describe('City Slug API - GET /api/city/[slug]', () => {
 
       const request = {} as NextRequest;
       const context = { params: Promise.resolve({ slug: 'test-city' }) };
-      
+
       const response = await GET(request, context);
       const data = await response.json();
 
@@ -307,7 +307,7 @@ describe('City Slug API - GET /api/city/[slug]', () => {
 
       const request = {} as NextRequest;
       const context = { params: Promise.resolve({ slug: 'test-city' }) };
-      
+
       const response = await GET(request, context);
       const data = await response.json();
 
@@ -331,11 +331,11 @@ describe('City Slug API - GET /api/city/[slug]', () => {
       const request = {} as NextRequest;
       // Test with async params resolution
       const context = {
-        params: new Promise((resolve) => {
+        params: new Promise(resolve => {
           setTimeout(() => resolve({ slug: 'test-city' }), 10);
         }),
       };
-      
+
       const response = await GET(request, context);
       const data = await response.json();
 
@@ -356,7 +356,7 @@ describe('City Slug API - GET /api/city/[slug]', () => {
 
       const request = {} as NextRequest;
       const context = { params: Promise.resolve({ slug: 'async-city' }) };
-      
+
       const response = await GET(request, context);
       const data = await response.json();
 

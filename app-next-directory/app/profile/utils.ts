@@ -83,7 +83,11 @@ export type OwnerReviewsResponse = {
   } | null> | null;
 };
 
-const allowedPriceRanges = new Set<FavoriteListing['priceRange']>(['budget', 'moderate', 'premium']);
+const allowedPriceRanges = new Set<FavoriteListing['priceRange']>([
+  'budget',
+  'moderate',
+  'premium',
+]);
 
 const fallbackDimensions = { width: 800, height: 600 };
 
@@ -93,7 +97,9 @@ function toNonEmptyString(value: unknown): string | undefined {
   return trimmed.length > 0 ? trimmed : undefined;
 }
 
-function toTagList(input?: Array<{ name?: string | null } | string | null | undefined> | null): string[] {
+function toTagList(
+  input?: Array<{ name?: string | null } | string | null | undefined> | null
+): string[] {
   if (!Array.isArray(input)) return [];
   const tags: string[] = [];
   for (const tag of input) {
@@ -110,17 +116,34 @@ function toTagList(input?: Array<{ name?: string | null } | string | null | unde
   return tags;
 }
 
-function extractImage(entry: FavoriteEntry['listing']): { image?: FavoriteImage; imageUrl?: string } {
+function extractImage(entry: FavoriteEntry['listing']): {
+  image?: FavoriteImage;
+  imageUrl?: string;
+} {
   const source = entry?.primaryImage ?? entry?.mainImage ?? null;
   const asset = source?.asset ?? null;
   const rawUrl = typeof asset?.url === 'string' ? asset.url.trim() : undefined;
   if (!rawUrl || rawUrl.length === 0) {
     return {};
   }
-  const rawWidth = (asset?.metadata as { dimensions?: { width?: number | null; height?: number | null } } | undefined)?.dimensions?.width;
-  const rawHeight = (asset?.metadata as { dimensions?: { width?: number | null; height?: number | null } } | undefined)?.dimensions?.height;
-  const width = typeof rawWidth === 'number' && Number.isFinite(rawWidth) && rawWidth > 0 ? rawWidth : fallbackDimensions.width;
-  const height = typeof rawHeight === 'number' && Number.isFinite(rawHeight) && rawHeight > 0 ? rawHeight : fallbackDimensions.height;
+  const rawWidth = (
+    asset?.metadata as
+      | { dimensions?: { width?: number | null; height?: number | null } }
+      | undefined
+  )?.dimensions?.width;
+  const rawHeight = (
+    asset?.metadata as
+      | { dimensions?: { width?: number | null; height?: number | null } }
+      | undefined
+  )?.dimensions?.height;
+  const width =
+    typeof rawWidth === 'number' && Number.isFinite(rawWidth) && rawWidth > 0
+      ? rawWidth
+      : fallbackDimensions.width;
+  const height =
+    typeof rawHeight === 'number' && Number.isFinite(rawHeight) && rawHeight > 0
+      ? rawHeight
+      : fallbackDimensions.height;
   const alt = toNonEmptyString(source?.altText);
   return {
     imageUrl: rawUrl,
@@ -145,9 +168,10 @@ export function normaliseFavorite(entry: FavoriteEntry | null | undefined): Favo
   const type = toNonEmptyString(listing?.type);
   const category = toNonEmptyString(listing?.category);
   const priceCandidate = toNonEmptyString(listing?.priceRange);
-  const priceRange = priceCandidate && allowedPriceRanges.has(priceCandidate as FavoriteListing['priceRange'])
-    ? (priceCandidate as FavoriteListing['priceRange'])
-    : undefined;
+  const priceRange =
+    priceCandidate && allowedPriceRanges.has(priceCandidate as FavoriteListing['priceRange'])
+      ? (priceCandidate as FavoriteListing['priceRange'])
+      : undefined;
   const { image, imageUrl } = extractImage(listing);
   const createdAt = toNonEmptyString(entry.createdAt);
 
@@ -169,7 +193,9 @@ export function normaliseFavorite(entry: FavoriteEntry | null | undefined): Favo
   };
 }
 
-export function normaliseOwnerReviews(response: OwnerReviewsResponse | null | undefined): OwnerListingReviews[] {
+export function normaliseOwnerReviews(
+  response: OwnerReviewsResponse | null | undefined
+): OwnerListingReviews[] {
   if (!response?.listings) return [];
   const normalised: OwnerListingReviews[] = [];
   for (const listing of response.listings) {
@@ -181,7 +207,8 @@ export function normaliseOwnerReviews(response: OwnerReviewsResponse | null | un
       for (const review of listing.reviews) {
         const id = toNonEmptyString(review?.id);
         if (!id) continue;
-        const ratingValue = typeof review?.rating === 'number' ? review.rating : Number(review?.rating);
+        const ratingValue =
+          typeof review?.rating === 'number' ? review.rating : Number(review?.rating);
         if (!Number.isFinite(ratingValue)) continue;
         reviews.push({
           id,

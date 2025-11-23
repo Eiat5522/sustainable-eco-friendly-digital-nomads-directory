@@ -26,13 +26,9 @@ describe('createMongoMemoryServer', () => {
     const busyError = Object.assign(new Error('text file busy'), { code: 'ETXTBSY' });
     const server = { stop: jest.fn() } as unknown as MongoMemoryServer;
 
-    createMock
-      .mockRejectedValueOnce(busyError)
-      .mockResolvedValueOnce(server);
+    createMock.mockRejectedValueOnce(busyError).mockResolvedValueOnce(server);
 
-    await expect(
-      createMongoMemoryServer({ retries: 2, retryDelayMs: 0 }),
-    ).resolves.toBe(server);
+    await expect(createMongoMemoryServer({ retries: 2, retryDelayMs: 0 })).resolves.toBe(server);
     expect(createMock).toHaveBeenCalledTimes(2);
   });
 
@@ -40,9 +36,7 @@ describe('createMongoMemoryServer', () => {
     const busyError = Object.assign(new Error('still busy'), { code: 'ETXTBSY' });
     createMock.mockRejectedValue(busyError);
 
-    await expect(
-      createMongoMemoryServer({ retries: 2, retryDelayMs: 0 }),
-    ).rejects.toBe(busyError);
+    await expect(createMongoMemoryServer({ retries: 2, retryDelayMs: 0 })).rejects.toBe(busyError);
     expect(createMock).toHaveBeenCalledTimes(2);
   });
 

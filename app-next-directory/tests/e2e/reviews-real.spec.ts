@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 
 const SIGNED_IN_TEST_PAGE = '/test-reviews?signedIn=1';
 
@@ -9,17 +9,19 @@ async function prepareSignedInPage(page: Page) {
 
 test.describe('Reviews submission flow', () => {
   test.beforeEach(async ({ page }) => {
-    await page.route('**/api/auth/session', async (route) => {
+    await page.route('**/api/auth/session', async route => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({ user: { id: 'e2e-user', name: 'E2E Tester', email: 'tester@example.com' } })
+        body: JSON.stringify({
+          user: { id: 'e2e-user', name: 'E2E Tester', email: 'tester@example.com' },
+        }),
       });
     });
   });
 
   test('authenticated user submits review and sees pending confirmation card', async ({ page }) => {
-    await page.route('**/api/reviews', async (route) => {
+    await page.route('**/api/reviews', async route => {
       if (route.request().method() === 'POST') {
         await route.fulfill({
           status: 201,
@@ -29,8 +31,8 @@ test.describe('Reviews submission flow', () => {
             rating: 5,
             comment: 'Amazing eco-friendly stay with great community vibes.',
             approved: false,
-            createdAt: '2024-06-01T12:00:00Z'
-          })
+            createdAt: '2024-06-01T12:00:00Z',
+          }),
         });
         return;
       }
@@ -41,17 +43,22 @@ test.describe('Reviews submission flow', () => {
     await prepareSignedInPage(page);
 
     await page.click('[data-testid="rating-star-5"]');
-    await page.fill('[data-testid="review-comment-field"]', 'Amazing eco-friendly stay with great community vibes.');
+    await page.fill(
+      '[data-testid="review-comment-field"]',
+      'Amazing eco-friendly stay with great community vibes.'
+    );
     await page.click('[data-testid="submit-review-button"]');
 
     await expect(page.getByTestId('review-success-message')).toBeVisible();
     const status = page.getByTestId('submitted-review-status');
     await expect(status).toHaveText(/pending approval/i);
-    await expect(page.getByTestId('submitted-review-comment')).toContainText('Amazing eco-friendly stay');
+    await expect(page.getByTestId('submitted-review-comment')).toContainText(
+      'Amazing eco-friendly stay'
+    );
   });
 
   test('shows approved status when backend marks review as approved', async ({ page }) => {
-    await page.route('**/api/reviews', async (route) => {
+    await page.route('**/api/reviews', async route => {
       if (route.request().method() === 'POST') {
         await route.fulfill({
           status: 200,
@@ -61,8 +68,8 @@ test.describe('Reviews submission flow', () => {
             rating: 4,
             comment: 'Approved review from moderators.',
             approved: true,
-            createdAt: '2024-06-15T09:30:00Z'
-          })
+            createdAt: '2024-06-15T09:30:00Z',
+          }),
         });
         return;
       }
@@ -97,12 +104,12 @@ test.describe('Reviews submission flow', () => {
   });
 
   test('displays server validation error when comment is too short', async ({ page }) => {
-    await page.route('**/api/reviews', async (route) => {
+    await page.route('**/api/reviews', async route => {
       if (route.request().method() === 'POST') {
         await route.fulfill({
           status: 422,
           contentType: 'application/json',
-          body: JSON.stringify({ error: 'Comment must be at least 20 characters.' })
+          body: JSON.stringify({ error: 'Comment must be at least 20 characters.' }),
         });
         return;
       }

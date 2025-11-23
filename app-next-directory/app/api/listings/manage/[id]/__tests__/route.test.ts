@@ -8,8 +8,7 @@
  * 5. Error handling
  */
 
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
-import { NextResponse } from 'next/server';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 // Mock the auth function
 const mockAuth = jest.fn();
@@ -48,7 +47,7 @@ describe('Manage Listings API', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
     mockSet.mockReturnValue({ commit: mockCommit });
-    
+
     // Dynamically import the route handler
     const routeModule = await import('../route');
     GET = routeModule.GET;
@@ -78,10 +77,10 @@ describe('Manage Listings API', () => {
 
         expect(response.status).toBe(200);
         expect(data).toEqual(mockListing);
-        expect(mockFetch).toHaveBeenCalledWith(
-          expect.stringContaining('*[_type == "listing"'),
-          { id: 'listing-1', userId: 'user-1' }
-        );
+        expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('*[_type == "listing"'), {
+          id: 'listing-1',
+          userId: 'user-1',
+        });
       });
 
       it('should handle async params', async () => {

@@ -81,7 +81,10 @@ describe('sanity utils', () => {
 
     const result = await mod.fetchBySlug('post', 'hello', true);
 
-    expect(previewClient.fetch).toHaveBeenCalledWith(expect.any(String), { type: 'post', slug: 'hello' });
+    expect(previewClient.fetch).toHaveBeenCalledWith(expect.any(String), {
+      type: 'post',
+      slug: 'hello',
+    });
     expect(result).toEqual({ slug: 'preview' });
   });
 
@@ -91,7 +94,10 @@ describe('sanity utils', () => {
 
     const result = await mod.fetchBySlug('post', 'hello');
 
-    expect(cachedFetchMock).toHaveBeenCalledWith(expect.any(String), { type: 'post', slug: 'hello' });
+    expect(cachedFetchMock).toHaveBeenCalledWith(expect.any(String), {
+      type: 'post',
+      slug: 'hello',
+    });
     expect(result).toEqual({ slug: 'cached' });
   });
 });

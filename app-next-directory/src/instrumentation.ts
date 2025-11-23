@@ -1,6 +1,6 @@
 /**
  * Next.js Instrumentation
- * 
+ *
  * This file sets up global error handlers for the server runtime.
  * It helps prevent server crashes from unhandled promise rejections,
  * particularly from MongoDB connection issues.
@@ -16,7 +16,7 @@ export async function register() {
       'NEXT_PUBLIC_SANITY_PROJECT_ID',
     ];
 
-    const missing = required.filter((key) => !process.env[key]);
+    const missing = required.filter(key => !process.env[key]);
 
     if (missing.length > 0) {
       throw new Error(
@@ -24,8 +24,6 @@ export async function register() {
           'Application cannot start without these variables in production.'
       );
     }
-
-    console.log('✅ All critical environment variables validated');
   }
 
   if (process.env.NEXT_RUNTIME === 'nodejs') {
@@ -59,9 +57,12 @@ export async function register() {
           reason.message?.includes('MongoServerSelectionError') ||
           reason.message?.includes('Server selection timed out')
         ) {
-          structuredLogger.warn('MongoDB connection issue detected. The server will continue running and retry on next request.', {
-            component: 'instrumentation',
-          });
+          structuredLogger.warn(
+            'MongoDB connection issue detected. The server will continue running and retry on next request.',
+            {
+              component: 'instrumentation',
+            }
+          );
           logInTest(
             console.warn,
             'MongoDB connection issue detected. The server will continue running and retry on next request.'
@@ -77,7 +78,10 @@ export async function register() {
       });
       logInTest(console.error, 'Uncaught Exception:', error);
 
-      if (error.message?.includes('MongoServerSelectionError') || error.message?.includes('Server selection timed out')) {
+      if (
+        error.message?.includes('MongoServerSelectionError') ||
+        error.message?.includes('Server selection timed out')
+      ) {
         structuredLogger.warn('MongoDB connection issue detected. Continuing...', {
           component: 'instrumentation',
         });
@@ -86,9 +90,12 @@ export async function register() {
       }
 
       if (process.env.NODE_ENV === 'development') {
-        structuredLogger.warn('Development mode: Server will continue running after uncaught exception', {
-          component: 'instrumentation',
-        });
+        structuredLogger.warn(
+          'Development mode: Server will continue running after uncaught exception',
+          {
+            component: 'instrumentation',
+          }
+        );
         logInTest(console.error, 'Development mode: Server will continue running');
       } else {
         process.exit(1);

@@ -3,21 +3,21 @@
  * Validates proper creation and retrieval of test users, listings, cities, favorites, and reviews
  */
 
-import { describe, it, expect } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
+import type { Role } from '@/models/User';
 import {
   createTestData,
-  getTestUser,
-  getSessionForRole,
   getFavoritesForUser,
-  getReviewsForListing,
   getListingBySlug,
+  getReviewsForListing,
+  getSessionForRole,
+  getTestUser,
   listCities,
   listEcoTags,
   mockListings,
   pickTags,
-  TEST_SESSION_COOKIE_NAME
+  TEST_SESSION_COOKIE_NAME,
 } from './test-data';
-import type { Role } from '@/models/User';
 
 describe('Test Data Utilities', () => {
   describe('TEST_SESSION_COOKIE_NAME', () => {
@@ -81,11 +81,11 @@ describe('Test Data Utilities', () => {
         role: 'user' as Role,
         plan: 'free' as const,
         password: 'password',
-        sessionToken: 'custom-token'
+        sessionToken: 'custom-token',
       };
 
       const testData = createTestData({
-        users: [customUser]
+        users: [customUser],
       });
 
       expect(testData.users.length).toBe(1);
@@ -114,11 +114,11 @@ describe('Test Data Utilities', () => {
         verificationStatus: 'verified' as const,
         ecoRating: 85,
         coordinates: { latitude: 0, longitude: 0 },
-        location: { lat: 0, lng: 0 }
+        location: { lat: 0, lng: 0 },
       };
 
       const testData = createTestData({
-        listings: [customListing]
+        listings: [customListing],
       });
 
       expect(testData.listings.length).toBe(1);
@@ -147,11 +147,11 @@ describe('Test Data Utilities', () => {
         coordinates: { lat: 0, lng: 0 },
         sustainabilityScore: 80,
         highlights: ['Test highlight'],
-        listingIds: []
+        listingIds: [],
       };
 
       const testData = createTestData({
-        cities: [customCity]
+        cities: [customCity],
       });
 
       expect(testData.cities.length).toBe(1);
@@ -163,11 +163,11 @@ describe('Test Data Utilities', () => {
         id: 'custom-favorite',
         userId: 'user-1',
         listingId: 'listing-1',
-        createdAt: '2024-01-01T00:00:00Z'
+        createdAt: '2024-01-01T00:00:00Z',
       };
 
       const testData = createTestData({
-        favorites: [customFavorite]
+        favorites: [customFavorite],
       });
 
       expect(testData.favorites.length).toBe(1);
@@ -184,12 +184,12 @@ describe('Test Data Utilities', () => {
         createdAt: '2024-01-01T00:00:00Z',
         user: {
           name: 'Test User',
-          image: 'https://test.com/user.jpg'
-        }
+          image: 'https://test.com/user.jpg',
+        },
       };
 
       const testData = createTestData({
-        reviews: [customReview]
+        reviews: [customReview],
       });
 
       expect(testData.reviews.length).toBe(1);
@@ -201,11 +201,11 @@ describe('Test Data Utilities', () => {
         _id: 'custom-tag',
         name: 'Custom Tag',
         slug: { current: 'custom-tag' },
-        description: 'Custom description'
+        description: 'Custom description',
       };
 
       const testData = createTestData({
-        ecoTags: [customTag]
+        ecoTags: [customTag],
       });
 
       expect(testData.ecoTags.length).toBe(1);
@@ -513,11 +513,11 @@ describe('Test Data Utilities', () => {
     it('should clone objects using JSON when structuredClone is not available', () => {
       // Save the original structuredClone
       const originalStructuredClone = global.structuredClone;
-      
+
       // Temporarily delete structuredClone to test the fallback
       // @ts-expect-error - Intentionally deleting for test
       delete global.structuredClone;
-      
+
       try {
         const testData1 = createTestData();
         const testData2 = createTestData();
@@ -540,7 +540,7 @@ describe('Test Data Utilities', () => {
       if (listing1 && listing2) {
         // Modify nested property in one listing
         listing1.city.name = 'Modified City';
-        
+
         // Verify other listing is unaffected
         expect(listing2.city.name).not.toBe('Modified City');
       }
@@ -556,9 +556,9 @@ describe('Test Data Utilities', () => {
           _id: 'new-tag',
           name: 'New Tag',
           slug: { current: 'new-tag' },
-          description: 'New description'
+          description: 'New description',
         });
-        
+
         // Verify other listing array is unaffected
         expect(listing2.ecoFocusTags.length).not.toBe(listing1.ecoFocusTags.length);
       }
@@ -574,7 +574,7 @@ describe('Test Data Utilities', () => {
 
     it('should return valid tags when given valid slugs', () => {
       const tags = pickTags('zero-waste', 'solar-powered');
-      
+
       expect(tags.length).toBe(2);
       expect(tags[0].slug.current).toBe('zero-waste');
       expect(tags[1].slug.current).toBe('solar-powered');
@@ -583,7 +583,7 @@ describe('Test Data Utilities', () => {
     it('should return cloned tag objects', () => {
       const tags1 = pickTags('zero-waste');
       const tags2 = pickTags('zero-waste');
-      
+
       expect(tags1).not.toBe(tags2);
       expect(tags1[0]).not.toBe(tags2[0]);
       expect(tags1[0]._id).toBe(tags2[0]._id);

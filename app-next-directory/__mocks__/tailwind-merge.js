@@ -4,7 +4,7 @@ function twMerge(...classNames) {
   // This prevents the fallback deduplication logic in utils.ts from being triggered
   const joined = classNames.filter(Boolean).join(' ');
   const classes = joined.split(/\s+/).filter(Boolean);
-  
+
   // Simple deduplication by keeping last occurrence of each class
   // This simulates the basic behavior of tailwind-merge
   const seen = new Set();
@@ -15,11 +15,11 @@ function twMerge(...classNames) {
       result.unshift(classes[i]);
     }
   }
-  
+
   return result.join(' ');
 }
 
 module.exports = {
   twMerge,
-  default: { twMerge }
+  default: { twMerge },
 };

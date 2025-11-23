@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 // Mock next/headers module
 const mockHeadersFn = jest.fn();
@@ -26,7 +26,7 @@ describe('absolute-url', () => {
   describe('getBaseUrl', () => {
     it('should handle hosts with port numbers from env', async () => {
       process.env.NEXT_PUBLIC_FRONTEND_URL = 'https://example.com:3000';
-      
+
       mockHeadersFn.mockRejectedValueOnce(new Error('Headers not available'));
 
       const result = await getBaseUrl();
@@ -54,7 +54,7 @@ describe('absolute-url', () => {
 
     it('should fall back to NEXT_PUBLIC_FRONTEND_URL when headers fail', async () => {
       process.env.NEXT_PUBLIC_FRONTEND_URL = 'https://frontend.example.com';
-      
+
       mockHeadersFn.mockRejectedValueOnce(new Error('Headers not available'));
 
       const result = await getBaseUrl();
@@ -64,7 +64,7 @@ describe('absolute-url', () => {
     it('should fall back to NEXTAUTH_URL when NEXT_PUBLIC_FRONTEND_URL is not set', async () => {
       delete process.env.NEXT_PUBLIC_FRONTEND_URL;
       process.env.NEXTAUTH_URL = 'https://auth.example.com';
-      
+
       mockHeadersFn.mockRejectedValueOnce(new Error('Headers not available'));
 
       const result = await getBaseUrl();
@@ -75,7 +75,7 @@ describe('absolute-url', () => {
       delete process.env.NEXT_PUBLIC_FRONTEND_URL;
       delete process.env.NEXTAUTH_URL;
       process.env.VERCEL_URL = 'my-app.vercel.app';
-      
+
       mockHeadersFn.mockRejectedValueOnce(new Error('Headers not available'));
 
       const result = await getBaseUrl();
@@ -86,7 +86,7 @@ describe('absolute-url', () => {
       delete process.env.NEXT_PUBLIC_FRONTEND_URL;
       delete process.env.NEXTAUTH_URL;
       delete process.env.VERCEL_URL;
-      
+
       mockHeadersFn.mockRejectedValueOnce(new Error('Headers not available'));
 
       const result = await getBaseUrl();
@@ -95,7 +95,7 @@ describe('absolute-url', () => {
 
     it('should handle invalid URL in environment variables', async () => {
       process.env.NEXT_PUBLIC_FRONTEND_URL = 'not-a-valid-url';
-      
+
       mockHeadersFn.mockRejectedValueOnce(new Error('Headers not available'));
 
       const result = await getBaseUrl();
@@ -104,7 +104,7 @@ describe('absolute-url', () => {
 
     it('should trim whitespace from environment URL', async () => {
       process.env.NEXT_PUBLIC_FRONTEND_URL = '  https://example.com  ';
-      
+
       mockHeadersFn.mockRejectedValueOnce(new Error('Headers not available'));
 
       const result = await getBaseUrl();
@@ -114,7 +114,7 @@ describe('absolute-url', () => {
     it('should handle missing host header and fall back to env', async () => {
       process.env.VERCEL = '1';
       process.env.NEXT_PUBLIC_FRONTEND_URL = 'https://fallback.example.com';
-      
+
       const mockHeadersObj = {
         get: jest.fn((key: string) => {
           if (key === 'x-forwarded-proto') return 'https';
@@ -123,7 +123,7 @@ describe('absolute-url', () => {
       };
 
       mockHeadersFn.mockResolvedValueOnce(mockHeadersObj as any);
-      
+
       const result = await getBaseUrl();
       expect(result).toBe('https://fallback.example.com');
     });

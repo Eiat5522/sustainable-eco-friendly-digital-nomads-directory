@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { auth } from '@/lib/auth';
-import { client } from '@/lib/sanity';
 import { structuredLogger } from '@/lib/logger';
+import { client } from '@/lib/sanity';
 
 type RouteContext = { params: { id: string } | Promise<{ id: string }> };
 
@@ -32,7 +32,10 @@ export async function GET(_request: Request, context: RouteContext) {
 
     return NextResponse.json(listing);
   } catch (error) {
-    structuredLogger.error('Failed to fetch listing', error, { component: 'listings-manage-api', listingId: resolvedParams.id });
+    structuredLogger.error('Failed to fetch listing', error, {
+      component: 'listings-manage-api',
+      listingId: resolvedParams.id,
+    });
     return NextResponse.json({ error: 'Failed to fetch listing' }, { status: 500 });
   }
 }
@@ -130,11 +133,14 @@ export async function PUT(request: Request, context: RouteContext) {
       }
     }
 
-  const result = await client.patch(resolvedParams.id).set(patchPayload).commit();
+    const result = await client.patch(resolvedParams.id).set(patchPayload).commit();
 
     return NextResponse.json(result);
   } catch (error) {
-    structuredLogger.error('Failed to update listing', error, { component: 'listings-manage-api', listingId: resolvedParams.id });
+    structuredLogger.error('Failed to update listing', error, {
+      component: 'listings-manage-api',
+      listingId: resolvedParams.id,
+    });
     return NextResponse.json({ error: 'Failed to update listing' }, { status: 500 });
   }
 }
@@ -159,11 +165,14 @@ export async function DELETE(_request: Request, context: RouteContext) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
     }
 
-  await client.delete(resolvedParams.id);
+    await client.delete(resolvedParams.id);
 
     return new Response(null, { status: 204 });
   } catch (error) {
-    structuredLogger.error('Failed to delete listing', error, { component: 'listings-manage-api', listingId: resolvedParams.id });
+    structuredLogger.error('Failed to delete listing', error, {
+      component: 'listings-manage-api',
+      listingId: resolvedParams.id,
+    });
     return NextResponse.json({ error: 'Failed to delete listing' }, { status: 500 });
   }
 }

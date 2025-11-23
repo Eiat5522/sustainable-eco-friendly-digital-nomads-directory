@@ -1,15 +1,28 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect, useState } from 'react';
+import { useFieldArray, useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { NeoButton } from '@/components/ui/neo-button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { NeoButton } from '@/components/ui/neo-button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { structuredLogger } from '@/lib/logger';
 
 const listingFormSchema = z.object({
@@ -25,68 +38,98 @@ const listingFormSchema = z.object({
   ecoFocusTags: z.array(z.string()).optional(),
   digitalNomadFeatures: z.array(z.string()).optional(),
   amenities: z.array(z.string()).optional(),
-  accommodationDetails: z.object({
-    accommodationType: z.string().optional(),
-    pricePerNightThb: z.object({
-      min: z.number().optional(),
-      max: z.number().optional(),
-    }).optional(),
-    roomTypesAvailable: z.array(z.object({
-      type: z.string(),
-      pricePerNight: z.number(),
-      features: z.array(z.string()).optional(),
-    })).optional(),
-    minimumStay: z.number().optional(),
-  }).optional(),
-  activitiesDetails: z.object({
-    activityType: z.string().optional(),
-    pricePerPerson: z.object({
-      min: z.number().optional(),
-      max: z.number().optional(),
-    }).optional(),
-    duration: z.object({
-      value: z.number().optional(),
-      unit: z.string().optional(),
-    }).optional(),
-    groupSize: z.object({
-      min: z.number().optional(),
-      max: z.number().optional(),
-    }).optional(),
-    sustainabilityPractices: z.array(z.string()).optional(),
-    skillLevel: z.string().optional(),
-    languages: z.array(z.string()).optional(),
-  }).optional(),
-  cafeDetails: z.object({
-    priceIndication: z.string().optional(),
-    menuHighlights: z.array(z.string()).optional(),
-    workspaceAmenities: z.array(z.string()).optional(),
-    maxRecommendedStay: z.number().optional(),
-    noiseLevel: z.string().optional(),
-  }).optional(),
-  coworkingDetails: z.object({
-    pricingPlans: z.array(z.object({
-      type: z.string(),
-      price: z.number(),
-      period: z.string(),
-    })).optional(),
-    internetSpeed: z.object({
-      download: z.number().optional(),
-      upload: z.number().optional(),
-    }).optional(),
-  }).optional(),
-  restaurantDetails: z.object({
-    cuisineType: z.array(z.string()).optional(),
-    priceRange: z.string().optional(),
-    operatingHours: z.string().optional(),
-    sustainabilityInitiatives: z.array(z.string()).optional(),
-    dietaryOptions: z.array(z.string()).optional(),
-    seating: z.array(z.string()).optional(),
-    workFriendly: z.array(z.string()).optional(),
-    averageMealPriceThb: z.object({
-      min: z.number().optional(),
-      max: z.number().optional(),
-    }).optional(),
-  }).optional(),
+  accommodationDetails: z
+    .object({
+      accommodationType: z.string().optional(),
+      pricePerNightThb: z
+        .object({
+          min: z.number().optional(),
+          max: z.number().optional(),
+        })
+        .optional(),
+      roomTypesAvailable: z
+        .array(
+          z.object({
+            type: z.string(),
+            pricePerNight: z.number(),
+            features: z.array(z.string()).optional(),
+          })
+        )
+        .optional(),
+      minimumStay: z.number().optional(),
+    })
+    .optional(),
+  activitiesDetails: z
+    .object({
+      activityType: z.string().optional(),
+      pricePerPerson: z
+        .object({
+          min: z.number().optional(),
+          max: z.number().optional(),
+        })
+        .optional(),
+      duration: z
+        .object({
+          value: z.number().optional(),
+          unit: z.string().optional(),
+        })
+        .optional(),
+      groupSize: z
+        .object({
+          min: z.number().optional(),
+          max: z.number().optional(),
+        })
+        .optional(),
+      sustainabilityPractices: z.array(z.string()).optional(),
+      skillLevel: z.string().optional(),
+      languages: z.array(z.string()).optional(),
+    })
+    .optional(),
+  cafeDetails: z
+    .object({
+      priceIndication: z.string().optional(),
+      menuHighlights: z.array(z.string()).optional(),
+      workspaceAmenities: z.array(z.string()).optional(),
+      maxRecommendedStay: z.number().optional(),
+      noiseLevel: z.string().optional(),
+    })
+    .optional(),
+  coworkingDetails: z
+    .object({
+      pricingPlans: z
+        .array(
+          z.object({
+            type: z.string(),
+            price: z.number(),
+            period: z.string(),
+          })
+        )
+        .optional(),
+      internetSpeed: z
+        .object({
+          download: z.number().optional(),
+          upload: z.number().optional(),
+        })
+        .optional(),
+    })
+    .optional(),
+  restaurantDetails: z
+    .object({
+      cuisineType: z.array(z.string()).optional(),
+      priceRange: z.string().optional(),
+      operatingHours: z.string().optional(),
+      sustainabilityInitiatives: z.array(z.string()).optional(),
+      dietaryOptions: z.array(z.string()).optional(),
+      seating: z.array(z.string()).optional(),
+      workFriendly: z.array(z.string()).optional(),
+      averageMealPriceThb: z
+        .object({
+          min: z.number().optional(),
+          max: z.number().optional(),
+        })
+        .optional(),
+    })
+    .optional(),
 });
 
 export type ListingFormValues = z.infer<typeof listingFormSchema>;
@@ -110,7 +153,7 @@ function toOptions(value: unknown): Option[] {
     return [];
   }
   return value
-    .map((entry) => {
+    .map(entry => {
       if (!entry || typeof entry !== 'object') {
         return null;
       }
@@ -146,7 +189,7 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
       amenities: [],
       primaryImage: null,
       galleryImages: null,
-      ...(listing ?? {}) as Partial<ListingFormExtendedValues>,
+      ...((listing ?? {}) as Partial<ListingFormExtendedValues>),
     },
   });
 
@@ -172,17 +215,24 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
         const data = (await response.json()) as { ecoTags?: unknown; tags?: unknown };
         setEcoTags(toOptions(data?.ecoTags ?? data?.tags));
       } catch (error) {
-        structuredLogger.error('Failed to fetch eco tags', error, { component: 'VenueListingForm' });
+        structuredLogger.error('Failed to fetch eco tags', error, {
+          component: 'VenueListingForm',
+        });
       }
     };
 
     const fetchDigitalNomadFeatures = async () => {
       try {
         const response = await fetch('/api/digital-nomad-features');
-        const data = (await response.json()) as { digitalNomadFeatures?: unknown; features?: unknown };
+        const data = (await response.json()) as {
+          digitalNomadFeatures?: unknown;
+          features?: unknown;
+        };
         setDigitalNomadFeatures(toOptions(data?.digitalNomadFeatures ?? data?.features));
       } catch (error) {
-        structuredLogger.error('Failed to fetch digital nomad features', error, { component: 'VenueListingForm' });
+        structuredLogger.error('Failed to fetch digital nomad features', error, {
+          component: 'VenueListingForm',
+        });
       }
     };
 
@@ -192,7 +242,9 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
         const data = (await response.json()) as { amenities?: unknown };
         setAmenities(toOptions(data?.amenities));
       } catch (error) {
-        structuredLogger.error('Failed to fetch amenities', error, { component: 'VenueListingForm' });
+        structuredLogger.error('Failed to fetch amenities', error, {
+          component: 'VenueListingForm',
+        });
       }
     };
 
@@ -235,13 +287,19 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
             body: formData,
           });
           const result = await response.json();
-          galleryImageAssetIds.push({ _type: 'image', _key: result.asset._id, asset: { _type: 'reference', _ref: result.asset._id } });
+          galleryImageAssetIds.push({
+            _type: 'image',
+            _key: result.asset._id,
+            asset: { _type: 'reference', _ref: result.asset._id },
+          });
         }
       }
 
       const listingData = {
         ...rest,
-        primaryImage: primaryImageAssetId ? { _type: 'image', asset: { _type: 'reference', _ref: primaryImageAssetId } } : undefined,
+        primaryImage: primaryImageAssetId
+          ? { _type: 'image', asset: { _type: 'reference', _ref: primaryImageAssetId } }
+          : undefined,
         galleryImages: galleryImageAssetIds.length > 0 ? galleryImageAssetIds : undefined,
       };
 
@@ -334,7 +392,7 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {cities.map((city) => (
+                  {cities.map(city => (
                     <SelectItem key={city._id} value={city._id}>
                       {city.name}
                     </SelectItem>
@@ -353,21 +411,24 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
             <FormItem>
               <FormLabel>Eco Focus Tags</FormLabel>
               <div className="grid grid-cols-2 gap-4">
-                {ecoTags.map((tag) => (
+                {ecoTags.map(tag => (
                   <FormField
                     key={tag._id}
                     control={form.control}
                     name="ecoFocusTags"
                     render={({ field }) => {
                       return (
-                        <FormItem key={tag._id} className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormItem
+                          key={tag._id}
+                          className="flex flex-row items-start space-x-3 space-y-0"
+                        >
                           <FormControl>
                             <Checkbox
                               checked={field.value?.includes(tag._id)}
-                              onCheckedChange={(checked) => {
+                              onCheckedChange={checked => {
                                 return checked
                                   ? field.onChange([...(field.value || []), tag._id])
-                                  : field.onChange(field.value?.filter((value) => value !== tag._id));
+                                  : field.onChange(field.value?.filter(value => value !== tag._id));
                               }}
                             />
                           </FormControl>
@@ -390,21 +451,26 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
             <FormItem>
               <FormLabel>Digital Nomad Features</FormLabel>
               <div className="grid grid-cols-2 gap-4">
-                {digitalNomadFeatures.map((feature) => (
+                {digitalNomadFeatures.map(feature => (
                   <FormField
                     key={feature._id}
                     control={form.control}
                     name="digitalNomadFeatures"
                     render={({ field }) => {
                       return (
-                        <FormItem key={feature._id} className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormItem
+                          key={feature._id}
+                          className="flex flex-row items-start space-x-3 space-y-0"
+                        >
                           <FormControl>
                             <Checkbox
                               checked={field.value?.includes(feature._id)}
-                              onCheckedChange={(checked) => {
+                              onCheckedChange={checked => {
                                 return checked
                                   ? field.onChange([...(field.value || []), feature._id])
-                                  : field.onChange(field.value?.filter((value) => value !== feature._id));
+                                  : field.onChange(
+                                      field.value?.filter(value => value !== feature._id)
+                                    );
                               }}
                             />
                           </FormControl>
@@ -427,21 +493,26 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
             <FormItem>
               <FormLabel>Amenities</FormLabel>
               <div className="grid grid-cols-2 gap-4">
-                {amenities.map((amenity) => (
+                {amenities.map(amenity => (
                   <FormField
                     key={amenity._id}
                     control={form.control}
                     name="amenities"
                     render={({ field }) => {
                       return (
-                        <FormItem key={amenity._id} className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormItem
+                          key={amenity._id}
+                          className="flex flex-row items-start space-x-3 space-y-0"
+                        >
                           <FormControl>
                             <Checkbox
                               checked={field.value?.includes(amenity._id)}
-                              onCheckedChange={(checked) => {
+                              onCheckedChange={checked => {
                                 return checked
                                   ? field.onChange([...(field.value || []), amenity._id])
-                                  : field.onChange(field.value?.filter((value) => value !== amenity._id));
+                                  : field.onChange(
+                                      field.value?.filter(value => value !== amenity._id)
+                                    );
                               }}
                             />
                           </FormControl>
@@ -682,21 +753,26 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
                       { value: 'environmental_education', label: 'Environmental Education' },
                       { value: 'plastic_free', label: 'Plastic-Free' },
                       { value: 'carbon_offset', label: 'Carbon Offset Program' },
-                    ].map((practice) => (
+                    ].map(practice => (
                       <FormField
                         key={practice.value}
                         control={form.control}
                         name="activitiesDetails.sustainabilityPractices"
                         render={({ field }) => {
                           return (
-                            <FormItem key={practice.value} className="flex flex-row items-start space-x-3 space-y-0">
+                            <FormItem
+                              key={practice.value}
+                              className="flex flex-row items-start space-x-3 space-y-0"
+                            >
                               <FormControl>
                                 <Checkbox
                                   checked={field.value?.includes(practice.value)}
-                                  onCheckedChange={(checked) => {
+                                  onCheckedChange={checked => {
                                     return checked
                                       ? field.onChange([...(field.value || []), practice.value])
-                                      : field.onChange(field.value?.filter((value) => value !== practice.value));
+                                      : field.onChange(
+                                          field.value?.filter(value => value !== practice.value)
+                                        );
                                   }}
                                 />
                               </FormControl>
@@ -727,21 +803,26 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
                       { value: 'de', label: 'German' },
                       { value: 'fr', label: 'French' },
                       { value: 'es', label: 'Spanish' },
-                    ].map((lang) => (
+                    ].map(lang => (
                       <FormField
                         key={lang.value}
                         control={form.control}
                         name="activitiesDetails.languages"
                         render={({ field }) => {
                           return (
-                            <FormItem key={lang.value} className="flex flex-row items-start space-x-3 space-y-0">
+                            <FormItem
+                              key={lang.value}
+                              className="flex flex-row items-start space-x-3 space-y-0"
+                            >
                               <FormControl>
                                 <Checkbox
                                   checked={field.value?.includes(lang.value)}
-                                  onCheckedChange={(checked) => {
+                                  onCheckedChange={checked => {
                                     return checked
                                       ? field.onChange([...(field.value || []), lang.value])
-                                      : field.onChange(field.value?.filter((value) => value !== lang.value));
+                                      : field.onChange(
+                                          field.value?.filter(value => value !== lang.value)
+                                        );
                                   }}
                                 />
                               </FormControl>
@@ -794,28 +875,36 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
                       { value: 'specialty_coffee_beans', label: 'Specialty Coffee Beans' },
                       { value: 'sourdough_bread_pastries', label: 'Sourdough Bread/Pastries' },
                       { value: 'extensive_vegan_options', label: 'Extensive Vegan Options' },
-                      { value: 'fresh_pressed_juices_smoothies', label: 'Fresh Pressed Juices/Smoothies' },
+                      {
+                        value: 'fresh_pressed_juices_smoothies',
+                        label: 'Fresh Pressed Juices/Smoothies',
+                      },
                       { value: 'brunch_menu', label: 'Brunch Menu' },
                       { value: 'local_thai_dishes', label: 'Local Thai Dishes' },
                       { value: 'craft_beer_wine', label: 'Craft Beer/Wine' },
                       { value: 'organic_ingredients', label: 'Organic Ingredients' },
                       { value: 'gluten_free_options', label: 'Gluten-Free Options' },
                       { value: 'plant_based_menu', label: 'Plant-Based Menu' },
-                    ].map((highlight) => (
+                    ].map(highlight => (
                       <FormField
                         key={highlight.value}
                         control={form.control}
                         name="cafeDetails.menuHighlights"
                         render={({ field }) => {
                           return (
-                            <FormItem key={highlight.value} className="flex flex-row items-start space-x-3 space-y-0">
+                            <FormItem
+                              key={highlight.value}
+                              className="flex flex-row items-start space-x-3 space-y-0"
+                            >
                               <FormControl>
                                 <Checkbox
                                   checked={field.value?.includes(highlight.value)}
-                                  onCheckedChange={(checked) => {
+                                  onCheckedChange={checked => {
                                     return checked
                                       ? field.onChange([...(field.value || []), highlight.value])
-                                      : field.onChange(field.value?.filter((value) => value !== highlight.value));
+                                      : field.onChange(
+                                          field.value?.filter(value => value !== highlight.value)
+                                        );
                                   }}
                                 />
                               </FormControl>
@@ -843,21 +932,26 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
                       { value: 'large_tables', label: 'Large Tables' },
                       { value: 'quiet_zones', label: 'Quiet Zones' },
                       { value: 'outdoor_seating', label: 'Outdoor Seating' },
-                    ].map((amenity) => (
+                    ].map(amenity => (
                       <FormField
                         key={amenity.value}
                         control={form.control}
                         name="cafeDetails.workspaceAmenities"
                         render={({ field }) => {
                           return (
-                            <FormItem key={amenity.value} className="flex flex-row items-start space-x-3 space-y-0">
+                            <FormItem
+                              key={amenity.value}
+                              className="flex flex-row items-start space-x-3 space-y-0"
+                            >
                               <FormControl>
                                 <Checkbox
                                   checked={field.value?.includes(amenity.value)}
-                                  onCheckedChange={(checked) => {
+                                  onCheckedChange={checked => {
                                     return checked
                                       ? field.onChange([...(field.value || []), amenity.value])
-                                      : field.onChange(field.value?.filter((value) => value !== amenity.value));
+                                      : field.onChange(
+                                          field.value?.filter(value => value !== amenity.value)
+                                        );
                                   }}
                                 />
                               </FormControl>
@@ -955,7 +1049,12 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
                       </FormItem>
                     )}
                   />
-                  <NeoButton type="button" variant="outline" size="sm" onClick={() => remove(index)}>
+                  <NeoButton
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => remove(index)}
+                  >
                     Remove
                   </NeoButton>
                 </div>
@@ -1056,21 +1155,26 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
                       { value: 'raw_health', label: 'Raw/Health' },
                       { value: 'local_fusion', label: 'Local Fusion' },
                       { value: 'clean_eating', label: 'Clean Eating' },
-                    ].map((cuisine) => (
+                    ].map(cuisine => (
                       <FormField
                         key={cuisine.value}
                         control={form.control}
                         name="restaurantDetails.cuisineType"
                         render={({ field }) => {
                           return (
-                            <FormItem key={cuisine.value} className="flex flex-row items-start space-x-3 space-y-0">
+                            <FormItem
+                              key={cuisine.value}
+                              className="flex flex-row items-start space-x-3 space-y-0"
+                            >
                               <FormControl>
                                 <Checkbox
                                   checked={field.value?.includes(cuisine.value)}
-                                  onCheckedChange={(checked) => {
+                                  onCheckedChange={checked => {
                                     return checked
                                       ? field.onChange([...(field.value || []), cuisine.value])
-                                      : field.onChange(field.value?.filter((value) => value !== cuisine.value));
+                                      : field.onChange(
+                                          field.value?.filter(value => value !== cuisine.value)
+                                        );
                                   }}
                                 />
                               </FormControl>
@@ -1101,21 +1205,26 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
                       { value: 'food_waste_reduction', label: 'Food Waste Reduction' },
                       { value: 'sustainable_seafood', label: 'Sustainable Seafood' },
                       { value: 'farm_to_table', label: 'Farm-to-Table' },
-                    ].map((initiative) => (
+                    ].map(initiative => (
                       <FormField
                         key={initiative.value}
                         control={form.control}
                         name="restaurantDetails.sustainabilityInitiatives"
                         render={({ field }) => {
                           return (
-                            <FormItem key={initiative.value} className="flex flex-row items-start space-x-3 space-y-0">
+                            <FormItem
+                              key={initiative.value}
+                              className="flex flex-row items-start space-x-3 space-y-0"
+                            >
                               <FormControl>
                                 <Checkbox
                                   checked={field.value?.includes(initiative.value)}
-                                  onCheckedChange={(checked) => {
+                                  onCheckedChange={checked => {
                                     return checked
                                       ? field.onChange([...(field.value || []), initiative.value])
-                                      : field.onChange(field.value?.filter((value) => value !== initiative.value));
+                                      : field.onChange(
+                                          field.value?.filter(value => value !== initiative.value)
+                                        );
                                   }}
                                 />
                               </FormControl>
@@ -1145,21 +1254,26 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
                       { value: 'raw', label: 'Raw' },
                       { value: 'keto', label: 'Keto' },
                       { value: 'halal', label: 'Halal' },
-                    ].map((option) => (
+                    ].map(option => (
                       <FormField
                         key={option.value}
                         control={form.control}
                         name="restaurantDetails.dietaryOptions"
                         render={({ field }) => {
                           return (
-                            <FormItem key={option.value} className="flex flex-row items-start space-x-3 space-y-0">
+                            <FormItem
+                              key={option.value}
+                              className="flex flex-row items-start space-x-3 space-y-0"
+                            >
                               <FormControl>
                                 <Checkbox
                                   checked={field.value?.includes(option.value)}
-                                  onCheckedChange={(checked) => {
+                                  onCheckedChange={checked => {
                                     return checked
                                       ? field.onChange([...(field.value || []), option.value])
-                                      : field.onChange(field.value?.filter((value) => value !== option.value));
+                                      : field.onChange(
+                                          field.value?.filter(value => value !== option.value)
+                                        );
                                   }}
                                 />
                               </FormControl>
@@ -1187,21 +1301,26 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
                       { value: 'rooftop', label: 'Rooftop' },
                       { value: 'bar', label: 'Bar Seating' },
                       { value: 'private_rooms', label: 'Private Rooms' },
-                    ].map((seating) => (
+                    ].map(seating => (
                       <FormField
                         key={seating.value}
                         control={form.control}
                         name="restaurantDetails.seating"
                         render={({ field }) => {
                           return (
-                            <FormItem key={seating.value} className="flex flex-row items-start space-x-3 space-y-0">
+                            <FormItem
+                              key={seating.value}
+                              className="flex flex-row items-start space-x-3 space-y-0"
+                            >
                               <FormControl>
                                 <Checkbox
                                   checked={field.value?.includes(seating.value)}
-                                  onCheckedChange={(checked) => {
+                                  onCheckedChange={checked => {
                                     return checked
                                       ? field.onChange([...(field.value || []), seating.value])
-                                      : field.onChange(field.value?.filter((value) => value !== seating.value));
+                                      : field.onChange(
+                                          field.value?.filter(value => value !== seating.value)
+                                        );
                                   }}
                                 />
                               </FormControl>
@@ -1229,21 +1348,26 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
                       { value: 'large_tables', label: 'Large Tables' },
                       { value: 'quiet_areas', label: 'Quiet Areas' },
                       { value: 'long_stay_friendly', label: 'Long Stay Friendly' },
-                    ].map((feature) => (
+                    ].map(feature => (
                       <FormField
                         key={feature.value}
                         control={form.control}
                         name="restaurantDetails.workFriendly"
                         render={({ field }) => {
                           return (
-                            <FormItem key={feature.value} className="flex flex-row items-start space-x-3 space-y-0">
+                            <FormItem
+                              key={feature.value}
+                              className="flex flex-row items-start space-x-3 space-y-0"
+                            >
                               <FormControl>
                                 <Checkbox
                                   checked={field.value?.includes(feature.value)}
-                                  onCheckedChange={(checked) => {
+                                  onCheckedChange={checked => {
                                     return checked
                                       ? field.onChange([...(field.value || []), feature.value])
-                                      : field.onChange(field.value?.filter((value) => value !== feature.value));
+                                      : field.onChange(
+                                          field.value?.filter(value => value !== feature.value)
+                                        );
                                   }}
                                 />
                               </FormControl>
@@ -1352,7 +1476,7 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
               <FormControl>
                 <Input
                   type="file"
-                  onChange={(event) => field.onChange(event.target.files?.[0] ?? null)}
+                  onChange={event => field.onChange(event.target.files?.[0] ?? null)}
                 />
               </FormControl>
               <FormMessage />
@@ -1370,7 +1494,7 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
                 <Input
                   type="file"
                   multiple
-                  onChange={(event) => field.onChange(event.target.files ?? null)}
+                  onChange={event => field.onChange(event.target.files ?? null)}
                 />
               </FormControl>
               <FormMessage />

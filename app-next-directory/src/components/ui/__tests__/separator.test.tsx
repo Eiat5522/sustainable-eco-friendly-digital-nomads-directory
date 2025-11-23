@@ -3,7 +3,11 @@ import { Separator } from '../separator';
 
 // Mock Radix UI Separator
 jest.mock('@radix-ui/react-separator', () => ({
-  Root: jest.fn(({ children, ...props }) => <div data-testid="separator-root" {...props}>{children}</div>),
+  Root: jest.fn(({ children, ...props }) => (
+    <div data-testid="separator-root" {...props}>
+      {children}
+    </div>
+  )),
 }));
 
 describe('Separator', () => {
@@ -33,7 +37,7 @@ describe('Separator', () => {
     it('renders horizontal separator', () => {
       const { container } = render(<Separator orientation="horizontal" />);
       const separator = container.querySelector('[data-testid="separator-root"]');
-      
+
       expect(separator).toHaveClass('h-[1px]');
       expect(separator).toHaveClass('w-full');
     });
@@ -41,7 +45,7 @@ describe('Separator', () => {
     it('renders vertical separator', () => {
       const { container } = render(<Separator orientation="vertical" />);
       const separator = container.querySelector('[data-testid="separator-root"]');
-      
+
       expect(separator).toHaveClass('h-full');
       expect(separator).toHaveClass('w-[1px]');
     });
@@ -49,7 +53,7 @@ describe('Separator', () => {
     it('defaults to horizontal when orientation not specified', () => {
       const { container } = render(<Separator />);
       const separator = container.querySelector('[data-testid="separator-root"]');
-      
+
       expect(separator).toHaveClass('h-[1px]');
       expect(separator).toHaveClass('w-full');
     });
@@ -80,7 +84,7 @@ describe('Separator', () => {
     it('applies custom className', () => {
       const { container } = render(<Separator className="custom-class" />);
       const separator = container.querySelector('[data-testid="separator-root"]');
-      
+
       expect(separator).toHaveClass('custom-class');
       expect(separator).toHaveClass('shrink-0'); // Still has base classes
     });
@@ -88,7 +92,7 @@ describe('Separator', () => {
     it('merges custom className with default classes', () => {
       const { container } = render(<Separator className="my-4 opacity-50" />);
       const separator = container.querySelector('[data-testid="separator-root"]');
-      
+
       expect(separator).toHaveClass('my-4');
       expect(separator).toHaveClass('opacity-50');
       expect(separator).toHaveClass('bg-border');
@@ -99,7 +103,7 @@ describe('Separator', () => {
     it('forwards ref correctly', () => {
       const ref = { current: null };
       render(<Separator ref={ref as React.RefObject<HTMLDivElement>} />);
-      
+
       expect(ref.current).not.toBeNull();
     });
   });
@@ -107,7 +111,7 @@ describe('Separator', () => {
   describe('Additional Props', () => {
     it('forwards additional HTML attributes', () => {
       render(<Separator data-testid="custom-separator" id="sep-1" />);
-      
+
       // Mocked component receives props and renders with custom testid
       const separator = screen.getByTestId('custom-separator');
       expect(separator).toBeInTheDocument();
@@ -115,22 +119,18 @@ describe('Separator', () => {
     });
 
     it('forwards aria attributes', () => {
-      const { container } = render(
-        <Separator aria-label="Content divider" />
-      );
+      const { container } = render(<Separator aria-label="Content divider" />);
       const separator = container.querySelector('[data-testid="separator-root"]');
-      
+
       expect(separator).toHaveAttribute('aria-label', 'Content divider');
     });
   });
 
   describe('Combinations', () => {
     it('renders vertical separator with custom className', () => {
-      const { container } = render(
-        <Separator orientation="vertical" className="h-20 mx-4" />
-      );
+      const { container } = render(<Separator orientation="vertical" className="h-20 mx-4" />);
       const separator = container.querySelector('[data-testid="separator-root"]');
-      
+
       expect(separator).toHaveClass('h-20');
       expect(separator).toHaveClass('mx-4');
       expect(separator).toHaveClass('w-[1px]');
@@ -138,15 +138,15 @@ describe('Separator', () => {
 
     it('renders horizontal separator with custom props', () => {
       const { container } = render(
-        <Separator 
-          orientation="horizontal" 
+        <Separator
+          orientation="horizontal"
           decorative={false}
           className="bg-red-500"
           aria-label="Section divider"
         />
       );
       const separator = container.querySelector('[data-testid="separator-root"]');
-      
+
       expect(separator).toHaveClass('bg-red-500');
       expect(separator).toHaveClass('h-[1px]');
       expect(separator).toHaveAttribute('aria-label', 'Section divider');

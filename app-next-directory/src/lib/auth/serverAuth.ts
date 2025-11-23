@@ -5,13 +5,12 @@
  * - Server Actions
  */
 
-import type { UserRole } from '@/types/auth';
 import bcrypt from 'bcryptjs';
-import User from '@/models/User';
-
-import { type Types, isValidObjectId, type FilterQuery } from 'mongoose';
-import { isEmailVerificationRequired } from './config';
+import { type FilterQuery, isValidObjectId, type Types } from 'mongoose';
 import dbConnect from '@/lib/dbConnect';
+import User from '@/models/User';
+import type { UserRole } from '@/types/auth';
+import { isEmailVerificationRequired } from './config';
 
 // Memoized database connection function
 const connectToDatabase = async () => {
@@ -41,8 +40,6 @@ export interface AuthenticatedUser {
   image?: string;
   role: UserRole;
 }
-
-
 
 /**
  * Authenticate user with email and password
@@ -98,8 +95,7 @@ export async function authenticateUser(
       image: user.image,
       role: user.role as UserRole,
     };
-  } catch (error) {
-    console.error('Authentication error:', error);
+  } catch (_error) {
     return null;
   }
 }
@@ -143,8 +139,7 @@ export async function createUserAccount(userData: {
       image: user.image,
       role: user.role as UserRole,
     };
-  } catch (error) {
-    console.error('User creation error:', error);
+  } catch (_error) {
     return null;
   }
 }
@@ -152,7 +147,7 @@ export async function createUserAccount(userData: {
 import { withMongooseCache } from '../mongoose-cache';
 
 /**
-* Get user by ID
+ * Get user by ID
  * @param userId User ID
  * @returns User data or null
  */
@@ -165,9 +160,7 @@ export async function getUserById(userId: string): Promise<AuthenticatedUser | n
         return null;
       }
 
-      const user = await UserModel.findById(userId)
-        .select('_id name email image role')
-        .lean();
+      const user = await UserModel.findById(userId).select('_id name email image role').lean();
       if (!user) {
         return null;
       }
@@ -179,8 +172,7 @@ export async function getUserById(userId: string): Promise<AuthenticatedUser | n
         image: user.image,
         role: user.role as UserRole,
       };
-    } catch (error) {
-      console.error('Get user error:', error);
+    } catch (_error) {
       return null;
     }
   };
@@ -192,18 +184,13 @@ export async function getUserById(userId: string): Promise<AuthenticatedUser | n
   return withMongooseCache(UserModel, `getUserById:${userId}`, fetchUser);
 }
 
-
-
 /**
  * Update user role (admin only)
  * @param userId User ID to update
  * @param newRole New role to assign
  * @returns Success boolean
  */
-export async function updateUserRole(
-  userId: string,
-  newRole: UserRole
-): Promise<boolean> {
+export async function updateUserRole(userId: string, newRole: UserRole): Promise<boolean> {
   try {
     await connectToDatabase();
 
@@ -216,8 +203,7 @@ export async function updateUserRole(
       { runValidators: true }
     );
     return res.matchedCount === 1;
-  } catch (error) {
-    console.error('Update user role error:', error);
+  } catch (_error) {
     return false;
   }
 }
@@ -242,8 +228,7 @@ export async function unfavoriteListing(userId: string, listingId: string): Prom
     }
 
     await UserModel.updateOne({ _id: userId }, { $pull: { favorites: listingId } });
-  } catch (error) {
-    console.error('Unfavorite listing error:', error);
+  } catch (_error) {
     // Don't throw error, just log it
   }
 }
@@ -259,7 +244,7 @@ export async function updateUserProfile(
       return null;
     }
 
-  const $set: Record<string, unknown> = {};
+    const $set: Record<string, unknown> = {};
     if (typeof update.name === 'string') {
       $set.name = update.name;
     }
@@ -273,11 +258,7 @@ export async function updateUserProfile(
       return null; // Nothing to update
     }
 
-    const doc = await UserModel.findByIdAndUpdate(
-      userId,
-      { $set },
-      { new: true }
-    )
+    const doc = await UserModel.findByIdAndUpdate(userId, { $set }, { new: true })
       .select('_id name email image role')
       .lean<UserDoc | null>();
 
@@ -290,8 +271,7 @@ export async function updateUserProfile(
       image: doc.image,
       role: doc.role as UserRole,
     };
-  } catch (error) {
-    console.error('Update user profile error:', error);
+  } catch (_error) {
     return null;
   }
 }

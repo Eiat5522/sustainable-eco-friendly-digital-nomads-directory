@@ -1,6 +1,6 @@
 /**
  * Comprehensive Caching Strategy for Expensive Queries
- * 
+ *
  * This module provides caching utilities for different types of queries:
  * 1. Sanity CMS queries (via Redis with fallback)
  * 2. Database queries (MongoDB)
@@ -8,8 +8,8 @@
  * 4. Search results
  */
 
-import { getRedisClient } from './redis';
 import { structuredLogger } from './logger';
+import { getRedisClient } from './redis';
 
 export interface CacheOptions {
   /** Cache key prefix for namespacing */
@@ -76,10 +76,7 @@ function updateMetrics(key: string, type: 'hit' | 'miss' | 'error'): void {
 /**
  * Generate a cache key from parameters
  */
-export function generateCacheKey(
-  prefix: string,
-  params: Record<string, unknown> | string
-): string {
+export function generateCacheKey(prefix: string, params: Record<string, unknown> | string): string {
   if (typeof params === 'string') {
     return `${prefix}:${params}`;
   }
@@ -116,10 +113,10 @@ export async function cachedQuery<T>(
           if (age > staleTime * 1000) {
             // Revalidate in background
             queryFn()
-              .then(async (fresh) => {
+              .then(async fresh => {
                 await setCachedValue(fullKey, fresh, ttl, tags, redis);
               })
-              .catch((error) => {
+              .catch(error => {
                 structuredLogger.warn('Background revalidation failed', {
                   component: 'cache-strategy',
                   key: fullKey,
@@ -200,7 +197,7 @@ export async function invalidateCache(keyOrTag: string, isTag = false): Promise<
       const tagKey = `tag:${keyOrTag}`;
       const keys = await redis.smembers(tagKey);
       if (Array.isArray(keys) && keys.length > 0) {
-        await Promise.all(keys.map((k) => redis.del(k)));
+        await Promise.all(keys.map(k => redis.del(k)));
       }
       await redis.del(tagKey);
     } else {

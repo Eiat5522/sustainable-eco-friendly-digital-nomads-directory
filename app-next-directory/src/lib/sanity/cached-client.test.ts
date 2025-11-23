@@ -45,7 +45,7 @@ describe('cachedClient', () => {
     expect(setMock).toHaveBeenCalledWith(
       expect.stringContaining('sanity:fresh-query'),
       JSON.stringify(freshData),
-      { ex: 3600 },
+      { ex: 3600 }
     );
   });
 
@@ -65,7 +65,7 @@ describe('cachedClient', () => {
     getRedisClientMock.mockReturnValue(redisClient);
 
     let resolveFetch: (value: unknown) => void = () => undefined;
-    const fetchPromise = new Promise((resolve) => {
+    const fetchPromise = new Promise(resolve => {
       resolveFetch = resolve;
     });
 
@@ -99,10 +99,7 @@ describe('cachedClient', () => {
     const result = await cachedClient.fetch('unstable-query', {});
 
     expect(result).toEqual({ value: 1 });
-    expect(warnSpy).toHaveBeenCalledWith(
-      'Cache read failed, falling through to fetch:',
-      error,
-    );
+    expect(warnSpy).toHaveBeenCalledWith('Cache read failed, falling through to fetch:', error);
 
     warnSpy.mockRestore();
   });
@@ -123,7 +120,7 @@ describe('cachedClient', () => {
     expect(result).toEqual({ value: 2 });
     expect(warnSpy).toHaveBeenCalledWith(
       'Cache write failed, continuing without Redis:',
-      writeError,
+      writeError
     );
 
     warnSpy.mockRestore();

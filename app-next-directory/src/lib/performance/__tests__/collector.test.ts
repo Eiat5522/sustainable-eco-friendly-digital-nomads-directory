@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach, beforeEach, jest } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 import {
   dependencies,
@@ -106,19 +106,23 @@ describe('performance collector', () => {
       'performance',
       expect.objectContaining({
         props: expect.objectContaining({ metric: 'CLS', rating: 'needs-improvement', value: 0 }),
-      }),
+      })
     );
     expect(plausible).toHaveBeenCalledWith(
       'performance',
       expect.objectContaining({
         props: expect.objectContaining({ metric: 'LCP', rating: 'good', value: 2000 }),
-      }),
+      })
     );
     expect(plausible).toHaveBeenCalledWith(
       'performance',
       expect.objectContaining({
-        props: expect.objectContaining({ metric: 'TTFB', rating: 'needs-improvement', value: 1200 }),
-      }),
+        props: expect.objectContaining({
+          metric: 'TTFB',
+          rating: 'needs-improvement',
+          value: 1200,
+        }),
+      })
     );
 
     observerCallback?.({
@@ -131,7 +135,7 @@ describe('performance collector', () => {
       'performance',
       expect.objectContaining({
         props: expect.objectContaining({ metric: 'search-completed', value: 123, rating: 'good' }),
-      }),
+      })
     );
   });
 
@@ -139,7 +143,10 @@ describe('performance collector', () => {
     const mark = jest.fn();
     const measure = jest.fn();
 
-    dependencies.window = { performance: { mark, measure } as Record<string, unknown> } as Record<string, any>;
+    dependencies.window = { performance: { mark, measure } as Record<string, unknown> } as Record<
+      string,
+      any
+    >;
     dependencies.global = dependencies.window;
 
     markPerformance('MAP_INIT');
@@ -149,7 +156,7 @@ describe('performance collector', () => {
     expect(measure).toHaveBeenCalledWith(
       'results-ready',
       PERFORMANCE_MARKS.MAP_INIT,
-      PERFORMANCE_MARKS.MAP_MARKERS_LOADED,
+      PERFORMANCE_MARKS.MAP_MARKERS_LOADED
     );
   });
 
@@ -196,7 +203,7 @@ describe('performance collector', () => {
       'performance',
       expect.objectContaining({
         props: expect.objectContaining({ metric: 'CLS', value: 0, rating: 'good' }),
-      }),
+      })
     );
 
     observerCallback?.({
@@ -213,7 +220,7 @@ describe('performance collector', () => {
     expect(measure).toHaveBeenCalledWith(
       'done',
       PERFORMANCE_MARKS.MAP_INIT,
-      PERFORMANCE_MARKS.MAP_MARKERS_LOADED,
+      PERFORMANCE_MARKS.MAP_MARKERS_LOADED
     );
   });
 

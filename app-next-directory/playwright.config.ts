@@ -1,19 +1,19 @@
 /// <reference types="node" />
 
-import { defineConfig, devices } from '@playwright/test'
+import { defineConfig, devices } from '@playwright/test';
 import {
   PLAYWRIGHT_BASE_URL,
   PLAYWRIGHT_ENV,
   PLAYWRIGHT_IS_LOCAL,
   PLAYWRIGHT_PORT,
-} from './tests/config/environment'
+} from './tests/config/environment';
 
 // NOTE: This config will start the Next dev server before running tests and stop it after.
 // If your dev server uses a different port, update `PLAYWRIGHT_BASE_URL` via env vars.
-const resolvedBaseURL = PLAYWRIGHT_BASE_URL
-const isLocal = PLAYWRIGHT_IS_LOCAL
-const resolvedPort = PLAYWRIGHT_PORT
-const serverWaitURL = PLAYWRIGHT_ENV.serverWaitURL
+const resolvedBaseURL = PLAYWRIGHT_BASE_URL;
+const isLocal = PLAYWRIGHT_IS_LOCAL;
+const resolvedPort = PLAYWRIGHT_PORT;
+const serverWaitURL = PLAYWRIGHT_ENV.serverWaitURL;
 
 export default defineConfig({
   // Run Playwright tests from the project tests directory using .spec.ts extension only
@@ -76,8 +76,7 @@ export default defineConfig({
           NEXT_PUBLIC_E2E: '1',
           NEXT_PUBLIC_SANITY_PROJECT_ID:
             process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'test-project',
-          NEXT_PUBLIC_SANITY_DATASET:
-            process.env.NEXT_PUBLIC_SANITY_DATASET || 'test-dataset',
+          NEXT_PUBLIC_SANITY_DATASET: process.env.NEXT_PUBLIC_SANITY_DATASET || 'test-dataset',
           NEXT_TELEMETRY_DISABLED: '1',
           MONGODB_URI: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/test',
           NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || 'test-secret',
@@ -85,4 +84,4 @@ export default defineConfig({
         },
       }
     : undefined,
-})
+});

@@ -1,6 +1,10 @@
 import 'leaflet/dist/leaflet.css';
 import { ListingDetailView } from '@/components/listings/ListingDetailView';
-import { mockListingDetail, mockReviews, mockRelatedListings } from '@/components/listings/listingDetailMockData';
+import {
+  mockListingDetail,
+  mockRelatedListings,
+  mockReviews,
+} from '@/components/listings/listingDetailMockData';
 
 // Dev-only route for exercising `ListingDetailView`. Enable locally via `ENABLE_TEST_PAGES=true`.
 export default function ListingDetailTestPage() {

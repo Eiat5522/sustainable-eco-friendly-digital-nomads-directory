@@ -3,8 +3,8 @@
  * Validates proper creation of mock requests, responses, and Next.js response objects
  */
 
-import { describe, it, expect, jest } from '@jest/globals';
-import { makeMockRequest, makeMockResponse, makeMockNextResponse } from './factories';
+import { describe, expect, it, } from '@jest/globals';
+import { makeMockNextResponse, makeMockRequest, makeMockResponse } from './factories';
 
 describe('Mock Factories', () => {
   describe('makeMockRequest', () => {
@@ -73,7 +73,7 @@ describe('Mock Factories', () => {
     it('should create a mock response with extra properties', () => {
       const mockResponse = makeMockResponse({
         status: 200,
-        statusText: 'OK'
+        statusText: 'OK',
       });
 
       expect(mockResponse.status).toBe(200);
@@ -82,7 +82,7 @@ describe('Mock Factories', () => {
 
     it('should allow header set to be called', () => {
       const mockResponse = makeMockResponse();
-      
+
       mockResponse.headers.set('Content-Type', 'application/json');
 
       expect(mockResponse.headers.set).toHaveBeenCalledWith('Content-Type', 'application/json');
@@ -99,7 +99,7 @@ describe('Mock Factories', () => {
       const mockResponse = makeMockResponse({
         ok: true,
         redirected: false,
-        type: 'basic'
+        type: 'basic',
       });
 
       expect(mockResponse.ok).toBe(true);
@@ -109,7 +109,7 @@ describe('Mock Factories', () => {
 
     it('should track multiple header set calls', () => {
       const mockResponse = makeMockResponse();
-      
+
       mockResponse.headers.set('Content-Type', 'application/json');
       mockResponse.headers.set('Cache-Control', 'no-cache');
 
@@ -158,15 +158,17 @@ describe('Mock Factories', () => {
 
     it('should allow redirect to be called', () => {
       const mockNextResponse = makeMockNextResponse();
-      
+
       mockNextResponse.redirect('https://example.com/login');
 
-      expect(mockNextResponse._mocks.mockRedirect).toHaveBeenCalledWith('https://example.com/login');
+      expect(mockNextResponse._mocks.mockRedirect).toHaveBeenCalledWith(
+        'https://example.com/login'
+      );
     });
 
     it('should return mock response from redirect', () => {
       const mockNextResponse = makeMockNextResponse();
-      
+
       const result = mockNextResponse.redirect('/auth/signin');
 
       expect(result.headers).toBeDefined();
@@ -175,7 +177,7 @@ describe('Mock Factories', () => {
 
     it('should allow next to be called', () => {
       const mockNextResponse = makeMockNextResponse();
-      
+
       mockNextResponse.next();
 
       expect(mockNextResponse._mocks.mockNext).toHaveBeenCalled();
@@ -183,7 +185,7 @@ describe('Mock Factories', () => {
 
     it('should return mock response from next', () => {
       const mockNextResponse = makeMockNextResponse();
-      
+
       const result = mockNextResponse.next();
 
       expect(result.headers).toBeDefined();
@@ -192,7 +194,7 @@ describe('Mock Factories', () => {
     it('should allow json to be called with data', () => {
       const mockNextResponse = makeMockNextResponse();
       const jsonData = { success: true, message: 'OK' };
-      
+
       mockNextResponse.json(jsonData);
 
       expect(mockNextResponse._mocks.mockJson).toHaveBeenCalledWith(jsonData);
@@ -200,7 +202,7 @@ describe('Mock Factories', () => {
 
     it('should return mock response from json', () => {
       const mockNextResponse = makeMockNextResponse();
-      
+
       const result = mockNextResponse.json({ error: 'Not found' });
 
       expect(result.headers).toBeDefined();
@@ -208,7 +210,7 @@ describe('Mock Factories', () => {
 
     it('should track multiple redirect calls', () => {
       const mockNextResponse = makeMockNextResponse();
-      
+
       mockNextResponse.redirect('/login');
       mockNextResponse.redirect('/signup');
 
@@ -217,7 +219,7 @@ describe('Mock Factories', () => {
 
     it('should track multiple next calls', () => {
       const mockNextResponse = makeMockNextResponse();
-      
+
       mockNextResponse.next();
       mockNextResponse.next();
 
@@ -226,7 +228,7 @@ describe('Mock Factories', () => {
 
     it('should track mixed method calls', () => {
       const mockNextResponse = makeMockNextResponse();
-      
+
       mockNextResponse.redirect('/auth');
       mockNextResponse.next();
       mockNextResponse.json({ data: 'test' });
@@ -239,7 +241,7 @@ describe('Mock Factories', () => {
     it('should create independent NextResponse mocks', () => {
       const mock1 = makeMockNextResponse();
       const mock2 = makeMockNextResponse();
-      
+
       mock1.redirect('/path1');
       mock2.redirect('/path2');
 

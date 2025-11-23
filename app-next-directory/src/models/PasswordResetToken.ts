@@ -1,4 +1,4 @@
-import mongoose, { Schema, type Document, type Types } from 'mongoose';
+import mongoose, { type Document, Schema, type Types } from 'mongoose';
 
 export interface IPasswordResetToken extends Document {
   userId: Types.ObjectId | string;
@@ -12,17 +12,16 @@ const PasswordResetTokenSchema = new Schema<IPasswordResetToken>({
   tokenHash: {
     type: String,
     required: true,
-    select: false,                 // don't return by default
+    select: false, // don't return by default
     minlength: 64,
     maxlength: 64,
     lowercase: true,
-    match: /^[a-f0-9]{64}$/,       // sha256 hex
+    match: /^[a-f0-9]{64}$/, // sha256 hex
   },
 
   expiresAt: { type: Date, required: true },
   createdAt: { type: Date, default: () => new Date() },
 });
-
 
 // Ensure createdAt is always a Date instance
 PasswordResetTokenSchema.pre('save', function (next) {
@@ -38,5 +37,5 @@ PasswordResetTokenSchema.index({ userId: 1 }, { unique: true });
 PasswordResetTokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 PasswordResetTokenSchema.index({ tokenHash: 1 });
 
-export default (mongoose.models.PasswordResetToken as mongoose.Model<IPasswordResetToken>)
-  || mongoose.model<IPasswordResetToken>('PasswordResetToken', PasswordResetTokenSchema);
+export default (mongoose.models.PasswordResetToken as mongoose.Model<IPasswordResetToken>) ||
+  mongoose.model<IPasswordResetToken>('PasswordResetToken', PasswordResetTokenSchema);

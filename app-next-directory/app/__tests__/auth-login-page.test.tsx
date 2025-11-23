@@ -1,5 +1,5 @@
-import type React from 'react';
 import { render, screen } from '@testing-library/react';
+import type React from 'react';
 
 jest.mock('next/navigation', () => ({
   redirect: jest.fn(),
@@ -58,11 +58,11 @@ jest.mock('@/components/ui/neo-card', () => ({
   ),
 }));
 
-import LoginPage from '../auth/login/page';
 import { redirect } from 'next/navigation';
-import { auth } from '@/lib/auth';
 import { getBaseUrl } from '@/lib/absolute-url';
+import { auth } from '@/lib/auth';
 import { sanitizeCallbackUrl } from '@/lib/auth/callbackUrl';
+import LoginPage from '../auth/login/page';
 
 describe('LoginPage', () => {
   const mockAuth = jest.mocked(auth);
@@ -75,7 +75,9 @@ describe('LoginPage', () => {
   });
 
   it('redirects authenticated users to sanitized callback URL', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as unknown as Awaited<ReturnType<typeof auth>>);
+    mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as unknown as Awaited<
+      ReturnType<typeof auth>
+    >);
     mockGetBaseUrl.mockResolvedValue('https://example.com');
     mockSanitizeCallbackUrl.mockReturnValue('/dashboard');
 
@@ -87,7 +89,9 @@ describe('LoginPage', () => {
   });
 
   it('falls back to home when sanitized callback is null', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'user-2' } } as unknown as Awaited<ReturnType<typeof auth>>);
+    mockAuth.mockResolvedValue({ user: { id: 'user-2' } } as unknown as Awaited<
+      ReturnType<typeof auth>
+    >);
     mockGetBaseUrl.mockRejectedValue(new Error('network'));
     mockSanitizeCallbackUrl.mockReturnValue(null);
 
@@ -112,6 +116,9 @@ describe('LoginPage', () => {
     expect(screen.getByTestId('footer')).toBeInTheDocument();
     expect(screen.getByTestId('login-form')).toBeInTheDocument();
     expect(screen.getAllByTestId('social-auth-row')).toHaveLength(2);
-    expect(screen.getByRole('link', { name: /create an account/i })).toHaveAttribute('href', '/auth/signup');
+    expect(screen.getByRole('link', { name: /create an account/i })).toHaveAttribute(
+      'href',
+      '/auth/signup'
+    );
   });
 });

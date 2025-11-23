@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ListingDetailsCard } from '../ListingDetailsCard';
 import type { ListingDetailDTO } from '@/types/dto';
+import { ListingDetailsCard } from '../ListingDetailsCard';
 
 // Mock dynamic imports
 jest.mock('next/dynamic', () => () => {
@@ -9,7 +9,9 @@ jest.mock('next/dynamic', () => () => {
     <div data-testid="interactive-map">
       <span>{name}</span>
       <span>{address}</span>
-      <span>{location?.lat},{location?.lng}</span>
+      <span>
+        {location?.lat},{location?.lng}
+      </span>
     </div>
   );
   return MockInteractiveMap;
@@ -113,7 +115,9 @@ describe('ListingDetailsCard', () => {
 
     it('renders long description', () => {
       render(<ListingDetailsCard listing={accommodationListing} />);
-      expect(screen.getByText('A beautiful eco-friendly hotel in the heart of Bangkok.')).toBeInTheDocument();
+      expect(
+        screen.getByText('A beautiful eco-friendly hotel in the heart of Bangkok.')
+      ).toBeInTheDocument();
     });
 
     it('does not render description section when longDescription is missing', () => {
@@ -136,7 +140,7 @@ describe('ListingDetailsCard', () => {
       };
 
       render(<ListingDetailsCard listing={listingWithLongDesc} />);
-      
+
       const descElement = screen.getByTestId('long-description');
       expect(descElement).toHaveClass('max-h-32');
       expect(descElement).toHaveAttribute('data-expanded', 'false');
@@ -150,7 +154,7 @@ describe('ListingDetailsCard', () => {
       };
 
       render(<ListingDetailsCard listing={listingWithShortDesc} />);
-      
+
       const descElement = screen.getByTestId('long-description');
       expect(descElement).not.toHaveClass('max-h-32');
       expect(descElement).toHaveClass('max-h-none');
@@ -164,7 +168,7 @@ describe('ListingDetailsCard', () => {
       };
 
       render(<ListingDetailsCard listing={listingWithLongDesc} />);
-      
+
       expect(screen.getByTestId('read-more-button')).toBeInTheDocument();
       expect(screen.getByText('Read more')).toBeInTheDocument();
     });
@@ -177,7 +181,7 @@ describe('ListingDetailsCard', () => {
       };
 
       render(<ListingDetailsCard listing={listingWithShortDesc} />);
-      
+
       expect(screen.queryByTestId('read-more-button')).not.toBeInTheDocument();
     });
 
@@ -189,10 +193,10 @@ describe('ListingDetailsCard', () => {
       };
 
       render(<ListingDetailsCard listing={listingWithLongDesc} />);
-      
+
       const button = screen.getByTestId('read-more-button');
       await userEvent.click(button);
-      
+
       await waitFor(() => {
         const descElement = screen.getByTestId('long-description');
         expect(descElement).toHaveAttribute('data-expanded', 'true');
@@ -209,15 +213,15 @@ describe('ListingDetailsCard', () => {
       };
 
       render(<ListingDetailsCard listing={listingWithLongDesc} />);
-      
+
       const button = screen.getByTestId('read-more-button');
-      
+
       // Expand
       await userEvent.click(button);
       await waitFor(() => {
         expect(screen.getByText('Read less')).toBeInTheDocument();
       });
-      
+
       // Collapse
       await userEvent.click(button);
       await waitFor(() => {
@@ -235,7 +239,7 @@ describe('ListingDetailsCard', () => {
       };
 
       const { container } = render(<ListingDetailsCard listing={listingWithLongDesc} />);
-      
+
       const gradient = container.querySelector('.bg-gradient-to-t');
       expect(gradient).toBeInTheDocument();
       expect(gradient).toHaveClass('pointer-events-none');
@@ -249,10 +253,10 @@ describe('ListingDetailsCard', () => {
       };
 
       const { container } = render(<ListingDetailsCard listing={listingWithLongDesc} />);
-      
+
       const button = screen.getByTestId('read-more-button');
       await userEvent.click(button);
-      
+
       await waitFor(() => {
         const gradient = container.querySelector('.bg-gradient-to-t');
         expect(gradient).not.toBeInTheDocument();
@@ -263,7 +267,7 @@ describe('ListingDetailsCard', () => {
   describe('Amenities Section', () => {
     it('renders amenities section when amenities exist', () => {
       render(<ListingDetailsCard listing={accommodationListing} />);
-      
+
       expect(screen.getByText('Amenities')).toBeInTheDocument();
       expect(screen.getByText('Free WiFi')).toBeInTheDocument();
       expect(screen.getByText('Swimming Pool')).toBeInTheDocument();
@@ -276,13 +280,13 @@ describe('ListingDetailsCard', () => {
       };
 
       render(<ListingDetailsCard listing={listingWithoutAmenities} />);
-      
+
       expect(screen.queryByText('Amenities')).not.toBeInTheDocument();
     });
 
     it('styles amenity tags correctly', () => {
       render(<ListingDetailsCard listing={accommodationListing} />);
-      
+
       const wifiTag = screen.getByText('Free WiFi');
       expect(wifiTag).toHaveClass('bg-neo-success/20');
       expect(wifiTag).toHaveClass('text-neo-success');
@@ -292,7 +296,7 @@ describe('ListingDetailsCard', () => {
   describe('Eco Focus Tags', () => {
     it('renders eco focus tags section', () => {
       render(<ListingDetailsCard listing={accommodationListing} />);
-      
+
       expect(screen.getByText('Sustainability Features')).toBeInTheDocument();
       expect(screen.getByText('Solar Power')).toBeInTheDocument();
       expect(screen.getByText('Water Conservation')).toBeInTheDocument();
@@ -305,13 +309,13 @@ describe('ListingDetailsCard', () => {
       };
 
       render(<ListingDetailsCard listing={listingWithoutEcoTags} />);
-      
+
       expect(screen.queryByText('Sustainability Features')).not.toBeInTheDocument();
     });
 
     it('styles eco tags correctly', () => {
       render(<ListingDetailsCard listing={accommodationListing} />);
-      
+
       const solarTag = screen.getByText('Solar Power');
       expect(solarTag).toHaveClass('bg-green-100');
       expect(solarTag).toHaveClass('text-green-700');
@@ -321,7 +325,7 @@ describe('ListingDetailsCard', () => {
   describe('Digital Nomad Features', () => {
     it('renders digital nomad features section', () => {
       render(<ListingDetailsCard listing={accommodationListing} />);
-      
+
       expect(screen.getByText('Digital Nomad Features')).toBeInTheDocument();
       expect(screen.getByText('High-speed Internet')).toBeInTheDocument();
       expect(screen.getByText('Co-working Space')).toBeInTheDocument();
@@ -334,13 +338,13 @@ describe('ListingDetailsCard', () => {
       };
 
       render(<ListingDetailsCard listing={listingWithoutFeatures} />);
-      
+
       expect(screen.queryByText('Digital Nomad Features')).not.toBeInTheDocument();
     });
 
     it('styles features correctly', () => {
       render(<ListingDetailsCard listing={accommodationListing} />);
-      
+
       const internetTag = screen.getByText('High-speed Internet');
       expect(internetTag).toHaveClass('bg-blue-100');
       expect(internetTag).toHaveClass('text-blue-700');
@@ -350,20 +354,20 @@ describe('ListingDetailsCard', () => {
   describe('Accommodation Details', () => {
     it('renders accommodation details section', () => {
       render(<ListingDetailsCard listing={accommodationListing} />);
-      
+
       expect(screen.getByText('Accommodation Details')).toBeInTheDocument();
     });
 
     it('renders accommodation type', () => {
       render(<ListingDetailsCard listing={accommodationListing} />);
-      
+
       expect(screen.getByText('Type:')).toBeInTheDocument();
       expect(screen.getByText('Hotel')).toBeInTheDocument();
     });
 
     it('renders price per night', () => {
       render(<ListingDetailsCard listing={accommodationListing} />);
-      
+
       expect(screen.getByText('Price per night:')).toBeInTheDocument();
       // The formatPrice function uses Intl.NumberFormat with currency style
       // which formats as "THB 1,500" or similar depending on locale
@@ -372,7 +376,7 @@ describe('ListingDetailsCard', () => {
 
     it('renders room types', () => {
       render(<ListingDetailsCard listing={accommodationListing} />);
-      
+
       expect(screen.getByText('Room Types:')).toBeInTheDocument();
       expect(screen.getByText('Single')).toBeInTheDocument();
       expect(screen.getByText('Double')).toBeInTheDocument();
@@ -381,7 +385,7 @@ describe('ListingDetailsCard', () => {
 
     it('renders minimum stay', () => {
       render(<ListingDetailsCard listing={accommodationListing} />);
-      
+
       expect(screen.getByText('Minimum stay:')).toBeInTheDocument();
       expect(screen.getByText(/2 nights/i)).toBeInTheDocument();
     });
@@ -396,7 +400,7 @@ describe('ListingDetailsCard', () => {
       };
 
       render(<ListingDetailsCard listing={listing} />);
-      
+
       expect(screen.getByText(/1 night$/i)).toBeInTheDocument();
     });
 
@@ -407,7 +411,7 @@ describe('ListingDetailsCard', () => {
       };
 
       render(<ListingDetailsCard listing={listing as any} />);
-      
+
       expect(screen.queryByText('Accommodation Details')).not.toBeInTheDocument();
     });
   });
@@ -415,13 +419,13 @@ describe('ListingDetailsCard', () => {
   describe('Coworking Details', () => {
     it('renders coworking details section', () => {
       render(<ListingDetailsCard listing={coworkingListing} />);
-      
+
       expect(screen.getByText('Coworking Details')).toBeInTheDocument();
     });
 
     it('renders pricing plans', () => {
       render(<ListingDetailsCard listing={coworkingListing} />);
-      
+
       expect(screen.getByText('Pricing Plans:')).toBeInTheDocument();
       expect(screen.getByText('daily')).toBeInTheDocument();
       expect(screen.getByText('monthly')).toBeInTheDocument();
@@ -429,7 +433,7 @@ describe('ListingDetailsCard', () => {
 
     it('renders plan prices', () => {
       render(<ListingDetailsCard listing={coworkingListing} />);
-      
+
       // Match numbers with optional comma formatting
       expect(screen.getByText(/300/i)).toBeInTheDocument();
       expect(screen.getByText(/5,?000/i)).toBeInTheDocument();
@@ -437,7 +441,7 @@ describe('ListingDetailsCard', () => {
 
     it('renders plan features', () => {
       render(<ListingDetailsCard listing={coworkingListing} />);
-      
+
       expect(screen.getByText(/Desk Space/i)).toBeInTheDocument();
       // WiFi appears in multiple places (amenities and plan features), use getAllByText
       expect(screen.getAllByText(/WiFi/i).length).toBeGreaterThan(0);
@@ -447,7 +451,7 @@ describe('ListingDetailsCard', () => {
 
     it('renders internet speed', () => {
       render(<ListingDetailsCard listing={coworkingListing} />);
-      
+
       expect(screen.getByText('Internet Speed:')).toBeInTheDocument();
       expect(screen.getByText(/100Mbps down \/ 50Mbps up/i)).toBeInTheDocument();
     });
@@ -459,7 +463,7 @@ describe('ListingDetailsCard', () => {
       };
 
       render(<ListingDetailsCard listing={listing as any} />);
-      
+
       expect(screen.queryByText('Coworking Details')).not.toBeInTheDocument();
     });
   });
@@ -473,21 +477,21 @@ describe('ListingDetailsCard', () => {
 
     it('renders price indication', () => {
       render(<ListingDetailsCard listing={cafeListing} />);
-      
+
       expect(screen.getByText('Price Range:')).toBeInTheDocument();
       expect(screen.getByText('$$')).toBeInTheDocument();
     });
 
     it('renders noise level', () => {
       render(<ListingDetailsCard listing={cafeListing} />);
-      
+
       expect(screen.getByText('Noise Level:')).toBeInTheDocument();
       expect(screen.getByText('moderate')).toBeInTheDocument();
     });
 
     it('renders menu highlights', () => {
       render(<ListingDetailsCard listing={cafeListing} />);
-      
+
       expect(screen.getByText('Menu Highlights:')).toBeInTheDocument();
       expect(screen.getByText('Espresso')).toBeInTheDocument();
       expect(screen.getByText('Croissant')).toBeInTheDocument();
@@ -504,7 +508,7 @@ describe('ListingDetailsCard', () => {
       };
 
       render(<ListingDetailsCard listing={listing} />);
-      
+
       expect(screen.getByText('very quiet')).toBeInTheDocument();
     });
 
@@ -567,13 +571,13 @@ describe('ListingDetailsCard', () => {
   describe('Contact Information', () => {
     it('renders contact information section', () => {
       render(<ListingDetailsCard listing={accommodationListing} />);
-      
+
       expect(screen.getByText('Contact Information')).toBeInTheDocument();
     });
 
     it('renders address', () => {
       render(<ListingDetailsCard listing={accommodationListing} />);
-      
+
       expect(screen.getByText('Address')).toBeInTheDocument();
       // Address appears in multiple places (contact info and map), use getAllByText
       expect(screen.getAllByText('123 Green Street, Bangkok, Thailand').length).toBeGreaterThan(0);
@@ -581,31 +585,31 @@ describe('ListingDetailsCard', () => {
 
     it('renders phone with call button', () => {
       render(<ListingDetailsCard listing={accommodationListing} />);
-      
+
       expect(screen.getByText('Phone')).toBeInTheDocument();
       expect(screen.getByText('+66 123 4567')).toBeInTheDocument();
-      
+
       const callButton = screen.getByRole('link', { name: /call/i });
       expect(callButton).toHaveAttribute('href', 'tel:+66 123 4567');
     });
 
     it('renders email with email button', () => {
       render(<ListingDetailsCard listing={accommodationListing} />);
-      
+
       // "Email" appears as both label and button text, so use getAllByText
       expect(screen.getAllByText('Email').length).toBeGreaterThan(0);
       expect(screen.getByText('info@ecohotel.com')).toBeInTheDocument();
-      
+
       const emailButton = screen.getByRole('link', { name: /email/i });
       expect(emailButton).toHaveAttribute('href', 'mailto:info@ecohotel.com');
     });
 
     it('renders website with visit button', () => {
       render(<ListingDetailsCard listing={accommodationListing} />);
-      
+
       expect(screen.getByText('Website')).toBeInTheDocument();
       expect(screen.getByText('https://ecohotel.com')).toBeInTheDocument();
-      
+
       const visitButton = screen.getByRole('link', { name: /visit/i });
       expect(visitButton).toHaveAttribute('href', 'https://ecohotel.com');
       expect(visitButton).toHaveAttribute('target', '_blank');
@@ -614,7 +618,7 @@ describe('ListingDetailsCard', () => {
 
     it('renders phone icon', () => {
       const { container } = render(<ListingDetailsCard listing={accommodationListing} />);
-      
+
       const phoneSection = screen.getByText('Phone').closest('div')?.parentElement;
       const icon = phoneSection?.querySelector('svg');
       expect(icon).toBeInTheDocument();
@@ -622,7 +626,7 @@ describe('ListingDetailsCard', () => {
 
     it('renders email icon', () => {
       const { container } = render(<ListingDetailsCard listing={accommodationListing} />);
-      
+
       // "Email" appears twice, so get the first one (the label)
       const emailLabel = screen.getAllByText('Email')[0];
       const emailSection = emailLabel.closest('div')?.parentElement;
@@ -632,7 +636,7 @@ describe('ListingDetailsCard', () => {
 
     it('renders globe icon for website', () => {
       const { container } = render(<ListingDetailsCard listing={accommodationListing} />);
-      
+
       const websiteSection = screen.getByText('Website').closest('div')?.parentElement;
       const icon = websiteSection?.querySelector('svg');
       expect(icon).toBeInTheDocument();
@@ -640,7 +644,7 @@ describe('ListingDetailsCard', () => {
 
     it('renders map pin icon for address', () => {
       const { container } = render(<ListingDetailsCard listing={accommodationListing} />);
-      
+
       const addressSection = screen.getByText('Address').closest('div')?.parentElement;
       const icon = addressSection?.querySelector('svg');
       expect(icon).toBeInTheDocument();
@@ -656,7 +660,7 @@ describe('ListingDetailsCard', () => {
       };
 
       render(<ListingDetailsCard listing={listing} />);
-      
+
       expect(screen.queryByText('Phone')).not.toBeInTheDocument();
       expect(screen.queryByText('Email')).not.toBeInTheDocument();
       expect(screen.queryByText('Website')).not.toBeInTheDocument();
@@ -667,19 +671,19 @@ describe('ListingDetailsCard', () => {
   describe('Map Section', () => {
     it('renders location section', () => {
       render(<ListingDetailsCard listing={accommodationListing} />);
-      
+
       expect(screen.getByText('Location')).toBeInTheDocument();
     });
 
     it('renders interactive map', () => {
       render(<ListingDetailsCard listing={accommodationListing} />);
-      
+
       expect(screen.getByTestId('interactive-map')).toBeInTheDocument();
     });
 
     it('passes correct props to InteractiveMap', () => {
       render(<ListingDetailsCard listing={accommodationListing} />);
-      
+
       const map = screen.getByTestId('interactive-map');
       expect(map).toHaveTextContent('Eco Hotel Bangkok');
       expect(map).toHaveTextContent('123 Green Street, Bangkok, Thailand');
@@ -690,7 +694,7 @@ describe('ListingDetailsCard', () => {
   describe('Separators', () => {
     it('includes separators between sections', () => {
       const { container } = render(<ListingDetailsCard listing={accommodationListing} />);
-      
+
       // Radix UI Separator with decorative=true doesn't add role="separator"
       // Check for separator by class or data attribute
       const separators = container.querySelectorAll('[data-radix-collection-item], .bg-border, hr');
@@ -707,13 +711,13 @@ describe('ListingDetailsCard', () => {
       };
 
       render(<ListingDetailsCard listing={listing} />);
-      
+
       const button = screen.getByTestId('read-more-button');
       const descElement = screen.getByTestId('long-description');
-      
+
       const buttonControls = button.getAttribute('aria-controls');
       const descId = descElement.getAttribute('id');
-      
+
       expect(buttonControls).toBe(descId);
     });
 
@@ -725,13 +729,13 @@ describe('ListingDetailsCard', () => {
       };
 
       render(<ListingDetailsCard listing={listing} />);
-      
+
       const button = screen.getByTestId('read-more-button');
-      
+
       expect(button).toHaveAttribute('aria-expanded', 'false');
-      
+
       await userEvent.click(button);
-      
+
       await waitFor(() => {
         expect(button).toHaveAttribute('aria-expanded', 'true');
       });
@@ -745,7 +749,7 @@ describe('ListingDetailsCard', () => {
       };
 
       const { container } = render(<ListingDetailsCard listing={listing} />);
-      
+
       const gradient = container.querySelector('.bg-gradient-to-t');
       expect(gradient).toHaveAttribute('aria-hidden', 'true');
     });
@@ -760,7 +764,7 @@ describe('ListingDetailsCard', () => {
       } as any;
 
       render(<ListingDetailsCard listing={genericListing} />);
-      
+
       expect(screen.getByText('About This Place')).toBeInTheDocument();
     });
 
@@ -773,7 +777,7 @@ describe('ListingDetailsCard', () => {
       };
 
       render(<ListingDetailsCard listing={emptyListing} />);
-      
+
       expect(screen.queryByText('Amenities')).not.toBeInTheDocument();
       expect(screen.queryByText('Sustainability Features')).not.toBeInTheDocument();
       expect(screen.queryByText('Digital Nomad Features')).not.toBeInTheDocument();
@@ -787,7 +791,7 @@ describe('ListingDetailsCard', () => {
       };
 
       render(<ListingDetailsCard listing={listing} />);
-      
+
       const descElement = screen.getByTestId('long-description');
       const paragraph = descElement.querySelector('p');
       expect(paragraph).toHaveClass('whitespace-pre-line');

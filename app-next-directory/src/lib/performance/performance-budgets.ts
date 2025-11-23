@@ -71,10 +71,13 @@ const getBudget = (category: string, metric: string): Budget | undefined => {
   return typedBudgets[metric];
 };
 
-export function evaluatePerformanceMetric(category: string, metric: string, value: number): 'good' | 'needs-improvement' | 'poor' | 'unknown' {
+export function evaluatePerformanceMetric(
+  category: string,
+  metric: string,
+  value: number
+): 'good' | 'needs-improvement' | 'poor' | 'unknown' {
   const budget = getBudget(category, metric);
   if (!budget) {
-    console.warn(`Unknown performance metric: ${category}.${metric}`);
     return 'unknown';
   }
 
@@ -92,7 +95,6 @@ export function evaluatePerformanceMetric(category: string, metric: string, valu
 export function getMetricThresholds(category: string, metric: string) {
   const budget = getBudget(category, metric);
   if (!budget) {
-    console.warn(`Unknown performance metric: ${category}.${metric}`);
     return null;
   }
   return budget;

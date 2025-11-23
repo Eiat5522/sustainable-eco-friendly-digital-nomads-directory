@@ -1,5 +1,5 @@
-import { ApiResponseHandler } from '@/utils/api-response';
 import clientPromise from '@/lib/mongodb';
+import { ApiResponseHandler } from '@/utils/api-response';
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 
@@ -27,11 +27,12 @@ export async function GET() {
 
     return ApiResponseHandler.success({ message: 'Successfully connected to MongoDB!' });
   } catch (error) {
-    console.error('MongoDB Connection Error:', error);
     return ApiResponseHandler.error(
       process.env.NODE_ENV === 'production'
         ? 'Failed to connect to MongoDB'
-        : (error instanceof Error ? error.message : 'Failed to connect to MongoDB'),
+        : error instanceof Error
+          ? error.message
+          : 'Failed to connect to MongoDB',
       500
     );
   }

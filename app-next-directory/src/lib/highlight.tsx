@@ -19,7 +19,12 @@ export function highlightText(
   if (text == null) return text;
   if (text === '') return '';
   // If searchQuery is null/undefined/empty, return text as string
-  if (searchQuery == null || searchQuery === '' || typeof searchQuery !== 'string' || !searchQuery.trim()) {
+  if (
+    searchQuery == null ||
+    searchQuery === '' ||
+    typeof searchQuery !== 'string' ||
+    !searchQuery.trim()
+  ) {
     return String(text);
   }
   // Defensive: handle options null/undefined
@@ -40,10 +45,7 @@ export function highlightText(
       : part.toLowerCase() === searchQuery.toLowerCase();
     if (!matches) return part;
     return (
-      <mark
-        key={`${part}-${i}`}
-        className={opts.className}
-      >
+      <mark key={`${part}-${i}`} className={opts.className}>
         {part}
       </mark>
     );

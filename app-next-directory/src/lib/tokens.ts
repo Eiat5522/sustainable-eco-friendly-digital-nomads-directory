@@ -12,4 +12,3 @@ export function hashToken(raw: string): string {
 export function minutesFromNow(mins: number): Date {
   return new Date(Date.now() + mins * 60 * 1000);
 }
-

@@ -1,6 +1,6 @@
 import path from 'node:path';
-import ts from 'typescript';
 import { describe, expect, it } from '@jest/globals';
+import ts from 'typescript';
 
 const projectRoot = path.resolve(__dirname, '../../..');
 const tsconfigPath = path.join(projectRoot, 'tsconfig.json');
@@ -28,8 +28,14 @@ function createTypeTestProgram(filePath: string) {
   return { checker: program.getTypeChecker(), moduleSymbol };
 }
 
-function getExportedFunctionType(checker: ts.TypeChecker, moduleSymbol: ts.Symbol, exportName: string) {
-  const exportSymbol = checker.getExportsOfModule(moduleSymbol).find((symbol) => symbol.name === exportName);
+function getExportedFunctionType(
+  checker: ts.TypeChecker,
+  moduleSymbol: ts.Symbol,
+  exportName: string
+) {
+  const exportSymbol = checker
+    .getExportsOfModule(moduleSymbol)
+    .find(symbol => symbol.name === exportName);
   if (!exportSymbol || !exportSymbol.valueDeclaration) {
     throw new Error(`Export ${exportName} was not found in the strict component type tests.`);
   }
@@ -88,7 +94,7 @@ describe('strict component type tests', () => {
 
     const titleType = getPropType(checker, propsType, 'title');
     expect(titleType).toBeUndefined();
-    const availableProps = checker.getPropertiesOfType(propsType).map((prop) => prop.name);
+    const availableProps = checker.getPropertiesOfType(propsType).map(prop => prop.name);
     expect(availableProps).toEqual(['children']);
   });
 });

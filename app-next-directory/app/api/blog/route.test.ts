@@ -3,8 +3,12 @@ import { beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals
 const fetchMock = jest.fn<any, any[]>();
 const transformMock = jest.fn((post: any) => ({ id: post._id, title: post.title }));
 
-jest.mock('@/lib/sanity/client', () => ({ client: { fetch: (...args: any[]) => fetchMock(...args) } }));
-jest.mock('@/lib/dto-transformer', () => ({ transformToBlogSummaryDTO: (...args: any[]) => transformMock(...args) }));
+jest.mock('@/lib/sanity/client', () => ({
+  client: { fetch: (...args: any[]) => fetchMock(...args) },
+}));
+jest.mock('@/lib/dto-transformer', () => ({
+  transformToBlogSummaryDTO: (...args: any[]) => transformMock(...args),
+}));
 
 let GET: typeof import('./route').GET;
 
@@ -20,8 +24,18 @@ describe('Blog API - GET /api/blog', () => {
 
   it('returns paginated blog posts', async () => {
     const mockPosts = [
-      { _id: '1', title: 'Test Post 1', publishedAt: '2024-01-01', slug: { current: 'test-post-1' } },
-      { _id: '2', title: 'Test Post 2', publishedAt: '2024-01-02', slug: { current: 'test-post-2' } },
+      {
+        _id: '1',
+        title: 'Test Post 1',
+        publishedAt: '2024-01-01',
+        slug: { current: 'test-post-1' },
+      },
+      {
+        _id: '2',
+        title: 'Test Post 2',
+        publishedAt: '2024-01-02',
+        slug: { current: 'test-post-2' },
+      },
     ];
     fetchMock.mockResolvedValueOnce(mockPosts).mockResolvedValueOnce(2);
 

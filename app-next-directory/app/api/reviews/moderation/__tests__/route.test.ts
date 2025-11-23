@@ -1,6 +1,6 @@
-import { describe, it, expect } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
 import { NextRequest } from 'next/server';
-import { POST, GET } from '../route';
+import { GET, POST } from '../route';
 
 describe('/api/reviews/moderation', () => {
   const mockContext = { params: Promise.resolve({}) };
@@ -9,7 +9,7 @@ describe('/api/reviews/moderation', () => {
     const request = new NextRequest('http://localhost:3000/api/reviews/moderation', {
       method: 'POST',
     });
-    
+
     const response = await POST(request, mockContext);
     const json = await response.json();
 
@@ -19,7 +19,7 @@ describe('/api/reviews/moderation', () => {
 
   it('GET returns 501 not implemented', async () => {
     const request = new NextRequest('http://localhost:3000/api/reviews/moderation');
-    
+
     const response = await GET(request, mockContext);
     const json = await response.json();
 

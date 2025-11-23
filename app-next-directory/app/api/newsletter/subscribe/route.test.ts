@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 const mockDbConnect = jest.fn();
 const mockFindOne = jest.fn();
@@ -99,12 +99,15 @@ const createRequest = (body: unknown, headers: Record<string, string> = {}) => {
   });
 };
 
-const createRejectingRequest = (error: Error, headers: Record<string, string> = {}) => ({
-  json: () => Promise.reject(error),
-  headers: new Headers(headers),
-}) as unknown as Request;
+const createRejectingRequest = (error: Error, headers: Record<string, string> = {}) =>
+  ({
+    json: () => Promise.reject(error),
+    headers: new Headers(headers),
+  }) as unknown as Request;
 
-const loadRoute = async (envOverrides: Record<string, string | undefined>): Promise<RouteModule> => {
+const loadRoute = async (
+  envOverrides: Record<string, string | undefined>
+): Promise<RouteModule> => {
   jest.resetModules();
   process.env = buildEnv(envOverrides);
   resetMocks();
@@ -194,7 +197,10 @@ describe('POST /api/newsletter/subscribe (Jest worker mode)', () => {
         return '1';
       }
       if (key.includes('idempotency')) {
-        return JSON.stringify({ status: 200, body: { success: true, data: null, message: 'Cached!' } });
+        return JSON.stringify({
+          status: 200,
+          body: { success: true, data: null, message: 'Cached!' },
+        });
       }
       return null;
     });
@@ -202,7 +208,9 @@ describe('POST /api/newsletter/subscribe (Jest worker mode)', () => {
     routeModule._testControl.memoryGetOverride = getOverride;
     routeModule._testControl.memoryIncrOverride = incrOverride;
 
-    const res = await POST(createRequest({ email: 'override@example.com' }, { 'Idempotency-Key': 'override' }));
+    const res = await POST(
+      createRequest({ email: 'override@example.com' }, { 'Idempotency-Key': 'override' })
+    );
     const body = await res.json();
 
     expect(res.status).toBe(200);
@@ -233,7 +241,11 @@ describe('POST /api/newsletter/subscribe (standard mode)', () => {
   let clearStore: RouteModule['_clearMemoryStore'];
 
   beforeEach(async () => {
-    routeModule = await loadRoute({ NODE_ENV: 'production', MONGODB_URI: 'mongodb://localhost/test', JEST_WORKER_ID: undefined });
+    routeModule = await loadRoute({
+      NODE_ENV: 'production',
+      MONGODB_URI: 'mongodb://localhost/test',
+      JEST_WORKER_ID: undefined,
+    });
     ({ POST, _clearMemoryStore: clearStore } = routeModule);
     clearStore();
   });
@@ -253,7 +265,9 @@ describe('POST /api/newsletter/subscribe (standard mode)', () => {
       JSON.stringify({ status: 200, body: { success: true, data: null, message: 'From cache' } })
     );
 
-    const res = await POST(createRequest({ email: 'cached@example.com' }, { 'Idempotency-Key': 'stored-key' }));
+    const res = await POST(
+      createRequest({ email: 'cached@example.com' }, { 'Idempotency-Key': 'stored-key' })
+    );
     const body = await res.json();
 
     expect(res.status).toBe(200);
@@ -273,7 +287,9 @@ describe('POST /api/newsletter/subscribe (standard mode)', () => {
   it('returns duplicate response when email has already been seen recently', async () => {
     redisStore.set('newsletter:email:dup@example.com', '1');
 
-    const res = await POST(createRequest({ email: 'dup@example.com' }, { 'Idempotency-Key': 'dup-key' }));
+    const res = await POST(
+      createRequest({ email: 'dup@example.com' }, { 'Idempotency-Key': 'dup-key' })
+    );
     const body = await res.json();
 
     expect(res.status).toBe(200);
@@ -285,7 +301,9 @@ describe('POST /api/newsletter/subscribe (standard mode)', () => {
     const confirmed = { confirmedAt: new Date().toISOString() };
     setFindOneResult(confirmed);
 
-    const res = await POST(createRequest({ email: 'confirmed@example.com' }, { 'Idempotency-Key': 'confirmed' }));
+    const res = await POST(
+      createRequest({ email: 'confirmed@example.com' }, { 'Idempotency-Key': 'confirmed' })
+    );
     const body = await res.json();
 
     expect(mockDbConnect).toHaveBeenCalled();
@@ -321,7 +339,9 @@ describe('POST /api/newsletter/subscribe (standard mode)', () => {
   });
 
   it('persists idempotency outcomes after successful subscriptions', async () => {
-    const res = await POST(createRequest({ email: 'store@example.com' }, { 'Idempotency-Key': 'store-key' }));
+    const res = await POST(
+      createRequest({ email: 'store@example.com' }, { 'Idempotency-Key': 'store-key' })
+    );
     expect(res.status).toBe(200);
     expect(redisStore.get('newsletter:idempotency:store-key')).toBeTruthy();
   });
@@ -335,7 +355,11 @@ describe('POST /api/newsletter/subscribe (standard mode)', () => {
   });
 
   it('falls back to default flow when MONGODB_URI is not configured', async () => {
-    routeModule = await loadRoute({ NODE_ENV: 'production', MONGODB_URI: undefined, JEST_WORKER_ID: undefined });
+    routeModule = await loadRoute({
+      NODE_ENV: 'production',
+      MONGODB_URI: undefined,
+      JEST_WORKER_ID: undefined,
+    });
     ({ POST, _clearMemoryStore: clearStore } = routeModule);
     clearStore();
 

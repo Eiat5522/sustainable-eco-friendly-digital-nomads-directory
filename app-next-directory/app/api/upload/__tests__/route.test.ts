@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { NextRequest } from 'next/server';
 
 const mockedAuth = jest.fn();
@@ -8,13 +8,13 @@ jest.mock('@/lib/auth', () => ({ auth: (...args: any[]) => mockedAuth(...args) }
 
 // Mock fs/promises for readFile
 jest.mock('fs/promises', () => ({
-  readFile: jest.fn().mockResolvedValue(Buffer.from('optimized image data'))
+  readFile: jest.fn().mockResolvedValue(Buffer.from('optimized image data')),
 }));
 
 // Mock image-optimizer cleanup
 jest.mock('@/lib/image-optimizer', () => ({
   optimizeFileBuffer: jest.fn(),
-  cleanupOptimizedFile: jest.fn().mockResolvedValue(undefined)
+  cleanupOptimizedFile: jest.fn().mockResolvedValue(undefined),
 }));
 
 let POST: any;
@@ -22,20 +22,20 @@ let routeTestControl: any;
 
 const createMockFormData = (file?: File) =>
   ({
-    get: (key: string) => (key === 'file' ? file ?? null : null),
-  } as unknown as FormData);
+    get: (key: string) => (key === 'file' ? (file ?? null) : null),
+  }) as unknown as FormData;
 
 describe('/api/upload', () => {
   beforeEach(async () => {
     jest.resetModules();
     mockedAuth.mockReset();
     mockUpload.mockReset();
-  // require after mocks
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  ({ POST, _testControl: routeTestControl } = require('../route'));
-  routeTestControl.formDataOverride = undefined;
-  // set upload override to our mock
-  routeTestControl.uploadOverride = mockUpload;
+    // require after mocks
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    ({ POST, _testControl: routeTestControl } = require('../route'));
+    routeTestControl.formDataOverride = undefined;
+    // set upload override to our mock
+    routeTestControl.uploadOverride = mockUpload;
   });
 
   afterEach(() => {
@@ -50,14 +50,14 @@ describe('/api/upload', () => {
 
   it('returns 401 when user is not authenticated', async () => {
     mockedAuth.mockResolvedValue(null);
-    
-  routeTestControl.formDataOverride = async () => createMockFormData();
-  expect(routeTestControl.formDataOverride).toBeDefined();
+
+    routeTestControl.formDataOverride = async () => createMockFormData();
+    expect(routeTestControl.formDataOverride).toBeDefined();
 
     const request = new Request('http://localhost:3000/api/upload', {
       method: 'POST',
     });
-    
+
     const response = await POST(request);
     const json = await response.json();
 
@@ -69,13 +69,13 @@ describe('/api/upload', () => {
     mockedAuth.mockResolvedValue({
       user: { id: 'user-1', role: 'user' },
     } as any);
-    
+
     const formData = new FormData();
     const request = new NextRequest('http://localhost:3000/api/upload', {
       method: 'POST',
       body: formData,
     });
-    
+
     const response = await POST(request);
     const json = await response.json();
 
@@ -87,8 +87,8 @@ describe('/api/upload', () => {
     mockedAuth.mockResolvedValue({
       user: { id: 'user-1', role: 'venueOwner' },
     } as any);
-  const formDataOverride = jest.fn(async () => createMockFormData());
-  routeTestControl.formDataOverride = formDataOverride;
+    const formDataOverride = jest.fn(async () => createMockFormData());
+    routeTestControl.formDataOverride = formDataOverride;
 
     const request = new Request('http://localhost:3000/api/upload', {
       method: 'POST',
@@ -108,23 +108,23 @@ describe('/api/upload', () => {
     mockedAuth.mockResolvedValue({
       user: { id: 'user-1', role: 'venueOwner' },
     } as any);
-    
+
     const mockAsset = {
       _id: 'image-asset-1',
       url: 'https://cdn.sanity.io/images/test.jpg',
     };
     mockUpload.mockResolvedValue(mockAsset as any);
-    
+
     const file = new File(['test content'], 'test.jpg', { type: 'image/jpeg' });
     routeTestControl.formDataOverride = async () => createMockFormData(file);
-    
+
     // Skip optimization for this test
     routeTestControl.skipOptimization = true;
 
     const request = new Request('http://localhost:3000/api/upload', {
       method: 'POST',
     });
-    
+
     const response = await POST(request);
     const json = await response.json();
 
@@ -142,19 +142,19 @@ describe('/api/upload', () => {
     mockedAuth.mockResolvedValue({
       user: { id: 'user-1', role: 'venueOwner' },
     } as any);
-    
+
     mockUpload.mockRejectedValue(new Error('Upload failed'));
-    
+
     const file = new File(['test content'], 'test.jpg', { type: 'image/jpeg' });
     routeTestControl.formDataOverride = async () => createMockFormData(file);
-    
+
     // Skip optimization for this test
     routeTestControl.skipOptimization = true;
 
     const request = new Request('http://localhost:3000/api/upload', {
       method: 'POST',
     });
-    
+
     const response = await POST(request);
     const json = await response.json();
 
@@ -166,36 +166,36 @@ describe('/api/upload', () => {
     mockedAuth.mockResolvedValue({
       user: { id: 'user-1', role: 'venueOwner' },
     } as any);
-    
+
     const mockAsset = {
       _id: 'image-asset-2',
       url: 'https://cdn.sanity.io/images/test-optimized.webp',
     };
     mockUpload.mockResolvedValue(mockAsset as any);
-    
+
     // Create a file with arrayBuffer method
     const fileContent = Buffer.from('test content');
     const file = new File([fileContent], 'test.jpg', { type: 'image/jpeg' });
-    
+
     // Add arrayBuffer method to File prototype for this test
     Object.defineProperty(file, 'arrayBuffer', {
-      value: jest.fn().mockResolvedValue(fileContent.buffer)
+      value: jest.fn().mockResolvedValue(fileContent.buffer),
     });
-    
+
     routeTestControl.formDataOverride = async () => createMockFormData(file);
-    
+
     // Mock successful optimization
     routeTestControl.optimizeOverride = jest.fn().mockResolvedValue({
       success: true,
       optimizedPath: '/tmp/test-optimized.webp',
       originalSize: 10000,
-      optimizedSize: 5000
+      optimizedSize: 5000,
     });
 
     const request = new Request('http://localhost:3000/api/upload', {
       method: 'POST',
     });
-    
+
     const response = await POST(request);
     const json = await response.json();
 

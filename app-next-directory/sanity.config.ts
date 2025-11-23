@@ -1,5 +1,5 @@
-import { defineConfig } from 'sanity'
-import { deskTool } from 'sanity/desk'
+import { defineConfig } from 'sanity';
+import { deskTool } from 'sanity/desk';
 
 const config = defineConfig({
   name: 'econmads',
@@ -15,6 +15,6 @@ const config = defineConfig({
   },
 
   basePath: '/studio',
-}) as unknown as Record<string, unknown>
+}) as unknown as Record<string, unknown>;
 
-export default config
+export default config;

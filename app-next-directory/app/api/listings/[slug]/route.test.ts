@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 const mockGetListingBySlug = jest.fn();
 const mockRequireAuth = jest.fn();
@@ -37,6 +37,7 @@ const loadHandlers = async () => {
   PUT = mod.PUT;
   DELETE = mod.DELETE;
 };
+
 import { ApiResponseHandler } from '@/utils/api-response';
 
 type RouteContext = { params: Promise<{ slug: string }> };
@@ -57,7 +58,10 @@ describe('API /api/listings/[slug] route handlers', () => {
     it('returns listing data when found', async () => {
       mockGetListingBySlug.mockResolvedValueOnce({ _id: 'listing-1', name: 'Eco Hub' } as any);
 
-      const response = await GET(new Request('http://localhost/api/listings/test-listing'), context);
+      const response = await GET(
+        new Request('http://localhost/api/listings/test-listing'),
+        context
+      );
       const { status, body } = await parseResponse(response);
 
       expect(status).toBe(200);
@@ -68,7 +72,10 @@ describe('API /api/listings/[slug] route handlers', () => {
     it('returns not found when listing is missing', async () => {
       mockGetListingBySlug.mockResolvedValueOnce(null);
 
-      const response = await GET(new Request('http://localhost/api/listings/test-listing'), context);
+      const response = await GET(
+        new Request('http://localhost/api/listings/test-listing'),
+        context
+      );
       const { status, body } = await parseResponse(response);
 
       expect(status).toBe(404);
@@ -78,7 +85,10 @@ describe('API /api/listings/[slug] route handlers', () => {
     it('returns server error when fetching fails', async () => {
       mockGetListingBySlug.mockRejectedValueOnce(new Error('sanity failure'));
 
-      const response = await GET(new Request('http://localhost/api/listings/test-listing'), context);
+      const response = await GET(
+        new Request('http://localhost/api/listings/test-listing'),
+        context
+      );
       const { status, body } = await parseResponse(response);
 
       expect(status).toBe(400);

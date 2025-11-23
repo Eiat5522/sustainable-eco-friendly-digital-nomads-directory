@@ -1,5 +1,5 @@
-import ServerTiming, { serverTimingMiddleware } from '../server-timing';
 import { NextRequest } from 'next/server';
+import ServerTiming, { serverTimingMiddleware } from '../server-timing';
 
 describe('ServerTiming', () => {
   let timing: ServerTiming;

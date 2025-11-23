@@ -1,16 +1,17 @@
-"use client";
+'use client';
 
-import type { ReactNode } from 'react';
-import React, { Fragment, useId, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
+import type { ReactNode } from 'react';
+import { Fragment, useId, useMemo, useState } from 'react';
 
-import { NeoCard, NeoCardHeader, NeoCardTitle, NeoCardContent } from '@/components/ui/neo-card';
+import { NeoCard, NeoCardContent, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
 import { Separator } from '@/components/ui/separator';
 // Use a dynamic import to avoid SSR conflicts with map dependencies.
 import type { ListingDetailDTO } from '@/types/dto';
 
 import { resolveCategoryDetails } from './ListingCategoryDetails';
 import { ListingContactInfo } from './ListingContactInfo';
+
 const InteractiveMap = dynamic(
   () => import('@/components/ui/InteractiveMap').then(m => m.InteractiveMap),
   { ssr: false }
@@ -43,7 +44,7 @@ export function ListingDetailsCard({ listing }: Readonly<ListingDetailsCardProps
   }, [listing.longDescription]);
 
   const handleToggleDescription = () => {
-    setIsDescriptionExpanded((prev) => !prev);
+    setIsDescriptionExpanded(prev => !prev);
   };
 
   return (
@@ -86,7 +87,7 @@ export function ListingDetailsCard({ listing }: Readonly<ListingDetailsCardProps
         <NeoCardHeader>
           <NeoCardTitle>Location</NeoCardTitle>
         </NeoCardHeader>
-        
+
         <NeoCardContent>
           <InteractiveMap
             location={listing.location}
@@ -133,11 +134,17 @@ function renderSections({
   }
 
   const pillSections = buildPillSections(listing);
-  pillSections.forEach((section) => {
+  pillSections.forEach(section => {
     if (section.items.length > 0) {
       sections.push({
         id: section.id,
-        content: <PillSection title={section.title} items={section.items} pillClassName={section.pillClassName} />,
+        content: (
+          <PillSection
+            title={section.title}
+            items={section.items}
+            pillClassName={section.pillClassName}
+          />
+        ),
       });
     }
   });
@@ -151,7 +158,7 @@ function renderSections({
 }
 
 function buildPillSections(listing: ListingDetailDTO): PillSectionConfig[] {
-  const amenityItems: PillItem[] = (listing.amenities ?? []).map((amenity) => ({
+  const amenityItems: PillItem[] = (listing.amenities ?? []).map(amenity => ({
     key: amenity.id,
     label: amenity.name,
   }));

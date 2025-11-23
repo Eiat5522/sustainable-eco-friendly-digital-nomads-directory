@@ -1,6 +1,6 @@
-import type React from 'react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import type React from 'react';
 import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 
@@ -11,11 +11,7 @@ function ensureAdmin(sessionUser: SessionUser): boolean {
   return role === 'admin' || role === 'superAdmin';
 }
 
-export default async function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
   const sessionUser = session?.user as SessionUser;
 
@@ -23,7 +19,7 @@ export default async function AdminLayout({
     redirect('/auth/login');
   }
 
-const navItems = [
+  const navItems = [
     { href: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
     { href: '/admin/users', label: 'Users', icon: '👥' },
     { href: '/admin/listings', label: 'Listings', icon: '📝' },
@@ -40,7 +36,7 @@ const navItems = [
                 <span className="text-xl font-bold text-gray-900">Admin Panel</span>
               </Link>
               <div className="hidden md:ml-8 md:flex md:space-x-8">
-                {navItems.map((item) => (
+                {navItems.map(item => (
                   <Link
                     key={item.href}
                     href={item.href}
@@ -60,7 +56,7 @@ const navItems = [
           </div>
         </div>
       </nav>
-      
+
       {children}
     </div>
   );

@@ -3,7 +3,7 @@ export class MockNextRequest {
   constructor({ method, json, url }) {
     this.method = method;
     this._json = json;
-    this.url = url
+    this.url = url;
   }
   json() {
     return Promise.resolve(this._json);
@@ -17,7 +17,7 @@ export class MockNextResponse {
     this.headers = init?.headers || { 'Content-Type': 'application/json' };
     this._isNextResponse = true;
   }
-  
+
   async json() {
     if (typeof this.body === 'string') {
       try {
@@ -28,7 +28,7 @@ export class MockNextResponse {
     }
     return this.body;
   }
-  
+
   async text() {
     if (typeof this.body === 'string') {
       return this.body;
@@ -38,12 +38,14 @@ export class MockNextResponse {
 }
 
 // Add static methods to MockNextResponse to mimic real NextResponse
-MockNextResponse.json = (data, init = {}) => new MockNextResponse(data, {
+MockNextResponse.json = (data, init = {}) =>
+  new MockNextResponse(data, {
     ...init,
-    headers: { 'Content-Type': 'application/json', ...(init.headers || {}) }
+    headers: { 'Content-Type': 'application/json', ...(init.headers || {}) },
   });
 
-MockNextResponse.redirect = (url, status = 307) => new MockNextResponse('', { status, headers: { Location: url } });
+MockNextResponse.redirect = (url, status = 307) =>
+  new MockNextResponse('', { status, headers: { Location: url } });
 
 export function createMocks({ method, json, url }) {
   return {
@@ -54,4 +56,3 @@ export function createMocks({ method, json, url }) {
 
 // Export NextResponse as the mock class
 export const NextResponse = MockNextResponse;
-

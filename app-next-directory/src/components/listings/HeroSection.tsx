@@ -1,10 +1,10 @@
 'use client';
-import Image from 'next/image';
 import { MapPin } from 'lucide-react';
-import { NeoCard, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
+import Image from 'next/image';
 import { FavoriteButton } from '@/components/favorites/FavoriteButton';
-import type { ListingDetailDTO } from '@/types/dto';
+import { NeoCard, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
 import { FALLBACK_IMAGE } from '@/lib/dto-transformer';
+import type { ListingDetailDTO } from '@/types/dto';
 
 interface HeroSectionProps {
   listing: ListingDetailDTO;
@@ -26,14 +26,13 @@ export function HeroSection(props: Readonly<HeroSectionProps>) {
           <Image
             src={listing.imageUrl}
             alt={`${listing.name}${listing.city?.name ? ` - ${listing.city?.name}` : ''} sustainable venue`}
-
             fill
             sizes="100vw"
             className="object-cover"
             priority
           />
         )}
-        
+
         {/* Favorite Button Overlay */}
         <div className="absolute top-4 right-4">
           <FavoriteButton
@@ -53,10 +52,8 @@ export function HeroSection(props: Readonly<HeroSectionProps>) {
       <NeoCardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <NeoCardTitle className="heading-xl mb-2">
-              {listing.name}
-            </NeoCardTitle>
-            
+            <NeoCardTitle className="heading-xl mb-2">{listing.name}</NeoCardTitle>
+
             {listing.city && (
               <div className="flex items-center gap-2 mb-3">
                 <MapPin size={20} className="text-neo-text-secondary" />
@@ -67,9 +64,7 @@ export function HeroSection(props: Readonly<HeroSectionProps>) {
             )}
 
             {listing.shortDescription && (
-              <p className="body-md text-neo-text-secondary mb-4">
-                {listing.shortDescription}
-              </p>
+              <p className="body-md text-neo-text-secondary mb-4">{listing.shortDescription}</p>
             )}
 
             {/* Price Range Display */}

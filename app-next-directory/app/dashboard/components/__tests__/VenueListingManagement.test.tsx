@@ -56,7 +56,10 @@ describe('VenueListingManagement', () => {
     expect(cells[0]).toHaveTextContent('Eco Hub');
     expect(cells[1]).toHaveTextContent('Lisbon');
     expect(cells[2]).toHaveTextContent('published');
-    expect(screen.getAllByRole('link', { name: /edit/i })[0]).toHaveAttribute('href', '/dashboard/listings/edit/1');
+    expect(screen.getAllByRole('link', { name: /edit/i })[0]).toHaveAttribute(
+      'href',
+      '/dashboard/listings/edit/1'
+    );
     expect(screen.queryByText('Incomplete')).not.toBeInTheDocument();
   });
 

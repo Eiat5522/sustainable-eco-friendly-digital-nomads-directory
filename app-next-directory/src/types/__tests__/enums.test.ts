@@ -1,16 +1,16 @@
 import {
-  ListingCategory,
-  PriceRange,
-  ModerationStatus,
-  VerificationStatus,
   LISTING_CATEGORIES,
-  PRICE_RANGES,
-  MODERATION_STATUSES,
-  VERIFICATION_STATUSES,
+  ListingCategory,
   type ListingType,
-  type PriceRangeType,
+  MODERATION_STATUSES,
+  ModerationStatus,
   type ModerationStatusType,
-  type VerificationStatusType
+  PRICE_RANGES,
+  PriceRange,
+  type PriceRangeType,
+  VERIFICATION_STATUSES,
+  VerificationStatus,
+  type VerificationStatusType,
 } from '../enums';
 
 describe('enums types and constants', () => {
@@ -34,7 +34,7 @@ describe('enums types and constants', () => {
         ListingCategory.CAFE,
         ListingCategory.ACCOMMODATION,
         ListingCategory.RESTAURANT,
-        ListingCategory.ACTIVITIES
+        ListingCategory.ACTIVITIES,
       ];
       expect(categories).toHaveLength(5);
     });
@@ -53,11 +53,7 @@ describe('enums types and constants', () => {
     });
 
     it('should accept all enum values', () => {
-      const ranges: PriceRange[] = [
-        PriceRange.BUDGET,
-        PriceRange.MODERATE,
-        PriceRange.PREMIUM
-      ];
+      const ranges: PriceRange[] = [PriceRange.BUDGET, PriceRange.MODERATE, PriceRange.PREMIUM];
       expect(ranges).toHaveLength(3);
     });
   });
@@ -82,7 +78,7 @@ describe('enums types and constants', () => {
         ModerationStatus.PENDING,
         ModerationStatus.PUBLISHED,
         ModerationStatus.ARCHIVED,
-        ModerationStatus.FLAGGED
+        ModerationStatus.FLAGGED,
       ];
       expect(statuses).toHaveLength(5);
     });
@@ -104,7 +100,7 @@ describe('enums types and constants', () => {
       const statuses: VerificationStatus[] = [
         VerificationStatus.UNVERIFIED,
         VerificationStatus.VERIFIED,
-        VerificationStatus.NEEDS_VERIFICATION
+        VerificationStatus.NEEDS_VERIFICATION,
       ];
       expect(statuses).toHaveLength(3);
     });
@@ -212,7 +208,7 @@ describe('enums types and constants', () => {
     it('should allow enum values to be used in switch statements', () => {
       const category = ListingCategory.COWORKING;
       let result = '';
-      
+
       switch (category) {
         case ListingCategory.COWORKING:
           result = 'coworking space';
@@ -223,7 +219,7 @@ describe('enums types and constants', () => {
         default:
           result = 'other';
       }
-      
+
       expect(result).toBe('coworking space');
     });
 

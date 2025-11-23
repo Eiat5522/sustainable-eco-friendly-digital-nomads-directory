@@ -1,7 +1,7 @@
 import type { Collection, Document } from 'mongodb';
+import { getRequestContext, structuredLogger } from '@/lib/logger';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { getCollection } from '@/utils/db-helpers';
-import { getRequestContext, structuredLogger } from '@/lib/logger';
 
 type ReviewFilter = {
   createdAt: { $gte: Date };
@@ -61,157 +61,168 @@ export async function GET(request: Request) {
       baseFilter.listingSlug = listingSlug;
     }
 
-    const overallStatsPromise = reviews.aggregate<OverallStatsDoc>([
-      { $match: baseFilter },
-      {
-        $group: {
-          _id: null,
-          totalReviews: { $sum: 1 },
-          avgRating: { $avg: '$rating' },
-          minRating: { $min: '$rating' },
-          maxRating: { $max: '$rating' },
-          uniqueListings: { $addToSet: '$listingSlug' },
-        },
-      },
-    ]).toArray();
-
-    const ratingDistributionPromise = reviews.aggregate<RatingBucket>([
-      { $match: baseFilter },
-      {
-        $group: {
-          _id: '$rating',
-          count: { $sum: 1 },
-        },
-      },
-      { $sort: { _id: 1 } },
-    ]).toArray();
-
-    const trendsPromise = reviews.aggregate<TrendBucket>([
-      { $match: baseFilter },
-      {
-        $group: {
-          _id: {
-            $dateToString: { format: '%Y-%m-%d', date: '$createdAt' },
+    const overallStatsPromise = reviews
+      .aggregate<OverallStatsDoc>([
+        { $match: baseFilter },
+        {
+          $group: {
+            _id: null,
+            totalReviews: { $sum: 1 },
+            avgRating: { $avg: '$rating' },
+            minRating: { $min: '$rating' },
+            maxRating: { $max: '$rating' },
+            uniqueListings: { $addToSet: '$listingSlug' },
           },
-          count: { $sum: 1 },
-          avgRating: { $avg: '$rating' },
         },
-      },
-      { $sort: { _id: 1 } },
-    ]).toArray();
+      ])
+      .toArray();
+
+    const ratingDistributionPromise = reviews
+      .aggregate<RatingBucket>([
+        { $match: baseFilter },
+        {
+          $group: {
+            _id: '$rating',
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { _id: 1 } },
+      ])
+      .toArray();
+
+    const trendsPromise = reviews
+      .aggregate<TrendBucket>([
+        { $match: baseFilter },
+        {
+          $group: {
+            _id: {
+              $dateToString: { format: '%Y-%m-%d', date: '$createdAt' },
+            },
+            count: { $sum: 1 },
+            avgRating: { $avg: '$rating' },
+          },
+        },
+        { $sort: { _id: 1 } },
+      ])
+      .toArray();
 
     const topListingsPromise = listingSlug
       ? Promise.resolve([] as TopListingBucket[])
-      : reviews.aggregate<TopListingBucket>([
-          { $match: baseFilter },
-          {
-            $group: {
-              _id: '$listingSlug',
-              avgRating: { $avg: '$rating' },
-              reviewCount: { $sum: 1 },
+      : reviews
+          .aggregate<TopListingBucket>([
+            { $match: baseFilter },
+            {
+              $group: {
+                _id: '$listingSlug',
+                avgRating: { $avg: '$rating' },
+                reviewCount: { $sum: 1 },
+              },
+            },
+            { $match: { reviewCount: { $gte: 3 } } },
+            { $sort: { avgRating: -1, reviewCount: -1 } },
+            { $limit: 10 },
+          ])
+          .toArray();
+
+    const moderationPromise = reviews
+      .aggregate<ModerationBucket>([
+        { $match: { createdAt: { $gte: startDate } } },
+        {
+          $group: {
+            _id: '$status',
+            count: { $sum: 1 },
+          },
+        },
+      ])
+      .toArray();
+
+    const sentimentPromise = reviews
+      .aggregate<SentimentBucket>([
+        { $match: baseFilter },
+        {
+          $project: {
+            rating: 1,
+            sentiment: {
+              $switch: {
+                branches: [
+                  {
+                    case: {
+                      $regexMatch: {
+                        input: '$comment',
+                        regex: /excellent|amazing|fantastic|wonderful|perfect|outstanding/i,
+                      },
+                    },
+                    then: 'very_positive',
+                  },
+                  {
+                    case: {
+                      $regexMatch: {
+                        input: '$comment',
+                        regex: /good|great|nice|pleasant|satisfied|recommend/i,
+                      },
+                    },
+                    then: 'positive',
+                  },
+                  {
+                    case: {
+                      $regexMatch: {
+                        input: '$comment',
+                        regex: /terrible|awful|horrible|worst|hate|disgusting/i,
+                      },
+                    },
+                    then: 'very_negative',
+                  },
+                  {
+                    case: {
+                      $regexMatch: {
+                        input: '$comment',
+                        regex: /bad|poor|disappointing|not good|issues|problems/i,
+                      },
+                    },
+                    then: 'negative',
+                  },
+                ],
+                default: 'neutral',
+              },
             },
           },
-          { $match: { reviewCount: { $gte: 3 } } },
-          { $sort: { avgRating: -1, reviewCount: -1 } },
-          { $limit: 10 },
-        ]).toArray();
-
-    const moderationPromise = reviews.aggregate<ModerationBucket>([
-      { $match: { createdAt: { $gte: startDate } } },
-      {
-        $group: {
-          _id: '$status',
-          count: { $sum: 1 },
         },
-      },
-    ]).toArray();
+        {
+          $group: {
+            _id: '$sentiment',
+            count: { $sum: 1 },
+            avgRating: { $avg: '$rating' },
+          },
+        },
+      ])
+      .toArray();
 
-    const sentimentPromise = reviews.aggregate<SentimentBucket>([
-      { $match: baseFilter },
-      {
-        $project: {
-          rating: 1,
-          sentiment: {
-            $switch: {
-              branches: [
-                {
-                  case: {
-                    $regexMatch: {
-                      input: '$comment',
-                      regex: /excellent|amazing|fantastic|wonderful|perfect|outstanding/i,
-                    },
-                  },
-                  then: 'very_positive',
-                },
-                {
-                  case: {
-                    $regexMatch: {
-                      input: '$comment',
-                      regex: /good|great|nice|pleasant|satisfied|recommend/i,
-                    },
-                  },
-                  then: 'positive',
-                },
-                {
-                  case: {
-                    $regexMatch: {
-                      input: '$comment',
-                      regex: /terrible|awful|horrible|worst|hate|disgusting/i,
-                    },
-                  },
-                  then: 'very_negative',
-                },
-                {
-                  case: {
-                    $regexMatch: {
-                      input: '$comment',
-                      regex: /bad|poor|disappointing|not good|issues|problems/i,
-                    },
-                  },
-                  then: 'negative',
-                },
-              ],
-              default: 'neutral',
+    const responseTimePromise = reviews
+      .aggregate<ResponseTimeBucket>([
+        {
+          $match: {
+            createdAt: { $gte: startDate },
+            moderatedAt: { $exists: true },
+          },
+        },
+        {
+          $project: {
+            responseTimeHours: {
+              $divide: [{ $subtract: ['$moderatedAt', '$createdAt'] }, 1000 * 60 * 60],
             },
           },
         },
-      },
-      {
-        $group: {
-          _id: '$sentiment',
-          count: { $sum: 1 },
-          avgRating: { $avg: '$rating' },
-        },
-      },
-    ]).toArray();
-
-    const responseTimePromise = reviews.aggregate<ResponseTimeBucket>([
-      {
-        $match: {
-          createdAt: { $gte: startDate },
-          moderatedAt: { $exists: true },
-        },
-      },
-      {
-        $project: {
-          responseTimeHours: {
-            $divide: [
-              { $subtract: ['$moderatedAt', '$createdAt'] },
-              1000 * 60 * 60,
-            ],
+        {
+          $group: {
+            _id: null,
+            avgResponseTime: { $avg: '$responseTimeHours' },
+            minResponseTime: { $min: '$responseTimeHours' },
+            maxResponseTime: { $max: '$responseTimeHours' },
+            totalModerated: { $sum: 1 },
           },
         },
-      },
-      {
-        $group: {
-          _id: null,
-          avgResponseTime: { $avg: '$responseTimeHours' },
-          minResponseTime: { $min: '$responseTimeHours' },
-          maxResponseTime: { $max: '$responseTimeHours' },
-          totalModerated: { $sum: 1 },
-        },
-      },
-    ]).toArray();
+      ])
+      .toArray();
 
     const [
       overallStats,
@@ -241,26 +252,28 @@ export async function GET(request: Request) {
 
     const distribution = Array.from({ length: 5 }, (_, index) => {
       const rating = index + 1;
-      const bucket = ratingDistribution.find((entry) => entry._id === rating);
+      const bucket = ratingDistribution.find(entry => entry._id === rating);
       const count = bucket?.count ?? 0;
-      const percentage = overall.totalReviews > 0 ? ((count / overall.totalReviews) * 100).toFixed(1) : '0.0';
+      const percentage =
+        overall.totalReviews > 0 ? ((count / overall.totalReviews) * 100).toFixed(1) : '0.0';
       return { rating, count, percentage };
     });
 
     const moderationCounts = {
-      pending: moderationStats.find((entry) => entry._id === 'pending')?.count ?? 0,
-      approved: moderationStats.find((entry) => entry._id === 'approved')?.count ?? 0,
-      rejected: moderationStats.find((entry) => entry._id === 'rejected')?.count ?? 0,
-      flagged: moderationStats.find((entry) => entry._id === 'flagged')?.count ?? 0,
+      pending: moderationStats.find(entry => entry._id === 'pending')?.count ?? 0,
+      approved: moderationStats.find(entry => entry._id === 'approved')?.count ?? 0,
+      rejected: moderationStats.find(entry => entry._id === 'rejected')?.count ?? 0,
+      flagged: moderationStats.find(entry => entry._id === 'flagged')?.count ?? 0,
     };
 
     const moderationTotal = Object.values(moderationCounts).reduce((sum, value) => sum + value, 0);
 
-    const sentimentBreakdown = sentimentAnalysis.map((entry) => ({
+    const sentimentBreakdown = sentimentAnalysis.map(entry => ({
       sentiment: entry._id,
       count: entry.count,
       avgRating: Number(entry.avgRating?.toFixed(2)) || 0,
-      percentage: overall.totalReviews > 0 ? ((entry.count / overall.totalReviews) * 100).toFixed(1) : '0.0',
+      percentage:
+        overall.totalReviews > 0 ? ((entry.count / overall.totalReviews) * 100).toFixed(1) : '0.0',
     }));
 
     const responseTimeInfo = responseTimeStats[0]
@@ -283,7 +296,7 @@ export async function GET(request: Request) {
         uniqueListingsCount: overall.uniqueListings.length,
       },
       distribution,
-      trends: trendsData.map((entry) => ({
+      trends: trendsData.map(entry => ({
         date: entry._id,
         count: entry.count,
         avgRating: Number(entry.avgRating?.toFixed(2)) || 0,
@@ -304,17 +317,14 @@ export async function GET(request: Request) {
       responseTime: responseTimeInfo,
       topListings: listingSlug
         ? undefined
-        : topListings.map((listing) => ({
+        : topListings.map(listing => ({
             slug: listing._id,
             avgRating: Number(listing.avgRating?.toFixed(2)) || 0,
             reviewCount: listing.reviewCount,
           })),
     };
 
-    return ApiResponseHandler.success(
-      analytics,
-      `Analytics data for ${timeRange} period`
-    );
+    return ApiResponseHandler.success(analytics, `Analytics data for ${timeRange} period`);
   } catch (error) {
     structuredLogger.error('Failed to fetch review analytics', error, {
       ...getRequestContext(request),

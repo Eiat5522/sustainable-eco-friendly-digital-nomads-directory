@@ -4,26 +4,14 @@
  * Date: May 24, 2025
  */
 
+import type { QueryParams, SanityClient } from '@sanity/client';
+import type { SanityDocument as GeneratedSanityDocument } from '@/types/sanity';
 // Import core Sanity client types and methods
 import { createClient as sanityCreateClient } from './sanity/client';
-import type { SanityClient, QueryParams } from '@sanity/client';
-import type { SanityDocument as GeneratedSanityDocument } from '@/types/sanity';
-// Import generated types from sanity.types.ts.
-import type {
-  Geopoint as ignoredGeopoint,
-  Slug as ignoredSlug,
-  SanityImageHotspot as ignoredSanityImageHotspot,
-  SanityImageCrop as ignoredSanityImageCrop,
-  SanityImageMetadata as ignoredSanityImageMetadata,
-  SanityImageDimensions as ignoredSanityImageDimensions,
-  SanityImagePalette as ignoredSanityImagePalette,
-  SanityImagePaletteSwatch as ignoredSanityImagePaletteSwatch,
-  SanityAssetSourceData as ignoredSanityAssetSourceData,
-  // Import specific query result types if needed for direct use, e.g.:
-  // LISTING_BY_SLUG_QUERYResult, GetCitySummaryBySlugQueryResult
-} from '@sanity/sanity.types';
+
 type GeneratedSanityAssetDocument = Record<string, unknown> & { _id: string };
 type SanityDocumentInput = { _type: string } & Record<string, unknown>;
+
 // Import custom types if they are not generated or part of @sanity/client
 import type { SanityImageObject } from '../types/external/sanity-image'; // This seems to be a custom type
 
@@ -107,25 +95,19 @@ export class SanityHTTPClient {
   }
 
   private validateEnvironment(): void {
-    const requiredEnvVars = [
-      'NEXT_PUBLIC_SANITY_PROJECT_ID',
-      'NEXT_PUBLIC_SANITY_DATASET',
-    ];
+    const requiredEnvVars = ['NEXT_PUBLIC_SANITY_PROJECT_ID', 'NEXT_PUBLIC_SANITY_DATASET'];
 
     const optionalEnvVars = ['SANITY_API_TOKEN'];
 
     for (const envVar of requiredEnvVars) {
       if (!process.env[envVar]) {
-        throw new SanityAPIError(
-          `Missing required environment variable: ${envVar}`
-        );
+        throw new SanityAPIError(`Missing required environment variable: ${envVar}`);
       }
     }
 
     // Warn about missing optional vars
     for (const envVar of optionalEnvVars) {
       if (!process.env[envVar]) {
-        console.warn(`Warning: Missing optional environment variable: ${envVar}`);
       }
     }
   }
@@ -154,9 +136,10 @@ export class SanityHTTPClient {
         // This case might indicate an unexpected response structure from the client
         return false;
       }
-    } catch (error: unknown) { // Catching unknown for better type safety
+    } catch (_error: unknown) {
+      // Catching unknown for better type safety
       // If an error is caught, authentication likely failed.
-      if (this.debug) console.error('Authentication test failed during create:', error);
+      if (this.debug) 
       return false;
     }
     // Clean up test document
@@ -165,9 +148,10 @@ export class SanityHTTPClient {
       if (result._id) {
         await this.writeClient.delete(result._id);
       }
-    } catch (cleanupError: unknown) { // Catching unknown for better type safety
+    } catch (_cleanupError: unknown) {
+      // Catching unknown for better type safety
       // Ignore cleanup errors for test contract
-      if (this.debug) console.error('Error during auth test cleanup:', cleanupError);
+      if (this.debug) 
     }
 
     return true;
@@ -196,9 +180,13 @@ export class SanityHTTPClient {
       // The fetch method should now return T based on the query and typegen overload.
       const result = await client.fetch<T>(query, params as QueryParams);
       const errorPayload = getErrorPayload(result);
-      if (errorPayload && errorPayload.error) {
+      if (errorPayload?.error) {
         const message = formatErrorMessage(errorPayload.error, 'Query error');
-        throw new SanityAPIError(`Query failed: ${message}`, extractStatusCode(errorPayload), errorPayload);
+        throw new SanityAPIError(
+          `Query failed: ${message}`,
+          extractStatusCode(errorPayload),
+          errorPayload
+        );
       }
 
       // If the result is undefined, it might indicate an issue with the query or data fetching.
@@ -207,7 +195,8 @@ export class SanityHTTPClient {
       }
 
       return result;
-    } catch (error: unknown) { // Catching unknown for better type safety
+    } catch (error: unknown) {
+      // Catching unknown for better type safety
       // If an error is caught, wrap it in SanityAPIError for consistent handling.
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       // Attempt to extract statusCode if it exists on the error object.
@@ -226,9 +215,13 @@ export class SanityHTTPClient {
       // The create method should now return GeneratedSanityDocument due to typegen overload.
       const result = await this.writeClient.create(document);
       const errorPayload = getErrorPayload(result);
-      if (errorPayload && errorPayload.error) {
+      if (errorPayload?.error) {
         const message = formatErrorMessage(errorPayload.error, 'Create error');
-        throw new SanityAPIError(`Create failed: ${message}`, extractStatusCode(errorPayload), errorPayload);
+        throw new SanityAPIError(
+          `Create failed: ${message}`,
+          extractStatusCode(errorPayload),
+          errorPayload
+        );
       }
 
       if (typeof result === 'undefined') {
@@ -240,15 +233,14 @@ export class SanityHTTPClient {
       }
 
       if (this.debug) {
-        if (result && result._id) {
-          console.log(`✅ Created document: ${result._id}`);
+        if (result?._id) {
         } else {
-          console.log(`✅ Created document (no _id): ${JSON.stringify(result)}`);
         }
       }
 
       return result;
-    } catch (error: unknown) { // Catching unknown for better type safety
+    } catch (error: unknown) {
+      // Catching unknown for better type safety
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       const statusCode = extractStatusCode(error);
       throw new SanityAPIError(`Create failed: ${errorMessage}`, statusCode, error);
@@ -275,15 +267,20 @@ export class SanityHTTPClient {
       let result: GeneratedSanityDocument; // Typed result
       try {
         result = await setObj.commit(); // commit should return GeneratedSanityDocument
-      } catch (error: unknown) { // Catching unknown for better type safety
+      } catch (error: unknown) {
+        // Catching unknown for better type safety
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
         const statusCode = extractStatusCode(error);
         throw new SanityAPIError(`Update failed: ${errorMessage}`, statusCode, error);
       }
       const errorPayload = getErrorPayload(result);
-      if (errorPayload && errorPayload.error) {
+      if (errorPayload?.error) {
         const message = formatErrorMessage(errorPayload.error, 'Update error');
-        throw new SanityAPIError(`Update failed: ${message}`, extractStatusCode(errorPayload), errorPayload);
+        throw new SanityAPIError(
+          `Update failed: ${message}`,
+          extractStatusCode(errorPayload),
+          errorPayload
+        );
       }
 
       if (typeof result === 'undefined') {
@@ -294,9 +291,10 @@ export class SanityHTTPClient {
         throw new SanityAPIError('Update operation returned no result');
       }
 
-      if (this.debug) console.log(`✅ Updated document: ${id}`);
+      if (this.debug) 
       return result;
-    } catch (error: unknown) { // Catching unknown for better type safety
+    } catch (error: unknown) {
+      // Catching unknown for better type safety
       if (error instanceof SanityAPIError) throw error; // Re-throw if it's already our custom error
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       const statusCode = extractStatusCode(error);
@@ -313,9 +311,13 @@ export class SanityHTTPClient {
     try {
       const result = await this.writeClient.delete(id); // delete returns null or a status object
       const errorPayload = getErrorPayload(result);
-      if (errorPayload && errorPayload.error) {
+      if (errorPayload?.error) {
         const message = formatErrorMessage(errorPayload.error, 'Delete error');
-        throw new SanityAPIError(`Delete failed: ${message}`, extractStatusCode(errorPayload), errorPayload);
+        throw new SanityAPIError(
+          `Delete failed: ${message}`,
+          extractStatusCode(errorPayload),
+          errorPayload
+        );
       }
 
       if (typeof result === 'undefined') {
@@ -326,10 +328,11 @@ export class SanityHTTPClient {
         throw new SanityAPIError('Delete operation returned no result');
       }
 
-      if (this.debug) console.log(`✅ Deleted document: ${id}`);
+      if (this.debug) 
 
       return result;
-    } catch (error: unknown) { // Catching unknown for better type safety
+    } catch (error: unknown) {
+      // Catching unknown for better type safety
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       const statusCode = extractStatusCode(error);
       throw new SanityAPIError(`Delete failed: ${errorMessage}`, statusCode, error);
@@ -358,7 +361,9 @@ export class SanityHTTPClient {
       }
 
       if (typeof this.writeClient.assets.upload !== 'function') {
-        throw new SanityAPIError('Asset upload failed: this.writeClient.assets.upload is not a function');
+        throw new SanityAPIError(
+          'Asset upload failed: this.writeClient.assets.upload is not a function'
+        );
       }
 
       // Enforce image content type
@@ -379,7 +384,8 @@ export class SanityHTTPClient {
           title: options?.title,
           description: options?.description,
         });
-      } catch (error: unknown) { // Catching unknown for better type safety
+      } catch (error: unknown) {
+        // Catching unknown for better type safety
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
         const statusCode = extractStatusCode(error);
         throw new SanityAPIError(`Asset upload failed: ${errorMessage}`, statusCode, error);
@@ -388,9 +394,13 @@ export class SanityHTTPClient {
       // The upload method should return a SanityAssetDocument on success.
       // Check for _id as a sign of success.
       const assetError = getErrorPayload(asset);
-      if (assetError && assetError.error) {
+      if (assetError?.error) {
         const message = formatErrorMessage(assetError.error, 'Upload error');
-        throw new SanityAPIError(`Asset upload failed: ${message}`, extractStatusCode(assetError), assetError);
+        throw new SanityAPIError(
+          `Asset upload failed: ${message}`,
+          extractStatusCode(assetError),
+          assetError
+        );
       }
 
       if (typeof asset === 'undefined') {
@@ -405,7 +415,7 @@ export class SanityHTTPClient {
         throw new SanityAPIError('Asset upload failed: Invalid asset id');
       }
 
-      if (this.debug) console.log(`✅ Uploaded asset: ${asset._id}`);
+      if (this.debug) 
 
       // Convert asset document to a Sanity image field object
       // Use the custom SanityImageObject type.
@@ -417,7 +427,8 @@ export class SanityHTTPClient {
         },
       } as SanityImageObject;
       return imageObject;
-    } catch (error: unknown) { // Catching unknown for better type safety
+    } catch (error: unknown) {
+      // Catching unknown for better type safety
       if (error instanceof SanityAPIError) throw error; // Re-throw if it's already our custom error
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       const statusCode = extractStatusCode(error);
@@ -440,7 +451,8 @@ export class SanityHTTPClient {
       let commitResult: unknown;
       try {
         commitResult = await tx.commit({ returnDocuments: true });
-      } catch (error: unknown) { // Catching unknown for better type safety
+      } catch (error: unknown) {
+        // Catching unknown for better type safety
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
         const statusCode = extractStatusCode(error);
         throw new SanityAPIError(`Batch create failed: ${errorMessage}`, statusCode, error);
@@ -457,7 +469,11 @@ export class SanityHTTPClient {
         return docs;
       }
 
-      const asResult = commitResult as { results?: { document?: GeneratedSanityDocument }[]; error?: string; statusCode?: number };
+      const asResult = commitResult as {
+        results?: { document?: GeneratedSanityDocument }[];
+        error?: string;
+        statusCode?: number;
+      };
       const results = asResult?.results;
       if (!Array.isArray(results)) {
         const errorMsg = asResult?.error || 'Batch create error: Invalid response structure';
@@ -469,7 +485,7 @@ export class SanityHTTPClient {
       }
 
       const createdDocs = results
-        .map((r) => r?.document)
+        .map(r => r?.document)
         .filter((doc): doc is GeneratedSanityDocument => Boolean(doc));
 
       if (!createdDocs.length && documents.length > 0) {
@@ -481,7 +497,8 @@ export class SanityHTTPClient {
       }
 
       return createdDocs;
-    } catch (error: unknown) { // Catching unknown for better type safety
+    } catch (error: unknown) {
+      // Catching unknown for better type safety
       if (error instanceof SanityAPIError) throw error; // Re-throw if it's already our custom error
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       const statusCode = extractStatusCode(error);
@@ -522,7 +539,8 @@ export class SanityHTTPClient {
           environment: process.env.NODE_ENV,
         },
       };
-    } catch (error: unknown) { // Catching unknown for better type safety
+    } catch (error: unknown) {
+      // Catching unknown for better type safety
       // If any part of the health check fails, return an error status.
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       return {

@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useSession, signIn } from 'next-auth/react';
-import { NeoButton } from '@/components/ui/neo-button';
 import { Heart } from 'lucide-react';
-import { jsonPostOptions, jsonDeleteOptions } from '@/lib/http/request';
+import { signIn, useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
+import { NeoButton } from '@/components/ui/neo-button';
+import { jsonDeleteOptions, jsonPostOptions } from '@/lib/http/request';
 
 interface FavoriteButtonProps {
   // Accepts either listingId (legacy) or slug (preferred) - one is required
@@ -45,7 +45,7 @@ export function FavoriteButton({
 
   // Determine the actual slug to use (prefer slug prop, fallback to listingId for backward compatibility)
   const actualSlug = slug || listingId;
-  
+
   if (!actualSlug) {
     throw new Error('FavoriteButton requires either slug or listingId prop');
   }
@@ -67,15 +67,14 @@ export function FavoriteButton({
         setIsCheckingStatus(false);
         return;
       }
-      
+
       try {
         const response = await fetch(`/api/user/favorites/${actualSlug}`);
         if (response.ok) {
           const data = await response.json();
           setIsFavoritedState(data.favorited ?? false);
         }
-      } catch (error) {
-        console.error('Error checking favorite status:', error);
+      } catch (_error) {
       } finally {
         setIsCheckingStatus(false);
       }
@@ -87,10 +86,12 @@ export function FavoriteButton({
   const handleToggleFavorite = async (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent navigation if button is inside a link
     e.stopPropagation();
-    
+
     if (!session) {
       const callbackUrl =
-        typeof window !== 'undefined' && typeof window.location?.href === 'string' && window.location.href.length > 0
+        typeof window !== 'undefined' &&
+        typeof window.location?.href === 'string' &&
+        window.location.href.length > 0
           ? window.location.href
           : '/';
       void signIn(undefined, { callbackUrl });
@@ -102,23 +103,22 @@ export function FavoriteButton({
     // If a parent provided an onToggle handler, delegate the network action to it
     if (typeof onToggle === 'function') {
       const previousState = isFavoritedState;
-      
+
       // Optimistic update: toggle immediately if optimistic is enabled
       if (optimistic) {
         setIsFavoritedState(!isFavoritedState);
       }
-      
+
       setIsLoading(true);
       try {
         await onToggle();
         // Parent is expected to update the prop 'isFavorited' which will
         // be picked up by the effect that watches `initialIsFavorited`.
-      } catch (error) {
+      } catch (_error) {
         // Revert optimistic update on error
         if (optimistic) {
           setIsFavoritedState(previousState);
         }
-        console.error('Error in parent onToggle handler:', error);
         alert('An error occurred. Please try again.');
       } finally {
         setIsLoading(false);
@@ -127,23 +127,26 @@ export function FavoriteButton({
     }
 
     const previousState = isFavoritedState;
-    
+
     // Optimistic update: toggle immediately if optimistic is enabled
     if (optimistic) {
       setIsFavoritedState(!isFavoritedState);
     }
-    
+
     setIsLoading(true);
 
     try {
       if (previousState) {
         // Remove from favorites
-        const response = await fetch('/api/user/favorites', jsonDeleteOptions({ slug: actualSlug }));
+        const response = await fetch(
+          '/api/user/favorites',
+          jsonDeleteOptions({ slug: actualSlug })
+        );
 
         if (!response.ok) {
           throw new Error('Failed to remove favorite');
         }
-        
+
         // Only update state if not using optimistic updates
         if (!optimistic) {
           setIsFavoritedState(false);
@@ -156,18 +159,17 @@ export function FavoriteButton({
           const errorData = await response.json();
           throw new Error(errorData.message || 'Failed to add favorite');
         }
-        
+
         // Only update state if not using optimistic updates
         if (!optimistic) {
           setIsFavoritedState(true);
         }
       }
-    } catch (error) {
+    } catch (_error) {
       // Revert optimistic update on error
       if (optimistic) {
         setIsFavoritedState(previousState);
       }
-      console.error('Error toggling favorite:', error);
       // TODO: Could show a toast notification
       alert('An error occurred. Please try again.');
     } finally {
@@ -197,26 +199,23 @@ export function FavoriteButton({
       size={size}
       onClick={handleToggleFavorite}
       disabled={isLoading}
-  className={`transition-all duration-200 hover:scale-105 ${isFavoritedValue ? 'favorited' : ''} ${className}`}
-      title={isFavoritedValue ? `Remove "${listingTitle || 'listing'}" from favorites` : `Add "${listingTitle || 'listing'}" to favorites`}
+      className={`transition-all duration-200 hover:scale-105 ${isFavoritedValue ? 'favorited' : ''} ${className}`}
+      title={
+        isFavoritedValue
+          ? `Remove "${listingTitle || 'listing'}" from favorites`
+          : `Add "${listingTitle || 'listing'}" to favorites`
+      }
       aria-label={isFavoritedValue ? 'Remove from favorites' : 'Add to favorites'}
       {...rest}
     >
       <Heart
         className={`${size === 'sm' ? 'h-4 w-4' : 'h-5 w-5'} transition-colors ${
-          isFavoritedValue
-            ? 'fill-red-500 text-red-500'
-            : 'text-gray-400 hover:text-red-500'
+          isFavoritedValue ? 'fill-red-500 text-red-500' : 'text-gray-400 hover:text-red-500'
         } ${isLoading ? 'animate-pulse' : ''}`}
       />
       {showText && (
         <span className="ml-1 text-sm">
-          {isLoading
-            ? '...'
-            : isFavoritedValue
-              ? 'Saved'
-              : 'Save'
-          }
+          {isLoading ? '...' : isFavoritedValue ? 'Saved' : 'Save'}
         </span>
       )}
     </NeoButton>

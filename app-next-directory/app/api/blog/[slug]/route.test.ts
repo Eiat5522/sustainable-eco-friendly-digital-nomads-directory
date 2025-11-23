@@ -3,7 +3,7 @@
  * Replaces previous tests with test-only types and typed mocks.
  */
 
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 // We'll mock the modules the route imports so tests don't need to mutate exported _testControl
 const fetchMock = jest.fn() as jest.MockedFunction<(...args: any[]) => Promise<any>>;
@@ -21,8 +21,12 @@ jest.mock('@/lib/logger', () => ({
   },
 }));
 
-jest.mock('@/lib/sanity/client', () => ({ client: { fetch: (...args: any[]) => fetchMock(...args) } }));
-jest.mock('@/lib/dto-transformer', () => ({ transformToBlogDetailDTO: (...args: any[]) => transformMock(...args) }));
+jest.mock('@/lib/sanity/client', () => ({
+  client: { fetch: (...args: any[]) => fetchMock(...args) },
+}));
+jest.mock('@/lib/dto-transformer', () => ({
+  transformToBlogDetailDTO: (...args: any[]) => transformMock(...args),
+}));
 jest.mock('@/lib/viewCountPersistence', () => ({
   incrementViewCount: (...args: any[]) => persistentIncrementMock(...args),
 }));
@@ -132,12 +136,21 @@ describe('Blog [slug] API', () => {
           publishedAt: '2024-01-01',
           body: [],
           relatedPosts: [
-            { _id: '2', title: 'Related Post 1', slug: 'related-post-1', publishedAt: '2024-01-02' },
+            {
+              _id: '2',
+              title: 'Related Post 1',
+              slug: 'related-post-1',
+              publishedAt: '2024-01-02',
+            },
           ],
           _updatedAt: '2024-01-02',
         };
         fetchMock.mockResolvedValueOnce(mockPost);
-        transformMock.mockReturnValueOnce({ ...mockPost, readingTime: 5, relatedPosts: mockPost.relatedPosts });
+        transformMock.mockReturnValueOnce({
+          ...mockPost,
+          readingTime: 5,
+          relatedPosts: mockPost.relatedPosts,
+        });
 
         const request = new Request('http://localhost/api/blog/test-post');
         const params = Promise.resolve({ slug: 'test-post' });
@@ -301,7 +314,7 @@ describe('Blog [slug] API', () => {
           body: JSON.stringify({ action: 'increment_view' }),
         });
         const params = Promise.resolve({ slug: 'another-post' });
-        
+
         const response1 = await PUT(request1, { params });
         const data1 = await response1.json();
         expect(data1.data.viewCount).toBe(1);

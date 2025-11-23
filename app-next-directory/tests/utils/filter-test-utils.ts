@@ -46,7 +46,7 @@ export async function clearFilters(page: Page) {
   for (const filter of checkedFilters) {
     await filter.uncheck();
   }
-  
+
   const priceInputs = await page.locator('input[type="number"]').all();
   for (const input of priceInputs) {
     await input.fill('');

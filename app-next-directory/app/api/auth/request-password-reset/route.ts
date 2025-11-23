@@ -1,13 +1,13 @@
+import type { Types } from 'mongoose';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import type { Types } from 'mongoose';
 import dbConnect from '@/lib/dbConnect';
-import User from '@/models/User';
-import PasswordResetToken from '@/models/PasswordResetToken';
-import { generateToken, minutesFromNow } from '@/lib/tokens';
 import { buildResetEmail, sendMail } from '@/lib/email';
-import { getClientIp, isRateLimited, getRetryAfterMs } from '@/lib/rate-limit';
-import { structuredLogger, getRequestContext } from '@/lib/logger';
+import { getRequestContext, structuredLogger } from '@/lib/logger';
+import { getClientIp, getRetryAfterMs, isRateLimited } from '@/lib/rate-limit';
+import { generateToken, minutesFromNow } from '@/lib/tokens';
+import PasswordResetToken from '@/models/PasswordResetToken';
+import User from '@/models/User';
 
 const Schema = z.object({ email: z.string().email() });
 
@@ -16,7 +16,13 @@ export async function POST(req: Request) {
     const ip = getClientIp(req);
     const key = `auth:reset-request:${ip}`;
     if (await isRateLimited(key, 5, 60)) {
-      return NextResponse.json({ success: true, limited: true }, { status: 200, headers: { 'Retry-After': String(Math.ceil(await getRetryAfterMs(key) / 1000)) } });
+      return NextResponse.json(
+        { success: true, limited: true },
+        {
+          status: 200,
+          headers: { 'Retry-After': String(Math.ceil((await getRetryAfterMs(key)) / 1000)) },
+        }
+      );
     }
     if (!process.env.MONGODB_URI) {
       return NextResponse.json({ success: true }); // soft success to avoid user enumeration
@@ -31,7 +37,7 @@ export async function POST(req: Request) {
     if (!user) {
       // randomized delay to reduce timing side-channel (120–240ms)
       const wait = 120 + Math.floor(Math.random() * 120);
-      await new Promise((r) => setTimeout(r, wait));
+      await new Promise(r => setTimeout(r, wait));
       return NextResponse.json({ success: true });
     }
     const userId = typeof user._id === 'string' ? user._id : user._id.toString();
@@ -39,7 +45,7 @@ export async function POST(req: Request) {
     const userKey = `auth:reset-request:user:${userId}`;
     if (await isRateLimited(userKey, 3, 3600)) {
       const wait = 120 + Math.floor(Math.random() * 120);
-      await new Promise((r) => setTimeout(r, wait));
+      await new Promise(r => setTimeout(r, wait));
       return NextResponse.json({ success: true });
     }
     // Atomically upsert a single token per user to avoid races
@@ -51,11 +57,11 @@ export async function POST(req: Request) {
     );
 
     const emailPayload = await buildResetEmail(user.email, raw);
-    await sendMail(emailPayload).catch((e) => 
+    await sendMail(emailPayload).catch(e =>
       structuredLogger.emailError('send password reset email', e, {
         ...getRequestContext(req),
         userId,
-        email: user.email // Will be redacted by logger
+        email: user.email, // Will be redacted by logger
       })
     );
 

@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { useAnalytics } from './useAnalytics';
 
 // Mock analytics/config functions
@@ -21,7 +21,7 @@ describe('useAnalytics', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     // Provide a minimal mock for document and document.head.appendChild
-    
+
     let _title = 'Test Title';
     let _referrer = 'https://referrer.com';
     global.document = Object.assign({}, global.document, {
@@ -38,7 +38,7 @@ describe('useAnalytics', () => {
         _referrer = val;
       },
       head: {
-        appendChild: jest.fn()
+        appendChild: jest.fn(),
       } as unknown as HTMLHeadElement,
       URL: '',
       alinkColor: '',
@@ -63,9 +63,11 @@ describe('useAnalytics', () => {
           return [{ textContent: _title }];
         }
         if (tag === 'head') {
-          return [{
-            appendChild: jest.fn()
-          }];
+          return [
+            {
+              appendChild: jest.fn(),
+            },
+          ];
         }
         return [];
       },
@@ -76,7 +78,7 @@ describe('useAnalytics', () => {
         }
         if (selector === 'head') {
           return {
-            appendChild: jest.fn()
+            appendChild: jest.fn(),
           };
         }
         return null;
@@ -96,7 +98,7 @@ describe('useAnalytics', () => {
   it('tracks page view on mount', () => {
     usePathname.mockReturnValue('/test-path');
     useSearchParams.mockReturnValue({
-      toString: () => 'foo=bar'
+      toString: () => 'foo=bar',
     });
 
     renderHook(() => useAnalytics());
@@ -105,14 +107,14 @@ describe('useAnalytics', () => {
       title: '',
       path: '/test-path',
       search: '?foo=bar',
-      referrer: ''
+      referrer: '',
     });
   });
 
   it('tracks page view with no search params', () => {
     usePathname.mockReturnValue('/test-path');
     useSearchParams.mockReturnValue({
-      toString: () => ''
+      toString: () => '',
     });
 
     // Ensure document.title is set for the test
@@ -124,7 +126,7 @@ describe('useAnalytics', () => {
       title: 'Test Title',
       path: '/test-path',
       search: undefined,
-      referrer: 'https://referrer.com'
+      referrer: 'https://referrer.com',
     });
   });
 
@@ -134,12 +136,22 @@ describe('useAnalytics', () => {
 
     const { result } = renderHook(() => useAnalytics());
     act(() => {
-      result.current.track('listing_view', { listingId: '123', listingName: 'Test Listing', category: 'Test Category', city: 'Test City' });
+      result.current.track('listing_view', {
+        listingId: '123',
+        listingName: 'Test Listing',
+        category: 'Test Category',
+        city: 'Test City',
+      });
     });
 
     expect(trackEvent).toHaveBeenCalledWith({
       name: 'listing_view',
-      properties: { listingId: '123', listingName: 'Test Listing', category: 'Test Category', city: 'Test City' }
+      properties: {
+        listingId: '123',
+        listingName: 'Test Listing',
+        category: 'Test Category',
+        city: 'Test City',
+      },
     });
   });
 

@@ -4,43 +4,43 @@
  * Date: May 24, 2025
  */
 
-import type { SanityImageObject } from '../types/external/sanity-image'
-import { sanityHTTPClient } from './sanity-http-client'
+import type { SanityImageObject } from '../types/external/sanity-image';
+import { sanityHTTPClient } from './sanity-http-client';
 
 // Image optimization settings
 export interface ImageOptimizationOptions {
-  maxWidth?: number
-  maxHeight?: number
-  quality?: number
-  format?: 'webp' | 'jpeg' | 'png' | 'auto'
-  progressive?: boolean
+  maxWidth?: number;
+  maxHeight?: number;
+  quality?: number;
+  format?: 'webp' | 'jpeg' | 'png' | 'auto';
+  progressive?: boolean;
 }
 
 // Extended SanityImageObject to include _id property
 export interface ExtendedSanityImageObject extends SanityImageObject {
-  _id: string
+  _id: string;
 }
 
 // Upload result interface
 export interface ImageUploadResult {
-  asset: ExtendedSanityImageObject
-  url: string
+  asset: ExtendedSanityImageObject;
+  url: string;
   metadata: {
-    width: number
-    height: number
-    size: number
-    format: string
-    blurHash?: string
-  }
+    width: number;
+    height: number;
+    size: number;
+    format: string;
+    blurHash?: string;
+  };
 }
 
 // Batch upload result
 export interface BatchUploadResult {
-  successful: ImageUploadResult[]
-  failed: Array<{ file: File; error: string }>
-  total: number
-  successCount: number
-  failureCount: number
+  successful: ImageUploadResult[];
+  failed: Array<{ file: File; error: string }>;
+  total: number;
+  successCount: number;
+  failureCount: number;
 }
 
 export class SanityImageUploader {
@@ -49,8 +49,8 @@ export class SanityImageUploader {
     maxHeight: 1080,
     quality: 85,
     format: 'webp',
-    progressive: true
-  }
+    progressive: true,
+  };
 
   /**
    * Upload a single image with optimization
@@ -58,46 +58,45 @@ export class SanityImageUploader {
   async uploadImage(
     file: File,
     options: {
-      title?: string
-      description?: string
-      altText?: string
-      optimization?: ImageOptimizationOptions
+      title?: string;
+      description?: string;
+      altText?: string;
+      optimization?: ImageOptimizationOptions;
     } = {}
   ): Promise<ImageUploadResult> {
     try {
       // Validate file
-      this.validateImageFile(file)
+      this.validateImageFile(file);
 
       // Optimize image if needed
-      const optimizedFile = await this.optimizeImage(file, options.optimization)
+      const optimizedFile = await this.optimizeImage(file, options.optimization);
 
       // Generate metadata
-      const metadata = await this.generateImageMetadata(optimizedFile)
+      const metadata = await this.generateImageMetadata(optimizedFile);
 
       // Upload to Sanity
       const asset = await sanityHTTPClient.uploadAsset(optimizedFile, {
         filename: file.name,
         contentType: optimizedFile.type,
         title: options.title,
-        description: options.description
-      })
+        description: options.description,
+      });
 
       // Generate optimized URL
-      const url = this.generateOptimizedUrl((asset as ExtendedSanityImageObject)._id)
-
-      console.log(`✅ Image uploaded successfully: ${(asset as ExtendedSanityImageObject)._id}`)
+      const url = this.generateOptimizedUrl((asset as ExtendedSanityImageObject)._id);
 
       return {
         asset: asset as ExtendedSanityImageObject,
         url,
         metadata: {
           ...metadata,
-          blurHash: await this.generateBlurHash(optimizedFile)
-        }
-      }
+          blurHash: await this.generateBlurHash(optimizedFile),
+        },
+      };
     } catch (error) {
-      console.error('❌ Image upload failed:', error)
-      throw new Error(`Image upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      throw new Error(
+        `Image upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -107,52 +106,48 @@ export class SanityImageUploader {
   async uploadBatch(
     files: File[],
     options: {
-      concurrency?: number
-      onProgress?: (completed: number, total: number) => void
-      optimization?: ImageOptimizationOptions
+      concurrency?: number;
+      onProgress?: (completed: number, total: number) => void;
+      optimization?: ImageOptimizationOptions;
     } = {}
   ): Promise<BatchUploadResult> {
-    const { concurrency = 3, onProgress } = options
+    const { concurrency = 3, onProgress } = options;
     const result: BatchUploadResult = {
       successful: [],
       failed: [],
       total: files.length,
       successCount: 0,
-      failureCount: 0
-    }
-
-    console.log(`🚀 Starting batch upload of ${files.length} images`)
+      failureCount: 0,
+    };
 
     // Process files in batches
     for (let i = 0; i < files.length; i += concurrency) {
-      const batch = files.slice(i, i + concurrency)
+      const batch = files.slice(i, i + concurrency);
       const promises = batch.map(async (file, _index) => {
         try {
           const uploadResult = await this.uploadImage(file, {
             title: file.name.replace(/\.[^/.]+$/, ''),
-            optimization: options.optimization
-          })
-          result.successful.push(uploadResult)
-          result.successCount++
+            optimization: options.optimization,
+          });
+          result.successful.push(uploadResult);
+          result.successCount++;
         } catch (error) {
           result.failed.push({
             file,
-            error: error instanceof Error ? error.message : 'Unknown error'
-          })
-          result.failureCount++
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+          result.failureCount++;
         }
 
         // Report progress
         if (onProgress) {
-          onProgress(result.successCount + result.failureCount, result.total)
+          onProgress(result.successCount + result.failureCount, result.total);
         }
-      })
+      });
 
-      await Promise.all(promises)
+      await Promise.all(promises);
     }
-
-    console.log(`✅ Batch upload complete: ${result.successCount} successful, ${result.failureCount} failed`)
-    return result
+    return result;
   }
 
   /**
@@ -160,69 +155,62 @@ export class SanityImageUploader {
    */
   private validateImageFile(file: File): void {
     // Check file type
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
     if (!allowedTypes.includes(file.type)) {
-      throw new Error(`Unsupported file type: ${file.type}`)
+      throw new Error(`Unsupported file type: ${file.type}`);
     }
 
     // Check file size (50MB max)
-    const maxSize = 50 * 1024 * 1024 // 50MB
+    const maxSize = 50 * 1024 * 1024; // 50MB
     if (file.size > maxSize) {
-      throw new Error(`File too large: ${(file.size / 1024 / 1024).toFixed(2)}MB (max: 50MB)`)
+      throw new Error(`File too large: ${(file.size / 1024 / 1024).toFixed(2)}MB (max: 50MB)`);
     }
 
     // Check filename
     if (!file.name || file.name.length > 255) {
-      throw new Error('Invalid filename')
+      throw new Error('Invalid filename');
     }
   }
 
   /**
    * Optimize image (simplified - would use canvas/sharp in real implementation)
    */
-  private async optimizeImage(
-    file: File,
-    options: ImageOptimizationOptions = {}
-  ): Promise<File> {
-    const opts = { ...this.defaultOptions, ...options }
-
-    // For now, return original file
-    // In production, you'd use canvas API or sharp library
-    console.log(`📸 Image optimization applied: ${JSON.stringify(opts)}`)
-    return file
+  private async optimizeImage(file: File, options: ImageOptimizationOptions = {}): Promise<File> {
+    const _opts = { ...this.defaultOptions, ...options };
+    return file;
   }
 
   /**
    * Generate image metadata
    */
   private async generateImageMetadata(file: File): Promise<{
-    width: number
-    height: number
-    size: number
-    format: string
+    width: number;
+    height: number;
+    size: number;
+    format: string;
   }> {
     return new Promise((resolve, reject) => {
-      const img = new Image()
-      const url = URL.createObjectURL(file)
+      const img = new Image();
+      const url = URL.createObjectURL(file);
 
       img.onload = () => {
-        URL.revokeObjectURL(url)
-        const [, format = ''] = file.type.split('/')
+        URL.revokeObjectURL(url);
+        const [, format = ''] = file.type.split('/');
         resolve({
           width: img.naturalWidth,
           height: img.naturalHeight,
           size: file.size,
-          format
-        })
-      }
+          format,
+        });
+      };
 
       img.onerror = () => {
-        URL.revokeObjectURL(url)
-        reject(new Error('Failed to load image for metadata'))
-      }
+        URL.revokeObjectURL(url);
+        reject(new Error('Failed to load image for metadata'));
+      };
 
-      img.src = url
-    })
+      img.src = url;
+    });
   }
 
   /**
@@ -231,61 +219,57 @@ export class SanityImageUploader {
   private async generateBlurHash(file: File): Promise<string> {
     // Simplified blur hash generation
     // In production, use blurhash library
-    const ignoredHash = btoa(file.name + file.size).substring(0, 16)
-    return `data:image/svg+xml;base64,${btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="100%" height="100%" fill="#f0f0f0"/></svg>`)}`
+    const _ignoredHash = btoa(file.name + file.size).substring(0, 16);
+    return `data:image/svg+xml;base64,${btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="100%" height="100%" fill="#f0f0f0"/></svg>`)}`;
   }
 
   private getRequiredSanityConfig(): { projectId: string; dataset: string } {
-    const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
-    const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET
+    const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+    const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
     if (!projectId || !dataset) {
-      throw new Error('Sanity project configuration is missing. Please set NEXT_PUBLIC_SANITY_PROJECT_ID and NEXT_PUBLIC_SANITY_DATASET.')
+      throw new Error(
+        'Sanity project configuration is missing. Please set NEXT_PUBLIC_SANITY_PROJECT_ID and NEXT_PUBLIC_SANITY_DATASET.'
+      );
     }
-    return { projectId, dataset }
+    return { projectId, dataset };
   }
 
   /**
    * Generate optimized URL for Sanity image
    */
   private generateOptimizedUrl(assetId: string): string {
-    const { projectId, dataset } = this.getRequiredSanityConfig()
+    const { projectId, dataset } = this.getRequiredSanityConfig();
 
-    return `https://cdn.sanity.io/images/${projectId}/${dataset}/${assetId}-800x600.webp?auto=format&fit=crop&q=85`
+    return `https://cdn.sanity.io/images/${projectId}/${dataset}/${assetId}-800x600.webp?auto=format&fit=crop&q=85`;
   }
 
   /**
    * Get image variations for responsive design
    */
   getImageVariations(assetId: string): {
-    thumbnail: string
-    small: string
-    medium: string
-    large: string
-    original: string
+    thumbnail: string;
+    small: string;
+    medium: string;
+    large: string;
+    original: string;
   } {
-    const { projectId, dataset } = this.getRequiredSanityConfig()
-    const baseUrl = `https://cdn.sanity.io/images/${projectId}/${dataset}/${assetId}`
+    const { projectId, dataset } = this.getRequiredSanityConfig();
+    const baseUrl = `https://cdn.sanity.io/images/${projectId}/${dataset}/${assetId}`;
 
     return {
       thumbnail: `${baseUrl}-150x150.webp?auto=format&fit=crop&q=80`,
       small: `${baseUrl}-400x300.webp?auto=format&fit=crop&q=85`,
       medium: `${baseUrl}-800x600.webp?auto=format&fit=crop&q=85`,
       large: `${baseUrl}-1200x900.webp?auto=format&fit=crop&q=90`,
-      original: `${baseUrl}.webp?auto=format&q=95`
-    }
+      original: `${baseUrl}.webp?auto=format&q=95`,
+    };
   }
 
   /**
    * Delete image from Sanity
    */
   async deleteImage(assetId: string): Promise<void> {
-    try {
-      await sanityHTTPClient.delete(assetId)
-      console.log(`✅ Image deleted: ${assetId}`)
-    } catch (error) {
-      console.error(`❌ Failed to delete image ${assetId}:`, error)
-      throw error
-    }
+      await sanityHTTPClient.delete(assetId);
   }
 
   /**
@@ -294,27 +278,21 @@ export class SanityImageUploader {
   async updateImageMetadata(
     assetId: string,
     metadata: {
-      title?: string
-      description?: string
-      altText?: string
+      title?: string;
+      description?: string;
+      altText?: string;
     }
   ): Promise<void> {
-    try {
-      await sanityHTTPClient.update(assetId, metadata)
-      console.log(`✅ Image metadata updated: ${assetId}`)
-    } catch (error) {
-      console.error(`❌ Failed to update image metadata ${assetId}:`, error)
-      throw error
-    }
+      await sanityHTTPClient.update(assetId, metadata);
   }
 }
 
 // Export singleton instance
-export const imageUploader = new SanityImageUploader()
+export const imageUploader = new SanityImageUploader();
 
 // Convenience functions
-export const uploadImage = imageUploader.uploadImage.bind(imageUploader)
-export const uploadImageBatch = imageUploader.uploadBatch.bind(imageUploader)
-export const deleteImage = imageUploader.deleteImage.bind(imageUploader)
+export const uploadImage = imageUploader.uploadImage.bind(imageUploader);
+export const uploadImageBatch = imageUploader.uploadBatch.bind(imageUploader);
+export const deleteImage = imageUploader.deleteImage.bind(imageUploader);
 
-export default imageUploader
+export default imageUploader;

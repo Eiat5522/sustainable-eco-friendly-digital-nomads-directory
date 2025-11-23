@@ -8,9 +8,9 @@
  */
 
 import { jest } from '@jest/globals';
-import { GET } from './route';
-import { client } from '@/lib/sanity/client';
 import { mockFeaturedVenues } from '@/components/sections/featuredVenuesMockData';
+import { client } from '@/lib/sanity/client';
+import { GET } from './route';
 
 // Mock Sanity client
 jest.mock('@/lib/sanity/client', () => ({
@@ -48,14 +48,12 @@ describe('Featured Listings API - GET /api/featured-listings', () => {
           city: { _id: 'city1', name: 'Bangkok', slug: 'bangkok', country: 'Thailand' },
           ecoFocusTags: ['Solar Powered', 'Zero Waste'],
           digitalNomadFeatures: ['High-Speed WiFi', 'Meeting Rooms'],
-          amenities: [
-            { _id: 'am1', name: 'Air Conditioning', description: 'Climate control' }
-          ],
+          amenities: [{ _id: 'am1', name: 'Air Conditioning', description: 'Climate control' }],
           imageUrl: 'https://example.com/image.jpg',
           primaryImage: {
-            asset: { _id: 'img1', url: 'https://example.com/image.jpg' }
-          }
-        }
+            asset: { _id: 'img1', url: 'https://example.com/image.jpg' },
+          },
+        },
       ];
       mockedFetch.mockResolvedValueOnce(mockListings);
 
@@ -97,7 +95,7 @@ describe('Featured Listings API - GET /api/featured-listings', () => {
           name: 'Basic Listing',
           slug: 'basic-listing',
           imageUrl: null,
-        }
+        },
       ];
       mockedFetch.mockResolvedValueOnce(mockListings);
 
@@ -217,7 +215,7 @@ describe('Featured Listings API - GET /api/featured-listings', () => {
             { _id: 'am3', name: null },
             { _id: 'am4', name: 'Another Valid' },
           ],
-        }
+        },
       ];
       mockedFetch.mockResolvedValueOnce(mockListings);
 
@@ -234,7 +232,7 @@ describe('Featured Listings API - GET /api/featured-listings', () => {
           name: 'Test Listing',
           slug: 'test-listing',
           ecoFocusTags: ['Solar', '', null, 'Wind Power', undefined],
-        }
+        },
       ];
       mockedFetch.mockResolvedValueOnce(mockListings);
 

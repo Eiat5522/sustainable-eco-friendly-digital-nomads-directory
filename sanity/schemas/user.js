@@ -15,8 +15,7 @@ export default {
       title: 'Email',
       type: 'string',
       isUnique: true, // Added isUnique flag
-      validation: Rule => Rule
-        .email(), // Removed .unique()
+      validation: Rule => Rule.email(), // Removed .unique()
     },
     {
       name: 'avatar',
@@ -25,15 +24,15 @@ export default {
       options: {
         hotspot: true,
         accept: 'image/jpeg,image/png,image/webp', // Restrict file types
-        maxSize: 2 * 1024 * 1024 // 2MB max
+        maxSize: 2 * 1024 * 1024, // 2MB max
       },
-      validation: Rule => Rule.warning('Avatar recommended for better user recognition')
+      validation: Rule => Rule.warning('Avatar recommended for better user recognition'),
     },
     {
       name: 'bio',
       title: 'Bio',
       type: 'text',
-      validation: Rule => Rule.max(500).warning('Keep bio concise')
+      validation: Rule => Rule.max(500).warning('Keep bio concise'),
     },
     {
       name: 'role',
@@ -44,8 +43,8 @@ export default {
           { title: 'User', value: 'user' },
           { title: 'Editor', value: 'editor' },
           { title: 'Venue Owner', value: 'venueOwner' },
-          { title: 'Admin', value: 'admin' }
-        ]
+          { title: 'Admin', value: 'admin' },
+        ],
       },
       initialValue: 'user',
     },
@@ -54,27 +53,27 @@ export default {
       title: 'Owned Listings',
       type: 'array',
       of: [{ type: 'reference', to: [{ type: 'listing' }] }],
-      hidden: ({ document }) => document?.role !== 'venueOwner' && document?.role !== 'admin'
+      hidden: ({ document }) => document?.role !== 'venueOwner' && document?.role !== 'admin',
     },
     {
       name: 'reviews',
       title: 'Reviews',
       type: 'array',
       of: [{ type: 'reference', to: [{ type: 'review' }] }],
-      readOnly: true // Managed through reviews, not directly
+      readOnly: true, // Managed through reviews, not directly
     },
     {
       name: 'comments',
       title: 'Comments',
       type: 'array',
       of: [{ type: 'reference', to: [{ type: 'comment' }], weak: true }],
-      readOnly: true
+      readOnly: true,
     },
     {
       name: 'lastActive',
       title: 'Last Active',
       type: 'datetime',
-      readOnly: true
+      readOnly: true,
     },
     {
       name: 'createdAt',
@@ -82,17 +81,17 @@ export default {
       type: 'datetime',
       readOnly: true,
       initialValue: () => new Date().toISOString(),
-    }
+    },
   ],
   preview: {
     select: {
       title: 'name',
       subtitle: 'email',
-      media: 'avatar'
-    }
+      media: 'avatar',
+    },
   },
   indexes: [
     { name: 'byEmail', fields: ['email'] },
-    { name: 'byRole', fields: ['role'] }
-  ]
-}
+    { name: 'byRole', fields: ['role'] },
+  ],
+};

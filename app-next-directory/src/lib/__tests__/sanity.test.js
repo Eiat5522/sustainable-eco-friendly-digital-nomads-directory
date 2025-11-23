@@ -1,5 +1,4 @@
-import { jest } from '@jest/globals';
-import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
+import { afterAll, beforeAll, describe, expect, it, jest } from '@jest/globals';
 
 // Mock environment variables
 process.env.NEXT_PUBLIC_SANITY_PROJECT_ID = 'test-project-id';

@@ -1,7 +1,7 @@
 import {
-  PERFORMANCE_BUDGETS,
   evaluatePerformanceMetric,
   getMetricThresholds,
+  PERFORMANCE_BUDGETS,
 } from '../performance-budgets';
 
 describe('performance-budgets', () => {
@@ -42,10 +42,14 @@ describe('performance-budgets', () => {
 
     it('logs a warning and returns unknown for missing categories or metrics', () => {
       expect(evaluatePerformanceMetric('unknownCategory', 'metric', 100)).toBe('unknown');
-      expect(warnSpy).toHaveBeenLastCalledWith('Unknown performance metric: unknownCategory.metric');
+      expect(warnSpy).toHaveBeenLastCalledWith(
+        'Unknown performance metric: unknownCategory.metric'
+      );
 
       expect(evaluatePerformanceMetric('pageLoad', 'unknownMetric', 100)).toBe('unknown');
-      expect(warnSpy).toHaveBeenLastCalledWith('Unknown performance metric: pageLoad.unknownMetric');
+      expect(warnSpy).toHaveBeenLastCalledWith(
+        'Unknown performance metric: pageLoad.unknownMetric'
+      );
     });
   });
 
@@ -76,10 +80,14 @@ describe('performance-budgets', () => {
 
     it('returns null and logs when the metric is missing', () => {
       expect(getMetricThresholds('invalidCategory', 'metric')).toBeNull();
-      expect(warnSpy).toHaveBeenLastCalledWith('Unknown performance metric: invalidCategory.metric');
+      expect(warnSpy).toHaveBeenLastCalledWith(
+        'Unknown performance metric: invalidCategory.metric'
+      );
 
       expect(getMetricThresholds('resourceSize', 'invalidMetric')).toBeNull();
-      expect(warnSpy).toHaveBeenLastCalledWith('Unknown performance metric: resourceSize.invalidMetric');
+      expect(warnSpy).toHaveBeenLastCalledWith(
+        'Unknown performance metric: resourceSize.invalidMetric'
+      );
     });
   });
 });

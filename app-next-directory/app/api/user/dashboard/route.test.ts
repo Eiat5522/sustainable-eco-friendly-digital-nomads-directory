@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, jest, afterEach } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { structuredLogger } from '@/lib/logger';
 import { createDashboardHandler, normalizeMonthWindow } from './route-helpers';
 
@@ -90,7 +90,7 @@ describe('/api/user/dashboard GET', () => {
     fetchDashboardMock.mockResolvedValueOnce(dashboardPayload);
 
     const response = await GET(
-      createRequest('http://localhost/api/user/dashboard?months=not-a-number') as any,
+      createRequest('http://localhost/api/user/dashboard?months=not-a-number') as any
     );
 
     expect(authMock).toHaveBeenCalledTimes(1);
@@ -101,7 +101,7 @@ describe('/api/user/dashboard GET', () => {
         name: 'Test User',
         email: 'test@example.com',
       },
-      { months: 3 },
+      { months: 3 }
     );
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({ dashboard: dashboardPayload });
@@ -110,7 +110,9 @@ describe('/api/user/dashboard GET', () => {
   it('caps requested months to the maximum window', async () => {
     fetchDashboardMock.mockResolvedValueOnce({ dashboard: true });
 
-    const response = await GET(createRequest('http://localhost/api/user/dashboard?months=42') as any);
+    const response = await GET(
+      createRequest('http://localhost/api/user/dashboard?months=42') as any
+    );
 
     expect(authMock).toHaveBeenCalledTimes(1);
     expect(fetchDashboardMock).toHaveBeenCalledWith(expect.objectContaining({ id: 'user-123' }), {
@@ -132,7 +134,9 @@ describe('/api/user/dashboard GET', () => {
     const failure = new Error('dashboard failure');
     fetchDashboardMock.mockRejectedValueOnce(failure);
 
-    const response = await GET(createRequest('http://localhost/api/user/dashboard?months=6') as any);
+    const response = await GET(
+      createRequest('http://localhost/api/user/dashboard?months=6') as any
+    );
 
     expect(loggerMock.error).toHaveBeenCalledWith('[user-dashboard] GET failed', failure, {
       route: '/api/user/dashboard',

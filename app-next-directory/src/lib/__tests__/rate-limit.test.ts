@@ -33,18 +33,18 @@ const loadModule = async (setup?: () => void) => {
   jest.resetModules();
   jest.clearAllMocks();
   setup?.();
-  
+
   // Re-mock after reset
   jest.doMock('@/lib/redis', () => ({
     __esModule: true,
     getRedisClient: mockGetRedisClient,
   }));
-  
+
   jest.doMock('@upstash/ratelimit', () => ({
     __esModule: true,
     Ratelimit: mockRatelimitConstructor,
   }));
-  
+
   return jest.requireActual<typeof import('../rate-limit')>('../rate-limit');
 };
 
@@ -52,7 +52,12 @@ describe('rate-limit helpers', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockGetRedisClient.mockReturnValue(mockRedisClient);
-    mockRatelimitLimit.mockResolvedValue({ success: true, limit: 100, remaining: 99, reset: Date.now() + 60000 });
+    mockRatelimitLimit.mockResolvedValue({
+      success: true,
+      limit: 100,
+      remaining: 99,
+      reset: Date.now() + 60000,
+    });
   });
 
   afterEach(() => {
@@ -62,7 +67,7 @@ describe('rate-limit helpers', () => {
 
   it('initializes rate limiters with Redis client', async () => {
     const mod = await loadModule();
-    
+
     expect(mockGetRedisClient).toHaveBeenCalled();
     expect(mockRatelimitConstructor).toHaveBeenCalledTimes(2); // login and api rate limiters
     expect(mockRatelimitConstructor).toHaveBeenCalledWith(
@@ -83,7 +88,7 @@ describe('rate-limit helpers', () => {
 
   it('getClientIp extracts IP from x-forwarded-for header', async () => {
     const mod = await loadModule();
-    
+
     const request = {
       headers: {
         get: (key: string) => {
@@ -99,38 +104,48 @@ describe('rate-limit helpers', () => {
 
   it('getClientIp falls back to x-real-ip header', async () => {
     const mod = await loadModule();
-    
+
     const fallbackRequest = {
       headers: {
         get: (key: string) => (key === 'x-real-ip' ? '198.51.100.5' : null),
       },
     } as unknown as Request;
-    
+
     expect(mod.getClientIp(fallbackRequest)).toBe('198.51.100.5');
   });
 
   it('getClientIp returns "unknown" when no IP headers present', async () => {
     const mod = await loadModule();
-    
+
     expect(mod.getClientIp({ headers: { get: () => null } } as unknown as Request)).toBe('unknown');
   });
 
   it('isRateLimited returns false when request is allowed', async () => {
     const mod = await loadModule();
-    mockRatelimitLimit.mockResolvedValue({ success: true, limit: 100, remaining: 99, reset: Date.now() + 60000 });
-    
+    mockRatelimitLimit.mockResolvedValue({
+      success: true,
+      limit: 100,
+      remaining: 99,
+      reset: Date.now() + 60000,
+    });
+
     const result = await mod.isRateLimited('test-key', 10, 60);
-    
+
     expect(result).toBe(false);
     expect(mockRatelimitLimit).toHaveBeenCalledWith('test-key');
   });
 
   it('isRateLimited returns true when rate limit is exceeded', async () => {
     const mod = await loadModule();
-    mockRatelimitLimit.mockResolvedValue({ success: false, limit: 100, remaining: 0, reset: Date.now() + 60000 });
-    
+    mockRatelimitLimit.mockResolvedValue({
+      success: false,
+      limit: 100,
+      remaining: 0,
+      reset: Date.now() + 60000,
+    });
+
     const result = await mod.isRateLimited('test-key', 10, 60);
-    
+
     expect(result).toBe(true);
     expect(mockRatelimitLimit).toHaveBeenCalledWith('test-key');
   });
@@ -138,9 +153,9 @@ describe('rate-limit helpers', () => {
   it('isRateLimited returns false when Redis is not available', async () => {
     mockGetRedisClient.mockReturnValue(undefined);
     const mod = await loadModule();
-    
+
     const result = await mod.isRateLimited('test-key', 10, 60);
-    
+
     expect(result).toBe(false);
   });
 
@@ -148,22 +163,30 @@ describe('rate-limit helpers', () => {
     const mod = await loadModule();
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     mockRatelimitLimit.mockRejectedValue(new Error('Redis error'));
-    
+
     const result = await mod.isRateLimited('test-key', 10, 60);
-    
+
     expect(result).toBe(false);
-    expect(warnSpy).toHaveBeenCalledWith('[rate-limit] Error checking rate limit:', expect.any(Error));
-    
+    expect(warnSpy).toHaveBeenCalledWith(
+      '[rate-limit] Error checking rate limit:',
+      expect.any(Error)
+    );
+
     warnSpy.mockRestore();
   });
 
   it('getRetryAfterMs returns time until reset', async () => {
     const mod = await loadModule();
     const futureReset = Date.now() + 30000; // 30 seconds from now
-    mockRatelimitLimit.mockResolvedValue({ success: false, limit: 100, remaining: 0, reset: futureReset });
-    
+    mockRatelimitLimit.mockResolvedValue({
+      success: false,
+      limit: 100,
+      remaining: 0,
+      reset: futureReset,
+    });
+
     const result = await mod.getRetryAfterMs('test-key');
-    
+
     expect(result).toBeGreaterThan(0);
     expect(result).toBeLessThanOrEqual(30000);
   });
@@ -171,9 +194,9 @@ describe('rate-limit helpers', () => {
   it('getRetryAfterMs returns 0 when Redis is not available', async () => {
     mockGetRedisClient.mockReturnValue(undefined);
     const mod = await loadModule();
-    
+
     const result = await mod.getRetryAfterMs('test-key');
-    
+
     expect(result).toBe(0);
   });
 
@@ -181,12 +204,15 @@ describe('rate-limit helpers', () => {
     const mod = await loadModule();
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     mockRatelimitLimit.mockRejectedValue(new Error('Redis error'));
-    
+
     const result = await mod.getRetryAfterMs('test-key');
-    
+
     expect(result).toBe(0);
-    expect(warnSpy).toHaveBeenCalledWith('[rate-limit] Error getting retry after:', expect.any(Error));
-    
+    expect(warnSpy).toHaveBeenCalledWith(
+      '[rate-limit] Error getting retry after:',
+      expect.any(Error)
+    );
+
     warnSpy.mockRestore();
   });
 
@@ -231,15 +257,18 @@ describe('rate-limit helpers', () => {
     mockGetRedisClient.mockImplementation(() => {
       throw new Error('Redis connection failed');
     });
-    
+
     const mod = await loadModule();
-    
-    expect(warnSpy).toHaveBeenCalledWith('[rate-limit] Failed to initialize rate limiters:', expect.any(Error));
-    
+
+    expect(warnSpy).toHaveBeenCalledWith(
+      '[rate-limit] Failed to initialize rate limiters:',
+      expect.any(Error)
+    );
+
     // Should still allow requests when initialization fails
     const result = await mod.isRateLimited('test-key', 10, 60);
     expect(result).toBe(false);
-    
+
     warnSpy.mockRestore();
   });
 });

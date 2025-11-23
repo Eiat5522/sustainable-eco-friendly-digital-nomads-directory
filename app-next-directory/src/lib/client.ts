@@ -1,7 +1,8 @@
 // Search client implementation
-import type { Listing } from '@/types/listings';
-import { fetchJsonWithRetry, getDefaultTimeout } from '@/lib/http/request';
+
 import { logError } from '@/lib/error-handler';
+import { fetchJsonWithRetry, getDefaultTimeout } from '@/lib/http/request';
+import type { Listing } from '@/types/listings';
 
 export async function searchListings(query: string): Promise<Listing[]> {
   try {

@@ -1,10 +1,10 @@
-import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { NeoCard, NeoCardHeader, NeoCardTitle, NeoCardContent } from '@/components/ui/neo-card';
-import type { FeaturedListingDTO } from '@/types/dto';
-import { cn } from '@/lib/utils';
 import { Star } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import React from 'react';
+import { NeoCard, NeoCardContent, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
+import { cn } from '@/lib/utils';
+import type { FeaturedListingDTO } from '@/types/dto';
 import { getTagColorClasses } from '@/utils/tag-styles';
 
 interface VenueCardProps {
@@ -21,7 +21,7 @@ export function VenueCard({ venue, className, priority = false }: Readonly<Venue
   const truncatedTitle = venue.name.length > 60 ? `${venue.name.substring(0, 60)}...` : venue.name;
 
   return (
-    <Link href={`/listings/${venue.slug}`} className={cn("block", className)}>
+    <Link href={`/listings/${venue.slug}`} className={cn('block', className)}>
       <NeoCard
         variant="elevated"
         className="group hover:shadow-[16px_16px_0px_0px] transition-all duration-300 cursor-pointer h-full flex flex-col"
@@ -63,15 +63,11 @@ export function VenueCard({ venue, className, priority = false }: Readonly<Venue
           <NeoCardTitle className="group-hover:text-neo-primary transition-colors duration-200 line-clamp-2">
             {truncatedTitle}
           </NeoCardTitle>
-          {cityLabel && (
-            <p className="body-sm text-neo-text-secondary mt-1">
-              {cityLabel}
-            </p>
-          )}
+          {cityLabel && <p className="body-sm text-neo-text-secondary mt-1">{cityLabel}</p>}
         </NeoCardHeader>
 
         {(Array.isArray(venue.ecoFocusTags) && venue.ecoFocusTags.length > 0) ||
-         (Array.isArray(venue.amenityNames) && venue.amenityNames.length > 0) ? (
+        (Array.isArray(venue.amenityNames) && venue.amenityNames.length > 0) ? (
           <NeoCardContent className="mt-auto">
             {/* Eco feature badges */}
             {Array.isArray(venue.ecoFocusTags) && venue.ecoFocusTags.length > 0 && (
@@ -79,7 +75,10 @@ export function VenueCard({ venue, className, priority = false }: Readonly<Venue
                 {venue.ecoFocusTags.slice(0, 3).map((tag, idx) => (
                   <span
                     key={`eco-${idx}`}
-                    className={cn('px-2 py-1 text-xs rounded-lg font-medium', getTagColorClasses(tag, 'eco'))}
+                    className={cn(
+                      'px-2 py-1 text-xs rounded-lg font-medium',
+                      getTagColorClasses(tag, 'eco')
+                    )}
                   >
                     {tag}
                   </span>
@@ -98,7 +97,10 @@ export function VenueCard({ venue, className, priority = false }: Readonly<Venue
                 {venue.amenityNames.slice(0, 3).map((name, idx) => (
                   <span
                     key={`amenity-${idx}`}
-                    className={cn('px-2 py-1 text-xs rounded-lg font-medium', getTagColorClasses(name, 'amenity'))}
+                    className={cn(
+                      'px-2 py-1 text-xs rounded-lg font-medium',
+                      getTagColorClasses(name, 'amenity')
+                    )}
                   >
                     {name}
                   </span>

@@ -11,10 +11,7 @@ export default function NotFound() {
       >
         Browse Listings
       </Link>
-      <Link
-        href="/"
-        className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-      >
+      <Link href="/" className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
         Go Home
       </Link>
     </div>

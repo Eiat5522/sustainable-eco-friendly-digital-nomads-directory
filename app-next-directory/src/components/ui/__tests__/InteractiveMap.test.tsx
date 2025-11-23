@@ -1,8 +1,7 @@
-import React from 'react';
-import { render, screen, act } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { InteractiveMap } from '../InteractiveMap';
 import * as L from 'leaflet';
+import { InteractiveMap } from '../InteractiveMap';
 
 // Mock Leaflet
 jest.mock(
@@ -14,7 +13,7 @@ jest.mock(
           return this;
         }),
         remove: jest.fn(),
-        whenReady: jest.fn((callback) => {
+        whenReady: jest.fn(callback => {
           if (typeof callback === 'function') {
             callback();
           }
@@ -62,7 +61,7 @@ jest.mock(
       ...leafletMock,
     };
   },
-  { virtual: true },
+  { virtual: true }
 );
 
 describe('InteractiveMap', () => {
@@ -76,7 +75,7 @@ describe('InteractiveMap', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     tileLayerInstance = {
       addTo: jest.fn().mockReturnThis(),
       on: jest.fn().mockReturnThis(),
@@ -88,7 +87,7 @@ describe('InteractiveMap', () => {
     (L.default.map as jest.Mock).mockImplementation(() => ({
       setView: jest.fn().mockReturnThis(),
       remove: jest.fn(),
-      whenReady: jest.fn((cb) => cb()),
+      whenReady: jest.fn(cb => cb()),
       invalidateSize: jest.fn(),
     }));
   });
@@ -109,7 +108,7 @@ describe('InteractiveMap', () => {
   it('renders the map when a location is provided', async () => {
     render(<InteractiveMap location={mockLocation} name="Test Venue" />);
     await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await new Promise(resolve => setTimeout(resolve, 0));
     });
     expect(screen.queryByText('Location not available')).not.toBeInTheDocument();
   });
@@ -127,7 +126,7 @@ describe('InteractiveMap', () => {
   it('renders the map with the correct initial view and custom marker', async () => {
     render(<InteractiveMap location={mockLocation} name="Test Venue" />);
     await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await new Promise(resolve => setTimeout(resolve, 0));
     });
     expect(L.default.map).toHaveBeenCalled();
     const mapInstance = (L.default.map as jest.Mock).mock.results[0].value;
@@ -149,17 +148,17 @@ describe('InteractiveMap', () => {
 
     render(<InteractiveMap location={mockLocation} name="Test Venue" />);
     await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await new Promise(resolve => setTimeout(resolve, 0));
     });
     expect(screen.getByText('Map tiles are unavailable right now.')).toBeInTheDocument();
   });
 
   it('updates the marker popup when name or address props change', async () => {
     const { rerender } = render(
-      <InteractiveMap location={mockLocation} name="Old Name" address="Old Address" />,
+      <InteractiveMap location={mockLocation} name="Old Name" address="Old Address" />
     );
     await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await new Promise(resolve => setTimeout(resolve, 0));
     });
 
     // Get the first marker instance and its popup
@@ -169,7 +168,7 @@ describe('InteractiveMap', () => {
     expect(firstPopup.setContent).toHaveBeenCalledTimes(1);
 
     rerender(<InteractiveMap location={mockLocation} name="New Name" address="New Address" />);
-    
+
     // After rerender, a second marker is created (first useEffect reruns because name/address are in deps)
     // and the second useEffect also runs to update the popup
     // So we check the second marker's popup
@@ -184,7 +183,7 @@ describe('InteractiveMap', () => {
   it('cleans up the map instance and tile layer on unmount', async () => {
     const { unmount } = render(<InteractiveMap location={mockLocation} name="Test Venue" />);
     await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await new Promise(resolve => setTimeout(resolve, 0));
     });
 
     const mapInstance = (L.default.map as jest.Mock).mock.results[0].value;
@@ -199,14 +198,14 @@ describe('InteractiveMap', () => {
   it('re-initializes the map when the location prop changes', async () => {
     const { rerender } = render(<InteractiveMap location={mockLocation} name="Test Venue" />);
     await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await new Promise(resolve => setTimeout(resolve, 0));
     });
 
     const oldMapInstance = (L.default.map as jest.Mock).mock.results[0].value;
     const newLocation = { lat: 52.52, lng: 13.405 };
     rerender(<InteractiveMap location={newLocation} name="Test Venue" />);
     await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await new Promise(resolve => setTimeout(resolve, 0));
     });
 
     expect(oldMapInstance.remove).toHaveBeenCalled();
@@ -223,7 +222,7 @@ describe('InteractiveMap', () => {
 
     render(<InteractiveMap location={mockLocation} name="Test Venue" />);
     await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await new Promise(resolve => setTimeout(resolve, 0));
     });
 
     expect(screen.getByText('Map tiles are unavailable right now.')).toBeInTheDocument();
@@ -255,7 +254,7 @@ describe('InteractiveMap', () => {
 
       const { unmount } = render(<InteractiveMap location={mockLocation} name="Test Venue" />);
       await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 0));
+        await new Promise(resolve => setTimeout(resolve, 0));
       });
 
       expect(screen.getByText('Map tiles are unavailable right now.')).toBeInTheDocument();
@@ -278,10 +277,10 @@ describe('InteractiveMap', () => {
     (L.default.marker as jest.Mock).mockImplementation(() => markerInstance);
 
     const { rerender } = render(
-      <InteractiveMap location={mockLocation} name="Old Name" address="Old Address" />,
+      <InteractiveMap location={mockLocation} name="Old Name" address="Old Address" />
     );
     await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await new Promise(resolve => setTimeout(resolve, 0));
     });
 
     popupInstance = null; // Simulate no popup
@@ -294,15 +293,9 @@ describe('InteractiveMap', () => {
   });
 
   it('creates a marker with the correct location and popup content', async () => {
-    render(
-      <InteractiveMap
-        location={mockLocation}
-        name="Cool Place"
-        address="123 Main St"
-      />
-    );
+    render(<InteractiveMap location={mockLocation} name="Cool Place" address="123 Main St" />);
     await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await new Promise(resolve => setTimeout(resolve, 0));
     });
 
     // Check if marker is created with the right location

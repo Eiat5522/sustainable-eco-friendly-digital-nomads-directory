@@ -1,13 +1,13 @@
 export const dynamic = 'force-dynamic';
 
-import { NextResponse, type NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
 import logger from '@/lib/logger';
 import { recordListingView } from '@/lib/metrics/listing-views';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> },
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     const { slug } = await params;

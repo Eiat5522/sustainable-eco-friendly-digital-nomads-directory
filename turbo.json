@@ -10,7 +10,7 @@
     },
     "dev": {
       "persistent": true,
-      "cache": false    
+      "cache": false
     }
   }
 }

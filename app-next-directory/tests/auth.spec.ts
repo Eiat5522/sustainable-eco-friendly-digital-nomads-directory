@@ -231,7 +231,7 @@ test.describe('Authentication System', () => {
       await expect(page).toHaveURL('/login');
 
       // Click register link
-      await page.click('text=Don\'t have an account? Register');
+      await page.click("text=Don't have an account? Register");
       await expect(page).toHaveURL('/register');
     });
   });
@@ -256,7 +256,7 @@ test.describe('Authentication System', () => {
         route.fulfill({
           status: 500,
           contentType: 'application/json',
-          body: JSON.stringify({ message: 'Internal server error' })
+          body: JSON.stringify({ message: 'Internal server error' }),
         });
       });
 
@@ -268,7 +268,5 @@ test.describe('Authentication System', () => {
 
       await expect(page.locator('text=Internal server error')).toBeVisible();
     });
-
-
   });
 });

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { MongoServerError } from 'mongodb';
 import type { MongoClient } from 'mongodb';
+import { MongoServerError } from 'mongodb';
 
 import { initializeDatabase } from '../init';
 import { sessionIndexes, sessionSchema } from '../schemas/session';

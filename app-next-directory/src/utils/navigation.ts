@@ -1,13 +1,13 @@
 export const getCurrentHref = (): string => {
   if (typeof window === 'undefined') {
-    return ''
+    return '';
   }
 
-  return window.location.href
-}
+  return window.location.href;
+};
 
 export const redirectTo = (target: string) => {
   if (typeof window !== 'undefined') {
-    window.location.href = target
+    window.location.href = target;
   }
-}
+};

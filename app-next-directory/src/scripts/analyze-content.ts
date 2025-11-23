@@ -1,6 +1,6 @@
-import { promises as fs } from 'fs';
-import path from 'path';
 import levenshtein from 'fast-levenshtein';
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
 import { client } from '../lib/sanity/client';
 
 interface ContentAnalysisResult {
@@ -63,34 +63,41 @@ async function analyzeContent(): Promise<ContentAnalysisResult> {
   };
 
   // Check each listing
-  listings.forEach((listing: { _id: string; name: string; shortDescription?: string; longDescription?: string; [key: string]: unknown }) => {
-    // Check for thin content
-    const description = `${listing.shortDescription || ''} ${listing.longDescription || ''}`;
-    const wordCount = description.split(/\s+/).length;
+  listings.forEach(
+    (listing: {
+      _id: string;
+      name: string;
+      shortDescription?: string;
+      longDescription?: string;
+      [key: string]: unknown;
+    }) => {
+      // Check for thin content
+      const description = `${listing.shortDescription || ''} ${listing.longDescription || ''}`;
+      const wordCount = description.split(/\s+/).length;
 
-    if (wordCount < MINIMUM_DESCRIPTION_WORDS) {
-      result.thinContent.push({
-        listingId: listing._id,
-        listingName: listing.name,
-        wordCount,
-        reason: `Description contains only ${wordCount} words (minimum: ${MINIMUM_DESCRIPTION_WORDS})`,
-      });
+      if (wordCount < MINIMUM_DESCRIPTION_WORDS) {
+        result.thinContent.push({
+          listingId: listing._id,
+          listingName: listing.name,
+          wordCount,
+          reason: `Description contains only ${wordCount} words (minimum: ${MINIMUM_DESCRIPTION_WORDS})`,
+        });
+      }
+
+      // Check for missing metadata
+      const missingFields = REQUIRED_METADATA_FIELDS.filter(
+        field => !listing[field] || (Array.isArray(listing[field]) && listing[field].length === 0)
+      );
+
+      if (missingFields.length > 0) {
+        result.missingMetadata.push({
+          listingId: listing._id,
+          listingName: listing.name,
+          missingFields,
+        });
+      }
     }
-
-    // Check for missing metadata
-    const missingFields = REQUIRED_METADATA_FIELDS.filter(
-      (field) => !listing[field] ||
-        (Array.isArray(listing[field]) && listing[field].length === 0)
-    );
-
-    if (missingFields.length > 0) {
-      result.missingMetadata.push({
-        listingId: listing._id,
-        listingName: listing.name,
-        missingFields,
-      });
-    }
-  });
+  );
 
   // Check for duplicate content
   for (let i = 0; i < listings.length; i++) {

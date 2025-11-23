@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, beforeAll, beforeEach } from '@jest/globals';
+import { beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 jest.mock('@/lib/auth', () => ({
   __esModule: true,
@@ -23,7 +23,6 @@ jest.mock('@/lib/logger', () => ({
   },
 }));
 
-import { auth } from '@/lib/auth';
 import { RequestTimeoutError } from '@/lib/http/request';
 
 const authMockModule = jest.requireMock('@/lib/auth') as { auth: jest.Mock };
@@ -66,15 +65,16 @@ describe('/api/admin/listings/stats', () => {
 
   it('returns listing statistics', async () => {
     mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
-    
+
     // Mock the responses in order of the API calls
     mockFetch.mockResolvedValueOnce(100); // totalCount
-    mockFetch.mockResolvedValueOnce(75);  // publishedCount
-    mockFetch.mockResolvedValueOnce(10);  // unpublishedCount
-    mockFetch.mockResolvedValueOnce(5);   // pendingCount
-    mockFetch.mockResolvedValueOnce(10);  // draftCount
-    mockFetch.mockResolvedValueOnce(8);   // featuredCount
-    mockFetch.mockResolvedValueOnce([     // typesCounts
+    mockFetch.mockResolvedValueOnce(75); // publishedCount
+    mockFetch.mockResolvedValueOnce(10); // unpublishedCount
+    mockFetch.mockResolvedValueOnce(5); // pendingCount
+    mockFetch.mockResolvedValueOnce(10); // draftCount
+    mockFetch.mockResolvedValueOnce(8); // featuredCount
+    mockFetch.mockResolvedValueOnce([
+      // typesCounts
       { type: 'cafe', count: 40 },
       { type: 'coworking', count: 30 },
       { type: 'accommodation', count: 30 },
@@ -110,11 +110,15 @@ describe('/api/admin/listings/stats', () => {
 
     expect(response.status).toBe(500);
     expect(json.error).toBe('Failed to fetch listing statistics');
-    expect(mockLogger.error).toHaveBeenCalledWith('Admin listings stats GET error', expect.any(Error), {
-      method: 'GET',
-      route: '/api/admin/listings/stats',
-      errorType: 'Error',
-    });
+    expect(mockLogger.error).toHaveBeenCalledWith(
+      'Admin listings stats GET error',
+      expect.any(Error),
+      {
+        method: 'GET',
+        route: '/api/admin/listings/stats',
+        errorType: 'Error',
+      }
+    );
   });
 
   it('returns 504 when listing analytics time out', async () => {

@@ -1,4 +1,4 @@
-import { sessionSchema, sessionIndexes } from '../schemas/session';
+import { sessionIndexes, sessionSchema } from '../schemas/session';
 
 describe('mongodb session schema', () => {
   it('defines the expected JSON schema validator', () => {
@@ -25,9 +25,9 @@ describe('mongodb session schema', () => {
   it('lists indexes for token uniqueness, user lookups, and TTL expiry', () => {
     expect(sessionIndexes).toHaveLength(3);
 
-    const tokenIndex = sessionIndexes.find((idx) => idx.key.sessionToken === 1);
-    const userIndex = sessionIndexes.find((idx) => idx.key.userId === 1);
-    const expiresIndex = sessionIndexes.find((idx) => idx.key.expires === 1);
+    const tokenIndex = sessionIndexes.find(idx => idx.key.sessionToken === 1);
+    const userIndex = sessionIndexes.find(idx => idx.key.userId === 1);
+    const expiresIndex = sessionIndexes.find(idx => idx.key.expires === 1);
 
     expect(tokenIndex).toEqual({ key: { sessionToken: 1 }, unique: true });
     expect(userIndex).toEqual({ key: { userId: 1 } });

@@ -1,8 +1,8 @@
 'use client';
 
-import type { ReactNode } from 'react';
 import { SessionProvider } from 'next-auth/react';
 import { ThemeProvider as NextThemeProvider } from 'next-themes';
+import type { ReactNode } from 'react';
 
 type ThemeProviderProps = Readonly<{
   children: ReactNode;
@@ -31,9 +31,7 @@ interface ClientRootLayoutProps {
 export default function ClientRootLayout({ children, theme }: Readonly<ClientRootLayoutProps>) {
   return (
     <SessionProvider>
-      <ThemeProvider theme={theme}>
-        {children}
-      </ThemeProvider>
+      <ThemeProvider theme={theme}>{children}</ThemeProvider>
     </SessionProvider>
   );
 }

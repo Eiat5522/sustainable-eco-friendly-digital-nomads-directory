@@ -19,8 +19,7 @@ export function createAuthAdapter(): Adapter | undefined {
     process.env.JEST_WORKER_ID !== undefined ||
     process.env.JEST_UNIT_ONLY === '1' ||
     process.env.NODE_ENV === 'test';
-  const isJestMockAdapter =
-    typeof adapterFactory === 'function' && 'mock' in adapterFactory;
+  const isJestMockAdapter = typeof adapterFactory === 'function' && 'mock' in adapterFactory;
 
   const shouldSkipAdapter =
     (adapterFactory === MongoDBAdapter || isJestMockAdapter) &&

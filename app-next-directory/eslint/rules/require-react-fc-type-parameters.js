@@ -25,7 +25,7 @@ const rule = {
               continue;
             }
 
-            const importedName = specifier.imported && specifier.imported.name;
+            const importedName = specifier.imported?.name;
             if (importedName === 'FC' || importedName === 'FunctionComponent') {
               importedFnComponentNames.add(specifier.local.name);
             }
@@ -35,7 +35,9 @@ const rule = {
       TSTypeReference(node) {
         const typeName = node.typeName;
         const typeParams = node.typeParameters ?? node.typeArguments;
-        const hasTypeArguments = Boolean(typeParams && Array.isArray(typeParams.params) && typeParams.params.length > 0);
+        const hasTypeArguments = Boolean(
+          typeParams && Array.isArray(typeParams.params) && typeParams.params.length > 0
+        );
 
         if (typeName.type === 'TSQualifiedName') {
           const { left, right } = typeName;
@@ -55,7 +57,11 @@ const rule = {
           return;
         }
 
-        if (typeName.type === 'Identifier' && importedFnComponentNames.has(typeName.name) && !hasTypeArguments) {
+        if (
+          typeName.type === 'Identifier' &&
+          importedFnComponentNames.has(typeName.name) &&
+          !hasTypeArguments
+        ) {
           context.report({
             node,
             messageId: 'missingTypeParameter',
@@ -68,4 +74,3 @@ const rule = {
 };
 
 export default rule;
-

@@ -1,13 +1,11 @@
 import { jest } from '@jest/globals';
 import mongoose from 'mongoose';
-import { AnalyticsEvent, IAnalyticsEvent } from '../AnalyticsEvent';
+import { AnalyticsEvent, } from '../AnalyticsEvent';
 
 describe('AnalyticsEvent Model', () => {
-  beforeAll(() => {
-  });
+  beforeAll(() => {});
 
-  afterAll(() => {
-  });
+  afterAll(() => {});
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -155,7 +153,7 @@ describe('AnalyticsEvent Model', () => {
         'externalLinkClick',
       ];
 
-      eventTypes.forEach((type) => {
+      eventTypes.forEach(type => {
         const event = new AnalyticsEvent({ eventType: type });
         expect(event.eventType).toBe(type);
       });
@@ -167,7 +165,8 @@ describe('AnalyticsEvent Model', () => {
       const afterCreation = Date.now();
 
       expect(event.timestamp).toBeDefined();
-      const timestampValue = event.timestamp instanceof Date ? event.timestamp.getTime() : Number(event.timestamp);
+      const timestampValue =
+        event.timestamp instanceof Date ? event.timestamp.getTime() : Number(event.timestamp);
       expect(Number.isNaN(timestampValue)).toBe(false);
       expect(timestampValue).toBeGreaterThanOrEqual(beforeCreation);
       expect(timestampValue).toBeLessThanOrEqual(afterCreation);
@@ -177,7 +176,8 @@ describe('AnalyticsEvent Model', () => {
   describe('Model Singleton', () => {
     it('should return existing model if already compiled', () => {
       const model1 = AnalyticsEvent;
-      const model2 = mongoose.models.AnalyticsEvent || mongoose.model('AnalyticsEvent', AnalyticsEvent.schema);
+      const model2 =
+        mongoose.models.AnalyticsEvent || mongoose.model('AnalyticsEvent', AnalyticsEvent.schema);
       expect(model1).toBe(model2);
     });
   });
@@ -227,7 +227,6 @@ describe('AnalyticsEvent Model', () => {
       expect(event.eventData.stringValue).toBe('test');
     });
   });
-
 
   // Note: Database operation tests have been moved to AnalyticsEvent.integration.test.ts
   // This keeps unit tests fast and focused on schema validation

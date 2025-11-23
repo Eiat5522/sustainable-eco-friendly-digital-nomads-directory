@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 jest.mock('@/lib/rate-limit');
 jest.mock('@/lib/tokens');
@@ -56,7 +56,7 @@ let expiryDate: Date;
 let buildResetEmailMock: jest.Mock;
 let sendMailMock: jest.Mock;
 
-const createLeanResult = <T,>(value: T) => ({
+const createLeanResult = <T>(value: T) => ({
   lean: jest.fn().mockResolvedValue(value),
 });
 

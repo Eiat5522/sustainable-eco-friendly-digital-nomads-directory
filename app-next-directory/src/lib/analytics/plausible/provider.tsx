@@ -5,12 +5,8 @@
  * @date May 18, 2025
  */
 
-import type React from 'react'
+import type React from 'react';
 
-export function PlausibleAnalyticsProvider({
-  children
-}: {
-  children: React.ReactNode
-}) {
-  return <>{children}</>
+export function PlausibleAnalyticsProvider({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
 }

@@ -1,66 +1,64 @@
-"use client";
+'use client';
 
-import Link from 'next/link'
-import { signOut, SessionContext } from 'next-auth/react'
-import { DoorOpen, Menu, User, ChevronDown, LayoutDashboard } from 'lucide-react'
-import Image from 'next/image'
-import { useCallback, useContext, useEffect, useRef, useState } from 'react'
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
-import type { Session } from 'next-auth'
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import { ChevronDown, DoorOpen, LayoutDashboard, Menu, User } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import type { Session } from 'next-auth';
+import { SessionContext, signOut } from 'next-auth/react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 
-type SessionStatus = 'loading' | 'authenticated' | 'unauthenticated'
+type SessionStatus = 'loading' | 'authenticated' | 'unauthenticated';
 
 function useSafeSession(): { session: Session | null; status: SessionStatus } {
-  const context = useContext(SessionContext)
-  const hasLoggedMissingProviderRef = useRef(false)
+  const context = useContext(SessionContext);
+  const hasLoggedMissingProviderRef = useRef(false);
 
   useEffect(() => {
     if (!context && process.env.NODE_ENV !== 'production' && !hasLoggedMissingProviderRef.current) {
-      console.warn('[auth] Header rendered without SessionProvider; defaulting to unauthenticated state')
-      hasLoggedMissingProviderRef.current = true
+      hasLoggedMissingProviderRef.current = true;
     }
-  }, [context])
+  }, [context]);
 
   if (!context) {
-    return { session: null, status: 'unauthenticated' }
+    return { session: null, status: 'unauthenticated' };
   }
 
-  return { session: context.data ?? null, status: context.status as SessionStatus }
+  return { session: context.data ?? null, status: context.status as SessionStatus };
 }
 
 export function Header() {
-  const { session, status } = useSafeSession()
-  const isAuthenticated = status === 'authenticated'
-  const isAdmin = ['admin', 'superAdmin'].includes(session?.user?.role ?? '')
-  const displayName = session?.user?.name ?? session?.user?.email ?? 'your account'
-  const shortName = session?.user?.name?.split(' ')[0] ?? session?.user?.name ?? ''
-  const accountLabel = isAuthenticated ? `Signed in as ${displayName}` : 'Sign in'
-  const [signingOut, setSigningOut] = useState(false)
-  const userImage = typeof session?.user?.image === 'string' ? session.user.image : null
+  const { session, status } = useSafeSession();
+  const isAuthenticated = status === 'authenticated';
+  const isAdmin = ['admin', 'superAdmin'].includes(session?.user?.role ?? '');
+  const displayName = session?.user?.name ?? session?.user?.email ?? 'your account';
+  const shortName = session?.user?.name?.split(' ')[0] ?? session?.user?.name ?? '';
+  const accountLabel = isAuthenticated ? `Signed in as ${displayName}` : 'Sign in';
+  const [signingOut, setSigningOut] = useState(false);
+  const userImage = typeof session?.user?.image === 'string' ? session.user.image : null;
   const accountInitials = (() => {
-    const source = session?.user?.name ?? session?.user?.email ?? ''
-    if (!source) return 'U'
+    const source = session?.user?.name ?? session?.user?.email ?? '';
+    if (!source) return 'U';
     return source
       .split(' ')
-      .map((part) => part.trim().charAt(0).toUpperCase())
+      .map(part => part.trim().charAt(0).toUpperCase())
       .join('')
-      .slice(0, 2)
-  })()
+      .slice(0, 2);
+  })();
 
   const handleSignOut = useCallback(async () => {
-    if (signingOut) return
-    setSigningOut(true)
+    if (signingOut) return;
+    setSigningOut(true);
     try {
-      await signOut({ redirectTo: '/' })
-    } catch (error) {
-      console.error('[auth] sign out failed', error)
+      await signOut({ redirectTo: '/' });
+    } catch (_error) {
       if (typeof window !== 'undefined') {
-        window.location.href = '/api/auth/signout?callbackUrl=/'
+        window.location.href = '/api/auth/signout?callbackUrl=/';
       }
     } finally {
-      setSigningOut(false)
+      setSigningOut(false);
     }
-  }, [signingOut])
+  }, [signingOut]);
 
   return (
     <header className="w-full bg-background border-b-4 border-neo-border">
@@ -91,27 +89,30 @@ export function Header() {
           </div>
 
           {/* Center: Navigation (desktop) */}
-          <nav aria-label="Primary navigation" className="hidden md:flex items-center space-x-8 absolute left-1/2 -translate-x-1/2">
-            <Link 
-              href="/" 
+          <nav
+            aria-label="Primary navigation"
+            className="hidden md:flex items-center space-x-8 absolute left-1/2 -translate-x-1/2"
+          >
+            <Link
+              href="/"
               className="body-md hover:text-neo-primary font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary rounded-sm px-1 py-1"
             >
               Home
             </Link>
-            <Link 
-              href="/search" 
+            <Link
+              href="/search"
               className="body-md hover:text-neo-primary font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary rounded-sm px-1 py-1"
             >
               Search
             </Link>
-            <Link 
-              href="/blog" 
+            <Link
+              href="/blog"
               className="body-md hover:text-neo-primary font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary rounded-sm px-1 py-1"
             >
               Blog
             </Link>
-            <Link 
-              href="/contact-us" 
+            <Link
+              href="/contact-us"
               className="body-md hover:text-neo-primary font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary rounded-sm px-1 py-1"
             >
               Contact Us
@@ -122,12 +123,15 @@ export function Header() {
           <div className="flex items-center space-x-4">
             {isAuthenticated && (
               <span className="hidden md:inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700">
-                <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
+                <span
+                  className="inline-flex h-2 w-2 rounded-full bg-emerald-500"
+                  aria-hidden="true"
+                />
                 {shortName ? `Welcome, ${shortName}!` : 'Signed in'}
               </span>
             )}
-            {status !== 'loading' && (
-              isAuthenticated ? (
+            {status !== 'loading' &&
+              (isAuthenticated ? (
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger asChild>
                     <button
@@ -151,7 +155,9 @@ export function Header() {
                           </span>
                         )}
                       </span>
-                      <span className="hidden sm:inline text-xs text-neo-text-secondary">Account</span>
+                      <span className="hidden sm:inline text-xs text-neo-text-secondary">
+                        Account
+                      </span>
                       <ChevronDown className="h-4 w-4 text-neo-text-secondary" aria-hidden="true" />
                     </button>
                   </DropdownMenu.Trigger>
@@ -187,10 +193,10 @@ export function Header() {
                     <DropdownMenu.Separator className="my-2 h-px bg-neo-border/60" />
                     <DropdownMenu.Item
                       disabled={signingOut}
-                      onSelect={(event) => {
-                        event.preventDefault()
+                      onSelect={event => {
+                        event.preventDefault();
                         if (!signingOut) {
-                          void handleSignOut()
+                          void handleSignOut();
                         }
                       }}
                       className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-neo-text-primary outline-none transition data-[highlighted]:bg-rose-100 data-[highlighted]:text-rose-700 data-[disabled]:cursor-not-allowed data-[disabled]:opacity-60"
@@ -201,18 +207,17 @@ export function Header() {
                   </DropdownMenu.Content>
                 </DropdownMenu.Root>
               ) : (
-                <Link 
-                  href="/auth/login" 
+                <Link
+                  href="/auth/login"
                   aria-label="Sign in to your account"
                   className="inline-flex w-10 h-10 bg-neo-surface neo-card rounded-full items-center justify-center text-neo-text-primary hover:bg-neo-primary hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary transition-colors"
                 >
                   <User size={20} aria-hidden="true" />
                 </Link>
-              )
-            )}
+              ))}
           </div>
         </div>
       </div>
     </header>
-  )
+  );
 }

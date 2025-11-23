@@ -41,7 +41,7 @@ export default {
       title: 'Parent Comment',
       type: 'reference',
       to: [{ type: 'comment' }],
-      description: 'If this is a reply, reference the parent comment.'
-    }
-  ]
-}
+      description: 'If this is a reply, reference the parent comment.',
+    },
+  ],
+};

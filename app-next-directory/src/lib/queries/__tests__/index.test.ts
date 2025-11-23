@@ -21,7 +21,7 @@ describe('query stubs', () => {
   it('returns listing stats snapshot', async () => {
     const stats = await getListingStats();
     expect(stats.totalListings).toBe(25);
-    expect(stats.byCategory.some((entry) => entry.category === 'coworking')).toBe(true);
+    expect(stats.byCategory.some(entry => entry.category === 'coworking')).toBe(true);
   });
 
   it('returns nearby listings using provided coordinates', async () => {

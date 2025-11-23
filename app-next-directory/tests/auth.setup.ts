@@ -1,4 +1,4 @@
-import { expect, test as setup } from '@playwright/test';
+import { test as setup } from '@playwright/test';
 
 const authFile = 'tests/.auth/user.json';
 const adminAuthFile = 'tests/.auth/admin.json';
@@ -12,8 +12,8 @@ setup('create test users', async ({ request }) => {
     data: {
       name: 'Test User',
       email: 'test@example.com',
-      password: 'password123'
-    }
+      password: 'password123',
+    },
   });
 
   // Create admin user
@@ -22,8 +22,8 @@ setup('create test users', async ({ request }) => {
       name: 'Admin User',
       email: 'admin@example.com',
       password: 'password123',
-      role: 'admin'
-    }
+      role: 'admin',
+    },
   });
 
   // Create editor user
@@ -32,8 +32,8 @@ setup('create test users', async ({ request }) => {
       name: 'Editor User',
       email: 'editor@example.com',
       password: 'password123',
-      role: 'editor'
-    }
+      role: 'editor',
+    },
   });
 
   // Create venue owner user
@@ -42,8 +42,8 @@ setup('create test users', async ({ request }) => {
       name: 'Venue Owner',
       email: 'venueowner@example.com',
       password: 'password123',
-      role: 'venueOwner'
-    }
+      role: 'venueOwner',
+    },
   });
 });
 

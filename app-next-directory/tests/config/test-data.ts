@@ -1,5 +1,17 @@
-import type { TestCity, TestData, TestFavorite, TestReview, TestUser } from '@/tests/helpers/test-data';
-import { TEST_SESSION_COOKIE_NAME, createTestData, getSessionForRole, getTestUser, listCities } from '@/tests/helpers/test-data';
+import type {
+  TestCity,
+  TestData,
+  TestFavorite,
+  TestReview,
+  TestUser,
+} from '@/tests/helpers/test-data';
+import {
+  createTestData,
+  getSessionForRole,
+  getTestUser,
+  listCities,
+  TEST_SESSION_COOKIE_NAME,
+} from '@/tests/helpers/test-data';
 
 export const TEST_DATASET: TestData = createTestData();
 
@@ -12,7 +24,7 @@ export const TEST_REVIEWS: TestReview[] = TEST_DATASET.reviews;
 export const getTestData = (overrides?: Partial<TestData>): TestData => createTestData(overrides);
 
 export const getCityBySlug = (slug: string): TestCity | undefined =>
-  listCities().find((city) => city.slug === slug);
+  listCities().find(city => city.slug === slug);
 
 export const getCredentialsForRole = (role: TestUser['role']) => {
   const user = getTestUser(role);
@@ -26,10 +38,4 @@ export const getCredentialsForRole = (role: TestUser['role']) => {
   } as const;
 };
 
-export {
-  TEST_SESSION_COOKIE_NAME,
-  createTestData,
-  getSessionForRole,
-  getTestUser,
-  listCities,
-};
+export { TEST_SESSION_COOKIE_NAME, createTestData, getSessionForRole, getTestUser, listCities };

@@ -15,7 +15,7 @@ const experiments: Experiment[] = [
 ];
 
 export function getExperiment(experimentId: string): Experiment | undefined {
-  return experiments.find((exp) => exp.id === experimentId);
+  return experiments.find(exp => exp.id === experimentId);
 }
 
 export function getExperimentVariant(experiment: Experiment): ExperimentVariant {
@@ -26,7 +26,7 @@ export function getExperimentVariant(experiment: Experiment): ExperimentVariant 
 
   const flag = PostHog.getFeatureFlag(experiment.id);
   if (typeof flag === 'string') {
-    const matchingVariant = experiment.variants.find((variant) => variant.id === flag);
+    const matchingVariant = experiment.variants.find(variant => variant.id === flag);
     if (matchingVariant) {
       return matchingVariant;
     }

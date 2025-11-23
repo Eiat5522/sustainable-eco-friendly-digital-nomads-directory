@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, beforeEach, beforeAll } from '@jest/globals';
+import { beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 jest.mock('@/lib/auth', () => ({
   __esModule: true,
@@ -10,8 +10,6 @@ jest.mock('@/lib/admin/analytics', () => ({
   analyzeContent: jest.fn(),
 }));
 
-import { auth } from '@/lib/auth';
-import { analyzeContent } from '@/lib/admin/analytics';
 
 const authMockModule = jest.requireMock('@/lib/auth') as { auth: jest.Mock };
 const analyticsMockModule = jest.requireMock('@/lib/admin/analytics') as {
@@ -34,7 +32,6 @@ describe('/api/admin/analyze-content', () => {
     mockAnalyze.mockReset();
   });
 
-
   it('requires admin for GET', async () => {
     mockAuth.mockResolvedValue({ user: { role: 'user' } } as any);
 
@@ -54,7 +51,9 @@ describe('/api/admin/analyze-content', () => {
       averages: { reportsPerItem: 0.3 },
     });
 
-    const request = { url: 'https://example.com/api/admin/analyze-content?type=listing&windowDays=14' } as any;
+    const request = {
+      url: 'https://example.com/api/admin/analyze-content?type=listing&windowDays=14',
+    } as any;
     const response = await GET(request, { params: Promise.resolve({}) });
     const json = await response.json();
 
@@ -161,15 +160,21 @@ describe('/api/admin/analyze-content', () => {
     expect(malformed.status).toBe(400);
 
     mockAuth.mockResolvedValue({ user: { role: 'user' } } as any);
-    const forbidden = await POST({ json: () => Promise.resolve({ samples: [{ id: '1', text: 'ok' }] }) } as any, {
-      params: Promise.resolve({}),
-    });
+    const forbidden = await POST(
+      { json: () => Promise.resolve({ samples: [{ id: '1', text: 'ok' }] }) } as any,
+      {
+        params: Promise.resolve({}),
+      }
+    );
     expect(forbidden.status).toBe(403);
 
     mockAuth.mockRejectedValue(new Error('auth failed'));
-    const errorResponse = await POST({ json: () => Promise.resolve({ samples: [{ id: '2', text: 'spam' }] }) } as any, {
-      params: Promise.resolve({}),
-    });
+    const errorResponse = await POST(
+      { json: () => Promise.resolve({ samples: [{ id: '2', text: 'spam' }] }) } as any,
+      {
+        params: Promise.resolve({}),
+      }
+    );
     const errorJson = await errorResponse.json();
     expect(errorResponse.status).toBe(500);
     expect(errorJson.error).toBe('Failed to analyze content samples');

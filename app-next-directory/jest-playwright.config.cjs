@@ -13,9 +13,9 @@ module.exports = {
     usedPortAction: 'error', // Fail if port is already in use
     waitOnScheme: {
       resources: ['http-get://localhost:3000'], // Use HTTP GET for readiness check
-      timeout: 180000 // Wait up to 3 minutes for server to be ready
-    }
-  }
+      timeout: 180000, // Wait up to 3 minutes for server to be ready
+    },
+  },
 };
 
 // NOTE: Playwright requires Node.js 14+ due to optional chaining syntax. Ensure Node.js is updated if errors persist.

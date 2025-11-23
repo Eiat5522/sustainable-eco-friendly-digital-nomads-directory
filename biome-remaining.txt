@@ -1,0 +1,211 @@
+app-next-directory/app/admin/error.tsx:6:3 lint/correctness/noUnusedFunctionParameters ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This parameter is unused.
+  
+    5 │ export default function Error({
+  > 6 │   error,
+      │   ^^^^^
+    7 │   reset,
+    8 │ }: {
+  
+  i Unused parameters might be the result of an incomplete refactoring.
+  
+
+app-next-directory/app/admin/settings/SettingsForm.tsx:29:7 lint/correctness/useExhaustiveDependencies ━━━━━━━━━━━━━━━━━
+
+  ! fetchSettings changes on every re-render and should not be used as a hook dependency.
+  
+    27 │   useEffect(() => {
+    28 │     fetchSettings();
+  > 29 │   }, [fetchSettings]);
+       │       ^^^^^^^^^^^^^
+    30 │ 
+    31 │   const fetchSettings = async () => {
+  
+  i To fix this, wrap the definition of fetchSettings in its own useCallback() hook.
+  
+
+app-next-directory/app/admin/settings/SettingsForm.tsx:52:14 lint/correctness/noUnusedVariables ━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This variable ignoredId is unused.
+  
+    50 │       // Extract only the form fields from settings
+    51 │       const {
+  > 52 │         _id: ignoredId,
+       │              ^^^^^^^^^
+    53 │         _type: ignoredType,
+    54 │         _createdAt: ignoredCreatedAt,
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/app/admin/settings/SettingsForm.tsx:53:16 lint/correctness/noUnusedVariables ━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This variable ignoredType is unused.
+  
+    51 │       const {
+    52 │         _id: ignoredId,
+  > 53 │         _type: ignoredType,
+       │                ^^^^^^^^^^^
+    54 │         _createdAt: ignoredCreatedAt,
+    55 │         _updatedAt: ignoredUpdatedAt,
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/app/admin/settings/SettingsForm.tsx:54:21 lint/correctness/noUnusedVariables ━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This variable ignoredCreatedAt is unused.
+  
+    52 │         _id: ignoredId,
+    53 │         _type: ignoredType,
+  > 54 │         _createdAt: ignoredCreatedAt,
+       │                     ^^^^^^^^^^^^^^^^
+    55 │         _updatedAt: ignoredUpdatedAt,
+    56 │         ...formData
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/app/admin/settings/SettingsForm.tsx:55:21 lint/correctness/noUnusedVariables ━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This variable ignoredUpdatedAt is unused.
+  
+    53 │         _type: ignoredType,
+    54 │         _createdAt: ignoredCreatedAt,
+  > 55 │         _updatedAt: ignoredUpdatedAt,
+       │                     ^^^^^^^^^^^^^^^^
+    56 │         ...formData
+    57 │       } = data.settings;
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/app/admin/settings/SettingsForm.tsx:98:16 lint/correctness/noUnusedVariables ━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This variable ignoredId2 is unused.
+  
+     96 │         // Update settings with saved data
+     97 │         const {
+   > 98 │           _id: ignoredId2,
+        │                ^^^^^^^^^^
+     99 │           _type: ignoredType2,
+    100 │           _createdAt: ignoredCreatedAt2,
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/app/admin/settings/SettingsForm.tsx:99:18 lint/correctness/noUnusedVariables ━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This variable ignoredType2 is unused.
+  
+     97 │         const {
+     98 │           _id: ignoredId2,
+   > 99 │           _type: ignoredType2,
+        │                  ^^^^^^^^^^^^
+    100 │           _createdAt: ignoredCreatedAt2,
+    101 │           _updatedAt: ignoredUpdatedAt2,
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/app/admin/settings/SettingsForm.tsx:100:23 lint/correctness/noUnusedVariables ━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This variable ignoredCreatedAt2 is unused.
+  
+     98 │           _id: ignoredId2,
+     99 │           _type: ignoredType2,
+  > 100 │           _createdAt: ignoredCreatedAt2,
+        │                       ^^^^^^^^^^^^^^^^^
+    101 │           _updatedAt: ignoredUpdatedAt2,
+    102 │           ...formData
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/app/admin/settings/SettingsForm.tsx:101:23 lint/correctness/noUnusedVariables ━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This variable ignoredUpdatedAt2 is unused.
+  
+     99 │           _type: ignoredType2,
+    100 │           _createdAt: ignoredCreatedAt2,
+  > 101 │           _updatedAt: ignoredUpdatedAt2,
+        │                       ^^^^^^^^^^^^^^^^^
+    102 │           ...formData
+    103 │         } = data.settings;
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/app/api/admin/settings/route.ts:111:22 lint/correctness/noUnusedVariables ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This variable ignored_defaultTypeIgnored is unused.
+  
+    109 │     } else {
+    110 │       // Create new settings document
+  > 111 │       const { _type: ignored_defaultTypeIgnored, ...defaultSettings } = DEFAULT_ADMIN_SETTINGS;
+        │                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    112 │       savedSettings = await client.create<AdminSettings>({
+    113 │         _type: 'adminSettings',
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/app/dashboard/error.tsx:6:3 lint/correctness/noUnusedFunctionParameters ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This parameter is unused.
+  
+    5 │ export default function Error({
+  > 6 │   error,
+      │   ^^^^^
+    7 │   reset,
+    8 │ }: {
+  
+  i Unused parameters might be the result of an incomplete refactoring.
+  
+
+app-next-directory/app/listings/error.tsx:6:3 lint/correctness/noUnusedFunctionParameters ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This parameter is unused.
+  
+    5 │ export default function Error({
+  > 6 │   error,
+      │   ^^^^^
+    7 │   reset,
+    8 │ }: {
+  
+  i Unused parameters might be the result of an incomplete refactoring.
+  
+
+app-next-directory/app/profile/error.tsx:6:3 lint/correctness/noUnusedFunctionParameters ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This parameter is unused.
+  
+    5 │ export default function Error({
+  > 6 │   error,
+      │   ^^^^^
+    7 │   reset,
+    8 │ }: {
+  
+  i Unused parameters might be the result of an incomplete refactoring.
+  
+
+app-next-directory/jest.setup.ts

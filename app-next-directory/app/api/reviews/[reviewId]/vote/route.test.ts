@@ -1,23 +1,27 @@
-import { describe, it, expect, beforeEach, beforeAll, jest } from '@jest/globals';
+import { beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { ObjectId } from 'mongodb';
 
 jest.mock('@/utils/db-helpers', () => ({ __esModule: true, getCollection: jest.fn() }));
 jest.mock('@/utils/api-response', () => ({
   __esModule: true,
   ApiResponseHandler: {
-    error: jest.fn((message: string, status: number, errors?: unknown) => 
-      new Response(JSON.stringify({ error: message, ...(errors && { errors }) }), { status })
+    error: jest.fn(
+      (message: string, status: number, errors?: unknown) =>
+        new Response(JSON.stringify({ error: message, ...(errors && { errors }) }), { status })
     ),
-    notFound: jest.fn((resource: string) => 
-      new Response(JSON.stringify({ error: `${resource} not found` }), { status: 404 })
+    notFound: jest.fn(
+      (resource: string) =>
+        new Response(JSON.stringify({ error: `${resource} not found` }), { status: 404 })
     ),
-    success: jest.fn((data: unknown, message?: string) => 
-      new Response(JSON.stringify({ success: true, data, ...(message && { message }) }), { status: 200 })
+    success: jest.fn(
+      (data: unknown, message?: string) =>
+        new Response(JSON.stringify({ success: true, data, ...(message && { message }) }), {
+          status: 200,
+        })
     ),
   },
 }));
 
-import { getCollection } from '@/utils/db-helpers';
 
 const dbHelpersMock = jest.requireMock('@/utils/db-helpers') as { getCollection: jest.Mock };
 const mockGetCollection = dbHelpersMock.getCollection;
@@ -63,7 +67,7 @@ describe('API /api/reviews/[reviewId]/vote', () => {
       });
 
       const res = await POST(req, { params: Promise.resolve({ reviewId: 'invalid-id' }) });
-      
+
       expect(res.status).toBe(400);
       const json = await res.json();
       expect(json.error).toBe('Invalid review ID');
@@ -77,7 +81,7 @@ describe('API /api/reviews/[reviewId]/vote', () => {
       });
 
       const res = await POST(req, { params: Promise.resolve({ reviewId: validId }) });
-      
+
       expect(res.status).toBe(400);
       const json = await res.json();
       expect(json.error).toBe('Invalid vote data');
@@ -87,10 +91,8 @@ describe('API /api/reviews/[reviewId]/vote', () => {
       const validId = new ObjectId().toString();
       const mockReviews = createMockReviewsCollection(null);
       const mockVotes = createMockVotesCollection();
-      
-      mockGetCollection
-        .mockResolvedValueOnce(mockReviews)
-        .mockResolvedValueOnce(mockVotes);
+
+      mockGetCollection.mockResolvedValueOnce(mockReviews).mockResolvedValueOnce(mockVotes);
 
       const req = new Request(`http://localhost/api/reviews/${validId}/vote`, {
         method: 'POST',
@@ -98,7 +100,7 @@ describe('API /api/reviews/[reviewId]/vote', () => {
       });
 
       const res = await POST(req, { params: Promise.resolve({ reviewId: validId }) });
-      
+
       expect(res.status).toBe(404);
       const json = await res.json();
       expect(json.error).toBe('Review not found');
@@ -110,12 +112,13 @@ describe('API /api/reviews/[reviewId]/vote', () => {
 
     it('returns 404 when review is not approved', async () => {
       const validId = new ObjectId().toString();
-      const mockReviews = createMockReviewsCollection({ _id: new ObjectId(validId), status: 'pending' });
+      const mockReviews = createMockReviewsCollection({
+        _id: new ObjectId(validId),
+        status: 'pending',
+      });
       const mockVotes = createMockVotesCollection();
-      
-      mockGetCollection
-        .mockResolvedValueOnce(mockReviews)
-        .mockResolvedValueOnce(mockVotes);
+
+      mockGetCollection.mockResolvedValueOnce(mockReviews).mockResolvedValueOnce(mockVotes);
 
       const req = new Request(`http://localhost/api/reviews/${validId}/vote`, {
         method: 'POST',
@@ -123,7 +126,7 @@ describe('API /api/reviews/[reviewId]/vote', () => {
       });
 
       const res = await POST(req, { params: Promise.resolve({ reviewId: validId }) });
-      
+
       expect(res.status).toBe(404);
     });
 
@@ -135,10 +138,8 @@ describe('API /api/reviews/[reviewId]/vote', () => {
         helpfulCount: 5,
       });
       const mockVotes = createMockVotesCollection(null);
-      
-      mockGetCollection
-        .mockResolvedValueOnce(mockReviews)
-        .mockResolvedValueOnce(mockVotes);
+
+      mockGetCollection.mockResolvedValueOnce(mockReviews).mockResolvedValueOnce(mockVotes);
 
       const req = new Request(`http://localhost/api/reviews/${validId}/vote`, {
         method: 'POST',
@@ -147,21 +148,23 @@ describe('API /api/reviews/[reviewId]/vote', () => {
       });
 
       const res = await POST(req, { params: Promise.resolve({ reviewId: validId }) });
-      
+
       expect(res.status).toBe(200);
       const json = await res.json();
       expect(json.success).toBe(true);
       expect(json.data.voted).toBe(true);
       expect(json.data.changed).toBe(true);
-      
-      expect(mockVotes.insertOne).toHaveBeenCalledWith(expect.objectContaining({
-        reviewId: expect.any(ObjectId),
-        voterIdentifier: '192.168.1.1',
-        helpful: true,
-        createdAt: expect.any(Date),
-        ipAddress: '192.168.1.1',
-      }));
-      
+
+      expect(mockVotes.insertOne).toHaveBeenCalledWith(
+        expect.objectContaining({
+          reviewId: expect.any(ObjectId),
+          voterIdentifier: '192.168.1.1',
+          helpful: true,
+          createdAt: expect.any(Date),
+          ipAddress: '192.168.1.1',
+        })
+      );
+
       expect(mockReviews.updateOne).toHaveBeenCalledWith(
         { _id: expect.any(ObjectId) },
         {
@@ -178,10 +181,8 @@ describe('API /api/reviews/[reviewId]/vote', () => {
         status: 'approved',
       });
       const mockVotes = createMockVotesCollection(null);
-      
-      mockGetCollection
-        .mockResolvedValueOnce(mockReviews)
-        .mockResolvedValueOnce(mockVotes);
+
+      mockGetCollection.mockResolvedValueOnce(mockReviews).mockResolvedValueOnce(mockVotes);
 
       const req = new Request(`http://localhost/api/reviews/${validId}/vote`, {
         method: 'POST',
@@ -190,11 +191,11 @@ describe('API /api/reviews/[reviewId]/vote', () => {
       });
 
       const res = await POST(req, { params: Promise.resolve({ reviewId: validId }) });
-      
+
       expect(res.status).toBe(200);
       const json = await res.json();
       expect(json.data.voted).toBe(false);
-      
+
       expect(mockReviews.updateOne).toHaveBeenCalledWith(
         { _id: expect.any(ObjectId) },
         {
@@ -211,10 +212,8 @@ describe('API /api/reviews/[reviewId]/vote', () => {
         status: 'approved',
       });
       const mockVotes = createMockVotesCollection(null);
-      
-      mockGetCollection
-        .mockResolvedValueOnce(mockReviews)
-        .mockResolvedValueOnce(mockVotes);
+
+      mockGetCollection.mockResolvedValueOnce(mockReviews).mockResolvedValueOnce(mockVotes);
 
       const req = new Request(`http://localhost/api/reviews/${validId}/vote`, {
         method: 'POST',
@@ -222,11 +221,13 @@ describe('API /api/reviews/[reviewId]/vote', () => {
       });
 
       const res = await POST(req, { params: Promise.resolve({ reviewId: validId }) });
-      
+
       expect(res.status).toBe(200);
-      expect(mockVotes.insertOne).toHaveBeenCalledWith(expect.objectContaining({
-        voterIdentifier: 'user-123',
-      }));
+      expect(mockVotes.insertOne).toHaveBeenCalledWith(
+        expect.objectContaining({
+          voterIdentifier: 'user-123',
+        })
+      );
     });
 
     it('returns success without change if vote already exists with same value', async () => {
@@ -242,10 +243,8 @@ describe('API /api/reviews/[reviewId]/vote', () => {
         status: 'approved',
       });
       const mockVotes = createMockVotesCollection(existingVote);
-      
-      mockGetCollection
-        .mockResolvedValueOnce(mockReviews)
-        .mockResolvedValueOnce(mockVotes);
+
+      mockGetCollection.mockResolvedValueOnce(mockReviews).mockResolvedValueOnce(mockVotes);
 
       const req = new Request(`http://localhost/api/reviews/${validId}/vote`, {
         method: 'POST',
@@ -254,12 +253,12 @@ describe('API /api/reviews/[reviewId]/vote', () => {
       });
 
       const res = await POST(req, { params: Promise.resolve({ reviewId: validId }) });
-      
+
       expect(res.status).toBe(200);
       const json = await res.json();
       expect(json.data.voted).toBe(true);
       expect(json.data.changed).toBe(false);
-      
+
       expect(mockVotes.updateOne).not.toHaveBeenCalled();
       expect(mockReviews.updateOne).not.toHaveBeenCalled();
     });
@@ -280,10 +279,8 @@ describe('API /api/reviews/[reviewId]/vote', () => {
         unhelpfulCount: 2,
       });
       const mockVotes = createMockVotesCollection(existingVote);
-      
-      mockGetCollection
-        .mockResolvedValueOnce(mockReviews)
-        .mockResolvedValueOnce(mockVotes);
+
+      mockGetCollection.mockResolvedValueOnce(mockReviews).mockResolvedValueOnce(mockVotes);
 
       const req = new Request(`http://localhost/api/reviews/${validId}/vote`, {
         method: 'POST',
@@ -292,12 +289,12 @@ describe('API /api/reviews/[reviewId]/vote', () => {
       });
 
       const res = await POST(req, { params: Promise.resolve({ reviewId: validId }) });
-      
+
       expect(res.status).toBe(200);
       const json = await res.json();
       expect(json.data.voted).toBe(false);
       expect(json.data.changed).toBe(true);
-      
+
       expect(mockVotes.updateOne).toHaveBeenCalledWith(
         { _id: voteId },
         {
@@ -307,7 +304,7 @@ describe('API /api/reviews/[reviewId]/vote', () => {
           },
         }
       );
-      
+
       expect(mockReviews.updateOne).toHaveBeenCalledWith(
         { _id: expect.any(ObjectId) },
         {
@@ -322,7 +319,7 @@ describe('API /api/reviews/[reviewId]/vote', () => {
 
     it('handles errors gracefully', async () => {
       const validId = new ObjectId().toString();
-      
+
       mockGetCollection.mockRejectedValueOnce(new Error('Database error'));
 
       const req = new Request(`http://localhost/api/reviews/${validId}/vote`, {
@@ -331,7 +328,7 @@ describe('API /api/reviews/[reviewId]/vote', () => {
       });
 
       const res = await POST(req, { params: Promise.resolve({ reviewId: validId }) });
-      
+
       expect(res.status).toBe(500);
       const json = await res.json();
       expect(json.error).toBe('Failed to record vote');
@@ -343,7 +340,7 @@ describe('API /api/reviews/[reviewId]/vote', () => {
       const req = new Request('http://localhost/api/reviews/invalid-id/vote');
 
       const res = await GET(req, { params: Promise.resolve({ reviewId: 'invalid-id' }) });
-      
+
       expect(res.status).toBe(400);
       const json = await res.json();
       expect(json.error).toBe('Invalid review ID');
@@ -359,15 +356,13 @@ describe('API /api/reviews/[reviewId]/vote', () => {
           toArray: jest.fn().mockResolvedValue([]),
         }),
       };
-      
-      mockGetCollection
-        .mockResolvedValueOnce(mockReviews)
-        .mockResolvedValueOnce(mockVotes);
+
+      mockGetCollection.mockResolvedValueOnce(mockReviews).mockResolvedValueOnce(mockVotes);
 
       const req = new Request(`http://localhost/api/reviews/${validId}/vote`);
 
       const res = await GET(req, { params: Promise.resolve({ reviewId: validId }) });
-      
+
       expect(res.status).toBe(404);
       const json = await res.json();
       expect(json.error).toBe('Review not found');
@@ -390,15 +385,13 @@ describe('API /api/reviews/[reviewId]/vote', () => {
           ]),
         }),
       };
-      
-      mockGetCollection
-        .mockResolvedValueOnce(mockReviews)
-        .mockResolvedValueOnce(mockVotes);
+
+      mockGetCollection.mockResolvedValueOnce(mockReviews).mockResolvedValueOnce(mockVotes);
 
       const req = new Request(`http://localhost/api/reviews/${validId}/vote`);
 
       const res = await GET(req, { params: Promise.resolve({ reviewId: validId }) });
-      
+
       expect(res.status).toBe(200);
       const json = await res.json();
       expect(json.success).toBe(true);
@@ -427,15 +420,13 @@ describe('API /api/reviews/[reviewId]/vote', () => {
           toArray: jest.fn().mockResolvedValue([]),
         }),
       };
-      
-      mockGetCollection
-        .mockResolvedValueOnce(mockReviews)
-        .mockResolvedValueOnce(mockVotes);
+
+      mockGetCollection.mockResolvedValueOnce(mockReviews).mockResolvedValueOnce(mockVotes);
 
       const req = new Request(`http://localhost/api/reviews/${validId}/vote`);
 
       const res = await GET(req, { params: Promise.resolve({ reviewId: validId }) });
-      
+
       expect(res.status).toBe(200);
       const json = await res.json();
       expect(json.data.votes).toMatchObject({
@@ -448,13 +439,13 @@ describe('API /api/reviews/[reviewId]/vote', () => {
 
     it('handles errors gracefully', async () => {
       const validId = new ObjectId().toString();
-      
+
       mockGetCollection.mockRejectedValueOnce(new Error('Database error'));
 
       const req = new Request(`http://localhost/api/reviews/${validId}/vote`);
 
       const res = await GET(req, { params: Promise.resolve({ reviewId: validId }) });
-      
+
       expect(res.status).toBe(500);
       const json = await res.json();
       expect(json.error).toBe('Failed to fetch vote statistics');

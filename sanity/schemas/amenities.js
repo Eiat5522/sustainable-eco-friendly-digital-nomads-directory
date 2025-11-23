@@ -13,17 +13,17 @@ export default {
           { title: '💻 Good (50-100 Mbps)', value: 'good' },
           { title: '📱 Basic (20-50 Mbps)', value: 'basic' },
           { title: '⚠️ Limited (<20 Mbps)', value: 'limited' },
-          { title: '❌ No WiFi', value: 'none' }
+          { title: '❌ No WiFi', value: 'none' },
         ],
-        layout: 'radio'
+        layout: 'radio',
       },
-      validation: Rule => Rule.required()
+      validation: Rule => Rule.required(),
     },
     {
       name: 'wifiSpeed',
       title: 'WiFi Speed (Mbps)',
       type: 'number',
-      validation: Rule => Rule.min(0).max(1000)
+      validation: Rule => Rule.min(0).max(1000),
     },
     {
       name: 'powerOutlets',
@@ -33,9 +33,9 @@ export default {
         list: [
           { title: 'Abundant', value: 'abundant' },
           { title: 'Limited', value: 'limited' },
-          { title: 'None', value: 'none' }
-        ]
-      }
+          { title: 'None', value: 'none' },
+        ],
+      },
     },
     {
       name: 'seating',
@@ -45,65 +45,65 @@ export default {
         list: [
           { title: 'Comfortable', value: 'comfortable' },
           { title: 'Standard', value: 'standard' },
-          { title: 'Limited', value: 'limited' }
-        ]
-      }
+          { title: 'Limited', value: 'limited' },
+        ],
+      },
     },
     {
       name: 'airConditioning',
       title: 'Air Conditioning',
-      type: 'boolean'
+      type: 'boolean',
     },
     {
       name: 'quietSpace',
       title: 'Quiet Space',
-      type: 'boolean'
+      type: 'boolean',
     },
     {
       name: 'meetingRooms',
       title: 'Meeting Rooms',
-      type: 'boolean'
+      type: 'boolean',
     },
     {
       name: 'phoneBooths',
       title: 'Phone Booths',
-      type: 'boolean'
+      type: 'boolean',
     },
     {
       name: 'printers',
       title: 'Printers',
-      type: 'boolean'
+      type: 'boolean',
     },
     {
       name: 'parking',
       title: 'Parking',
-      type: 'boolean'
+      type: 'boolean',
     },
     {
       name: 'bikeParking',
       title: 'Bike Parking',
-      type: 'boolean'
+      type: 'boolean',
     },
     {
       name: 'showers',
       title: 'Showers',
-      type: 'boolean'
+      type: 'boolean',
     },
     {
       name: 'lockers',
       title: 'Lockers',
-      type: 'boolean'
+      type: 'boolean',
     },
     {
       name: 'kitchen',
       title: 'Kitchen',
-      type: 'boolean'
+      type: 'boolean',
     },
     {
       name: 'additionalAmenities',
       title: 'Additional Amenities',
       type: 'array',
-      of: [{ type: 'string' }]
-    }
-  ]
-}
+      of: [{ type: 'string' }],
+    },
+  ],
+};

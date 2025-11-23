@@ -1,16 +1,13 @@
+import type { NextRequest } from 'next/server';
+import { structuredLogger } from '@/lib/logger';
+import { getListingBySlug } from '@/lib/sanity/queries';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { handleAuthError, requireAuth } from '@/utils/auth-helpers';
 import { getCollection } from '@/utils/db-helpers';
-import { getListingBySlug } from '@/lib/sanity/queries';
-import type { NextRequest } from 'next/server';
-import { structuredLogger } from '@/lib/logger';
 
 type RouteContext = { params: Promise<{ slug: string }> };
 
-export async function GET(
-  request: NextRequest,
-  context: RouteContext
-) {
+export async function GET(_request: NextRequest, context: RouteContext) {
   let slug: string | undefined;
   try {
     ({ slug } = await context.params);
@@ -23,15 +20,15 @@ export async function GET(
 
     return ApiResponseHandler.success(listing);
   } catch (error) {
-    structuredLogger.error('Failed to fetch listing from Sanity', error, { component: 'listings-api', slug: slug ?? 'unknown' });
+    structuredLogger.error('Failed to fetch listing from Sanity', error, {
+      component: 'listings-api',
+      slug: slug ?? 'unknown',
+    });
     return ApiResponseHandler.error('Failed to fetch listing');
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  context: RouteContext
-) {
+export async function PUT(request: NextRequest, context: RouteContext) {
   try {
     const { slug } = await context.params;
     const session = await requireAuth();
@@ -43,7 +40,7 @@ export async function PUT(
       ownerId?: string | null;
     };
 
-    const listing = await listings.findOne({ slug }) as ListingDocument | null;
+    const listing = (await listings.findOne({ slug })) as ListingDocument | null;
 
     if (!listing) {
       return ApiResponseHandler.notFound('Listing');
@@ -57,13 +54,10 @@ export async function PUT(
 
     const updateData = {
       ...body,
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
 
-    await listings.updateOne(
-      { slug },
-      { $set: updateData }
-    );
+    await listings.updateOne({ slug }, { $set: updateData });
 
     return ApiResponseHandler.success(updateData, 'Listing updated successfully');
   } catch (error) {
@@ -71,10 +65,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  context: RouteContext
-) {
+export async function DELETE(_request: NextRequest, context: RouteContext) {
   try {
     const { slug } = await context.params;
     const session = await requireAuth();
@@ -85,7 +76,7 @@ export async function DELETE(
       ownerId?: string | null;
     };
 
-    const listing = await listings.findOne({ slug }) as ListingDocument | null;
+    const listing = (await listings.findOne({ slug })) as ListingDocument | null;
 
     if (!listing) {
       return ApiResponseHandler.notFound('Listing');
@@ -97,10 +88,7 @@ export async function DELETE(
       return ApiResponseHandler.forbidden();
     }
 
-    await listings.updateOne(
-      { slug },
-      { $set: { status: 'deleted', deletedAt: new Date() } }
-    );
+    await listings.updateOne({ slug }, { $set: { status: 'deleted', deletedAt: new Date() } });
 
     return ApiResponseHandler.success(null, 'Listing deleted successfully');
   } catch (error) {

@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import { createHash } from 'node:crypto';
+import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';
 
 describe('tokens', () => {
   describe('generateToken', () => {
@@ -107,65 +107,65 @@ describe('tokens', () => {
     it('should calculate time 5 minutes from now', () => {
       const now = new Date('2024-01-01T12:00:00Z');
       jest.setSystemTime(now);
-      
-  const { minutesFromNow } = jest.requireActual('../tokens');
-  const result = minutesFromNow(5);
+
+      const { minutesFromNow } = jest.requireActual('../tokens');
+      const result = minutesFromNow(5);
       const expected = new Date('2024-01-01T12:05:00Z');
-      
+
       expect(result.getTime()).toBe(expected.getTime());
     });
 
     it('should calculate time 60 minutes from now', () => {
       const now = new Date('2024-01-01T12:00:00Z');
       jest.setSystemTime(now);
-      
-  const { minutesFromNow } = jest.requireActual('../tokens');
-  const result = minutesFromNow(60);
+
+      const { minutesFromNow } = jest.requireActual('../tokens');
+      const result = minutesFromNow(60);
       const expected = new Date('2024-01-01T13:00:00Z');
-      
+
       expect(result.getTime()).toBe(expected.getTime());
     });
 
     it('should handle negative minutes (time in the past)', () => {
       const now = new Date('2024-01-01T12:00:00Z');
       jest.setSystemTime(now);
-      
-  const { minutesFromNow } = jest.requireActual('../tokens');
-  const result = minutesFromNow(-10);
+
+      const { minutesFromNow } = jest.requireActual('../tokens');
+      const result = minutesFromNow(-10);
       const expected = new Date('2024-01-01T11:50:00Z');
-      
+
       expect(result.getTime()).toBe(expected.getTime());
     });
 
     it('should handle zero minutes', () => {
       const now = new Date('2024-01-01T12:00:00Z');
       jest.setSystemTime(now);
-      
-  const { minutesFromNow } = jest.requireActual('../tokens');
-  const result = minutesFromNow(0);
-      
+
+      const { minutesFromNow } = jest.requireActual('../tokens');
+      const result = minutesFromNow(0);
+
       expect(result.getTime()).toBe(now.getTime());
     });
 
     it('should handle fractional minutes', () => {
       const now = new Date('2024-01-01T12:00:00Z');
       jest.setSystemTime(now);
-      
-  const { minutesFromNow } = jest.requireActual('../tokens');
-  const result = minutesFromNow(0.5); // 30 seconds
+
+      const { minutesFromNow } = jest.requireActual('../tokens');
+      const result = minutesFromNow(0.5); // 30 seconds
       const expected = new Date('2024-01-01T12:00:30Z');
-      
+
       expect(result.getTime()).toBe(expected.getTime());
     });
 
     it('should handle large minute values', () => {
       const now = new Date('2024-01-01T12:00:00Z');
       jest.setSystemTime(now);
-      
-  const { minutesFromNow } = jest.requireActual('../tokens');
-  const result = minutesFromNow(1440); // 24 hours
+
+      const { minutesFromNow } = jest.requireActual('../tokens');
+      const result = minutesFromNow(1440); // 24 hours
       const expected = new Date('2024-01-02T12:00:00Z');
-      
+
       expect(result.getTime()).toBe(expected.getTime());
     });
   });

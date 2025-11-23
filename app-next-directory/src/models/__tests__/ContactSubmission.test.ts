@@ -1,6 +1,9 @@
 import { jest } from '@jest/globals';
 import mongoose from 'mongoose';
-import ContactSubmission, { IContactSubmission, CONTACT_TYPES, CONTACT_STATUSES } from '../ContactSubmission';
+import ContactSubmission, {
+  CONTACT_STATUSES,
+  CONTACT_TYPES,
+} from '../ContactSubmission';
 
 describe('ContactSubmission Model', () => {
   beforeEach(() => {
@@ -89,7 +92,7 @@ describe('ContactSubmission Model', () => {
     });
 
     it('should accept valid type values', () => {
-      CONTACT_TYPES.forEach((type) => {
+      CONTACT_TYPES.forEach(type => {
         const submission = new ContactSubmission({
           name: 'Test',
           email: 'test@example.com',
@@ -119,7 +122,7 @@ describe('ContactSubmission Model', () => {
     });
 
     it('should accept valid status values', () => {
-      CONTACT_STATUSES.forEach((status) => {
+      CONTACT_STATUSES.forEach(status => {
         const submission = new ContactSubmission({
           name: 'Test',
           email: 'test@example.com',
@@ -147,7 +150,7 @@ describe('ContactSubmission Model', () => {
         'test123@test-domain.com',
       ];
 
-      validEmails.forEach((email) => {
+      validEmails.forEach(email => {
         const submission = new ContactSubmission({
           name: 'Test',
           email,
@@ -163,7 +166,7 @@ describe('ContactSubmission Model', () => {
     it('should accept valid IPv4 addresses', () => {
       const ipv4Addresses = ['192.168.1.1', '10.0.0.1', '127.0.0.1', '8.8.8.8'];
 
-      ipv4Addresses.forEach((ip) => {
+      ipv4Addresses.forEach(ip => {
         const submission = new ContactSubmission({
           name: 'Test',
           email: 'test@example.com',
@@ -183,7 +186,7 @@ describe('ContactSubmission Model', () => {
         '2001:db8::8a2e:370:7334',
       ];
 
-      ipv6Addresses.forEach((ip) => {
+      ipv6Addresses.forEach(ip => {
         const submission = new ContactSubmission({
           name: 'Test',
           email: 'test@example.com',

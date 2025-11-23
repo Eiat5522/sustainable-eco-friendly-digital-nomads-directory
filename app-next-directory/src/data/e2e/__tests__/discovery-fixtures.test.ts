@@ -67,7 +67,7 @@ describe('E2E discovery fixtures', () => {
     });
 
     expect(response.pagination.total).toBeGreaterThan(0);
-    expect(response.results.every((result) => result.slug.includes('chiang'))).toBe(true);
+    expect(response.results.every(result => result.slug.includes('chiang'))).toBe(true);
     expect(response.filters).toEqual({
       query: 'chiang',
       category: ['accommodation'],
@@ -76,7 +76,9 @@ describe('E2E discovery fixtures', () => {
       nomadFeatures: [],
     });
     expect(response.facets?.category.length).toBeGreaterThan(0);
-    expect(response.facets?.destination.find((bucket) => bucket.value === 'Chiang Mai')?.count).toBeGreaterThan(0);
+    expect(
+      response.facets?.destination.find(bucket => bucket.value === 'Chiang Mai')?.count
+    ).toBeGreaterThan(0);
   });
 
   it('creates a city summary without detail-only fields', () => {
@@ -109,7 +111,7 @@ describe('E2E discovery fixtures', () => {
   it('maps listings for a city using the summary DTO shape', () => {
     const targetCity = e2eDiscoveryCities[0];
     const listings = getE2EListingsForCity(targetCity.id);
-    expect(listings.every((listing) => listing.city.id === targetCity.id)).toBe(true);
+    expect(listings.every(listing => listing.city.id === targetCity.id)).toBe(true);
     expect(listings[0]).toHaveProperty('digitalNomadFeatures');
     expect(getE2EListingsForCity('nope')).toEqual([]);
   });

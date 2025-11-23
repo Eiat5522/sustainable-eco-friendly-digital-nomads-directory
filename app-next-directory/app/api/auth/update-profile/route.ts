@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
 import type { UpdateUserProfileInput } from '@/lib/auth/serverAuth';
 
@@ -201,8 +201,7 @@ async function handleProfileMutation(request: NextRequest): Promise<NextResponse
       },
       error: null,
     });
-  } catch (err) {
-    console.error('Profile update error:', err);
+  } catch (_err) {
     return json(
       {
         success: false,

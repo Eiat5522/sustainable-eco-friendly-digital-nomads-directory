@@ -1,6 +1,5 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
 import type { PortableTextComponentProps } from '@portabletext/react';
+import { render, screen } from '@testing-library/react';
 
 const imageOrFallbackMock = jest.fn(() => 'mocked-image-src');
 
@@ -36,7 +35,7 @@ describe('blogPortableTextComponents image renderer', () => {
       alt: '  Scenic trail  ',
     } satisfies PortableTextComponentProps<'image'>['value'];
 
-    render(<>{renderer({ value })}</>);
+    render(renderer({ value }));
 
     expect(imageOrFallbackMock).toHaveBeenCalledWith(value, 1024, 769);
     const figure = screen.getByRole('figure');
@@ -63,7 +62,7 @@ describe('blogPortableTextComponents image renderer', () => {
       caption: '  Mountain view  ',
     } satisfies PortableTextComponentProps<'image'>['value'];
 
-    render(<>{renderer({ value })}</>);
+    render(renderer({ value }));
 
     expect(imageOrFallbackMock).toHaveBeenCalledWith(value, 1200, 800);
     const image = screen.getByRole('img');
@@ -79,7 +78,7 @@ describe('blogPortableTextComponents image renderer', () => {
       caption: null,
     } satisfies PortableTextComponentProps<'image'>['value'];
 
-    render(<>{renderer({ value })}</>);
+    render(renderer({ value }));
 
     const figure = screen.getByRole('figure');
     const image = screen.getByRole('img');

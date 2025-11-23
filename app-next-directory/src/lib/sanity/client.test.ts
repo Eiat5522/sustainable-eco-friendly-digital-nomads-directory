@@ -1,6 +1,6 @@
 /**
  * Sanity Client Tests - Schema & TypeScript Refactoring Complete
- * 
+ *
  * These tests validate the Sanity client setup and configuration
  * while adhering to the new cleaned up schema and TS types structure.
  */
@@ -39,25 +39,25 @@ describe('Sanity client module', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // Reset module cache to ensure fresh imports
     jest.resetModules();
-    
+
     // Setup mocks for each test
     const { createClient } = require('@sanity/client');
     const imageUrlBuilder = require('@sanity/image-url');
-    
+
     (createClient as jest.Mock).mockReturnValue(mockClient);
-    
+
     const mockImageChain = {
       url: jest.fn(() => 'https://cdn.sanity.io/test.jpg'),
       toString: jest.fn(() => 'https://cdn.sanity.io/test.jpg'),
     };
-    
+
     const mockBuilderInstance = {
       image: jest.fn(() => mockImageChain),
     };
-    
+
     (imageUrlBuilder as jest.Mock).mockReturnValue(mockBuilderInstance);
   });
 
@@ -118,29 +118,29 @@ describe('Sanity client module', () => {
     it('should build image URLs using urlFor function', () => {
       const { createClient } = require('@sanity/client');
       const imageUrlBuilder = require('@sanity/image-url');
-      
+
       const mockImageChain = {
         url: jest.fn(() => 'https://cdn.sanity.io/test.jpg'),
         toString: jest.fn(() => 'https://cdn.sanity.io/test.jpg'),
       };
-      
+
       const mockBuilderInstance = {
         image: jest.fn(() => mockImageChain),
       };
-      
+
       (imageUrlBuilder as jest.Mock).mockReturnValue(mockBuilderInstance);
-      
+
       const clientModule = require('./client'); // Fixed import path
-      
-      const imageSource = { 
+
+      const imageSource = {
         _ref: 'image-asset-ref',
-        _type: 'reference'
+        _type: 'reference',
       };
 
       expect(typeof clientModule.urlFor).toBe('function');
-      
+
       const result = clientModule.urlFor(imageSource);
-      
+
       expect(imageUrlBuilder).toHaveBeenCalledWith(mockClient);
       expect(mockBuilderInstance.image).toHaveBeenCalledWith(imageSource);
       expect(result).toBe(mockImageChain);
@@ -150,32 +150,32 @@ describe('Sanity client module', () => {
     it('should handle centralized image model structure', () => {
       const { createClient } = require('@sanity/client');
       const imageUrlBuilder = require('@sanity/image-url');
-      
+
       const mockImageChain = {
         url: jest.fn(() => 'https://cdn.sanity.io/test.jpg'),
         toString: jest.fn(() => 'https://cdn.sanity.io/test.jpg'),
       };
-      
+
       const mockBuilderInstance = {
         image: jest.fn(() => mockImageChain),
       };
-      
+
       (imageUrlBuilder as jest.Mock).mockReturnValue(mockBuilderInstance);
-      
+
       const clientModule = require('./client'); // Fixed import path
-      
+
       // Test with the new centralized image model from R.5 refactoring plan
       const centralizedImageSource = {
         asset: {
           _ref: 'image-asset-ref',
-          _type: 'reference'
+          _type: 'reference',
         },
         alt: 'Test image alt text',
-        caption: 'Test image caption'
+        caption: 'Test image caption',
       };
-      
+
       const result = clientModule.urlFor(centralizedImageSource);
-      
+
       expect(mockBuilderInstance.image).toHaveBeenCalledWith(centralizedImageSource);
       expect(result).toBe(mockImageChain);
     });
@@ -204,15 +204,16 @@ describe('Sanity client module', () => {
         shortDescription: 'Short description', // Split description fields
         longDescription: 'Long description',
         digitalNomadFeatures: ['wifi', 'coffee'], // camelCase naming
-        primaryImage: { // Centralized image model
+        primaryImage: {
+          // Centralized image model
           asset: { _ref: 'image-ref' },
           alt: 'Primary image',
-          caption: 'Image caption'
-        }
+          caption: 'Image caption',
+        },
       };
 
       mockClient.fetch.mockResolvedValue(mockListingResponse);
-      
+
       const clientModule = require('./client'); // Fixed import path
 
       const query = `*[_type == "listing" && category == "coworking"][0]`;
@@ -220,7 +221,7 @@ describe('Sanity client module', () => {
 
       expect(clientModule.client.fetch).toHaveBeenCalledWith(query);
       expect(result).toEqual(mockListingResponse);
-      
+
       // Verify new schema structure
       expect(result.category).toBe('coworking');
       expect(result.ecoTags).toBeDefined();
@@ -235,18 +236,18 @@ describe('Sanity client module', () => {
     it('should export all required functions and instances', () => {
       const { createClient } = require('@sanity/client');
       const imageUrlBuilder = require('@sanity/image-url');
-      
+
       const mockBuilderInstance = {
         image: jest.fn(() => ({
           url: jest.fn(() => 'https://cdn.sanity.io/test.jpg'),
           toString: jest.fn(() => 'https://cdn.sanity.io/test.jpg'),
         })),
       };
-      
+
       (imageUrlBuilder as jest.Mock).mockReturnValue(mockBuilderInstance);
-      
+
       const clientModule = require('./client'); // Fixed import path
-      
+
       expect(clientModule.createClient).toBe(createClient);
       expect(clientModule.client).toBe(mockClient);
       expect(clientModule.builder).toBe(mockBuilderInstance);
@@ -258,24 +259,24 @@ describe('Sanity client module', () => {
   describe('Configuration Validation', () => {
     it('should use correct API version for new schema', () => {
       const { createClient } = require('@sanity/client');
-      
+
       require('./client'); // Fixed import path
-      
+
       expect(createClient).toHaveBeenCalledWith(
         expect.objectContaining({
-          apiVersion: '2024-01-01'
+          apiVersion: '2024-01-01',
         })
       );
     });
 
     it('should have useCdn disabled for server-side usage', () => {
       const { createClient } = require('@sanity/client');
-      
+
       require('./client'); // Fixed import path
-      
+
       expect(createClient).toHaveBeenCalledWith(
         expect.objectContaining({
-          useCdn: false
+          useCdn: false,
         })
       );
     });
@@ -304,9 +305,9 @@ describe('Sanity client module', () => {
           digitalNomadFeatures: ['high_speed_wifi', 'coffee_bar', 'meeting_rooms'],
           ecoTags: [
             { _ref: 'eco-tag-1', title: 'Solar Powered' },
-            { _ref: 'eco-tag-2', title: 'Recycling Program' }
-          ]
-        }
+            { _ref: 'eco-tag-2', title: 'Recycling Program' },
+          ],
+        },
       ]);
 
       const clientModule = require('./client');
@@ -351,22 +352,22 @@ describe('Sanity client module', () => {
             _id: 'image-asset-1',
             url: 'https://cdn.sanity.io/primary.jpg',
             metadata: {
-              dimensions: { width: 1200, height: 800 }
-            }
+              dimensions: { width: 1200, height: 800 },
+            },
           },
           alt: 'Main listing image',
-          caption: 'Beautiful coworking space'
+          caption: 'Beautiful coworking space',
         },
         gallery: [
           {
             asset: {
-              _id: 'image-asset-2', 
-              url: 'https://cdn.sanity.io/gallery1.jpg'
+              _id: 'image-asset-2',
+              url: 'https://cdn.sanity.io/gallery1.jpg',
             },
             alt: 'Interior view',
-            caption: 'Open workspace area'
-          }
-        ]
+            caption: 'Open workspace area',
+          },
+        ],
       };
 
       mockClient.fetch.mockResolvedValue(mockImageResponse);
@@ -379,8 +380,6 @@ describe('Sanity client module', () => {
       expect(result.gallery).toHaveLength(1);
       expect(result.gallery[0].asset.url).toBe('https://cdn.sanity.io/gallery1.jpg');
     });
-
-
   });
 
   describe('Error Handling and Edge Cases', () => {
@@ -415,7 +414,9 @@ describe('Sanity client module', () => {
 
       const clientModule = require('./client');
 
-      await expect(clientModule.client.fetch('*[_type == "listing"]')).rejects.toThrow('Fetch failed');
+      await expect(clientModule.client.fetch('*[_type == "listing"]')).rejects.toThrow(
+        'Fetch failed'
+      );
     });
 
     it('should handle create method success and failure', async () => {
@@ -459,7 +460,9 @@ describe('Sanity client module', () => {
       expect(result.name).toBe('Test Doc');
 
       mockClient.getDocument.mockRejectedValue(new Error('Get document failed'));
-      await expect(clientModule.client.getDocument('invalid-id')).rejects.toThrow('Get document failed');
+      await expect(clientModule.client.getDocument('invalid-id')).rejects.toThrow(
+        'Get document failed'
+      );
     });
 
     it('should handle partial environment variable configurations', () => {
@@ -485,6 +488,5 @@ describe('Sanity client module', () => {
 
       process.env = originalEnv;
     });
-
   });
 });

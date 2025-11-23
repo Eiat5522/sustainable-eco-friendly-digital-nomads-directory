@@ -2,13 +2,8 @@
  * @jest-environment node
  */
 
-import { describe, it, expect } from '@jest/globals';
-import {
-  JSON_HEADERS,
-  jsonPostOptions,
-  jsonPatchOptions,
-  jsonDeleteOptions,
-} from '../request';
+import { describe, expect, it } from '@jest/globals';
+import { JSON_HEADERS, jsonDeleteOptions, jsonPatchOptions, jsonPostOptions } from '../request';
 
 describe('request JSON helpers', () => {
   describe('JSON_HEADERS', () => {
@@ -95,12 +90,12 @@ describe('request JSON helpers', () => {
     it('should merge additional headers', () => {
       const body = { test: 'data' };
       const result = jsonPatchOptions(body, {
-        headers: { 'Authorization': 'Bearer token' },
+        headers: { Authorization: 'Bearer token' },
       });
 
       expect(result.headers).toEqual({
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer token',
+        Authorization: 'Bearer token',
       });
     });
 

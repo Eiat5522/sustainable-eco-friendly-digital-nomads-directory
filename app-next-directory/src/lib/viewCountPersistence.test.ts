@@ -1,6 +1,6 @@
 /**
  * Unit Tests for View Count Persistence
- * 
+ *
  * Tests cover:
  * 1. View count increment functionality
  * 2. Atomic operations and concurrent requests
@@ -8,16 +8,15 @@
  * 4. Error handling and edge cases
  */
 
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
-
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import clientPromise from './mongodb';
 // Import the module under test (mongodb.ts already has test mocks)
 import {
-  incrementViewCount,
   getViewCount,
+  incrementViewCount,
+  initializeViewCountsCollection,
   resetViewCounts,
-  initializeViewCountsCollection
 } from './viewCountPersistence';
-import clientPromise from './mongodb';
 
 describe('View Count Persistence', () => {
   let mockCollection: any;
@@ -174,10 +173,7 @@ describe('View Count Persistence', () => {
 
       await initializeViewCountsCollection();
 
-      expect(mockCollection.createIndex).toHaveBeenCalledWith(
-        { postId: 1 },
-        { unique: true }
-      );
+      expect(mockCollection.createIndex).toHaveBeenCalledWith({ postId: 1 }, { unique: true });
       expect(mockCollection.createIndex).toHaveBeenCalledWith({ lastViewed: -1 });
       expect(mockCollection.createIndex).toHaveBeenCalledTimes(2);
     });
@@ -201,7 +197,7 @@ describe('View Count Persistence', () => {
 
     it('should throw error in non-test environment', async () => {
       const originalEnv = process.env.NODE_ENV;
-      
+
       try {
         process.env.NODE_ENV = 'production';
 
@@ -228,7 +224,7 @@ describe('View Count Persistence', () => {
       mockCollection.findOneAndUpdate.mockResolvedValue({
         value: { postId: 'persistent-post', count: 1, lastViewed: new Date() },
       });
-      
+
       await incrementViewCount('persistent-post');
 
       // Simulate reading after "restart" (new client connection)
@@ -267,9 +263,15 @@ describe('View Count Persistence', () => {
     it('should handle concurrent increments with atomic operations', async () => {
       // Simulate concurrent increments - MongoDB's $inc ensures atomicity
       mockCollection.findOneAndUpdate
-        .mockResolvedValueOnce({ value: { postId: 'concurrent', count: 1, lastViewed: new Date() } })
-        .mockResolvedValueOnce({ value: { postId: 'concurrent', count: 2, lastViewed: new Date() } })
-        .mockResolvedValueOnce({ value: { postId: 'concurrent', count: 3, lastViewed: new Date() } });
+        .mockResolvedValueOnce({
+          value: { postId: 'concurrent', count: 1, lastViewed: new Date() },
+        })
+        .mockResolvedValueOnce({
+          value: { postId: 'concurrent', count: 2, lastViewed: new Date() },
+        })
+        .mockResolvedValueOnce({
+          value: { postId: 'concurrent', count: 3, lastViewed: new Date() },
+        });
 
       // Execute "concurrent" requests
       const results = await Promise.all([

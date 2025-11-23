@@ -61,14 +61,14 @@ test.describe('Admin Dashboard Integration', () => {
 
   test.describe('Admin Dashboard Functionality', () => {
     test.beforeEach(async ({ page }) => {
-      await page.route('**/api/admin/analytics', (route) => {
+      await page.route('**/api/admin/analytics', route => {
         route.fulfill({
           status: 200,
           contentType: 'application/json',
           json: { analytics: ANALYTICS_FIXTURE },
         });
       });
-      await page.route('**/api/admin/moderation*', (route) => {
+      await page.route('**/api/admin/moderation*', route => {
         if (route.request().method() === 'GET') {
           route.fulfill({
             status: 200,
@@ -95,7 +95,9 @@ test.describe('Admin Dashboard Integration', () => {
     test('loads admin dashboard page', async ({ page }) => {
       await expect(page.getByTestId('admin-dashboard')).toBeVisible({ timeout: 10000 });
       await expect(page.getByTestId('admin-dashboard-title')).toHaveText('Admin Dashboard');
-      await expect(page.getByText('Monitor community health and moderate member activity.')).toBeVisible();
+      await expect(
+        page.getByText('Monitor community health and moderate member activity.')
+      ).toBeVisible();
     });
 
     test('displays analytics overview section', async ({ page }) => {
@@ -138,7 +140,7 @@ test.describe('Admin Dashboard Integration', () => {
       await expect(table).toBeVisible();
 
       const headers = await table.locator('thead th').allTextContents();
-      expect(headers.map((h) => h.trim())).toEqual([
+      expect(headers.map(h => h.trim())).toEqual([
         'Item',
         'Type',
         'Reports',
@@ -155,7 +157,7 @@ test.describe('Admin Dashboard Integration', () => {
     });
 
     test('shows empty state when moderation queue is empty', async ({ page }) => {
-      await page.route('**/api/admin/moderation*', (route) => {
+      await page.route('**/api/admin/moderation*', route => {
         if (route.request().method() === 'GET') {
           route.fulfill({
             status: 200,
@@ -205,10 +207,10 @@ test.describe('Admin Dashboard Integration', () => {
 
   test.describe('Error Handling', () => {
     test('handles API errors gracefully', async ({ page }) => {
-      await page.route('**/api/admin/analytics', (route) => {
+      await page.route('**/api/admin/analytics', route => {
         route.fulfill({ status: 500, body: 'Internal Server Error' });
       });
-      await page.route('**/api/admin/moderation*', (route) => {
+      await page.route('**/api/admin/moderation*', route => {
         route.fulfill({ status: 500, body: 'Internal Server Error' });
       });
 

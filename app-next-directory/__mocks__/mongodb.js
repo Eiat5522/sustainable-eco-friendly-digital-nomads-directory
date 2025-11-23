@@ -1,6 +1,6 @@
 function genHex24() {
   const bytes = Array.from({ length: 24 }, () => Math.floor(Math.random() * 16));
-  return bytes.map((b) => b.toString(16)).join('');
+  return bytes.map(b => b.toString(16)).join('');
 }
 
 class MockObjectId {
@@ -19,11 +19,21 @@ class MockObjectId {
   }
   equals(other) {
     if (!other) return false;
-    const s = typeof other === 'string' ? other : typeof other.toString === 'function' ? other.toString() : '';
+    const s =
+      typeof other === 'string'
+        ? other
+        : typeof other.toString === 'function'
+          ? other.toString()
+          : '';
     return s === this._id;
   }
   static isValid(value) {
-    const s = typeof value === 'string' ? value : typeof value?.toString === 'function' ? value.toString() : '';
+    const s =
+      typeof value === 'string'
+        ? value
+        : typeof value?.toString === 'function'
+          ? value.toString()
+          : '';
     return /^[a-fA-F0-9]{24}$/.test(s);
   }
 }
@@ -34,7 +44,7 @@ class MockMongoClient {
   }
   db() {
     return {
-      collection: (name) => ({
+      collection: name => ({
         find: jest.fn().mockReturnValue({
           skip: jest.fn().mockReturnThis(),
           limit: jest.fn().mockReturnThis(),
@@ -52,7 +62,7 @@ class MockMongoServerError extends Error {
   constructor(info) {
     super((info && (info.errmsg || info.message)) || 'MongoServerError');
     this.name = 'MongoServerError';
-    this.code = info && info.code;
+    this.code = info?.code;
   }
 }
 
@@ -60,5 +70,9 @@ module.exports = {
   MongoClient: MockMongoClient,
   ObjectId: MockObjectId,
   MongoServerError: MockMongoServerError,
-  default: { MongoClient: MockMongoClient, ObjectId: MockObjectId, MongoServerError: MockMongoServerError },
+  default: {
+    MongoClient: MockMongoClient,
+    ObjectId: MockObjectId,
+    MongoServerError: MockMongoServerError,
+  },
 };

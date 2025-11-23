@@ -94,12 +94,17 @@ const CATEGORY_RENDERERS: CategoryRendererMap = {
             <span className="font-medium">Pricing Plans:</span>
             <div className="space-y-2 mt-2">
               {coworkingDetails.pricingPlans.map((plan, index) => (
-                <div key={`${plan.type}-${index}`} className="p-3 bg-neo-surface border border-neo-border rounded-lg">
+                <div
+                  key={`${plan.type}-${index}`}
+                  className="p-3 bg-neo-surface border border-neo-border rounded-lg"
+                >
                   <div className="flex justify-between items-start">
                     <div>
                       <span className="font-medium">{plan.type}</span>
                       {plan.period ? (
-                        <span className="text-sm text-neo-text-secondary ml-2">({plan.period})</span>
+                        <span className="text-sm text-neo-text-secondary ml-2">
+                          ({plan.period})
+                        </span>
                       ) : null}
                     </div>
                     <span className="font-medium text-neo-primary">
@@ -123,7 +128,8 @@ const CATEGORY_RENDERERS: CategoryRendererMap = {
           <div>
             <span className="font-medium">Internet Speed: </span>
             <span className="text-neo-text-secondary">
-              {coworkingDetails.internetSpeed.download}Mbps down / {coworkingDetails.internetSpeed.upload}Mbps up
+              {coworkingDetails.internetSpeed.download}Mbps down /{' '}
+              {coworkingDetails.internetSpeed.upload}Mbps up
             </span>
           </div>
         ) : null}
@@ -289,4 +295,3 @@ export function resolveCategoryDetails(listing: ListingDetailDTO): ReactNode | n
 export function ListingCategoryDetails({ listing }: ListingCategoryDetailsProps) {
   return resolveCategoryDetails(listing);
 }
-

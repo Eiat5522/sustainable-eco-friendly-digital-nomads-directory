@@ -132,21 +132,18 @@ describe('getUserDashboardData', () => {
       }
       return Promise.resolve([]);
     });
-    getMonthlyViewCountsMock.mockResolvedValue(
-      new Map([
-        ['listing-1', new Map([['2023-12', 5]])],
-      ]),
-    );
-    getLifetimeViewCountsMock.mockResolvedValue(
-      new Map([['listing-1', 42]]),
-    );
+    getMonthlyViewCountsMock.mockResolvedValue(new Map([['listing-1', new Map([['2023-12', 5]])]]));
+    getLifetimeViewCountsMock.mockResolvedValue(new Map([['listing-1', 42]]));
 
-    const result = await getUserDashboardData({
-      id: 'owner-1',
-      role: 'venueOwner',
-      name: 'Venue Owner',
-      email: 'owner@example.com',
-    }, { months: 2 });
+    const result = await getUserDashboardData(
+      {
+        id: 'owner-1',
+        role: 'venueOwner',
+        name: 'Venue Owner',
+        email: 'owner@example.com',
+      },
+      { months: 2 }
+    );
 
     expect(result?.data.kind).toBe('venueOwner');
     const listings = (result?.data.kind === 'venueOwner' && result.data.listings) || [];

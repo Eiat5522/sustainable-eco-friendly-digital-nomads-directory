@@ -1,14 +1,15 @@
-
-import { VenueListingManagement } from '../components/VenueListingManagement';
-import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import { auth } from '@/lib/auth';
+import { VenueListingManagement } from '../components/VenueListingManagement';
 
 export default async function VenueListingsPage() {
   const session = await auth();
-  const sessionUser = session?.user as {
-    id?: string;
-    role?: string;
-  } | undefined;
+  const sessionUser = session?.user as
+    | {
+        id?: string;
+        role?: string;
+      }
+    | undefined;
 
   if (sessionUser?.role !== 'venueOwner') {
     redirect('/dashboard');

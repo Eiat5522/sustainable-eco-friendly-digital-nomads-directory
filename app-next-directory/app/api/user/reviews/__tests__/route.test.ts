@@ -1,12 +1,12 @@
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 import {
+  _testControl,
   GET,
-  _normaliseSlug as normaliseSlug,
+  isDeletedStatus,
   normaliseListing,
   normaliseReview,
-  isDeletedStatus,
-  _testControl,
+  _normaliseSlug as normaliseSlug,
 } from '../route';
 
 const testHarness = _testControl!;

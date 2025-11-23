@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 
 const VALID_SLUG = 'banyan-tree-phuket';
 const ERROR_SLUG = 'listing-error-simulated';
@@ -10,7 +10,7 @@ async function waitForPageStable(page: Page) {
 
 test.describe('[E2E] Listing detail page', () => {
   test.beforeEach(async ({ page }) => {
-    await page.route(SESSION_ENDPOINT, async (route) => {
+    await page.route(SESSION_ENDPOINT, async route => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',

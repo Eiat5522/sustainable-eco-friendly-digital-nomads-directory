@@ -7,9 +7,9 @@
  */
 
 import { jest } from '@jest/globals';
-import { GET } from './route';
-import { client } from '@/lib/sanity/client';
 import { DEFAULT_CATEGORIES } from '@/lib/constants/categories';
+import { client } from '@/lib/sanity/client';
+import { GET } from './route';
 
 // Mock Sanity client
 jest.mock('@/lib/sanity/client', () => ({

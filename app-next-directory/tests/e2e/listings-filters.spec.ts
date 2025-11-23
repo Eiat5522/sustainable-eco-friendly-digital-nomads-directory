@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Listings filters', () => {
   test('applies filters and updates results (desktop)', async ({ page }) => {

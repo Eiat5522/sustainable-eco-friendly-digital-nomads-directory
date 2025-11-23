@@ -1,6 +1,6 @@
-import { ACCESS_CONTROL_MATRIX, type PagePermissions, type UserRole } from '@/types/auth';
-import { structuredLogger, getRequestContext } from '@/lib/logger';
 import type { NextRequest } from 'next/server';
+import { getRequestContext, structuredLogger } from '@/lib/logger';
+import { ACCESS_CONTROL_MATRIX, type PagePermissions, type UserRole } from '@/types/auth';
 
 const secret = process.env.NEXTAUTH_SECRET;
 
@@ -56,7 +56,7 @@ function hasAccess(userRole: UserRole, path: string): boolean {
 
   // Map paths to permission keys
   let basePathKey = 'home';
-  
+
   if (path.startsWith('/api/')) {
     // For API routes, map to corresponding page permissions
     if (path.startsWith('/api/user')) {
@@ -104,7 +104,9 @@ function hasAccess(userRole: UserRole, path: string): boolean {
     }
   }
 
-  const pagePermission = permissions.pages[basePathKey as keyof typeof permissions.pages] as PagePermissions | undefined;
+  const pagePermission = permissions.pages[basePathKey as keyof typeof permissions.pages] as
+    | PagePermissions
+    | undefined;
 
   return pagePermission?.canView ?? false;
 }
@@ -113,14 +115,17 @@ type TokenPayload = { role?: UserRole } & Record<string, unknown>;
 
 type GetTokenFn = (params: { req: NextRequest; secret?: string }) => Promise<TokenPayload | null>;
 
-type NextResponseFactory = Pick<typeof import('next/server').NextResponse, 'next' | 'redirect' | 'json'>;
+type NextResponseFactory = Pick<
+  typeof import('next/server').NextResponse,
+  'next' | 'redirect' | 'json'
+>;
 
 export function createMiddleware({
   getToken,
-  NextResponse
+  NextResponse,
 }: {
-  getToken: GetTokenFn,
-  NextResponse: NextResponseFactory
+  getToken: GetTokenFn;
+  NextResponse: NextResponseFactory;
 }) {
   return async function middleware(request: NextRequest) {
     try {
@@ -140,13 +145,7 @@ export function createMiddleware({
 
       // Auth pages handling - redirect authenticated users to dashboard
       // Current working auth pages: /auth/login and /auth/signup (also handle legacy /login /register)
-      const authPages = [
-        '/auth/error',
-        '/auth/login',
-        '/auth/signup',
-        '/login',
-        '/register'
-      ];
+      const authPages = ['/auth/error', '/auth/login', '/auth/signup', '/login', '/register'];
       const isAuthPage = authPages.some(p => pathname.startsWith(p));
 
       if (isAuthPage && isAuthenticated) {
@@ -156,7 +155,14 @@ export function createMiddleware({
       }
 
       // Protected routes check
-      const protectedPaths = ['/dashboard', '/admin', '/profile', '/settings', '/listings/manage', '/listings/create'];
+      const protectedPaths = [
+        '/dashboard',
+        '/admin',
+        '/profile',
+        '/settings',
+        '/listings/manage',
+        '/listings/create',
+      ];
       const isProtectedRoute = protectedPaths.some(path => pathname.startsWith(path));
 
       if (isProtectedRoute) {
@@ -171,10 +177,7 @@ export function createMiddleware({
         if (!hasAccess(userRole, pathname)) {
           if (pathname.startsWith('/api/')) {
             return withSecurityHeaders(
-              NextResponse.json(
-                { error: 'Access denied' },
-                { status: 403 }
-              )
+              NextResponse.json({ error: 'Access denied' }, { status: 403 })
             );
           }
           const homeUrl = new URL('/', request.nextUrl.origin || request.url);
@@ -201,19 +204,13 @@ export function createMiddleware({
 
         if (isProtectedApi && !isAuthenticated) {
           return withSecurityHeaders(
-            NextResponse.json(
-              { error: 'Authentication required' },
-              { status: 401 }
-            )
+            NextResponse.json({ error: 'Authentication required' }, { status: 401 })
           );
         }
 
         if (isProtectedApi && userRole && !hasAccess(userRole, pathname)) {
           return withSecurityHeaders(
-            NextResponse.json(
-              { error: 'Access denied' },
-              { status: 403 }
-            )
+            NextResponse.json({ error: 'Access denied' }, { status: 403 })
           );
         }
         // Everything else (other APIs) are allowed
@@ -221,7 +218,10 @@ export function createMiddleware({
       }
 
       // Special handling for /auth/profile and /auth/profile/settings (test expects /auth/signin with callbackUrl)
-      if ((pathname === '/auth/profile' || pathname === '/auth/profile/settings') && !isAuthenticated) {
+      if (
+        (pathname === '/auth/profile' || pathname === '/auth/profile/settings') &&
+        !isAuthenticated
+      ) {
         const signinUrl = new URL('/auth/login', request.nextUrl.origin || request.url);
         signinUrl.searchParams.set('callbackUrl', pathname);
         return withSecurityHeaders(NextResponse.redirect(signinUrl));
@@ -239,12 +239,12 @@ export function createMiddleware({
 
 // Default export for Next.js (uses real dependencies)
 // Dynamically require NextResponse for runtime compatibility
-let ignoredNextResponseReal: unknown;
+let _ignoredNextResponseReal: unknown;
 try {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  ignoredNextResponseReal = require('next/server').NextResponse;
+  _ignoredNextResponseReal = require('next/server').NextResponse;
 } catch {
-  ignoredNextResponseReal = undefined;
+  _ignoredNextResponseReal = undefined;
 }
 // Refined matcher configuration
 export const config = {
@@ -277,9 +277,8 @@ export const config = {
   ],
 };
 
-
 // CJS/ESM compatibility for Jest
-if (typeof module !== "undefined" && module.exports) {
+if (typeof module !== 'undefined' && module.exports) {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   module.exports = { middleware: require('@/lib/auth').auth, config, createMiddleware };
 }

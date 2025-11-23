@@ -1,14 +1,17 @@
 // <reference types="webpack" />
-import type { NextConfig } from 'next'
+
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import withBundleAnalyzer from '@next/bundle-analyzer';
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import type { NextConfig } from 'next';
 
-const APP_DIR = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
-import type { Configuration } from 'webpack'
+const APP_DIR =
+  typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
 
-const isAnalyze = /^(1|true|yes)$/i.test(process.env.ANALYZE ?? '')
-const withAnalyzer = withBundleAnalyzer({ enabled: isAnalyze })
+import type { Configuration } from 'webpack';
+
+const isAnalyze = /^(1|true|yes)$/i.test(process.env.ANALYZE ?? '');
+const withAnalyzer = withBundleAnalyzer({ enabled: isAnalyze });
 
 const nextConfig: NextConfig = {
   productionBrowserSourceMaps: process.env.ENABLE_SOURCE_MAPS === 'true',
@@ -23,7 +26,7 @@ const nextConfig: NextConfig = {
     return [
       { source: '/contact', destination: '/contact-us', permanent: true },
       { source: '/city/:slug', destination: '/cities/:slug', permanent: true },
-    ]
+    ];
   },
   images: {
     remotePatterns: [
@@ -53,20 +56,20 @@ const nextConfig: NextConfig = {
   },
   webpack(config: Configuration) {
     // Ensure @ alias resolves to this app's src directory
-    config.resolve = config.resolve || {}
+    config.resolve = config.resolve || {};
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
       '@': path.resolve(APP_DIR, 'src'),
-    }
+    };
 
     config.module.rules.push({
       test: /\.svg$/i,
       issuer: /\.[jt]sx?$/,
       use: ['@svgr/webpack'],
-    })
+    });
 
-    return config
+    return config;
   },
 };
 
-export default (isAnalyze ? withAnalyzer(nextConfig) : nextConfig);
+export default isAnalyze ? withAnalyzer(nextConfig) : nextConfig;

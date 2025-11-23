@@ -1,15 +1,16 @@
 import { render, screen } from '@testing-library/react';
-import React from 'react';
 
 const galleryMock = jest.fn(({ images }: { images: string[] }) => (
   <div data-testid="gallery-grid-mock">{images.join('|')}</div>
 ));
 
-jest.mock('@/components/listings/GalleryGrid', () => (
-  function MockGalleryGrid(props: { images: string[] }) {
-    return galleryMock(props);
-  }
-));
+jest.mock(
+  '@/components/listings/GalleryGrid',
+  () =>
+    function MockGalleryGrid(props: { images: string[] }) {
+      return galleryMock(props);
+    }
+);
 
 describe('TestGalleryPage', () => {
   beforeEach(() => {
@@ -31,7 +32,9 @@ describe('TestGalleryPage', () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/Component Below Gallery/)).toBeInTheDocument();
     expect(
-      screen.getByText(/This component is placed below the gallery to test if the gallery images overlap/)
+      screen.getByText(
+        /This component is placed below the gallery to test if the gallery images overlap/
+      )
     ).toBeInTheDocument();
   });
 
@@ -41,16 +44,13 @@ describe('TestGalleryPage', () => {
 
     expect(galleryMock).toHaveBeenCalledTimes(2);
 
-    expect(galleryMock).toHaveBeenNthCalledWith(
-      1,
-      {
-        images: [
-          'https://picsum.photos/seed/1/400/300',
-          'https://picsum.photos/seed/2/400/300',
-          'https://picsum.photos/seed/3/400/300',
-        ],
-      }
-    );
+    expect(galleryMock).toHaveBeenNthCalledWith(1, {
+      images: [
+        'https://picsum.photos/seed/1/400/300',
+        'https://picsum.photos/seed/2/400/300',
+        'https://picsum.photos/seed/3/400/300',
+      ],
+    });
 
     // For the second call, check the array length and contents
     const manyImages = [
@@ -67,12 +67,9 @@ describe('TestGalleryPage', () => {
       'https://picsum.photos/seed/14/400/300',
       'https://picsum.photos/seed/15/400/300',
     ];
-    expect(galleryMock).toHaveBeenNthCalledWith(
-      2,
-      {
-        images: manyImages,
-      }
-    );
+    expect(galleryMock).toHaveBeenNthCalledWith(2, {
+      images: manyImages,
+    });
     expect(manyImages).toHaveLength(12);
     expect(manyImages[0]).toBe('https://picsum.photos/seed/4/400/300');
     expect(manyImages[11]).toBe('https://picsum.photos/seed/15/400/300');

@@ -1,21 +1,21 @@
-import { ApiResponseHandler } from '@/utils/api-response';
-import { rateLimit } from '@/utils/rate-limit';
 import type { NextRequest } from 'next/server';
-import nodemailer from 'nodemailer';
 import type { SentMessageInfo, Transporter } from 'nodemailer';
-import { z } from 'zod';
+import nodemailer from 'nodemailer';
 import validator from 'validator';
+import { z } from 'zod';
+import dbConnect from '@/lib/dbConnect';
 import { sendMail } from '@/lib/email';
 import ContactSubmission from '@/models/ContactSubmission';
-import dbConnect from '@/lib/dbConnect';
+import { ApiResponseHandler } from '@/utils/api-response';
+import { rateLimit } from '@/utils/rate-limit';
 
 const CONTACT_RECIPIENT = String(
   process.env.CONTACT_EMAIL ??
-  process.env.contactEmail ??
-  process.env.SMTP_USER ??
-  process.env.smtpUser ??
-  process.env.gmailUser ??
-  ''
+    process.env.contactEmail ??
+    process.env.SMTP_USER ??
+    process.env.smtpUser ??
+    process.env.gmailUser ??
+    ''
 );
 
 const MAIL_FROM =
@@ -34,8 +34,14 @@ const contactFormSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name too long'),
   email: z.string().email('Please enter a valid email address'),
   subject: z.string().min(5, 'Subject must be at least 5 characters').max(200, 'Subject too long'),
-  message: z.string().min(10, 'Message must be at least 10 characters').max(2000, 'Message too long'),
-  type: z.enum(['general', 'listing', 'partnership', 'support', 'feedback']).optional().default('general'),
+  message: z
+    .string()
+    .min(10, 'Message must be at least 10 characters')
+    .max(2000, 'Message too long'),
+  type: z
+    .enum(['general', 'listing', 'partnership', 'support', 'feedback'])
+    .optional()
+    .default('general'),
   listingSlug: z.string().optional(), // For listing-specific inquiries
 });
 
@@ -50,7 +56,7 @@ const createTransporter = (): Transporter<SentMessageInfo> | null => {
   if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
     return nodemailer.createTransport({
       host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT || '587'),
+      port: parseInt(process.env.SMTP_PORT || '587', 10),
       secure: process.env.SMTP_SECURE === 'true',
       auth: {
         user: process.env.SMTP_USER,
@@ -76,7 +82,8 @@ export async function POST(request: NextRequest) {
   try {
     await dbConnect();
     // Rate limiting
-    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'anonymous';
+    const ip =
+      request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'anonymous';
     const rateLimitResult = await limiter(request);
     if (!rateLimitResult.success) {
       return ApiResponseHandler.error('Too many requests. Please try again later.', 429);
@@ -119,8 +126,6 @@ export async function POST(request: NextRequest) {
     await submission.save();
 
     if (hasSpam) {
-      // Log potential spam but don't notify the user
-      console.warn('Potential spam detected and saved to database:', { email, subject, ip });
       return ApiResponseHandler.success(
         { messageId: 'spam-filtered', submissionId: submission._id },
         'Your message has been sent successfully!'
@@ -178,65 +183,60 @@ export async function POST(request: NextRequest) {
 
     let messageInfo: { adminId?: string; autoReplyId?: string } = {};
     let emailSent = false;
-    
+
     if (process.env.RESEND_API_KEY) {
       // Prefer Resend when configured
       const adminRecipient = CONTACT_RECIPIENT;
       const resendJobs = [];
-      
+
       if (adminRecipient) {
         resendJobs.push(
           sendMail({
             to: adminRecipient,
             subject: emailSubject,
             html: emailBody,
-          }).then((result) => ({ type: 'admin', result }))
+          }).then(result => ({ type: 'admin', result }))
         );
       } else {
-        console.warn('No CONTACT_EMAIL configured; skipping admin notification email');
       }
-      
+
       resendJobs.push(
         sendMail({
           to: email,
           subject: autoReplySubject,
           html: autoReplyBody,
-        }).then((result) => ({ type: 'autoReply', result }))
+        }).then(result => ({ type: 'autoReply', result }))
       );
-      
+
       const results = await Promise.all(resendJobs);
-      
+
       // Check if emails were actually sent or skipped
       const adminResult = results.find(r => r.type === 'admin');
-      
+
       if (adminResult?.result && 'skipped' in adminResult.result) {
-        console.warn('Email sending skipped - RESEND_API_KEY not properly configured');
       } else {
         emailSent = true;
-        messageInfo = { 
-          adminId: adminRecipient ? 'resend' : undefined, 
-          autoReplyId: 'resend' 
+        messageInfo = {
+          adminId: adminRecipient ? 'resend' : undefined,
+          autoReplyId: 'resend',
         };
       }
     } else {
       // Fallback to nodemailer
       const transporter = createTransporter();
-      
+
       if (!transporter) {
-        console.warn('No email service configured. Contact submission saved but emails not sent.');
-        console.warn('Please configure either RESEND_API_KEY or SMTP/Gmail credentials.');
         // Continue without sending email - this is not a failure if email wasn't configured
       } else {
         const adminRecipient = CONTACT_RECIPIENT;
         const fromAddress = MAIL_FROM ?? GMAIL_USER ?? undefined;
-        
+
         if (!fromAddress) {
-          console.warn('No from address configured for email. Please set SMTP_FROM, RESEND_FROM, or GMAIL_USER.');
           // Continue without sending email
         } else {
           // Email is configured - any errors here should fail the request
           let adminResult: SentMessageInfo | undefined;
-          
+
           if (adminRecipient) {
             adminResult = await transporter.sendMail({
               from: fromAddress,
@@ -246,37 +246,28 @@ export async function POST(request: NextRequest) {
               replyTo: email,
             });
           } else {
-            console.warn('No CONTACT_EMAIL configured; skipping admin notification email');
           }
-          
+
           const autoReplyResult = await transporter.sendMail({
             from: fromAddress,
             to: email,
             subject: autoReplySubject,
             html: autoReplyBody,
           });
-          
+
           emailSent = true;
           messageInfo = {
             adminId: typeof adminResult?.messageId === 'string' ? adminResult.messageId : undefined,
-            autoReplyId: typeof autoReplyResult?.messageId === 'string' ? autoReplyResult.messageId : undefined,
+            autoReplyId:
+              typeof autoReplyResult?.messageId === 'string'
+                ? autoReplyResult.messageId
+                : undefined,
           };
         }
       }
     }
 
-    // Log successful submission
-    console.log('Contact form submission processed and saved:', {
-      submissionId: submission._id,
-      messageId: messageInfo.adminId,
-      autoReplyId: messageInfo.autoReplyId,
-      emailSent,
-      type,
-      from: email,
-      ip,
-    });
-
-    const successMessage = emailSent 
+    const successMessage = emailSent
       ? 'Your message has been sent successfully! You should receive a confirmation email shortly.'
       : 'Your message has been received and saved. However, email notifications are currently unavailable. We will respond to your inquiry as soon as possible.';
 
@@ -286,18 +277,19 @@ export async function POST(request: NextRequest) {
         submissionId: submission._id,
         type,
         timestamp: new Date().toISOString(),
-        emailSent
+        emailSent,
       },
       successMessage
     );
-
   } catch (error) {
-    console.error('Contact form error:', error);
 
     // Handle specific nodemailer errors
     if (error instanceof Error) {
       if (error.message.includes('SMTP')) {
-        return ApiResponseHandler.error('Email service temporarily unavailable. Please try again later.', 503);
+        return ApiResponseHandler.error(
+          'Email service temporarily unavailable. Please try again later.',
+          503
+        );
       }
       if (error.message.includes('Authentication')) {
         return ApiResponseHandler.error('Email configuration error. Please contact support.', 500);
@@ -307,8 +299,6 @@ export async function POST(request: NextRequest) {
     return ApiResponseHandler.error('Failed to send message. Please try again later.', 500);
   }
 }
-
-
 
 // GET endpoint for retrieving contact form configuration
 export async function GET() {

@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 
 const NAV_LINKS = ['Home', 'Search', 'Blog', 'Contact Us'] as const;
 
@@ -37,7 +37,7 @@ const MOCK_CITIES = [
 ];
 
 async function mockAnonymousSession(page: Page) {
-  await page.route('**/api/auth/session', async (route) => {
+  await page.route('**/api/auth/session', async route => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -47,7 +47,7 @@ async function mockAnonymousSession(page: Page) {
 }
 
 async function mockHomePageApis(page: Page) {
-  await page.route('**/api/featured-listings*', async (route) => {
+  await page.route('**/api/featured-listings*', async route => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -55,7 +55,7 @@ async function mockHomePageApis(page: Page) {
     });
   });
 
-  await page.route('**/api/cities*', async (route) => {
+  await page.route('**/api/cities*', async route => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -70,7 +70,9 @@ async function expectNoHorizontalOverflow(page: Page) {
     innerWidth: window.innerWidth,
   }));
 
-  expect(scrollWidth, 'layout should not overflow horizontally').toBeLessThanOrEqual(innerWidth + 1);
+  expect(scrollWidth, 'layout should not overflow horizontally').toBeLessThanOrEqual(
+    innerWidth + 1
+  );
 }
 
 test.describe('[E2E] Responsive navigation layout', () => {
@@ -137,7 +139,10 @@ test.describe('[E2E] Responsive navigation layout', () => {
     }
 
     await expect(
-      page.getByRole('heading', { level: 1, name: /A Curated Directory For Sustainable Digital Nomads/i }),
+      page.getByRole('heading', {
+        level: 1,
+        name: /A Curated Directory For Sustainable Digital Nomads/i,
+      })
     ).toBeVisible();
 
     await expectNoHorizontalOverflow(page);

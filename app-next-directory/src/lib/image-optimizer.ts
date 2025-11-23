@@ -40,7 +40,7 @@ export async function optimizeImageFile(
 ): Promise<OptimizationResult> {
   return {
     success: false,
-    error: LEGACY_OPTIMIZER_MESSAGE
+    error: LEGACY_OPTIMIZER_MESSAGE,
   };
 }
 
@@ -58,7 +58,7 @@ export async function optimizeFileBuffer(
     success: false,
     originalSize: fileBuffer.length,
     optimizedSize: fileBuffer.length,
-    error: LEGACY_OPTIMIZER_MESSAGE
+    error: LEGACY_OPTIMIZER_MESSAGE,
   };
 }
 

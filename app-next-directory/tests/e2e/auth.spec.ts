@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Authentication (Playwright)', () => {
   test('registers a new user and redirects to login', async ({ page, baseURL }) => {
@@ -12,7 +12,7 @@ test.describe('Authentication (Playwright)', () => {
 
     await Promise.all([
       page.waitForURL('**/login', { waitUntil: 'domcontentloaded' }),
-      page.getByRole('button', { name: /register/i }).click()
+      page.getByRole('button', { name: /register/i }).click(),
     ]);
 
     await expect(page).toHaveURL(/\/login$/);

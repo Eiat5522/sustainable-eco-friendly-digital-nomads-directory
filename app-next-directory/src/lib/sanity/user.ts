@@ -1,5 +1,5 @@
-import { client } from '@/lib/sanity/client';
 import { structuredLogger } from '@/lib/logger';
+import { client } from '@/lib/sanity/client';
 import type { UserRole } from '@/types/auth';
 
 type EnsureUserOptions = {
@@ -36,7 +36,12 @@ function normaliseName(name: string | null | undefined): string | undefined {
  * Ensures a corresponding Sanity `user` document exists for the authenticated NextAuth user.
  * Creates the document when missing and keeps key identity fields (name/email/role) up to date.
  */
-async function ensureSanityUserInternal({ id, name, email, role }: EnsureUserOptions): Promise<SanityUser | null> {
+async function ensureSanityUserInternal({
+  id,
+  name,
+  email,
+  role,
+}: EnsureUserOptions): Promise<SanityUser | null> {
   if (!id) {
     return null;
   }
@@ -73,7 +78,10 @@ async function ensureSanityUserInternal({ id, name, email, role }: EnsureUserOpt
       return baseDoc;
     }
 
-    const updated = await client.patch(id).set(patch).commit<SanityUser>({ autoGenerateArrayKeys: true });
+    const updated = await client
+      .patch(id)
+      .set(patch)
+      .commit<SanityUser>({ autoGenerateArrayKeys: true });
     return updated;
   } catch (error) {
     structuredLogger.error('Failed to ensure Sanity user document', error, {
@@ -136,7 +144,9 @@ const createMockableEnsureSanityUser = (): MockableEnsureSanityUser => {
     calls: [],
   };
 
-  const mockFn = (async function ensureSanityUserMock(options: EnsureUserOptions): Promise<SanityUser | null> {
+  const mockFn = async function ensureSanityUserMock(
+    options: EnsureUserOptions
+  ): Promise<SanityUser | null> {
     state.calls.push(options);
     if (state.queue.length > 0) {
       const resolver = state.queue.shift()!;
@@ -146,7 +156,7 @@ const createMockableEnsureSanityUser = (): MockableEnsureSanityUser => {
       return state.implementation(options);
     }
     return ensureSanityUserInternal(options);
-  }) as MockableEnsureSanityUser;
+  } as MockableEnsureSanityUser;
 
   mockFn.mockResolvedValueOnce = (value: SanityUser | null) => {
     state.queue.push(async () => value);
@@ -156,7 +166,7 @@ const createMockableEnsureSanityUser = (): MockableEnsureSanityUser => {
   mockFn.mockImplementation = (
     impl: (options: EnsureUserOptions) => SanityUser | null | Promise<SanityUser | null>
   ) => {
-    state.implementation = async (options) => Promise.resolve(impl(options));
+    state.implementation = async options => Promise.resolve(impl(options));
     return mockFn;
   };
 

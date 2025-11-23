@@ -4,7 +4,7 @@
  * This module centralises alert severity definitions, notification routing,
  * and the concrete metric thresholds derived from the performance budgets.
  */
-import { PERFORMANCE_BUDGETS, type Budget } from './performance-budgets';
+import { type Budget, PERFORMANCE_BUDGETS } from './performance-budgets';
 
 export const ALERT_SEVERITY = {
   INFO: 'info',
@@ -22,7 +22,8 @@ export const NOTIFICATION_CHANNELS = {
   WEBHOOK: 'webhook',
 } as const;
 
-export type NotificationChannel = (typeof NOTIFICATION_CHANNELS)[keyof typeof NOTIFICATION_CHANNELS];
+export type NotificationChannel =
+  (typeof NOTIFICATION_CHANNELS)[keyof typeof NOTIFICATION_CHANNELS];
 
 export type DestinationMap = Partial<Record<AlertSeverity, NotificationChannel[]>>;
 
@@ -79,38 +80,44 @@ const PAGE_LOAD_FID = requireBudget(PERFORMANCE_BUDGETS.pageLoad.FID, 'pageLoad.
 const PAGE_LOAD_CLS = requireBudget(PERFORMANCE_BUDGETS.pageLoad.CLS, 'pageLoad.CLS');
 const PAGE_LOAD_TBT = requireBudget(PERFORMANCE_BUDGETS.pageLoad.TBT, 'pageLoad.TBT');
 
-const API_LISTINGS = requireBudget(PERFORMANCE_BUDGETS.apiResponses.listings, 'apiResponses.listings');
+const API_LISTINGS = requireBudget(
+  PERFORMANCE_BUDGETS.apiResponses.listings,
+  'apiResponses.listings'
+);
 const API_SEARCH = requireBudget(PERFORMANCE_BUDGETS.apiResponses.search, 'apiResponses.search');
-const API_MAP_DATA = requireBudget(PERFORMANCE_BUDGETS.apiResponses.mapData, 'apiResponses.mapData');
+const API_MAP_DATA = requireBudget(
+  PERFORMANCE_BUDGETS.apiResponses.mapData,
+  'apiResponses.mapData'
+);
 const API_USER_PROFILE = requireBudget(
   PERFORMANCE_BUDGETS.apiResponses.userProfile,
-  'apiResponses.userProfile',
+  'apiResponses.userProfile'
 );
 
 const SERVER_CPU = requireBudget(
   PERFORMANCE_BUDGETS.serverResources.cpuUtilization,
-  'serverResources.cpuUtilization',
+  'serverResources.cpuUtilization'
 );
 const SERVER_MEMORY = requireBudget(
   PERFORMANCE_BUDGETS.serverResources.memoryUtilization,
-  'serverResources.memoryUtilization',
+  'serverResources.memoryUtilization'
 );
 const SERVER_DISK = requireBudget(
   PERFORMANCE_BUDGETS.serverResources.diskIOUtilization,
-  'serverResources.diskIOUtilization',
+  'serverResources.diskIOUtilization'
 );
 
 const COMPONENT_MAP_INITIAL_LOAD = requireBudget(
   PERFORMANCE_BUDGETS.components.mapRendering.initialLoad,
-  'components.mapRendering.initialLoad',
+  'components.mapRendering.initialLoad'
 );
 const COMPONENT_MAP_PAN_ZOOM = requireBudget(
   PERFORMANCE_BUDGETS.components.mapRendering.panZoom,
-  'components.mapRendering.panZoom',
+  'components.mapRendering.panZoom'
 );
 const COMPONENT_HERO_IMAGE = requireBudget(
   PERFORMANCE_BUDGETS.components.imageLoading.heroImage,
-  'components.imageLoading.heroImage',
+  'components.imageLoading.heroImage'
 );
 
 export const ALERTING_THRESHOLDS: AlertingThresholds = {
@@ -226,7 +233,11 @@ export const ALERTING_THRESHOLDS: AlertingThresholds = {
   },
 };
 
-export function getAlertSeverity(category: string, name: string, value: number): AlertSeverity | null {
+export function getAlertSeverity(
+  category: string,
+  name: string,
+  value: number
+): AlertSeverity | null {
   const thresholds = ALERTING_THRESHOLDS[category]?.[name];
   if (!thresholds) {
     return null;

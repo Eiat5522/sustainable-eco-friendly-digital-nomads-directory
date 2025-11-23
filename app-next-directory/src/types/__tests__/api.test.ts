@@ -1,8 +1,8 @@
 import type {
   CitiesApiResponse,
   CityDto,
+  FeaturedListingDto,
   FeaturedListingsApiResponse,
-  FeaturedListingDto
 } from '../api';
 
 describe('api types', () => {
@@ -18,11 +18,11 @@ describe('api types', () => {
         image: {
           asset: {
             _id: 'image-123',
-            url: 'https://example.com/image.jpg'
+            url: 'https://example.com/image.jpg',
           },
           hotspot: { x: 0.5, y: 0.5 },
-          crop: { top: 0, bottom: 0, left: 0, right: 0 }
-        }
+          crop: { top: 0, bottom: 0, left: 0, right: 0 },
+        },
       };
       expect(city._id).toBe('city-123');
       expect(city.name).toBe('Bangkok');
@@ -40,9 +40,9 @@ describe('api types', () => {
         image: {
           asset: {
             _id: 'img',
-            url: 'url'
-          }
-        }
+            url: 'url',
+          },
+        },
       };
       expect(city.highlights).toHaveLength(0);
     });
@@ -55,9 +55,9 @@ describe('api types', () => {
         country: 'Country',
         sustainabilityScore: 40,
         highlights: [],
-        image: { asset: { _id: 'img', url: 'url' } }
+        image: { asset: { _id: 'img', url: 'url' } },
       };
-      
+
       const highScore: CityDto = {
         _id: '2',
         name: 'City 2',
@@ -65,9 +65,9 @@ describe('api types', () => {
         country: 'Country',
         sustainabilityScore: 95,
         highlights: [],
-        image: { asset: { _id: 'img', url: 'url' } }
+        image: { asset: { _id: 'img', url: 'url' } },
       };
-      
+
       expect(highScore.sustainabilityScore).toBeGreaterThan(lowScore.sustainabilityScore);
     });
   });
@@ -83,8 +83,8 @@ describe('api types', () => {
             country: 'Thailand',
             sustainabilityScore: 85,
             highlights: ['Transport'],
-            image: { asset: { _id: 'img', url: 'url' } }
-          }
+            image: { asset: { _id: 'img', url: 'url' } },
+          },
         ],
         success: true,
         metadata: {
@@ -92,9 +92,9 @@ describe('api types', () => {
           query_time: '50ms',
           performance: {
             totalTimeMs: '50',
-            queryTimeMs: '45'
-          }
-        }
+            queryTimeMs: '45',
+          },
+        },
       };
       expect(response.success).toBe(true);
       expect(response.cities).toHaveLength(1);
@@ -110,9 +110,9 @@ describe('api types', () => {
           query_time: '10ms',
           performance: {
             totalTimeMs: '10',
-            queryTimeMs: '5'
-          }
-        }
+            queryTimeMs: '5',
+          },
+        },
       };
       expect(response.cities).toHaveLength(0);
       expect(response.metadata.total).toBe(0);
@@ -127,9 +127,9 @@ describe('api types', () => {
           query_time: '0ms',
           performance: {
             totalTimeMs: '0',
-            queryTimeMs: '0'
-          }
-        }
+            queryTimeMs: '0',
+          },
+        },
       };
       expect(response.success).toBe(false);
     });
@@ -140,7 +140,7 @@ describe('api types', () => {
       const listing: FeaturedListingDto = {
         _id: 'listing-123',
         name: 'Eco Coworking',
-        slug: 'eco-coworking'
+        slug: 'eco-coworking',
       };
       expect(listing._id).toBe('listing-123');
       expect(listing.name).toBe('Eco Coworking');
@@ -155,8 +155,8 @@ describe('api types', () => {
           _id: 'city-1',
           name: 'Bangkok',
           slug: 'bangkok',
-          country: 'Thailand'
-        }
+          country: 'Thailand',
+        },
       };
       expect(listing.city?.name).toBe('Bangkok');
       expect(listing.city?.country).toBe('Thailand');
@@ -167,7 +167,7 @@ describe('api types', () => {
         _id: 'listing-1',
         name: 'Sustainable Space',
         slug: 'sustainable-space',
-        ecoFocusTags: ['solar-power', 'recycling', 'organic']
+        ecoFocusTags: ['solar-power', 'recycling', 'organic'],
       };
       expect(listing.ecoFocusTags).toHaveLength(3);
       expect(listing.ecoFocusTags).toContain('solar-power');
@@ -178,7 +178,7 @@ describe('api types', () => {
         _id: 'listing-2',
         name: 'Nomad Hub',
         slug: 'nomad-hub',
-        digitalNomadFeatures: ['high-speed-wifi', 'meeting-rooms', 'quiet-spaces']
+        digitalNomadFeatures: ['high-speed-wifi', 'meeting-rooms', 'quiet-spaces'],
       };
       expect(listing.digitalNomadFeatures).toHaveLength(3);
     });
@@ -194,10 +194,10 @@ describe('api types', () => {
             name: 'WiFi',
             description: 'High-speed internet',
             badge: {
-              asset: { _id: 'badge-img', url: 'https://example.com/badge.png' }
-            }
-          }
-        ]
+              asset: { _id: 'badge-img', url: 'https://example.com/badge.png' },
+            },
+          },
+        ],
       };
       expect(listing.amenities).toHaveLength(1);
       expect(listing.amenities?.[0].name).toBe('WiFi');
@@ -210,7 +210,7 @@ describe('api types', () => {
         slug: 'contact-space',
         contactPhone: '+66-123-4567',
         contactEmail: 'info@example.com',
-        website: 'https://example.com'
+        website: 'https://example.com',
       };
       expect(listing.contactPhone).toBe('+66-123-4567');
       expect(listing.contactEmail).toBe('info@example.com');
@@ -224,7 +224,7 @@ describe('api types', () => {
         slug: 'budget-space',
         priceRange: 'budget',
         type: 'coworking',
-        shortDescription: 'Affordable workspace'
+        shortDescription: 'Affordable workspace',
       };
       expect(listing.priceRange).toBe('budget');
       expect(listing.type).toBe('coworking');
@@ -237,7 +237,7 @@ describe('api types', () => {
         slug: 'located-space',
         address: '123 Main St, Bangkok',
         category: 'coworking',
-        location: { lat: 13.7563, lng: 100.5018 }
+        location: { lat: 13.7563, lng: 100.5018 },
       };
       expect(listing.address).toBe('123 Main St, Bangkok');
       expect(listing.location?.lat).toBe(13.7563);
@@ -249,13 +249,13 @@ describe('api types', () => {
         name: 'Image Space',
         slug: 'image-space',
         primaryImage: {
-          asset: { _id: 'img-1', url: 'https://example.com/main.jpg' }
+          asset: { _id: 'img-1', url: 'https://example.com/main.jpg' },
         },
         galleryImages: [
           { asset: { _id: 'img-2', url: 'https://example.com/gallery1.jpg' } },
-          { asset: { _id: 'img-3', url: 'https://example.com/gallery2.jpg' } }
+          { asset: { _id: 'img-3', url: 'https://example.com/gallery2.jpg' } },
         ],
-        imageUrl: 'https://example.com/main.jpg'
+        imageUrl: 'https://example.com/main.jpg',
       };
       expect(listing.primaryImage?.asset.url).toBeDefined();
       expect(listing.galleryImages).toHaveLength(2);
@@ -270,12 +270,10 @@ describe('api types', () => {
           capacity: 50,
           pricingPlans: [
             { type: 'daily', price: 300, period: 'day' },
-            { type: 'monthly', price: 5000, period: 'month' }
+            { type: 'monthly', price: 5000, period: 'month' },
           ],
-          openingHours: [
-            { day: 'Monday', opens: '09:00', closes: '18:00' }
-          ]
-        }
+          openingHours: [{ day: 'Monday', opens: '09:00', closes: '18:00' }],
+        },
       };
       expect(listing.coworkingDetails?.capacity).toBe(50);
       expect(listing.coworkingDetails?.pricingPlans).toHaveLength(2);
@@ -288,10 +286,8 @@ describe('api types', () => {
         slug: 'accommodation',
         accommodationDetails: {
           pricePerNightThb: { min: 500, max: 2000 },
-          openingHours: [
-            { day: 'Monday', opens: '00:00', closes: '23:59' }
-          ]
-        }
+          openingHours: [{ day: 'Monday', opens: '00:00', closes: '23:59' }],
+        },
       };
       expect(listing.accommodationDetails?.pricePerNightThb?.min).toBe(500);
       expect(listing.accommodationDetails?.pricePerNightThb?.max).toBe(2000);
@@ -303,10 +299,8 @@ describe('api types', () => {
         name: 'Cafe',
         slug: 'cafe',
         cafeDetails: {
-          openingHours: [
-            { day: 'Monday', opens: '07:00', closes: '19:00' }
-          ]
-        }
+          openingHours: [{ day: 'Monday', opens: '07:00', closes: '19:00' }],
+        },
       };
       expect(listing.cafeDetails?.openingHours).toHaveLength(1);
     });
@@ -319,8 +313,8 @@ describe('api types', () => {
           {
             _id: 'listing-1',
             name: 'Featured Space',
-            slug: 'featured-space'
-          }
+            slug: 'featured-space',
+          },
         ],
         success: true,
         metadata: {
@@ -328,9 +322,9 @@ describe('api types', () => {
           queryTime: '30ms',
           performance: {
             totalTimeMs: '30',
-            queryTimeMs: '25'
-          }
-        }
+            queryTimeMs: '25',
+          },
+        },
       };
       expect(response.success).toBe(true);
       expect(response.listings).toHaveLength(1);
@@ -345,9 +339,9 @@ describe('api types', () => {
           queryTime: '10ms',
           performance: {
             totalTimeMs: '10',
-            queryTimeMs: '5'
-          }
-        }
+            queryTimeMs: '5',
+          },
+        },
       };
       expect(response.listings).toHaveLength(0);
     });
@@ -361,9 +355,9 @@ describe('api types', () => {
           queryTime: '100ms',
           performance: {
             totalTimeMs: '100',
-            queryTimeMs: '80'
-          }
-        }
+            queryTimeMs: '80',
+          },
+        },
       };
       expect(response.metadata.performance.totalTimeMs).toBe('100');
       expect(response.metadata.performance.queryTimeMs).toBe('80');
@@ -381,8 +375,8 @@ describe('api types', () => {
             country: 'Thailand',
             sustainabilityScore: 85,
             highlights: ['Transport', 'Parks'],
-            image: { asset: { _id: 'img', url: 'url' } }
-          }
+            image: { asset: { _id: 'img', url: 'url' } },
+          },
         ],
         success: true,
         metadata: {
@@ -390,9 +384,9 @@ describe('api types', () => {
           query_time: '50ms',
           performance: {
             totalTimeMs: '50',
-            queryTimeMs: '45'
-          }
-        }
+            queryTimeMs: '45',
+          },
+        },
       };
 
       const listingsResponse: FeaturedListingsApiResponse = {
@@ -405,9 +399,9 @@ describe('api types', () => {
               _id: citiesResponse.cities[0]._id,
               name: citiesResponse.cities[0].name,
               slug: citiesResponse.cities[0].slug,
-              country: citiesResponse.cities[0].country
-            }
-          }
+              country: citiesResponse.cities[0].country,
+            },
+          },
         ],
         success: true,
         metadata: {
@@ -415,9 +409,9 @@ describe('api types', () => {
           queryTime: '30ms',
           performance: {
             totalTimeMs: '30',
-            queryTimeMs: '25'
-          }
-        }
+            queryTimeMs: '25',
+          },
+        },
       };
 
       expect(listingsResponse.listings[0].city?.name).toBe(citiesResponse.cities[0].name);
@@ -432,9 +426,9 @@ describe('api types', () => {
           query_time: '0ms',
           performance: {
             totalTimeMs: '0',
-            queryTimeMs: '0'
-          }
-        }
+            queryTimeMs: '0',
+          },
+        },
       };
 
       if (!errorResponse.success) {

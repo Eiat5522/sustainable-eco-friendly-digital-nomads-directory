@@ -1,6 +1,6 @@
 import { describe, expect, it, jest } from '@jest/globals';
-import { createListingsHandlers } from '../../../app/api/listings/route';
 import { ApiResponseHandler } from '@/utils/api-response';
+import { createListingsHandlers } from '../../../app/api/listings/route';
 
 type ListingRecord = {
   title: string;
@@ -49,12 +49,13 @@ describe('API /api/listings integration', () => {
           },
           async toArray() {
             const end = limitValue === 0 ? records.length : skipValue + limitValue;
-            return records.slice(skipValue, end).map((record) => ({ ...record }));
+            return records.slice(skipValue, end).map(record => ({ ...record }));
           },
         };
       }),
-      findOne: jest.fn(async (query: { slug: string }) =>
-        records.find((record) => record.slug === query.slug) ?? null
+      findOne: jest.fn(
+        async (query: { slug: string }) =>
+          records.find(record => record.slug === query.slug) ?? null
       ),
       insertOne: jest.fn(async (document: ListingRecord) => {
         const stored: ListingRecord = {
@@ -67,9 +68,7 @@ describe('API /api/listings integration', () => {
       countDocuments: jest.fn(async () => records.length),
     };
 
-    const requireAuth = jest
-      .fn()
-      .mockResolvedValue({ user: { id: 'user-123', plan: 'premium' } });
+    const requireAuth = jest.fn().mockResolvedValue({ user: { id: 'user-123', plan: 'premium' } });
     const handleAuthError = jest
       .fn()
       .mockImplementation((error: unknown) =>

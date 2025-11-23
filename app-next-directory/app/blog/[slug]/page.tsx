@@ -1,14 +1,13 @@
-
 import { PortableText } from '@portabletext/react';
+import type { Metadata } from 'next';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
+import { groq } from 'next-sanity';
+import { blogPortableTextComponents } from '@/components/blog/portableTextComponents';
+import { Footer } from '@/components/layout/Footer';
+import { Header } from '@/components/layout/Header';
 import { getBaseUrl } from '@/lib/absolute-url';
 import { client } from '@/lib/sanity/client';
-import { groq } from 'next-sanity';
-import type { Metadata } from 'next'
-import Image from 'next/image';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
-import { blogPortableTextComponents } from '@/components/blog/portableTextComponents';
 
 // Subtle SVG gradient placeholder for hero image when missing
 function placeholderDataUri(width = 1200, height = 630) {
@@ -16,10 +15,9 @@ function placeholderDataUri(width = 1200, height = 630) {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
 
+import type { PortableTextBlock } from '@portabletext/types';
 import CommentForm from '@/components/CommentForm';
 import CommentList from '@/components/CommentList';
-
-import type { PortableTextBlock } from '@portabletext/types';
 
 async function getPost(slug: string): Promise<PostResponse> {
   const url = new URL(`/api/blog/${encodeURIComponent(slug)}`, await getBaseUrl());
@@ -58,13 +56,21 @@ async function getPost(slug: string): Promise<PostResponse> {
   const id =
     typeof (data as { id?: unknown }).id === 'string' && (data as { id: string }).id.trim()
       ? (data as { id: string }).id
-      : (typeof (data as { _id?: unknown })._id === 'string' && (data as { _id: string })._id.trim() ? (data as { _id: string })._id : '');
-  const title = typeof (data as { title?: unknown }).title === 'string' ? (data as { title: string }).title : '';
-  const body = Array.isArray((data as { body?: unknown }).body) ? ((data as { body: PortableTextBlock[] }).body) : [];
+      : typeof (data as { _id?: unknown })._id === 'string' && (data as { _id: string })._id.trim()
+        ? (data as { _id: string })._id
+        : '';
+  const title =
+    typeof (data as { title?: unknown }).title === 'string'
+      ? (data as { title: string }).title
+      : '';
+  const body = Array.isArray((data as { body?: unknown }).body)
+    ? (data as { body: PortableTextBlock[] }).body
+    : [];
   const imageUrl =
     typeof (data as { imageUrl?: unknown }).imageUrl === 'string'
       ? (data as { imageUrl: string }).imageUrl
-      : ((data as { primaryImage?: { asset?: { url?: string } } })?.primaryImage?.asset?.url ?? null);
+      : ((data as { primaryImage?: { asset?: { url?: string } } })?.primaryImage?.asset?.url ??
+        null);
   const post: PostDTO = { id, title, body, imageUrl };
   if (!post.id) {
     notFound();
@@ -77,10 +83,10 @@ async function getPost(slug: string): Promise<PostResponse> {
   return { post, comments } as PostResponse;
 }
 
- // minimal response type
- type Comment = { _id: string; content: string; user?: { name?: string } | null };
- type PostDTO = { id: string; title: string; body: PortableTextBlock[]; imageUrl?: string | null };
- type PostResponse = { post: PostDTO; comments: Comment[] };
+// minimal response type
+type Comment = { _id: string; content: string; user?: { name?: string } | null };
+type PostDTO = { id: string; title: string; body: PortableTextBlock[]; imageUrl?: string | null };
+type PostResponse = { post: PostDTO; comments: Comment[] };
 
 export default async function BlogPostPage({ params }: Readonly<{ params: { slug: string } }>) {
   // Support Next 14 (sync) and Next 15 (async) params
@@ -90,7 +96,7 @@ export default async function BlogPostPage({ params }: Readonly<{ params: { slug
   const heroUrl: string | null = post.imageUrl ?? null;
   const usingPlaceholder = !heroUrl;
   const src = heroUrl ?? placeholderDataUri(1200, 630);
-  const alt = usingPlaceholder ? '' : (post.title || '');
+  const alt = usingPlaceholder ? '' : post.title || '';
 
   return (
     <>
@@ -126,9 +132,11 @@ export default async function BlogPostPage({ params }: Readonly<{ params: { slug
   );
 }
 
-export async function generateMetadata(
-  { params }: { params: { slug: string } }
-): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}): Promise<Metadata> {
   const base = await getBaseUrl();
   const { slug } = await Promise.resolve(params as unknown as { slug: string });
   const url = new URL(`/api/blog/${encodeURIComponent(slug)}`, base);
@@ -142,7 +150,9 @@ export async function generateMetadata(
     let imageUrl: string | undefined;
 
     if (json && typeof json === 'object' && 'success' in json) {
-      const data = (json as { data?: { post?: { title?: string; excerpt?: string; imageUrl?: string } } }).data;
+      const data = (
+        json as { data?: { post?: { title?: string; excerpt?: string; imageUrl?: string } } }
+      ).data;
       const post = data?.post;
       title = post?.title;
       description = post?.excerpt ?? undefined;
@@ -154,7 +164,12 @@ export async function generateMetadata(
       imageUrl = post?.imageUrl ?? undefined;
     }
 
-    const absoluteImage = imageUrl && imageUrl.startsWith('http') ? imageUrl : (imageUrl ? new URL(imageUrl, base).toString() : undefined);
+    const absoluteImage =
+      imageUrl?.startsWith('http')
+        ? imageUrl
+        : imageUrl
+          ? new URL(imageUrl, base).toString()
+          : undefined;
 
     return {
       title: title || 'Blog',
@@ -172,8 +187,8 @@ export async function generateMetadata(
         description: description || undefined,
         images: absoluteImage ? [absoluteImage] : undefined,
       },
-    }
+    };
   } catch {
-    return { title: 'Blog' }
+    return { title: 'Blog' };
   }
 }

@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, beforeAll, beforeEach } from '@jest/globals';
+import { beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 jest.mock('@/lib/auth', () => ({
   __esModule: true,
@@ -16,8 +16,6 @@ jest.mock('@/lib/logger', () => ({
   },
 }));
 
-import { auth } from '@/lib/auth';
-import { fetchAdminAnalytics } from '@/lib/admin/analytics';
 import { RequestTimeoutError } from '@/lib/http/request';
 
 const authMockModule = jest.requireMock('@/lib/auth') as { auth: jest.Mock };
@@ -125,20 +123,22 @@ describe('/api/admin/stats', () => {
 
   it('returns 504 when analytics fetching times out', async () => {
     mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
-    mockFetchAnalytics.mockRejectedValue(
-      new RequestTimeoutError('Fetching admin stats timed out')
-    );
+    mockFetchAnalytics.mockRejectedValue(new RequestTimeoutError('Fetching admin stats timed out'));
 
     const response = await GET({} as any, { params: Promise.resolve({}) });
     const json = await response.json();
 
     expect(response.status).toBe(504);
     expect(json.error).toBe('Admin stats request timed out');
-    expect(mockLogger.error).toHaveBeenCalledWith('Admin stats error', expect.any(RequestTimeoutError), {
-      method: 'GET',
-      route: '/api/admin/stats',
-      errorType: 'RequestTimeoutError',
-    });
+    expect(mockLogger.error).toHaveBeenCalledWith(
+      'Admin stats error',
+      expect.any(RequestTimeoutError),
+      {
+        method: 'GET',
+        route: '/api/admin/stats',
+        errorType: 'RequestTimeoutError',
+      }
+    );
   });
 
   it('rejects POST requests', async () => {

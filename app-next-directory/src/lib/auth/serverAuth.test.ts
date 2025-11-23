@@ -67,7 +67,7 @@ describe('serverAuth', () => {
     jest.resetModules();
     mockDbConnect.mockResolvedValue(undefined);
     mockIsEmailVerificationRequired.mockReturnValue(false);
-    mockIsValidObjectId.mockImplementation((id) => {
+    mockIsValidObjectId.mockImplementation(id => {
       return typeof id === 'string' && id.length === 24;
     });
   });
@@ -488,7 +488,7 @@ describe('serverAuth', () => {
 
   describe('unfavoriteListing', () => {
     it('does nothing for invalid userId', async () => {
-      mockIsValidObjectId.mockImplementation((id) => id === 'valid-listing-id');
+      mockIsValidObjectId.mockImplementation(id => id === 'valid-listing-id');
 
       const { unfavoriteListing } = await import('./serverAuth');
       await unfavoriteListing('invalid-user-id', 'valid-listing-id');
@@ -497,7 +497,7 @@ describe('serverAuth', () => {
     });
 
     it('does nothing for invalid listingId', async () => {
-      mockIsValidObjectId.mockImplementation((id) => id === 'valid-user-id');
+      mockIsValidObjectId.mockImplementation(id => id === 'valid-user-id');
 
       const { unfavoriteListing } = await import('./serverAuth');
       await unfavoriteListing('valid-user-id', 'invalid-listing-id');
@@ -523,7 +523,7 @@ describe('serverAuth', () => {
       mockUserModel.updateOne.mockRejectedValue(new Error('Database error'));
 
       const { unfavoriteListing } = await import('./serverAuth');
-      
+
       // Should not throw
       await expect(
         unfavoriteListing('507f1f77bcf86cd799439011', '507f1f77bcf86cd799439022')

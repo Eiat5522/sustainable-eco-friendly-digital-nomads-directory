@@ -5,7 +5,7 @@ const SESSION_ENDPOINT = '**/api/auth/session';
 
 test.describe('[E2E] Network resilience', () => {
   test.beforeEach(async ({ page }) => {
-    await page.route(SESSION_ENDPOINT, async (route) => {
+    await page.route(SESSION_ENDPOINT, async route => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -17,7 +17,7 @@ test.describe('[E2E] Network resilience', () => {
   test('recovers featured listings after retrying a failed request', async ({ page }) => {
     let requestCount = 0;
 
-    await page.route(FEATURED_ENDPOINT, async (route) => {
+    await page.route(FEATURED_ENDPOINT, async route => {
       requestCount += 1;
 
       if (requestCount === 1) {

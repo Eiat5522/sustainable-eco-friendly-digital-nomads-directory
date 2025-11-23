@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 
 test.describe('Search Highlighting', () => {
   // Helper function to count highlighted elements
@@ -18,11 +18,11 @@ test.describe('Search Highlighting', () => {
     await page.fill('[data-testid="search-input"]', 'eco');
     // Wait for the search results to update
     await page.waitForTimeout(500);
-    
+
     // Check if there are highlighted elements
     const highlightCount = await countHighlights(page);
     expect(highlightCount).toBeGreaterThan(0);
-    
+
     // Check if the highlight contains the search term
     const highlightText = await page.locator('mark.bg-yellow-100').first().innerText();
     expect(highlightText.toLowerCase()).toContain('eco');
@@ -32,12 +32,15 @@ test.describe('Search Highlighting', () => {
     // Type a search term that should match some descriptions
     await page.fill('[data-testid="search-input"]', 'sustainable');
     await page.waitForTimeout(500);
-    
+
     const highlightCount = await countHighlights(page);
     expect(highlightCount).toBeGreaterThan(0);
-    
+
     // Verify highlights in description area
-    const highlightedDescription = await page.locator('[data-testid="listing-description"] mark.bg-yellow-100').first().innerText();
+    const highlightedDescription = await page
+      .locator('[data-testid="listing-description"] mark.bg-yellow-100')
+      .first()
+      .innerText();
     expect(highlightedDescription.toLowerCase()).toContain('sustainable');
   });
 
@@ -45,12 +48,15 @@ test.describe('Search Highlighting', () => {
     // Type a search term that should match eco tags
     await page.fill('[data-testid="search-input"]', 'solar');
     await page.waitForTimeout(500);
-    
+
     const highlightCount = await countHighlights(page);
     expect(highlightCount).toBeGreaterThan(0);
-    
+
     // Check highlighted tags
-    const highlightedTag = await page.locator('[data-testid="eco-tag"] mark.bg-yellow-100').first().innerText();
+    const highlightedTag = await page
+      .locator('[data-testid="eco-tag"] mark.bg-yellow-100')
+      .first()
+      .innerText();
     expect(highlightedTag.toLowerCase()).toContain('solar');
   });
 
@@ -58,12 +64,15 @@ test.describe('Search Highlighting', () => {
     // Type a search term that should match nomad features
     await page.fill('[data-testid="search-input"]', 'wifi');
     await page.waitForTimeout(500);
-    
+
     const highlightCount = await countHighlights(page);
     expect(highlightCount).toBeGreaterThan(0);
-    
+
     // Check highlighted features
-    const highlightedFeature = await page.locator('[data-testid="nomad-feature"] mark.bg-yellow-100').first().innerText();
+    const highlightedFeature = await page
+      .locator('[data-testid="nomad-feature"] mark.bg-yellow-100')
+      .first()
+      .innerText();
     expect(highlightedFeature.toLowerCase()).toContain('wifi');
   });
 
@@ -71,10 +80,10 @@ test.describe('Search Highlighting', () => {
     // Type a multi-word search term
     await page.fill('[data-testid="search-input"]', 'eco friendly');
     await page.waitForTimeout(500);
-    
+
     const highlightCount = await countHighlights(page);
     expect(highlightCount).toBeGreaterThan(0);
-    
+
     // Check if both words are highlighted
     const highlights = await page.locator('mark.bg-yellow-100').allInnerTexts();
     const hasEco = highlights.some(text => text.toLowerCase().includes('eco'));
@@ -86,16 +95,14 @@ test.describe('Search Highlighting', () => {
     // Test with mixed case
     await page.fill('[data-testid="search-input"]', 'EcO');
     await page.waitForTimeout(500);
-    
+
     const highlightCount = await countHighlights(page);
     expect(highlightCount).toBeGreaterThan(0);
-    
+
     // Check if matches are found regardless of case
     const highlights = await page.locator('mark.bg-yellow-100').allInnerTexts();
-    const hasMatch = highlights.some(text => 
-      text.toLowerCase().includes('eco') || 
-      text.includes('Eco') || 
-      text.includes('ECO')
+    const hasMatch = highlights.some(
+      text => text.toLowerCase().includes('eco') || text.includes('Eco') || text.includes('ECO')
     );
     expect(hasMatch).toBeTruthy();
   });

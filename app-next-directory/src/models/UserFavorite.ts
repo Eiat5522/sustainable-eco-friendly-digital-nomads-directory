@@ -56,7 +56,6 @@ const UserFavoriteSchema: Schema<IUserFavorite> = new Schema({
   },
 });
 
-
 // Ensure createdAt is always a Date instance
 UserFavoriteSchema.pre('save', function (next) {
   if (this.createdAt && !(this.createdAt instanceof Date)) {

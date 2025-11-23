@@ -40,10 +40,7 @@ describe('API /api/listings/[slug]/views - POST', () => {
 
     expect(status).toBe(200);
     expect(body).toEqual({ success: true });
-    expect(metricsMock.recordListingView).toHaveBeenCalledWith(
-      'eco-hub',
-      expect.any(Date)
-    );
+    expect(metricsMock.recordListingView).toHaveBeenCalledWith('eco-hub', expect.any(Date));
 
     const [, timestamp] = metricsMock.recordListingView.mock.calls[0];
     expect((timestamp as Date).toISOString()).toBe(viewedAt);
@@ -103,10 +100,7 @@ describe('API /api/listings/[slug]/views - POST', () => {
 
     expect(status).toBe(200);
     expect(body).toEqual({ success: true });
-    expect(metricsMock.recordListingView).toHaveBeenCalledWith(
-      'eco-hub',
-      expect.any(Date)
-    );
+    expect(metricsMock.recordListingView).toHaveBeenCalledWith('eco-hub', expect.any(Date));
   });
 
   it('returns validation error when slug is missing', async () => {

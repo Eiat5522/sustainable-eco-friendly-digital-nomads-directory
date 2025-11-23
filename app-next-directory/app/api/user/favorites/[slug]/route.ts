@@ -1,9 +1,9 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { client } from '@/lib/sanity/client';
-import type { UserRole } from '@/types/auth';
-import { ensureSanityUser, unfavoriteListing } from '@/lib/sanity/user';
 import { getRequestContext, structuredLogger } from '@/lib/logger';
+import { client } from '@/lib/sanity/client';
+import { ensureSanityUser, unfavoriteListing } from '@/lib/sanity/user';
+import type { UserRole } from '@/types/auth';
 
 interface RouteContext {
   params: Promise<{ slug: string }>;
@@ -13,10 +13,12 @@ interface RouteContext {
 export async function POST(request: NextRequest, { params }: RouteContext) {
   const session = await auth();
 
-  const user = session?.user as { id?: string; role?: UserRole; email?: string | null; name?: string | null } | undefined;
+  const user = session?.user as
+    | { id?: string; role?: UserRole; email?: string | null; name?: string | null }
+    | undefined;
   const userId: string | undefined = user?.id;
   const userRole: UserRole = user?.role || 'unidentifiedUser';
-  
+
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -40,7 +42,9 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     }
 
     // Resolve listing by slug to get its Sanity ID
-    const listing = await client.fetch(`*[_type == "listing" && slug.current == $slug][0]{ _id }`, { slug });
+    const listing = await client.fetch(`*[_type == "listing" && slug.current == $slug][0]{ _id }`, {
+      slug,
+    });
     if (!listing?._id) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
     }
@@ -64,7 +68,11 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
         listing: { _type: 'reference', _ref: listingId },
         createdAt: new Date().toISOString(),
       });
-      return NextResponse.json({ favorited: true, message: 'Added to favorites', favoriteId: favorite._id });
+      return NextResponse.json({
+        favorited: true,
+        message: 'Added to favorites',
+        favoriteId: favorite._id,
+      });
     }
   } catch (error) {
     structuredLogger.error('Failed to toggle favorite', error, {
@@ -103,7 +111,9 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
 export async function GET(request: NextRequest, { params }: RouteContext) {
   const session = await auth();
 
-  const user = session?.user as { id?: string; email?: string | null; name?: string | null; role?: UserRole | null } | undefined;
+  const user = session?.user as
+    | { id?: string; email?: string | null; name?: string | null; role?: UserRole | null }
+    | undefined;
   const userId: string | undefined = user?.id;
 
   if (!userId) {
@@ -115,7 +125,9 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
 
     if (!slug) return NextResponse.json({ favorited: false });
 
-    const listing = await client.fetch(`*[_type == "listing" && slug.current == $slug][0]{ _id }`, { slug });
+    const listing = await client.fetch(`*[_type == "listing" && slug.current == $slug][0]{ _id }`, {
+      slug,
+    });
     const listingId = listing?._id;
 
     if (!listingId) return NextResponse.json({ favorited: false });

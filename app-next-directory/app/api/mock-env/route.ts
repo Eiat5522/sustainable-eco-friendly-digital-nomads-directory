@@ -23,18 +23,19 @@ export async function GET(request: NextRequest) {
   // Mock the environment for preview routes
   Object.defineProperty(process.env, 'NODE_ENV', {
     get: () => mockNodeEnv,
-    configurable: true
+    configurable: true,
   });
 
   Object.defineProperty(process.env, 'PREVIEW_SECRET', {
     get: () => mockPreviewSecret,
-    configurable: true
+    configurable: true,
   });
 
   const res = ApiResponseHandler.success({
     NODE_ENV: mockNodeEnv,
     // Never expose secrets over the wire
-    previewSecret: '***',  });
+    previewSecret: '***',
+  });
   res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
   return res;
 }

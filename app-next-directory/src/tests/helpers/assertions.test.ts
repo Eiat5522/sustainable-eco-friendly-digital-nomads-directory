@@ -3,12 +3,12 @@
  * Ensures proper validation of redirect, next, json, and header operations
  */
 
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import {
-  expectRedirectCalledWith,
-  expectNextCalled,
+  expectHeaderSet,
   expectJsonCalled,
-  expectHeaderSet
+  expectNextCalled,
+  expectRedirectCalledWith,
 } from './assertions';
 
 describe('Assertion Helpers', () => {

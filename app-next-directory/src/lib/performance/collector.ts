@@ -43,13 +43,18 @@ const getWindowScope = (): Record<string, unknown> | undefined => {
 const getPerformanceApi = (): Performance | undefined => {
   const win = getWindowScope();
   const globalScope = getGlobalScope();
-  return (win?.performance as Performance | undefined) ?? (globalScope?.performance as Performance | undefined);
+  return (
+    (win?.performance as Performance | undefined) ??
+    (globalScope?.performance as Performance | undefined)
+  );
 };
 
 const getPerformanceObserverCtor = (): typeof PerformanceObserver | undefined => {
   const win = getWindowScope();
   const globalScope = getGlobalScope();
-  const observer = (win?.PerformanceObserver ?? globalScope?.PerformanceObserver) as typeof PerformanceObserver | undefined;
+  const observer = (win?.PerformanceObserver ?? globalScope?.PerformanceObserver) as
+    | typeof PerformanceObserver
+    | undefined;
   return typeof observer === 'function' ? observer : undefined;
 };
 
@@ -62,7 +67,6 @@ const getPlausibleClient = (): PlausibleClient | undefined => {
 
 // Mock web-vitals functions if the package is not available
 const onCLS = (callback: ReportCallback) => {
-  console.warn('web-vitals package not installed - onCLS is mocked');
   callback({
     name: 'CLS',
     value: 0,
@@ -75,7 +79,6 @@ const onCLS = (callback: ReportCallback) => {
 };
 
 const onFCP = (callback: ReportCallback) => {
-  console.warn('web-vitals package not installed - onFCP is mocked');
   callback({
     name: 'FCP',
     value: 0,
@@ -88,7 +91,6 @@ const onFCP = (callback: ReportCallback) => {
 };
 
 const onFID = (callback: ReportCallback) => {
-  console.warn('web-vitals package not installed - onFID is mocked');
   callback({
     name: 'FID',
     value: 0,
@@ -101,7 +103,6 @@ const onFID = (callback: ReportCallback) => {
 };
 
 const onINP = (callback: ReportCallback) => {
-  console.warn('web-vitals package not installed - onINP is mocked');
   callback({
     name: 'INP',
     value: 0,
@@ -114,7 +115,6 @@ const onINP = (callback: ReportCallback) => {
 };
 
 const onLCP = (callback: ReportCallback) => {
-  console.warn('web-vitals package not installed - onLCP is mocked');
   callback({
     name: 'LCP',
     value: 0,
@@ -127,7 +127,6 @@ const onLCP = (callback: ReportCallback) => {
 };
 
 const onTTFB = (callback: ReportCallback) => {
-  console.warn('web-vitals package not installed - onTTFB is mocked');
   callback({
     name: 'TTFB',
     value: 0,
@@ -152,7 +151,10 @@ interface CollectorDependencies {
 
 export const dependencies: CollectorDependencies = {
   window: typeof window !== 'undefined' ? (window as unknown as WindowLike) : undefined,
-  global: typeof globalThis !== 'undefined' ? (globalThis as unknown as Record<string, unknown>) : undefined,
+  global:
+    typeof globalThis !== 'undefined'
+      ? (globalThis as unknown as Record<string, unknown>)
+      : undefined,
   onCLS,
   onFCP,
   onFID,
@@ -168,7 +170,7 @@ export const PERFORMANCE_THRESHOLDS = {
   FID: { good: 100, needsImprovement: 300 },
   INP: { good: 200, needsImprovement: 500 },
   LCP: { good: 2500, needsImprovement: 4000 },
-  TTFB: { good: 800, needsImprovement: 1800 }
+  TTFB: { good: 800, needsImprovement: 1800 },
 };
 
 // Custom performance marks for tracking specific features
@@ -178,7 +180,7 @@ export const PERFORMANCE_MARKS = {
   SEARCH_STARTED: 'search-started',
   SEARCH_COMPLETED: 'search-completed',
   FILTERS_APPLIED: 'filters-applied',
-  LISTING_LOADED: 'listing-loaded'
+  LISTING_LOADED: 'listing-loaded',
 };
 
 interface PerformanceMetric {
@@ -205,7 +207,6 @@ function getRating(name: string, value: number): PerformanceMetric['rating'] {
  */
 function reportMetric({ name, value, rating }: PerformanceMetric) {
   if (process.env.NODE_ENV === 'development') {
-    console.log(`[Performance] ${name}: ${value} (${rating})`);
   }
 
   const plausible = getPlausibleClient();
@@ -275,8 +276,8 @@ export function initPerformanceMonitoring() {
 
   const PerformanceObserverCtor = getPerformanceObserverCtor();
   if (PerformanceObserverCtor) {
-    const perfObserver = new PerformanceObserverCtor((list) => {
-      list.getEntries().forEach((entry) => {
+    const perfObserver = new PerformanceObserverCtor(list => {
+      list.getEntries().forEach(entry => {
         reportMetric({
           name: entry.name,
           value: entry.duration || entry.startTime,

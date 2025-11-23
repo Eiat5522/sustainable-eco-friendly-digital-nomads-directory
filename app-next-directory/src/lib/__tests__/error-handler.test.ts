@@ -2,9 +2,9 @@
  * @jest-environment node
  */
 
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
-import { logError, createRouteError, getUserFacingMessage } from '../error-handler';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import type { ErrorContext } from '../error-handler';
+import { createRouteError, getUserFacingMessage, logError } from '../error-handler';
 
 describe('Error Handler', () => {
   beforeEach(() => {
@@ -75,7 +75,7 @@ describe('Error Handler', () => {
 
       expect(response).toBeDefined();
       expect(response.status).toBe(404);
-      
+
       const json = await response.json();
       expect(json).toMatchObject({ error: 'Resource not found' });
     });
@@ -157,7 +157,7 @@ describe('Error Handler', () => {
           this.name = 'CustomError';
         }
       }
-      
+
       const error = new CustomError('Custom error message');
       const message = getUserFacingMessage(error);
       expect(message).toBe('Custom error message');

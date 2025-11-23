@@ -1,5 +1,5 @@
 declare global {
-  var mongoose: any;  
+  var mongoose: any;
 }
 
 export {}; // This makes the file a module

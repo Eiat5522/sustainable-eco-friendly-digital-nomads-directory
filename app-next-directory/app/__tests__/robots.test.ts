@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { afterEach, describe, expect, it } from '@jest/globals';
 import robots from '../robots';
 
 describe('robots', () => {

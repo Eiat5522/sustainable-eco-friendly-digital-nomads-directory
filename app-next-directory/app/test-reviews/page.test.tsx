@@ -1,8 +1,15 @@
 import { render, screen } from '@testing-library/react';
-import React from 'react';
 
 const reviewsSectionMock = jest.fn(
-  ({ reviews, listingId, isSignedIn }: { reviews: unknown; listingId: string; isSignedIn: boolean }) => (
+  ({
+    reviews,
+    listingId,
+    isSignedIn,
+  }: {
+    reviews: unknown;
+    listingId: string;
+    isSignedIn: boolean;
+  }) => (
     <div data-testid="reviews-section-mock">
       <span data-testid="reviews-props">{JSON.stringify({ reviews, listingId, isSignedIn })}</span>
     </div>

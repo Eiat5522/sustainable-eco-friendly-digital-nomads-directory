@@ -1,9 +1,9 @@
 /**
  * @jest-environment jsdom
  */
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { renderHook, act } from '@testing-library/react';
-import { useFilters, type FilterDefinition } from '../useFilters';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { act, renderHook } from '@testing-library/react';
+import { type FilterDefinition, useFilters } from '../useFilters';
 
 describe('useFilters', () => {
   const mockDefinitions: FilterDefinition[] = [
@@ -37,9 +37,7 @@ describe('useFilters', () => {
 
   describe('initialization', () => {
     it('should initialize with empty filters when no initial filters provided', () => {
-      const { result } = renderHook(() =>
-        useFilters({ definitions: mockDefinitions })
-      );
+      const { result } = renderHook(() => useFilters({ definitions: mockDefinitions }));
 
       expect(result.current.activeFilters).toEqual({});
       expect(result.current.activeFilterCount).toBe(0);
@@ -313,9 +311,7 @@ describe('useFilters', () => {
 
   describe('onFilterChange callback', () => {
     it('should not call callback when not provided', () => {
-      const { result } = renderHook(() =>
-        useFilters({ definitions: mockDefinitions })
-      );
+      const { result } = renderHook(() => useFilters({ definitions: mockDefinitions }));
 
       act(() => {
         result.current.toggleFilter('category', 'cafe');

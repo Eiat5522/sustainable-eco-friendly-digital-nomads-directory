@@ -1,13 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useTransition, useCallback } from 'react';
-import type { UserRole } from '@/types/auth';
-import {
-  fetchJsonWithRetry,
-  getDefaultTimeout,
-  RequestTimeoutError,
-} from '@/lib/http/request';
+import { useCallback, useEffect, useState, useTransition } from 'react';
 import { getUserFacingMessage } from '@/lib/error-handler';
+import { fetchJsonWithRetry, getDefaultTimeout, RequestTimeoutError } from '@/lib/http/request';
+import type { UserRole } from '@/types/auth';
 
 type UserListItem = {
   id: string;
@@ -50,7 +46,11 @@ const ROLE_OPTIONS: { value: UserRole; label: string; description: string }[] = 
   { value: 'superAdmin', label: 'Super Admin', description: 'Highest level access' },
 ];
 
-async function fetchUsers(page: number, search: string, roleFilter: UserRole | null): Promise<UsersResponse> {
+async function fetchUsers(
+  page: number,
+  search: string,
+  roleFilter: UserRole | null
+): Promise<UsersResponse> {
   const params = new URLSearchParams({
     page: page.toString(),
     limit: '20',
@@ -65,37 +65,48 @@ async function fetchUsers(page: number, search: string, roleFilter: UserRole | n
   });
 }
 
-async function updateUser(userId: string, updates: { role?: UserRole; status?: 'active' | 'inactive' }) {
-  return fetchJsonWithRetry<{ message: string }>('/api/admin/users', {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
+async function updateUser(
+  userId: string,
+  updates: { role?: UserRole; status?: 'active' | 'inactive' }
+) {
+  return fetchJsonWithRetry<{ message: string }>(
+    '/api/admin/users',
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId, ...updates }),
     },
-    body: JSON.stringify({ userId, ...updates }),
-  }, {
-    timeoutMs: getDefaultTimeout(),
-    retries: 2,
-  });
+    {
+      timeoutMs: getDefaultTimeout(),
+      retries: 2,
+    }
+  );
 }
 
 async function deleteUser(userId: string) {
-  return fetchJsonWithRetry<{ message: string }>('/api/admin/users', {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
+  return fetchJsonWithRetry<{ message: string }>(
+    '/api/admin/users',
+    {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId }),
     },
-    body: JSON.stringify({ userId }),
-  }, {
-    timeoutMs: getDefaultTimeout(),
-    retries: 2,
-  });
+    {
+      timeoutMs: getDefaultTimeout(),
+      retries: 2,
+    }
+  );
 }
 
 function formatTimeAgo(dateString: string | null): string {
   if (!dateString) return 'Never';
-  
+
   const date = new Date(dateString);
-  if (isNaN(date.getTime())) return 'Unknown';
+  if (Number.isNaN(date.getTime())) return 'Unknown';
 
   const now = new Date();
   const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
@@ -132,7 +143,9 @@ function RoleBadge({ role }: { role: UserRole }) {
   };
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${roleColors[role]}`}>
+    <span
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${roleColors[role]}`}
+    >
       {roleLabels[role]}
     </span>
   );
@@ -145,7 +158,9 @@ function StatusBadge({ status }: { status: 'active' | 'inactive' }) {
   };
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusColors[status]}`}>
+    <span
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusColors[status]}`}
+    >
       {status === 'active' ? 'Active' : 'Inactive'}
     </span>
   );
@@ -178,9 +193,10 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
         setUsers(response.users);
         setPagination(response.pagination);
       } catch (err) {
-        const timeoutMessage = err instanceof RequestTimeoutError
-          ? 'Loading users is taking longer than expected. Please try again.'
-          : undefined;
+        const timeoutMessage =
+          err instanceof RequestTimeoutError
+            ? 'Loading users is taking longer than expected. Please try again.'
+            : undefined;
         setError(timeoutMessage ?? getUserFacingMessage(err, 'Failed to load users'));
       } finally {
         setLoading(false);
@@ -209,7 +225,7 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
         await updateUser(userId, { role: newRole });
         setFeedback(`User role updated to ${newRole}`);
         await loadUsers(pagination.page);
-        
+
         // Clear feedback after 3 seconds
         setTimeout(() => setFeedback(null), 3000);
       } catch (err) {
@@ -230,7 +246,7 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
         await updateUser(userId, { status: newStatus });
         setFeedback(`User ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`);
         await loadUsers(pagination.page);
-        
+
         // Clear feedback after 3 seconds
         setTimeout(() => setFeedback(null), 3000);
       } catch (err) {
@@ -254,7 +270,11 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
     }
 
     const displayName = userName || 'this user';
-    if (!window.confirm(`Are you sure you want to permanently delete ${displayName}? This action cannot be undone.`)) {
+    if (
+      !window.confirm(
+        `Are you sure you want to permanently delete ${displayName}? This action cannot be undone.`
+      )
+    ) {
       return;
     }
 
@@ -274,7 +294,10 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
   return (
     <div className="space-y-6 p-6">
       {feedback && (
-        <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded" role="status">
+        <div
+          className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded"
+          role="status"
+        >
           {feedback}
         </div>
       )}
@@ -290,7 +313,7 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
               id="search"
               placeholder="Search by name or email..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={e => setSearch(e.target.value)}
               className="w-full sm:w-64 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
@@ -301,7 +324,7 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
             <select
               id="roleFilter"
               value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value as UserRole | '')}
+              onChange={e => setRoleFilter(e.target.value as UserRole | '')}
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">All roles</option>
@@ -313,9 +336,7 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
             </select>
           </div>
         </div>
-        <div className="text-sm text-gray-500">
-          {pagination.totalCount} users total
-        </div>
+        <div className="text-sm text-gray-500">{pagination.totalCount} users total</div>
       </div>
 
       {error && (
@@ -361,7 +382,7 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
                     </td>
                   </tr>
                 ) : (
-                  users.map((user) => (
+                  users.map(user => (
                     <tr key={user.id} data-testid={`user-row-${user.id}`}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
@@ -375,8 +396,10 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
                         {canChangeRoles ? (
                           <select
                             value={user.role}
-                            onChange={(e) => handleRoleChange(user.id, e.target.value as UserRole)}
-                            disabled={isPending || (user.id === currentUserId && user.role === 'superAdmin')}
+                            onChange={e => handleRoleChange(user.id, e.target.value as UserRole)}
+                            disabled={
+                              isPending || (user.id === currentUserId && user.role === 'superAdmin')
+                            }
                             className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
                           >
                             {ROLE_OPTIONS.map(role => (
@@ -398,7 +421,12 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center gap-3">
                           <button
-                            onClick={() => handleStatusChange(user.id, user.status === 'active' ? 'inactive' : 'active')}
+                            onClick={() =>
+                              handleStatusChange(
+                                user.id,
+                                user.status === 'active' ? 'inactive' : 'active'
+                              )
+                            }
                             disabled={isPending || user.id === currentUserId}
                             className={`text-sm ${
                               user.status === 'active'
@@ -452,22 +480,23 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
                   </p>
                 </div>
                 <div>
-                  <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                  <nav
+                    className="isolate inline-flex -space-x-px rounded-md shadow-sm"
+                    aria-label="Pagination"
+                  >
                     <button
                       onClick={() => loadUsers(pagination.page - 1)}
                       disabled={!pagination.hasPrevPage || loading}
                       className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:bg-gray-100 disabled:text-gray-400"
                     >
-                      <span className="sr-only">Previous</span>
-                      ←
+                      <span className="sr-only">Previous</span>←
                     </button>
                     <button
                       onClick={() => loadUsers(pagination.page + 1)}
                       disabled={!pagination.hasNextPage || loading}
                       className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:bg-gray-100 disabled:text-gray-400"
                     >
-                      <span className="sr-only">Next</span>
-                      →
+                      <span className="sr-only">Next</span>→
                     </button>
                   </nav>
                 </div>

@@ -7,8 +7,7 @@ export const mockCity: CityDTO = {
   country: 'Thailand',
   sustainabilityScore: 72 as unknown as import('@/types/dto').Percentage0To100,
   highlights: ['Green rooftops', 'Bike lanes', 'River taxis'],
-  imageUrl:
-    '/placeholder_image.png',
+  imageUrl: '/placeholder_image.png',
   description: 'A vibrant city embracing sustainability initiatives.',
 };
 
@@ -19,8 +18,7 @@ export const mockCityListings: ListingSummaryDTO[] = [
     slug: 'green-cowork-bangkok',
     type: 'coworking',
     city: mockCity,
-    imageUrl:
-      '/placeholder_image.png',
+    imageUrl: '/placeholder_image.png',
     ecoFocusTags: ['Solar Powered', 'Recycling'],
     digitalNomadFeatures: ['Fast WiFi', 'Ergonomic Chairs'],
     priceRange: 'moderate',
@@ -33,8 +31,7 @@ export const mockCityListings: ListingSummaryDTO[] = [
     slug: 'eco-cafe-bangkok',
     type: 'cafe',
     city: mockCity,
-    imageUrl:
-      '/placeholder_image.png',
+    imageUrl: '/placeholder_image.png',
     ecoFocusTags: ['Organic', 'Zero Waste'],
     digitalNomadFeatures: ['Power Outlets', 'Quiet Corners'],
     priceRange: 'budget',

@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 
 const FAVORITES_PAGE = '/favorites';
 const LISTINGS_PAGE = '/listings';
@@ -37,7 +37,7 @@ const MOCK_FAVORITE_LISTINGS = [
 ];
 
 async function mockAuthenticatedSession(page: Page) {
-  await page.route('**/api/auth/session', async (route) => {
+  await page.route('**/api/auth/session', async route => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -47,7 +47,7 @@ async function mockAuthenticatedSession(page: Page) {
 }
 
 async function mockFavoritesAPI(page: Page, listings = MOCK_FAVORITE_LISTINGS) {
-  await page.route('**/api/user/favorites', async (route) => {
+  await page.route('**/api/user/favorites', async route => {
     if (route.request().method() === 'GET') {
       await route.fulfill({
         status: 200,
@@ -89,10 +89,14 @@ test.describe('[E2E] Favorites Page', () => {
     await page.goto(FAVORITES_PAGE);
     await page.waitForLoadState('networkidle');
 
-    const emptyMessage = page.getByText(/no favorites yet/i).or(page.getByText(/you haven't saved any/i));
+    const emptyMessage = page
+      .getByText(/no favorites yet/i)
+      .or(page.getByText(/you haven't saved any/i));
     await expect(emptyMessage).toBeVisible();
 
-    const browseLink = page.getByRole('link', { name: /browse listings/i }).or(page.getByRole('link', { name: /explore/i }));
+    const browseLink = page
+      .getByRole('link', { name: /browse listings/i })
+      .or(page.getByRole('link', { name: /explore/i }));
     await expect(browseLink).toBeVisible();
   });
 
@@ -114,12 +118,12 @@ test.describe('[E2E] Favorites Page', () => {
 
   test('allows removing a favorite from the favorites page', async ({ page }) => {
     let favorites = [...MOCK_FAVORITE_LISTINGS];
-    
+
     await mockAuthenticatedSession(page);
 
-    await page.route('**/api/user/favorites**', async (route) => {
+    await page.route('**/api/user/favorites**', async route => {
       const method = route.request().method();
-      
+
       if (method === 'GET') {
         await route.fulfill({
           status: 200,
@@ -158,7 +162,7 @@ test.describe('[E2E] Favorites Page', () => {
   });
 
   test('redirects unauthenticated users to login', async ({ page }) => {
-    await page.route('**/api/auth/session', async (route) => {
+    await page.route('**/api/auth/session', async route => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',

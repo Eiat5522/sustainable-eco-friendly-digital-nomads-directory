@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 
 jest.mock('@/lib/auth', () => ({
@@ -20,7 +19,9 @@ jest.mock('../ListingsManagementTable', () => ({
   },
 }));
 
-const mockAuth = jest.requireMock('@/lib/auth').auth as jest.MockedFunction<() => Promise<{ user?: unknown } | null>>;
+const mockAuth = jest.requireMock('@/lib/auth').auth as jest.MockedFunction<
+  () => Promise<{ user?: unknown } | null>
+>;
 
 describe('Admin listings page', () => {
   beforeEach(() => {
@@ -34,12 +35,15 @@ describe('Admin listings page', () => {
 
     const AdminListingsPage = (await import('../page')).default;
     const element = await AdminListingsPage();
-    render(<>{element}</>);
+    render(element);
 
     expect(screen.getByTestId('admin-listings-page')).toBeInTheDocument();
     expect(screen.getByTestId('admin-listings-title')).toHaveTextContent('Listing Management');
     expect(screen.getByTestId('listings-management-table')).toBeInTheDocument();
-    expect(listingsTableMock).toHaveBeenCalledWith({ currentUserRole: 'admin', currentUserId: 'admin-1' });
+    expect(listingsTableMock).toHaveBeenCalledWith({
+      currentUserRole: 'admin',
+      currentUserId: 'admin-1',
+    });
     expect(redirectMock).not.toHaveBeenCalled();
   });
 

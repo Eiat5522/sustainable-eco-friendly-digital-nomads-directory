@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { SessionProvider } from "next-auth/react";
-import type { StrictComponent } from "@/types";
-import { AuthProvider } from "@/lib/auth/clientAuth";
+import { SessionProvider } from 'next-auth/react';
+import { AuthProvider } from '@/lib/auth/clientAuth';
+import type { StrictComponent } from '@/types';
 
 const Providers: StrictComponent = ({ children }) => {
   return (

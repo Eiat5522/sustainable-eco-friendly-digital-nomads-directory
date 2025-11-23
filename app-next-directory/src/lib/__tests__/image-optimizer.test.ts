@@ -2,12 +2,12 @@
  * Tests for the simplified Image Optimizer module.
  */
 
-import { describe, it, expect, beforeEach } from '@jest/globals';
-import { mkdtemp, writeFile, rm } from 'fs/promises';
-import os from 'os';
-import path from 'path';
+import { beforeEach, describe, expect, it } from '@jest/globals';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 
-import { optimizeImageFile, optimizeFileBuffer, cleanupOptimizedFile } from '../image-optimizer';
+import { cleanupOptimizedFile, optimizeFileBuffer, optimizeImageFile } from '../image-optimizer';
 
 describe('image-optimizer', () => {
   let tempDir: string;

@@ -1,9 +1,9 @@
 import type {
   ListingStats,
-  WorkspaceResult,
-  SearchResult,
   NearbyVenue,
-  VenueSummary
+  SearchResult,
+  VenueSummary,
+  WorkspaceResult,
 } from '../query-types';
 
 describe('query-types types', () => {
@@ -14,16 +14,16 @@ describe('query-types types', () => {
         byCategory: [
           { category: 'coworking', count: 40 },
           { category: 'cafe', count: 35 },
-          { category: 'accommodation', count: 25 }
+          { category: 'accommodation', count: 25 },
         ],
         topCities: [
           { city: 'Bangkok', country: 'Thailand', count: 45 },
-          { city: 'Chiang Mai', country: 'Thailand', count: 30 }
+          { city: 'Chiang Mai', country: 'Thailand', count: 30 },
         ],
         averageRatings: [
           { listing: 'listing-1', avgRating: 4.5 },
-          { listing: 'listing-2', avgRating: 4.8 }
-        ]
+          { listing: 'listing-2', avgRating: 4.8 },
+        ],
       };
       expect(stats.totalListings).toBe(100);
       expect(stats.byCategory).toHaveLength(3);
@@ -34,7 +34,7 @@ describe('query-types types', () => {
         totalListings: 0,
         byCategory: [],
         topCities: [],
-        averageRatings: []
+        averageRatings: [],
       };
       expect(stats.totalListings).toBe(0);
       expect(stats.byCategory).toHaveLength(0);
@@ -47,10 +47,10 @@ describe('query-types types', () => {
           { category: 'coworking', count: 20 },
           { category: 'cafe', count: 15 },
           { category: 'accommodation', count: 10 },
-          { category: 'restaurant', count: 5 }
+          { category: 'restaurant', count: 5 },
         ],
         topCities: [],
-        averageRatings: []
+        averageRatings: [],
       };
       const totalByCategory = stats.byCategory.reduce((sum, cat) => sum + cat.count, 0);
       expect(totalByCategory).toBe(50);
@@ -63,9 +63,9 @@ describe('query-types types', () => {
         topCities: [
           { city: 'Bangkok', country: 'Thailand', count: 50 },
           { city: 'Lisbon', country: 'Portugal', count: 25 },
-          { city: 'Berlin', country: 'Germany', count: 15 }
+          { city: 'Berlin', country: 'Germany', count: 15 },
         ],
-        averageRatings: []
+        averageRatings: [],
       };
       expect(stats.topCities[0].count).toBeGreaterThan(stats.topCities[1].count);
     });
@@ -84,9 +84,9 @@ describe('query-types types', () => {
           city: 'Bangkok',
           coordinates: {
             lat: 13.7563,
-            lng: 100.5018
-          }
-        }
+            lng: 100.5018,
+          },
+        },
       };
       expect(workspace.type).toBe('cafe');
       expect(workspace.wifiSpeed).toBe(50);
@@ -104,9 +104,9 @@ describe('query-types types', () => {
           city: 'Chiang Mai',
           coordinates: {
             lat: 18.7883,
-            lng: 98.9853
-          }
-        }
+            lng: 98.9853,
+          },
+        },
       };
       expect(workspace.type).toBe('coworking');
       expect(workspace.hasWorkspaces).toBe(true);
@@ -120,9 +120,9 @@ describe('query-types types', () => {
         wifiSpeed: 10,
         hasWorkspaces: true,
         powerOutlets: 'limited',
-        location: { city: 'Test', coordinates: { lat: 0, lng: 0 } }
+        location: { city: 'Test', coordinates: { lat: 0, lng: 0 } },
       };
-      
+
       const fast: WorkspaceResult = {
         _id: '2',
         name: 'Fast Coworking',
@@ -130,9 +130,9 @@ describe('query-types types', () => {
         wifiSpeed: 500,
         hasWorkspaces: true,
         powerOutlets: 'abundant',
-        location: { city: 'Test', coordinates: { lat: 0, lng: 0 } }
+        location: { city: 'Test', coordinates: { lat: 0, lng: 0 } },
       };
-      
+
       expect(fast.wifiSpeed).toBeGreaterThan(slow.wifiSpeed);
     });
   });
@@ -145,7 +145,7 @@ describe('query-types types', () => {
         score: 0.95,
         type: 'coworking',
         description: 'Sustainable coworking space',
-        city: 'Bangkok'
+        city: 'Bangkok',
       };
       expect(result._id).toBe('search-123');
       expect(result.score).toBe(0.95);
@@ -161,9 +161,9 @@ describe('query-types types', () => {
         city: 'Test City',
         primaryImage: {
           asset: {
-            url: 'https://example.com/image.jpg'
-          }
-        }
+            url: 'https://example.com/image.jpg',
+          },
+        },
       };
       expect(result.primaryImage?.asset.url).toBe('https://example.com/image.jpg');
     });
@@ -175,7 +175,7 @@ describe('query-types types', () => {
         score: 0.7,
         type: 'accommodation',
         description: 'Test description',
-        city: 'Test City'
+        city: 'Test City',
       };
       expect(result.primaryImage).toBeUndefined();
     });
@@ -188,7 +188,7 @@ describe('query-types types', () => {
           score: 0.99,
           type: 'coworking',
           description: 'Best match',
-          city: 'Bangkok'
+          city: 'Bangkok',
         },
         {
           _id: '2',
@@ -196,10 +196,10 @@ describe('query-types types', () => {
           score: 0.3,
           type: 'cafe',
           description: 'Weak match',
-          city: 'Bangkok'
-        }
+          city: 'Bangkok',
+        },
       ];
-      
+
       expect(results[0].score).toBeGreaterThan(results[1].score);
     });
   });
@@ -213,11 +213,11 @@ describe('query-types types', () => {
         location: {
           coordinates: {
             lat: 13.7563,
-            lng: 100.5018
-          }
+            lng: 100.5018,
+          },
         },
         type: 'cafe',
-        city: 'Bangkok'
+        city: 'Bangkok',
       };
       expect(venue.distance).toBe(0.5);
       expect(venue.type).toBe('cafe');
@@ -231,7 +231,7 @@ describe('query-types types', () => {
           distance: 0.1,
           location: { coordinates: { lat: 0, lng: 0 } },
           type: 'coworking',
-          city: 'Bangkok'
+          city: 'Bangkok',
         },
         {
           _id: '2',
@@ -239,10 +239,10 @@ describe('query-types types', () => {
           distance: 5.0,
           location: { coordinates: { lat: 0, lng: 0 } },
           type: 'cafe',
-          city: 'Bangkok'
-        }
+          city: 'Bangkok',
+        },
       ];
-      
+
       expect(venues[0].distance).toBeLessThan(venues[1].distance);
     });
 
@@ -255,7 +255,7 @@ describe('query-types types', () => {
           distance: 1.0,
           location: { coordinates: { lat: 0, lng: 0 } },
           type,
-          city: 'Test City'
+          city: 'Test City',
         };
         expect(venue.type).toBe(type);
       });
@@ -272,15 +272,15 @@ describe('query-types types', () => {
           priceDistribution: [
             { range: 'budget', count: 15 },
             { range: 'moderate', count: 25 },
-            { range: 'premium', count: 10 }
-          ]
+            { range: 'premium', count: 10 },
+          ],
         },
         cafes: {
           total: 40,
           laptopFriendly: 35,
           withGoodWifi: 30,
-          withoutTimeLimits: 20
-        }
+          withoutTimeLimits: 20,
+        },
       };
       expect(summary.coworkingSpaces.total).toBe(50);
       expect(summary.cafes.total).toBe(40);
@@ -295,17 +295,17 @@ describe('query-types types', () => {
           priceDistribution: [
             { range: 'budget', count: 30 },
             { range: 'moderate', count: 50 },
-            { range: 'premium', count: 20 }
-          ]
+            { range: 'premium', count: 20 },
+          ],
         },
         cafes: {
           total: 0,
           laptopFriendly: 0,
           withGoodWifi: 0,
-          withoutTimeLimits: 0
-        }
+          withoutTimeLimits: 0,
+        },
       };
-      
+
       const totalPrice = summary.coworkingSpaces.priceDistribution.reduce(
         (sum, dist) => sum + dist.count,
         0
@@ -319,16 +319,16 @@ describe('query-types types', () => {
           total: 0,
           withHighSpeedWifi: 0,
           with24Access: 0,
-          priceDistribution: []
+          priceDistribution: [],
         },
         cafes: {
           total: 50,
           laptopFriendly: 40,
           withGoodWifi: 35,
-          withoutTimeLimits: 25
-        }
+          withoutTimeLimits: 25,
+        },
       };
-      
+
       expect(summary.cafes.laptopFriendly).toBeLessThanOrEqual(summary.cafes.total);
       expect(summary.cafes.withGoodWifi).toBeLessThanOrEqual(summary.cafes.laptopFriendly);
     });
@@ -342,17 +342,17 @@ describe('query-types types', () => {
           priceDistribution: [
             { range: 'budget', count: 20 },
             { range: 'moderate', count: 30 },
-            { range: 'premium', count: 10 }
-          ]
+            { range: 'premium', count: 10 },
+          ],
         },
         cafes: {
           total: 0,
           laptopFriendly: 0,
           withGoodWifi: 0,
-          withoutTimeLimits: 0
-        }
+          withoutTimeLimits: 0,
+        },
       };
-      
+
       const ranges = summary.coworkingSpaces.priceDistribution.map(d => d.range);
       expect(ranges).toContain('budget');
       expect(ranges).toContain('moderate');
@@ -368,29 +368,27 @@ describe('query-types types', () => {
           { category: 'coworking', count: 60 },
           { category: 'cafe', count: 50 },
           { category: 'accommodation', count: 30 },
-          { category: 'restaurant', count: 10 }
+          { category: 'restaurant', count: 10 },
         ],
-        topCities: [
-          { city: 'Bangkok', country: 'Thailand', count: 70 }
-        ],
-        averageRatings: []
+        topCities: [{ city: 'Bangkok', country: 'Thailand', count: 70 }],
+        averageRatings: [],
       };
-      
+
       const summary: VenueSummary = {
         coworkingSpaces: {
           total: 60,
           withHighSpeedWifi: 50,
           with24Access: 40,
-          priceDistribution: []
+          priceDistribution: [],
         },
         cafes: {
           total: 50,
           laptopFriendly: 45,
           withGoodWifi: 40,
-          withoutTimeLimits: 30
-        }
+          withoutTimeLimits: 30,
+        },
       };
-      
+
       const coworkingCount = stats.byCategory.find(c => c.category === 'coworking')?.count;
       expect(coworkingCount).toBe(summary.coworkingSpaces.total);
     });
@@ -398,10 +396,24 @@ describe('query-types types', () => {
     it('should support search result sorting by score', () => {
       const results: SearchResult[] = [
         { _id: '1', name: 'A', score: 0.5, type: 'cafe', description: 'Test', city: 'Bangkok' },
-        { _id: '2', name: 'B', score: 0.9, type: 'coworking', description: 'Test', city: 'Bangkok' },
-        { _id: '3', name: 'C', score: 0.7, type: 'accommodation', description: 'Test', city: 'Bangkok' }
+        {
+          _id: '2',
+          name: 'B',
+          score: 0.9,
+          type: 'coworking',
+          description: 'Test',
+          city: 'Bangkok',
+        },
+        {
+          _id: '3',
+          name: 'C',
+          score: 0.7,
+          type: 'accommodation',
+          description: 'Test',
+          city: 'Bangkok',
+        },
       ];
-      
+
       const sorted = [...results].sort((a, b) => b.score - a.score);
       expect(sorted[0].score).toBe(0.9);
       expect(sorted[2].score).toBe(0.5);
@@ -415,7 +427,7 @@ describe('query-types types', () => {
           distance: 0.3,
           location: { coordinates: { lat: 0, lng: 0 } },
           type: 'coworking',
-          city: 'Bangkok'
+          city: 'Bangkok',
         },
         {
           _id: '2',
@@ -423,10 +435,10 @@ describe('query-types types', () => {
           distance: 3.0,
           location: { coordinates: { lat: 0, lng: 0 } },
           type: 'cafe',
-          city: 'Bangkok'
-        }
+          city: 'Bangkok',
+        },
       ];
-      
+
       const nearby = venues.filter(v => v.distance < 1.0);
       expect(nearby).toHaveLength(1);
       expect(nearby[0].name).toBe('Near');

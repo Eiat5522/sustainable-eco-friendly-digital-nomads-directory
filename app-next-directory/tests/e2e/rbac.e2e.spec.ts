@@ -26,14 +26,13 @@ test.describe('RBAC (Playwright)', () => {
     await expect(page.getByText(/access denied/i)).toBeVisible({ timeout: 10000 });
   });
   test('admin can access admin routes', async ({ page }) => {
-  await loginAs(
-    page,
-    process.env.E2E_ADMIN_EMAIL ?? 'admin@example.com',
-    process.env.E2E_ADMIN_PASSWORD ?? 'adminpassword'
-  );
+    await loginAs(
+      page,
+      process.env.E2E_ADMIN_EMAIL ?? 'admin@example.com',
+      process.env.E2E_ADMIN_PASSWORD ?? 'adminpassword'
+    );
 
-  await page.goto(`${BASE_URL}/admin`);
-  await expect(page.getByText(/admin dashboard/i)).toBeVisible({ timeout: 10000 });
+    await page.goto(`${BASE_URL}/admin`);
+    await expect(page.getByText(/admin dashboard/i)).toBeVisible({ timeout: 10000 });
+  });
 });
-});
-

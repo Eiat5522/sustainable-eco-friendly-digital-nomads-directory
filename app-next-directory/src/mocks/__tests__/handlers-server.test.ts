@@ -3,9 +3,8 @@
  * These tests actually execute the handler logic by simulating HTTP requests
  */
 
-import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
-import { handlers, setReviewsResponse, setRegisterResponse } from '../handlers';
+import { handlers, setRegisterResponse, setReviewsResponse } from '../handlers';
 
 // Setup MSW server
 const server = setupServer(...handlers);
@@ -27,7 +26,7 @@ describe('MSW Handlers Integration Tests', () => {
     it('should handle GET /api/search with query', async () => {
       const response = await fetch('http://localhost/api/search?q=test');
       const data = await response.json();
-      
+
       expect(response.ok).toBe(true);
       expect(data.data).toBeDefined();
       expect(data.data.results).toBeDefined();
@@ -36,7 +35,7 @@ describe('MSW Handlers Integration Tests', () => {
     it('should handle GET /api/search without query', async () => {
       const response = await fetch('http://localhost/api/search');
       const data = await response.json();
-      
+
       expect(response.ok).toBe(true);
       expect(data.data.results).toBeDefined();
     });
@@ -48,7 +47,7 @@ describe('MSW Handlers Integration Tests', () => {
         body: JSON.stringify({ query: 'test' }),
       });
       const data = await response.json();
-      
+
       expect(response.ok).toBe(true);
       expect(data.results).toBeDefined();
     });
@@ -60,7 +59,7 @@ describe('MSW Handlers Integration Tests', () => {
         body: JSON.stringify({}),
       });
       const data = await response.json();
-      
+
       expect(response.ok).toBe(true);
       expect(data.results).toBeDefined();
     });
@@ -71,14 +70,14 @@ describe('MSW Handlers Integration Tests', () => {
         headers: { 'Content-Type': 'application/json' },
         body: 'invalid',
       });
-      
+
       expect(response.ok).toBe(true);
     });
 
     it('should handle GET /api/search/suggestions', async () => {
       const response = await fetch('http://localhost/api/search/suggestions');
       const data = await response.json();
-      
+
       expect(response.ok).toBe(true);
       expect(Array.isArray(data)).toBe(true);
     });
@@ -88,7 +87,7 @@ describe('MSW Handlers Integration Tests', () => {
     it('should handle GET /api/test-listings', async () => {
       const response = await fetch('http://localhost/api/test-listings');
       const data = await response.json();
-      
+
       expect(response.ok).toBe(true);
       expect(data.listings).toBeDefined();
     });
@@ -96,7 +95,7 @@ describe('MSW Handlers Integration Tests', () => {
     it('should handle GET /api/test-lidtings (typo endpoint)', async () => {
       const response = await fetch('http://localhost/api/test-lidtings');
       const data = await response.json();
-      
+
       expect(response.ok).toBe(true);
       expect(data.listings).toBeDefined();
     });
@@ -104,7 +103,7 @@ describe('MSW Handlers Integration Tests', () => {
     it('should handle GET /api/listings', async () => {
       const response = await fetch('http://localhost/api/listings');
       const data = await response.json();
-      
+
       expect(response.ok).toBe(true);
       expect(data.success).toBe(true);
       expect(data.data.listings).toBeDefined();
@@ -113,7 +112,7 @@ describe('MSW Handlers Integration Tests', () => {
     it('should handle GET /api/listings with citySlug', async () => {
       const response = await fetch('http://localhost/api/listings?citySlug=bangkok');
       const data = await response.json();
-      
+
       expect(response.ok).toBe(true);
       expect(data.data.listings).toBeDefined();
     });
@@ -121,7 +120,7 @@ describe('MSW Handlers Integration Tests', () => {
     it('should handle GET /api/listings with pagination', async () => {
       const response = await fetch('http://localhost/api/listings?page=2&limit=10');
       const data = await response.json();
-      
+
       expect(response.ok).toBe(true);
       expect(data.data.pagination).toBeDefined();
       expect(data.data.pagination.page).toBe(2);
@@ -131,7 +130,7 @@ describe('MSW Handlers Integration Tests', () => {
     it('should handle GET /api/featured-listings', async () => {
       const response = await fetch('http://localhost/api/featured-listings');
       const data = await response.json();
-      
+
       expect(response.ok).toBe(true);
       expect(data.listings).toBeDefined();
     });
@@ -141,7 +140,7 @@ describe('MSW Handlers Integration Tests', () => {
     it('should handle GET /api/cities', async () => {
       const response = await fetch('http://localhost/api/cities');
       const data = await response.json();
-      
+
       expect(response.ok).toBe(true);
       expect(data.cities).toBeDefined();
     });
@@ -149,7 +148,7 @@ describe('MSW Handlers Integration Tests', () => {
     it('should handle GET /api/cities/:slug with valid slug', async () => {
       const response = await fetch('http://localhost/api/cities/bangkok');
       const data = await response.json();
-      
+
       expect(response.ok).toBe(true);
       expect(data.success).toBe(true);
     });
@@ -157,7 +156,7 @@ describe('MSW Handlers Integration Tests', () => {
     it('should handle GET /api/cities/:slug with invalid slug', async () => {
       const response = await fetch('http://localhost/api/cities/nonexistent');
       const data = await response.json();
-      
+
       expect(response.status).toBe(404);
       expect(data.success).toBe(false);
     });
@@ -167,7 +166,7 @@ describe('MSW Handlers Integration Tests', () => {
     it('should handle GET /api/categories', async () => {
       const response = await fetch('http://localhost/api/categories');
       const data = await response.json();
-      
+
       expect(response.ok).toBe(true);
       expect(data.categories).toBeDefined();
     });
@@ -175,7 +174,7 @@ describe('MSW Handlers Integration Tests', () => {
     it('should handle GET /api/amenities', async () => {
       const response = await fetch('http://localhost/api/amenities');
       const data = await response.json();
-      
+
       expect(response.ok).toBe(true);
       expect(data.amenities).toBeDefined();
       expect(Array.isArray(data.amenities)).toBe(true);
@@ -190,7 +189,7 @@ describe('MSW Handlers Integration Tests', () => {
         body: JSON.stringify({ rating: 5, comment: 'Great!' }),
       });
       const data = await response.json();
-      
+
       expect(response.status).toBe(201);
       expect(data.success).toBe(true);
       expect(data.data.rating).toBe(5);
@@ -203,7 +202,7 @@ describe('MSW Handlers Integration Tests', () => {
         body: JSON.stringify({}),
       });
       const data = await response.json();
-      
+
       expect(response.status).toBe(201);
       expect(data.success).toBe(true);
     });
@@ -211,7 +210,7 @@ describe('MSW Handlers Integration Tests', () => {
     it('should handle GET /api/reviews', async () => {
       const response = await fetch('http://localhost/api/reviews');
       const data = await response.json();
-      
+
       expect(response.ok).toBe(true);
       expect(data.success).toBe(true);
       expect(data.data.reviews).toBeDefined();
@@ -220,7 +219,7 @@ describe('MSW Handlers Integration Tests', () => {
     it('should handle GET /api/reviews with listingId', async () => {
       const response = await fetch('http://localhost/api/reviews?listingId=test-id');
       const data = await response.json();
-      
+
       expect(response.ok).toBe(true);
       expect(data.data.reviews).toBeDefined();
     });
@@ -228,7 +227,7 @@ describe('MSW Handlers Integration Tests', () => {
     it('should handle GET /api/reviews with listing param', async () => {
       const response = await fetch('http://localhost/api/reviews?listing=test-id');
       const data = await response.json();
-      
+
       expect(response.ok).toBe(true);
       expect(data.data.averageRating).toBeDefined();
     });
@@ -247,7 +246,7 @@ describe('MSW Handlers Integration Tests', () => {
         }),
       });
       const data = await response.json();
-      
+
       expect(response.ok).toBe(true);
       expect(data.success).toBe(true);
       expect(data.data.name).toBe('John');
@@ -260,7 +259,7 @@ describe('MSW Handlers Integration Tests', () => {
         body: JSON.stringify({}),
       });
       const data = await response.json();
-      
+
       expect(response.ok).toBe(true);
       expect(data.success).toBe(true);
     });
@@ -270,7 +269,7 @@ describe('MSW Handlers Integration Tests', () => {
     it('should handle GET /api/user/favorites', async () => {
       const response = await fetch('http://localhost/api/user/favorites');
       const data = await response.json();
-      
+
       expect(response.ok).toBe(true);
       expect(data.favorites).toBeDefined();
     });
@@ -280,7 +279,7 @@ describe('MSW Handlers Integration Tests', () => {
     it('should handle GET /api/auth/providers', async () => {
       const response = await fetch('http://localhost/api/auth/providers');
       const data = await response.json();
-      
+
       expect(response.ok).toBe(true);
       expect(data.google).toBeDefined();
       expect(data.facebook).toBeDefined();
@@ -296,7 +295,7 @@ describe('MSW Handlers Integration Tests', () => {
         }),
       });
       const data = await response.json();
-      
+
       expect(response.status).toBe(201);
       expect(data.success).toBe(true);
       expect(data.data.email).toBe('test@example.com');
@@ -309,7 +308,7 @@ describe('MSW Handlers Integration Tests', () => {
         body: JSON.stringify({}),
       });
       const data = await response.json();
-      
+
       expect(response.status).toBe(201);
       expect(data.success).toBe(true);
     });
@@ -319,7 +318,7 @@ describe('MSW Handlers Integration Tests', () => {
     it('should handle GET /api/hello', async () => {
       const response = await fetch('http://localhost/api/hello');
       const data = await response.json();
-      
+
       expect(response.ok).toBe(true);
       expect(data.message).toBe('Hello');
     });

@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { StarRating } from '../StarRating';
 
@@ -66,10 +66,10 @@ describe('StarRating', () => {
     it('calls onRatingChange when star is clicked', async () => {
       const onRatingChange = jest.fn();
       render(<StarRating rating={2} interactive={true} onRatingChange={onRatingChange} />);
-      
+
       const fourthStar = screen.getByTestId('rating-star-4');
       await userEvent.click(fourthStar);
-      
+
       expect(onRatingChange).toHaveBeenCalledWith(4);
       expect(onRatingChange).toHaveBeenCalledTimes(1);
     });
@@ -77,7 +77,7 @@ describe('StarRating', () => {
     it('does not call onRatingChange when not interactive', async () => {
       const onRatingChange = jest.fn();
       render(<StarRating rating={2} interactive={false} onRatingChange={onRatingChange} />);
-      
+
       const { container } = render(<StarRating rating={2} interactive={false} />);
       const buttons = container.querySelectorAll('button');
       expect(buttons).toHaveLength(0);
@@ -85,10 +85,10 @@ describe('StarRating', () => {
 
     it('updates hover state on mouse enter', async () => {
       const { container } = render(<StarRating rating={2} interactive={true} />);
-      
+
       const thirdStar = screen.getByTestId('rating-star-3');
       fireEvent.mouseEnter(thirdStar);
-      
+
       // After hover, 3 stars should be filled
       const filledStars = container.querySelectorAll('.fill-yellow-400');
       expect(filledStars.length).toBeGreaterThanOrEqual(3);
@@ -96,13 +96,13 @@ describe('StarRating', () => {
 
     it('resets hover state on mouse leave', async () => {
       const { container } = render(<StarRating rating={2} interactive={true} />);
-      
+
       const wrapper = container.firstChild as HTMLElement;
       const fourthStar = screen.getByTestId('rating-star-4');
-      
+
       fireEvent.mouseEnter(fourthStar);
       fireEvent.mouseLeave(wrapper);
-      
+
       // After mouse leave, only 2 stars (the rating) should be filled
       const filledStars = container.querySelectorAll('.fill-yellow-400');
       expect(filledStars).toHaveLength(2);
@@ -110,7 +110,7 @@ describe('StarRating', () => {
 
     it('has proper aria-label for each star button', () => {
       render(<StarRating rating={3} interactive={true} />);
-      
+
       expect(screen.getByLabelText('Set rating to 1 star')).toBeInTheDocument();
       expect(screen.getByLabelText('Set rating to 2 stars')).toBeInTheDocument();
       expect(screen.getByLabelText('Set rating to 3 stars')).toBeInTheDocument();
@@ -120,13 +120,13 @@ describe('StarRating', () => {
     it('handles multiple clicks correctly', async () => {
       const onRatingChange = jest.fn();
       render(<StarRating rating={2} interactive={true} onRatingChange={onRatingChange} />);
-      
+
       const secondStar = screen.getByTestId('rating-star-2');
       const fourthStar = screen.getByTestId('rating-star-4');
-      
+
       await userEvent.click(secondStar);
       await userEvent.click(fourthStar);
-      
+
       expect(onRatingChange).toHaveBeenCalledTimes(2);
       expect(onRatingChange).toHaveBeenNthCalledWith(1, 2);
       expect(onRatingChange).toHaveBeenNthCalledWith(2, 4);
@@ -134,10 +134,10 @@ describe('StarRating', () => {
 
     it('does not call onRatingChange when interactive but callback not provided', async () => {
       render(<StarRating rating={2} interactive={true} />);
-      
+
       const thirdStar = screen.getByTestId('rating-star-3');
       await userEvent.click(thirdStar);
-      
+
       // Should not throw error, just do nothing
       expect(screen.getByTestId('rating-star-3')).toBeInTheDocument();
     });
@@ -146,7 +146,7 @@ describe('StarRating', () => {
   describe('Accessibility', () => {
     it('has proper focus styles on interactive stars', () => {
       render(<StarRating rating={3} interactive={true} />);
-      
+
       const firstButton = screen.getByTestId('rating-star-1');
       expect(firstButton).toHaveClass('focus:outline-none');
       expect(firstButton).toHaveClass('focus-visible:ring-2');
@@ -154,7 +154,7 @@ describe('StarRating', () => {
 
     it('renders static stars with aria-hidden on spans', () => {
       const { container } = render(<StarRating rating={3} interactive={false} />);
-      
+
       const spans = container.querySelectorAll('span[aria-hidden]');
       expect(spans).toHaveLength(5);
     });

@@ -154,10 +154,15 @@ describe('auth module', () => {
       const { authOptions } = await importAuthModule();
       const provider = extractCredentialsProvider(authOptions);
       const request = {
-        headers: { get: (key: string) => (key === 'x-forwarded-for' ? '203.0.113.5, 70.0.0.1' : null) },
+        headers: {
+          get: (key: string) => (key === 'x-forwarded-for' ? '203.0.113.5, 70.0.0.1' : null),
+        },
       };
 
-      const result = await provider.authorize({ email: '  Jane@Example.com ', password: 'secret' }, request);
+      const result = await provider.authorize(
+        { email: '  Jane@Example.com ', password: 'secret' },
+        request
+      );
 
       expect(enforceLoginRateLimit).toHaveBeenCalledWith('jane@example.com:203.0.113.5');
       expect(authenticateUser).toHaveBeenCalledWith('jane@example.com', 'secret');
@@ -183,7 +188,10 @@ describe('auth module', () => {
       const provider = extractCredentialsProvider(authOptions);
 
       await expect(
-        provider.authorize({ email: 'blocked@example.com', password: 'pw' }, { headers: { get: () => null } }),
+        provider.authorize(
+          { email: 'blocked@example.com', password: 'pw' },
+          { headers: { get: () => null } }
+        )
       ).rejects.toThrow('Too many login attempts');
 
       expect(recordLoginAttempt).toHaveBeenCalledWith({
@@ -201,7 +209,10 @@ describe('auth module', () => {
       const { authOptions } = await importAuthModule();
       const provider = extractCredentialsProvider(authOptions);
 
-      const result = await provider.authorize({ email: 'fail@example.com', password: 'pw' }, undefined);
+      const result = await provider.authorize(
+        { email: 'fail@example.com', password: 'pw' },
+        undefined
+      );
 
       expect(recordLoginAttempt).toHaveBeenCalledWith({
         email: 'fail@example.com',
@@ -218,7 +229,9 @@ describe('auth module', () => {
       const { authOptions } = await importAuthModule();
       const provider = extractCredentialsProvider(authOptions);
 
-      await expect(provider.authorize({ email: 'err@example.com', password: 'pw' }, undefined)).resolves.toBeNull();
+      await expect(
+        provider.authorize({ email: 'err@example.com', password: 'pw' }, undefined)
+      ).resolves.toBeNull();
       expect(recordLoginAttempt).not.toHaveBeenCalled();
     });
   });
@@ -228,7 +241,9 @@ describe('auth module', () => {
       process.env.MONGODB_URI = 'mongodb://example.test/db';
       enforceLoginRateLimit.mockResolvedValue({ success: true });
       const { authOptions } = await importAuthModule();
-      const signIn = authOptions.callbacks?.signIn as Required<NextAuthConfig['callbacks']>['signIn'];
+      const signIn = authOptions.callbacks?.signIn as Required<
+        NextAuthConfig['callbacks']
+      >['signIn'];
       updateOne.mockResolvedValue({ acknowledged: true });
       const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
@@ -245,7 +260,7 @@ describe('auth module', () => {
           emailVerified: null,
         },
         { $set: { emailVerified: expect.any(Date) } },
-        { maxTimeMS: 5000 },
+        { maxTimeMS: 5000 }
       );
       expect(result).toBe(true);
       warnSpy.mockRestore();
@@ -254,7 +269,9 @@ describe('auth module', () => {
     it('never blocks sign-in when verification syncing fails', async () => {
       process.env.MONGODB_URI = 'mongodb://example.test/db';
       const { authOptions } = await importAuthModule();
-      const signIn = authOptions.callbacks?.signIn as Required<NextAuthConfig['callbacks']>['signIn'];
+      const signIn = authOptions.callbacks?.signIn as Required<
+        NextAuthConfig['callbacks']
+      >['signIn'];
       updateOne.mockRejectedValue(new Error('write failed'));
       const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
@@ -264,14 +281,19 @@ describe('auth module', () => {
         profile: { email_verified: true },
       } as any);
 
-      expect(warnSpy).toHaveBeenCalledWith('[auth] signIn verification sync failed', expect.any(Error));
+      expect(warnSpy).toHaveBeenCalledWith(
+        '[auth] signIn verification sync failed',
+        expect.any(Error)
+      );
       expect(result).toBe(true);
       warnSpy.mockRestore();
     });
 
     it('skips verification flow for credentials provider', async () => {
       const { authOptions } = await importAuthModule();
-      const signIn = authOptions.callbacks?.signIn as Required<NextAuthConfig['callbacks']>['signIn'];
+      const signIn = authOptions.callbacks?.signIn as Required<
+        NextAuthConfig['callbacks']
+      >['signIn'];
 
       const result = await signIn?.({
         user: { email: 'user@example.com' },
@@ -298,7 +320,9 @@ describe('auth module', () => {
       expect(isAdminEmail).toHaveBeenCalledWith('probe@example.com');
       isAdminEmail.mockClear();
       isAdminEmail.mockReturnValue(true);
-      const jwtCallback = authOptions.callbacks?.jwt as Required<NextAuthConfig['callbacks']>['jwt'];
+      const jwtCallback = authOptions.callbacks?.jwt as Required<
+        NextAuthConfig['callbacks']
+      >['jwt'];
 
       const token = await jwtCallback?.({
         token: { email: 'admin@example.com' } as JWT,
@@ -315,7 +339,7 @@ describe('auth module', () => {
       expect(isAdminEmail).not.toHaveBeenCalled();
       expect(errorSpy).toHaveBeenCalledWith(
         '[auth] failed to queue admin allowlist promotion flow',
-        expect.any(Error),
+        expect.any(Error)
       );
       expect(infoSpy).not.toHaveBeenCalled();
       infoSpy.mockRestore();
@@ -327,7 +351,9 @@ describe('auth module', () => {
       getUserById.mockResolvedValue({ name: 'Fetched User', role: 'admin' });
 
       const { authOptions } = await importAuthModule();
-      const jwtCallback = authOptions.callbacks?.jwt as Required<NextAuthConfig['callbacks']>['jwt'];
+      const jwtCallback = authOptions.callbacks?.jwt as Required<
+        NextAuthConfig['callbacks']
+      >['jwt'];
       const token = await jwtCallback?.({
         token: { id: 'user-2', email: 'fetched@example.com' } as JWT,
         trigger: 'update',
@@ -341,7 +367,9 @@ describe('auth module', () => {
   describe('callbacks.session', () => {
     it('syncs id and role from the user object when available', async () => {
       const { authOptions } = await importAuthModule();
-      const sessionCallback = authOptions.callbacks?.session as Required<NextAuthConfig['callbacks']>['session'];
+      const sessionCallback = authOptions.callbacks?.session as Required<
+        NextAuthConfig['callbacks']
+      >['session'];
       const session = await sessionCallback?.({
         session: { user: {} },
         user: { id: 'abc', role: 'admin' },
@@ -353,7 +381,9 @@ describe('auth module', () => {
 
     it('falls back to token derived values when user is not supplied', async () => {
       const { authOptions } = await importAuthModule();
-      const sessionCallback = authOptions.callbacks?.session as Required<NextAuthConfig['callbacks']>['session'];
+      const sessionCallback = authOptions.callbacks?.session as Required<
+        NextAuthConfig['callbacks']
+      >['session'];
       const session = await sessionCallback?.({
         session: { user: {} },
         token: { id: 'token-id', role: 'member' },

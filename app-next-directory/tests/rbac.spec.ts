@@ -1,7 +1,6 @@
 import { expect, test } from './fixtures';
 
 test.describe('Role-Based Access Control (RBAC)', () => {
-
   test.describe('Admin Access', () => {
     test('admin can access all admin routes', async ({ adminPage }) => {
       // Test admin dashboard access

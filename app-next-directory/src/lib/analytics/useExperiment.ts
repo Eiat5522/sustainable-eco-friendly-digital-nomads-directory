@@ -11,8 +11,7 @@ export function useExperiment(experimentId: string) {
       try {
         const experimentVariant = activateExperiment(experimentId);
         setVariant(experimentVariant);
-      } catch (error) {
-        console.error('Failed to load experiment:', error);
+      } catch (_error) {
       } finally {
         setIsLoading(false);
       }

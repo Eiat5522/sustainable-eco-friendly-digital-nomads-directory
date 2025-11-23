@@ -1,6 +1,10 @@
-
-import type { UserRole, PagePermissions, FeaturePermissions } from '../types/auth';
-import { getUserPermissions, hasPagePermission, hasFeaturePermission, hasHigherRole } from '../types/auth';
+import type { FeaturePermissions, PagePermissions, UserRole } from '../types/auth';
+import {
+  getUserPermissions,
+  hasFeaturePermission,
+  hasHigherRole,
+  hasPagePermission,
+} from '../types/auth';
 
 describe('auth types coverage', () => {
   it('should use UserRole type', () => {

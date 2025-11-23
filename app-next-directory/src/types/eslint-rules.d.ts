@@ -4,4 +4,3 @@ declare module '../../eslint/rules/require-react-fc-type-parameters.js' {
   const rule: Rule.RuleModule;
   export default rule;
 }
-

@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import '@testing-library/jest-dom';
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 const pushMock = jest.fn();
@@ -49,10 +49,15 @@ describe('EditListingPage', () => {
 
     await user.click(screen.getByRole('button', { name: /trigger-save/i }));
 
-    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/listings/manage/listing-1', expect.objectContaining({
-      method: 'PUT',
-      body: JSON.stringify(mockFormSubmission),
-    })));
+    await waitFor(() =>
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/listings/manage/listing-1',
+        expect.objectContaining({
+          method: 'PUT',
+          body: JSON.stringify(mockFormSubmission),
+        })
+      )
+    );
     expect(pushMock).toHaveBeenCalledWith('/dashboard/listings');
   });
 

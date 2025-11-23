@@ -1,5 +1,5 @@
-import { handleAuthCallbackUrl } from '../authCallbackHandler';
 import { structuredLogger } from '@/lib/logger';
+import { handleAuthCallbackUrl } from '../authCallbackHandler';
 
 jest.mock('@/lib/logger', () => ({
   structuredLogger: {
@@ -31,7 +31,9 @@ describe('handleAuthCallbackUrl', () => {
   it('should decode a URL with encoded characters', () => {
     const req = {
       nextUrl: {
-        searchParams: new URLSearchParams({ callbackUrl: 'https%3A%2F%2Fexample.com%2Fpath%3Fquery%3Dvalue' }),
+        searchParams: new URLSearchParams({
+          callbackUrl: 'https%3A%2F%2Fexample.com%2Fpath%3Fquery%3Dvalue',
+        }),
       },
     };
     const result = handleAuthCallbackUrl(req);
@@ -62,7 +64,9 @@ describe('handleAuthCallbackUrl', () => {
     // Test the case where decoded URL doesn't contain more encoding patterns
     const req = {
       nextUrl: {
-        searchParams: new URLSearchParams({ callbackUrl: 'https://example.com/path-without-encoding' }),
+        searchParams: new URLSearchParams({
+          callbackUrl: 'https://example.com/path-without-encoding',
+        }),
       },
     };
     const result = handleAuthCallbackUrl(req);
@@ -83,7 +87,9 @@ describe('handleAuthCallbackUrl', () => {
   it('should handle URLs with special characters that need decoding', () => {
     const req = {
       nextUrl: {
-        searchParams: new URLSearchParams({ callbackUrl: 'https%3A%2F%2Fexample.com%2Fpath%3Fparam%3Dvalue%26other%3Dtest' }),
+        searchParams: new URLSearchParams({
+          callbackUrl: 'https%3A%2F%2Fexample.com%2Fpath%3Fparam%3Dvalue%26other%3Dtest',
+        }),
       },
     };
     const result = handleAuthCallbackUrl(req);

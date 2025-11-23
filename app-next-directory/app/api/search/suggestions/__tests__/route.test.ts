@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 const mockedGetSearchSuggestions = jest.fn();
 
@@ -28,7 +28,7 @@ describe('/api/search/suggestions', () => {
       { text: 'Bali', type: 'city' },
     ];
     mockedGetSearchSuggestions.mockResolvedValue(mockSuggestions);
-    
+
     const request = new Request('http://localhost:3000/api/search/suggestions?q=Ban');
     const response = await GET(request);
     const json = await response.json();
@@ -76,7 +76,7 @@ describe('/api/search/suggestions', () => {
 
   it('handles errors from suggestion service', async () => {
     mockedGetSearchSuggestions.mockRejectedValue(new Error('Database connection failed'));
-    
+
     const request = new Request('http://localhost:3000/api/search/suggestions?q=test');
     const response = await GET(request);
     const json = await response.json();
@@ -88,7 +88,7 @@ describe('/api/search/suggestions', () => {
   it('includes error details in non-production', async () => {
     process.env.NODE_ENV = 'development';
     mockedGetSearchSuggestions.mockRejectedValue(new Error('Specific error'));
-    
+
     const request = new Request('http://localhost:3000/api/search/suggestions?q=test');
     const response = await GET(request);
     const json = await response.json();
@@ -100,7 +100,7 @@ describe('/api/search/suggestions', () => {
   it('excludes error details in production', async () => {
     process.env.NODE_ENV = 'production';
     mockedGetSearchSuggestions.mockRejectedValue(new Error('Specific error'));
-    
+
     const request = new Request('http://localhost:3000/api/search/suggestions?q=test');
     const response = await GET(request);
     const json = await response.json();

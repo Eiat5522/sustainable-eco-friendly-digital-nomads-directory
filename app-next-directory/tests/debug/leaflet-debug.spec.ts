@@ -1,6 +1,6 @@
-import { test, expect } from '@playwright/test';
-import fs from 'fs';
-import path from 'path';
+import { expect, test } from '@playwright/test';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const URL = 'http://localhost:3000/listings/banyan-tree-phuket';
 
@@ -12,19 +12,44 @@ test('leaflet map debug', async ({ page }) => {
 
   const requests: any[] = [];
   page.on('request', req => {
-    requests.push({ url: req.url(), method: req.method(), resourceType: req.resourceType(), stage: 'request' });
+    requests.push({
+      url: req.url(),
+      method: req.method(),
+      resourceType: req.resourceType(),
+      stage: 'request',
+    });
   });
   page.on('requestfinished', async req => {
     try {
       const res = req.response();
-      const status = res && typeof (res as any).status === 'function' ? await (res as any).status() : (res ? (res as any).status : null);
-      requests.push({ url: req.url(), status, resourceType: req.resourceType(), stage: 'finished' });
+      const status =
+        res && typeof (res as any).status === 'function'
+          ? await (res as any).status()
+          : res
+            ? (res as any).status
+            : null;
+      requests.push({
+        url: req.url(),
+        status,
+        resourceType: req.resourceType(),
+        stage: 'finished',
+      });
     } catch (e) {
-      requests.push({ url: req.url(), resourceType: req.resourceType(), error: String(e), stage: 'finished' });
+      requests.push({
+        url: req.url(),
+        resourceType: req.resourceType(),
+        error: String(e),
+        stage: 'finished',
+      });
     }
   });
   page.on('requestfailed', req => {
-    requests.push({ url: req.url(), failure: req.failure()?.errorText, resourceType: req.resourceType(), stage: 'failed' });
+    requests.push({
+      url: req.url(),
+      failure: req.failure()?.errorText,
+      resourceType: req.resourceType(),
+      stage: 'failed',
+    });
   });
 
   // Increase viewport so map has space
@@ -38,7 +63,8 @@ test('leaflet map debug', async ({ page }) => {
 
   // Capture DOM info about Leaflet
   const mapInfo = await page.evaluate(() => {
-    const el = document.querySelector('.leaflet-container') || document.querySelector('#map') || null;
+    const el =
+      document.querySelector('.leaflet-container') || document.querySelector('#map') || null;
     const leafletDiv = el as HTMLElement | null;
     if (!leafletDiv) return { found: false };
 
@@ -55,17 +81,25 @@ test('leaflet map debug', async ({ page }) => {
     }));
 
     // Look for leaflet panes
-    const panes = Array.from(document.querySelectorAll('.leaflet-pane')).map(p => ({ className: p.className, style: window.getComputedStyle(p).cssText }));
+    const panes = Array.from(document.querySelectorAll('.leaflet-pane')).map(p => ({
+      className: p.className,
+      style: window.getComputedStyle(p).cssText,
+    }));
 
     // Check if Leaflet JS exists
-    
+
     const L = (window as any).L;
     const leafletVersion = L?.version || null;
 
     return {
       found: true,
       rect: { width: rect.width, height: rect.height, top: rect.top, left: rect.left },
-      style: { display: style.display, visibility: style.visibility, background: style.background, zIndex: style.zIndex },
+      style: {
+        display: style.display,
+        visibility: style.visibility,
+        background: style.background,
+        zIndex: style.zIndex,
+      },
       imgs,
       panes: panes.slice(0, 20),
       leafletVersion,
@@ -74,7 +108,11 @@ test('leaflet map debug', async ({ page }) => {
 
   // Save screenshot of full page and map element
   const outDir = path.join(process.cwd(), 'playwright-debug-output');
-  try { fs.mkdirSync(outDir); } catch (e) { /* ok */ }
+  try {
+    fs.mkdirSync(outDir);
+  } catch (e) {
+    /* ok */
+  }
   const fullShot = path.join(outDir, 'leaflet-fullpage.png');
   await page.screenshot({ path: fullShot, fullPage: true });
 

@@ -1,7 +1,7 @@
 import { revalidatePath } from 'next/cache';
 import type { NextRequest } from 'next/server';
-import { ApiResponseHandler } from '@/utils/api-response';
 import { getRequestContext, structuredLogger } from '@/lib/logger';
+import { ApiResponseHandler } from '@/utils/api-response';
 import { validateRevalidationToken } from '@/utils/revalidation-token';
 
 type RevalidateFn = (path: string) => void;
@@ -32,12 +32,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Revalidate all dynamic routes
-    const routesToRevalidate = [
-      '/',
-      '/listings',
-      '/category',
-      '/city'
-    ];
+    const routesToRevalidate = ['/', '/listings', '/category', '/city'];
 
     // Revalidate each route
     const revalidate = _testControl?.revalidatePathOverride ?? revalidatePath;
@@ -48,7 +43,7 @@ export async function POST(request: NextRequest) {
     return ApiResponseHandler.success({
       revalidated: true,
       routes: routesToRevalidate,
-      now: Date.now()
+      now: Date.now(),
     });
   } catch (error) {
     structuredLogger.error('Error revalidating all paths', error, {

@@ -1,3 +1,4 @@
+import type { CallbackError } from 'mongoose';
 import mongoose, {
   type Document,
   type FilterQuery,
@@ -5,7 +6,6 @@ import mongoose, {
   Schema,
   type UpdateQuery,
 } from 'mongoose';
-import type { CallbackError } from 'mongoose';
 
 export type LoginAttemptReason = 'success' | 'invalid_credentials' | 'rate_limited';
 
@@ -51,8 +51,6 @@ LoginAttemptSchema.index({ userId: 1, timestamp: -1 });
 LoginAttemptSchema.index({ sessionId: 1, timestamp: -1 });
 LoginAttemptSchema.index({ timestamp: -1, eventType: 1 });
 
-console.log('📊 LoginAttempt indexes configured');
-
 const invariantError = (path: 'success' | 'reason', message: string) => {
   const error = new mongoose.Error.ValidationError();
   error.addError(
@@ -60,7 +58,7 @@ const invariantError = (path: 'success' | 'reason', message: string) => {
     new mongoose.Error.ValidatorError({
       message,
       path,
-    }),
+    })
   );
   return error;
 };
@@ -99,7 +97,10 @@ const disallowedOperators: Array<keyof UpdateQuery<ILoginAttempt>> = [
   '$pullAll',
 ];
 
-const extractField = <T>(update: UpdateQuery<ILoginAttempt>, field: UpdateField): ExtractedField<T> => {
+const extractField = <T>(
+  update: UpdateQuery<ILoginAttempt>,
+  field: UpdateField
+): ExtractedField<T> => {
   const normalized = update as Record<string, unknown>;
   const result: ExtractedField<T> = {
     unset: false,
@@ -132,7 +133,7 @@ const extractField = <T>(update: UpdateQuery<ILoginAttempt>, field: UpdateField)
     if (clause && Object.hasOwn(clause, field)) {
       throw invariantError(
         field,
-        `Operator ${String(operator)} is not supported for ${field} on login attempts.`,
+        `Operator ${String(operator)} is not supported for ${field} on login attempts.`
       );
     }
   }
@@ -147,7 +148,7 @@ const extractField = <T>(update: UpdateQuery<ILoginAttempt>, field: UpdateField)
       if (candidate.value !== first) {
         throw invariantError(
           field,
-          `Conflicting ${field} values specified via multiple update clauses (${candidate.label}).`,
+          `Conflicting ${field} values specified via multiple update clauses (${candidate.label}).`
         );
       }
     }
@@ -164,7 +165,7 @@ const extractField = <T>(update: UpdateQuery<ILoginAttempt>, field: UpdateField)
       if (candidate.value !== firstOnInsert) {
         throw invariantError(
           field,
-          `Conflicting ${field} values specified for $setOnInsert updates.`,
+          `Conflicting ${field} values specified for $setOnInsert updates.`
         );
       }
     }
@@ -176,7 +177,7 @@ const extractField = <T>(update: UpdateQuery<ILoginAttempt>, field: UpdateField)
 
 const ensureUpdateInvariant = async function ensureUpdateInvariant(
   this: Query<unknown, ILoginAttempt>,
-  next: (err?: CallbackError | null) => void,
+  next: (err?: CallbackError | null) => void
 ) {
   const update = this.getUpdate();
   if (!update) {
@@ -185,7 +186,7 @@ const ensureUpdateInvariant = async function ensureUpdateInvariant(
 
   if (Array.isArray(update)) {
     return next(
-      invariantError('success', 'Update pipelines are not supported for login attempt invariants.'),
+      invariantError('success', 'Update pipelines are not supported for login attempt invariants.')
     );
   }
 
@@ -201,7 +202,7 @@ const ensureUpdateInvariant = async function ensureUpdateInvariant(
 
   if (successField.unset || reasonField.unset) {
     return next(
-      invariantError('reason', 'success and reason fields cannot be unset on login attempts.'),
+      invariantError('reason', 'success and reason fields cannot be unset on login attempts.')
     );
   }
 
@@ -226,8 +227,8 @@ const ensureUpdateInvariant = async function ensureUpdateInvariant(
         'reason',
         successValue
           ? 'Successful login attempts must use reason "success".'
-          : 'Failed login attempts cannot use reason "success".',
-      ),
+          : 'Failed login attempts cannot use reason "success".'
+      )
     );
   }
 
@@ -237,9 +238,7 @@ const ensureUpdateInvariant = async function ensureUpdateInvariant(
     const conflictFilter: FilterQuery<ILoginAttempt> = {
       $and: [
         filter as FilterQuery<ILoginAttempt>,
-        successValue
-          ? { reason: { $ne: SUCCESS_REASON } }
-          : { reason: SUCCESS_REASON },
+        successValue ? { reason: { $ne: SUCCESS_REASON } } : { reason: SUCCESS_REASON },
       ],
     };
 
@@ -252,8 +251,8 @@ const ensureUpdateInvariant = async function ensureUpdateInvariant(
           'reason',
           successValue
             ? 'Cannot set success=true while keeping a non-success reason.'
-            : 'Cannot set success=false while keeping reason "success".',
-        ),
+            : 'Cannot set success=false while keeping reason "success".'
+        )
       );
     }
   }
@@ -261,9 +260,7 @@ const ensureUpdateInvariant = async function ensureUpdateInvariant(
     const conflictFilter: FilterQuery<ILoginAttempt> = {
       $and: [
         filter as FilterQuery<ILoginAttempt>,
-        reasonValue === SUCCESS_REASON
-          ? { success: { $ne: true } }
-          : { success: true },
+        reasonValue === SUCCESS_REASON ? { success: { $ne: true } } : { success: true },
       ],
     };
 
@@ -276,8 +273,8 @@ const ensureUpdateInvariant = async function ensureUpdateInvariant(
           'success',
           reasonValue === SUCCESS_REASON
             ? 'Cannot set reason "success" while success is false.'
-            : 'Cannot set a failure reason while success is true.',
-        ),
+            : 'Cannot set a failure reason while success is true.'
+        )
       );
     }
   }
@@ -290,8 +287,8 @@ const ensureUpdateInvariant = async function ensureUpdateInvariant(
       return next(
         invariantError(
           typeof upsertSuccess !== 'boolean' ? 'success' : 'reason',
-          'Upsert operations must provide both success and reason fields.',
-        ),
+          'Upsert operations must provide both success and reason fields.'
+        )
       );
     }
 
@@ -301,8 +298,8 @@ const ensureUpdateInvariant = async function ensureUpdateInvariant(
           upsertSuccess ? 'reason' : 'success',
           upsertSuccess
             ? 'Successful login attempts must use reason "success".'
-            : 'Failed login attempts cannot use reason "success".',
-        ),
+            : 'Failed login attempts cannot use reason "success".'
+        )
       );
     }
   }

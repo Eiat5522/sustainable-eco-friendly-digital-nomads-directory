@@ -1,13 +1,11 @@
 import { jest } from '@jest/globals';
 import mongoose from 'mongoose';
-import EmailVerificationToken, { IEmailVerificationToken } from '../EmailVerificationToken';
+import EmailVerificationToken from '../EmailVerificationToken';
 
 describe('EmailVerificationToken Model', () => {
-  beforeAll(() => {
-  });
+  beforeAll(() => {});
 
-  afterAll(() => {
-  });
+  afterAll(() => {});
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -235,7 +233,7 @@ describe('EmailVerificationToken Model', () => {
         '0123456789abcdef' + '0'.repeat(48),
       ];
 
-      validHashes.forEach((hash) => {
+      validHashes.forEach(hash => {
         const token = new EmailVerificationToken({
           userId,
           tokenHash: hash,
@@ -333,7 +331,7 @@ describe('EmailVerificationToken Model', () => {
   describe('Timestamps', () => {
     it('should have timestamps configuration', () => {
       const schema = EmailVerificationToken.schema;
-      if (schema && schema.options) {
+      if (schema?.options) {
         expect(schema.options.timestamps).toBeDefined();
       } else {
         expect(EmailVerificationToken).toBeDefined();
@@ -342,7 +340,7 @@ describe('EmailVerificationToken Model', () => {
 
     it('should have createdAt enabled', () => {
       const schema = EmailVerificationToken.schema;
-      if (schema && schema.options && schema.options.timestamps) {
+      if (schema?.options?.timestamps) {
         expect(schema.options.timestamps.createdAt).toBe(true);
       } else {
         expect(EmailVerificationToken).toBeDefined();
@@ -351,7 +349,7 @@ describe('EmailVerificationToken Model', () => {
 
     it('should have updatedAt disabled', () => {
       const schema = EmailVerificationToken.schema;
-      if (schema && schema.options && schema.options.timestamps) {
+      if (schema?.options?.timestamps) {
         expect(schema.options.timestamps.updatedAt).toBe(false);
       } else {
         expect(EmailVerificationToken).toBeDefined();
@@ -367,7 +365,7 @@ describe('EmailVerificationToken Model', () => {
         const uniqueIndex = indexes.find(
           (idx: any) => idx[0].userId === 1 && idx[0].tokenHash === 1
         );
-        
+
         expect(uniqueIndex).toBeDefined();
         if (uniqueIndex) {
           expect(uniqueIndex[1].unique).toBe(true);
@@ -409,7 +407,6 @@ describe('EmailVerificationToken Model', () => {
       }
     });
   });
-
 
   // Note: Database operation tests have been moved to EmailVerificationToken.integration.test.ts
   // This keeps unit tests fast and focused on schema validation

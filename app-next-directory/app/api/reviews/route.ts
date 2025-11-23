@@ -1,14 +1,14 @@
-import { ApiResponseHandler } from '@/utils/api-response';
-import { getCollection } from '@/utils/db-helpers';
+import type { Collection } from 'mongodb';
+import { revalidateTag } from 'next/cache';
+import { type NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { auth } from '@/lib/auth';
+import { getRequestContext, structuredLogger } from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
 import { ensureSanityUser } from '@/lib/sanity/user';
-import { structuredLogger, getRequestContext } from '@/lib/logger';
 import { hasFeaturePermission, type UserRole } from '@/types/auth';
-import { revalidateTag } from 'next/cache';
-import { NextResponse, type NextRequest } from 'next/server';
-import { z } from 'zod';
-import type { Collection } from 'mongodb';
+import { ApiResponseHandler } from '@/utils/api-response';
+import { getCollection } from '@/utils/db-helpers';
 
 type ReviewDoc = {
   verified?: boolean;
@@ -26,8 +26,11 @@ export async function GET(request: NextRequest, context: RouteContext) {
   try {
     const { searchParams } = new URL(request.url);
     const listingSlug = searchParams.get('listing');
-    const page = Math.max(1, Number.parseInt(searchParams.get('page') || '1') || 1);
-    const limit = Math.min(50, Math.max(1, Number.parseInt(searchParams.get('limit') || '10') || 10));
+    const page = Math.max(1, Number.parseInt(searchParams.get('page') || '1', 10) || 1);
+    const limit = Math.min(
+      50,
+      Math.max(1, Number.parseInt(searchParams.get('limit') || '10', 10) || 10)
+    );
     const sortBy = searchParams.get('sortBy') || 'createdAt';
     const filterRating = searchParams.get('rating');
     const verified = searchParams.get('verified') === 'true';
@@ -39,7 +42,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
     // Build filter
     const filter: Record<string, unknown> = {};
     if (listingSlug) filter.listingSlug = listingSlug; // Filter by slug in DB
-    if (filterRating) filter.rating = Number.parseInt(filterRating);
+    if (filterRating) filter.rating = Number.parseInt(filterRating, 10);
     if (verified) filter.verified = true;
 
     // If userId is provided, include pending reviews by that user
@@ -65,16 +68,12 @@ export async function GET(request: NextRequest, context: RouteContext) {
     const skip = (page - 1) * limit;
 
     const [results, total] = await Promise.all([
-      reviews.find(filter)
-        .sort(sort)
-        .skip(skip)
-        .limit(limit)
-        .toArray(),
-      reviews.countDocuments(filter)
+      reviews.find(filter).sort(sort).skip(skip).limit(limit).toArray(),
+      reviews.countDocuments(filter),
     ]);
 
     const response = {
-      reviews: (results as ReviewDoc[]).map((review) => ({
+      reviews: (results as ReviewDoc[]).map(review => ({
         ...review,
         reviewerEmail: undefined,
         isVerified: Boolean(review.verified),
@@ -87,7 +86,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
         pages: Math.ceil(total / limit),
         hasNext: page < Math.ceil(total / limit),
         hasPrev: page > 1,
-      }
+      },
     };
 
     return ApiResponseHandler.success(response);
@@ -100,27 +99,33 @@ export async function GET(request: NextRequest, context: RouteContext) {
   }
 }
 
-const reviewInputSchema = z.object({
-  listingId: z.string().min(1, 'Listing ID is required.'),
-  rating: z.coerce.number({ invalid_type_error: 'Rating must be a number between 1 and 5.' })
-    .min(1, 'Rating must be a number between 1 and 5.')
-    .max(5, 'Rating must be a number between 1 and 5.'),
-  comment: z.string().trim().min(20, 'Comment must be at least 20 characters.'),
-  ecoRating: z.coerce.number({ invalid_type_error: 'Eco rating must be a number between 1 and 5.' })
-    .min(1, 'Eco rating must be between 1 and 5.')
-    .max(5, 'Eco rating must be between 1 and 5.')
-    .optional(),
-  nomadRating: z.coerce.number({ invalid_type_error: 'Nomad rating must be a number between 1 and 5.' })
-    .min(1, 'Nomad rating must be between 1 and 5.')
-    .max(5, 'Nomad rating must be between 1 and 5.')
-    .optional(),
-
-}).passthrough();
+const reviewInputSchema = z
+  .object({
+    listingId: z.string().min(1, 'Listing ID is required.'),
+    rating: z.coerce
+      .number({ invalid_type_error: 'Rating must be a number between 1 and 5.' })
+      .min(1, 'Rating must be a number between 1 and 5.')
+      .max(5, 'Rating must be a number between 1 and 5.'),
+    comment: z.string().trim().min(20, 'Comment must be at least 20 characters.'),
+    ecoRating: z.coerce
+      .number({ invalid_type_error: 'Eco rating must be a number between 1 and 5.' })
+      .min(1, 'Eco rating must be between 1 and 5.')
+      .max(5, 'Eco rating must be between 1 and 5.')
+      .optional(),
+    nomadRating: z.coerce
+      .number({ invalid_type_error: 'Nomad rating must be a number between 1 and 5.' })
+      .min(1, 'Nomad rating must be between 1 and 5.')
+      .max(5, 'Nomad rating must be between 1 and 5.')
+      .optional(),
+  })
+  .passthrough();
 
 export async function POST(request: NextRequest) {
   const session = await auth();
 
-  const user = session?.user as { id?: string; role?: UserRole; email?: string | null; name?: string | null } | undefined;
+  const user = session?.user as
+    | { id?: string; role?: UserRole; email?: string | null; name?: string | null }
+    | undefined;
   const userId: string | undefined = user?.id;
   const userRole: UserRole = user?.role || 'unidentifiedUser';
 
@@ -132,9 +137,7 @@ export async function POST(request: NextRequest) {
     return ApiResponseHandler.error('Forbidden: Insufficient permissions to create reviews', 403);
   }
 
-  let parsed:
-    | (z.infer<typeof reviewInputSchema> & { comment: string })
-    | undefined;
+  let parsed: (z.infer<typeof reviewInputSchema> & { comment: string }) | undefined;
 
   try {
     const body = await request.json();
@@ -204,7 +207,8 @@ export async function POST(request: NextRequest) {
 
     const newReview = await client.create(reviewDoc);
 
-    const listingSlug = (listingDoc as { slug?: { current?: string } } | null | undefined)?.slug?.current;
+    const listingSlug = (listingDoc as { slug?: { current?: string } } | null | undefined)?.slug
+      ?.current;
     if (listingSlug) {
       try {
         revalidateTag(`listing:${listingSlug}`);
@@ -214,11 +218,17 @@ export async function POST(request: NextRequest) {
     }
 
     const responsePayload = {
-      id: typeof (newReview as { _id?: unknown })?._id === 'string' ? (newReview as { _id: string })._id : undefined,
+      id:
+        typeof (newReview as { _id?: unknown })?._id === 'string'
+          ? (newReview as { _id: string })._id
+          : undefined,
       rating,
       comment,
       approved: Boolean((newReview as { approved?: unknown })?.approved),
-      createdAt: typeof (newReview as { createdAt?: unknown })?.createdAt === 'string' ? (newReview as { createdAt: string }).createdAt : now,
+      createdAt:
+        typeof (newReview as { createdAt?: unknown })?.createdAt === 'string'
+          ? (newReview as { createdAt: string }).createdAt
+          : now,
       ...(typeof ecoRating === 'number' ? { ecoRating } : {}),
       ...(typeof nomadRating === 'number' ? { nomadRating } : {}),
     };

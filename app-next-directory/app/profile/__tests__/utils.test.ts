@@ -1,10 +1,10 @@
 import { describe, expect, it } from '@jest/globals';
 
 import {
+  type FavoriteEntry,
   formatDate,
   normaliseFavorite,
   normaliseOwnerReviews,
-  type FavoriteEntry,
   type OwnerReviewsResponse,
 } from '../utils';
 
@@ -185,4 +185,3 @@ describe('app/profile/utils', () => {
     });
   });
 });
-

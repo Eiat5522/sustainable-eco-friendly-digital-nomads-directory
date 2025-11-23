@@ -9,5 +9,5 @@ export const DEFAULT_SORT_OPTIONS: SortOption[] = [
   { field: 'sustainabilityScore', displayName: 'Sustainability Score', direction: 'desc' },
   { field: 'rating', displayName: 'Rating', direction: 'desc' },
   { field: 'priceRange', displayName: 'Price', direction: 'asc' },
-  { field: '_createdAt', displayName: 'Newest', direction: 'desc' }
+  { field: '_createdAt', displayName: 'Newest', direction: 'desc' },
 ];

@@ -9,9 +9,9 @@ describe('getImageDimensions', () => {
     const image = {
       asset: {
         metadata: {
-          dimensions: { width: 800, height: 600 }
-        }
-      }
+          dimensions: { width: 800, height: 600 },
+        },
+      },
     } as any;
 
     const dims = getImageDimensions(image);

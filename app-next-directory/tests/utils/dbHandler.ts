@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import mongoose from 'mongoose';
 
 type MaybeMongo = MongoMemoryServer | null;
 
@@ -41,7 +41,7 @@ export const clearInMemoryMongo = async (): Promise<void> => {
 
   const collections = mongoose.connection.collections;
   await Promise.all(
-    Object.values(collections).map(async (collection) => {
+    Object.values(collections).map(async collection => {
       await collection.deleteMany({});
     })
   );

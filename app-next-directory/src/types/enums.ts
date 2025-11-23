@@ -11,14 +11,14 @@ export enum ListingCategory {
   CAFE = 'cafe',
   ACCOMMODATION = 'accommodation',
   RESTAURANT = 'restaurant',
-  ACTIVITIES = 'activities'
+  ACTIVITIES = 'activities',
 }
 
 // Price range enum
 export enum PriceRange {
   BUDGET = 'budget',
   MODERATE = 'moderate',
-  PREMIUM = 'premium'
+  PREMIUM = 'premium',
 }
 
 // Moderation status enum
@@ -27,14 +27,14 @@ export enum ModerationStatus {
   PENDING = 'pending',
   PUBLISHED = 'published',
   ARCHIVED = 'archived',
-  FLAGGED = 'flagged'
+  FLAGGED = 'flagged',
 }
 
 // Verification status enum
 export enum VerificationStatus {
   UNVERIFIED = 'unverified',
   VERIFIED = 'verified',
-  NEEDS_VERIFICATION = 'needs_verification'
+  NEEDS_VERIFICATION = 'needs_verification',
 }
 
 // Type exports for backward compatibility

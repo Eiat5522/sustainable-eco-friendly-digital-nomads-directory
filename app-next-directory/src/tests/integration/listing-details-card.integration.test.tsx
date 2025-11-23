@@ -39,4 +39,3 @@ describe('ListingDetailsCard integration', () => {
     expect(screen.queryByText('Cafe Details')).not.toBeInTheDocument();
   });
 });
-

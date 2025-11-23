@@ -1,1 +1,1 @@
-export { authOptions, GET, POST, auth, getToken } from '../auth';
+export { auth, authOptions, GET, getToken, POST } from '../auth';

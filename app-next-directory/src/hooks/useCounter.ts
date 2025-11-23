@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
 import { useEffect, useRef, useState } from 'react';
 
 export interface UseCounterOptions {
   start?: number; // starting value
-  end: number;    // final value to reach
+  end: number; // final value to reach
   duration?: number; // ms duration
   easing?: (t: number) => number; // easing fn applied to progress [0..1]
   decimals?: number; // fixed decimals
@@ -32,12 +32,12 @@ export function useCounter({
   const startedRef = useRef<boolean>(false);
 
   useEffect(() => {
-  // Reset started flag when non-end dependencies change (unless it's the initial mount)
-  if (!once) {
-    startedRef.current = false;
-  }
-  
-  if (once && startedRef.current) return;
+    // Reset started flag when non-end dependencies change (unless it's the initial mount)
+    if (!once) {
+      startedRef.current = false;
+    }
+
+    if (once && startedRef.current) return;
 
     const startTime = performance.now();
     const from = start;

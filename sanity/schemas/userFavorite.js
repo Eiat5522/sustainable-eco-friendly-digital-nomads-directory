@@ -11,7 +11,7 @@ export default defineType({
       title: 'User',
       type: 'reference',
       to: [{ type: 'user' }],
-      validation: (Rule) => Rule.required(),
+      validation: Rule => Rule.required(),
       description: 'The user who favorited this listing',
       options: {
         disableNew: true,
@@ -22,7 +22,7 @@ export default defineType({
       title: 'Listing',
       type: 'reference',
       to: [{ type: 'listing' }],
-      validation: (Rule) => Rule.required(),
+      validation: Rule => Rule.required(),
       description: 'The listing that was favorited',
       options: {
         disableNew: true,
@@ -32,7 +32,7 @@ export default defineType({
       name: 'createdAt',
       title: 'Created At',
       type: 'datetime',
-      validation: (Rule) => Rule.required(),
+      validation: Rule => Rule.required(),
       description: 'When this favorite was created',
       initialValue: () => new Date().toISOString(),
     }),
@@ -48,7 +48,7 @@ export default defineType({
       const userDisplay = userName || userEmail || 'Unknown User';
       const listingDisplay = listingName || 'Unknown Listing';
       const date = createdAt ? new Date(createdAt).toLocaleDateString() : '';
-      
+
       return {
         title: `${userDisplay} ♥ ${listingDisplay}`,
         subtitle: date ? `Favorited on ${date}` : 'Favorite',

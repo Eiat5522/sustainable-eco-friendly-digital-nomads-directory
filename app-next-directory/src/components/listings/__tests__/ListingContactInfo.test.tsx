@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
-
-import { ListingContactInfo } from '../ListingContactInfo';
 import type { ListingDetailDTO } from '@/types/dto';
+import { ListingContactInfo } from '../ListingContactInfo';
 
 const sharedListing = {
   id: 'listing-1',
@@ -35,8 +34,14 @@ describe('ListingContactInfo', () => {
     expect(screen.getByText('Email', { selector: 'span' })).toBeInTheDocument();
     expect(screen.getByText('Website')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /call/i })).toHaveAttribute('href', 'tel:+123456789');
-    expect(screen.getByRole('link', { name: /email/i })).toHaveAttribute('href', 'mailto:hello@example.com');
-    expect(screen.getByRole('link', { name: /visit/i })).toHaveAttribute('href', 'https://example.com');
+    expect(screen.getByRole('link', { name: /email/i })).toHaveAttribute(
+      'href',
+      'mailto:hello@example.com'
+    );
+    expect(screen.getByRole('link', { name: /visit/i })).toHaveAttribute(
+      'href',
+      'https://example.com'
+    );
   });
 
   it('omits sections without data', () => {
@@ -48,4 +53,3 @@ describe('ListingContactInfo', () => {
     expect(screen.queryByText('Website')).not.toBeInTheDocument();
   });
 });
-

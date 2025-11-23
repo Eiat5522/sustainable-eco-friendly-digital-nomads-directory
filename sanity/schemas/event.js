@@ -48,6 +48,6 @@ export default {
       name: 'link',
       title: 'Event Link',
       type: 'url',
-    }
-  ]
-}
+    },
+  ],
+};

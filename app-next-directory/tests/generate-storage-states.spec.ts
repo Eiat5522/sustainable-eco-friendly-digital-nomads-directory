@@ -9,8 +9,16 @@ import { loginAndSave } from './helpers/login';
 
 test('generate storage states for roles', async ({ page }) => {
   // Customer
-  await loginAndSave(page, { email: 'test_customer@example.com', password: 'password' }, 'app-next-directory/tests/storageStates/customer.json');
+  await loginAndSave(
+    page,
+    { email: 'test_customer@example.com', password: 'password' },
+    'app-next-directory/tests/storageStates/customer.json'
+  );
 
   // Owner
-  await loginAndSave(page, { email: 'test_owner@example.com', password: 'password' }, 'app-next-directory/tests/storageStates/owner.json');
+  await loginAndSave(
+    page,
+    { email: 'test_owner@example.com', password: 'password' },
+    'app-next-directory/tests/storageStates/owner.json'
+  );
 });

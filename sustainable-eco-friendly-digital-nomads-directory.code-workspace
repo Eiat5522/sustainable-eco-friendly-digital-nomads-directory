@@ -1,50 +1,46 @@
 {
-    "folders": [
-        {
-            "path": "."
-        },
-        {
-            "name": "app-next-directory",
-            "path": "app-next-directory"
-        }
-    ],
-    "settings": {
-        "files.exclude": {
-            "**app-next-directory**": false // Hide app-next-directory from the Explorer
-        },
-        "terminal.integrated.shellIntegration.enabled": true,
-        "github.copilot.chat.newWorkspace.useContext7": true,
-        "terminal.integrated.profiles.linux": {
-            "bash": {
-            "path": "/usr/bin/bash",
-            "args": ["-l"],
-              }
-        },    
-        "typescript.enablePromptUseWorkspaceTsdk": true,        
-        "jest.disabledWorkspaceFolders": [
-            "app-next-directory"
-        ],
-        "terminal.integrated.suggest.enabled": true,
-        "dbcode.connections": [
-            {
-                "connectionId": "B2HXRvv4td6NIeLL9GKB-",
-                "name": "Upstash/Redis",
-                "driver": "redis",
-                "color": "#F00019",
-                "connectionType": "host",
-                "host": "0.0.0.0",
-                "port": 6379,
-                "ssl": true,
-                "sslTrustCertificate": true,
-                "username": "default",
-                "savePassword": "secretStorage",
-                "database": "My Redis",
-                "readOnly": false,
-                "role": "development",
-                "connectionTimeout": 30
-            }
-        ]
+  "folders": [
+    {
+      "path": "."
+    },
+    {
+      "name": "app-next-directory",
+      "path": "app-next-directory"
     }
-
+  ],
+  "settings": {
+    "files.exclude": {
+      "**app-next-directory**": false // Hide app-next-directory from the Explorer
+    },
+    "terminal.integrated.shellIntegration.enabled": true,
+    "github.copilot.chat.newWorkspace.useContext7": true,
+    "terminal.integrated.profiles.linux": {
+      "bash": {
+        "path": "/usr/bin/bash",
+        "args": ["-l"]
+      }
+    },
+    "typescript.enablePromptUseWorkspaceTsdk": true,
+    "jest.disabledWorkspaceFolders": ["app-next-directory"],
+    "terminal.integrated.suggest.enabled": true,
+    "dbcode.connections": [
+      {
+        "connectionId": "B2HXRvv4td6NIeLL9GKB-",
+        "name": "Upstash/Redis",
+        "driver": "redis",
+        "color": "#F00019",
+        "connectionType": "host",
+        "host": "0.0.0.0",
+        "port": 6379,
+        "ssl": true,
+        "sslTrustCertificate": true,
+        "username": "default",
+        "savePassword": "secretStorage",
+        "database": "My Redis",
+        "readOnly": false,
+        "role": "development",
+        "connectionTimeout": 30
+      }
+    ]
+  }
 }
-        

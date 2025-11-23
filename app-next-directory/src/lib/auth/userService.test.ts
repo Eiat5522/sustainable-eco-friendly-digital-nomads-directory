@@ -42,7 +42,7 @@ describe('userService', () => {
     process.env.NEXT_PUBLIC_SANITY_PROJECT_ID = 'test-project';
     process.env.NEXT_PUBLIC_SANITY_DATASET = 'test-dataset';
     process.env.SANITY_API_TOKEN = 'test-token';
-    
+
     // Setup patch builder chain
     mockPatchBuilder.set.mockReturnValue(mockPatchBuilder);
     mockPatchBuilder.commit.mockResolvedValue({ _id: 'user123' });
@@ -56,7 +56,7 @@ describe('userService', () => {
   describe('findSanityUserByEmail', () => {
     it('returns null when email is not provided', async () => {
       const { findSanityUserByEmail } = await import('./userService');
-      
+
       const result = await findSanityUserByEmail('');
       expect(result).toBeNull();
       expect(mockSanityClient.fetch).not.toHaveBeenCalled();
@@ -101,7 +101,7 @@ describe('userService', () => {
   describe('findSanityUserById', () => {
     it('returns null when id is not provided', async () => {
       const { findSanityUserById } = await import('./userService');
-      
+
       const result = await findSanityUserById('');
       expect(result).toBeNull();
       expect(mockSanityClient.fetch).not.toHaveBeenCalled();
@@ -148,9 +148,9 @@ describe('userService', () => {
     it('throws error when email is missing', async () => {
       const { createSanityUser } = await import('./userService');
 
-      await expect(
-        createSanityUser({ name: 'Test', email: '', role: 'user' })
-      ).rejects.toThrow('Name and email are required to create a user');
+      await expect(createSanityUser({ name: 'Test', email: '', role: 'user' })).rejects.toThrow(
+        'Name and email are required to create a user'
+      );
     });
 
     it('throws error when name is missing', async () => {
@@ -258,7 +258,7 @@ describe('userService', () => {
   describe('updateSanityUserWithAuthDetails', () => {
     it('returns null when userId is not provided', async () => {
       const { updateSanityUserWithAuthDetails } = await import('./userService');
-      
+
       const result = await updateSanityUserWithAuthDetails('', { name: 'Test' });
       expect(result).toBeNull();
       expect(mockSanityClient.patch).not.toHaveBeenCalled();
@@ -266,7 +266,7 @@ describe('userService', () => {
 
     it('updates user name', async () => {
       const { updateSanityUserWithAuthDetails } = await import('./userService');
-      
+
       await updateSanityUserWithAuthDetails('user123', { name: 'Updated Name' });
 
       expect(mockSanityClient.patch).toHaveBeenCalledWith('user123');
@@ -276,7 +276,7 @@ describe('userService', () => {
 
     it('updates user role', async () => {
       const { updateSanityUserWithAuthDetails } = await import('./userService');
-      
+
       await updateSanityUserWithAuthDetails('user123', { role: 'admin' });
 
       expect(mockPatchBuilder.set).toHaveBeenCalledWith({ role: 'admin' });
@@ -285,7 +285,7 @@ describe('userService', () => {
 
     it('updates user avatar', async () => {
       const { updateSanityUserWithAuthDetails } = await import('./userService');
-      
+
       await updateSanityUserWithAuthDetails('user123', { avatar: 'avatar456' });
 
       expect(mockPatchBuilder.set).toHaveBeenCalledWith({
@@ -302,7 +302,7 @@ describe('userService', () => {
 
     it('updates multiple fields at once', async () => {
       const { updateSanityUserWithAuthDetails } = await import('./userService');
-      
+
       await updateSanityUserWithAuthDetails('user123', {
         name: 'New Name',
         role: 'moderator',
@@ -455,7 +455,7 @@ describe('userService', () => {
   describe('updateUserRole', () => {
     it('returns null when userId is not provided', async () => {
       const { updateUserRole } = await import('./userService');
-      
+
       const result = await updateUserRole('', 'admin');
       expect(result).toBeNull();
       expect(mockSanityClient.patch).not.toHaveBeenCalled();
@@ -463,7 +463,7 @@ describe('userService', () => {
 
     it('returns null when newRole is not provided', async () => {
       const { updateUserRole } = await import('./userService');
-      
+
       const result = await updateUserRole('user123', '');
       expect(result).toBeNull();
       expect(mockSanityClient.patch).not.toHaveBeenCalled();
@@ -471,7 +471,7 @@ describe('userService', () => {
 
     it('updates user role in Sanity', async () => {
       const { updateUserRole } = await import('./userService');
-      
+
       const result = await updateUserRole('user123', 'admin');
 
       expect(mockSanityClient.patch).toHaveBeenCalledWith('user123');

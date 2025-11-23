@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 
 jest.mock('@/lib/auth', () => ({
@@ -38,7 +37,8 @@ jest.mock('next/navigation', () => ({
 }));
 
 const authMock = jest.requireMock('@/lib/auth').auth as jest.Mock;
-const sanitizeCallbackUrlMock = jest.requireMock('@/lib/auth/callbackUrl').sanitizeCallbackUrl as jest.Mock;
+const sanitizeCallbackUrlMock = jest.requireMock('@/lib/auth/callbackUrl')
+  .sanitizeCallbackUrl as jest.Mock;
 const getBaseUrlMock = jest.requireMock('@/lib/absolute-url').getBaseUrl as jest.Mock;
 
 describe('LoginPage', () => {
@@ -56,7 +56,7 @@ describe('LoginPage', () => {
 
     const LoginPage = (await import('../page')).default;
     await expect(LoginPage({ searchParams: { callbackUrl: '/dashboard' } })).rejects.toThrow(
-      'redirect',
+      'redirect'
     );
     expect(sanitizeCallbackUrlMock).toHaveBeenCalledWith('/dashboard', 'https://example.com');
     expect(redirectMock).toHaveBeenCalledWith('/dashboard');
@@ -71,7 +71,9 @@ describe('LoginPage', () => {
     });
 
     const LoginPage = (await import('../page')).default;
-    await expect(LoginPage({ searchParams: { callbackUrl: '/dashboard' } })).rejects.toThrow('redirect');
+    await expect(LoginPage({ searchParams: { callbackUrl: '/dashboard' } })).rejects.toThrow(
+      'redirect'
+    );
     expect(sanitizeCallbackUrlMock).toHaveBeenCalledWith('/dashboard', undefined);
     expect(redirectMock).toHaveBeenCalledWith('/fallback');
   });
@@ -95,7 +97,7 @@ describe('LoginPage', () => {
 
     const LoginPage = (await import('../page')).default;
     const element = await LoginPage({ searchParams: { callbackUrl: '/welcome' } });
-    render(<>{element}</>);
+    render(element);
 
     expect(screen.getByTestId('mock-header')).toBeInTheDocument();
     expect(screen.getByTestId('mock-footer')).toBeInTheDocument();

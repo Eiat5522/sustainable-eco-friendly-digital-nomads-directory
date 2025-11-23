@@ -1,18 +1,18 @@
-import {
-  mockListingDetail,
-  mockRelatedListings,
-  mockReviews,
-  formatPrice,
-  formatOpeningHours,
-  formatRating,
-  formatDistance,
-} from '../listingDetailMockData';
+import { z } from 'zod';
 import {
   ListingDetailDTOSchema,
   RelatedListingDTOSchema,
   ReviewDTOSchema,
 } from '../../../types/dto-schemas';
-import { z } from 'zod';
+import {
+  formatDistance,
+  formatOpeningHours,
+  formatPrice,
+  formatRating,
+  mockListingDetail,
+  mockRelatedListings,
+  mockReviews,
+} from '../listingDetailMockData';
 
 describe('listingDetailMockData', () => {
   it('mockListingDetail should conform to ListingDetailDTOSchema', () => {
@@ -52,7 +52,9 @@ describe('listingDetailMockData', () => {
         { day: 'Monday', opens: '9:00 AM', closes: '5:00 PM' },
         { day: 'Tuesday', opens: '9:00 AM', closes: '5:00 PM' },
       ];
-      expect(formatOpeningHours(hours)).toBe('Monday: 9:00 AM - 5:00 PM, Tuesday: 9:00 AM - 5:00 PM');
+      expect(formatOpeningHours(hours)).toBe(
+        'Monday: 9:00 AM - 5:00 PM, Tuesday: 9:00 AM - 5:00 PM'
+      );
     });
 
     it('should return "Hours not available" for empty array', () => {

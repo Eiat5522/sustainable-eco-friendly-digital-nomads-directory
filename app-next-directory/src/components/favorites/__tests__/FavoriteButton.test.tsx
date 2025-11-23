@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { signIn, useSession } from 'next-auth/react';
 import { FavoriteButton } from '../FavoriteButton';
-import { useSession, signIn } from 'next-auth/react';
 
 // Mock next-auth
 jest.mock('next-auth/react');
@@ -61,7 +61,7 @@ describe('FavoriteButton', () => {
 
       // Suppress console.error for this test
       const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
-      
+
       expect(() => {
         render(<FavoriteButton />);
       }).toThrow('FavoriteButton requires either slug or listingId prop');
@@ -94,7 +94,7 @@ describe('FavoriteButton', () => {
       } as Response);
 
       render(<FavoriteButton slug="preferred-slug" listingId="legacy-id" />);
-      
+
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalledWith('/api/user/favorites/preferred-slug');
       });
@@ -124,7 +124,7 @@ describe('FavoriteButton', () => {
       mockFetch.mockImplementation(() => new Promise(() => {})); // Never resolves
 
       render(<FavoriteButton slug="test-listing" />);
-      
+
       const button = screen.getByRole('button');
       expect(button).toHaveAttribute('aria-label', 'Checking favorite status');
       expect(button).toBeDisabled();
@@ -139,7 +139,7 @@ describe('FavoriteButton', () => {
       });
 
       render(<FavoriteButton slug="test-listing" initialIsFavorited={true} />);
-      
+
       const button = screen.getByRole('button');
       expect(button).not.toHaveAttribute('aria-label', 'Checking favorite status');
       expect(button).not.toBeDisabled();
@@ -169,9 +169,9 @@ describe('FavoriteButton', () => {
 
       render(<FavoriteButton slug="test-listing" />);
       const button = screen.getByRole('button');
-      
+
       await userEvent.click(button);
-      
+
       await waitFor(() => {
         expect(mockSignIn).toHaveBeenCalledWith(undefined, { callbackUrl: window.location.href });
       });
@@ -191,7 +191,7 @@ describe('FavoriteButton', () => {
       } as Response);
 
       render(<FavoriteButton slug="test-listing" />);
-      
+
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalledWith('/api/user/favorites/test-listing');
       });
@@ -212,7 +212,7 @@ describe('FavoriteButton', () => {
       } as Response);
 
       render(<FavoriteButton slug="test-listing" listingTitle="Eco Hotel" />);
-      
+
       await waitFor(() => {
         const button = screen.getByRole('button');
         expect(button).toHaveAttribute('aria-label', 'Add to favorites');
@@ -233,7 +233,7 @@ describe('FavoriteButton', () => {
       } as Response);
 
       render(<FavoriteButton slug="test-listing" listingTitle="Eco Hotel" />);
-      
+
       await waitFor(() => {
         const button = screen.getByRole('button');
         expect(button).toHaveAttribute('aria-label', 'Remove from favorites');
@@ -254,7 +254,7 @@ describe('FavoriteButton', () => {
       } as Response);
 
       render(<FavoriteButton slug="test-listing" />);
-      
+
       await waitFor(() => {
         const button = screen.getByRole('button');
         expect(button).toHaveClass('favorited');
@@ -274,7 +274,7 @@ describe('FavoriteButton', () => {
       } as Response);
 
       const { container } = render(<FavoriteButton slug="test-listing" />);
-      
+
       await waitFor(() => {
         const heartIcon = container.querySelector('svg');
         expect(heartIcon).toHaveClass('fill-red-500');
@@ -304,7 +304,7 @@ describe('FavoriteButton', () => {
       } as Response);
 
       render(<FavoriteButton slug="test-listing" />);
-      
+
       await waitFor(() => {
         expect(screen.getByRole('button')).toHaveAttribute('aria-label', 'Add to favorites');
       });
@@ -344,7 +344,7 @@ describe('FavoriteButton', () => {
       } as Response);
 
       render(<FavoriteButton slug="test-listing" />);
-      
+
       await waitFor(() => {
         expect(screen.getByRole('button')).toHaveAttribute('aria-label', 'Remove from favorites');
       });
@@ -401,7 +401,7 @@ describe('FavoriteButton', () => {
       mockFetch.mockImplementation(() => new Promise(() => {})); // Never resolves
 
       render(<FavoriteButton slug="test-listing" optimistic={true} />);
-      
+
       await waitFor(() => {
         expect(screen.getByRole('button')).toHaveAttribute('aria-label', 'Add to favorites');
       });
@@ -430,7 +430,7 @@ describe('FavoriteButton', () => {
       mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
       render(<FavoriteButton slug="test-listing" optimistic={true} />);
-      
+
       await waitFor(() => {
         expect(screen.getByRole('button')).toHaveAttribute('aria-label', 'Add to favorites');
       });
@@ -458,15 +458,19 @@ describe('FavoriteButton', () => {
       } as Response);
 
       let resolveAddFavorite: any;
-      mockFetch.mockImplementation(() => new Promise((resolve) => {
-        resolveAddFavorite = () => resolve({
-          ok: true,
-          json: async () => ({ success: true }),
-        });
-      }));
+      mockFetch.mockImplementation(
+        () =>
+          new Promise(resolve => {
+            resolveAddFavorite = () =>
+              resolve({
+                ok: true,
+                json: async () => ({ success: true }),
+              });
+          })
+      );
 
       render(<FavoriteButton slug="test-listing" optimistic={false} />);
-      
+
       await waitFor(() => {
         expect(screen.getByRole('button')).toHaveAttribute('aria-label', 'Add to favorites');
       });
@@ -476,9 +480,9 @@ describe('FavoriteButton', () => {
 
       // Should still show unfavorited state while loading
       expect(button).toHaveAttribute('aria-label', 'Add to favorites');
-      
+
       resolveAddFavorite();
-      
+
       await waitFor(() => {
         expect(button).toHaveAttribute('aria-label', 'Remove from favorites');
       });
@@ -495,8 +499,10 @@ describe('FavoriteButton', () => {
 
       const handleToggle = jest.fn().mockResolvedValue(undefined);
 
-      render(<FavoriteButton slug="test-listing" initialIsFavorited={false} onToggle={handleToggle} />);
-      
+      render(
+        <FavoriteButton slug="test-listing" initialIsFavorited={false} onToggle={handleToggle} />
+      );
+
       const button = screen.getByRole('button');
       await userEvent.click(button);
 
@@ -514,8 +520,10 @@ describe('FavoriteButton', () => {
 
       const handleToggle = jest.fn().mockResolvedValue(undefined);
 
-      render(<FavoriteButton slug="test-listing" initialIsFavorited={false} onToggle={handleToggle} />);
-      
+      render(
+        <FavoriteButton slug="test-listing" initialIsFavorited={false} onToggle={handleToggle} />
+      );
+
       const button = screen.getByRole('button');
       await userEvent.click(button);
 
@@ -524,10 +532,7 @@ describe('FavoriteButton', () => {
       });
 
       // Should not call fetch for POST/DELETE
-      expect(mockFetch).not.toHaveBeenCalledWith(
-        '/api/user/favorites',
-        expect.anything()
-      );
+      expect(mockFetch).not.toHaveBeenCalledWith('/api/user/favorites', expect.anything());
     });
   });
 
@@ -586,7 +591,7 @@ describe('FavoriteButton', () => {
       } as Response);
 
       render(<FavoriteButton slug="test-listing" showText={true} />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Save')).toBeInTheDocument();
       });
@@ -605,7 +610,7 @@ describe('FavoriteButton', () => {
       } as Response);
 
       render(<FavoriteButton slug="test-listing" showText={true} />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Saved')).toBeInTheDocument();
       });
@@ -624,7 +629,7 @@ describe('FavoriteButton', () => {
       } as Response);
 
       render(<FavoriteButton slug="test-listing" showText={false} />);
-      
+
       await waitFor(() => {
         expect(screen.queryByText('Save')).not.toBeInTheDocument();
       });
@@ -647,7 +652,7 @@ describe('FavoriteButton', () => {
       mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
       render(<FavoriteButton slug="test-listing" />);
-      
+
       await waitFor(() => {
         expect(screen.getByRole('button')).not.toBeDisabled();
       });
@@ -678,7 +683,7 @@ describe('FavoriteButton', () => {
       } as Response);
 
       render(<FavoriteButton slug="test-listing" />);
-      
+
       await waitFor(() => {
         expect(screen.getByRole('button')).not.toBeDisabled();
       });
@@ -693,7 +698,7 @@ describe('FavoriteButton', () => {
 
     it('logs error to console on favorite check failure', async () => {
       const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
-      
+
       mockUseSession.mockReturnValue({
         data: { user: { id: 'user-123', email: 'test@example.com' } },
         status: 'authenticated',
@@ -703,9 +708,12 @@ describe('FavoriteButton', () => {
       mockFetch.mockRejectedValueOnce(new Error('Check failed'));
 
       render(<FavoriteButton slug="test-listing" />);
-      
+
       await waitFor(() => {
-        expect(consoleError).toHaveBeenCalledWith('Error checking favorite status:', expect.any(Error));
+        expect(consoleError).toHaveBeenCalledWith(
+          'Error checking favorite status:',
+          expect.any(Error)
+        );
       });
 
       consoleError.mockRestore();
@@ -721,7 +729,7 @@ describe('FavoriteButton', () => {
       });
 
       render(<FavoriteButton slug="test-listing" isFavorited={true} />);
-      
+
       const button = screen.getByRole('button');
       expect(button).toHaveAttribute('aria-label', 'Remove from favorites');
     });
@@ -734,12 +742,12 @@ describe('FavoriteButton', () => {
       });
 
       const { rerender } = render(<FavoriteButton slug="test-listing" isFavorited={false} />);
-      
+
       let button = screen.getByRole('button');
       expect(button).toHaveAttribute('aria-label', 'Add to favorites');
 
       rerender(<FavoriteButton slug="test-listing" isFavorited={true} />);
-      
+
       button = screen.getByRole('button');
       expect(button).toHaveAttribute('aria-label', 'Remove from favorites');
     });
@@ -759,7 +767,7 @@ describe('FavoriteButton', () => {
       } as Response);
 
       render(<FavoriteButton slug="test-listing" />);
-      
+
       await waitFor(() => {
         const button = screen.getByRole('button');
         expect(button).toHaveAttribute('aria-label', 'Add to favorites');
@@ -779,7 +787,7 @@ describe('FavoriteButton', () => {
       } as Response);
 
       render(<FavoriteButton slug="test-listing" />);
-      
+
       await waitFor(() => {
         const button = screen.getByRole('button');
         expect(button).toHaveAttribute('aria-label', 'Remove from favorites');
@@ -799,7 +807,7 @@ describe('FavoriteButton', () => {
       } as Response);
 
       render(<FavoriteButton slug="test-listing" listingTitle="Eco Cafe" />);
-      
+
       await waitFor(() => {
         const button = screen.getByRole('button');
         expect(button).toHaveAttribute('title', 'Add "Eco Cafe" to favorites');

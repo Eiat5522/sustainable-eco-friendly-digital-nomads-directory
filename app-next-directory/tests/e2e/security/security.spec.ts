@@ -1,9 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import {
-  getOptionalTestEnvVar,
-  getRequiredTestEnvVar,
-} from '../../helpers/env';
+import { getOptionalTestEnvVar, getRequiredTestEnvVar } from '../../helpers/env';
 
 const parseNumber = (value: string | undefined, fallback: number) => {
   const parsed = Number(value);
@@ -354,10 +351,7 @@ test.describe('Security Testing', () => {
       let rateLimitHit = false;
 
       for (let i = 0; i < rapidSubmissions; i++) {
-        await page.fill(
-          'input[name="name"]',
-          `${TEST_CONFIG.contactForm.namePrefix} ${i}`
-        );
+        await page.fill('input[name="name"]', `${TEST_CONFIG.contactForm.namePrefix} ${i}`);
         await page.fill(
           'input[name="email"]',
           `${TEST_CONFIG.contactForm.emailPrefix}${i}@${TEST_CONFIG.contactForm.emailDomain}`
@@ -444,24 +438,27 @@ test.describe('Security Testing', () => {
       // This test would need to be customized based on your actual CSP policy
       await page.goto(TEST_CONFIG.urls.home);
 
-      const cspViolation = await page.evaluate(({ timeout, inlineScriptMessage }) => {
-        return new Promise<string | null>(resolve => {
-          document.addEventListener('securitypolicyviolation', event => {
-            resolve(event.violatedDirective);
+      const cspViolation = await page.evaluate(
+        ({ timeout, inlineScriptMessage }) => {
+          return new Promise<string | null>(resolve => {
+            document.addEventListener('securitypolicyviolation', event => {
+              resolve(event.violatedDirective);
+            });
+
+            // Try to execute inline script (should be blocked)
+            const script = document.createElement('script');
+            script.textContent = inlineScriptMessage;
+            document.head.appendChild(script);
+
+            // If no violation event fires, resolve with null after timeout
+            setTimeout(() => resolve(null), timeout);
           });
-
-          // Try to execute inline script (should be blocked)
-          const script = document.createElement('script');
-          script.textContent = inlineScriptMessage;
-          document.head.appendChild(script);
-
-          // If no violation event fires, resolve with null after timeout
-          setTimeout(() => resolve(null), timeout);
-        });
-      }, {
-        timeout: TEST_CONFIG.timeouts.cspViolation,
-        inlineScriptMessage: TEST_CONFIG.content.inlineScriptMessage,
-      });
+        },
+        {
+          timeout: TEST_CONFIG.timeouts.cspViolation,
+          inlineScriptMessage: TEST_CONFIG.content.inlineScriptMessage,
+        }
+      );
 
       // If CSP is properly configured, inline scripts should be blocked
       if (cspViolation) {

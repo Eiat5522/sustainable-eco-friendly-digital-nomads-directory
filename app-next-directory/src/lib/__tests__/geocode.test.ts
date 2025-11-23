@@ -3,13 +3,10 @@
  */
 import { jest } from '@jest/globals';
 import * as geocodeModule from '../geocode';
-import { LANDMARK_COORDINATES } from '../landmark-coordinates';
-
 
 type MockFetchResponse = {
   json: () => Promise<any>;
 };
-
 
 jest.mock('fs/promises', () => ({
   readFile: jest.fn(),
@@ -25,8 +22,7 @@ jest.mock('path', () => ({
  */
 global.fetch = jest.fn() as jest.MockedFunction<typeof fetch>;
 
-
-const fs = require('fs/promises');
+const fs = require('node:fs/promises');
 
 describe('findLandmarkCoordinates', () => {
   it('returns coordinates for a matching landmark', () => {
@@ -77,7 +73,7 @@ describe('findLandmarkCoordinates', () => {
 
 /**
  * @jest-environment node
- * 
+ *
  * Tests for geocodeAddress, using jest.doMock to mock findLandmarkCoordinates.
  */
 describe('geocodeAddress', () => {
@@ -99,7 +95,9 @@ describe('geocodeAddress', () => {
   }
 
   it('returns landmark coordinates if found', async () => {
-    const geocodeModule = getGeocodeModuleWithMockedLandmark(jest.fn().mockReturnValue({ latitude: 1.23, longitude: 4.56 }));
+    const geocodeModule = getGeocodeModuleWithMockedLandmark(
+      jest.fn().mockReturnValue({ latitude: 1.23, longitude: 4.56 })
+    );
     const result = await geocodeModule.geocodeAddress('Landmark A', 'Bangkok');
     expect(result).toEqual({ latitude: 1.23, longitude: 4.56 });
   });
@@ -115,9 +113,7 @@ describe('geocodeAddress', () => {
 
   it('returns city landmark coordinates if address fetch fails but city is a landmark', async () => {
     const geocodeModule = getGeocodeModuleWithMockedLandmark(
-      jest.fn()
-        .mockReturnValueOnce(null)
-        .mockReturnValueOnce({ latitude: 7.89, longitude: 0.12 })
+      jest.fn().mockReturnValueOnce(null).mockReturnValueOnce({ latitude: 7.89, longitude: 0.12 })
     );
     (global.fetch as any).mockResolvedValueOnce({ json: async () => [] });
     const result = await geocodeModule.geocodeAddress('Unknown Address', 'Landmark B');
@@ -127,7 +123,9 @@ describe('geocodeAddress', () => {
   it('returns coordinates from city fetch if address fetch fails', async () => {
     const geocodeModule = getGeocodeModuleWithMockedLandmark(jest.fn().mockReturnValue(null));
     (global.fetch as any).mockResolvedValueOnce({ json: async () => [] }); // address fetch
-    (global.fetch as any).mockResolvedValueOnce({ json: async () => [{ lat: '15.0', lon: '101.0' }] }); // city fetch
+    (global.fetch as any).mockResolvedValueOnce({
+      json: async () => [{ lat: '15.0', lon: '101.0' }],
+    }); // city fetch
     const result = await geocodeModule.geocodeAddress('Unknown Address', 'Bangkok');
     expect(result as any).toEqual({ latitude: 15.0, longitude: 101.0 });
   });
@@ -194,15 +192,21 @@ describe('geocodeAddress', () => {
 
   it('handles API returning a response with undefined lat/lon', async () => {
     const geocodeModule = getGeocodeModuleWithMockedLandmark(jest.fn().mockReturnValue(null));
-    (global.fetch as any).mockResolvedValueOnce({ json: async () => [{ lat: undefined, lon: undefined }] });
+    (global.fetch as any).mockResolvedValueOnce({
+      json: async () => [{ lat: undefined, lon: undefined }],
+    });
     const result = await geocodeModule.geocodeAddress('Address', 'City');
     expect(result).toEqual({ latitude: null, longitude: null });
   });
 
   it('falls back to city fetch when direct object response lacks coordinates', async () => {
     const geocodeModule = getGeocodeModuleWithMockedLandmark(jest.fn().mockReturnValue(null));
-    (global.fetch as any).mockResolvedValueOnce({ json: async () => ({ latitude: undefined, longitude: undefined }) });
-    (global.fetch as any).mockResolvedValueOnce({ json: async () => [{ lat: '42.1', lon: '7.1' }] });
+    (global.fetch as any).mockResolvedValueOnce({
+      json: async () => ({ latitude: undefined, longitude: undefined }),
+    });
+    (global.fetch as any).mockResolvedValueOnce({
+      json: async () => [{ lat: '42.1', lon: '7.1' }],
+    });
     const result = await geocodeModule.geocodeAddress('Unknown Address', 'Bangkok');
     expect(result).toEqual({ latitude: 42.1, longitude: 7.1 });
   });
@@ -210,7 +214,7 @@ describe('geocodeAddress', () => {
 
 /**
  * @jest-environment node
- * 
+ *
  * Tests for updateListingsWithCoordinates, including error and edge cases.
  */
 describe('updateListingsWithCoordinates', () => {
@@ -229,15 +233,25 @@ describe('updateListingsWithCoordinates', () => {
     jest.doMock('path', () => ({
       join: jest.fn(() => mockedPath),
     }));
-    fs = require('fs/promises');
-    path = require('path');
+    fs = require('node:fs/promises');
+    path = require('node:path');
     geocodeModule = require('../geocode');
   });
 
   it('updates listings with missing coordinates', async () => {
     const listings = [
-      { name: 'A', address: 'Landmark A', city: 'Bangkok', coordinates: { latitude: null, longitude: null } },
-      { name: 'B', address: 'Somewhere', city: 'Bangkok', coordinates: { latitude: 1, longitude: 2 } },
+      {
+        name: 'A',
+        address: 'Landmark A',
+        city: 'Bangkok',
+        coordinates: { latitude: null, longitude: null },
+      },
+      {
+        name: 'B',
+        address: 'Somewhere',
+        city: 'Bangkok',
+        coordinates: { latitude: 1, longitude: 2 },
+      },
     ];
     // Mock readFile to only resolve for the expected path
     // Move all mocking and requiring inside the test to ensure correct order
@@ -262,12 +276,13 @@ describe('updateListingsWithCoordinates', () => {
     jest.doMock('path', () => ({
       join: jest.fn(() => mockedPath),
     }));
-    const fs = require('fs/promises');
-    const path = require('path');
+    const fs = require('node:fs/promises');
+    const path = require('node:path');
     const geocodeModule = require('../geocode');
 
     // Use a local mock for geocodeAddress
-    const mockGeocodeAddress = jest.fn<() => Promise<{ latitude: number; longitude: number }>>()
+    const mockGeocodeAddress = jest
+      .fn<() => Promise<{ latitude: number; longitude: number }>>()
       .mockResolvedValue({ latitude: 1.23, longitude: 4.56 });
 
     await geocodeModule.updateListingsWithCoordinates({
@@ -309,7 +324,7 @@ describe('updateListingsWithCoordinates', () => {
   it('handles invalid JSON in listings file', async () => {
     fs.readFile.mockResolvedValueOnce('not a json');
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-     const geocodeModule = require('../geocode');
+    const geocodeModule = require('../geocode');
     const updateListingsWithCoordinates = async () => {
       try {
         await geocodeModule.updateListingsWithCoordinates();
@@ -355,7 +370,12 @@ describe('updateListingsWithCoordinates', () => {
       readFile: jest.fn(async (requestedPath: string) => {
         if (requestedPath === customPath) {
           return JSON.stringify([
-            { name: 'Override Listing', address: 'Landmark A', city: 'Bangkok', coordinates: { latitude: null, longitude: null } },
+            {
+              name: 'Override Listing',
+              address: 'Landmark A',
+              city: 'Bangkok',
+              coordinates: { latitude: null, longitude: null },
+            },
           ]);
         }
         throw new Error('Unexpected path');
@@ -372,12 +392,15 @@ describe('updateListingsWithCoordinates', () => {
 
     await geocodeModule.updateListingsWithCoordinates({
       fs: fsMock,
-      path: require('path'),
+      path: require('node:path'),
       geocodeAddress: mockGeocodeAddress,
       listingsPath: customPath,
     });
 
     expect(fsMock.readFile).toHaveBeenCalledWith(customPath, 'utf-8');
-    expect(fsMock.writeFile).toHaveBeenCalledWith(customPath, expect.stringContaining('"latitude": 4'));
+    expect(fsMock.writeFile).toHaveBeenCalledWith(
+      customPath,
+      expect.stringContaining('"latitude": 4')
+    );
   });
 });

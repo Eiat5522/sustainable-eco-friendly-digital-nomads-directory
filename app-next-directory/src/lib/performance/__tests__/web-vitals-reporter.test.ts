@@ -1,8 +1,8 @@
 import {
-  WebVitalsReporter,
   measureFunctionTime,
   recordMetric,
   reportWebVitals,
+  WebVitalsReporter,
 } from '../web-vitals-reporter';
 
 describe('WebVitalsReporter', () => {
@@ -40,7 +40,7 @@ describe('WebVitalsReporter', () => {
 
     expect(sendBeacon).toHaveBeenCalledWith(
       '/api/performance/web-vitals',
-      JSON.stringify({ id: '1', name: 'CLS', value: 0.1, entries: [] }),
+      JSON.stringify({ id: '1', name: 'CLS', value: 0.1, entries: [] })
     );
     expect(fetchMock).not.toHaveBeenCalled();
   });
@@ -82,7 +82,12 @@ describe('WebVitalsReporter', () => {
       value: fetchMock,
     });
 
-    WebVitalsReporter({ id: '2', name: 'LCP', value: 123, entries: [{ entryType: 'paint' } as PerformanceEntry] });
+    WebVitalsReporter({
+      id: '2',
+      name: 'LCP',
+      value: 123,
+      entries: [{ entryType: 'paint' } as PerformanceEntry],
+    });
 
     expect(fetchMock).toHaveBeenCalledWith('/api/performance/web-vitals', {
       body: JSON.stringify({ id: '2', name: 'LCP', value: 123, entries: [{ entryType: 'paint' }] }),
@@ -209,10 +214,7 @@ describe('measureFunctionTime', () => {
   });
 
   it('measures execution time using the performance API when available', () => {
-    const now = jest
-      .fn()
-      .mockReturnValueOnce(100)
-      .mockReturnValueOnce(125);
+    const now = jest.fn().mockReturnValueOnce(100).mockReturnValueOnce(125);
 
     Object.defineProperty(global, 'performance', {
       configurable: true,
@@ -243,10 +245,7 @@ describe('measureFunctionTime', () => {
   });
 
   it('uses raw execution time when toFixed is unavailable', () => {
-    const now = jest
-      .fn()
-      .mockReturnValueOnce(10)
-      .mockReturnValueOnce(15);
+    const now = jest.fn().mockReturnValueOnce(10).mockReturnValueOnce(15);
 
     Object.defineProperty(global, 'performance', {
       configurable: true,

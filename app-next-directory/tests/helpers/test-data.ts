@@ -1,20 +1,16 @@
-import type { AppListingCard } from '@/types/appView';
-import type {
-  TestCity,
-  TestData,
-  TestUser,
-} from '@/tests/helpers/test-data';
+import type { TestCity, TestData, TestUser } from '@/tests/helpers/test-data';
 import { createTestData } from '@/tests/helpers/test-data';
+import type { AppListingCard } from '@/types/appView';
 
 export type PlaywrightTestData = TestData & {
   listingCards: AppListingCard[];
 };
 
 const buildListingCards = (data: TestData): AppListingCard[] =>
-  data.listings.map((listing) => {
+  data.listings.map(listing => {
     const slug = listing.slug?.current ?? listing._id;
-    const city: TestCity | undefined = data.cities.find((candidate) =>
-      candidate.slug === listing.city.slug.current
+    const city: TestCity | undefined = data.cities.find(
+      candidate => candidate.slug === listing.city.slug.current
     );
 
     return {
@@ -31,7 +27,7 @@ const buildListingCards = (data: TestData): AppListingCard[] =>
             highlights: city.highlights,
           }
         : null,
-      ecoFocusTags: listing.ecoFocusTags.map((tag) => tag.slug.current),
+      ecoFocusTags: listing.ecoFocusTags.map(tag => tag.slug.current),
       digitalNomadFeatures: listing.digitalNomadFeatures,
       priceRange: listing.priceRange as AppListingCard['priceRange'],
       website: listing.website ?? undefined,
@@ -57,11 +53,11 @@ export const getPlaywrightTestData = (overrides?: Partial<TestData>): Playwright
 export const getTestUsers = (): TestUser[] => getPlaywrightTestData().users;
 
 export {
-  TEST_SESSION_COOKIE_NAME,
   createTestData,
   getSessionForRole,
   getTestUser,
   listCities,
   listEcoTags,
   mockListings,
+  TEST_SESSION_COOKIE_NAME,
 } from '@/tests/helpers/test-data';

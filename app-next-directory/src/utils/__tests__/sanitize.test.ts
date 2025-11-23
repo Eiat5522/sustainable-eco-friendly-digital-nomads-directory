@@ -2,13 +2,13 @@
  * @jest-environment node
  */
 
-import { describe, it, expect } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
 import {
-  sanitizeBasic,
+  clampInt,
   escapeGroqLiteral,
   escapeGroqMatch,
+  sanitizeBasic,
   sanitizeStringArray,
-  clampInt,
 } from '../sanitize';
 
 describe('sanitize', () => {

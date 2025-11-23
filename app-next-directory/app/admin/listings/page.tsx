@@ -1,7 +1,6 @@
-import React from 'react';
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
-import type { Metadata } from 'next';
 import type { UserRole } from '@/types/auth';
 import { ListingsManagementTable } from './ListingsManagementTable';
 
@@ -14,7 +13,9 @@ export const metadata: Metadata = {
 
 type SessionUser = { id?: string; role?: UserRole } | undefined;
 
-function ensureAdmin(sessionUser: SessionUser): sessionUser is { id: string; role: 'admin' | 'superAdmin' } {
+function ensureAdmin(
+  sessionUser: SessionUser
+): sessionUser is { id: string; role: 'admin' | 'superAdmin' } {
   const role = sessionUser?.role;
   return role === 'admin' || role === 'superAdmin';
 }
@@ -40,7 +41,10 @@ export default async function AdminListingsPage() {
         </div>
 
         <div className="bg-white shadow-sm rounded-lg border border-gray-200">
-          <ListingsManagementTable currentUserRole={sessionUser.role} currentUserId={sessionUser.id} />
+          <ListingsManagementTable
+            currentUserRole={sessionUser.role}
+            currentUserId={sessionUser.id}
+          />
         </div>
       </div>
     </main>

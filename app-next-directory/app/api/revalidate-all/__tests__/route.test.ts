@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { NextRequest } from 'next/server';
 
 // Create a module-level mock function so we can assert calls
@@ -45,7 +45,7 @@ describe('/api/revalidate-all', () => {
 
   it('returns 401 when token is missing', async () => {
     mockValidateRevalidationToken.mockReturnValue(false);
-    
+
     const request = new NextRequest('http://localhost:3000/api/revalidate-all');
 
     const response = await POST(request);
@@ -59,7 +59,7 @@ describe('/api/revalidate-all', () => {
 
   it('returns 401 when token is invalid', async () => {
     mockValidateRevalidationToken.mockReturnValue(false);
-    
+
     const request = new NextRequest('http://localhost:3000/api/revalidate-all?token=wrong-token');
 
     const response = await POST(request);
@@ -71,9 +71,9 @@ describe('/api/revalidate-all', () => {
     expect(mockValidateRevalidationToken).toHaveBeenCalledWith('wrong-token');
   });
 
-    it('revalidates all routes with valid token', async () => {
+  it('revalidates all routes with valid token', async () => {
     mockValidateRevalidationToken.mockReturnValue(true);
-    
+
     const request = new NextRequest(`http://localhost:3000/api/revalidate-all?token=${validToken}`);
 
     const response = await POST(request);
@@ -90,5 +90,4 @@ describe('/api/revalidate-all', () => {
     expect(mockedRevalidatePath).toHaveBeenCalledWith('/city');
     expect(mockValidateRevalidationToken).toHaveBeenCalledWith(validToken);
   });
-
 });

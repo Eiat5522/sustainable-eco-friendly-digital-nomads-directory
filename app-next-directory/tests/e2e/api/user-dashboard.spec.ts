@@ -1,4 +1,4 @@
-import { test as pwTest, expect, type APIRequestContext } from '@playwright/test';
+import { type APIRequestContext, expect, test as pwTest } from '@playwright/test';
 
 const testUnauthenticatedGet = async (request: APIRequestContext, endpoint: string) => {
   const response = await request.get(endpoint);
@@ -9,7 +9,6 @@ const testUnauthenticatedGet = async (request: APIRequestContext, endpoint: stri
 };
 
 pwTest.describe('User Dashboard API', () => {
-
   pwTest('should get user preferences with default values', async ({ request }) => {
     await testUnauthenticatedGet(request, '/api/user/preferences');
   });
@@ -28,14 +27,14 @@ pwTest.describe('User Dashboard API', () => {
         eventType: 'pageView',
         eventData: {
           page: '/listings',
-          duration: 5000
-        }
-      }
+          duration: 5000,
+        },
+      },
     });
-    
+
     // Should handle unauthenticated requests
     expect(response.status()).toBe(401);
-    
+
     const data = await response.json();
     expect(data.error).toBe('Authentication required');
   });
@@ -45,18 +44,18 @@ pwTest.describe('User Dashboard API', () => {
       data: {
         location: {
           country: 'USA',
-          city: 'New York'
+          city: 'New York',
         },
         notifications: {
           email: true,
-          push: false
-        }
-      }
+          push: false,
+        },
+      },
     });
-    
-    // Should handle unauthenticated requests  
+
+    // Should handle unauthenticated requests
     expect(response.status()).toBe(401);
-    
+
     const data = await response.json();
     expect(data.error).toBe('Authentication required');
   });
@@ -66,14 +65,14 @@ pwTest.describe('User Dashboard API', () => {
       data: {
         section: 'notifications',
         data: {
-          email: false
-        }
-      }
+          email: false,
+        },
+      },
     });
-    
+
     // Should handle unauthenticated requests
     expect(response.status()).toBe(401);
-    
+
     const data = await response.json();
     expect(data.error).toBe('Authentication required');
   });
@@ -84,13 +83,13 @@ pwTest.describe('User Dashboard API', () => {
       {
         endpoint: '/api/user/analytics',
         method: 'POST',
-        data: { invalid: 'format' }
+        data: { invalid: 'format' },
       },
       {
-        endpoint: '/api/user/preferences', 
+        endpoint: '/api/user/preferences',
         method: 'PUT',
-        data: { invalid: 'structure' }
-      }
+        data: { invalid: 'structure' },
+      },
     ];
 
     for (const req of invalidRequests) {
@@ -124,7 +123,7 @@ pwTest.describe('API Route Integration Tests', () => {
   pwTest('should have proper CORS headers', async ({ request }) => {
     // Since options() method doesn't exist, test with HEAD or GET instead
     const response = await request.head('/api/user/dashboard');
-    
+
     // Check for proper CORS handling (if implemented)
     // This might return 404 or 405 depending on implementation
     expect([405, 401].includes(response.status())).toBe(true);
@@ -132,9 +131,9 @@ pwTest.describe('API Route Integration Tests', () => {
 
   pwTest('should handle query parameters', async ({ request }) => {
     const response = await request.get('/api/user/analytics?timeRange=30d&includeHistory=false');
-    
+
     expect(response.status()).toBe(401);
-    
+
     const data = await response.json();
     expect(data.error).toBe('Authentication required');
   });
@@ -142,17 +141,17 @@ pwTest.describe('API Route Integration Tests', () => {
   pwTest('should validate content types', async ({ request }) => {
     const response = await request.post('/api/user/analytics', {
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       data: JSON.stringify({
         eventType: 'search',
-        eventData: { query: 'test' }
-      })
+        eventData: { query: 'test' },
+      }),
     });
-    
+
     expect(response.status()).toBe(401);
-   
-   const data = await response.json();
-   expect(data.error).toBe('Authentication required');    
+
+    const data = await response.json();
+    expect(data.error).toBe('Authentication required');
   });
 });

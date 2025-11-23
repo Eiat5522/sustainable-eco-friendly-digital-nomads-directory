@@ -1,19 +1,19 @@
 'use client';
 
-import { useSession, signIn, signOut } from "next-auth/react";
-import type { DefaultSession } from "next-auth";
-import { createContext, useContext, type ReactNode } from "react";
+import type { DefaultSession } from 'next-auth';
+import { signIn, signOut, useSession } from 'next-auth/react';
+import { createContext, type ReactNode, useContext } from 'react';
 import {
-  type UserRole,
-  hasPagePermission,
-  hasFeaturePermission,
-  type PagePermissions,
+  type ACCESS_CONTROL_MATRIX,
   type FeaturePermissions,
-  type ACCESS_CONTROL_MATRIX
-} from "@/types/auth";
+  hasFeaturePermission,
+  hasPagePermission,
+  type PagePermissions,
+  type UserRole,
+} from '@/types/auth';
 
 // Narrow the user shape from next-auth, adding optional role
-type AppUser = (DefaultSession["user"] & { role?: UserRole }) | null;
+type AppUser = (DefaultSession['user'] & { role?: UserRole }) | null;
 
 // Auth Context Type
 interface AuthContextType {
@@ -57,7 +57,11 @@ export function AuthProvider({
     user,
     userRole,
     hasPagePermission: (page: string, action: string) => {
-      return hasPagePermissionProp(userRole, page as keyof typeof ACCESS_CONTROL_MATRIX[UserRole]['pages'], action as keyof PagePermissions);
+      return hasPagePermissionProp(
+        userRole,
+        page as keyof (typeof ACCESS_CONTROL_MATRIX)[UserRole]['pages'],
+        action as keyof PagePermissions
+      );
     },
     hasFeaturePermission: (feature: string) => {
       return hasFeaturePermissionProp(userRole, feature as keyof FeaturePermissions);
@@ -99,13 +103,16 @@ export function Authenticated({ children, fallback = null }: AuthenticatedProps)
         aria-live="polite"
         className="flex justify-center items-center h-64"
       >
-        <div data-testid="spinner" className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600" />
+        <div
+          data-testid="spinner"
+          className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"
+        />
         <span className="sr-only">Loading</span>
       </div>
     );
   }
 
-  return isAuthenticated ? <>{children}</> : <>{fallback}</>;
+  return isAuthenticated ? children : fallback;
 }
 
 /**
@@ -128,13 +135,16 @@ export function RequireRole({ role, children, fallback = null }: RequireRoleProp
         aria-live="polite"
         className="flex justify-center items-center h-64"
       >
-        <div data-testid="spinner" className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600" />
+        <div
+          data-testid="spinner"
+          className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"
+        />
         <span className="sr-only">Loading</span>
       </div>
     );
   }
 
-  return userRole === role ? <>{children}</> : <>{fallback}</>;
+  return userRole === role ? children : fallback;
 }
 
 /**
@@ -157,13 +167,16 @@ export function RequirePermission({ feature, children, fallback = null }: Requir
         aria-live="polite"
         className="flex justify-center items-center h-64"
       >
-        <div data-testid="spinner" className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600" />
+        <div
+          data-testid="spinner"
+          className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"
+        />
         <span className="sr-only">Loading</span>
       </div>
     );
   }
 
-  return hasFeaturePermission(feature) ? <>{children}</> : <>{fallback}</>;
+  return hasFeaturePermission(feature) ? children : fallback;
 }
 
 /**
@@ -185,12 +198,15 @@ export function AdminOnly({ children, fallback = null }: AdminOnlyProps) {
         aria-live="polite"
         className="flex justify-center items-center h-64"
       >
-        <div data-testid="spinner" className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600" />
+        <div
+          data-testid="spinner"
+          className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"
+        />
         <span className="sr-only">Loading</span>
       </div>
     );
   }
 
   const isAdmin = userRole === 'admin' || userRole === 'superAdmin';
-  return isAdmin ? <>{children}</> : <>{fallback}</>;
+  return isAdmin ? children : fallback;
 }

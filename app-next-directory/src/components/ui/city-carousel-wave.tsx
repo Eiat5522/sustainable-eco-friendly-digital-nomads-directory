@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, ArrowUpRight } from 'lucide-react';
 import gsap from 'gsap';
+import { ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import type { CityDTO } from '@/types/dto';
 
@@ -75,11 +75,11 @@ export default function CityCarouselWave({ cities }: CityCarouselWaveProps) {
       <div className="relative flex items-center justify-center h-[400px]">
         {cities.map((city, index) => {
           const badgeVariant = getBadgeVariant(city.sustainabilityScore);
-          
+
           return (
             <div
               key={city.id}
-              ref={(el) => {
+              ref={el => {
                 cardRefs.current[index] = el;
               }}
               className="absolute transition-transform"

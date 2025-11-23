@@ -9,7 +9,9 @@ import { structuredLogger } from '@/lib/logger';
  * Decodes callback URLs and prevents double-encoding.
  * Use as middleware or utility in auth flows.
  */
-export function handleAuthCallbackUrl(req: { nextUrl: { searchParams: URLSearchParams } }): string | null {
+export function handleAuthCallbackUrl(req: {
+  nextUrl: { searchParams: URLSearchParams };
+}): string | null {
   const urlParam = req.nextUrl.searchParams.get('callbackUrl');
   if (!urlParam) {
     return null;
@@ -28,7 +30,7 @@ export function handleAuthCallbackUrl(req: { nextUrl: { searchParams: URLSearchP
   } catch (e) {
     structuredLogger.middlewareError('auth callback URL decoder', e, {
       component: 'auth-callback',
-      callbackUrl: urlParam ? '[REDACTED]' : undefined
+      callbackUrl: urlParam ? '[REDACTED]' : undefined,
     });
     return null;
   }

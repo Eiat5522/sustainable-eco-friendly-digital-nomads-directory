@@ -24,9 +24,5 @@
     "sanity.config.ts",
     "sanity.cli.ts"
   ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "schemas"
-  ]
+  "exclude": ["node_modules", "dist", "schemas"]
 }

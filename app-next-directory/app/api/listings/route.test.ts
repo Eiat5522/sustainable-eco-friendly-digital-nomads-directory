@@ -1,4 +1,4 @@
-import { describe, it, expect, jest } from '@jest/globals';
+import { describe, expect, it, jest } from '@jest/globals';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { createListingsHandlers } from './route';
 
@@ -16,9 +16,11 @@ describe('API /api/listings route handlers', () => {
     } = {}
   ) => {
     const requireAuth =
-      overrides.requireAuth ?? jest.fn().mockResolvedValue({ user: { id: 'user-1', plan: 'premium' } });
+      overrides.requireAuth ??
+      jest.fn().mockResolvedValue({ user: { id: 'user-1', plan: 'premium' } });
     const handleAuthError =
-      overrides.handleAuthError ?? jest.fn((error: unknown) => ApiResponseHandler.error('auth error', 401, String(error ?? '')));
+      overrides.handleAuthError ??
+      jest.fn((error: unknown) => ApiResponseHandler.error('auth error', 401, String(error ?? '')));
     const getCollection = overrides.getCollection ?? jest.fn();
 
     return {
@@ -115,14 +117,20 @@ describe('API /api/listings route handlers', () => {
         limit: jest.fn().mockReturnThis(),
         toArray: jest.fn().mockRejectedValue(new Error('database failure')),
       };
-      const getCollection = jest.fn().mockResolvedValue({ find: jest.fn().mockReturnValue(cursor) });
+      const getCollection = jest
+        .fn()
+        .mockResolvedValue({ find: jest.fn().mockReturnValue(cursor) });
       const { handlers } = buildHandlers({ getCollection });
 
       const response = await handlers.GET({ url: 'http://localhost/api/listings' });
       const { status, body } = await parseResponse(response);
 
       expect(status).toBe(500);
-      expect(body).toEqual({ success: false, error: 'Failed to fetch listings', details: 'database failure' });
+      expect(body).toEqual({
+        success: false,
+        error: 'Failed to fetch listings',
+        details: 'database failure',
+      });
     });
 
     it('delegates to handleAuthError when authentication fails', async () => {
@@ -193,7 +201,11 @@ describe('API /api/listings route handlers', () => {
 
     it('returns validation errors when payload is invalid', async () => {
       const { handlers } = buildHandlers();
-      const invalidRequest = createRequest({ title: 'No', slug: 'Invalid Slug', ecoTags: 'not-an-array' });
+      const invalidRequest = createRequest({
+        title: 'No',
+        slug: 'Invalid Slug',
+        ecoTags: 'not-an-array',
+      });
 
       const response = await handlers.POST(invalidRequest);
       const { status, body } = await parseResponse(response);

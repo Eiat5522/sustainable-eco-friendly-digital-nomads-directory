@@ -1,42 +1,43 @@
-import Link from 'next/link'
+import Link from 'next/link';
+import { Footer } from '@/components/layout/Footer';
+import { Header } from '@/components/layout/Header';
+import { ListingGrid } from '@/components/listings/ListingGrid';
+import { SearchFiltersForm } from '@/components/search/SearchFiltersForm';
+import { NeoButton } from '@/components/ui/neo-button';
+import type { SearchParamRecord } from '@/types/search';
 
-import { Header } from '@/components/layout/Header'
-import { Footer } from '@/components/layout/Footer'
-import { ListingGrid } from '@/components/listings/ListingGrid'
-import { SearchFiltersForm } from '@/components/search/SearchFiltersForm'
-import { NeoButton } from '@/components/ui/neo-button'
-import type { SearchParamRecord } from '@/types/search'
+import { fetchSearchResults } from './results/server';
+import { buildSearchHref, MAX_PARAM_VALUE_LENGTH } from './results/shared';
 
-import { fetchSearchResults } from './results/server'
-import { buildSearchHref, MAX_PARAM_VALUE_LENGTH } from './results/shared'
+type SearchPageProps = { searchParams?: Promise<SearchParamRecord> };
 
-type SearchPageProps = { searchParams?: Promise<SearchParamRecord> }
-
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-dynamic';
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const resolvedSearchParams = (await searchParams) ?? {}
-  const basePath = '/search'
+  const resolvedSearchParams = (await searchParams) ?? {};
+  const basePath = '/search';
 
-  const retryRaw = resolvedSearchParams.retry
-  const retryValue = Array.isArray(retryRaw) ? retryRaw[retryRaw.length - 1] : retryRaw
-  const parsedRetry = Number.parseInt(String(retryValue ?? '0'), 10)
-  const nextRetryCount = Number.isFinite(parsedRetry) ? parsedRetry + 1 : 1
-  const retryLink = buildSearchHref(basePath, resolvedSearchParams, { retry: String(nextRetryCount) })
+  const retryRaw = resolvedSearchParams.retry;
+  const retryValue = Array.isArray(retryRaw) ? retryRaw[retryRaw.length - 1] : retryRaw;
+  const parsedRetry = Number.parseInt(String(retryValue ?? '0'), 10);
+  const nextRetryCount = Number.isFinite(parsedRetry) ? parsedRetry + 1 : 1;
+  const retryLink = buildSearchHref(basePath, resolvedSearchParams, {
+    retry: String(nextRetryCount),
+  });
 
-  const result = await fetchSearchResults(resolvedSearchParams)
+  const result = await fetchSearchResults(resolvedSearchParams);
 
-  let mainContent
+  let mainContent;
   if (result.ok) {
-    const { pagination, pageSizeOptions, listings, pages } = result
+    const { pagination, pageSizeOptions, listings, pages } = result;
     const prevLink =
       pagination.page > 1
         ? buildSearchHref(basePath, resolvedSearchParams, { page: String(pagination.page - 1) })
-        : null
+        : null;
     const nextLink =
       pagination.page < pagination.totalPages
         ? buildSearchHref(basePath, resolvedSearchParams, { page: String(pagination.page + 1) })
-        : null
+        : null;
 
     mainContent = (
       <div className="container mx-auto px-4 py-8">
@@ -51,7 +52,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           </div>
           <form action={basePath} method="get" className="flex items-center gap-2">
             {Object.entries(resolvedSearchParams).map(([key, value]) => {
-              if (!/^[a-zA-Z0-9_-]+$/.test(key)) return null
+              if (!/^[a-zA-Z0-9_-]+$/.test(key)) return null;
               return Array.isArray(value)
                 ? value.map((entry, index) => (
                     <input
@@ -68,7 +69,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                       name={key}
                       value={String(value).slice(0, MAX_PARAM_VALUE_LENGTH)}
                     />
-                  )
+                  );
             })}
             <label htmlFor="page-size" className="body-sm">
               Per page
@@ -79,7 +80,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               defaultValue={String(pagination.limit)}
               className="neo-input border-2 border-neo-border rounded px-2 py-1"
             >
-              {pageSizeOptions.map((size) => (
+              {pageSizeOptions.map(size => (
                 <option key={size} value={size}>
                   {size}
                 </option>
@@ -123,7 +124,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                   {value}
                 </Link>
               </NeoButton>
-            ),
+            )
           )}
           <NeoButton asChild variant="outline" size="sm" disabled={!nextLink}>
             <Link href={nextLink || '#'} aria-disabled={!nextLink}>
@@ -132,7 +133,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           </NeoButton>
         </div>
       </div>
-    )
+    );
   } else {
     mainContent = (
       <div className="container mx-auto px-4 py-8">
@@ -150,7 +151,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           </p>
         )}
       </div>
-    )
+    );
   }
 
   return (
@@ -159,5 +160,5 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       <main>{mainContent}</main>
       <Footer />
     </div>
-  )
+  );
 }

@@ -66,11 +66,11 @@ describe('withMongooseCache', () => {
     expect(clientSet).toHaveBeenCalledWith(
       expect.stringContaining('mongoose:TestModel:findActive'),
       JSON.stringify(queryResult),
-      { ex: 3600 },
+      { ex: 3600 }
     );
     expect(warnSpy).toHaveBeenCalledWith(
       '[mongoose-cache] Failed to read from Redis cache',
-      expect.any(Error),
+      expect.any(Error)
     );
     expect(result).toEqual(queryResult);
     warnSpy.mockRestore();
@@ -92,11 +92,11 @@ describe('withMongooseCache', () => {
     expect(client.set).toHaveBeenCalledWith(
       expect.stringContaining('mongoose:TestModel:findActive'),
       JSON.stringify(queryResult),
-      { ex: 1800 },
+      { ex: 1800 }
     );
     expect(warnSpy).toHaveBeenCalledWith(
       '[mongoose-cache] Failed to write to Redis cache',
-      expect.any(Error),
+      expect.any(Error)
     );
     expect(result).toEqual(queryResult);
     warnSpy.mockRestore();

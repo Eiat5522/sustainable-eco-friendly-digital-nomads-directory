@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
-import { http, HttpResponse } from 'msw';
-import { server } from '@/mocks/server';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { HttpResponse, http } from 'msw';
 import { NextRequest } from 'next/server';
+import { server } from '@/mocks/server';
 
 const createRequest = (slug: string) => new NextRequest(`http://localhost/api/cities/${slug}`);
 
@@ -36,20 +36,25 @@ describe('Cities/[slug] API (MSW)', () => {
 
   it('returns city data via Sanity MSW handler', async () => {
     server.use(
-      http.get('https://:projectId.api.sanity.io/v:apiVersion/data/query/:dataset', ({ request }) => {
-        const url = new URL(request.url);
-        const paramsText = url.searchParams.get('params');
-        const params = paramsText ? JSON.parse(paramsText) : {};
-        const slug = params.slug ?? params.slugName ?? sampleCity.slug;
-        return HttpResponse.json({
-          ms: 4,
-          query: url.searchParams.get('query'),
-          result: { ...sampleCity, slug },
-        });
-      })
+      http.get(
+        'https://:projectId.api.sanity.io/v:apiVersion/data/query/:dataset',
+        ({ request }) => {
+          const url = new URL(request.url);
+          const paramsText = url.searchParams.get('params');
+          const params = paramsText ? JSON.parse(paramsText) : {};
+          const slug = params.slug ?? params.slugName ?? sampleCity.slug;
+          return HttpResponse.json({
+            ms: 4,
+            query: url.searchParams.get('query'),
+            result: { ...sampleCity, slug },
+          });
+        }
+      )
     );
 
-    const response = await GET(createRequest('bangkok'), { params: Promise.resolve({ slug: 'bangkok' }) });
+    const response = await GET(createRequest('bangkok'), {
+      params: Promise.resolve({ slug: 'bangkok' }),
+    });
     const json = await response.json();
 
     expect(response.status).toBe(200);
@@ -60,12 +65,15 @@ describe('Cities/[slug] API (MSW)', () => {
 
   it('handles Sanity errors gracefully', async () => {
     server.use(
-      http.get('https://:projectId.api.sanity.io/v:apiVersion/data/query/:dataset', () =>
-        new Response(null, { status: 500 })
+      http.get(
+        'https://:projectId.api.sanity.io/v:apiVersion/data/query/:dataset',
+        () => new Response(null, { status: 500 })
       )
     );
 
-    const response = await GET(createRequest('bangkok'), { params: Promise.resolve({ slug: 'bangkok' }) });
+    const response = await GET(createRequest('bangkok'), {
+      params: Promise.resolve({ slug: 'bangkok' }),
+    });
     const json = await response.json();
 
     expect(response.status).toBe(500);
@@ -79,7 +87,9 @@ describe('Cities/[slug] API (MSW)', () => {
       )
     );
 
-    const response = await GET(createRequest('bangkok'), { params: Promise.resolve({ slug: 'bangkok' }) });
+    const response = await GET(createRequest('bangkok'), {
+      params: Promise.resolve({ slug: 'bangkok' }),
+    });
     const json = await response.json();
 
     expect(response.status).toBe(500);

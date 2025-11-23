@@ -14,7 +14,12 @@ test.describe('Test group', () => {
     const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000';
 
     const testUsers = [
-      { email: 'test_customer@example.com', password: 'password', role: 'customer', name: 'E2E Customer' },
+      {
+        email: 'test_customer@example.com',
+        password: 'password',
+        role: 'customer',
+        name: 'E2E Customer',
+      },
       { email: 'test_owner@example.com', password: 'password', role: 'owner', name: 'E2E Owner' },
       { email: 'test_admin@example.com', password: 'password', role: 'admin', name: 'E2E Admin' },
     ];

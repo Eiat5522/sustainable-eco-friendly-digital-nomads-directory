@@ -13,8 +13,14 @@ type TestCursor<T = any> = {
 };
 
 type TestCollection = {
-  createIndex: jest.Mock<Promise<string | void>, [Record<string, unknown>, Record<string, unknown>]>;
-  updateOne: jest.Mock<Promise<any>, [Record<string, unknown>, Record<string, unknown>, Record<string, unknown>]>;
+  createIndex: jest.Mock<
+    Promise<string | undefined>,
+    [Record<string, unknown>, Record<string, unknown>]
+  >;
+  updateOne: jest.Mock<
+    Promise<any>,
+    [Record<string, unknown>, Record<string, unknown>, Record<string, unknown>]
+  >;
   find: jest.Mock<TestCursor, [Record<string, unknown>]>;
   aggregate: jest.Mock<TestCursor, [Array<Record<string, unknown>>]>;
 };
@@ -45,7 +51,7 @@ function interceptIndexCatch(collection: TestCollection) {
         return Promise.resolve();
       },
     };
-    return thenable as unknown as Promise<string | void>;
+    return thenable as unknown as Promise<string | undefined>;
   });
 
   return {
@@ -81,7 +87,7 @@ describe('recordListingView', () => {
   it('throws when listingId is missing', async () => {
     const { recordListingView } = await import('../metrics/listing-views');
     await expect(recordListingView('', new Date('2024-01-01T00:00:00.000Z'))).rejects.toThrow(
-      'listingId is required to record a view',
+      'listingId is required to record a view'
     );
     expect(getCollectionMock).not.toHaveBeenCalled();
   });
@@ -93,7 +99,10 @@ describe('recordListingView', () => {
     await recordListingView('listing-123', viewedAt);
 
     expect(getCollectionMock).toHaveBeenCalledWith('listingViewMetrics');
-    expect(mockCollection.createIndex).toHaveBeenCalledWith({ listingId: 1, month: 1 }, { unique: true });
+    expect(mockCollection.createIndex).toHaveBeenCalledWith(
+      { listingId: 1, month: 1 },
+      { unique: true }
+    );
     expect(mockCollection.updateOne).toHaveBeenCalledWith(
       { listingId: 'listing-123', month: '2024-03' },
       {
@@ -101,7 +110,7 @@ describe('recordListingView', () => {
         $set: { updatedAt: viewedAt },
         $setOnInsert: { createdAt: viewedAt },
       },
-      { upsert: true },
+      { upsert: true }
     );
 
     await recordListingView('listing-999', new Date('2024-04-01T00:00:00.000Z'));
@@ -116,7 +125,7 @@ describe('recordListingView', () => {
 
     expect(interceptor.handlerRegistered()).toBe(true);
     const result = interceptor.trigger(
-      new Error('E11000 duplicate key error collection: listingViewMetrics index already exists'),
+      new Error('E11000 duplicate key error collection: listingViewMetrics index already exists')
     );
     expect(result).toBeUndefined();
   });

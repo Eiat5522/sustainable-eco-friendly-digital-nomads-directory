@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 // Mock dependencies
 jest.mock('@/lib/rate-limit');
@@ -60,14 +60,12 @@ const loggerMock = jest.requireMock('@/lib/logger') as {
 type GetHandler = typeof import('../route').GET;
 let GET: GetHandler;
 
-const createLeanResult = <T,>(value: T | null) => ({
+const createLeanResult = <T>(value: T | null) => ({
   lean: jest.fn().mockResolvedValue(value),
 });
 
 const createRequest = (token?: string, baseUrl = 'https://example.com') => {
-  const url = token
-    ? `${baseUrl}/api/auth/verify?token=${token}`
-    : `${baseUrl}/api/auth/verify`;
+  const url = token ? `${baseUrl}/api/auth/verify?token=${token}` : `${baseUrl}/api/auth/verify`;
   return new Request(url, {
     method: 'GET',
   });
@@ -92,7 +90,7 @@ describe('GET /api/auth/verify', () => {
     tokenMock.hashToken.mockReturnValue('hashed-token');
 
     mockEndSession.mockResolvedValue(undefined);
-    mockWithTransaction.mockImplementation(async (callback) => {
+    mockWithTransaction.mockImplementation(async callback => {
       const session = { id: 'session-1' };
       return await callback(session);
     });
@@ -119,9 +117,7 @@ describe('GET /api/auth/verify', () => {
       const response = await GET(request);
 
       expect(response.status).toBe(307);
-      expect(response.headers.get('location')).toBe(
-        'https://example.com/auth/login?verified=0'
-      );
+      expect(response.headers.get('location')).toBe('https://example.com/auth/login?verified=0');
       expect(mockDbConnect).not.toHaveBeenCalled();
     });
 
@@ -130,9 +126,7 @@ describe('GET /api/auth/verify', () => {
       const response = await GET(request);
 
       expect(response.status).toBe(307);
-      expect(response.headers.get('location')).toBe(
-        'https://example.com/auth/login?verified=0'
-      );
+      expect(response.headers.get('location')).toBe('https://example.com/auth/login?verified=0');
       expect(mockDbConnect).not.toHaveBeenCalled();
     });
 
@@ -143,44 +137,42 @@ describe('GET /api/auth/verify', () => {
       const response = await GET(request);
 
       expect(response.status).toBe(307);
-      expect(response.headers.get('location')).toBe(
-        'https://example.com/auth/login?verified=0'
-      );
+      expect(response.headers.get('location')).toBe('https://example.com/auth/login?verified=0');
       expect(tokenMock.hashToken).toHaveBeenCalledWith('invalid-token');
     });
 
     it('redirects to login with verified=0 when token is expired', async () => {
       const expiredDate = new Date(Date.now() - 1000);
-      mockEmailVerificationFindOne.mockReturnValue(createLeanResult({
-        userId: 'user-123',
-        tokenHash: 'hashed-token',
-        expiresAt: expiredDate,
-      }));
+      mockEmailVerificationFindOne.mockReturnValue(
+        createLeanResult({
+          userId: 'user-123',
+          tokenHash: 'hashed-token',
+          expiresAt: expiredDate,
+        })
+      );
 
       const request = createRequest('expired-token');
       const response = await GET(request);
 
       expect(response.status).toBe(307);
-      expect(response.headers.get('location')).toBe(
-        'https://example.com/auth/login?verified=0'
-      );
+      expect(response.headers.get('location')).toBe('https://example.com/auth/login?verified=0');
     });
 
     it('allows token with null expiry to work', async () => {
-      mockEmailVerificationFindOne.mockReturnValue(createLeanResult({
-        userId: 'user-123',
-        tokenHash: 'hashed-token',
-        expiresAt: null,
-      }));
+      mockEmailVerificationFindOne.mockReturnValue(
+        createLeanResult({
+          userId: 'user-123',
+          tokenHash: 'hashed-token',
+          expiresAt: null,
+        })
+      );
 
       const request = createRequest('valid-token');
       const response = await GET(request);
 
       // When expiresAt is null, the token should still work (no expiry check fails)
       expect(response.status).toBe(307);
-      expect(response.headers.get('location')).toBe(
-        'https://example.com/auth/login?verified=1'
-      );
+      expect(response.headers.get('location')).toBe('https://example.com/auth/login?verified=1');
     });
   });
 
@@ -196,11 +188,7 @@ describe('GET /api/auth/verify', () => {
       const location = response.headers.get('location');
       expect(location).toContain('/auth/login?verified=0');
       expect(location).toContain('limited=45');
-      expect(rateLimitMock.isRateLimited).toHaveBeenCalledWith(
-        'auth:verify:192.168.1.1',
-        10,
-        60
-      );
+      expect(rateLimitMock.isRateLimited).toHaveBeenCalledWith('auth:verify:192.168.1.1', 10, 60);
     });
 
     it('applies rate limit with correct parameters', async () => {
@@ -210,11 +198,7 @@ describe('GET /api/auth/verify', () => {
       await GET(request);
 
       expect(rateLimitMock.getClientIp).toHaveBeenCalledWith(request);
-      expect(rateLimitMock.isRateLimited).toHaveBeenCalledWith(
-        'auth:verify:192.168.1.1',
-        10,
-        60
-      );
+      expect(rateLimitMock.isRateLimited).toHaveBeenCalledWith('auth:verify:192.168.1.1', 10, 60);
     });
   });
 
@@ -226,9 +210,7 @@ describe('GET /api/auth/verify', () => {
       const response = await GET(request);
 
       expect(response.status).toBe(307);
-      expect(response.headers.get('location')).toBe(
-        'https://example.com/auth/login?verified=0'
-      );
+      expect(response.headers.get('location')).toBe('https://example.com/auth/login?verified=0');
       expect(mockDbConnect).not.toHaveBeenCalled();
     });
   });
@@ -236,30 +218,32 @@ describe('GET /api/auth/verify', () => {
   describe('Successful verification', () => {
     it('verifies email and redirects to login with verified=1', async () => {
       const futureDate = new Date(Date.now() + 3600000);
-      mockEmailVerificationFindOne.mockReturnValue(createLeanResult({
-        userId: 'user-456',
-        tokenHash: 'hashed-token',
-        expiresAt: futureDate,
-      }));
+      mockEmailVerificationFindOne.mockReturnValue(
+        createLeanResult({
+          userId: 'user-456',
+          tokenHash: 'hashed-token',
+          expiresAt: futureDate,
+        })
+      );
 
       const request = createRequest('valid-token');
       const response = await GET(request);
 
       expect(response.status).toBe(307);
-      expect(response.headers.get('location')).toBe(
-        'https://example.com/auth/login?verified=1'
-      );
+      expect(response.headers.get('location')).toBe('https://example.com/auth/login?verified=1');
       expect(mockStartSession).toHaveBeenCalled();
       expect(mockWithTransaction).toHaveBeenCalled();
     });
 
     it('updates user emailVerified field in transaction', async () => {
       const futureDate = new Date(Date.now() + 3600000);
-      mockEmailVerificationFindOne.mockReturnValue(createLeanResult({
-        userId: 'user-789',
-        tokenHash: 'hashed-token',
-        expiresAt: futureDate,
-      }));
+      mockEmailVerificationFindOne.mockReturnValue(
+        createLeanResult({
+          userId: 'user-789',
+          tokenHash: 'hashed-token',
+          expiresAt: futureDate,
+        })
+      );
 
       const request = createRequest('valid-token');
       await GET(request);
@@ -273,11 +257,13 @@ describe('GET /api/auth/verify', () => {
 
     it('deletes all verification tokens for user in transaction', async () => {
       const futureDate = new Date(Date.now() + 3600000);
-      mockEmailVerificationFindOne.mockReturnValue(createLeanResult({
-        userId: 'user-101',
-        tokenHash: 'hashed-token',
-        expiresAt: futureDate,
-      }));
+      mockEmailVerificationFindOne.mockReturnValue(
+        createLeanResult({
+          userId: 'user-101',
+          tokenHash: 'hashed-token',
+          expiresAt: futureDate,
+        })
+      );
 
       const request = createRequest('valid-token');
       await GET(request);
@@ -290,11 +276,13 @@ describe('GET /api/auth/verify', () => {
 
     it('closes session after transaction', async () => {
       const futureDate = new Date(Date.now() + 3600000);
-      mockEmailVerificationFindOne.mockReturnValue(createLeanResult({
-        userId: 'user-202',
-        tokenHash: 'hashed-token',
-        expiresAt: futureDate,
-      }));
+      mockEmailVerificationFindOne.mockReturnValue(
+        createLeanResult({
+          userId: 'user-202',
+          tokenHash: 'hashed-token',
+          expiresAt: futureDate,
+        })
+      );
 
       const request = createRequest('valid-token');
       await GET(request);
@@ -311,9 +299,7 @@ describe('GET /api/auth/verify', () => {
       const response = await GET(request);
 
       expect(response.status).toBe(307);
-      expect(response.headers.get('location')).toBe(
-        'https://example.com/auth/login?verified=0'
-      );
+      expect(response.headers.get('location')).toBe('https://example.com/auth/login?verified=0');
       expect(loggerMock.structuredLogger.authError).toHaveBeenCalled();
     });
 
@@ -326,19 +312,19 @@ describe('GET /api/auth/verify', () => {
       const response = await GET(request);
 
       expect(response.status).toBe(307);
-      expect(response.headers.get('location')).toBe(
-        'https://example.com/auth/login?verified=0'
-      );
+      expect(response.headers.get('location')).toBe('https://example.com/auth/login?verified=0');
       expect(loggerMock.structuredLogger.authError).toHaveBeenCalled();
     });
 
     it('closes session even when transaction fails', async () => {
       const futureDate = new Date(Date.now() + 3600000);
-      mockEmailVerificationFindOne.mockReturnValue(createLeanResult({
-        userId: 'user-303',
-        tokenHash: 'hashed-token',
-        expiresAt: futureDate,
-      }));
+      mockEmailVerificationFindOne.mockReturnValue(
+        createLeanResult({
+          userId: 'user-303',
+          tokenHash: 'hashed-token',
+          expiresAt: futureDate,
+        })
+      );
       mockWithTransaction.mockRejectedValue(new Error('Transaction failed'));
 
       const request = createRequest('valid-token');
@@ -359,10 +345,7 @@ describe('GET /api/auth/verify', () => {
 
   describe('URL handling', () => {
     it('preserves base URL in redirect', async () => {
-      const request = createRequest(
-        undefined,
-        'https://custom-domain.com'
-      );
+      const request = createRequest(undefined, 'https://custom-domain.com');
       const response = await GET(request);
 
       expect(response.headers.get('location')).toBe(

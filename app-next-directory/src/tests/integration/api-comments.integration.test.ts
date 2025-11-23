@@ -17,11 +17,10 @@ jest.mock('@/lib/sanity/client', () => ({
   },
 }));
 
-import { revalidateTag } from 'next/cache';
-import { GET, POST } from '../../../app/api/comments/route';
 import { auth } from '@/lib/auth';
 import { client } from '@/lib/sanity/client';
 import { ensureSanityUser } from '@/lib/sanity/user';
+import { GET, POST } from '../../../app/api/comments/route';
 
 const mockAuth = auth as jest.MockedFunction<typeof auth>;
 const mockEnsureSanityUser = ensureSanityUser as unknown as {

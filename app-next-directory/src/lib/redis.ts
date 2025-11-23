@@ -1,6 +1,7 @@
 import { Redis } from '@upstash/redis';
 
-export type RedisLike = Pick<Redis, 'get' | 'set' | 'del' | 'incr' | 'expire' | 'ping'> & Record<string, unknown>;
+export type RedisLike = Pick<Redis, 'get' | 'set' | 'del' | 'incr' | 'expire' | 'ping'> &
+  Record<string, unknown>;
 
 type RedisListener = (client: Redis | undefined) => void;
 
@@ -17,8 +18,7 @@ const notifyListeners = () => {
   for (const listener of listeners) {
     try {
       listener(currentClient);
-    } catch (error) {
-      console.warn('[redis] listener threw error', error);
+    } catch (_error) {
     }
   }
 };
@@ -45,9 +45,6 @@ export const createRedisClient = (): Redis | undefined => {
   if (!credentials) {
     if (!missingCredentialsLogged && !isTestEnvironment()) {
       missingCredentialsLogged = true;
-      console.warn(
-        '[redis] UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are not set. Falling back to uncached Mongo queries.'
-      );
     }
 
     return undefined;
@@ -82,7 +79,7 @@ const baseGetRedisClient = () => {
 const attachMockHelpers = (getter: () => Redis | undefined): MockableGetRedisClient => {
   const mock = getter as MockableGetRedisClient;
 
-  mock.mockReturnValue = (client) => {
+  mock.mockReturnValue = client => {
     setClient(client);
     return mock;
   };

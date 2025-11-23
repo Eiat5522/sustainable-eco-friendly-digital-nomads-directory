@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, beforeAll, beforeEach } from '@jest/globals';
+import { beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 jest.mock('@/lib/auth', () => ({
   __esModule: true,
@@ -23,12 +23,17 @@ jest.mock('@/lib/sanity/client', () => {
   };
 });
 
-import { auth } from '@/lib/auth';
 
 const authMockModule = jest.requireMock('@/lib/auth') as { auth: jest.Mock };
 const clientMockModule = jest.requireMock('@/lib/sanity/client') as {
   client: { fetch: jest.Mock; patch: jest.Mock; delete: jest.Mock };
-  __mock: { fetchMock: jest.Mock; patchMock: jest.Mock; setMock: jest.Mock; commitMock: jest.Mock; deleteMock: jest.Mock };
+  __mock: {
+    fetchMock: jest.Mock;
+    patchMock: jest.Mock;
+    setMock: jest.Mock;
+    commitMock: jest.Mock;
+    deleteMock: jest.Mock;
+  };
 };
 
 type RouteModule = typeof import('../route');

@@ -1,6 +1,6 @@
 /**
  * Simplified Test Suite for Server Auth Module
- * 
+ *
  * Tests core authentication logic without complex Mongoose mocking
  */
 
@@ -28,11 +28,11 @@ describe('Server Auth Module (Simplified)', () => {
       // Mock a bcrypt comparison scenario
       const plainPassword = 'userPassword123';
       const hashedPassword = '$2a$12$mockedHashedPassword';
-      
+
       // In real implementation, bcrypt.compare would be used
       const mockCompareResult = plainPassword === 'userPassword123';
       expect(mockCompareResult).toBe(true);
-      
+
       const mockFailureResult = plainPassword === 'wrongPassword';
       expect(mockFailureResult).toBe(false);
     });
@@ -75,10 +75,7 @@ describe('Server Auth Module (Simplified)', () => {
     it('should understand user lookup query structure', () => {
       const emailLookupQuery = {
         email: 'user@example.com'.toLowerCase(),
-        $or: [
-          { emailVerified: { $exists: true } },
-          { emailVerified: null }
-        ]
+        $or: [{ emailVerified: { $exists: true } }, { emailVerified: null }],
       };
 
       expect(emailLookupQuery.email).toBe('user@example.com');
@@ -90,7 +87,7 @@ describe('Server Auth Module (Simplified)', () => {
         $set: {
           role: 'admin',
           lastUpdated: new Date(),
-        }
+        },
       };
 
       expect(userUpdateData.$set.role).toBe('admin');
@@ -100,16 +97,9 @@ describe('Server Auth Module (Simplified)', () => {
 
   describe('ObjectId Validation', () => {
     it('should understand MongoDB ObjectId patterns', () => {
-      const validObjectIds = [
-        '507f1f77bcf86cd799439011',
-        '507f191e810c19729de860ea',
-      ];
+      const validObjectIds = ['507f1f77bcf86cd799439011', '507f191e810c19729de860ea'];
 
-      const invalidObjectIds = [
-        'invalid-id',
-        '123',
-        '',
-      ];
+      const invalidObjectIds = ['invalid-id', '123', ''];
 
       validObjectIds.forEach(id => {
         // Mock ObjectId validation

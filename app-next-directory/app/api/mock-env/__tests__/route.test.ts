@@ -6,7 +6,7 @@
  * 3. Response structure validation
  */
 
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import type { NextRequest } from 'next/server';
 
 let GET: typeof import('../route').GET;
@@ -14,7 +14,7 @@ let GET: typeof import('../route').GET;
 describe('Mock Environment API - GET /api/mock-env', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
-    
+
     // Dynamically import the route handler
     const routeModule = await import('../route');
     GET = routeModule.GET;

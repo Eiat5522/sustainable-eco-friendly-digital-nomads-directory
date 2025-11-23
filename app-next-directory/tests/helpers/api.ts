@@ -34,7 +34,12 @@ export async function deleteTestListing(request: APIRequestContext, slug: string
 export async function seedDefaults(request: APIRequestContext) {
   // Example seed payloads — adapt to your app's required fields
   const users = [
-    { email: 'test_customer@example.com', password: 'password', role: 'customer', name: 'E2E Customer' },
+    {
+      email: 'test_customer@example.com',
+      password: 'password',
+      role: 'customer',
+      name: 'E2E Customer',
+    },
     { email: 'test_owner@example.com', password: 'password', role: 'owner', name: 'E2E Owner' },
   ];
 

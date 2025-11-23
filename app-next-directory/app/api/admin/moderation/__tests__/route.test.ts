@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, beforeEach, beforeAll } from '@jest/globals';
+import { beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 jest.mock('@/lib/auth', () => ({
   __esModule: true,
@@ -12,12 +12,6 @@ jest.mock('@/lib/admin/analytics', () => ({
   performModerationAction: jest.fn(),
 }));
 
-import { auth } from '@/lib/auth';
-import {
-  fetchModerationQueue,
-  summarizeModerationQueue,
-  performModerationAction,
-} from '@/lib/admin/analytics';
 
 const authMockModule = jest.requireMock('@/lib/auth') as { auth: jest.Mock };
 const analyticsMockModule = jest.requireMock('@/lib/admin/analytics') as {
@@ -45,7 +39,6 @@ describe('/api/admin/moderation', () => {
     mockSummarize.mockReset();
     mockPerformAction.mockReset();
   });
-
 
   it('requires admin role for GET', async () => {
     mockAuth.mockResolvedValue({ user: { role: 'user' } } as any);
@@ -126,9 +119,12 @@ describe('/api/admin/moderation', () => {
   it('requires admin role for POST', async () => {
     mockAuth.mockResolvedValue({ user: { role: 'user' } } as any);
 
-    const response = await POST({ json: () => Promise.resolve({ moderationId: '1', action: 'approve' }) } as any, {
-      params: Promise.resolve({}),
-    });
+    const response = await POST(
+      { json: () => Promise.resolve({ moderationId: '1', action: 'approve' }) } as any,
+      {
+        params: Promise.resolve({}),
+      }
+    );
 
     expect(response.status).toBe(403);
     expect(mockPerformAction).not.toHaveBeenCalled();
@@ -211,7 +207,10 @@ describe('/api/admin/moderation', () => {
     mockPerformAction.mockResolvedValue({ id: 'queue-1', status: 'flagged' });
 
     const response = await POST(
-      { json: () => Promise.resolve({ moderationId: 'queue-1', action: 'flag', notes: 'Check later' }) } as any,
+      {
+        json: () =>
+          Promise.resolve({ moderationId: 'queue-1', action: 'flag', notes: 'Check later' }),
+      } as any,
       { params: Promise.resolve({}) }
     );
 

@@ -1,9 +1,9 @@
-import { client as sanityClient } from '@/lib/sanity/client';
-import { ApiResponseHandler } from '@/utils/api-response';
-import { transformToBlogSummaryDTO } from '@/lib/dto-transformer';
-import { groq } from 'next-sanity';
 import type { QueryParams } from '@sanity/client';
 import type { NextRequest } from 'next/server';
+import { groq } from 'next-sanity';
+import { transformToBlogSummaryDTO } from '@/lib/dto-transformer';
+import { client as sanityClient } from '@/lib/sanity/client';
+import { ApiResponseHandler } from '@/utils/api-response';
 
 interface RawBlogPost {
   _id: string;
@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
     ]);
 
     const posts = Array.isArray(postsRaw)
-      ? postsRaw.map((post) => transformToBlogSummaryDTO(post as RawBlogPost))
+      ? postsRaw.map(post => transformToBlogSummaryDTO(post as RawBlogPost))
       : [];
 
     const total = Number.isFinite(totalCount) ? Number(totalCount) : 0;
@@ -125,14 +125,18 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error fetching blog posts:', error);
 
     if (error instanceof Error) {
       const name = error.name;
       const cause = (error as { cause?: { code?: string } }).cause;
       const code = cause?.code ?? (error as { code?: string }).code;
 
-      if (name === 'FetchError' || code === 'ECONNREFUSED' || code === 'ENOTFOUND' || code === 'ETIMEDOUT') {
+      if (
+        name === 'FetchError' ||
+        code === 'ECONNREFUSED' ||
+        code === 'ENOTFOUND' ||
+        code === 'ETIMEDOUT'
+      ) {
         return ApiResponseHandler.error('Failed to connect to CMS. Please try again later.', 503);
       }
 

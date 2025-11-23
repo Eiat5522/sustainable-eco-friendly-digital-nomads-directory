@@ -1,7 +1,7 @@
 // Import and file existence validator for CI pipelines.
 
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
 /**
  * Recursively finds all .ts and .tsx files in a directory.
@@ -23,21 +23,16 @@ function findSourceFiles(dir: string, files: string[] = []): string[] {
  */
 function validateImports(filePath: string): string[] {
   const content = fs.readFileSync(filePath, 'utf-8');
-  const importRegex =
-    /import\s+(?:[\w*\s{},]+from\s+)?['"]([^'"]+)['"];?/g;
+  const importRegex = /import\s+(?:[\w*\s{},]+from\s+)?['"]([^'"]+)['"];?/g;
   const errors: string[] = [];
   let match: RegExpExecArray | null;
   while ((match = importRegex.exec(content))) {
     const importPath = match[1];
     if (
       importPath.startsWith('.') &&
-      !fs.existsSync(
-        require.resolve(path.resolve(path.dirname(filePath), importPath))
-      )
+      !fs.existsSync(require.resolve(path.resolve(path.dirname(filePath), importPath)))
     ) {
-      errors.push(
-        `Missing import target: ${importPath} in ${filePath}`
-      );
+      errors.push(`Missing import target: ${importPath} in ${filePath}`);
     }
   }
   return errors;
@@ -54,7 +49,7 @@ function main() {
     const errors = validateImports(file);
     if (errors.length) {
       hasError = true;
-      errors.forEach((err) => console.error(err));
+      errors.forEach(err => console.error(err));
     }
   }
   if (hasError) {

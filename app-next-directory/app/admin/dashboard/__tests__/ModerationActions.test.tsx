@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { RequestTimeoutError } from '@/lib/http/request';
@@ -38,11 +37,13 @@ describe('ModerationActions', () => {
         expect.objectContaining({
           method: 'POST',
           body: JSON.stringify({ moderationId: 'mod-1', action: 'approve', notes: '' }),
-        }),
+        })
       );
     });
 
-    expect(await screen.findByTestId('moderation-feedback-mod-1')).toHaveTextContent('Moderation complete');
+    expect(await screen.findByTestId('moderation-feedback-mod-1')).toHaveTextContent(
+      'Moderation complete'
+    );
   });
 
   it('toggles notes editor and saves a note', async () => {
@@ -60,8 +61,12 @@ describe('ModerationActions', () => {
       expect(global.fetch).toHaveBeenCalledWith(
         '/api/admin/moderation',
         expect.objectContaining({
-          body: JSON.stringify({ moderationId: 'mod-2', action: 'saveNote', notes: 'Needs review' }),
-        }),
+          body: JSON.stringify({
+            moderationId: 'mod-2',
+            action: 'saveNote',
+            notes: 'Needs review',
+          }),
+        })
       );
     });
 
@@ -80,7 +85,9 @@ describe('ModerationActions', () => {
     const restrictButton = await screen.findByRole('button', { name: /restrict listing c/i });
     await user.click(restrictButton);
 
-    expect(await screen.findByTestId('moderation-feedback-mod-3')).toHaveTextContent('Request failed');
+    expect(await screen.findByTestId('moderation-feedback-mod-3')).toHaveTextContent(
+      'Request failed'
+    );
   });
 
   it('handles network errors gracefully', async () => {
@@ -92,7 +99,9 @@ describe('ModerationActions', () => {
     const approveButton = await screen.findByRole('button', { name: /approve listing d/i });
     await user.click(approveButton);
 
-    expect(await screen.findByTestId('moderation-feedback-mod-4')).toHaveTextContent('network down');
+    expect(await screen.findByTestId('moderation-feedback-mod-4')).toHaveTextContent(
+      'network down'
+    );
   });
 
   it('surfaces timeout feedback when moderation request times out', async () => {

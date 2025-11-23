@@ -1,5 +1,5 @@
-import type { NextRequest } from 'next/server';
 import { unstable_cache } from 'next/cache';
+import type { NextRequest } from 'next/server';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { handleAuthError, requireAuth } from '@/utils/auth-helpers';
 import { getCollection } from '@/utils/db-helpers';
@@ -15,7 +15,9 @@ interface ListingsDependencies {
   getCollection: typeof getCollection;
 }
 
-type MaybeRequest = Pick<NextRequest, 'url' | 'json'> | { url?: string; json?: () => Promise<unknown> };
+type MaybeRequest =
+  | Pick<NextRequest, 'url' | 'json'>
+  | { url?: string; json?: () => Promise<unknown> };
 
 type ListingPayload = {
   title: string;
@@ -87,7 +89,13 @@ function parsePagination(request: MaybeRequest) {
     };
   }
 
-  if (!Number.isInteger(page) || page < 1 || !Number.isInteger(limit) || limit < 1 || limit > MAX_LIMIT) {
+  if (
+    !Number.isInteger(page) ||
+    page < 1 ||
+    !Number.isInteger(limit) ||
+    limit < 1 ||
+    limit > MAX_LIMIT
+  ) {
     return {
       ok: false as const,
       error: ApiResponseHandler.error('Invalid pagination parameters', 400),
@@ -102,8 +110,8 @@ function toStringArray(value: unknown): string[] {
     return [];
   }
   return value
-    .map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
-    .filter((entry) => entry.length > 0);
+    .map(entry => (typeof entry === 'string' ? entry.trim() : ''))
+    .filter(entry => entry.length > 0);
 }
 
 function validateListingPayload(body: unknown): ValidationResult {
@@ -177,7 +185,12 @@ function validateListingPayload(body: unknown): ValidationResult {
 
 export function createListingsHandlers(overrides: Partial<ListingsDependencies> = {}) {
   const dependencies = { ...DEFAULT_DEPENDENCIES, ...overrides } satisfies ListingsDependencies;
-  const { ApiResponseHandler: ResponseBuilder, handleAuthError: onAuthError, requireAuth: ensureAuth, getCollection: resolveCollection } = dependencies;
+  const {
+    ApiResponseHandler: ResponseBuilder,
+    handleAuthError: onAuthError,
+    requireAuth: ensureAuth,
+    getCollection: resolveCollection,
+  } = dependencies;
 
   // Only use caching when dependencies are not overridden (i.e., in production, not in tests)
   const useCache = !overrides.getCollection;
@@ -193,19 +206,19 @@ export function createListingsHandlers(overrides: Partial<ListingsDependencies> 
 
     const cursor = (collection as MongoCollection).find({});
     const listings = await cursor.skip(skip).limit(limit).toArray();
-    const total = typeof (collection as MongoCollection).countDocuments === 'function'
-      ? await (collection as MongoCollection).countDocuments({})
-      : listings.length;
+    const total =
+      typeof (collection as MongoCollection).countDocuments === 'function'
+        ? await (collection as MongoCollection).countDocuments({})
+        : listings.length;
 
     return { listings, total };
   };
 
   // Cached version - cache for 1 hour (3600 seconds) to improve performance
-  const getCachedListings = unstable_cache(
-    fetchListingsData,
-    ['listings-query'],
-    { revalidate: 3600, tags: ['listings'] }
-  );
+  const getCachedListings = unstable_cache(fetchListingsData, ['listings-query'], {
+    revalidate: 3600,
+    tags: ['listings'],
+  });
 
   const GET = async (request: MaybeRequest) => {
     try {
@@ -223,7 +236,7 @@ export function createListingsHandlers(overrides: Partial<ListingsDependencies> 
 
     try {
       // Use cached version in production, direct fetch in tests
-      const result = useCache 
+      const result = useCache
         ? await getCachedListings(page, limit)
         : await fetchListingsData(page, limit);
 
@@ -283,7 +296,9 @@ export function createListingsHandlers(overrides: Partial<ListingsDependencies> 
         return ResponseBuilder.error('Listings collection not available', 500);
       }
 
-      const existing = await (collection as MongoCollection).findOne({ slug: validation.payload.slug });
+      const existing = await (collection as MongoCollection).findOne({
+        slug: validation.payload.slug,
+      });
       if (existing) {
         return ResponseBuilder.error('Listing with this slug already exists', 409);
       }
@@ -303,12 +318,13 @@ export function createListingsHandlers(overrides: Partial<ListingsDependencies> 
           id: insertedId ?? null,
           ownerId: user.id ?? null,
         },
-        'Listing created successfully',
+        'Listing created successfully'
       );
     } catch (error) {
-      const message = (error instanceof Error && error.message === 'Invalid JSON')
-        ? 'Invalid JSON payload'
-        : 'Failed to create listing';
+      const message =
+        error instanceof Error && error.message === 'Invalid JSON'
+          ? 'Invalid JSON payload'
+          : 'Failed to create listing';
       const status = message === 'Invalid JSON payload' ? 400 : 500;
       return ResponseBuilder.error(message, status);
     }

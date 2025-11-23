@@ -1,4 +1,4 @@
-import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 describe('redis module', () => {
   const originalEnv = process.env;
@@ -51,7 +51,10 @@ describe('redis module', () => {
 
     const client = mod.createRedisClient();
 
-    expect(redisCtor!).toHaveBeenCalledWith({ url: 'https://redis.upstash.io', token: 'token-123' });
+    expect(redisCtor!).toHaveBeenCalledWith({
+      url: 'https://redis.upstash.io',
+      token: 'token-123',
+    });
     expect(client).toBe(redisInstance);
   });
 
@@ -133,7 +136,9 @@ describe('redis module', () => {
     expect(first).toBe(redisInstance);
     expect(second).toBe(redisInstance);
     expect(ctor!).toHaveBeenCalledTimes(1);
-    expect((redisModule!.getRedisClient as Record<string, unknown>).mockReturnValue).toBeUndefined();
+    expect(
+      (redisModule!.getRedisClient as Record<string, unknown>).mockReturnValue
+    ).toBeUndefined();
   });
 
   it('provides a default mock redis client in tests', async () => {
@@ -242,7 +247,7 @@ describe('redis helpers', () => {
     const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     const error = new Error('listener failure');
 
-    const unsubscribe = onRedisClientChange((client) => {
+    const unsubscribe = onRedisClientChange(client => {
       if (client) {
         throw error;
       }

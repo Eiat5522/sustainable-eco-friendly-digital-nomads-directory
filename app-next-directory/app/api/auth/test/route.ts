@@ -1,10 +1,10 @@
-import { auth } from '@/lib/auth';
 import { type NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
 
 export async function GET(_request: NextRequest) {
   try {
     const session = await auth();
-    
+
     const securityHeaders = {
       'X-Frame-Options': 'DENY',
       'X-Content-Type-Options': 'nosniff',
@@ -18,7 +18,7 @@ export async function GET(_request: NextRequest) {
         details: {
           isAuthenticated: !!session,
           user: session?.user || null,
-        }
+        },
       },
       sessionStrategy: {
         passed: true,
@@ -31,7 +31,7 @@ export async function GET(_request: NextRequest) {
       },
       authFlow: {
         passed: true,
-      }
+      },
     };
 
     const allTestsPassed = Object.values(tests).every(test => test.passed);
@@ -53,11 +53,14 @@ export async function GET(_request: NextRequest) {
       headers: securityHeaders,
     });
   } catch (error) {
-    return NextResponse.json({
-      error: 'Auth.js test failed',
-      message: error instanceof Error ? error.message : 'JWT error',
-    }, {
-      status: 500,
-    });
+    return NextResponse.json(
+      {
+        error: 'Auth.js test failed',
+        message: error instanceof Error ? error.message : 'JWT error',
+      },
+      {
+        status: 500,
+      }
+    );
   }
 }

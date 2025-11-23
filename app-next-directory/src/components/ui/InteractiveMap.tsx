@@ -1,10 +1,10 @@
 'use client';
 
 import 'leaflet/dist/leaflet.css';
-import React, { useEffect, useRef, useState } from 'react';
-import { MapPin } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import type * as Leaflet from 'leaflet';
+import { MapPin } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 interface InteractiveMapProps {
   readonly location?: Readonly<{ lat: number; lng: number }>;
@@ -45,7 +45,9 @@ export function InteractiveMap({ location, address, name, className }: Interacti
     const initMap = async () => {
       try {
         if (!LRef.current) {
-          const mod = (await import('leaflet')) as typeof import('leaflet') & { default?: typeof import('leaflet') };
+          const mod = (await import('leaflet')) as typeof import('leaflet') & {
+            default?: typeof import('leaflet');
+          };
           LRef.current = mod.default ?? mod;
         }
 
@@ -63,7 +65,8 @@ export function InteractiveMap({ location, address, name, className }: Interacti
         const map = L.map(container).setView([location.lat, location.lng], 15);
         mapInstanceRef.current = map;
 
-        const tileUrl = process.env.NEXT_PUBLIC_TILE_URL ?? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        const tileUrl =
+          process.env.NEXT_PUBLIC_TILE_URL ?? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
         handleTileLoad = () => {
           if (!isMounted) return;
@@ -77,30 +80,36 @@ export function InteractiveMap({ location, address, name, className }: Interacti
           if (!isMounted) return;
           setTileLoadFailed(true);
           if (process.env.NODE_ENV !== 'production') {
-          const detail = (() => {
-            const errorDetail = e.error;
-            if (errorDetail && typeof errorDetail === 'object') {
-              if ('message' in errorDetail && typeof (errorDetail as { message?: unknown }).message === 'string') {
-                return (errorDetail as { message: string }).message;
+            const _detail = (() => {
+              const errorDetail = e.error;
+              if (errorDetail && typeof errorDetail === 'object') {
+                if (
+                  'message' in errorDetail &&
+                  typeof (errorDetail as { message?: unknown }).message === 'string'
+                ) {
+                  return (errorDetail as { message: string }).message;
+                }
+                if (
+                  'code' in errorDetail &&
+                  typeof (errorDetail as { code?: unknown }).code === 'string'
+                ) {
+                  return (errorDetail as { code: string }).code;
+                }
               }
-              if ('code' in errorDetail && typeof (errorDetail as { code?: unknown }).code === 'string') {
-                return (errorDetail as { code: string }).code;
-              }
-            }
-            if (typeof errorDetail === 'string') return errorDetail;
-            if (errorDetail instanceof Error) return errorDetail.message;
-            return undefined;
-          })();
-            const tileSrc =
+              if (typeof errorDetail === 'string') return errorDetail;
+              if (errorDetail instanceof Error) return errorDetail.message;
+              return undefined;
+            })();
+            const _tileSrc =
               typeof (e.tile as HTMLImageElement | undefined)?.src === 'string'
                 ? (e.tile as HTMLImageElement).src
                 : undefined;
-            console.warn('[map] Leaflet tile error (non-fatal)', detail ?? tileSrc ?? 'unknown');
           }
         };
 
         tileLayer = L.tileLayer(tileUrl, {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
           maxZoom: 19,
           minZoom: 1,
           subdomains: ['a', 'b', 'c'],
@@ -122,7 +131,9 @@ export function InteractiveMap({ location, address, name, className }: Interacti
           popupContent.appendChild(addrEl);
         }
 
-        const marker = L.marker([location.lat, location.lng], { icon: createCustomMarkerIcon(L) }).addTo(map);
+        const marker = L.marker([location.lat, location.lng], {
+          icon: createCustomMarkerIcon(L),
+        }).addTo(map);
         marker.bindPopup(popupContent);
         markerRef.current = marker;
 
@@ -132,11 +143,10 @@ export function InteractiveMap({ location, address, name, className }: Interacti
             map.invalidateSize();
           });
         });
-      } catch (error) {
+      } catch (_error) {
         if (isMounted) {
           setTileLoadFailed(true);
         }
-        console.error('Failed to load map:', error);
       }
     };
 
@@ -161,7 +171,7 @@ export function InteractiveMap({ location, address, name, className }: Interacti
       }
       markerRef.current = null;
     };
-  }, [location, name, address]);
+  }, [location, name, address, createCustomMarkerIcon]);
 
   useEffect(() => {
     const marker = markerRef.current;
@@ -188,7 +198,9 @@ export function InteractiveMap({ location, address, name, className }: Interacti
 
   if (!location) {
     return (
-      <div className={cn('h-64 bg-gray-100 rounded-lg flex items-center justify-center', className)}>
+      <div
+        className={cn('h-64 bg-gray-100 rounded-lg flex items-center justify-center', className)}
+      >
         <div className="text-center text-gray-500">
           <MapPin size={48} className="mx-auto mb-2 text-gray-400" />
           <p className="text-sm">Location not available</p>

@@ -22,7 +22,7 @@ export interface City {
  * Provides a list of cities available for filtering.
  */
 export interface CityResponse {
-    readonly cities: readonly City[];
+  readonly cities: readonly City[];
 }
 
 /**

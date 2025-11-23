@@ -1,8 +1,4 @@
-import {
-  PERFORMANCE_BUDGETS,
-  type PerformanceAlert,
-  type AlertSeverity,
-} from '../budgets';
+import { type AlertSeverity, PERFORMANCE_BUDGETS, type PerformanceAlert } from '../budgets';
 
 describe('budgets', () => {
   let originalEnv: NodeJS.ProcessEnv;
@@ -76,7 +72,7 @@ describe('budgets', () => {
     it('should enable slack channel when webhook URL is set', () => {
       process.env.NEXT_PUBLIC_SLACK_WEBHOOK_URL = 'https://hooks.slack.com/test';
       const { ALERT_CHANNELS: channels } = require('../budgets');
-      
+
       expect(channels.slack.enabled).toBe(true);
       expect(channels.slack.minSeverity).toBe('error');
     });
@@ -84,7 +80,7 @@ describe('budgets', () => {
     it('should enable email channel when email is set', () => {
       process.env.NEXT_PUBLIC_ALERT_EMAIL = 'test@example.com';
       const { ALERT_CHANNELS: channels } = require('../budgets');
-      
+
       expect(channels.email.enabled).toBe(true);
       expect(channels.email.minSeverity).toBe('error');
     });
@@ -100,7 +96,7 @@ describe('budgets', () => {
     it('should return warning alert when value exceeds target but not limit', () => {
       const { shouldAlert } = require('../budgets');
       const result = shouldAlert('CLS', 0.15, 'webVitals');
-      
+
       expect(result).not.toBeNull();
       expect(result?.severity).toBe('warning');
       expect(result?.metric).toBe('CLS');
@@ -111,7 +107,7 @@ describe('budgets', () => {
     it('should return error alert when value exceeds limit', () => {
       const { shouldAlert } = require('../budgets');
       const result = shouldAlert('CLS', 0.3, 'webVitals');
-      
+
       expect(result).not.toBeNull();
       expect(result?.severity).toBe('error');
       expect(result?.metric).toBe('CLS');
@@ -121,7 +117,7 @@ describe('budgets', () => {
     it('should return critical alert when value exceeds limit * 1.5', () => {
       const { shouldAlert } = require('../budgets');
       const result = shouldAlert('CLS', 0.4, 'webVitals');
-      
+
       expect(result).not.toBeNull();
       expect(result?.severity).toBe('critical');
       expect(result?.metric).toBe('CLS');
@@ -137,7 +133,7 @@ describe('budgets', () => {
     it('should work with resources budgets', () => {
       const { shouldAlert } = require('../budgets');
       const result = shouldAlert('js', 450, 'resources');
-      
+
       expect(result).not.toBeNull();
       expect(result?.severity).toBe('warning');
       expect(result?.metric).toBe('js');
@@ -146,7 +142,7 @@ describe('budgets', () => {
     it('should work with api budgets', () => {
       const { shouldAlert } = require('../budgets');
       const result = shouldAlert('listings', 700, 'api');
-      
+
       expect(result).not.toBeNull();
       expect(result?.severity).toBe('error');
       expect(result?.metric).toBe('listings');
@@ -155,7 +151,7 @@ describe('budgets', () => {
     it('should work with features budgets', () => {
       const { shouldAlert } = require('../budgets');
       const result = shouldAlert('mapInitialization', 900, 'features');
-      
+
       expect(result).not.toBeNull();
       expect(result?.severity).toBe('warning');
       expect(result?.metric).toBe('mapInitialization');
@@ -166,7 +162,7 @@ describe('budgets', () => {
       const before = Date.now();
       const result = shouldAlert('LCP', 5000, 'webVitals');
       const after = Date.now();
-      
+
       expect(result).not.toBeNull();
       expect(result?.timestamp).toBeGreaterThanOrEqual(before);
       expect(result?.timestamp).toBeLessThanOrEqual(after);
@@ -181,7 +177,7 @@ describe('budgets', () => {
     it('should handle edge case at exact limit value', () => {
       const { shouldAlert } = require('../budgets');
       const result = shouldAlert('CLS', 0.25, 'webVitals');
-      
+
       expect(result).not.toBeNull();
       expect(result?.severity).toBe('warning');
     });
@@ -199,24 +195,22 @@ describe('budgets', () => {
     it('should log to console when console channel is enabled', async () => {
       const { sendAlert } = require('../budgets');
       const alert = createAlert('warning');
-      
+
       await sendAlert(alert);
-      
-      expect(console.log).toHaveBeenCalledWith(
-        '[Performance WARNING] CLS: 0.3 (threshold: 0.25)'
-      );
+
+      expect(console.log).toHaveBeenCalledWith('[Performance WARNING] CLS: 0.3 (threshold: 0.25)');
     });
 
     it('should log with correct severity format', async () => {
       const { sendAlert } = require('../budgets');
       const testCases: AlertSeverity[] = ['info', 'warning', 'error', 'critical'];
-      
+
       for (const severity of testCases) {
         (console.log as jest.Mock).mockClear();
         const alert = createAlert(severity);
-        
+
         await sendAlert(alert);
-        
+
         expect(console.log).toHaveBeenCalledWith(
           expect.stringContaining(`[Performance ${severity.toUpperCase()}]`)
         );
@@ -226,20 +220,20 @@ describe('budgets', () => {
     it('should not send slack alert when channel is disabled', async () => {
       const { sendAlert } = require('../budgets');
       const alert = createAlert('error');
-      
+
       await sendAlert(alert);
-      
+
       expect(mockFetch).not.toHaveBeenCalled();
     });
 
     it('should send slack alert when channel is enabled and severity meets threshold', async () => {
       process.env.NEXT_PUBLIC_SLACK_WEBHOOK_URL = 'https://hooks.slack.com/test';
-      
+
       const { sendAlert: sendAlertFn } = require('../budgets');
-      
+
       const alert = createAlert('error');
       await sendAlertFn(alert);
-      
+
       expect(mockFetch).toHaveBeenCalledWith(
         'https://hooks.slack.com/test',
         expect.objectContaining({
@@ -252,41 +246,38 @@ describe('budgets', () => {
 
     it('should not send slack alert when severity is below threshold', async () => {
       process.env.NEXT_PUBLIC_SLACK_WEBHOOK_URL = 'https://hooks.slack.com/test';
-      
+
       const { sendAlert: sendAlertFn } = require('../budgets');
-      
+
       const alert = createAlert('warning');
       await sendAlertFn(alert);
-      
+
       expect(mockFetch).not.toHaveBeenCalled();
     });
 
     it('should handle slack webhook failure gracefully', async () => {
       process.env.NEXT_PUBLIC_SLACK_WEBHOOK_URL = 'https://hooks.slack.com/test';
       mockFetch.mockRejectedValue(new Error('Network error'));
-      
+
       const { sendAlert: sendAlertFn } = require('../budgets');
-      
+
       const alert = createAlert('error');
-      
+
       await expect(sendAlertFn(alert)).resolves.not.toThrow();
-      expect(console.error).toHaveBeenCalledWith(
-        'Failed to send Slack alert:',
-        expect.any(Error)
-      );
+      expect(console.error).toHaveBeenCalledWith('Failed to send Slack alert:', expect.any(Error));
     });
 
     it('should format slack message correctly', async () => {
       process.env.NEXT_PUBLIC_SLACK_WEBHOOK_URL = 'https://hooks.slack.com/test';
-      
+
       const { sendAlert: sendAlertFn } = require('../budgets');
-      
+
       const alert = createAlert('critical');
       await sendAlertFn(alert);
-      
+
       const callArgs = mockFetch.mock.calls[0];
       const body = JSON.parse(callArgs[1].body);
-      
+
       expect(body.text).toContain('🚨 Performance Alert (CRITICAL)');
       expect(body.text).toContain('Metric: CLS');
       expect(body.text).toContain('Value: 0.3');
@@ -296,16 +287,12 @@ describe('budgets', () => {
 
     it('should handle multiple alerts sequentially', async () => {
       const { sendAlert } = require('../budgets');
-      const alerts = [
-        createAlert('warning'),
-        createAlert('error'),
-        createAlert('critical'),
-      ];
-      
+      const alerts = [createAlert('warning'), createAlert('error'), createAlert('critical')];
+
       for (const alert of alerts) {
         await expect(sendAlert(alert)).resolves.not.toThrow();
       }
-      
+
       expect(console.log).toHaveBeenCalledTimes(3);
     });
   });
@@ -325,7 +312,7 @@ describe('budgets', () => {
         timestamp: Date.now(),
         context: { extra: 'data' },
       };
-      
+
       expect(alert).toBeDefined();
       expect(alert.context?.extra).toBe('data');
     });

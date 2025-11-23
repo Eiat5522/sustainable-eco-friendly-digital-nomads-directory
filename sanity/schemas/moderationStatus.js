@@ -1,4 +1,4 @@
-import {defineField, defineType} from 'sanity'
+import { defineField, defineType } from 'sanity';
 
 export default defineType({
   name: 'moderationStatus',
@@ -9,11 +9,7 @@ export default defineType({
       name: 'item',
       title: 'Referenced Item',
       type: 'reference',
-      to: [
-        {type: 'listing'},
-        {type: 'review'},
-        {type: 'comment'},
-      ]
+      to: [{ type: 'listing' }, { type: 'review' }, { type: 'comment' }],
     }),
     defineField({
       name: 'status',
@@ -21,14 +17,14 @@ export default defineType({
       type: 'string',
       options: {
         list: [
-          {title: 'Pending Review', value: 'pending'},
-          {title: 'Approved', value: 'approved'},
-          {title: 'Rejected', value: 'rejected'},
-          {title: 'Needs Changes', value: 'changes_needed'},
-          {title: 'Flagged', value: 'flagged'},
-        ]
+          { title: 'Pending Review', value: 'pending' },
+          { title: 'Approved', value: 'approved' },
+          { title: 'Rejected', value: 'rejected' },
+          { title: 'Needs Changes', value: 'changes_needed' },
+          { title: 'Flagged', value: 'flagged' },
+        ],
       },
-      validation: Rule => Rule.required()
+      validation: Rule => Rule.required(),
     }),
     defineField({
       name: 'moderatorNotes',
@@ -39,7 +35,7 @@ export default defineType({
       name: 'moderatedBy',
       title: 'Moderated By',
       type: 'reference',
-      to: [{type: 'user'}],
+      to: [{ type: 'user' }],
     }),
     defineField({
       name: 'moderatedAt',
@@ -50,28 +46,30 @@ export default defineType({
       name: 'userReports',
       title: 'User Reports',
       type: 'array',
-      of: [{
-        type: 'object',
-        fields: [
-          {name: 'reportedBy', type: 'reference', to: [{type: 'user'}]},
-          {name: 'reason', type: 'string'},
-          {name: 'details', type: 'text'},
-          {name: 'reportedAt', type: 'datetime'},
-        ]
-      }]
+      of: [
+        {
+          type: 'object',
+          fields: [
+            { name: 'reportedBy', type: 'reference', to: [{ type: 'user' }] },
+            { name: 'reason', type: 'string' },
+            { name: 'details', type: 'text' },
+            { name: 'reportedAt', type: 'datetime' },
+          ],
+        },
+      ],
     }),
   ],
   preview: {
     select: {
       title: 'item.name',
       status: 'status',
-      updatedAt: 'moderatedAt'
+      updatedAt: 'moderatedAt',
     },
-    prepare({title, status, updatedAt}) {
+    prepare({ title, status, updatedAt }) {
       return {
         title: title || 'Unnamed Item',
-        subtitle: `Status: ${status} | Last Updated: ${updatedAt ? new Date(updatedAt).toLocaleDateString() : 'Never'}`
-      }
-    }
-  }
-})
+        subtitle: `Status: ${status} | Last Updated: ${updatedAt ? new Date(updatedAt).toLocaleDateString() : 'Never'}`,
+      };
+    },
+  },
+});

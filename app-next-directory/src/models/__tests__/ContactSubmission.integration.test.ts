@@ -1,8 +1,17 @@
 /** @jest-environment node */
-import { describe, beforeAll, afterAll, beforeEach, afterEach, it, expect, jest } from '@jest/globals';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  jest,
+} from '@jest/globals';
 import type { MongoMemoryServer } from 'mongodb-memory-server';
-import ContactSubmission, { CONTACT_TYPES, CONTACT_STATUSES } from '../ContactSubmission';
 import { createMongoMemoryServer } from '../../test-helpers/createMongoMemoryServer';
+import ContactSubmission from '../ContactSubmission';
 
 const getMongoose = async () => {
   return (await import('mongoose')).default;
@@ -13,12 +22,12 @@ jest.setTimeout(60000);
 /**
  * Integration tests for ContactSubmission model with real MongoDB operations.
  * These tests use mongodb-memory-server to test actual database CRUD operations.
- * 
+ *
  * Run these tests with: npm run test:integration
  */
 describe('ContactSubmission Model (Integration)', () => {
   let mongo: MongoMemoryServer | null = null;
-  let mongoose: (typeof import('mongoose')) | null = null;
+  let mongoose: typeof import('mongoose') | null = null;
 
   beforeAll(async () => {
     // Create in-memory MongoDB instance
@@ -32,7 +41,7 @@ describe('ContactSubmission Model (Integration)', () => {
     if (mongoose?.connection.readyState !== 0) {
       const collections = mongoose.connection.collections;
       await Promise.all(
-        Object.values(collections).map(async (collection) => {
+        Object.values(collections).map(async collection => {
           await collection.deleteMany({});
         })
       );
@@ -255,10 +264,7 @@ describe('ContactSubmission Model (Integration)', () => {
         },
       ]);
 
-      const page2 = await ContactSubmission.find()
-        .sort({ createdAt: -1 })
-        .skip(2)
-        .limit(2);
+      const page2 = await ContactSubmission.find().sort({ createdAt: -1 }).skip(2).limit(2);
 
       expect(page2).toHaveLength(2);
     });

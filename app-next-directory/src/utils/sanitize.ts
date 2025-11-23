@@ -24,17 +24,21 @@ export function escapeGroqMatch(input: string): string {
 }
 
 // Normalize array-like query params, sanitize, and drop empties/dupes
-export function sanitizeStringArray(value: string | string[] | undefined, opts?: { maxLen?: number }): string[] {
+export function sanitizeStringArray(
+  value: string | string[] | undefined,
+  opts?: { maxLen?: number }
+): string[] {
   const maxLen = opts?.maxLen ?? 100;
   const arr = Array.isArray(value) ? value : value ? [value] : [];
-  const out = arr
-    .map((v) => sanitizeBasic(String(v), maxLen))
-    .filter((v) => v.length > 0);
+  const out = arr.map(v => sanitizeBasic(String(v), maxLen)).filter(v => v.length > 0);
   // De-duplicate while preserving order
   return Array.from(new Set(out));
 }
 
-export function clampInt(n: number, { min = 1, max = 100 }: { min?: number; max?: number } = {}): number {
+export function clampInt(
+  n: number,
+  { min = 1, max = 100 }: { min?: number; max?: number } = {}
+): number {
   if (!Number.isFinite(n)) return min;
   return Math.min(max, Math.max(min, Math.trunc(n)));
 }

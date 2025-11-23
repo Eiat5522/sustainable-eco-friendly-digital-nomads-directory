@@ -1,5 +1,4 @@
 import '@testing-library/jest-dom';
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 
 const redirectMock = jest.fn();
@@ -13,7 +12,9 @@ jest.mock('@/lib/auth', () => ({
   auth: jest.fn(),
 }));
 
-jest.mock('../dashboard/components/VenueListingManagement', () => ({
+jest.mock(
+  '../dashboard/components/VenueListingManagement',
+  () => ({
     VenueListingManagement: (...args: unknown[]) => managementSpy(...args),
   }),
   { virtual: true }

@@ -1,15 +1,15 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { CategoryFilters } from '../CategoryFilters';
 import { useState } from 'react';
+import { CategoryFilters } from '../CategoryFilters';
 
 jest.mock('lucide-react', () => ({
-  Laptop: () => <span data-testid="icon" />, 
-  Coffee: () => <span data-testid="icon" />, 
-  Bed: () => <span data-testid="icon" />, 
-  UtensilsCrossed: () => <span data-testid="icon" />, 
-  Mountain: () => <span data-testid="icon" />, 
+  Laptop: () => <span data-testid="icon" />,
+  Coffee: () => <span data-testid="icon" />,
+  Bed: () => <span data-testid="icon" />,
+  UtensilsCrossed: () => <span data-testid="icon" />,
+  Mountain: () => <span data-testid="icon" />,
 }));
 
 describe('CategoryFilters', () => {
@@ -38,9 +38,7 @@ describe('CategoryFilters', () => {
     const user = userEvent.setup();
     const handleChange = jest.fn();
 
-    const { rerender } = render(
-      <CategoryFilters value={['cafe']} onChange={handleChange} />
-    );
+    const { rerender } = render(<CategoryFilters value={['cafe']} onChange={handleChange} />);
 
     const coworkingButton = screen.getByRole('button', { name: /Coworking/ });
     await user.click(coworkingButton);
@@ -58,7 +56,14 @@ describe('CategoryFilters', () => {
         <CategoryFilters
           value={value}
           onChange={setValue}
-          items={[{ id: 'custom', name: 'Custom', count: 1, icon: (() => <span data-testid="custom-icon" />) as any }]}
+          items={[
+            {
+              id: 'custom',
+              name: 'Custom',
+              count: 1,
+              icon: (() => <span data-testid="custom-icon" />) as any,
+            },
+          ]}
         />
       );
     };

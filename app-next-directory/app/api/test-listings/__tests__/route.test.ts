@@ -1,5 +1,4 @@
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
-import { GET, _testControl } from '../route';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 const mockCreateTestData = jest.fn();
 

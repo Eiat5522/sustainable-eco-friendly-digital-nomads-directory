@@ -1,5 +1,5 @@
-import { getRedisClient, mockRedisClient } from './redis';
 import type { RedisLike } from './redis';
+import { getRedisClient, mockRedisClient } from './redis';
 
 // Simple in-memory fallback store with TTL support
 type StoredValue = { value: string; expiresAt: number };
@@ -83,9 +83,8 @@ export function _clearMemoryStore() {
 const resolveUpstashClient = (): RedisLike | undefined => {
   try {
     const client = getRedisClient();
-    return client ? ((client as unknown) as RedisLike) : undefined;
-  } catch (error) {
-    console.warn('[newsletter] Redis unavailable, using in-memory fallback only.', error);
+    return client ? (client as unknown as RedisLike) : undefined;
+  } catch (_error) {
     return undefined;
   }
 };
@@ -101,9 +100,8 @@ const shouldUseUpstashClient = Boolean(
   upstash && (!resolvedMockRedisClient || upstash !== (resolvedMockRedisClient as unknown))
 );
 
-export const upstashClient: RedisLike | undefined = shouldUseUpstashClient && upstash
-  ? ((upstash as unknown) as RedisLike)
-  : undefined;
+export const upstashClient: RedisLike | undefined =
+  shouldUseUpstashClient && upstash ? (upstash as unknown as RedisLike) : undefined;
 
 export async function storeGet(key: string) {
   const client = upstashClient;

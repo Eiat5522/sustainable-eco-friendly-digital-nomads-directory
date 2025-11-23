@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
-
-import { getUserById, updateUserProfile } from '@/lib/auth/serverAuth';
 import { auth } from '@/lib/auth';
+import { getUserById, updateUserProfile } from '@/lib/auth/serverAuth';
 import { getRequestContext, structuredLogger } from '@/lib/logger';
 
 type ProfileDependencies = {
@@ -21,19 +20,13 @@ export function _createProfileHandlers({
         const session = await authFn();
 
         if (!session?.user?.id) {
-          return NextResponse.json(
-            { error: 'Authentication required' },
-            { status: 401 },
-          );
+          return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
         }
 
         const user = await getUserByIdFn(session.user.id);
 
         if (!user) {
-          return NextResponse.json(
-            { error: 'User not found' },
-            { status: 404 },
-          );
+          return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 
         return NextResponse.json({
@@ -51,10 +44,7 @@ export function _createProfileHandlers({
           ...getRequestContext(request),
           component: 'api/user/profile',
         });
-        return NextResponse.json(
-          { error: 'Internal server error' },
-          { status: 500 },
-        );
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
       }
     },
 
@@ -63,10 +53,7 @@ export function _createProfileHandlers({
         const session = await authFn();
 
         if (!session?.user?.id) {
-          return NextResponse.json(
-            { error: 'Authentication required' },
-            { status: 401 },
-          );
+          return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
         }
 
         const body = await request.json();
@@ -75,17 +62,14 @@ export function _createProfileHandlers({
         if (!name || typeof name !== 'string') {
           return NextResponse.json(
             { error: 'Name is required and must be a string' },
-            { status: 400 },
+            { status: 400 }
           );
         }
 
         const updatedUser = await updateUserProfileFn(session.user.id, { name, image });
 
         if (!updatedUser) {
-          return NextResponse.json(
-            { error: 'Failed to update profile' },
-            { status: 500 },
-          );
+          return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
         }
 
         return NextResponse.json({
@@ -106,10 +90,7 @@ export function _createProfileHandlers({
           ...getRequestContext(request),
           component: 'api/user/profile',
         });
-        return NextResponse.json(
-          { error: 'Internal server error' },
-          { status: 500 },
-        );
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
       }
     },
   };

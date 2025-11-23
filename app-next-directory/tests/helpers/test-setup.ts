@@ -1,5 +1,5 @@
-import { test as base } from '@playwright/test';
 import type { Page } from '@playwright/test';
+import { test as base } from '@playwright/test';
 import { mockListings } from './test-data';
 
 // Define fixture types
@@ -14,10 +14,10 @@ export const test = base.extend<{ mockListingPage: MockListingPage }>({
   // Set up a mock listing page with search functionality
   mockListingPage: async ({ page }, use) => {
     // Mock the API response for listings
-    await page.route('**/api/test-listings', async (route) => {
+    await page.route('**/api/test-listings', async route => {
       await route.fulfill({
         status: 200,
-        body: JSON.stringify({ listings: mockListings })
+        body: JSON.stringify({ listings: mockListings }),
       });
     });
 
@@ -32,11 +32,11 @@ export const test = base.extend<{ mockListingPage: MockListingPage }>({
     const mockPage = {
       page,
       performSearch,
-      listings: mockListings
+      listings: mockListings,
     };
 
     await use(mockPage);
-  }
+  },
 });
 
 export { expect } from '@playwright/test';

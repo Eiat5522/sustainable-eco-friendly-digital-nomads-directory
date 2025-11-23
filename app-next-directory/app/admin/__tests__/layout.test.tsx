@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 
 jest.mock('@/lib/auth', () => ({
@@ -25,10 +24,13 @@ describe('Admin layout', () => {
     const AdminLayout = (await import('../layout')).default;
 
     const tree = await AdminLayout({ children: <div data-testid="layout-child">Child</div> });
-    render(<>{tree}</>);
+    render(tree);
 
     expect(screen.getByText('Admin Panel')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /dashboard/i })).toHaveAttribute('href', '/admin/dashboard');
+    expect(screen.getByRole('link', { name: /dashboard/i })).toHaveAttribute(
+      'href',
+      '/admin/dashboard'
+    );
     expect(screen.getByTestId('layout-child')).toBeInTheDocument();
     expect(redirectMock).not.toHaveBeenCalled();
   });
@@ -43,9 +45,7 @@ describe('Admin layout', () => {
 
     const AdminLayout = (await import('../layout')).default;
 
-    await expect(
-      AdminLayout({ children: <div /> }),
-    ).rejects.toThrow('redirect');
+    await expect(AdminLayout({ children: <div /> })).rejects.toThrow('redirect');
     expect(redirectMock).toHaveBeenCalledWith('/auth/login');
   });
 });

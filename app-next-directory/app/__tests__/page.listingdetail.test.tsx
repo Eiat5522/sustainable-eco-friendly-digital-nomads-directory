@@ -1,5 +1,4 @@
 import '@testing-library/jest-dom';
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 
 // Mock Header
@@ -81,10 +80,10 @@ describe('ListingDetailPreview', () => {
 
   it('has correct layout structure', () => {
     const { container } = render(<ListingDetailPreview />);
-    
+
     const rootDiv = container.querySelector('.min-h-screen.bg-background');
     expect(rootDiv).toBeInTheDocument();
-    
+
     const main = container.querySelector('main');
     expect(main).toBeInTheDocument();
   });

@@ -1,13 +1,9 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import type { UserRole } from '@/types/auth';
-import { client } from '@/lib/sanity/client';
-import {
-  RequestTimeoutError,
-  getDefaultTimeout,
-  withRequestTimeout,
-} from '@/lib/http/request';
+import { getDefaultTimeout, RequestTimeoutError, withRequestTimeout } from '@/lib/http/request';
 import { structuredLogger } from '@/lib/logger';
+import { client } from '@/lib/sanity/client';
+import type { UserRole } from '@/types/auth';
 
 type RouteContext = { params: Promise<Record<string, never>> };
 
@@ -49,9 +45,13 @@ export async function GET(_request: NextRequest, _context: RouteContext) {
       Promise.all([
         client.fetch<number>('count(*[_type == "listing"])'),
         client.fetch<number>('count(*[_type == "listing" && adminWorkflow.status == "published"])'),
-        client.fetch<number>('count(*[_type == "listing" && adminWorkflow.status == "unpublished"])'),
+        client.fetch<number>(
+          'count(*[_type == "listing" && adminWorkflow.status == "unpublished"])'
+        ),
         client.fetch<number>('count(*[_type == "listing" && adminWorkflow.status == "pending"])'),
-        client.fetch<number>('count(*[_type == "listing" && (!defined(adminWorkflow.status) || adminWorkflow.status == "draft")])'),
+        client.fetch<number>(
+          'count(*[_type == "listing" && (!defined(adminWorkflow.status) || adminWorkflow.status == "draft")])'
+        ),
         client.fetch<number>('count(*[_type == "listing" && adminWorkflow.isFeatured == true])'),
         client.fetch<Array<{ type: string; count: number }>>(
           `*[_type == "listing"] | order(type) {
@@ -69,7 +69,7 @@ export async function GET(_request: NextRequest, _context: RouteContext) {
     // Deduplicate and aggregate type counts
     const listingsByType: Record<string, number> = {};
     const seenTypes = new Set<string>();
-    
+
     for (const item of typesCounts) {
       if (item.type && !seenTypes.has(item.type)) {
         seenTypes.add(item.type);

@@ -28,10 +28,14 @@ beforeEach(() => {
 
 afterEach(() => {
   try {
-    const errorCalls = _errorSpy?.mock.calls.map((c: Parameters<typeof console.error>) => c.join(' ')) || [];
-    const warnCalls = _warnSpy?.mock.calls.map((c: Parameters<typeof console.warn>) => c.join(' ')) || [];
+    const errorCalls =
+      _errorSpy?.mock.calls.map((c: Parameters<typeof console.error>) => c.join(' ')) || [];
+    const warnCalls =
+      _warnSpy?.mock.calls.map((c: Parameters<typeof console.warn>) => c.join(' ')) || [];
 
-    const unexpectedErrors = errorCalls.filter((msg: string) => !WHITELIST.some(rx => rx.test(msg)));
+    const unexpectedErrors = errorCalls.filter(
+      (msg: string) => !WHITELIST.some(rx => rx.test(msg))
+    );
     const unexpectedWarns = warnCalls.filter((msg: string) => !WHITELIST.some(rx => rx.test(msg)));
 
     if (unexpectedErrors.length || unexpectedWarns.length) {
@@ -55,7 +59,9 @@ afterEach(() => {
       // eslint-disable-next-line no-console
       console.error('\n' + lines.join('\n'));
 
-      throw new Error(`Test emitted unexpected console output (${unexpectedErrors.length} error(s), ${unexpectedWarns.length} warn(s)). See logs above.`);
+      throw new Error(
+        `Test emitted unexpected console output (${unexpectedErrors.length} error(s), ${unexpectedWarns.length} warn(s)). See logs above.`
+      );
     }
   } finally {
     _errorSpy?.mockRestore();

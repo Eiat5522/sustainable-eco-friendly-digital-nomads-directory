@@ -2,8 +2,8 @@
  * Tests for user.ts - Sanity user management functions
  */
 
-import { ensureSanityUser, unfavoriteListing } from './user';
 import { client } from './client';
+import { ensureSanityUser, unfavoriteListing } from './user';
 
 // Mock the client module
 jest.mock('./client', () => ({
@@ -28,7 +28,7 @@ jest.mock('@/lib/logger', () => ({
 
 describe('user.ts', () => {
   const mockClient = client as jest.Mocked<typeof client>;
-  
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -214,7 +214,7 @@ describe('user.ts', () => {
       };
 
       mockClient.createIfNotExists.mockResolvedValue(existingUser);
-      
+
       const mockPatchChain = {
         set: jest.fn().mockReturnValue({
           commit: jest.fn().mockResolvedValue(updatedUser),
@@ -250,7 +250,7 @@ describe('user.ts', () => {
       };
 
       mockClient.createIfNotExists.mockResolvedValue(existingUser);
-      
+
       const mockPatchChain = {
         set: jest.fn().mockReturnValue({
           commit: jest.fn().mockResolvedValue(updatedUser),
@@ -285,7 +285,7 @@ describe('user.ts', () => {
       };
 
       mockClient.createIfNotExists.mockResolvedValue(existingUser);
-      
+
       const mockPatchChain = {
         set: jest.fn().mockReturnValue({
           commit: jest.fn().mockResolvedValue(updatedUser),
@@ -322,7 +322,7 @@ describe('user.ts', () => {
       };
 
       mockClient.createIfNotExists.mockResolvedValue(existingUser);
-      
+
       const mockPatchChain = {
         set: jest.fn().mockReturnValue({
           commit: jest.fn().mockResolvedValue(updatedUser),
@@ -443,7 +443,7 @@ describe('user.ts', () => {
       const mockableFunc = ensureSanityUser as any;
       if (mockableFunc.mockImplementation && mockableFunc.mockReset) {
         mockableFunc.mockReset();
-        
+
         mockableFunc.mockImplementation((options: any) => ({
           _id: options.id,
           _type: 'user' as const,
@@ -467,7 +467,7 @@ describe('user.ts', () => {
       const mockableFunc = ensureSanityUser as any;
       if (mockableFunc.mockClear && mockableFunc.mock) {
         mockableFunc.mockClear();
-        
+
         await ensureSanityUser({
           id: 'user-1',
           name: 'Test',
@@ -475,7 +475,7 @@ describe('user.ts', () => {
         });
 
         expect(mockableFunc.mock.calls.length).toBeGreaterThan(0);
-        
+
         mockableFunc.mockClear();
         expect(mockableFunc.mock.calls.length).toBe(0);
       }
@@ -553,10 +553,10 @@ describe('user.ts', () => {
 
       await unfavoriteListing('different-user', 'different-listing');
 
-      expect(mockClient.fetch).toHaveBeenCalledWith(
-        expect.any(String),
-        { userId: 'different-user', listingId: 'different-listing' }
-      );
+      expect(mockClient.fetch).toHaveBeenCalledWith(expect.any(String), {
+        userId: 'different-user',
+        listingId: 'different-listing',
+      });
     });
   });
 });

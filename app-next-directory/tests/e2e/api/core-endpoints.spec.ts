@@ -7,13 +7,14 @@ import { expect, test as playwrightTest } from '@playwright/test';
 const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000/api';
 
 // Test helper function for API requests - moved to global scope
-async function makeApiRequest(endpoint: string, options: RequestInit & { headers?: Record<string, string> } = {}) {
+async function makeApiRequest(
+  endpoint: string,
+  options: RequestInit & { headers?: Record<string, string> } = {}
+) {
   try {
     const headers: Record<string, string> = { ...(options.headers ?? {}) };
     if (options.method && ['POST', 'PUT', 'PATCH'].includes(options.method.toUpperCase())) {
-      const hasContentType = Object.keys(headers).some(
-        (key) => key.toLowerCase() === 'content-type'
-      );
+      const hasContentType = Object.keys(headers).some(key => key.toLowerCase() === 'content-type');
       if (!hasContentType) {
         headers['Content-Type'] = 'application/json';
       }
@@ -21,7 +22,7 @@ async function makeApiRequest(endpoint: string, options: RequestInit & { headers
 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       ...options,
-      headers
+      headers,
     });
 
     let data;
@@ -37,7 +38,7 @@ async function makeApiRequest(endpoint: string, options: RequestInit & { headers
       response,
       data,
       status: response.status,
-      headers: response.headers
+      headers: response.headers,
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -54,7 +55,6 @@ async function makeApiRequest(endpoint: string, options: RequestInit & { headers
  * Testing all major API endpoints for basic functionality
  */
 playwrightTest.describe('API Integration Tests - Core Endpoints', () => {
-
   playwrightTest('GET /api/listings - List all listings', async () => {
     const { data, status } = await makeApiRequest('/listings');
 
@@ -106,7 +106,6 @@ playwrightTest.describe('API Integration Tests - Core Endpoints', () => {
 
     expect(status).toBe(200);
     expect(data).toHaveProperty('totalReviews');
-    
   });
 
   playwrightTest('GET /api/session - Session endpoint', async () => {
@@ -126,7 +125,6 @@ playwrightTest.describe('API Integration Tests - Core Endpoints', () => {
 
     expect([200, 405]).toContain(status); // 405 if only POST is allowed
   });
-
 });
 
 /**
@@ -134,7 +132,6 @@ playwrightTest.describe('API Integration Tests - Core Endpoints', () => {
  * Testing error responses and edge cases
  */
 playwrightTest.describe('API Integration Tests - Error Handling', () => {
-
   playwrightTest('GET /api/listings with invalid pagination', async () => {
     const { status } = await makeApiRequest('/listings?page=-1&limit=invalid');
 
@@ -160,8 +157,8 @@ playwrightTest.describe('API Integration Tests - Error Handling', () => {
       body: JSON.stringify({
         listingId: 'test-listing',
         rating: 5,
-        comment: 'Test review'
-      })
+        comment: 'Test review',
+      }),
     });
 
     expect([401, 403]).toContain(status);
@@ -170,7 +167,6 @@ playwrightTest.describe('API Integration Tests - Error Handling', () => {
       expect(typeof data.error).toBe('string');
     }
   });
-
 });
 
 /**
@@ -178,7 +174,6 @@ playwrightTest.describe('API Integration Tests - Error Handling', () => {
  * Testing response structure and data types
  */
 playwrightTest.describe('API Integration Tests - Response Formats', () => {
-
   playwrightTest('API responses have consistent error format', async () => {
     const { data, status } = await makeApiRequest('/nonexistent-endpoint');
 
@@ -205,5 +200,4 @@ playwrightTest.describe('API Integration Tests - Response Formats', () => {
     const contentType = headers.get('content-type');
     expect(contentType).toContain('application/json');
   });
-
 });

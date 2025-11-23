@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, beforeEach, beforeAll } from '@jest/globals';
+import { beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 jest.mock('@/lib/auth', () => ({
   __esModule: true,
@@ -10,8 +10,6 @@ jest.mock('@/lib/admin/analytics', () => ({
   fetchAdminAnalytics: jest.fn(),
 }));
 
-import { auth } from '@/lib/auth';
-import { fetchAdminAnalytics } from '@/lib/admin/analytics';
 import { RequestTimeoutError } from '@/lib/http/request';
 
 const authMockModule = jest.requireMock('@/lib/auth') as { auth: jest.Mock };

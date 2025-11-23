@@ -16,12 +16,11 @@ jest.mock('../api-response', () => ({
   },
 }));
 
-// Import the actual module without mocking it
-import { requireAuth, requireRole, handleAuthError } from '../auth-helpers';
-
 // Import the mocked dependencies
 import { auth } from '../../lib/auth';
 import { ApiResponseHandler } from '../api-response';
+// Import the actual module without mocking it
+import { handleAuthError, requireAuth, requireRole } from '../auth-helpers';
 
 // Type the mocked functions
 const mockAuth = auth as jest.MockedFunction<typeof auth>;
@@ -34,7 +33,7 @@ const mockApiResponseHandler = ApiResponseHandler as unknown as {
 // Helper function to create mock response objects
 const createMockResponse = (status: number, data: any) => ({
   status,
-  json: () => Promise.resolve(data)
+  json: () => Promise.resolve(data),
 });
 
 describe('Auth Helpers', () => {
@@ -45,12 +44,12 @@ describe('Auth Helpers', () => {
   // Test data
   const mockSession = {
     user: { id: 'user-1', email: 'test@example.com', role: 'user' },
-    expires: '2024-12-31'
+    expires: '2024-12-31',
   };
 
   const adminSession = {
     user: { id: 'admin-1', email: 'admin@example.com', role: 'admin' },
-    expires: '2024-12-31'
+    expires: '2024-12-31',
   };
 
   describe('requireAuth', () => {
@@ -115,7 +114,7 @@ describe('Auth Helpers', () => {
     it('should handle case-sensitive role matching', async () => {
       const userSession = {
         user: { id: 'user-1', email: 'test@example.com', role: 'User' },
-        expires: '2024-12-31'
+        expires: '2024-12-31',
       };
       mockAuth.mockResolvedValue(userSession);
 
@@ -125,7 +124,7 @@ describe('Auth Helpers', () => {
     it('should handle missing role in session', async () => {
       const sessionWithoutRole = {
         user: { id: 'user-1', email: 'test@example.com' },
-        expires: '2024-12-31'
+        expires: '2024-12-31',
       };
       mockAuth.mockResolvedValue(sessionWithoutRole);
 
@@ -137,11 +136,11 @@ describe('Auth Helpers', () => {
     it('should return unauthorized response for UNAUTHORIZED error', () => {
       const error = new Error('UNAUTHORIZED');
       // Create expected response object directly since NextResponse.json may not work in test environment
-      const expectedResponse = { 
-        status: 401, 
-        json: () => Promise.resolve({ success: false, error: 'Unauthorized access' }) 
+      const expectedResponse = {
+        status: 401,
+        json: () => Promise.resolve({ success: false, error: 'Unauthorized access' }),
       };
-      
+
       mockApiResponseHandler.unauthorized.mockReturnValue(expectedResponse);
 
       const result = handleAuthError(error);
@@ -153,7 +152,7 @@ describe('Auth Helpers', () => {
     it('should return forbidden response for FORBIDDEN error', () => {
       const error = new Error('FORBIDDEN');
       const expectedResponse = createMockResponse(403, { success: false, error: 'Forbidden' });
-      
+
       mockApiResponseHandler.forbidden.mockReturnValue(expectedResponse);
 
       const result = handleAuthError(error);
@@ -164,8 +163,11 @@ describe('Auth Helpers', () => {
 
     it('should return generic error response for other errors', () => {
       const error = new Error('Some other error');
-      const expectedResponse = createMockResponse(400, { success: false, error: 'Authentication error' });
-      
+      const expectedResponse = createMockResponse(400, {
+        success: false,
+        error: 'Authentication error',
+      });
+
       mockApiResponseHandler.error.mockReturnValue(expectedResponse);
 
       const result = handleAuthError(error);
@@ -176,8 +178,11 @@ describe('Auth Helpers', () => {
 
     it('should handle errors with different message formats', () => {
       const error = { message: 'Custom error format' };
-      const expectedResponse = createMockResponse(400, { success: false, error: 'Authentication error' });
-      
+      const expectedResponse = createMockResponse(400, {
+        success: false,
+        error: 'Authentication error',
+      });
+
       mockApiResponseHandler.error.mockReturnValue(expectedResponse);
 
       const result = handleAuthError(error);
@@ -188,8 +193,11 @@ describe('Auth Helpers', () => {
 
     it('should handle error objects without message', () => {
       const error = { someProperty: 'value' };
-      const expectedResponse = createMockResponse(400, { success: false, error: 'Authentication error' });
-      
+      const expectedResponse = createMockResponse(400, {
+        success: false,
+        error: 'Authentication error',
+      });
+
       mockApiResponseHandler.error.mockReturnValue(expectedResponse);
 
       const result = handleAuthError(error);
@@ -199,8 +207,11 @@ describe('Auth Helpers', () => {
     });
 
     it('should handle null or undefined error gracefully', () => {
-      const expectedResponse = createMockResponse(400, { success: false, error: 'Authentication error' });
-      
+      const expectedResponse = createMockResponse(400, {
+        success: false,
+        error: 'Authentication error',
+      });
+
       mockApiResponseHandler.error.mockReturnValue(expectedResponse);
 
       const result = handleAuthError(null as any);
@@ -223,7 +234,10 @@ describe('Auth Helpers', () => {
 
     it('should return a 401 Unauthorized response and handle error correctly when requireAuth is called without a session', async () => {
       mockAuth.mockResolvedValue(null);
-      const expectedResponse = createMockResponse(401, { success: false, error: 'Unauthorized access' });
+      const expectedResponse = createMockResponse(401, {
+        success: false,
+        error: 'Unauthorized access',
+      });
       mockApiResponseHandler.unauthorized.mockReturnValue(expectedResponse);
 
       await expect(requireAuth()).rejects.toThrow('UNAUTHORIZED');

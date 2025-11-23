@@ -7,7 +7,7 @@
  * Uses mocked dependencies as per TEST_SETUP_GUIDE.md recommendations
  */
 
-import { jest, describe, it, expect, beforeEach, beforeAll, afterAll } from '@jest/globals';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import type { NextRequest } from 'next/server';
 
 // Create mock functions at the top level so they are shared across module reloads
@@ -177,9 +177,11 @@ describe('Contact API', () => {
         }
       };
 
-      const isolateAsync = (jest as unknown as {
-        isolateModulesAsync?: <T>(fn: () => Promise<T>) => Promise<T>;
-      }).isolateModulesAsync;
+      const isolateAsync = (
+        jest as unknown as {
+          isolateModulesAsync?: <T>(fn: () => Promise<T>) => Promise<T>;
+        }
+      ).isolateModulesAsync;
 
       if (typeof isolateAsync === 'function') {
         await isolateAsync(runner);
@@ -414,14 +416,14 @@ describe('Contact API', () => {
                 {
                   from?: string;
                   to: string;
-                }
+                },
               ],
               [
                 {
                   from?: string;
                   to: string;
-                }
-              ]
+                },
+              ],
             ];
 
             expect(adminArgs[0].from).toBe(fallbackUser);
@@ -608,22 +610,27 @@ describe('Contact API', () => {
 
         expect(response.status).toBe(200);
         expect(data.success).toBe(true);
-        
+
         // Verify sendMail was called
         expect(sendMail).toHaveBeenCalled();
-        
+
         // Check that the HTML in the email doesn't contain unescaped script tags
         const emailCalls = (sendMail as jest.Mock).mock.calls;
-        const adminEmail = emailCalls.find((call: unknown[]) => 
-          typeof call[0] === 'object' && 
-          call[0] !== null &&
-          'html' in call[0] &&
-          typeof (call[0] as { html?: string }).html === 'string' &&
-          (call[0] as { html: string }).html.includes('New Contact Form Submission')
+        const adminEmail = emailCalls.find(
+          (call: unknown[]) =>
+            typeof call[0] === 'object' &&
+            call[0] !== null &&
+            'html' in call[0] &&
+            typeof (call[0] as { html?: string }).html === 'string' &&
+            (call[0] as { html: string }).html.includes('New Contact Form Submission')
         );
-        
+
         expect(adminEmail).toBeDefined();
-        if (adminEmail && adminEmail[0] && typeof adminEmail[0] === 'object' && 'html' in adminEmail[0]) {
+        if (
+          adminEmail?.[0] &&
+          typeof adminEmail[0] === 'object' &&
+          'html' in adminEmail[0]
+        ) {
           const htmlContent = (adminEmail[0] as { html: string }).html;
           // Should contain escaped HTML entities, not raw script tags
           expect(htmlContent).toContain('&lt;script&gt;');
@@ -646,22 +653,27 @@ describe('Contact API', () => {
 
         expect(response.status).toBe(200);
         expect(data.success).toBe(true);
-        
+
         // Verify sendMail was called
         expect(sendMail).toHaveBeenCalled();
-        
+
         // Check that the HTML in the email doesn't contain unescaped img tags with onerror
         const emailCalls = (sendMail as jest.Mock).mock.calls;
-        const adminEmail = emailCalls.find((call: unknown[]) => 
-          typeof call[0] === 'object' && 
-          call[0] !== null &&
-          'html' in call[0] &&
-          typeof (call[0] as { html?: string }).html === 'string' &&
-          (call[0] as { html: string }).html.includes('New Contact Form Submission')
+        const adminEmail = emailCalls.find(
+          (call: unknown[]) =>
+            typeof call[0] === 'object' &&
+            call[0] !== null &&
+            'html' in call[0] &&
+            typeof (call[0] as { html?: string }).html === 'string' &&
+            (call[0] as { html: string }).html.includes('New Contact Form Submission')
         );
-        
+
         expect(adminEmail).toBeDefined();
-        if (adminEmail && adminEmail[0] && typeof adminEmail[0] === 'object' && 'html' in adminEmail[0]) {
+        if (
+          adminEmail?.[0] &&
+          typeof adminEmail[0] === 'object' &&
+          'html' in adminEmail[0]
+        ) {
           const htmlContent = (adminEmail[0] as { html: string }).html;
           // Should contain escaped HTML entities (< becomes &lt;)
           expect(htmlContent).toContain('&lt;img');
@@ -687,21 +699,26 @@ describe('Contact API', () => {
 
         expect(response.status).toBe(200);
         expect(data.success).toBe(true);
-        
+
         // Verify sendMail was called
         expect(sendMail).toHaveBeenCalled();
-        
+
         const emailCalls = (sendMail as jest.Mock).mock.calls;
-        const autoReplyEmail = emailCalls.find((call: unknown[]) => 
-          typeof call[0] === 'object' && 
-          call[0] !== null &&
-          'html' in call[0] &&
-          typeof (call[0] as { html?: string }).html === 'string' &&
-          (call[0] as { html: string }).html.includes('Thank you for your message')
+        const autoReplyEmail = emailCalls.find(
+          (call: unknown[]) =>
+            typeof call[0] === 'object' &&
+            call[0] !== null &&
+            'html' in call[0] &&
+            typeof (call[0] as { html?: string }).html === 'string' &&
+            (call[0] as { html: string }).html.includes('Thank you for your message')
         );
-        
+
         expect(autoReplyEmail).toBeDefined();
-        if (autoReplyEmail && autoReplyEmail[0] && typeof autoReplyEmail[0] === 'object' && 'html' in autoReplyEmail[0]) {
+        if (
+          autoReplyEmail?.[0] &&
+          typeof autoReplyEmail[0] === 'object' &&
+          'html' in autoReplyEmail[0]
+        ) {
           const htmlContent = (autoReplyEmail[0] as { html: string }).html;
           // Should contain escaped script tags
           expect(htmlContent).toContain('&lt;script&gt;');
@@ -765,7 +782,6 @@ describe('Contact API', () => {
         consoleErrorSpy.mockRestore();
       });
 
-
       it('should handle authentication errors', async () => {
         const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
         process.env.RESEND_API_KEY = 'test-key';
@@ -824,7 +840,7 @@ describe('Contact API', () => {
     describe('Type Variations', () => {
       const contactTypes = ['general', 'listing', 'partnership', 'support', 'feedback'] as const;
 
-      contactTypes.forEach((type) => {
+      contactTypes.forEach(type => {
         it(`should accept ${type} contact type`, async () => {
           mockLimiterFn.mockImplementation(async () => ({ success: true }));
           process.env.RESEND_API_KEY = 'test-key';

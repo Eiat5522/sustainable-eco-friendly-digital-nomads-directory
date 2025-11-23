@@ -63,7 +63,11 @@ describe('LoginAttempt model', () => {
     expect(reasonPath?.options.enum).toEqual(['success', 'invalid_credentials', 'rate_limited']);
     expect(createdAtPath?.options.default).toBeInstanceOf(Function);
 
-    const doc = new LoginAttempt({ email: '  USER@Example.Com  ', success: true, reason: 'success' });
+    const doc = new LoginAttempt({
+      email: '  USER@Example.Com  ',
+      success: true,
+      reason: 'success',
+    });
     expect(doc.email).toBe('user@example.com');
     expect(doc.createdAt).toBeInstanceOf(Date);
     expect(doc.ip).toBeNull();
@@ -72,7 +76,10 @@ describe('LoginAttempt model', () => {
   const getValidateHook = async () => {
     const LoginAttempt = await loadModel();
     const schema = LoginAttempt.schema as any;
-    return schema.preHooks.get('validate')?.[0] as (this: any, next: (err?: CallbackError | null) => void) => void;
+    return schema.preHooks.get('validate')?.[0] as (
+      this: any,
+      next: (err?: CallbackError | null) => void
+    ) => void;
   };
 
   it('enforces invariants for successful login attempts via the validate hook', async () => {
@@ -114,13 +121,13 @@ describe('LoginAttempt model', () => {
     update: unknown,
     options: Record<string, unknown> = {},
     existsResult: any = null,
-    filter: Record<string, unknown> = { email: 'user@example.com' },
+    filter: Record<string, unknown> = { email: 'user@example.com' }
   ) => {
     const LoginAttempt = await loadModel();
     const schema = LoginAttempt.schema as any;
     const hook = schema.preHooks.get('updateOne')?.[0] as (
       this: any,
-      next: (err?: CallbackError | null) => void,
+      next: (err?: CallbackError | null) => void
     ) => Promise<void>;
 
     const exists = jest.fn().mockReturnValue({
@@ -212,7 +219,9 @@ describe('LoginAttempt model', () => {
   it('requires both fields when performing upserts', async () => {
     const update = { success: true };
     const { next } = await callUpdateHook(update, { upsert: true });
-    expect((next.mock.calls[0][0] as Error).message).toContain('must provide both success and reason');
+    expect((next.mock.calls[0][0] as Error).message).toContain(
+      'must provide both success and reason'
+    );
   });
 
   it('rejects invalid combinations provided via upsert onInsert values', async () => {

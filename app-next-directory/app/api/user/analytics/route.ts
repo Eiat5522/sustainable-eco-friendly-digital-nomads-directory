@@ -1,15 +1,12 @@
 export const dynamic = 'force-dynamic';
 
-import { NextResponse, type NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
 import { getUserDashboardData } from '@/lib/dashboard/user-dashboard';
 import { structuredLogger } from '@/lib/logger';
 import type { UserRole } from '@/types/auth';
-import type {
-  UserAnalyticsPayloadDTO,
-  UserAnalyticsSummaryDTO,
-} from '@/types/dto';
+import type { UserAnalyticsPayloadDTO, UserAnalyticsSummaryDTO } from '@/types/dto';
 
 const DEFAULT_MONTH_WINDOW = 3;
 const MAX_MONTH_WINDOW = 12;
@@ -31,12 +28,14 @@ export function _createAnalyticsHandler({ authFn, fetchDashboard, logger }: Anal
   return async function GET(request: NextRequest) {
     try {
       const session = await authFn();
-      const sessionUser = session?.user as {
-        id?: string;
-        role?: UserRole;
-        name?: string | null;
-        email?: string | null;
-      } | undefined;
+      const sessionUser = session?.user as
+        | {
+            id?: string;
+            role?: UserRole;
+            name?: string | null;
+            email?: string | null;
+          }
+        | undefined;
 
       if (!sessionUser?.id) {
         return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
@@ -52,7 +51,7 @@ export function _createAnalyticsHandler({ authFn, fetchDashboard, logger }: Anal
           name: sessionUser.name ?? null,
           email: sessionUser.email ?? null,
         },
-        { months },
+        { months }
       );
 
       if (!dashboard) {

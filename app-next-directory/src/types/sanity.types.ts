@@ -192,14 +192,14 @@ export interface SanityListing {
   contactPhone?: string;
   contactEmail?: string;
   website?: string;
-  
+
   // Type-specific details (only one will be populated based on type field)
   coworkingDetails?: SanityCoworkingDetails;
   cafeDetails?: SanityCafeDetails;
   restaurantDetails?: SanityRestaurantDetails;
   activitiesDetails?: SanityActivitiesDetails;
   accommodationDetails?: SanityAccommodationDetails;
-  
+
   moderation?: SanityModeration;
   reviews?: Array<{ _ref: string; _type: 'reference' }>;
 }

@@ -1,7 +1,7 @@
 import { revalidatePath } from 'next/cache';
 import type { NextRequest } from 'next/server';
-import { ApiResponseHandler } from '@/utils/api-response';
 import { structuredLogger } from '@/lib/logger';
+import { ApiResponseHandler } from '@/utils/api-response';
 import { validateRevalidationToken } from '@/utils/revalidation-token';
 
 export const dynamic = 'force-dynamic';
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     return ApiResponseHandler.success({
       revalidated: true,
       path: targetPath,
-      now: Date.now()
+      now: Date.now(),
     });
   } catch (error) {
     structuredLogger.error('Error revalidating path', error, {

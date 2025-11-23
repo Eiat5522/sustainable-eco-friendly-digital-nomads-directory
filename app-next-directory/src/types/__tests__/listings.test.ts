@@ -1,17 +1,11 @@
-import type {
-  GalleryImage,
-  PricingPlan,
-  Coordinates,
-  EcoTag,
-  Listing
-} from '../listings';
+import type { Coordinates, EcoTag, GalleryImage, Listing, PricingPlan } from '../listings';
 
 describe('listings types', () => {
   describe('Coordinates interface', () => {
     it('should accept valid coordinates', () => {
       const coords: Coordinates = {
         latitude: 13.7563,
-        longitude: 100.5018
+        longitude: 100.5018,
       };
       expect(coords.latitude).toBe(13.7563);
       expect(coords.longitude).toBe(100.5018);
@@ -20,7 +14,7 @@ describe('listings types', () => {
     it('should accept null coordinates', () => {
       const coords: Coordinates = {
         latitude: null,
-        longitude: null
+        longitude: null,
       };
       expect(coords.latitude).toBeNull();
       expect(coords.longitude).toBeNull();
@@ -29,7 +23,7 @@ describe('listings types', () => {
     it('should accept mixed null and number', () => {
       const coords: Coordinates = {
         latitude: 13.7563,
-        longitude: null
+        longitude: null,
       };
       expect(coords.latitude).toBe(13.7563);
       expect(coords.longitude).toBeNull();
@@ -42,7 +36,7 @@ describe('listings types', () => {
         _id: 'tag-123',
         name: 'Solar Power',
         slug: { current: 'solar-power' },
-        description: 'Uses solar energy'
+        description: 'Uses solar energy',
       };
       expect(tag._id).toBe('tag-123');
       expect(tag.name).toBe('Solar Power');
@@ -52,7 +46,7 @@ describe('listings types', () => {
       const tag: EcoTag = {
         _id: 'tag-456',
         name: 'Recycling',
-        slug: { current: 'recycling' }
+        slug: { current: 'recycling' },
       };
       expect(tag.description).toBeUndefined();
     });
@@ -64,7 +58,7 @@ describe('listings types', () => {
         name: 'Monthly',
         price: 5000,
         duration: '1 month',
-        features: ['24/7 access', 'Meeting rooms', 'Free coffee']
+        features: ['24/7 access', 'Meeting rooms', 'Free coffee'],
       };
       expect(plan.name).toBe('Monthly');
       expect(plan.price).toBe(5000);
@@ -76,7 +70,7 @@ describe('listings types', () => {
         name: 'Basic',
         price: 500,
         duration: '1 day',
-        features: []
+        features: [],
       };
       expect(plan.features).toHaveLength(0);
     });
@@ -92,8 +86,8 @@ describe('listings types', () => {
           'Parking',
           'Locker',
           'Phone booth',
-          'Event space'
-        ]
+          'Event space',
+        ],
       };
       expect(plan.features.length).toBeGreaterThan(3);
     });
@@ -111,7 +105,7 @@ describe('listings types', () => {
         longDescription: 'A detailed test listing',
         ecoFocusTags: [],
         digitalNomadFeatures: [],
-        lastVerifiedDate: '2024-01-15'
+        lastVerifiedDate: '2024-01-15',
       };
       expect(listing._id).toBe('listing-123');
       expect(listing.name).toBe('Test Listing');
@@ -123,9 +117,9 @@ describe('listings types', () => {
         'cafe',
         'accommodation',
         'restaurant',
-        'activities'
+        'activities',
       ];
-      
+
       types.forEach(type => {
         const listing: Listing = {
           _id: `listing-${type}`,
@@ -137,7 +131,7 @@ describe('listings types', () => {
           longDescription: 'Long desc',
           ecoFocusTags: [],
           digitalNomadFeatures: [],
-          lastVerifiedDate: '2024-01-15'
+          lastVerifiedDate: '2024-01-15',
         };
         expect(listing.type).toBe(type);
       });
@@ -155,7 +149,7 @@ describe('listings types', () => {
         longDescription: 'Long desc',
         ecoFocusTags: [],
         digitalNomadFeatures: [],
-        lastVerifiedDate: '2024-01-15'
+        lastVerifiedDate: '2024-01-15',
       };
       expect(listing.slug?.current).toBe('eco-workspace');
     });
@@ -171,10 +165,10 @@ describe('listings types', () => {
         longDescription: 'Long desc',
         ecoFocusTags: [
           { _id: 'tag-1', name: 'Solar', slug: { current: 'solar' } },
-          { _id: 'tag-2', name: 'Recycling', slug: { current: 'recycling' } }
+          { _id: 'tag-2', name: 'Recycling', slug: { current: 'recycling' } },
         ],
         digitalNomadFeatures: [],
-        lastVerifiedDate: '2024-01-15'
+        lastVerifiedDate: '2024-01-15',
       };
       expect(listing.ecoFocusTags).toHaveLength(2);
     });
@@ -193,14 +187,14 @@ describe('listings types', () => {
         lastVerifiedDate: '2024-01-15',
         primaryImage: {
           asset: { _id: 'img-1', url: 'https://example.com/main.jpg' },
-          hotspot: { x: 0.5, y: 0.5 }
+          hotspot: { x: 0.5, y: 0.5 },
         },
         galleryImages: [
           {
             _key: 'img-2',
-            asset: { _id: 'img-2', url: 'https://example.com/gallery1.jpg' }
-          }
-        ]
+            asset: { _id: 'img-2', url: 'https://example.com/gallery1.jpg' },
+          },
+        ],
       };
       expect(listing.primaryImage).toBeDefined();
       expect(listing.galleryImages).toHaveLength(1);
@@ -219,7 +213,7 @@ describe('listings types', () => {
         digitalNomadFeatures: ['wifi', 'desk'],
         lastVerifiedDate: '2024-01-15',
         priceRange: 'moderate',
-        website: 'https://example.com'
+        website: 'https://example.com',
       };
       expect(listing.priceRange).toBe('moderate');
       expect(listing.website).toBe('https://example.com');
@@ -238,7 +232,7 @@ describe('listings types', () => {
         digitalNomadFeatures: [],
         lastVerifiedDate: '2024-01-15',
         category: 'restaurant',
-        location: { lat: 13.7563, lng: 100.5018 }
+        location: { lat: 13.7563, lng: 100.5018 },
       };
       expect(listing.category).toBe('restaurant');
       expect(listing.location?.lat).toBe(13.7563);
@@ -257,7 +251,7 @@ describe('listings types', () => {
         digitalNomadFeatures: [],
         lastVerifiedDate: '2024-01-15',
         moderationStatus: 'published',
-        verificationStatus: 'verified'
+        verificationStatus: 'verified',
       };
       expect(listing.moderationStatus).toBe('published');
       expect(listing.verificationStatus).toBe('verified');
@@ -275,7 +269,7 @@ describe('listings types', () => {
         ecoFocusTags: [],
         digitalNomadFeatures: [],
         lastVerifiedDate: '2024-01-15',
-        ecoRating: 4.5
+        ecoRating: 4.5,
       };
       expect(listing.ecoRating).toBe(4.5);
     });
@@ -292,7 +286,7 @@ describe('listings types', () => {
         ecoFocusTags: [],
         digitalNomadFeatures: [],
         lastVerifiedDate: '2024-01-15',
-        coordinates: { latitude: 13.7563, longitude: 100.5018 }
+        coordinates: { latitude: 13.7563, longitude: 100.5018 },
       };
       expect(listing.coordinates?.latitude).toBe(13.7563);
     });
@@ -312,10 +306,10 @@ describe('listings types', () => {
         coworkingDetails: {
           operatingHours: '9:00 AM - 6:00 PM',
           pricingPlans: [
-            { name: 'Daily', price: 300, duration: 'day', features: ['WiFi', 'Coffee'] }
+            { name: 'Daily', price: 300, duration: 'day', features: ['WiFi', 'Coffee'] },
           ],
-          specificAmenitiesCoworking: ['Meeting rooms', 'Printer']
-        }
+          specificAmenitiesCoworking: ['Meeting rooms', 'Printer'],
+        },
       };
       expect(listing.coworkingDetails?.pricingPlans).toHaveLength(1);
       expect(listing.coworkingDetails?.specificAmenitiesCoworking).toContain('Printer');
@@ -337,8 +331,8 @@ describe('listings types', () => {
           operatingHours: '7:00 AM - 7:00 PM',
           priceIndication: '$-$$',
           menuHighlightsCafe: ['Organic coffee', 'Vegan pastries'],
-          wifiReliabilityNotes: 'Fast and stable'
-        }
+          wifiReliabilityNotes: 'Fast and stable',
+        },
       };
       expect(listing.cafeDetails?.menuHighlightsCafe).toContain('Organic coffee');
     });
@@ -359,8 +353,8 @@ describe('listings types', () => {
           accommodationType: 'Hotel',
           pricePerNightThbRange: { min: 500, max: 2000 },
           roomTypesAvailable: ['Single', 'Double', 'Suite'],
-          specificAmenitiesAccommodation: ['Pool', 'Gym', 'Restaurant']
-        }
+          specificAmenitiesAccommodation: ['Pool', 'Gym', 'Restaurant'],
+        },
       };
       expect(listing.accommodationDetails?.roomTypesAvailable).toHaveLength(3);
       expect(listing.accommodationDetails?.pricePerNightThbRange.min).toBe(500);
@@ -370,7 +364,7 @@ describe('listings types', () => {
   describe('Type compatibility', () => {
     it('should accept GalleryImage as SanityImage', () => {
       const image: GalleryImage = {
-        asset: { _id: 'img-1', url: 'https://example.com/img.jpg' }
+        asset: { _id: 'img-1', url: 'https://example.com/img.jpg' },
       };
       expect(image.asset.url).toBeDefined();
     });
@@ -378,7 +372,7 @@ describe('listings types', () => {
     it('should accept GalleryImage with _key', () => {
       const image: GalleryImage = {
         _key: 'gallery-1',
-        asset: { _id: 'img-1', url: 'https://example.com/img.jpg' }
+        asset: { _id: 'img-1', url: 'https://example.com/img.jpg' },
       };
       expect(image._key).toBe('gallery-1');
     });

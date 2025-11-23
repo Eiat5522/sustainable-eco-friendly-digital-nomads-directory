@@ -1,5 +1,5 @@
 // Mock for next-auth/providers/credentials
-const Credentials = jest.fn((config) => ({
+const Credentials = jest.fn(config => ({
   id: 'credentials',
   name: 'Credentials',
   type: 'credentials',

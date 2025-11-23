@@ -1,10 +1,23 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { CityDetailView } from '@/components/city/CityDetailView'
-import type { CityDetailDTO, ListingSummaryDTO } from '@/types/dto'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { CityDetailView } from '@/components/city/CityDetailView';
+import type { CityDetailDTO, ListingSummaryDTO } from '@/types/dto';
 
 jest.mock('next/image', () => {
-  return function MockNextImage({ alt, src, priority, fill, onError, ...props }: { alt: string, src: string | { src: string }, priority?: boolean, fill?: boolean, onError?: () => void }) {
-    const resolvedSrc = typeof src === 'string' ? src : src?.src ?? ''
+  return function MockNextImage({
+    alt,
+    src,
+    priority,
+    fill,
+    onError,
+    ...props
+  }: {
+    alt: string;
+    src: string | { src: string };
+    priority?: boolean;
+    fill?: boolean;
+    onError?: () => void;
+  }) {
+    const resolvedSrc = typeof src === 'string' ? src : (src?.src ?? '');
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
@@ -16,9 +29,9 @@ jest.mock('next/image', () => {
         data-priority={priority ? 'true' : 'false'}
         {...props}
       />
-    )
-  }
-})
+    );
+  };
+});
 
 jest.mock('lucide-react', () => ({
   __esModule: true,
@@ -62,18 +75,18 @@ jest.mock('lucide-react', () => ({
       {children}
     </svg>
   ),
-}))
+}));
 
 jest.mock('@/components/listings/RelatedListings', () => ({
   __esModule: true,
   RelatedListings: ({ listings }: { listings: ListingSummaryDTO[] }) => (
     <div data-testid="related-listings" data-count={listings.length}>
-      {listings.map((listing) => (
+      {listings.map(listing => (
         <span key={listing.id}>{listing.name}</span>
       ))}
     </div>
   ),
-}))
+}));
 
 describe('CityDetailView', () => {
   const makeCityDetail = (overrides: Partial<CityDetailDTO> = {}): CityDetailDTO => ({
@@ -95,7 +108,7 @@ describe('CityDetailView', () => {
     digitalNomadFeatures: ['Community events', 'Coworking passes'],
     highlights: ['Green rooftops', 'Bike sharing', 'River taxis'],
     ...overrides,
-  })
+  });
 
   const sampleListings: ListingSummaryDTO[] = [
     {
@@ -128,66 +141,66 @@ describe('CityDetailView', () => {
       ecoFocusTags: ['Rainwater Harvesting'],
       amenityNames: ['Gym Access'],
     },
-  ]
+  ];
 
   it('renders city information, quick facts, and listings when details are provided', () => {
-    const city = makeCityDetail()
+    const city = makeCityDetail();
 
-    render(<CityDetailView city={city} listings={sampleListings} />)
+    render(<CityDetailView city={city} listings={sampleListings} />);
 
-    expect(screen.getByRole('heading', { name: 'Testopolis' })).toBeInTheDocument()
-    expect(screen.getByText('78%')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Testopolis' })).toBeInTheDocument();
+    expect(screen.getByText('78%')).toBeInTheDocument();
     expect(
       screen.getByText('Testopolis balances sustainability with vibrant urban life.')
-    ).toBeInTheDocument()
+    ).toBeInTheDocument();
 
-    expect(screen.getByText('Quick Facts')).toBeInTheDocument()
-    expect(screen.getByText('120↓ / 40↑ Mbps')).toBeInTheDocument()
-    expect(screen.getByText('Affordable (index 68)')).toBeInTheDocument()
-    expect(screen.getByText('Tropical with mild winters')).toBeInTheDocument()
-    expect(screen.getByText('Very safe for visitors')).toBeInTheDocument()
-    expect(screen.getByText('Excellent pedestrian network')).toBeInTheDocument()
-    expect(screen.getByText('Good (AQI 45)')).toBeInTheDocument()
+    expect(screen.getByText('Quick Facts')).toBeInTheDocument();
+    expect(screen.getByText('120↓ / 40↑ Mbps')).toBeInTheDocument();
+    expect(screen.getByText('Affordable (index 68)')).toBeInTheDocument();
+    expect(screen.getByText('Tropical with mild winters')).toBeInTheDocument();
+    expect(screen.getByText('Very safe for visitors')).toBeInTheDocument();
+    expect(screen.getByText('Excellent pedestrian network')).toBeInTheDocument();
+    expect(screen.getByText('Good (AQI 45)')).toBeInTheDocument();
 
-    city.sustainabilityInitiatives?.forEach((initiative) => {
-      expect(screen.getByText(initiative)).toBeInTheDocument()
-    })
-    city.digitalNomadFeatures?.forEach((feature) => {
-      expect(screen.getByText(feature)).toBeInTheDocument()
-    })
-    city.highlights?.forEach((highlight) => {
-      expect(screen.getByText(highlight)).toBeInTheDocument()
-    })
+    city.sustainabilityInitiatives?.forEach(initiative => {
+      expect(screen.getByText(initiative)).toBeInTheDocument();
+    });
+    city.digitalNomadFeatures?.forEach(feature => {
+      expect(screen.getByText(feature)).toBeInTheDocument();
+    });
+    city.highlights?.forEach(highlight => {
+      expect(screen.getByText(highlight)).toBeInTheDocument();
+    });
 
     expect(screen.getByTestId('related-listings')).toHaveAttribute(
       'data-count',
       sampleListings.length.toString()
-    )
-    sampleListings.forEach((listing) => {
-      expect(screen.getByText(listing.name)).toBeInTheDocument()
-    })
-  })
+    );
+    sampleListings.forEach(listing => {
+      expect(screen.getByText(listing.name)).toBeInTheDocument();
+    });
+  });
 
   it('formats numeric internet speed values correctly', () => {
-    const city = makeCityDetail({ internetSpeed: 95 })
+    const city = makeCityDetail({ internetSpeed: 95 });
 
-    render(<CityDetailView city={city} listings={sampleListings} />)
+    render(<CityDetailView city={city} listings={sampleListings} />);
 
-    expect(screen.getByText('95 Mbps avg')).toBeInTheDocument()
-  })
+    expect(screen.getByText('95 Mbps avg')).toBeInTheDocument();
+  });
 
   it('hides the remote city image when it fails to load', async () => {
-    const city = makeCityDetail()
+    const city = makeCityDetail();
 
-    render(<CityDetailView city={city} listings={sampleListings} />)
+    render(<CityDetailView city={city} listings={sampleListings} />);
 
-    const image = screen.getByAltText('Testopolis cityscape')
-    fireEvent.error(image)
+    const image = screen.getByAltText('Testopolis cityscape');
+    fireEvent.error(image);
 
     await waitFor(() => {
-      expect(screen.queryByAltText('Testopolis cityscape')).not.toBeInTheDocument()
-    })
-  })
+      expect(screen.queryByAltText('Testopolis cityscape')).not.toBeInTheDocument();
+    });
+  });
 
   it('omits quick fact entries when values are empty or invalid', () => {
     const city = makeCityDetail({
@@ -203,24 +216,24 @@ describe('CityDetailView', () => {
       sustainabilityInitiatives: [],
       digitalNomadFeatures: [],
       highlights: [],
-    })
+    });
 
-    render(<CityDetailView city={city} listings={sampleListings} />)
+    render(<CityDetailView city={city} listings={sampleListings} />);
 
-    const quickFactsHeading = screen.getByText('Quick Facts')
-    const quickFactsContainer = quickFactsHeading.closest('div')
-    expect(quickFactsContainer).not.toBeNull()
-    const factRows = quickFactsContainer!.querySelectorAll('.flex.items-center.gap-2')
-    expect(factRows.length).toBe(0)
+    const quickFactsHeading = screen.getByText('Quick Facts');
+    const quickFactsContainer = quickFactsHeading.closest('div');
+    expect(quickFactsContainer).not.toBeNull();
+    const factRows = quickFactsContainer!.querySelectorAll('.flex.items-center.gap-2');
+    expect(factRows.length).toBe(0);
 
-    expect(screen.queryByText(/Mbps/)).not.toBeInTheDocument()
-    expect(screen.queryByText('Affordable (index 68)')).not.toBeInTheDocument()
-    expect(screen.queryByText('Tropical with mild winters')).not.toBeInTheDocument()
-    expect(screen.queryByText('Very safe for visitors')).not.toBeInTheDocument()
-    expect(screen.queryByText('Excellent pedestrian network')).not.toBeInTheDocument()
-    expect(screen.queryByText('Good (AQI 45)')).not.toBeInTheDocument()
+    expect(screen.queryByText(/Mbps/)).not.toBeInTheDocument();
+    expect(screen.queryByText('Affordable (index 68)')).not.toBeInTheDocument();
+    expect(screen.queryByText('Tropical with mild winters')).not.toBeInTheDocument();
+    expect(screen.queryByText('Very safe for visitors')).not.toBeInTheDocument();
+    expect(screen.queryByText('Excellent pedestrian network')).not.toBeInTheDocument();
+    expect(screen.queryByText('Good (AQI 45)')).not.toBeInTheDocument();
 
-    expect(screen.queryByText('Sustainability Initiatives')).not.toBeInTheDocument()
-    expect(screen.queryByText('Digital Nomad Features')).not.toBeInTheDocument()
-  })
-})
+    expect(screen.queryByText('Sustainability Initiatives')).not.toBeInTheDocument();
+    expect(screen.queryByText('Digital Nomad Features')).not.toBeInTheDocument();
+  });
+});

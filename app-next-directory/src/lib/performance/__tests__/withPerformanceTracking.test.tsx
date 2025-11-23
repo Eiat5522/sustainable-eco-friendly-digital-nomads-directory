@@ -1,6 +1,5 @@
-import React from 'react';
-import { render, waitFor, cleanup } from '@testing-library/react';
-import { describe, it, expect, beforeAll, beforeEach, afterEach, jest } from '@jest/globals';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { cleanup, render, waitFor } from '@testing-library/react';
 
 let withPerformanceTracking: typeof import('../withPerformanceTracking').withPerformanceTracking;
 
@@ -8,13 +7,14 @@ beforeAll(async () => {
   ({ withPerformanceTracking } = await import('../withPerformanceTracking'));
 });
 
-const getWindowPathname = () => (typeof window !== 'undefined' ? window.location?.pathname : undefined);
+const getWindowPathname = () =>
+  typeof window !== 'undefined' ? window.location?.pathname : undefined;
 
 const setPerformanceSequence = (values: number[]) => {
   const queue = [...values];
   const nowMock = jest.fn(() => {
     const next = queue.shift();
-    return typeof next === 'number' ? next : queue[queue.length - 1] ?? 0;
+    return typeof next === 'number' ? next : (queue[queue.length - 1] ?? 0);
   });
   const perf = { now: nowMock } as unknown as Performance;
   if (typeof window !== 'undefined') {
@@ -141,10 +141,7 @@ describe('withPerformanceTracking', () => {
         value: undefined,
       });
     }
-    const dateSpy = jest
-      .spyOn(Date, 'now')
-      .mockReturnValueOnce(1_000)
-      .mockReturnValueOnce(1_080);
+    const dateSpy = jest.spyOn(Date, 'now').mockReturnValueOnce(1_000).mockReturnValueOnce(1_080);
     const Wrapped = withPerformanceTracking('NoPerf', BaseComponent);
 
     render(<Wrapped label="noop" />);

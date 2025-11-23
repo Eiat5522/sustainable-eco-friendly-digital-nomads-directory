@@ -1,13 +1,10 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import type { UserRole } from '@/types/auth';
-import { client } from '@/lib/sanity/client';
+import { getDefaultTimeout, withRequestTimeout } from '@/lib/http/request';
 import { structuredLogger } from '@/lib/logger';
-import { withRequestTimeout, getDefaultTimeout } from '@/lib/http/request';
-import {
-  DEFAULT_ADMIN_SETTINGS,
-  type AdminSettings,
-} from '@/types/admin-settings';
+import { client } from '@/lib/sanity/client';
+import { type AdminSettings, DEFAULT_ADMIN_SETTINGS } from '@/types/admin-settings';
+import type { UserRole } from '@/types/auth';
 
 type RouteContext = { params: Promise<Record<string, never>> };
 type SessionUser = { id?: string; role?: UserRole } | undefined;
@@ -30,17 +27,15 @@ export async function POST(_request: NextRequest, _context: RouteContext) {
     const backupId = `backup-${backupTimestamp}`;
 
     const existingSettings = await withRequestTimeout(
-      client.fetch<Pick<AdminSettings, '_id'> | null>(
-        '*[_type == "adminSettings"][0]{ _id }',
-      ),
+      client.fetch<Pick<AdminSettings, '_id'> | null>('*[_type == "adminSettings"][0]{ _id }'),
       getDefaultTimeout(),
-      'Fetching admin settings timed out',
+      'Fetching admin settings timed out'
     );
 
     let result: AdminSettings;
 
     if (existingSettings?._id) {
-      result = await withRequestTimeout(
+      result = (await withRequestTimeout(
         client
           .patch(existingSettings._id)
           .set({
@@ -49,8 +44,8 @@ export async function POST(_request: NextRequest, _context: RouteContext) {
           })
           .commit(),
         getDefaultTimeout(),
-        'Updating admin settings backup metadata timed out',
-      ) as AdminSettings;
+        'Updating admin settings backup metadata timed out'
+      )) as AdminSettings;
     } else {
       const payload: AdminSettings = {
         ...DEFAULT_ADMIN_SETTINGS,
@@ -60,7 +55,7 @@ export async function POST(_request: NextRequest, _context: RouteContext) {
       result = await withRequestTimeout(
         client.create<AdminSettings>(payload),
         getDefaultTimeout(),
-        'Creating admin settings document timed out',
+        'Creating admin settings document timed out'
       );
     }
 

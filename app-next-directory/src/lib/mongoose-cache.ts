@@ -1,4 +1,3 @@
-
 import { getRedisClient } from './redis';
 
 const CACHE_TTL_SECONDS = 60 * 60; // 1 hour
@@ -11,7 +10,7 @@ export async function withMongooseCache<T>(
   queryParams: Record<string, unknown> = {}
 ): Promise<T> {
   const key = `mongoose:${model.modelName}:${queryName}:${JSON.stringify(queryParams)}`;
-  
+
   const client = getRedisClient();
 
   if (!client) {
@@ -26,16 +25,14 @@ export async function withMongooseCache<T>(
       }
       return cachedData as T;
     }
-  } catch (error) {
-    console.warn('[mongoose-cache] Failed to read from Redis cache', error);
+  } catch (_error) {
   }
 
   const data = await queryFn();
 
   try {
     await client.set(key, JSON.stringify(data), { ex: ttl });
-  } catch (error) {
-    console.warn('[mongoose-cache] Failed to write to Redis cache', error);
+  } catch (_error) {
   }
 
   return data;

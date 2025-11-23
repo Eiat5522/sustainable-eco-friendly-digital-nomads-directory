@@ -1,5 +1,4 @@
-import { jest } from '@jest/globals';
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 const REQUIRED_ENV = {
   NEXT_PUBLIC_SANITY_PROJECT_ID: 'test-project-id',
@@ -30,9 +29,7 @@ const mockWriteClient = {
 
 jest.mock('../sanity/client', () => {
   const createClient = jest.fn((config: { token?: string }) =>
-    createClient.mock.calls.length === 0 || !config.token
-      ? mockReadClient
-      : mockWriteClient
+    createClient.mock.calls.length === 0 || !config.token ? mockReadClient : mockWriteClient
   );
 
   return { createClient };
@@ -140,7 +137,8 @@ describe('SanityHTTPClient', () => {
       const clientModule = await loadModule();
       const client = new clientModule.SanityHTTPClient();
       const originalWithConfig = mockReadClient.withConfig;
-      (mockReadClient as unknown as { withConfig?: typeof originalWithConfig }).withConfig = undefined;
+      (mockReadClient as unknown as { withConfig?: typeof originalWithConfig }).withConfig =
+        undefined;
       mockReadClient.fetch.mockResolvedValueOnce(['default']);
 
       const result = await client.query('*', undefined, { preview: true });
@@ -148,7 +146,8 @@ describe('SanityHTTPClient', () => {
       expect(mockReadClient.fetch).toHaveBeenCalledWith('*', undefined);
       expect(result).toEqual(['default']);
 
-      (mockReadClient as unknown as { withConfig?: typeof originalWithConfig }).withConfig = originalWithConfig;
+      (mockReadClient as unknown as { withConfig?: typeof originalWithConfig }).withConfig =
+        originalWithConfig;
     });
 
     it('throws SanityAPIError when the underlying fetch returns an error payload', async () => {
@@ -279,9 +278,7 @@ describe('SanityHTTPClient', () => {
       const result = await client.create({ _type: 'test' });
 
       expect(result).toEqual({ _type: 'test', title: 'no-id' });
-      expect(logSpy).toHaveBeenCalledWith(
-        expect.stringContaining('✅ Created document (no _id)')
-      );
+      expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('✅ Created document (no _id)'));
       logSpy.mockRestore();
       delete process.env.SANITY_HTTP_DEBUG;
     });
@@ -291,9 +288,7 @@ describe('SanityHTTPClient', () => {
       const client = new clientModule.SanityHTTPClient();
       mockWriteClient.create.mockResolvedValue({ error: 'broken', statusCode: 500 });
 
-      await expect(client.create({ _type: 'test' })).rejects.toThrow(
-        'Create failed: broken'
-      );
+      await expect(client.create({ _type: 'test' })).rejects.toThrow('Create failed: broken');
     });
 
     it('throws a SanityAPIError when create resolves to undefined', async () => {
@@ -301,9 +296,7 @@ describe('SanityHTTPClient', () => {
       const client = new clientModule.SanityHTTPClient();
       mockWriteClient.create.mockResolvedValue(undefined);
 
-      await expect(client.create({ _type: 'test' })).rejects.toThrow(
-        'Create failed: Create error'
-      );
+      await expect(client.create({ _type: 'test' })).rejects.toThrow('Create failed: Create error');
     });
 
     it('throws when create resolves to a falsy value', async () => {
@@ -321,9 +314,7 @@ describe('SanityHTTPClient', () => {
       const client = new clientModule.SanityHTTPClient();
       mockWriteClient.create.mockRejectedValue(new Error('explode'));
 
-      await expect(client.create({ _type: 'test' })).rejects.toThrow(
-        'Create failed: explode'
-      );
+      await expect(client.create({ _type: 'test' })).rejects.toThrow('Create failed: explode');
     });
   });
 
@@ -377,7 +368,7 @@ describe('SanityHTTPClient', () => {
       const clientModule = await loadModule();
       const client = new clientModule.SanityHTTPClient();
       mockPatch.mockImplementationOnce(() => ({
-        set: () => ({} as { commit(): Promise<unknown> }),
+        set: () => ({}) as { commit(): Promise<unknown> },
       }));
 
       await expect(client.update('doc-1', {})).rejects.toThrow(
@@ -390,9 +381,7 @@ describe('SanityHTTPClient', () => {
       const client = new clientModule.SanityHTTPClient();
       mockCommit.mockResolvedValue({ error: 'nope', statusCode: 409 });
 
-      await expect(client.update('doc-1', {})).rejects.toThrow(
-        'Update failed: nope'
-      );
+      await expect(client.update('doc-1', {})).rejects.toThrow('Update failed: nope');
     });
 
     it('throws when commit resolves to undefined', async () => {
@@ -400,9 +389,7 @@ describe('SanityHTTPClient', () => {
       const client = new clientModule.SanityHTTPClient();
       mockCommit.mockResolvedValue(undefined);
 
-      await expect(client.update('doc-1', {})).rejects.toThrow(
-        'Update failed: Update error'
-      );
+      await expect(client.update('doc-1', {})).rejects.toThrow('Update failed: Update error');
     });
 
     it('throws when commit resolves to a falsy value', async () => {
@@ -472,9 +459,7 @@ describe('SanityHTTPClient', () => {
       const client = new clientModule.SanityHTTPClient();
       mockWriteClient.delete.mockResolvedValue(undefined);
 
-      await expect(client.delete('doc-1')).rejects.toThrow(
-        'Delete failed: Delete error'
-      );
+      await expect(client.delete('doc-1')).rejects.toThrow('Delete failed: Delete error');
     });
   });
 
@@ -485,7 +470,9 @@ describe('SanityHTTPClient', () => {
 
       await expect(
         client.uploadAsset(Buffer.from('data'), { contentType: 'application/json' })
-      ).rejects.toThrow('Asset upload failed: Only image/* content types are supported by uploadAsset()');
+      ).rejects.toThrow(
+        'Asset upload failed: Only image/* content types are supported by uploadAsset()'
+      );
     });
 
     it('uploads image assets and returns sanity image object', async () => {
@@ -594,10 +581,7 @@ describe('SanityHTTPClient', () => {
       ];
       const txCreate = jest.fn();
       const txCommit = jest.fn().mockResolvedValue({
-        results: [
-          { document: docs[0] },
-          { document: docs[1] },
-        ],
+        results: [{ document: docs[0] }, { document: docs[1] }],
       });
       mockTransaction.mockReturnValue({ create: txCreate, commit: txCommit });
 

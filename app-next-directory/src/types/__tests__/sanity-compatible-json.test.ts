@@ -7,7 +7,7 @@ describe('sanity-compatible-json types', () => {
         _type: 'listing',
         name: 'Test Listing',
         slug: { current: 'test-listing' },
-        type: 'coworking'
+        type: 'coworking',
       };
       expect(listing._type).toBe('listing');
       expect(listing.name).toBe('Test Listing');
@@ -21,7 +21,8 @@ describe('sanity-compatible-json types', () => {
         slug: { current: 'eco-workspace' },
         type: 'coworking',
         shortDescription: 'A sustainable coworking space',
-        longDescription: 'A detailed description of the eco-friendly workspace with many sustainable features.'
+        longDescription:
+          'A detailed description of the eco-friendly workspace with many sustainable features.',
       };
       expect(listing.shortDescription).toBeDefined();
       expect(listing.longDescription).toBeDefined();
@@ -36,7 +37,7 @@ describe('sanity-compatible-json types', () => {
         address: '123 Main St, Bangkok, Thailand',
         website: 'https://example.com',
         phone: '+66-123-4567',
-        email: 'info@example.com'
+        email: 'info@example.com',
       };
       expect(listing.address).toBe('123 Main St, Bangkok, Thailand');
       expect(listing.website).toBe('https://example.com');
@@ -52,8 +53,8 @@ describe('sanity-compatible-json types', () => {
         type: 'accommodation',
         location: {
           lat: 13.7563,
-          lng: 100.5018
-        }
+          lng: 100.5018,
+        },
       };
       expect(listing.location?.lat).toBe(13.7563);
       expect(listing.location?.lng).toBe(100.5018);
@@ -70,8 +71,8 @@ describe('sanity-compatible-json types', () => {
           name: 'Bangkok',
           slug: { current: 'bangkok' },
           listingCount: 50,
-          country: 'Thailand'
-        }
+          country: 'Thailand',
+        },
       };
       expect(listing.city?.name).toBe('Bangkok');
       expect(listing.city?.country).toBe('Thailand');
@@ -89,10 +90,10 @@ describe('sanity-compatible-json types', () => {
           asset: {
             _ref: 'image-abc123',
             _type: 'reference',
-            url: 'https://cdn.sanity.io/images/project/dataset/image.jpg'
+            url: 'https://cdn.sanity.io/images/project/dataset/image.jpg',
           },
-          alt: 'Main image of the coworking space'
-        }
+          alt: 'Main image of the coworking space',
+        },
       };
       expect(listing.primaryImage?.asset._ref).toBe('image-abc123');
       expect(listing.primaryImage?.alt).toBe('Main image of the coworking space');
@@ -110,20 +111,20 @@ describe('sanity-compatible-json types', () => {
             asset: {
               _ref: 'image-1',
               _type: 'reference',
-              url: 'https://example.com/img1.jpg'
+              url: 'https://example.com/img1.jpg',
             },
-            alt: 'Gallery image 1'
+            alt: 'Gallery image 1',
           },
           {
             _type: 'image',
             asset: {
               _ref: 'image-2',
               _type: 'reference',
-              url: 'https://example.com/img2.jpg'
+              url: 'https://example.com/img2.jpg',
             },
-            alt: 'Gallery image 2'
-          }
-        ]
+            alt: 'Gallery image 2',
+          },
+        ],
       };
       expect(listing.galleryImages).toHaveLength(2);
       expect(listing.galleryImages?.[0].asset._ref).toBe('image-1');
@@ -139,14 +140,14 @@ describe('sanity-compatible-json types', () => {
           {
             _id: 'tag-1',
             _type: 'reference',
-            name: 'Solar Power'
+            name: 'Solar Power',
           },
           {
             _id: 'tag-2',
             _type: 'reference',
-            name: 'Recycling'
-          }
-        ]
+            name: 'Recycling',
+          },
+        ],
       };
       expect(listing.ecoTags).toHaveLength(2);
       expect(listing.ecoTags?.[0].name).toBe('Solar Power');
@@ -161,8 +162,8 @@ describe('sanity-compatible-json types', () => {
         ecoDetails: {
           description: 'We use renewable energy and sustainable practices',
           ecoTags: ['solar', 'recycling', 'organic'],
-          certifications: ['LEED Gold', 'Green Key']
-        }
+          certifications: ['LEED Gold', 'Green Key'],
+        },
       };
       expect(listing.ecoDetails?.description).toBeDefined();
       expect(listing.ecoDetails?.ecoTags).toHaveLength(3);
@@ -175,7 +176,7 @@ describe('sanity-compatible-json types', () => {
         name: 'Nomad Friendly',
         slug: { current: 'nomad-friendly' },
         type: 'cafe',
-        digitalNomadFeatures: ['high-speed-wifi', 'power-outlets', 'quiet-space', 'meeting-rooms']
+        digitalNomadFeatures: ['high-speed-wifi', 'power-outlets', 'quiet-space', 'meeting-rooms'],
       };
       expect(listing.digitalNomadFeatures).toHaveLength(4);
       expect(listing.digitalNomadFeatures).toContain('high-speed-wifi');
@@ -187,10 +188,7 @@ describe('sanity-compatible-json types', () => {
         name: 'Sourced Listing',
         slug: { current: 'sourced-listing' },
         type: 'restaurant',
-        sourceUrls: [
-          'https://source1.com/listing',
-          'https://source2.com/review'
-        ]
+        sourceUrls: ['https://source1.com/listing', 'https://source2.com/review'],
       };
       expect(listing.sourceUrls).toHaveLength(2);
     });
@@ -201,7 +199,7 @@ describe('sanity-compatible-json types', () => {
         name: 'Verified Listing',
         slug: { current: 'verified-listing' },
         type: 'coworking',
-        lastVerifiedDate: '2024-01-15'
+        lastVerifiedDate: '2024-01-15',
       };
       expect(listing.lastVerifiedDate).toBe('2024-01-15');
     });
@@ -212,7 +210,7 @@ describe('sanity-compatible-json types', () => {
         name: 'Priced Listing',
         slug: { current: 'priced-listing' },
         type: 'accommodation',
-        priceRange: 'moderate'
+        priceRange: 'moderate',
       };
       expect(listing.priceRange).toBe('moderate');
     });
@@ -223,7 +221,7 @@ describe('sanity-compatible-json types', () => {
         name: 'Open Listing',
         slug: { current: 'open-listing' },
         type: 'cafe',
-        operatingHours: 'Mon-Fri: 08:00-18:00, Sat-Sun: 09:00-17:00'
+        operatingHours: 'Mon-Fri: 08:00-18:00, Sat-Sun: 09:00-17:00',
       };
       expect(listing.operatingHours).toBeDefined();
     });
@@ -238,8 +236,8 @@ describe('sanity-compatible-json types', () => {
           'Local sourcing',
           'Zero waste',
           'Composting',
-          'Renewable energy'
-        ]
+          'Renewable energy',
+        ],
       };
       expect(listing.sustainabilityInitiatives).toHaveLength(4);
     });
@@ -250,7 +248,7 @@ describe('sanity-compatible-json types', () => {
         name: 'Work Friendly',
         slug: { current: 'work-friendly' },
         type: 'cafe',
-        workFriendlyFeatures: ['WiFi', 'Power outlets', 'Quiet environment']
+        workFriendlyFeatures: ['WiFi', 'Power outlets', 'Quiet environment'],
       };
       expect(listing.workFriendlyFeatures).toHaveLength(3);
     });
@@ -263,8 +261,9 @@ describe('sanity-compatible-json types', () => {
         type: 'coworking',
         accessibility: {
           wheelchairAccessible: true,
-          accessibilityNotes: 'Ramp available at main entrance, accessible bathroom on ground floor'
-        }
+          accessibilityNotes:
+            'Ramp available at main entrance, accessible bathroom on ground floor',
+        },
       };
       expect(listing.accessibility?.wheelchairAccessible).toBe(true);
       expect(listing.accessibility?.accessibilityNotes).toBeDefined();
@@ -280,8 +279,8 @@ describe('sanity-compatible-json types', () => {
           status: 'published',
           verificationStatus: 'verified',
           featured: true,
-          moderatorNotes: 'Excellent sustainable practices verified'
-        }
+          moderatorNotes: 'Excellent sustainable practices verified',
+        },
       };
       expect(listing.moderation?.status).toBe('published');
       expect(listing.moderation?.verificationStatus).toBe('verified');
@@ -306,19 +305,19 @@ describe('sanity-compatible-json types', () => {
           name: 'Bangkok',
           slug: { current: 'bangkok' },
           listingCount: 100,
-          country: 'Thailand'
+          country: 'Thailand',
         },
         primaryImage: {
           _type: 'image',
           asset: { _ref: 'img-1', _type: 'reference', url: 'url' },
-          alt: 'Main image'
+          alt: 'Main image',
         },
         galleryImages: [],
         ecoTags: [],
         ecoDetails: {
           description: 'Eco info',
           ecoTags: ['solar'],
-          certifications: ['LEED']
+          certifications: ['LEED'],
         },
         digitalNomadFeatures: ['wifi'],
         sourceUrls: ['https://source.com'],
@@ -328,15 +327,15 @@ describe('sanity-compatible-json types', () => {
         sustainabilityInitiatives: ['Green energy'],
         workFriendlyFeatures: ['WiFi'],
         accessibility: {
-          wheelchairAccessible: true
+          wheelchairAccessible: true,
         },
         moderation: {
           status: 'published',
           verificationStatus: 'verified',
-          featured: true
-        }
+          featured: true,
+        },
       };
-      
+
       expect(listing.name).toBe('Complete Listing');
       expect(listing._type).toBe('listing');
       expect(listing.city?.name).toBe('Bangkok');
@@ -349,7 +348,7 @@ describe('sanity-compatible-json types', () => {
         _type: 'listing',
         name: 'Type Test',
         slug: { current: 'type-test' },
-        type: 'cafe'
+        type: 'cafe',
       };
       expect(listing._type).toBe('listing');
     });
@@ -359,7 +358,7 @@ describe('sanity-compatible-json types', () => {
         _type: 'listing',
         name: 'Slug Test',
         slug: { current: 'slug-test' },
-        type: 'coworking'
+        type: 'coworking',
       };
       expect(listing.slug).toHaveProperty('current');
       expect(typeof listing.slug.current).toBe('string');
@@ -370,9 +369,9 @@ describe('sanity-compatible-json types', () => {
         _type: 'listing',
         name: 'Minimal',
         slug: { current: 'minimal' },
-        type: 'cafe'
+        type: 'cafe',
       };
-      
+
       expect(minimal.shortDescription).toBeUndefined();
       expect(minimal.address).toBeUndefined();
       expect(minimal.ecoTags).toBeUndefined();

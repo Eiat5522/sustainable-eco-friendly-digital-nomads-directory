@@ -2,9 +2,9 @@
 // For example, it helps convert listings.json data to the format expected by components
 // or converts between the Listing type (from listing.ts) and the Listing type (from listings.ts)
 
+import { ListingCategory, type PriceRange } from '@/types/enums';
 import type { Listing as SanityListing } from '@/types/listing';
 import type { JsonListing } from '@/types/sanity-compatible-json';
-import { ListingCategory, type PriceRange } from '@/types/enums';
 
 /**
  * Converts a JSON listing format to the Sanity CMS listing format
@@ -17,24 +17,25 @@ export function jsonToSanityListing(json: JsonListing): SanityListing {
   const listingName = normalizedName || 'listing';
   // Generate _id if missing, using name or fallback
   const _id =
-    (json as { _id?: string })._id ||
-    `listing-${listingName.toLowerCase().replace(/\s+/g, '-')}`;
+    (json as { _id?: string })._id || `listing-${listingName.toLowerCase().replace(/\s+/g, '-')}`;
 
   // Generate slug if missing, using name
-  const slug = json.slug && typeof json.slug === 'object' && 'current' in json.slug
-    ? json.slug
-    : { current: listingName.toLowerCase().replace(/\s+/g, '-') };
+  const slug =
+    json.slug && typeof json.slug === 'object' && 'current' in json.slug
+      ? json.slug
+      : { current: listingName.toLowerCase().replace(/\s+/g, '-') };
 
   // Map city to new structure
   const city = json.city
     ? {
         _id: (json.city as { _id?: string })._id || '',
         name: json.city.name || '',
-        slug: typeof json.city.slug === 'object' && 'current' in json.city.slug
-          ? json.city.slug
-          : { current: typeof json.city.slug === 'string' ? json.city.slug : '' },
+        slug:
+          typeof json.city.slug === 'object' && 'current' in json.city.slug
+            ? json.city.slug
+            : { current: typeof json.city.slug === 'string' ? json.city.slug : '' },
         listingCount: (json.city as { listingCount?: number }).listingCount || 0,
-        country: (json.city as { country?: string }).country || ''
+        country: (json.city as { country?: string }).country || '',
       }
     : undefined;
 
@@ -46,18 +47,21 @@ export function jsonToSanityListing(json: JsonListing): SanityListing {
         _type: 'reference' as const,
         slug: { current: tag.name ? tag.name.toLowerCase().replace(/\s+/g, '-') : '' },
         description: '',
-        listingCount: 0
+        listingCount: 0,
       }))
     : [];
 
-
   // Build location with coordinates if present
   let location;
-  if (json.location && typeof json.location.lat === 'number' && typeof json.location.lng === 'number') {
+  if (
+    json.location &&
+    typeof json.location.lat === 'number' &&
+    typeof json.location.lng === 'number'
+  ) {
     location = {
       lat: json.location.lat,
       lng: json.location.lng,
-      coordinates: [json.location.lng, json.location.lat] as [number, number]
+      coordinates: [json.location.lng, json.location.lat] as [number, number],
     };
   }
 
@@ -69,12 +73,18 @@ export function jsonToSanityListing(json: JsonListing): SanityListing {
     city,
     type: (() => {
       switch (json.type) {
-        case 'coworking': return ListingCategory.COWORKING;
-        case 'cafe': return ListingCategory.CAFE;
-        case 'accommodation': return ListingCategory.ACCOMMODATION;
-        case 'restaurant': return ListingCategory.RESTAURANT;
-        case 'activities': return ListingCategory.ACTIVITIES;
-        default: return ListingCategory.COWORKING;
+        case 'coworking':
+          return ListingCategory.COWORKING;
+        case 'cafe':
+          return ListingCategory.CAFE;
+        case 'accommodation':
+          return ListingCategory.ACCOMMODATION;
+        case 'restaurant':
+          return ListingCategory.RESTAURANT;
+        case 'activities':
+          return ListingCategory.ACTIVITIES;
+        default:
+          return ListingCategory.COWORKING;
       }
     })(),
     address: json.address ?? '',
@@ -83,10 +93,22 @@ export function jsonToSanityListing(json: JsonListing): SanityListing {
     ecoTags,
 
     sourceUrls: json.sourceUrls ?? [],
-    primaryImage: json.primaryImage && json.primaryImage.asset ? { asset: { _ref: json.primaryImage.asset._ref || '', url: json.primaryImage.asset.url || '' } } : undefined,
+    primaryImage:
+      json.primaryImage?.asset
+        ? {
+            asset: {
+              _ref: json.primaryImage.asset._ref || '',
+              url: json.primaryImage.asset.url || '',
+            },
+          }
+        : undefined,
     galleryImages: Array.isArray(json.galleryImages)
       ? json.galleryImages
-          .map(img => img && img.asset ? { asset: { _ref: img.asset._ref || '', url: img.asset.url || '' } } : null)
+          .map(img =>
+            img?.asset
+              ? { asset: { _ref: img.asset._ref || '', url: img.asset.url || '' } }
+              : null
+          )
           .filter((img): img is { asset: { _ref: string; url: string } } => !!img)
       : [],
     digitalNomadFeatures: json.digitalNomadFeatures ?? [],

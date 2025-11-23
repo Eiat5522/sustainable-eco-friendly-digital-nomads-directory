@@ -1,17 +1,17 @@
 'use client';
 
+import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { NeoButton } from '@/components/ui/neo-button';
-import { NeoInput } from '@/components/ui/neo-input';
 import { Label } from '@/components/ui/label';
+import { NeoButton } from '@/components/ui/neo-button';
 import {
   NeoCard,
   NeoCardContent,
+  NeoCardDescription,
   NeoCardHeader,
   NeoCardTitle,
-  NeoCardDescription,
 } from '@/components/ui/neo-card';
-import { Loader2 } from 'lucide-react';
+import { NeoInput } from '@/components/ui/neo-input';
 import { jsonPatchOptions } from '@/lib/http/request';
 
 interface ProfileEditFormProps {
@@ -39,10 +39,13 @@ export function ProfileEditForm({ currentName = '', onSuccess, onCancel }: Profi
     }, 10000);
 
     try {
-      const response = await fetch('/api/auth/update-profile', jsonPatchOptions(
-        { name: name.trim() },
-        { credentials: 'include', signal: controller.signal }
-      ));
+      const response = await fetch(
+        '/api/auth/update-profile',
+        jsonPatchOptions(
+          { name: name.trim() },
+          { credentials: 'include', signal: controller.signal }
+        )
+      );
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
@@ -71,9 +74,7 @@ export function ProfileEditForm({ currentName = '', onSuccess, onCancel }: Profi
     <NeoCard variant="flat" className="bg-white/95">
       <NeoCardHeader>
         <NeoCardTitle>Edit Profile</NeoCardTitle>
-        <NeoCardDescription>
-          Update your display name
-        </NeoCardDescription>
+        <NeoCardDescription>Update your display name</NeoCardDescription>
       </NeoCardHeader>
       <NeoCardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -83,7 +84,7 @@ export function ProfileEditForm({ currentName = '', onSuccess, onCancel }: Profi
               id="name"
               type="text"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={e => setName(e.target.value)}
               placeholder="Enter your name"
               required
               maxLength={120}
@@ -96,14 +97,21 @@ export function ProfileEditForm({ currentName = '', onSuccess, onCancel }: Profi
           </div>
 
           {error && (
-             <div role="alert" aria-live="assertive" className="rounded-lg bg-rose-50 border border-rose-200 p-3 text-sm text-rose-700">
-
+            <div
+              role="alert"
+              aria-live="assertive"
+              className="rounded-lg bg-rose-50 border border-rose-200 p-3 text-sm text-rose-700"
+            >
               {error}
             </div>
           )}
 
           {success && (
-            <div role="alert" aria-live="polite" className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-sm text-emerald-700">
+            <div
+              role="alert"
+              aria-live="polite"
+              className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-sm text-emerald-700"
+            >
               Profile updated successfully!
             </div>
           )}
@@ -122,5 +130,5 @@ export function ProfileEditForm({ currentName = '', onSuccess, onCancel }: Profi
         </form>
       </NeoCardContent>
     </NeoCard>
-  )
-};
+  );
+}

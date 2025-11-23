@@ -15,6 +15,8 @@ import listing from './listing.js';
 import listingAnalytics from './listingAnalytics.js';
 import moderationStatus from './moderationStatus.js';
 import nomadFeature from './nomadFeature.js';
+import coworkingPricingPlan from './objects/coworkingPricingPlan.js';
+import openingHoursEntry from './objects/openingHoursEntry.js';
 import restaurantDetails from './restaurantDetails.js';
 import review from './review.js';
 import richText from './richText.js';
@@ -22,8 +24,6 @@ import searchBoost from './searchBoost.js';
 import searchConfig from './searchConfig.js';
 import user from './user.js';
 import userFavorite from './userFavorite.js';
-import coworkingPricingPlan from './objects/coworkingPricingPlan.js';
-import openingHoursEntry from './objects/openingHoursEntry.js';
 
 export const schemaTypes = [
   city,
@@ -51,5 +51,5 @@ export const schemaTypes = [
   searchBoost,
   searchConfig,
   coworkingPricingPlan,
-  openingHoursEntry
+  openingHoursEntry,
 ];

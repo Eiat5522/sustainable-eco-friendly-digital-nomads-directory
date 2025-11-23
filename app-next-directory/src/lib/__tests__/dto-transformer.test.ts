@@ -1,15 +1,17 @@
+import type { SanityListing } from '@/types/sanity.types';
 import {
   FALLBACK_IMAGE,
   imageOrFallback,
+  transformToBlogDetailDTO,
+  transformToBlogSummaryDTO,
+  transformToDetailDTO,
   transformToFeaturedDTO,
   transformToSummaryDTO,
-  transformToDetailDTO,
-  transformToBlogSummaryDTO,
-  transformToBlogDetailDTO,
 } from '../dto-transformer';
-import type { SanityListing } from '@/types/sanity.types';
 
-const builderCalls: Array<{ __state: { input: unknown; width: number; height: number; fit: string; auto: string } }> = [];
+const builderCalls: Array<{
+  __state: { input: unknown; width: number; height: number; fit: string; auto: string };
+}> = [];
 
 const createBuilder = (input: unknown) => {
   const state = { input, width: 0, height: 0, fit: '', auto: '' };
@@ -62,10 +64,18 @@ describe('dto-transformer image helpers', () => {
   });
 
   it('builds urls using sanity asset ids', () => {
-    isImageAssetIdMock.mockImplementation(value => typeof value === 'string' && value.startsWith('image-'));
+    isImageAssetIdMock.mockImplementation(
+      value => typeof value === 'string' && value.startsWith('image-')
+    );
     const url = imageOrFallback('image-asset-ref', 320, 180);
     expect(url).toBe('cdn/320x180/crop/format');
-    expect(builderCalls[0].__state).toMatchObject({ input: 'image-asset-ref', width: 320, height: 180, fit: 'crop', auto: 'format' });
+    expect(builderCalls[0].__state).toMatchObject({
+      input: 'image-asset-ref',
+      width: 320,
+      height: 180,
+      fit: 'crop',
+      auto: 'format',
+    });
   });
 
   it('falls back when image data is invalid', () => {
@@ -80,7 +90,9 @@ describe('dto-transformer image helpers', () => {
   });
 
   it('builds from sanity image objects when asset refs are valid', () => {
-    isImageAssetIdMock.mockImplementation(value => typeof value === 'string' && value.includes('valid'));
+    isImageAssetIdMock.mockImplementation(
+      value => typeof value === 'string' && value.includes('valid')
+    );
     const sanityImage = { asset: { _ref: 'valid-asset-ref' } };
     const url = imageOrFallback(sanityImage, 640, 360);
     expect(url).toBe('cdn/640x360/crop/format');
@@ -120,9 +132,7 @@ describe('listing DTO transformers', () => {
         { type: 'Hot desk', price: 150, period: 'day', features: ['Coffee', 'Fast WiFi'] },
         { type: 'Invalid plan', price: null, period: null },
       ],
-      openingHours: [
-        { day: 'Mon', opens: '08:00', closes: '18:00' },
-      ],
+      openingHours: [{ day: 'Mon', opens: '08:00', closes: '18:00' }],
       internetSpeed: '1Gbps',
     },
   } as unknown as SanityListing;
@@ -131,7 +141,9 @@ describe('listing DTO transformers', () => {
     builderCalls.length = 0;
     urlForMock.mockClear();
     isImageAssetIdMock.mockReset();
-    isImageAssetIdMock.mockImplementation(value => typeof value === 'string' && value.includes('image'));
+    isImageAssetIdMock.mockImplementation(
+      value => typeof value === 'string' && value.includes('image')
+    );
   });
 
   it('transforms listings to featured DTOs', () => {
@@ -150,11 +162,7 @@ describe('listing DTO transformers', () => {
       slug: { current: 'eco-space' },
       type: 'unknown-type',
       website: 'ftp://invalid',
-      amenities: [
-        { name: 'WiFi' },
-        { name: 'wifi ' },
-        { name: 'Coffee' },
-      ],
+      amenities: [{ name: 'WiFi' }, { name: 'wifi ' }, { name: 'Coffee' }],
       city: {
         _id: 'city1',
         name: 'Chiang Mai',
@@ -188,7 +196,9 @@ describe('listing DTO transformers', () => {
       type: 'Hot desk',
       price: { amount: 150, currency: 'THB', unit: 'hour' },
     });
-    expect(dto.coworkingDetails?.openingHours).toEqual([{ day: 'Mon', opens: '08:00', closes: '18:00' }]);
+    expect(dto.coworkingDetails?.openingHours).toEqual([
+      { day: 'Mon', opens: '08:00', closes: '18:00' },
+    ]);
   });
 
   it('builds detailed DTO for cafes', () => {
@@ -222,7 +232,11 @@ describe('listing DTO transformers', () => {
 
     const dto = transformToDetailDTO(listing);
     expect(dto.type).toBe('restaurant');
-    expect(dto.restaurantDetails?.averageMealPrice).toEqual({ amount: 250, currency: 'THB', unit: 'meal' });
+    expect(dto.restaurantDetails?.averageMealPrice).toEqual({
+      amount: 250,
+      currency: 'THB',
+      unit: 'meal',
+    });
   });
 
   it('builds detailed DTO for activities', () => {
@@ -320,7 +334,12 @@ describe('blog DTO transformers', () => {
       primaryImage: 'image-blog',
       body: [{ _type: 'block', children: [] }],
       relatedPosts: [
-        { _id: 'post-2', title: 'Bangkok guide', slug: { current: 'bangkok-guide' }, primaryImage: 'image-related' },
+        {
+          _id: 'post-2',
+          title: 'Bangkok guide',
+          slug: { current: 'bangkok-guide' },
+          primaryImage: 'image-related',
+        },
         null,
       ],
       authorImage: 'image-author',

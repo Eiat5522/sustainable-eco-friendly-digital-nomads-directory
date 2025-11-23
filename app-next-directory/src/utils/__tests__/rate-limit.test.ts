@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-import { describe, it, expect, beforeEach, afterEach, jest, beforeAll } from '@jest/globals';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { rateLimit, rateLimiters, rateLimitStore } from '../rate-limit';
 
 // Helper function to reduce code duplication
@@ -15,13 +15,13 @@ function createTestRequest(ip: string): Request {
 describe('rate-limit', () => {
   // Store original env vars
   const originalEnv = { ...process.env };
-  
+
   beforeAll(() => {
     // Ensure Redis is not initialized during tests
     delete process.env.UPSTASH_REDIS_REST_URL;
     delete process.env.UPSTASH_REDIS_REST_TOKEN;
   });
-  
+
   beforeEach(() => {
     // Clear the rate limit store before each test
     rateLimitStore.clear();
@@ -66,7 +66,7 @@ describe('rate-limit', () => {
 
       await limiter(request); // First request
       await limiter(request); // Second request
-      
+
       const result = await limiter(request); // Third request should be blocked
       expect(result.success).toBe(false);
       expect(result.limit).toBe(2);
@@ -84,10 +84,10 @@ describe('rate-limit', () => {
       expect(result1.success).toBe(true);
       const result2 = await limiter(request);
       expect(result2.success).toBe(true);
-      
+
       const blockedResult = await limiter(request);
       expect(blockedResult.success).toBe(false);
-      
+
       // Manually clear the store to simulate window expiration
       rateLimitStore.clear();
 
@@ -99,7 +99,7 @@ describe('rate-limit', () => {
 
     it('should track different IPs separately', async () => {
       const limiter = rateLimit({ max: 2, windowMs: 1000 });
-      
+
       const request1 = new Request('http://localhost', {
         headers: { 'x-forwarded-for': '127.0.0.1' },
       });
@@ -127,7 +127,7 @@ describe('rate-limit', () => {
 
       const result = await limiter(request);
       expect(result.success).toBe(true);
-      
+
       // Should use the first IP in the list
       const result2 = await limiter(request);
       expect(result2.success).toBe(false);
@@ -141,7 +141,7 @@ describe('rate-limit', () => {
 
       const result = await limiter(request);
       expect(result.success).toBe(true);
-      
+
       const result2 = await limiter(request);
       expect(result2.success).toBe(false);
     });
@@ -154,7 +154,7 @@ describe('rate-limit', () => {
 
       const result = await limiter(request);
       expect(result.success).toBe(true);
-      
+
       const result2 = await limiter(request);
       expect(result2.success).toBe(false);
     });
@@ -165,7 +165,7 @@ describe('rate-limit', () => {
 
       const result = await limiter(request);
       expect(result.success).toBe(true);
-      
+
       const result2 = await limiter(request);
       expect(result2.success).toBe(false);
     });
@@ -174,7 +174,7 @@ describe('rate-limit', () => {
       const limiter = rateLimit({
         max: 1,
         windowMs: 1000,
-        keyGenerator: (req) => {
+        keyGenerator: req => {
           const url = new URL(req.url);
           return url.searchParams.get('userId') || 'anonymous';
         },
@@ -309,7 +309,7 @@ describe('rate-limit', () => {
       });
 
       await limiter(request);
-      
+
       expect(rateLimitStore.size).toBeGreaterThan(0);
     });
 
@@ -321,7 +321,7 @@ describe('rate-limit', () => {
 
       await limiter(request);
       expect(rateLimitStore.size).toBeGreaterThan(0);
-      
+
       rateLimitStore.clear();
       expect(rateLimitStore.size).toBe(0);
     });
@@ -341,7 +341,7 @@ describe('rate-limit', () => {
       if (entries.length > 0) {
         const [key, info] = entries[0];
         rateLimitStore.set(key, { ...info, resetTime: Date.now() - 1000 });
-        
+
         // Now the entry is expired (resetTime is in the past)
         const now = Date.now();
         for (const [k, i] of rateLimitStore.entries()) {
@@ -349,7 +349,7 @@ describe('rate-limit', () => {
             rateLimitStore.delete(k);
           }
         }
-        
+
         // Should be removed
         expect(rateLimitStore.has(key)).toBe(false);
       }
@@ -360,7 +360,7 @@ describe('rate-limit', () => {
     it('should not initialize Redis when credentials are missing', () => {
       // Credentials are already removed in beforeAll
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      
+
       // Should create an in-memory limiter
       expect(limiter).toBeDefined();
       expect(typeof limiter).toBe('function');
@@ -368,11 +368,11 @@ describe('rate-limit', () => {
 
     it('should log warning when Redis credentials are not configured', () => {
       const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-      
+
       // Force re-initialization by creating a new limiter
       // This will trigger the initializeRedis function
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      
+
       expect(limiter).toBeDefined();
       warnSpy.mockRestore();
     });
@@ -395,7 +395,7 @@ describe('rate-limit', () => {
 
       const result = await limiter(request);
       expect(result.success).toBe(true);
-      
+
       // Should use first IP (trimmed)
       const result2 = await limiter(request);
       expect(result2.success).toBe(false);
@@ -415,22 +415,22 @@ describe('rate-limit', () => {
     it('should prioritize x-forwarded-for over x-real-ip', async () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request1 = new Request('http://localhost', {
-        headers: { 
+        headers: {
           'x-forwarded-for': '192.168.1.1',
-          'x-real-ip': '10.0.0.1'
+          'x-real-ip': '10.0.0.1',
         },
       });
 
       await limiter(request1);
-      
+
       // Different x-real-ip should still be blocked (same x-forwarded-for)
       const request2 = new Request('http://localhost', {
-        headers: { 
+        headers: {
           'x-forwarded-for': '192.168.1.1',
-          'x-real-ip': '10.0.0.2'
+          'x-real-ip': '10.0.0.2',
         },
       });
-      
+
       const result = await limiter(request2);
       expect(result.success).toBe(false);
     });
@@ -438,22 +438,22 @@ describe('rate-limit', () => {
     it('should prioritize x-real-ip over cf-connecting-ip', async () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request1 = new Request('http://localhost', {
-        headers: { 
+        headers: {
           'x-real-ip': '192.168.1.1',
-          'cf-connecting-ip': '10.0.0.1'
+          'cf-connecting-ip': '10.0.0.1',
         },
       });
 
       await limiter(request1);
-      
+
       // Different cf-connecting-ip should still be blocked (same x-real-ip)
       const request2 = new Request('http://localhost', {
-        headers: { 
+        headers: {
           'x-real-ip': '192.168.1.1',
-          'cf-connecting-ip': '10.0.0.2'
+          'cf-connecting-ip': '10.0.0.2',
         },
       });
-      
+
       const result = await limiter(request2);
       expect(result.success).toBe(false);
     });
@@ -466,7 +466,7 @@ describe('rate-limit', () => {
 
       const result1 = await limiter(request);
       expect(result1.remaining).toBe(0);
-      
+
       const result2 = await limiter(request);
       expect(result2.success).toBe(false);
       expect(result2.remaining).toBe(0);

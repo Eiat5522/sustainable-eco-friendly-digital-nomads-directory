@@ -1,12 +1,11 @@
 'use client';
 
-import type React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import type {
   AdminSettings,
+  AdminSettingsError,
   AdminSettingsResponse,
   AdminSettingsSaveResponse,
-  AdminSettingsError,
 } from '@/types/admin-settings';
 
 type SettingsFormData = Omit<AdminSettings, '_id' | '_type' | '_createdAt' | '_updatedAt'>;
@@ -17,19 +16,17 @@ export function SettingsForm() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [backupStatus, setBackupStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [backupStatus, setBackupStatus] = useState<{
+    type: 'success' | 'error';
+    message: string;
+  } | null>(null);
   const [backupRunning, setBackupRunning] = useState(false);
 
-  // Fetch settings on component mount
-  useEffect(() => {
-    fetchSettings();
-  }, []);
-
-  const fetchSettings = async () => {
+  const fetchSettings = React.useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await fetch('/api/admin/settings', {
         method: 'GET',
         headers: {
@@ -38,25 +35,37 @@ export function SettingsForm() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json() as AdminSettingsError;
+        const errorData = (await response.json()) as AdminSettingsError;
         throw new Error(errorData.error || 'Failed to fetch settings');
       }
 
-      const data = await response.json() as AdminSettingsResponse;
-      
+      const data = (await response.json()) as AdminSettingsResponse;
+
       // Extract only the form fields from settings
-      const { _id: ignoredId, _type: ignoredType, _createdAt: ignoredCreatedAt, _updatedAt: ignoredUpdatedAt, ...formData } = data.settings;
+      // biome-ignore lint/correctness/noUnusedVariables: These are intentionally destructured to exclude from formData
+      const {
+        _id,
+        _type,
+        _createdAt,
+        _updatedAt,
+        ...formData
+      } = data.settings;
       setSettings(formData);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load settings');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Fetch settings on component mount
+  useEffect(() => {
+    fetchSettings();
+  }, [fetchSettings]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     if (!settings) {
       return;
     }
@@ -75,19 +84,26 @@ export function SettingsForm() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json() as AdminSettingsError;
+        const errorData = (await response.json()) as AdminSettingsError;
         throw new Error(errorData.error || 'Failed to save settings');
       }
 
-      const data = await response.json() as AdminSettingsSaveResponse;
-      
+      const data = (await response.json()) as AdminSettingsSaveResponse;
+
       if (data.success) {
         setSuccessMessage(data.message || 'Settings saved successfully');
-        
+
         // Update settings with saved data
-        const { _id: ignoredId2, _type: ignoredType2, _createdAt: ignoredCreatedAt2, _updatedAt: ignoredUpdatedAt2, ...formData } = data.settings;
+        // biome-ignore lint/correctness/noUnusedVariables: These are intentionally destructured to exclude from formData
+        const {
+          _id,
+          _type,
+          _createdAt,
+          _updatedAt,
+          ...formData
+        } = data.settings;
         setSettings(formData);
-        
+
         // Clear success message after 3 seconds
         setTimeout(() => setSuccessMessage(null), 3000);
       }
@@ -102,18 +118,18 @@ export function SettingsForm() {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value, type } = e.target;
-    
-    setSettings((prev) => {
+
+    setSettings(prev => {
       if (!prev) return prev;
-      
+
       let newValue: string | number | boolean = value;
-      
+
       if (type === 'checkbox' && e.target instanceof HTMLInputElement) {
         newValue = e.target.checked;
       } else if (type === 'number') {
         newValue = parseInt(value, 10);
       }
-      
+
       return {
         ...prev,
         [name]: newValue,
@@ -205,14 +221,18 @@ export function SettingsForm() {
       {/* Success Message */}
       {successMessage && (
         <div className="mb-6 bg-green-50 border border-green-200 rounded-md p-4">
-          <p className="text-green-800" data-testid="success-message">{successMessage}</p>
+          <p className="text-green-800" data-testid="success-message">
+            {successMessage}
+          </p>
         </div>
       )}
 
       {/* Error Message */}
       {error && (
         <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
-          <p className="text-red-800" data-testid="error-message">{error}</p>
+          <p className="text-red-800" data-testid="error-message">
+            {error}
+          </p>
         </div>
       )}
 
@@ -236,7 +256,10 @@ export function SettingsForm() {
           </div>
 
           <div>
-            <label htmlFor="siteDescription" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="siteDescription"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Site Description
             </label>
             <textarea
@@ -334,7 +357,10 @@ export function SettingsForm() {
           </div>
 
           <div>
-            <label htmlFor="moderationThreshold" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="moderationThreshold"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Moderation Threshold
             </label>
             <input
@@ -348,7 +374,9 @@ export function SettingsForm() {
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
               required
             />
-            <p className="mt-1 text-sm text-gray-500">Number of reports before auto-moderation action</p>
+            <p className="mt-1 text-sm text-gray-500">
+              Number of reports before auto-moderation action
+            </p>
           </div>
         </div>
       </section>
@@ -409,7 +437,10 @@ export function SettingsForm() {
           </div>
 
           <div>
-            <label htmlFor="sessionTimeout" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="sessionTimeout"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Session Timeout (minutes)
             </label>
             <input
@@ -446,7 +477,10 @@ export function SettingsForm() {
           </div>
 
           <div>
-            <label htmlFor="backupFrequency" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="backupFrequency"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Backup Frequency
             </label>
             <select

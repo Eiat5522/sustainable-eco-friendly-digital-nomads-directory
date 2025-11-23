@@ -1,7 +1,7 @@
-import type { ListingSummaryDTO } from '@/types/dto'
-import { z } from 'zod'
+import { z } from 'zod';
+import type { ListingSummaryDTO } from '@/types/dto';
 
-const tagSchema = z.union([z.string(), z.object({ name: z.string() })])
+const tagSchema = z.union([z.string(), z.object({ name: z.string() })]);
 
 const apiItemSchema = z.object({
   _id: z.string().optional(),
@@ -42,41 +42,40 @@ const apiItemSchema = z.object({
   ecoFocusTags: z.array(tagSchema).nullable().optional(),
   ecoFeatures: z.array(tagSchema).nullable().optional(),
   digitalNomadFeatures: z.array(tagSchema).nullable().optional(),
-})
+});
 
 export function extractTagNames(
-  list?: Array<z.infer<typeof tagSchema> | null | undefined> | null,
+  list?: Array<z.infer<typeof tagSchema> | null | undefined> | null
 ): string[] {
-  if (!Array.isArray(list)) return []
-  const tags: string[] = []
+  if (!Array.isArray(list)) return [];
+  const tags: string[] = [];
   for (const entry of list) {
     if (typeof entry === 'string') {
-      const name = entry.trim()
-      if (name.length > 0) tags.push(name)
-      continue
+      const name = entry.trim();
+      if (name.length > 0) tags.push(name);
+      continue;
     }
     if (entry && typeof entry === 'object' && typeof entry.name === 'string') {
-      const name = entry.name.trim()
-      if (name.length > 0) tags.push(name)
+      const name = entry.name.trim();
+      if (name.length > 0) tags.push(name);
     }
   }
-  return tags
+  return tags;
 }
 
 export function mapResultToDTO(item: unknown): ListingSummaryDTO {
-  const parseResult = apiItemSchema.safeParse(item)
+  const parseResult = apiItemSchema.safeParse(item);
   if (!parseResult.success) {
-    console.error('Invalid API response shape:', parseResult.error)
     // Return a minimal valid DTO or throw with a user-friendly message
-    throw new Error('Invalid search result data')
+    throw new Error('Invalid search result data');
   }
-  const validated = parseResult.data
-  const city = validated.city ?? validated.location ?? null
-  const imageUrl: string | undefined = validated?.primaryImage?.asset?.url ?? undefined
-  const slugValue = validated.slug
-  const slug: string = typeof slugValue === 'string' ? slugValue : slugValue?.current ?? ''
-  const ecoFocusTags = extractTagNames(validated.ecoFocusTags ?? validated.ecoFeatures)
-  const digitalNomadFeatures = extractTagNames(validated.digitalNomadFeatures)
+  const validated = parseResult.data;
+  const city = validated.city ?? validated.location ?? null;
+  const imageUrl: string | undefined = validated?.primaryImage?.asset?.url ?? undefined;
+  const slugValue = validated.slug;
+  const slug: string = typeof slugValue === 'string' ? slugValue : (slugValue?.current ?? '');
+  const ecoFocusTags = extractTagNames(validated.ecoFocusTags ?? validated.ecoFeatures);
+  const digitalNomadFeatures = extractTagNames(validated.digitalNomadFeatures);
   return {
     id: String(validated._id ?? slug ?? `temp-${Date.now()}-${Math.random()}`),
     name: String(validated.name ?? ''),
@@ -96,5 +95,5 @@ export function mapResultToDTO(item: unknown): ListingSummaryDTO {
     featured: Boolean(validated.moderation?.featured === true),
     ecoFocusTags: ecoFocusTags.length > 0 ? ecoFocusTags : undefined,
     digitalNomadFeatures: digitalNomadFeatures.length > 0 ? digitalNomadFeatures : undefined,
-  }
+  };
 }

@@ -1,15 +1,15 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import GalleryGrid from "./GalleryGrid";
+import { useEffect, useState } from 'react';
+import { jsonPostOptions } from '@/lib/http/request';
+import type { CityDTO, ListingDetailDTO } from '@/types/dto';
+import { getCurrentHref, redirectTo } from '@/utils/navigation';
+import GalleryGrid from './GalleryGrid';
 import { HeroSection } from './HeroSection';
 import { ListingDetailsCard } from './ListingDetailsCard';
-import { ReviewsSection } from './ReviewsSection';
 import { RelatedListings } from './RelatedListings';
-import type { ListingDetailDTO, CityDTO } from '@/types/dto';
-import { getCurrentHref, redirectTo } from '@/utils/navigation';
-import { jsonPostOptions } from '@/lib/http/request';
+import { ReviewsSection } from './ReviewsSection';
 
 interface Review {
   id: string;
@@ -42,13 +42,13 @@ interface ListingDetailViewProps {
   userId?: string;
 }
 
-export function ListingDetailView({ 
-  listing, 
-  reviews = [], 
+export function ListingDetailView({
+  listing,
+  reviews = [],
   relatedListings = [],
-  isSignedIn = false
-  , isFavorited = false
-  , userId
+  isSignedIn = false,
+  isFavorited = false,
+  userId,
 }: ListingDetailViewProps) {
   const [favorited, setFavorited] = useState<boolean>(Boolean(isFavorited));
   const pathname = usePathname();
@@ -77,9 +77,8 @@ export function ListingDetailView({
           method: 'POST',
           signal: controller.signal,
         });
-      } catch (error) {
+      } catch (_error) {
         if (process.env.NODE_ENV !== 'production') {
-          console.warn('Failed to record listing view', error);
         }
       }
     };
@@ -92,40 +91,37 @@ export function ListingDetailView({
   }, [listing?.slug, pathname]);
 
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
-  
+
   const onToggleFavorite = async () => {
     // If the user isn't signed in, redirect to login with callback
     if (!isSignedIn) {
-      const href = getCurrentHref()
-      redirectTo(`/auth/login?callbackUrl=${encodeURIComponent(href)}`)
-      return
+      const href = getCurrentHref();
+      redirectTo(`/auth/login?callbackUrl=${encodeURIComponent(href)}`);
+      return;
     }
 
     try {
       // Use slug for favorite toggles to keep the dynamic path consistent
-      const res = await fetch(`/api/user/favorites/${listing.slug}`, jsonPostOptions({}))
+      const res = await fetch(`/api/user/favorites/${listing.slug}`, jsonPostOptions({}));
 
       if (!res.ok) {
         if (res.status === 401) {
           // Unauthorized - redirect to login
-          const href = getCurrentHref()
-          redirectTo(`/auth/login?callbackUrl=${encodeURIComponent(href)}`)
-          return
+          const href = getCurrentHref();
+          redirectTo(`/auth/login?callbackUrl=${encodeURIComponent(href)}`);
+          return;
         }
-
-        console.error('Failed to toggle favorite:', res.status, res.statusText)
-        return
+        return;
       }
 
       // Prevent double-clicks
       if (isTogglingFavorite) return;
       setIsTogglingFavorite(true);
-      const data = await res.json()
-      setFavorited(Boolean(data?.favorited))
-    } catch (err) {
-      console.error('Failed to toggle favorite:', err)
+      const data = await res.json();
+      setFavorited(Boolean(data?.favorited));
+    } catch (_err) {
     }
-  }
+  };
 
   const filteredRelatedListings = relatedListings.filter(related => related.id !== listing.id);
 
@@ -134,7 +130,11 @@ export function ListingDetailView({
       <div className="container mx-auto px-4 pt-6 pb-8">
         <div className="max-w-6xl mx-auto">
           {/* Hero Section */}
-          <HeroSection listing={listing} isFavorited={favorited} onToggleFavorite={onToggleFavorite} />
+          <HeroSection
+            listing={listing}
+            isFavorited={favorited}
+            onToggleFavorite={onToggleFavorite}
+          />
 
           {/* Gallery Carousel */}
           {/* Render modern gallery grid only when there are meaningful gallery images */}
@@ -153,7 +153,7 @@ export function ListingDetailView({
             {/* Sidebar */}
             <div className="lg:col-span-1">
               {/* Reviews Section */}
-              <ReviewsSection 
+              <ReviewsSection
                 reviews={reviews}
                 listingId={listing.id}
                 isSignedIn={isSignedIn}

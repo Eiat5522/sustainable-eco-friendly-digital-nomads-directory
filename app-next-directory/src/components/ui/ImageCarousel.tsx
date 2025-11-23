@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
-import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
+import { useState } from 'react';
 import { NeoButton } from '@/components/ui/neo-button';
 import { cn } from '@/lib/utils';
 
@@ -20,15 +20,11 @@ export function ImageCarousel({ images, alt, className }: ImageCarouselProps) {
   }
 
   const goToPrevious = () => {
-    setCurrentIndex((prevIndex) => 
-      prevIndex === 0 ? images.length - 1 : prevIndex - 1
-    );
+    setCurrentIndex(prevIndex => (prevIndex === 0 ? images.length - 1 : prevIndex - 1));
   };
 
   const goToNext = () => {
-    setCurrentIndex((prevIndex) => 
-      prevIndex === images.length - 1 ? 0 : prevIndex + 1
-    );
+    setCurrentIndex(prevIndex => (prevIndex === images.length - 1 ? 0 : prevIndex + 1));
   };
 
   const goToSlide = (index: number) => {
@@ -36,7 +32,7 @@ export function ImageCarousel({ images, alt, className }: ImageCarouselProps) {
   };
 
   return (
-    <div className={cn("relative w-full", className)}>
+    <div className={cn('relative w-full', className)}>
       {/* Main Image Display */}
       <div className="relative h-96 md:h-[500px] overflow-hidden rounded-lg bg-gray-100">
         <Image
@@ -47,7 +43,7 @@ export function ImageCarousel({ images, alt, className }: ImageCarouselProps) {
           className="object-cover"
           priority={currentIndex === 0 ? 'true' : 'false'}
         />
-        
+
         {/* Navigation Buttons */}
         {images.length > 1 && (
           <>
@@ -60,7 +56,7 @@ export function ImageCarousel({ images, alt, className }: ImageCarouselProps) {
             >
               <ChevronLeft size={20} />
             </NeoButton>
-            
+
             <NeoButton
               variant="secondary"
               size="sm"
@@ -89,10 +85,10 @@ export function ImageCarousel({ images, alt, className }: ImageCarouselProps) {
               key={index}
               onClick={() => goToSlide(index)}
               className={cn(
-                "relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200",
-                index === currentIndex 
-                  ? "border-neo-primary shadow-md" 
-                  : "border-gray-200 hover:border-gray-300"
+                'relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200',
+                index === currentIndex
+                  ? 'border-neo-primary shadow-md'
+                  : 'border-gray-200 hover:border-gray-300'
               )}
             >
               <Image

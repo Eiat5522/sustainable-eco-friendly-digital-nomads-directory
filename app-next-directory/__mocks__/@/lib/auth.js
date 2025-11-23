@@ -5,5 +5,5 @@ const getToken = jest.fn();
 module.exports = {
   auth,
   authOptions,
-  getToken
+  getToken,
 };

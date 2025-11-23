@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { NeoInput } from '@/components/ui/neo-input';
+import { useState } from 'react';
+import SocialAuthRow from '@/components/auth/SocialAuthRow';
+import { Footer } from '@/components/layout/Footer';
+import { Header } from '@/components/layout/Header';
 import { NeoButton } from '@/components/ui/neo-button';
 import { NeoCard, NeoCardContent, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
-import SocialAuthRow from '@/components/auth/SocialAuthRow';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
+import { NeoInput } from '@/components/ui/neo-input';
 
 export function SignupPageContent() {
   const [name, setName] = useState('');
@@ -44,7 +44,10 @@ export function SignupPageContent() {
           {/* Left panel */}
           <div className="hidden md:flex flex-col justify-center p-8 rounded-xl neo-card bg-gradient-to-br from-white to-neo-secondary/5">
             <h2 className="heading-lg mb-3">Create your account</h2>
-            <p className="body-md">Join our eco-forward community and explore sustainable places to live, work, and connect as a digital nomad.</p>
+            <p className="body-md">
+              Join our eco-forward community and explore sustainable places to live, work, and
+              connect as a digital nomad.
+            </p>
             <div className="mt-8">
               <SocialAuthRow />
             </div>
@@ -69,7 +72,7 @@ export function SignupPageContent() {
                   autoFocus
                   required
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={e => setName(e.target.value)}
                 />
                 <NeoInput
                   type="email"
@@ -79,7 +82,7 @@ export function SignupPageContent() {
                   autoComplete="email"
                   required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={e => setEmail(e.target.value)}
                 />
                 <NeoInput
                   type="password"
@@ -90,10 +93,15 @@ export function SignupPageContent() {
                   minLength={8}
                   required
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={e => setPassword(e.target.value)}
                 />
                 {error && (
-                  <p className="text-red-500 text-sm" role="alert" aria-live="assertive" aria-atomic="true">
+                  <p
+                    className="text-red-500 text-sm"
+                    role="alert"
+                    aria-live="assertive"
+                    aria-atomic="true"
+                  >
                     {error}
                   </p>
                 )}

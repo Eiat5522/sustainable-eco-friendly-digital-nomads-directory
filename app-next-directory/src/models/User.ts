@@ -1,6 +1,6 @@
+import bcrypt from 'bcryptjs';
 import mongoose, { type Document, Schema } from 'mongoose';
 import isEmail from 'validator/lib/isEmail';
-import bcrypt from 'bcryptjs';
 
 /**
  * User Model - Index Management Notes:
@@ -18,7 +18,7 @@ import bcrypt from 'bcryptjs';
 
 // Role definitions - single source of truth
 export const ROLE_VALUES = ['user', 'editor', 'venueOwner', 'admin', 'superAdmin'] as const;
-export type Role = typeof ROLE_VALUES[number];
+export type Role = (typeof ROLE_VALUES)[number];
 
 // Bcrypt configuration
 export const BCRYPT_COST = parseInt(process.env.BCRYPT_COST || '12', 10);
@@ -104,6 +104,7 @@ UserSchema.pre('save', async function (next) {
 // The model will be compiled by Mongoose the first time it's required.
 // To prevent recompilation issues, especially in Next.js hot-reloading environments,
 // check if the model already exists.
-export default (mongoose.models.User as mongoose.Model<IUser>) || mongoose.model<IUser>('User', UserSchema);
+export default (mongoose.models.User as mongoose.Model<IUser>) ||
+  mongoose.model<IUser>('User', UserSchema);
 
 // Dummy comment to force TypeScript re-evaluation.

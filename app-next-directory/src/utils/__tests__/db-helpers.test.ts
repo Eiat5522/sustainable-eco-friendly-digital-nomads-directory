@@ -18,7 +18,10 @@ jest.mock('mongodb', () => {
   class MockMongoClient {
     public close = jest.fn().mockResolvedValue(undefined);
 
-    constructor(public uri: string, public options: Record<string, unknown> = {}) {
+    constructor(
+      public uri: string,
+      public options: Record<string, unknown> = {}
+    ) {
       instances.push(this);
     }
 
@@ -173,33 +176,35 @@ describe('db-helpers mock database behaviour', () => {
     const { getCollection } = require('../db-helpers');
     const collection = (await getCollection('listings')) as MockCollection;
 
-    collection.__setDocuments([{ _id: 'existing', name: 'Existing', stats: { views: 1 }, status: 'active' }]);
+    collection.__setDocuments([
+      { _id: 'existing', name: 'Existing', stats: { views: 1 }, status: 'active' },
+    ]);
 
     const insertOneResult = await collection.insertOne({ name: 'New Listing' });
     expect(insertOneResult.acknowledged).toBe(true);
     expect(insertOneResult.insertedId).toMatch(/^mock_/);
 
     await expect(collection.insertOne({ _id: 'existing', name: 'Duplicate' })).rejects.toThrow(
-      'E11000 duplicate key error: _id: existing',
+      'E11000 duplicate key error: _id: existing'
     );
 
     await expect(
       collection.insertMany([
         { _id: 'alpha', name: 'Alpha' },
         { _id: 'existing', name: 'Duplicate existing' },
-      ]),
+      ])
     ).rejects.toThrow('E11000 duplicate key error: _id: existing');
 
     const updateResult = await collection.updateOne(
       { _id: 'existing' },
-      { $set: { status: 'inactive' }, $inc: { 'stats.views': 2 } },
+      { $set: { status: 'inactive' }, $inc: { 'stats.views': 2 } }
     );
     expect(updateResult).toEqual({ acknowledged: true, matchedCount: 1, modifiedCount: 1 });
 
     const upsertResult = await collection.updateOne(
       { slug: 'generated' },
       { $setOnInsert: { name: 'Generated', stats: { views: 0 } }, $inc: { 'stats.views': 3 } },
-      { upsert: true },
+      { upsert: true }
     );
     expect(upsertResult.acknowledged).toBe(true);
     expect(upsertResult.upsertedId?._id).toMatch(/^mock_/);
@@ -209,7 +214,11 @@ describe('db-helpers mock database behaviour', () => {
     expect(existingDoc?.stats.views).toBe(3);
 
     const upsertedDoc = await collection.findOne({ slug: 'generated' });
-    expect(upsertedDoc).toMatchObject({ name: 'Generated', stats: { views: 0 }, slug: 'generated' });
+    expect(upsertedDoc).toMatchObject({
+      name: 'Generated',
+      stats: { views: 0 },
+      slug: 'generated',
+    });
 
     const deleteResult = await collection.deleteOne({ _id: 'existing' });
     expect(deleteResult).toEqual({ acknowledged: true, deletedCount: 1 });
@@ -218,7 +227,10 @@ describe('db-helpers mock database behaviour', () => {
     const indexName = await collection.createIndex({ slug: 1 });
     expect(indexName).toBe('listings_mock_index');
 
-    const indexNames = await collection.createIndexes([{ key: { slug: 1 } }, { key: { status: 1 } }]);
+    const indexNames = await collection.createIndexes([
+      { key: { slug: 1 } },
+      { key: { status: 1 } },
+    ]);
     expect(indexNames).toEqual(['listings_mock_index_0', 'listings_mock_index_1']);
   });
 
@@ -233,7 +245,12 @@ describe('db-helpers real MongoClient pathway', () => {
     jest.resetModules();
     (jest.requireMock('mongodb') as MongoMockModule).__mock.reset();
 
-    process.env = { ...ORIGINAL_ENV, NODE_ENV: 'test', ALLOW_REAL_MONGO_IN_TESTS: 'true', MONGODB_URI: 'mongodb://example' };
+    process.env = {
+      ...ORIGINAL_ENV,
+      NODE_ENV: 'test',
+      ALLOW_REAL_MONGO_IN_TESTS: 'true',
+      MONGODB_URI: 'mongodb://example',
+    };
 
     delete (globalThis as any).__TEST_MONGO_DB__;
     delete (globalThis as any)._mongoClientPromise;
@@ -241,7 +258,9 @@ describe('db-helpers real MongoClient pathway', () => {
 
   it('propagates connection failures from the MongoClient', async () => {
     const mongodbMock = jest.requireMock('mongodb') as MongoMockModule;
-    mongodbMock.__mock.connectMock.mockImplementation(() => Promise.reject(new Error('connect failure')));
+    mongodbMock.__mock.connectMock.mockImplementation(() =>
+      Promise.reject(new Error('connect failure'))
+    );
 
     const { getDatabase } = require('../db-helpers');
     await expect(getDatabase()).rejects.toThrow('connect failure');
@@ -290,7 +309,7 @@ describe('initializeClientPromise validation', () => {
     delete process.env.MONGODB_URI;
 
     expect(() => require('../db-helpers')).toThrow(
-      'MongoDB URI is missing. Please set the MONGODB_URI environment variable in .env.development.',
+      'MongoDB URI is missing. Please set the MONGODB_URI environment variable in .env.development.'
     );
   });
 
@@ -299,7 +318,7 @@ describe('initializeClientPromise validation', () => {
     delete process.env.MONGODB_URI;
 
     expect(() => require('../db-helpers')).toThrow(
-      'MongoDB URI is missing. Please set the MONGODB_URI environment variable in .env.local.',
+      'MongoDB URI is missing. Please set the MONGODB_URI environment variable in .env.local.'
     );
   });
 });

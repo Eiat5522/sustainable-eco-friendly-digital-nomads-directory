@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';
 import { getCurrentHref, redirectTo } from '../navigation';
 
 describe('navigation', () => {
@@ -48,9 +48,9 @@ describe('navigation', () => {
         writable: true,
         configurable: true,
       });
-      
+
       redirectTo('https://example.com/test');
-      
+
       expect(window.location.href).toBe('https://example.com/test');
       expect(typeof window).toBe('object');
     });
@@ -63,7 +63,7 @@ describe('navigation', () => {
         writable: true,
         configurable: true,
       });
-      
+
       const testUrls = [
         'https://example.com/new-page',
         '/relative-path',
@@ -72,7 +72,7 @@ describe('navigation', () => {
         '#section-id',
       ];
 
-      testUrls.forEach((url) => {
+      testUrls.forEach(url => {
         expect(() => redirectTo(url)).not.toThrow();
       });
     });
@@ -85,7 +85,7 @@ describe('navigation', () => {
         writable: true,
         configurable: true,
       });
-      
+
       expect(() => redirectTo('')).not.toThrow();
     });
 

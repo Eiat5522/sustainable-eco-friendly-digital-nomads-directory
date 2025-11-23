@@ -1,10 +1,19 @@
 import { CityDetailView } from '@/components/city/CityDetailView';
-import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { getCityBySlug, getCityDetailBySlug, getListingsByCityId, getAllCitySlugs } from '@/lib/data/city';
-import type { CityDTO, CityDetailDTO, ListingSummaryDTO } from '@/types/dto';
-import { CityDTOSchema, CityDetailDTOSchema, ListingSummaryDTOArraySchema } from '@/types/dto-schemas';
+import { Header } from '@/components/layout/Header';
+import {
+  getAllCitySlugs,
+  getCityBySlug,
+  getCityDetailBySlug,
+  getListingsByCityId,
+} from '@/lib/data/city';
 import { structuredLogger } from '@/lib/logger';
+import type { CityDetailDTO, CityDTO, ListingSummaryDTO } from '@/types/dto';
+import {
+  CityDetailDTOSchema,
+  CityDTOSchema,
+  ListingSummaryDTOArraySchema,
+} from '@/types/dto-schemas';
 
 export const revalidate = 300;
 
@@ -18,7 +27,7 @@ type Props = { params: Params | Promise<Params> };
 export async function generateStaticParams(): Promise<Params[]> {
   try {
     const slugs = await getAllCitySlugs();
-    return slugs.map((slug) => ({ slug }));
+    return slugs.map(slug => ({ slug }));
   } catch (error) {
     structuredLogger.error('Failed to generate static params for city pages', error, {
       component: 'city-page',
@@ -30,10 +39,11 @@ export async function generateStaticParams(): Promise<Params[]> {
 }
 
 const toTitleCaseFromSlug = (s: string) =>
-   s.replace(/-/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase())
+  s
+    .replace(/-/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase())
     // Optionally handle common acronyms
-    .replace(/\b(nyc|usa|uk|eu)\b/gi, (match) => match.toUpperCase());
+    .replace(/\b(nyc|usa|uk|eu)\b/gi, match => match.toUpperCase());
 
 const makeFallbackCity = (slug: string): CityDTO => ({
   id: `city-${slug}`,
@@ -48,7 +58,10 @@ const makeFallbackCity = (slug: string): CityDTO => ({
 
 const isE2ETest = process.env.NEXT_PUBLIC_E2E === '1' || process.env.E2E === '1';
 
-const e2eCityFixtures: Record<string, { city: CityDTO | CityDetailDTO; listings: ListingSummaryDTO[] }> = isE2ETest
+const e2eCityFixtures: Record<
+  string,
+  { city: CityDTO | CityDetailDTO; listings: ListingSummaryDTO[] }
+> = isE2ETest
   ? {
       testopolis: {
         city: {
@@ -123,7 +136,7 @@ const e2eCityFixtures: Record<string, { city: CityDTO | CityDetailDTO; listings:
  */
 const sanitizeErrorForLogging = (error: unknown): unknown => {
   if (!error) return null;
-  
+
   if (error instanceof Error) {
     return {
       message: error.message,
@@ -131,7 +144,7 @@ const sanitizeErrorForLogging = (error: unknown): unknown => {
       stack: process.env.NODE_ENV === 'production' ? undefined : error.stack,
     };
   }
-  
+
   // For non-Error objects, convert to string safely
   return {
     message: String(error),

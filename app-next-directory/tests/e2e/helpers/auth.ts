@@ -23,9 +23,7 @@ export async function loginAs(page: Page, email: string, password: string) {
       .then(t => t.trim())
       .catch(() => null);
     throw Object.assign(
-      new Error(
-        `Login failed${errorMessage ? `: ${errorMessage}` : '. No error message found.'}`
-      ),
+      new Error(`Login failed${errorMessage ? `: ${errorMessage}` : '. No error message found.'}`),
       { cause: error }
     );
   }

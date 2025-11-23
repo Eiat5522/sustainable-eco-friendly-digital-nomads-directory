@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, waitFor } from '@testing-library/react';
 import MswInit from '../MswInit';
 
@@ -52,7 +51,9 @@ describe('MswInit', () => {
     await waitFor(() => {
       expect(mockStart).toHaveBeenCalledWith({ onUnhandledRequest: 'bypass' });
     });
-    expect(mockConsoleLog).toHaveBeenCalledWith('[MSW] Browser worker started for Playwright tests');
+    expect(mockConsoleLog).toHaveBeenCalledWith(
+      '[MSW] Browser worker started for Playwright tests'
+    );
   });
 
   it('should start the worker if __PW_E2E__ is true', async () => {
@@ -63,7 +64,9 @@ describe('MswInit', () => {
     await waitFor(() => {
       expect(mockStart).toHaveBeenCalledWith({ onUnhandledRequest: 'bypass' });
     });
-     expect(mockConsoleLog).toHaveBeenCalledWith('[MSW] Browser worker started for Playwright tests');
+    expect(mockConsoleLog).toHaveBeenCalledWith(
+      '[MSW] Browser worker started for Playwright tests'
+    );
   });
 
   it('should log a warning if the worker fails to start', async () => {

@@ -1,5 +1,4 @@
-/// <reference types="@testing-library/jest-dom" />
-import * as React from 'react';
+
 
 // Test the profile utils functions instead of the complex form component
 import { normaliseFavorite, normaliseOwnerReviews } from '../../../../app/profile/utils';
@@ -215,16 +214,13 @@ describe('ProfileEditForm component behavior', () => {
     });
 
     expect(response.ok).toBe(true);
-    expect(mockFetch).toHaveBeenCalledWith(
-      '/api/auth/update-profile',
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name: 'John Doe' }),
-      }
-    );
+    expect(mockFetch).toHaveBeenCalledWith('/api/auth/update-profile', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: 'John Doe' }),
+    });
   });
 
   it('should handle API error correctly', async () => {
@@ -247,4 +243,3 @@ describe('ProfileEditForm component behavior', () => {
     expect(data.error.message).toBe('Update failed');
   });
 });
-

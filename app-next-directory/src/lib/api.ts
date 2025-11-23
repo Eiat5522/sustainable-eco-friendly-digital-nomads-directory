@@ -1,7 +1,7 @@
-import type { CityDTO } from '@/types/dto';
-import type { Listing } from '@/types';
-import { fetchJsonWithRetry, getDefaultTimeout, RequestTimeoutError } from '@/lib/http/request';
 import { logError } from '@/lib/error-handler';
+import { fetchJsonWithRetry, getDefaultTimeout, RequestTimeoutError } from '@/lib/http/request';
+import type { Listing } from '@/types';
+import type { CityDTO } from '@/types/dto';
 
 type CityApiResponse = {
   data?: unknown;

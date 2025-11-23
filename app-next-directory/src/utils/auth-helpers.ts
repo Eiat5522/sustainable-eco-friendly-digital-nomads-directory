@@ -30,15 +30,13 @@ export async function requireRole(allowedRoles: string[]): Promise<Session> {
 }
 
 export function handleAuthError(error: unknown) {
-  
   const message =
     error &&
     typeof error === 'object' &&
     'message' in error &&
     typeof (error as { message?: unknown }).message === 'string'
-      ? (error as { message?: string }).message ?? ''
+      ? ((error as { message?: string }).message ?? '')
       : '';
-
 
   if (message === 'UNAUTHORIZED') {
     return ApiResponseHandler.unauthorized();

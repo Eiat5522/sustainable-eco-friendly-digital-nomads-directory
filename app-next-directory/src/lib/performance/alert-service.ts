@@ -4,13 +4,13 @@
  * Generates and dispatches alerts when performance metrics exceed configured thresholds.
  */
 import {
-  ALERTING_THRESHOLDS,
   ALERT_DESTINATION_CONFIG,
   ALERT_SEVERITY,
-  NOTIFICATION_CHANNELS,
+  ALERTING_THRESHOLDS,
+  type AlertSeverity,
   getAlertSeverity,
   getNotificationChannels,
-  type AlertSeverity,
+  NOTIFICATION_CHANNELS,
   type NotificationChannel,
 } from './alerting-thresholds';
 
@@ -46,7 +46,6 @@ export async function processMetricForAlert(
   const now = Date.now();
   if (lastAlertTime !== undefined && now - lastAlertTime < cooldownPeriod * 1000) {
     if (process.env.NODE_ENV !== 'production') {
-      console.log(`[Alert Service] Still in cooldown period for ${alertKey}`);
     }
     return null;
   }
@@ -72,10 +71,9 @@ export async function processMetricForAlert(
   const channels = getNotificationChannels(category, name, severity);
 
   try {
-    await Promise.all(channels.map((channel) => dispatchAlert(alert, channel)));
+    await Promise.all(channels.map(channel => dispatchAlert(alert, channel)));
     return alert;
-  } catch (error) {
-    console.error('[Alert Service] Error dispatching alert:', error);
+  } catch (_error) {
     return null;
   }
 }
@@ -101,15 +99,13 @@ async function dispatchAlert(alert: Alert, channel: NotificationChannel): Promis
     case NOTIFICATION_CHANNELS.WEBHOOK:
       return sendWebhookAlert(alert);
     default:
-      console.warn('[Alert Service] Unknown notification channel:', channel);
       return false;
   }
 }
 
-async function sendEmailAlert(alert: Alert): Promise<boolean> {
-  const config = ALERT_DESTINATION_CONFIG[NOTIFICATION_CHANNELS.EMAIL];
+async function sendEmailAlert(_alert: Alert): Promise<boolean> {
+  const _config = ALERT_DESTINATION_CONFIG[NOTIFICATION_CHANNELS.EMAIL];
   if (process.env.NODE_ENV !== 'production') {
-    console.log(`[Alert Service] Would send email to ${config.recipients.join(', ')}:`, alert);
     return true;
   }
 
@@ -120,7 +116,6 @@ async function sendEmailAlert(alert: Alert): Promise<boolean> {
 async function sendSlackAlert(alert: Alert): Promise<boolean> {
   const config = ALERT_DESTINATION_CONFIG[NOTIFICATION_CHANNELS.SLACK];
   if (!config.webhook || process.env.NODE_ENV !== 'production') {
-    console.log(`[Alert Service] Would send Slack message to ${config.channel}:`, alert);
     return true;
   }
 
@@ -161,15 +156,11 @@ async function sendSlackAlert(alert: Alert): Promise<boolean> {
     });
 
     if (!response.ok) {
-      console.error(
-        `[Alert Service] Error sending Slack alert: ${response.status} ${response.statusText}`
-      );
       return false;
     }
 
     return true;
-  } catch (error) {
-    console.error('[Alert Service] Error sending Slack alert:', error);
+  } catch (_error) {
     return false;
   }
 }
@@ -177,7 +168,6 @@ async function sendSlackAlert(alert: Alert): Promise<boolean> {
 async function sendWebhookAlert(alert: Alert): Promise<boolean> {
   const config = ALERT_DESTINATION_CONFIG[NOTIFICATION_CHANNELS.WEBHOOK];
   if (!config.url || process.env.NODE_ENV !== 'production') {
-    console.log('[Alert Service] Would send webhook alert:', alert);
     return true;
   }
 
@@ -189,15 +179,11 @@ async function sendWebhookAlert(alert: Alert): Promise<boolean> {
     });
 
     if (!response.ok) {
-      console.error(
-        `[Alert Service] Error sending webhook alert: ${response.status} ${response.statusText}`
-      );
       return false;
     }
 
     return true;
-  } catch (error) {
-    console.error('[Alert Service] Error sending webhook alert:', error);
+  } catch (_error) {
     return false;
   }
 }

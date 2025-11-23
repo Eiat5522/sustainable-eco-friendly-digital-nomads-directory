@@ -1,13 +1,13 @@
-import { NextResponse, type NextRequest } from 'next/server';
-import { auth } from '@/lib/auth';
-import type { UserRole } from '@/types/auth';
+import { type NextRequest, NextResponse } from 'next/server';
 import {
   fetchModerationQueue,
+  type ModerationAction,
   performModerationAction,
   summarizeModerationQueue,
-  type ModerationAction,
 } from '@/lib/admin/analytics';
+import { auth } from '@/lib/auth';
 import { structuredLogger } from '@/lib/logger';
+import type { UserRole } from '@/types/auth';
 
 type RouteContext = { params: Promise<Record<string, never>> };
 

@@ -240,15 +240,15 @@ test.describe('Cross-Browser Compatibility Testing', () => {
       // Test Chrome-specific features
       const chromeFeatures = await page.evaluate(() => {
         return {
-      webkit_scrollbar: (() => {
-        try {
-          const style = document.createElement('style');
-          style.textContent = '::-webkit-scrollbar { width: 10px; }';
-          return true;
-        } catch (e) {
-          return false;
-        }
-      })(),
+          webkit_scrollbar: (() => {
+            try {
+              const style = document.createElement('style');
+              style.textContent = '::-webkit-scrollbar { width: 10px; }';
+              return true;
+            } catch (e) {
+              return false;
+            }
+          })(),
           webkit_mask: CSS.supports('-webkit-mask', 'none'),
           chrome_available: 'chrome' in window,
         };
@@ -299,7 +299,7 @@ test.describe('Cross-Browser Compatibility Testing', () => {
           const dataTransfer = new DataTransfer();
           const file = new File([new Uint8Array(content)], 'test.png', { type: 'image/png' });
           dataTransfer.items.add(file);
-          
+
           const event = new DragEvent('drop', {
             bubbles: true,
             cancelable: true,
@@ -444,4 +444,4 @@ test.describe('Cross-Browser Compatibility Testing', () => {
       await expect(retryButton).toBeEnabled();
     });
   });
-})
+});

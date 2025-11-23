@@ -1,5 +1,5 @@
-import { searchListings, getSearchSuggestions, getSimilarListings } from '../search';
 import type { SearchFilters, SortOption } from '@/types/search';
+import { getSearchSuggestions, getSimilarListings, searchListings } from '../search';
 
 const fetchMock = jest.fn();
 
@@ -82,9 +82,12 @@ describe('search utilities', () => {
 
     const result = await getSimilarListings('listing-1', 2);
 
-    expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining('moderation.status == "published"'), {
-      listingId: 'listing-1',
-    });
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining('moderation.status == "published"'),
+      {
+        listingId: 'listing-1',
+      }
+    );
     expect(result).toEqual([{ _id: 'listing-3', name: 'Nomad Nest' }]);
   });
 });

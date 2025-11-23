@@ -6,7 +6,7 @@
  * 3. Response structure validation
  */
 
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import type { NextRequest } from 'next/server';
 import { getE2EListingsForCity } from '@/data/e2e/discovery-fixtures';
 
@@ -27,7 +27,7 @@ type RouteContext = {
 describe('City Listings API - GET /api/listings/city/[id]', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
-    
+
     // Dynamically import the route handler
     const routeModule = await import('../route');
     GET = routeModule.GET;
@@ -300,7 +300,7 @@ describe('City Listings API - GET /api/listings/city/[id]', () => {
       const request = {} as NextRequest;
       // Test with async params resolution
       const context: RouteContext = {
-        params: new Promise((resolve) => {
+        params: new Promise(resolve => {
           setTimeout(() => resolve({ id: 'async-city' }), 10);
         }),
       };

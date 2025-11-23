@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { redirect } from 'next/navigation';
-import AdminSettingsPage from '../page';
 import { auth } from '@/lib/auth';
+import AdminSettingsPage from '../page';
 
 jest.mock('next/navigation', () => ({
   redirect: jest.fn(),
@@ -96,7 +96,7 @@ describe('AdminSettingsPage', () => {
 
     const mainElement = screen.getByTestId('admin-settings-page');
     expect(mainElement).toHaveClass('min-h-screen', 'bg-gray-50');
-    
+
     const title = screen.getByTestId('admin-settings-title');
     expect(title).toHaveClass('text-3xl', 'font-bold', 'text-gray-900');
   });

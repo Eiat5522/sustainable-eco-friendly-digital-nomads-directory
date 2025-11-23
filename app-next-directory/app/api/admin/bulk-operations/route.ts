@@ -1,8 +1,8 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
+import { type BulkOperationType, runBulkOperation } from '@/lib/admin/analytics';
 import { auth } from '@/lib/auth';
-import type { UserRole } from '@/types/auth';
-import { runBulkOperation, type BulkOperationType } from '@/lib/admin/analytics';
 import { structuredLogger } from '@/lib/logger';
+import type { UserRole } from '@/types/auth';
 
 type RouteContext = { params: Promise<Record<string, never>> };
 
@@ -55,8 +55,8 @@ export async function POST(request: NextRequest, _context: RouteContext) {
     const body = await request.json().catch(() => null);
     const operation = body?.operation as BulkOperationType | undefined;
     const rawIds = Array.isArray(body?.ids) ? body.ids : [];
-    const ids = rawIds.filter((id: unknown): id is string =>
-      typeof id === 'string' && id.trim().length > 0
+    const ids = rawIds.filter(
+      (id: unknown): id is string => typeof id === 'string' && id.trim().length > 0
     );
 
     const MAX_IDS = 1000; // Adjust based on your requirements
@@ -70,15 +70,21 @@ export async function POST(request: NextRequest, _context: RouteContext) {
     }
 
     if (!ids.length) {
-      return NextResponse.json({
-        error: 'ids must contain at least one valid document identifier',
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: 'ids must contain at least one valid document identifier',
+        },
+        { status: 400 }
+      );
     }
 
     if (ids.length > MAX_IDS) {
-      return NextResponse.json({
-        error: `ids array exceeds maximum length of ${MAX_IDS}`,
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: `ids array exceeds maximum length of ${MAX_IDS}`,
+        },
+        { status: 400 }
+      );
     }
 
     const result = await runBulkOperation({ operation, ids });

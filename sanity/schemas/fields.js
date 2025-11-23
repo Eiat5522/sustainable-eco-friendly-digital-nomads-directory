@@ -6,7 +6,7 @@
 export const imageWithAlt = {
   type: 'image',
   options: {
-    hotspot: true
+    hotspot: true,
   },
   fields: [
     {
@@ -14,15 +14,15 @@ export const imageWithAlt = {
       title: 'Alternative Text',
       type: 'string',
       description: 'Important for SEO and accessibility',
-      validation: Rule => Rule.required().error('Alternative text is required for accessibility')
+      validation: Rule => Rule.required().error('Alternative text is required for accessibility'),
     },
     {
       name: 'caption',
       title: 'Caption',
-      type: 'string'
-    }
-  ]
-}
+      type: 'string',
+    },
+  ],
+};
 
 export const slugField = {
   name: 'slug',
@@ -30,23 +30,23 @@ export const slugField = {
   type: 'slug',
   options: {
     source: 'name',
-    maxLength: 96
+    maxLength: 96,
   },
-  validation: Rule => Rule.required()
-}
+  validation: Rule => Rule.required(),
+};
 
 export const dateTimeWithInitial = {
   name: 'createdAt',
   title: 'Created At',
   type: 'datetime',
   readOnly: true,
-  initialValue: () => new Date().toISOString()
-}
+  initialValue: () => new Date().toISOString(),
+};
 
 export const descriptionField = {
   name: 'description',
   title: 'Description',
   type: 'text',
   rows: 2,
-  validation: Rule => Rule.max(500).warning('Keep descriptions concise and informative')
-}
+  validation: Rule => Rule.max(500).warning('Keep descriptions concise and informative'),
+};

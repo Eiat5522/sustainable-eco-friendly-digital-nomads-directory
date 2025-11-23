@@ -1,4 +1,4 @@
-import type { SanityImage, SanityGalleryImage } from './appView';
+import type { SanityGalleryImage, SanityImage } from './appView';
 
 export type GalleryImage = SanityGalleryImage | SanityImage;
 export interface PricingPlan {
@@ -28,7 +28,7 @@ export interface Listing {
     name: string;
     slug: { current: string };
   };
-  type: 'coworking' | 'cafe' | 'accommodation' | 'restaurant' | 'activities' ;
+  type: 'coworking' | 'cafe' | 'accommodation' | 'restaurant' | 'activities';
   address: string;
   shortDescription: string;
   longDescription: string;
@@ -67,9 +67,7 @@ export interface Listing {
   };
 }
 
-type ListingCityName = Listing['city'] extends { name: infer Name }
-  ? Name
-  : string;
+type ListingCityName = Listing['city'] extends { name: infer Name } ? Name : string;
 
 type ListingModerationStatus = Extract<Listing['moderationStatus'], string>;
 type ListingVerificationStatus = Extract<Listing['verificationStatus'], string>;
@@ -94,14 +92,24 @@ export const LISTING_MODERATION_STATES = ['pending', 'approved', 'rejected'] as 
 export type ListingModerationState = (typeof LISTING_MODERATION_STATES)[number];
 
 export type ListingTypeValue = Listing['type'];
-export const LISTING_TYPE_VALUES = ['coworking', 'cafe', 'accommodation', 'restaurant', 'activities'] as const satisfies readonly ListingTypeValue[];
+export const LISTING_TYPE_VALUES = [
+  'coworking',
+  'cafe',
+  'accommodation',
+  'restaurant',
+  'activities',
+] as const satisfies readonly ListingTypeValue[];
 
 export function isListingWorkflowStatus(value: unknown): value is ListingWorkflowStatus {
-  return typeof value === 'string' && LISTING_WORKFLOW_STATUSES.includes(value as ListingWorkflowStatus);
+  return (
+    typeof value === 'string' && LISTING_WORKFLOW_STATUSES.includes(value as ListingWorkflowStatus)
+  );
 }
 
 export function isListingModerationState(value: unknown): value is ListingModerationState {
-  return typeof value === 'string' && LISTING_MODERATION_STATES.includes(value as ListingModerationState);
+  return (
+    typeof value === 'string' && LISTING_MODERATION_STATES.includes(value as ListingModerationState)
+  );
 }
 
 export function isListingTypeValue(value: unknown): value is ListingTypeValue {

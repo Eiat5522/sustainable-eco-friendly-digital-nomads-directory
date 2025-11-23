@@ -1,5 +1,4 @@
 import '@testing-library/jest-dom';
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 
 jest.mock('@/components/layout/Header', () => ({
@@ -95,20 +94,14 @@ describe('BlogPage', () => {
     expect(screen.getByText('#travel')).toBeInTheDocument();
     expect(screen.getByText('#lifestyle')).toBeInTheDocument();
 
-    const imageSources = screen.getAllByRole('img').map((img) => img.getAttribute('src'));
+    const imageSources = screen.getAllByRole('img').map(img => img.getAttribute('src'));
     expect(imageSources).toEqual(expect.arrayContaining(['https://example.com/retreat.jpg']));
 
     const previousLink = screen.getByRole('link', { name: '← Previous' });
-    expect(previousLink).toHaveAttribute(
-      'href',
-      '/blog?page=1&tag=eco&search=retreat&limit=12'
-    );
+    expect(previousLink).toHaveAttribute('href', '/blog?page=1&tag=eco&search=retreat&limit=12');
 
     const nextLink = screen.getByRole('link', { name: 'Next →' });
-    expect(nextLink).toHaveAttribute(
-      'href',
-      '/blog?page=3&tag=eco&search=retreat&limit=12'
-    );
+    expect(nextLink).toHaveAttribute('href', '/blog?page=3&tag=eco&search=retreat&limit=12');
   });
 
   it('supports legacy posts array responses', async () => {
@@ -166,8 +159,8 @@ describe('BlogPage', () => {
       json: async () => ({ success: false }),
     } as Response);
 
-    await expect(
-      pageModule.default({ searchParams: {} })
-    ).rejects.toThrow('Blog API responded with success=false or missing/invalid data');
+    await expect(pageModule.default({ searchParams: {} })).rejects.toThrow(
+      'Blog API responded with success=false or missing/invalid data'
+    );
   });
 });

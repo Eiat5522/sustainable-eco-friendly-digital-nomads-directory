@@ -174,7 +174,7 @@ test.describe('API Integration Testing - Workstream E.1', () => {
       expect(data.message).toContain('added to favorites');
     });
 
-  test('DELETE /api/user/favorites/[slug] - Remove from Favorites', async ({ request }) => {
+    test('DELETE /api/user/favorites/[slug] - Remove from Favorites', async ({ request }) => {
       const listingSlug = 'test-listing-slug';
       const response = await request.delete(`${BASE_URL}/api/user/favorites/${listingSlug}`, {
         headers: {
@@ -532,7 +532,7 @@ test.describe('API Integration Testing - Workstream E.1', () => {
       expect(data.review.rating).toBe(4.5);
     });
 
-  test('GET /api/reviews/listing/[slug] - Get Reviews for Listing', async ({ request }) => {
+    test('GET /api/reviews/listing/[slug] - Get Reviews for Listing', async ({ request }) => {
       if (!testListingId) return;
 
       const response = await request.get(`${BASE_URL}/api/reviews/listing/${testListingId}`);

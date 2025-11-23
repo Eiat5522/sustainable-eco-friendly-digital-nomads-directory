@@ -1,5 +1,4 @@
 import '@testing-library/jest-dom';
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 
 const notFoundMock = jest.fn(() => {
@@ -113,13 +112,14 @@ describe('ListingPage', () => {
     process.env.E2E = '0';
     jest.resetModules();
 
-    const [{ default: ListingPage }, clientModule, transformerModule, authModule, dbHelpersModule] = await Promise.all([
-      import('../listings/[slug]/page'),
-      import('@/lib/sanity/client'),
-      import('@/lib/dto-transformer'),
-      import('@/lib/auth'),
-      import('@/utils/db-helpers'),
-    ]);
+    const [{ default: ListingPage }, clientModule, transformerModule, authModule, dbHelpersModule] =
+      await Promise.all([
+        import('../listings/[slug]/page'),
+        import('@/lib/sanity/client'),
+        import('@/lib/dto-transformer'),
+        import('@/lib/auth'),
+        import('@/utils/db-helpers'),
+      ]);
 
     const listingRaw = { _id: 'raw-listing' };
     const listingDto = {
@@ -195,12 +195,13 @@ describe('ListingPage', () => {
     process.env.E2E = '0';
     jest.resetModules();
 
-    const [{ default: ListingPage }, clientModule, transformerModule, authModule] = await Promise.all([
-      import('../listings/[slug]/page'),
-      import('@/lib/sanity/client'),
-      import('@/lib/dto-transformer'),
-      import('@/lib/auth'),
-    ]);
+    const [{ default: ListingPage }, clientModule, transformerModule, authModule] =
+      await Promise.all([
+        import('../listings/[slug]/page'),
+        import('@/lib/sanity/client'),
+        import('@/lib/dto-transformer'),
+        import('@/lib/auth'),
+      ]);
 
     const listingRaw = { _id: 'raw-listing' };
     const listingDto = {

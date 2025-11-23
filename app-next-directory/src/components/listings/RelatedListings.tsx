@@ -1,16 +1,16 @@
 'use client';
 
+import Autoplay from 'embla-carousel-autoplay';
+import useEmblaCarousel from 'embla-carousel-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
 import type React from 'react';
 import { useCallback, useRef } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { NeoCard, NeoCardHeader, NeoCardTitle, NeoCardContent } from '@/components/ui/neo-card';
+import { NeoButton } from '@/components/ui/neo-button';
+import { NeoCard, NeoCardContent, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import type { CityDTO } from '@/types/dto';
-import useEmblaCarousel from 'embla-carousel-react';
-import Autoplay from 'embla-carousel-autoplay';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { NeoButton } from '@/components/ui/neo-button';
 
 interface RelatedListing {
   id: string;
@@ -27,9 +27,7 @@ interface RelatedListingsProps {
 }
 
 export function RelatedListings({ listings }: RelatedListingsProps) {
-  const autoplay = useRef(
-    Autoplay({ delay: 4000, stopOnInteraction: true })
-  );
+  const autoplay = useRef(Autoplay({ delay: 4000, stopOnInteraction: true }));
   const [viewportRef, emblaApi] = useEmblaCarousel(
     {
       align: 'start',
@@ -62,7 +60,7 @@ export function RelatedListings({ listings }: RelatedListingsProps) {
 
   return (
     <section className="mb-8">
-      <SectionHeader 
+      <SectionHeader
         title="Related Listings"
         description="Discover similar sustainable venues you might love"
         className="mb-8"
@@ -83,7 +81,7 @@ export function RelatedListings({ listings }: RelatedListingsProps) {
 
         <div ref={viewportRef} className="overflow-hidden">
           <div className="flex gap-6">
-            {listings.map((listing) => (
+            {listings.map(listing => (
               <div key={listing.id} className="shrink-0 basis-[85%] sm:basis-[60%] lg:basis-1/2">
                 <Link
                   href={`/listings/${listing.slug}`}
@@ -113,13 +111,18 @@ export function RelatedListings({ listings }: RelatedListingsProps) {
                           fill
                           sizes="(min-width: 1024px) 50vw, (min-width: 640px) 60vw, 85vw"
                           className="object-cover group-hover:scale-105 transition-transform duration-300"
-                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.hidden = true; }}
+                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                            e.currentTarget.hidden = true;
+                          }}
                         />
                       )}
                       {listing.priceRange && (
                         <div className="absolute top-3 left-3">
-                          <span className={`px-2 py-1 rounded-lg text-xs font-medium ${getPriceRangeColor(listing.priceRange)}`}>
-                            {listing.priceRange.charAt(0).toUpperCase() + listing.priceRange.slice(1)}
+                          <span
+                            className={`px-2 py-1 rounded-lg text-xs font-medium ${getPriceRangeColor(listing.priceRange)}`}
+                          >
+                            {listing.priceRange.charAt(0).toUpperCase() +
+                              listing.priceRange.slice(1)}
                           </span>
                         </div>
                       )}
@@ -130,9 +133,10 @@ export function RelatedListings({ listings }: RelatedListingsProps) {
                         {listing.name}
                       </NeoCardTitle>
                       {(() => {
-                        const cityText = typeof listing.city === 'string' 
-                          ? listing.city 
-                          : (listing.city?.name ?? '');
+                        const cityText =
+                          typeof listing.city === 'string'
+                            ? listing.city
+                            : (listing.city?.name ?? '');
                         return cityText ? (
                           <p className="body-sm text-neo-text-secondary mt-1">{cityText}</p>
                         ) : null;
@@ -143,7 +147,7 @@ export function RelatedListings({ listings }: RelatedListingsProps) {
                       {listing.ecoFocusTags && listing.ecoFocusTags.length > 0 && (
                         <div className="flex flex-wrap gap-2">
                           {listing.ecoFocusTags.slice(0, 3).map((tag, index) => (
-                            <span 
+                            <span
                               key={index}
                               className="px-2 py-1 bg-neo-success/20 text-neo-success text-xs rounded-lg font-medium"
                             >

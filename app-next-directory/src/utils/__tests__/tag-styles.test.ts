@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-import { describe, it, expect } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
 import { getTagColorClasses } from '../tag-styles';
 
 describe('tag-styles', () => {
@@ -10,8 +10,12 @@ describe('tag-styles', () => {
     describe('eco category', () => {
       it('should return emerald colors for solar/renewable/energy tags', () => {
         expect(getTagColorClasses('Solar Panels', 'eco')).toBe('bg-emerald-100 text-emerald-700');
-        expect(getTagColorClasses('Renewable Energy', 'eco')).toBe('bg-emerald-100 text-emerald-700');
-        expect(getTagColorClasses('energy efficient', 'eco')).toBe('bg-emerald-100 text-emerald-700');
+        expect(getTagColorClasses('Renewable Energy', 'eco')).toBe(
+          'bg-emerald-100 text-emerald-700'
+        );
+        expect(getTagColorClasses('energy efficient', 'eco')).toBe(
+          'bg-emerald-100 text-emerald-700'
+        );
       });
 
       it('should return lime colors for waste/zero/recycling tags', () => {
@@ -52,20 +56,28 @@ describe('tag-styles', () => {
     describe('amenity category', () => {
       it('should return blue colors for wifi/internet tags', () => {
         expect(getTagColorClasses('WiFi', 'amenity')).toBe('bg-blue-100 text-blue-700');
-        expect(getTagColorClasses('High-speed Internet', 'amenity')).toBe('bg-blue-100 text-blue-700');
+        expect(getTagColorClasses('High-speed Internet', 'amenity')).toBe(
+          'bg-blue-100 text-blue-700'
+        );
       });
 
       it('should return indigo colors for meeting/conference tags', () => {
         expect(getTagColorClasses('Meeting Room', 'amenity')).toBe('bg-indigo-100 text-indigo-700');
-        expect(getTagColorClasses('Conference Space', 'amenity')).toBe('bg-indigo-100 text-indigo-700');
+        expect(getTagColorClasses('Conference Space', 'amenity')).toBe(
+          'bg-indigo-100 text-indigo-700'
+        );
         expect(getTagColorClasses('Call Booth', 'amenity')).toBe('bg-indigo-100 text-indigo-700');
       });
 
       it('should return purple colors for 24/7 access tags', () => {
         expect(getTagColorClasses('24/7 Access', 'amenity')).toBe('bg-purple-100 text-purple-700');
         expect(getTagColorClasses('24-7 Open', 'amenity')).toBe('bg-purple-100 text-purple-700');
-        expect(getTagColorClasses('24x7 Available', 'amenity')).toBe('bg-purple-100 text-purple-700');
-        expect(getTagColorClasses('access anytime', 'amenity')).toBe('bg-purple-100 text-purple-700');
+        expect(getTagColorClasses('24x7 Available', 'amenity')).toBe(
+          'bg-purple-100 text-purple-700'
+        );
+        expect(getTagColorClasses('access anytime', 'amenity')).toBe(
+          'bg-purple-100 text-purple-700'
+        );
       });
 
       it('should return amber colors for kitchen/restaurant tags', () => {
@@ -77,7 +89,9 @@ describe('tag-styles', () => {
 
       it('should return orange colors for security tags', () => {
         expect(getTagColorClasses('Security', 'amenity')).toBe('bg-orange-100 text-orange-700');
-        expect(getTagColorClasses('Locker Storage', 'amenity')).toBe('bg-orange-100 text-orange-700');
+        expect(getTagColorClasses('Locker Storage', 'amenity')).toBe(
+          'bg-orange-100 text-orange-700'
+        );
         expect(getTagColorClasses('Safe Box', 'amenity')).toBe('bg-orange-100 text-orange-700');
       });
 

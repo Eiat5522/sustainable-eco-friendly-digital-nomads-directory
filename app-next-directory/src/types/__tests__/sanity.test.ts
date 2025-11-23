@@ -1,4 +1,4 @@
-import type { SanityDocument, Amenity } from '../sanity';
+import type { Amenity, SanityDocument } from '../sanity';
 
 describe('sanity types', () => {
   describe('SanityDocument interface', () => {
@@ -8,7 +8,7 @@ describe('sanity types', () => {
         _type: 'listing',
         _createdAt: '2024-01-15T10:00:00Z',
         _updatedAt: '2024-01-16T15:30:00Z',
-        _rev: 'abc123'
+        _rev: 'abc123',
       };
       expect(doc._id).toBe('doc-123');
       expect(doc._type).toBe('listing');
@@ -21,7 +21,7 @@ describe('sanity types', () => {
         _type: 'listing',
         _createdAt: '2024-01-15T10:00:00Z',
         _updatedAt: '2024-01-15T10:00:00Z',
-        _rev: 'rev1'
+        _rev: 'rev1',
       };
 
       const cityDoc: SanityDocument = {
@@ -29,7 +29,7 @@ describe('sanity types', () => {
         _type: 'city',
         _createdAt: '2024-01-15T10:00:00Z',
         _updatedAt: '2024-01-15T10:00:00Z',
-        _rev: 'rev2'
+        _rev: 'rev2',
       };
 
       expect(listingDoc._type).toBe('listing');
@@ -42,7 +42,7 @@ describe('sanity types', () => {
         _type: 'test',
         _createdAt: '2024-01-01T00:00:00Z',
         _updatedAt: '2024-01-15T00:00:00Z',
-        _rev: 'rev1'
+        _rev: 'rev1',
       };
       expect(doc._createdAt).not.toBe(doc._updatedAt);
     });
@@ -53,7 +53,7 @@ describe('sanity types', () => {
         _type: 'test',
         _createdAt: '2024-01-15T10:00:00Z',
         _updatedAt: '2024-01-15T10:00:00Z',
-        _rev: 'rev-abc123'
+        _rev: 'rev-abc123',
       };
 
       const doc2: SanityDocument = {
@@ -61,7 +61,7 @@ describe('sanity types', () => {
         _type: 'test',
         _createdAt: '2024-01-15T10:00:00Z',
         _updatedAt: '2024-01-16T10:00:00Z',
-        _rev: 'rev-xyz789'
+        _rev: 'rev-xyz789',
       };
 
       expect(doc1._rev).not.toBe(doc2._rev);
@@ -72,7 +72,7 @@ describe('sanity types', () => {
     it('should accept basic amenity', () => {
       const amenity: Amenity = {
         _id: 'amenity-123',
-        name: 'WiFi'
+        name: 'WiFi',
       };
       expect(amenity._id).toBe('amenity-123');
       expect(amenity.name).toBe('WiFi');
@@ -82,7 +82,7 @@ describe('sanity types', () => {
       const amenity: Amenity = {
         _id: 'amenity-456',
         name: 'High-Speed Internet',
-        description: 'Fiber optic internet with speeds up to 500 Mbps'
+        description: 'Fiber optic internet with speeds up to 500 Mbps',
       };
       expect(amenity.description).toBeDefined();
     });
@@ -94,9 +94,9 @@ describe('sanity types', () => {
         description: 'Environmental certification',
         badge: {
           asset: {
-            url: 'https://cdn.sanity.io/images/project/dataset/badge.png'
-          }
-        }
+            url: 'https://cdn.sanity.io/images/project/dataset/badge.png',
+          },
+        },
       };
       expect(amenity.badge?.asset?.url).toBeDefined();
     });
@@ -105,7 +105,7 @@ describe('sanity types', () => {
       const amenity: Amenity = {
         _id: 'amenity-1',
         name: 'Test',
-        badge: {}
+        badge: {},
       };
       expect(amenity.badge).toBeDefined();
       expect(amenity.badge?.asset).toBeUndefined();
@@ -115,7 +115,12 @@ describe('sanity types', () => {
       const amenities: Amenity[] = [
         { _id: 'am-1', name: 'WiFi' },
         { _id: 'am-2', name: 'Coffee', description: 'Free coffee' },
-        { _id: 'am-3', name: 'Parking', description: 'Free parking', badge: { asset: { url: 'url' } } }
+        {
+          _id: 'am-3',
+          name: 'Parking',
+          description: 'Free parking',
+          badge: { asset: { url: 'url' } },
+        },
       ];
       expect(amenities).toHaveLength(3);
       expect(amenities[2].badge).toBeDefined();
@@ -130,22 +135,22 @@ describe('sanity types', () => {
           _type: 'listing',
           _createdAt: '2024-01-15T10:00:00Z',
           _updatedAt: '2024-01-15T10:00:00Z',
-          _rev: 'r1'
+          _rev: 'r1',
         },
         {
           _id: '2',
           _type: 'city',
           _createdAt: '2024-01-15T10:00:00Z',
           _updatedAt: '2024-01-15T10:00:00Z',
-          _rev: 'r2'
+          _rev: 'r2',
         },
         {
           _id: '3',
           _type: 'listing',
           _createdAt: '2024-01-15T10:00:00Z',
           _updatedAt: '2024-01-15T10:00:00Z',
-          _rev: 'r3'
-        }
+          _rev: 'r3',
+        },
       ];
 
       const listings = documents.filter(doc => doc._type === 'listing');
@@ -159,27 +164,25 @@ describe('sanity types', () => {
           _type: 'test',
           _createdAt: '2024-01-03T00:00:00Z',
           _updatedAt: '2024-01-03T00:00:00Z',
-          _rev: 'r1'
+          _rev: 'r1',
         },
         {
           _id: '2',
           _type: 'test',
           _createdAt: '2024-01-01T00:00:00Z',
           _updatedAt: '2024-01-01T00:00:00Z',
-          _rev: 'r2'
+          _rev: 'r2',
         },
         {
           _id: '3',
           _type: 'test',
           _createdAt: '2024-01-02T00:00:00Z',
           _updatedAt: '2024-01-02T00:00:00Z',
-          _rev: 'r3'
-        }
+          _rev: 'r3',
+        },
       ];
 
-      const sorted = [...documents].sort((a, b) => 
-        a._createdAt.localeCompare(b._createdAt)
-      );
+      const sorted = [...documents].sort((a, b) => a._createdAt.localeCompare(b._createdAt));
 
       expect(sorted[0]._id).toBe('2');
       expect(sorted[2]._id).toBe('1');
@@ -190,7 +193,7 @@ describe('sanity types', () => {
         { _id: '1', name: 'WiFi' },
         { _id: '2', name: 'Coffee' },
         { _id: '3', name: 'WiFi' },
-        { _id: '4', name: 'Parking' }
+        { _id: '4', name: 'Parking' },
       ];
 
       const wifiAmenities = amenities.filter(a => a.name === 'WiFi');

@@ -1,21 +1,24 @@
-
+import fs from 'node:fs/promises';
 import { NextResponse } from 'next/server';
 import type { Session } from 'next-auth';
-import { client } from '@/lib/sanity';
 import { auth } from '@/lib/auth';
 import {
-  optimizeFileBuffer,
   cleanupOptimizedFile,
   type OptimizationOptions,
   type OptimizationResult,
+  optimizeFileBuffer,
 } from '@/lib/image-optimizer';
-import fs from 'fs/promises';
 import { structuredLogger } from '@/lib/logger';
+import { client } from '@/lib/sanity';
 
 type AuthFn = () => Promise<Session | null>;
 type UploadFn = (assetType: 'image' | 'file', uploadFile: File) => Promise<unknown>;
 type FormDataFn = (request: Request) => Promise<FormData>;
-type OptimizeFn = (buffer: Buffer, fileName: string, options: OptimizationOptions) => Promise<OptimizationResult>;
+type OptimizeFn = (
+  buffer: Buffer,
+  fileName: string,
+  options: OptimizationOptions
+) => Promise<OptimizationResult>;
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 
@@ -52,8 +55,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const formDataGetter =
-      _testControl?.formDataOverride ?? ((req: Request) => req.formData());
+    const formDataGetter = _testControl?.formDataOverride ?? ((req: Request) => req.formData());
     const formData = await formDataGetter(request);
     const file = formData.get('file') as File;
 
@@ -67,7 +69,7 @@ export async function POST(request: Request) {
       success: false,
       error: 'Optimization skipped',
       originalSize: 0,
-      optimizedSize: 0
+      optimizedSize: 0,
     };
 
     // Perform optimization unless explicitly skipped in tests
@@ -76,14 +78,14 @@ export async function POST(request: Request) {
         // Convert File to Buffer for optimization
         const fileBuffer = Buffer.from(await file.arrayBuffer());
         optimizationResult.originalSize = fileBuffer.length;
-        
+
         // Optimize image before upload (Task 9 integration)
         const optimizeFn = _testControl?.optimizeOverride ?? optimizeFileBuffer;
         optimizationResult = await optimizeFn(fileBuffer, file.name, {
           maxWidth: 1600,
           maxHeight: 1200,
           quality: 85,
-          format: 'webp'
+          format: 'webp',
         });
 
         // If optimization succeeded, use optimized file
@@ -92,21 +94,23 @@ export async function POST(request: Request) {
           const optimizedBuffer = await fs.readFile(optimizationResult.optimizedPath);
           const optimizedFileName = file.name.replace(/\.\w+$/, '.webp');
           fileToUpload = new File([optimizedBuffer], optimizedFileName, {
-            type: 'image/webp'
+            type: 'image/webp',
           });
-          console.log(`✅ Using optimized image: ${file.name} → ${optimizedFileName}`);
         } else {
-          console.warn(`⚠️  Optimization skipped, using original file: ${optimizationResult.error || 'Unknown reason'}`);
         }
       } catch (_error) {
-        structuredLogger.error('Optimization failed', _error, { component: 'upload-api', fileName: file.name });
+        structuredLogger.error('Optimization failed', _error, {
+          component: 'upload-api',
+          fileName: file.name,
+        });
         optimizationResult.error = _error instanceof Error ? _error.message : 'Unknown error';
       }
     }
 
     const uploadFn =
       _testControl?.uploadOverride ??
-      ((assetType: 'image' | 'file', uploadFile: File) => client.assets.upload(assetType, uploadFile));
+      ((assetType: 'image' | 'file', uploadFile: File) =>
+        client.assets.upload(assetType, uploadFile));
     const imageAsset = await uploadFn('image', fileToUpload);
 
     // Cleanup optimized file
@@ -114,13 +118,13 @@ export async function POST(request: Request) {
       await cleanupOptimizedFile(optimizedPath);
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       asset: imageAsset,
       optimization: {
         applied: optimizationResult.success,
         originalSize: optimizationResult.originalSize,
-        optimizedSize: optimizationResult.optimizedSize
-      }
+        optimizedSize: optimizationResult.optimizedSize,
+      },
     });
   } catch (_error) {
     return NextResponse.json({ error: 'Failed to upload image' }, { status: 500 });

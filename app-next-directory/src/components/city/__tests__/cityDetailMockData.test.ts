@@ -1,5 +1,5 @@
-import { mockCity, mockCityListings } from '../cityDetailMockData';
 import { CityDTOSchema, ListingSummaryDTOArraySchema } from '../../../types/dto-schemas';
+import { mockCity, mockCityListings } from '../cityDetailMockData';
 
 describe('cityDetailMockData', () => {
   it('mockCity should conform to CityDTOSchema', () => {

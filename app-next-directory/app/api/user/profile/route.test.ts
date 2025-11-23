@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { _createProfileHandlers as createProfileHandlers } from './route';
 
 const baseSession = {
@@ -101,7 +101,9 @@ describe('/api/user/profile PUT', () => {
   beforeEach(() => {
     authMock = jest.fn().mockResolvedValue({ ...baseSession });
     getUserByIdMock = jest.fn();
-    updateUserProfileMock = jest.fn().mockResolvedValue({ ...baseSession.user, name: 'Updated User' });
+    updateUserProfileMock = jest
+      .fn()
+      .mockResolvedValue({ ...baseSession.user, name: 'Updated User' });
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
     handlers = createProfileHandlers({
@@ -146,7 +148,7 @@ describe('/api/user/profile PUT', () => {
 
   it('returns the updated profile on success', async () => {
     const response = await handlers.PUT(
-      createPutRequest({ name: 'Updated User', image: 'avatar-new.png' }),
+      createPutRequest({ name: 'Updated User', image: 'avatar-new.png' })
     );
 
     expect(updateUserProfileMock).toHaveBeenCalledWith('user-123', {

@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 
 interface PerformanceMetrics {
   pageLoadTime: number;
@@ -17,7 +17,8 @@ async function getPerformanceMetrics(page: Page): Promise<PerformanceMetrics> {
     return {
       pageLoadTime: navigation.loadEventEnd - navigation.startTime,
       apiResponseTime: navigation.responseEnd - navigation.requestStart,
-      firstContentfulPaint: paint.find(entry => entry.name === 'first-contentful-paint')?.startTime || 0,
+      firstContentfulPaint:
+        paint.find(entry => entry.name === 'first-contentful-paint')?.startTime || 0,
       domContentLoaded: navigation.domContentLoadedEventEnd - navigation.startTime,
       largestContentfulPaint: lcp ? lcp.startTime : 0,
     };
@@ -41,7 +42,6 @@ const testMetrics: {
 } = {};
 
 test.describe('Preview Mode Performance Tests', () => {
-
   test.beforeEach(async ({ page }) => {
     // Clear browser cache and memory cache
     await page.route('**/*', route => {
@@ -49,9 +49,9 @@ test.describe('Preview Mode Performance Tests', () => {
         headers: {
           ...route.request().headers(),
           'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
+          Pragma: 'no-cache',
+          Expires: '0',
+        },
       });
     });
   });
@@ -74,14 +74,13 @@ test.describe('Preview Mode Performance Tests', () => {
 
     // Performance assertions
     expect(previewMetrics.pageLoadTime).toBeLessThan(normalMetrics.pageLoadTime * 1.5);
-    expect(previewMetrics.firstContentfulPaint).toBeLessThan(normalMetrics.firstContentfulPaint * 1.5);
+    expect(previewMetrics.firstContentfulPaint).toBeLessThan(
+      normalMetrics.firstContentfulPaint * 1.5
+    );
   });
 
   test('measure preview API endpoint performance', async ({ page }) => {
-    const endpoints = [
-      '/api/preview?redirect=/',
-      '/api/exit-preview',
-    ];
+    const endpoints = ['/api/preview?redirect=/', '/api/exit-preview'];
 
     for (const endpoint of endpoints) {
       const responseTime = await measureEndpoint(page, endpoint);
@@ -92,18 +91,16 @@ test.describe('Preview Mode Performance Tests', () => {
 
   test('memory usage in preview mode', async ({ page }) => {
     // Get initial memory usage
-    const initialMemory = await page.evaluate(() => (performance as any).memory?.usedJSHeapSize || 0);
+    const initialMemory = await page.evaluate(
+      () => (performance as any).memory?.usedJSHeapSize || 0
+    );
 
     // Enable preview mode
     await page.goto('/api/preview?redirect=/');
     await page.waitForLoadState('networkidle');
 
     // Navigate through several pages in preview mode
-    const urls = [
-      '/listings/test-draft-listing',
-      '/city/test-draft-city',
-      '/'
-    ];
+    const urls = ['/listings/test-draft-listing', '/city/test-draft-city', '/'];
 
     for (const url of urls) {
       await page.goto(url);
@@ -117,7 +114,7 @@ test.describe('Preview Mode Performance Tests', () => {
     console.log('Memory Usage:', {
       initial: initialMemory / 1024 / 1024 + 'MB',
       final: finalMemory / 1024 / 1024 + 'MB',
-      difference: (finalMemory - initialMemory) / 1024 / 1024 + 'MB'
+      difference: (finalMemory - initialMemory) / 1024 / 1024 + 'MB',
     });
 
     // Assert memory increase is reasonable (less than 50MB)
@@ -126,16 +123,16 @@ test.describe('Preview Mode Performance Tests', () => {
 });
 
 // Create performance report in JSON format
-test.afterAll(async ({ }, testInfo) => {
+test.afterAll(async ({}, testInfo) => {
   const report = {
     timestamp: new Date().toISOString(),
     status: testInfo.status,
     duration: testInfo.duration,
-    metrics: testMetrics
+    metrics: testMetrics,
   };
 
-  const fs = require('fs');
-  const path = require('path');
+  const fs = require('node:fs');
+  const path = require('node:path');
   const reportDir = path.join(process.cwd(), 'test-results', 'performance');
 
   if (!fs.existsSync(reportDir)) {

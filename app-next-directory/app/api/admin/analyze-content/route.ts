@@ -1,8 +1,8 @@
-import { NextResponse, type NextRequest } from 'next/server';
-import { auth } from '@/lib/auth';
-import type { UserRole } from '@/types/auth';
+import { type NextRequest, NextResponse } from 'next/server';
 import { analyzeContent } from '@/lib/admin/analytics';
+import { auth } from '@/lib/auth';
 import { structuredLogger } from '@/lib/logger';
+import type { UserRole } from '@/types/auth';
 
 type RouteContext = { params: Promise<Record<string, never>> };
 
@@ -25,15 +25,18 @@ export async function GET(request: NextRequest, _context: RouteContext) {
     const url = new URL(request.url);
     const type = url.searchParams.get('type') ?? 'listing';
     const windowDaysParam = url.searchParams.get('windowDays');
-let windowDays: number | undefined;
-if (windowDaysParam) {
-  const parsed = Number(windowDaysParam);
-  if (!Number.isNaN(parsed) && parsed > 0 && Number.isInteger(parsed)) {
-    windowDays = parsed;
-  } else {
-    return NextResponse.json({ error: 'windowDays must be a positive integer' }, { status: 400 });
-  }
-}
+    let windowDays: number | undefined;
+    if (windowDaysParam) {
+      const parsed = Number(windowDaysParam);
+      if (!Number.isNaN(parsed) && parsed > 0 && Number.isInteger(parsed)) {
+        windowDays = parsed;
+      } else {
+        return NextResponse.json(
+          { error: 'windowDays must be a positive integer' },
+          { status: 400 }
+        );
+      }
+    }
 
     const analysis = await analyzeContent({ type, windowDays });
 
@@ -70,25 +73,23 @@ export async function POST(request: NextRequest, _context: RouteContext) {
     const samples = Array.isArray(body?.samples) ? body?.samples : [];
 
     if (!samples.length) {
-      return NextResponse.json({ error: 'samples must contain at least one text item' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'samples must contain at least one text item' },
+        { status: 400 }
+      );
     }
 
-    const insights = samples.map((sample) => {
+    const insights = samples.map(sample => {
       const text = typeof sample.text === 'string' ? sample.text.toLowerCase() : '';
       const wordBoundaryRegex = new RegExp(`\\b(${FLAGGED_KEYWORDS.join('|')})\\b`, 'gi');
       const matches = Array.from(
-        new Set((text.match(wordBoundaryRegex) || []).map((match) => match.toLowerCase()))
+        new Set((text.match(wordBoundaryRegex) || []).map(match => match.toLowerCase()))
       );
 
       return {
         id: sample.id,
         flaggedKeywords: matches,
-        riskLevel:
-          matches.length >= 2
-            ? 'high'
-            : matches.length === 1
-              ? 'medium'
-              : 'low',
+        riskLevel: matches.length >= 2 ? 'high' : matches.length === 1 ? 'medium' : 'low',
       };
     });
 

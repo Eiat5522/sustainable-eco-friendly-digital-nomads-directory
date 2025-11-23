@@ -2,15 +2,15 @@
  * Tests for queries.ts - Sanity query functions
  */
 
+import { client } from './client';
 import {
   getAllCities,
   getAllEcoTags,
+  getCity,
+  getFeaturedListings,
   getLatestBlogPosts,
   getListingBySlug,
-  getFeaturedListings,
-  getCity,
 } from './queries';
-import { client } from './client';
 
 // Mock the client module
 jest.mock('./client', () => ({
@@ -21,7 +21,7 @@ jest.mock('./client', () => ({
 
 describe('queries.ts', () => {
   const mockClient = client as jest.Mocked<typeof client>;
-  
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -168,9 +168,7 @@ describe('queries.ts', () => {
 
       const result = await getAllCities();
 
-      expect(mockClient.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('*[_type == "city"]')
-      );
+      expect(mockClient.fetch).toHaveBeenCalledWith(expect.stringContaining('*[_type == "city"]'));
       expect(result).toEqual(mockCities);
       expect(result).toHaveLength(2);
     });
@@ -339,10 +337,7 @@ describe('queries.ts', () => {
 
       await getFeaturedListings(5);
 
-      expect(mockClient.fetch).toHaveBeenCalledWith(
-        expect.anything(),
-        { limit: 5 }
-      );
+      expect(mockClient.fetch).toHaveBeenCalledWith(expect.anything(), { limit: 5 });
     });
 
     it('should only fetch published listings', async () => {
@@ -397,7 +392,9 @@ describe('queries.ts', () => {
       const result = await getFeaturedListings();
 
       expect(result[0]).toMatchObject({
-        galleryImages: expect.arrayContaining([expect.objectContaining({ asset: expect.any(Object) })]),
+        galleryImages: expect.arrayContaining([
+          expect.objectContaining({ asset: expect.any(Object) }),
+        ]),
         city: expect.objectContaining({ name: 'Chiang Mai', country: 'Thailand' }),
       });
     });

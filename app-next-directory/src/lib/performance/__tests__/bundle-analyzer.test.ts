@@ -1,5 +1,5 @@
-import type { Mock } from 'jest-mock';
 import bundleAnalyzer from '@next/bundle-analyzer';
+import type { Mock } from 'jest-mock';
 
 jest.mock('@next/bundle-analyzer', () => {
   const mockImplementation = jest.fn((config: unknown) => ({

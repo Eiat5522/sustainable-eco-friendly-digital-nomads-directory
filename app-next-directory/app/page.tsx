@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
-import { HeroSection } from '@/components/sections/HeroSection';
-import { FeaturedListings } from '@/components/sections/FeaturedListings';
 import { CityCarousel } from '@/components/sections/CityCarousel';
+import { FeaturedListings } from '@/components/sections/FeaturedListings';
+import { HeroSection } from '@/components/sections/HeroSection';
 
 export default function HomePage() {
   return (

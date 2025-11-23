@@ -1,7 +1,6 @@
-import { describe, it, expect } from '@jest/globals';
-
+import { describe, expect, it } from '@jest/globals';
+import { normalizeTheme, THEME_INIT_SCRIPT, type Theme, themeClass } from '@/utils/theme';
 import { rootLayoutMetadata } from '../layout.metadata';
-import { normalizeTheme, themeClass, THEME_INIT_SCRIPT, type Theme } from '@/utils/theme';
 
 describe('layout helpers', () => {
   describe('metadata', () => {

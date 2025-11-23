@@ -1,19 +1,18 @@
 import type { NextRequest } from 'next/server';
+import { buildE2ESearchResponse, isE2ERun } from '@/data/e2e/discovery-fixtures';
+import { cacheHelpers } from '@/lib/cache-strategy';
 import { client } from '@/lib/sanity/client';
 import { ApiResponseHandler } from '@/utils/api-response';
 import {
-  sanitizeBasic,
-  sanitizeStringArray,
+  clampInt,
   escapeGroqLiteral,
   escapeGroqMatch,
-  clampInt,
+  sanitizeBasic,
+  sanitizeStringArray,
 } from '@/utils/sanitize';
-import { buildE2ESearchResponse, isE2ERun } from '@/data/e2e/discovery-fixtures';
-import { cacheHelpers } from '@/lib/cache-strategy';
 
 // Enable route segment caching for 10 minutes
 export const revalidate = 600; // 10 minutes
-
 
 // Type for search request body
 type SearchRequestBody = {
@@ -99,51 +98,46 @@ export function buildWhereClause({
     throw new Error('Search query too long');
   }
 
-  const filters: string[] = [
-    '_type == "listing"',
-    'moderation.status == "published"'
-  ];
+  const filters: string[] = ['_type == "listing"', 'moderation.status == "published"'];
 
   if (q) {
     const pattern = escapeGroqMatch(q.toLowerCase());
-    filters.push('(' + [
-      `lower(name) match "*${pattern}*"`,
-      `lower(coalesce(slug.current, slug)) match "*${pattern}*"`,
-      `lower(category) match "*${pattern}*"`,
-      `lower(city->name) match "*${pattern}*"`,
-      `lower(city->country) match "*${pattern}*"`,
-      `lower(shortDescription) match "*${pattern}*"`
-    ].join(' || ') + ')');
+    filters.push(
+      '(' +
+        [
+          `lower(name) match "*${pattern}*"`,
+          `lower(coalesce(slug.current, slug)) match "*${pattern}*"`,
+          `lower(category) match "*${pattern}*"`,
+          `lower(city->name) match "*${pattern}*"`,
+          `lower(city->country) match "*${pattern}*"`,
+          `lower(shortDescription) match "*${pattern}*"`,
+        ].join(' || ') +
+        ')'
+    );
   }
   if (categories.length) {
-    const group = categories
-      .map((c) => `category == "${escapeGroqLiteral(c)}"`)
-      .join(' || ');
+    const group = categories.map(c => `category == "${escapeGroqLiteral(c)}"`).join(' || ');
     filters.push(`(${group})`);
   }
 
   if (destinations.length) {
-    const eq = destinations
-      .map((d) => `city->name == "${escapeGroqLiteral(d)}"`)
-      .join(' || ');
-    const match = destinations
-      .map((d) => `city->name match "*${escapeGroqMatch(d)}*"`)
-      .join(' || ');
+    const eq = destinations.map(d => `city->name == "${escapeGroqLiteral(d)}"`).join(' || ');
+    const match = destinations.map(d => `city->name match "*${escapeGroqMatch(d)}*"`).join(' || ');
     filters.push(`((${eq}) || (${match}))`);
   }
 
   if (amenities.length) {
     const amenityNameIn = amenities
-      .map((a) => `("${escapeGroqLiteral(a)}" in amenities[]->name)`)
+      .map(a => `("${escapeGroqLiteral(a)}" in amenities[]->name)`)
       .join(' || ');
     const dnFeatureNameIn = amenities
-      .map((a) => `array::contains(digitalNomadFeatures[]->name, "${escapeGroqLiteral(a)}")`)
+      .map(a => `array::contains(digitalNomadFeatures[]->name, "${escapeGroqLiteral(a)}")`)
       .join(' || ');
     filters.push(`((${amenityNameIn}) || (${dnFeatureNameIn}))`);
   }
   if (nomadFeatures.length) {
     const nfs = nomadFeatures
-      .map((nf) => `array::contains(digitalNomadFeatures[]->name, "${escapeGroqLiteral(nf)}")`)
+      .map(nf => `array::contains(digitalNomadFeatures[]->name, "${escapeGroqLiteral(nf)}")`)
       .join(' || ');
     filters.push(`(${nfs})`);
   }
@@ -186,7 +180,8 @@ export function buildFacetBuckets(source: FacetSourceRecord[]): FacetBuckets {
     }
   }
 
-  const mapToArray = (map: Map<string, number>) => Array.from(map.entries(), ([value, count]) => ({ value, count }));
+  const mapToArray = (map: Map<string, number>) =>
+    Array.from(map.entries(), ([value, count]) => ({ value, count }));
 
   return {
     category: mapToArray(categoryCounts),
@@ -233,9 +228,17 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const q = sanitizeBasic(searchParams.get('q') || '');
-    const page = clampInt(Number.parseInt(searchParams.get('page') ?? '1', 10) || 1, { min: 1, max: 100000 });
-    const limit = clampInt(Number.parseInt(searchParams.get('limit') ?? '12', 10) || 12, { min: 1, max: 100 });
-    const includeFacets = ['1', 'true', 'yes'].includes(String(searchParams.get('facets') ?? '').toLowerCase());
+    const page = clampInt(Number.parseInt(searchParams.get('page') ?? '1', 10) || 1, {
+      min: 1,
+      max: 100000,
+    });
+    const limit = clampInt(Number.parseInt(searchParams.get('limit') ?? '12', 10) || 12, {
+      min: 1,
+      max: 100,
+    });
+    const includeFacets = ['1', 'true', 'yes'].includes(
+      String(searchParams.get('facets') ?? '').toLowerCase()
+    );
 
     const categories = sanitizeStringArray(searchParams.getAll('category'));
     const destinations = sanitizeStringArray(searchParams.getAll('destination'));
@@ -252,7 +255,7 @@ export async function GET(request: NextRequest) {
       }
 
       if (scenario === 'timeout') {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
 
       const buildE2E = _testControl?.buildE2ESearchResponseOverride ?? buildE2ESearchResponse;
@@ -284,11 +287,21 @@ export async function GET(request: NextRequest) {
     });
 
     // Cache search results for 10 minutes
-    const searchCacheParams = { q, categories, destinations, amenities, nomadFeatures, page, limit, includeFacets };
+    const searchCacheParams = {
+      q,
+      categories,
+      destinations,
+      amenities,
+      nomadFeatures,
+      page,
+      limit,
+      includeFacets,
+    };
     const cachedResults = await cacheHelpers.searchResults(searchCacheParams, async () => {
       const fetchFn =
         _testControl?.clientFetchOverride ??
-        ((queryString: string, params?: unknown) => client.fetch(queryString, params as Record<string, unknown> | undefined));
+        ((queryString: string, params?: unknown) =>
+          client.fetch(queryString, params as Record<string, unknown> | undefined));
 
       // Fetch results and total concurrently; facets only if requested
       const promises: Array<Promise<unknown>> = [fetchFn(query), fetchFn(countQuery)];
@@ -296,7 +309,8 @@ export async function GET(request: NextRequest) {
       const settled = await Promise.all(promises);
       const results = settled[0];
       const total = typeof settled[1] === 'number' ? settled[1] : 0;
-      const facetSource: FacetSourceRecord[] = includeFacets && Array.isArray(settled[2]) ? settled[2] : [];
+      const facetSource: FacetSourceRecord[] =
+        includeFacets && Array.isArray(settled[2]) ? settled[2] : [];
       const facets = includeFacets ? buildFacetBuckets(facetSource) : undefined;
 
       return {
@@ -320,8 +334,7 @@ export async function GET(request: NextRequest) {
     });
 
     return ApiResponseHandler.success(cachedResults);
-  } catch (error) {
-    console.error('Search GET error:', error);
+  } catch (_error) {
     // Return an error response to signal upstream callers/tests that the CMS fetch failed.
     return ApiResponseHandler.error('Search failed', 400);
   }
@@ -331,8 +344,7 @@ export async function POST(request: NextRequest) {
   try {
     let body: SearchRequestBody;
     try {
-      const parseBody =
-        _testControl?.parseBodyOverride ?? ((req: NextRequest) => req.json());
+      const parseBody = _testControl?.parseBodyOverride ?? ((req: NextRequest) => req.json());
       body = await parseBody(request);
     } catch {
       // Standardize error message and status as tests expect
@@ -359,7 +371,7 @@ export async function POST(request: NextRequest) {
       }
 
       if (scenario === 'timeout') {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
 
       const buildE2E = _testControl?.buildE2ESearchResponseOverride ?? buildE2ESearchResponse;
@@ -380,22 +392,41 @@ export async function POST(request: NextRequest) {
     const start = (page - 1) * limit;
     // GROQ '..' is inclusive; fetch exactly `limit` items
     const end = start + limit - 1;
-    const { query, countQuery, facetQuery } = buildQuery({ q, categories, destinations, amenities, nomadFeatures, start, end });
-    
+    const { query, countQuery, facetQuery } = buildQuery({
+      q,
+      categories,
+      destinations,
+      amenities,
+      nomadFeatures,
+      start,
+      end,
+    });
+
     // Cache search results for 10 minutes (same as GET)
-    const searchCacheParams = { q, categories, destinations, amenities, nomadFeatures, page, limit, includeFacets };
+    const searchCacheParams = {
+      q,
+      categories,
+      destinations,
+      amenities,
+      nomadFeatures,
+      page,
+      limit,
+      includeFacets,
+    };
     const cachedResults = await cacheHelpers.searchResults(searchCacheParams, async () => {
       const fetchFn =
         _testControl?.clientFetchOverride ??
-        ((queryString: string, params?: unknown) => client.fetch(queryString, params as Record<string, unknown> | undefined));
+        ((queryString: string, params?: unknown) =>
+          client.fetch(queryString, params as Record<string, unknown> | undefined));
       // Fetch results and total concurrently; facets only if requested
       const promises: Array<Promise<unknown>> = [fetchFn(query), fetchFn(countQuery)];
       if (includeFacets) promises.push(fetchFn(facetQuery));
 
-      const settled = await Promise.all(promises); 
+      const settled = await Promise.all(promises);
       const results = settled[0];
       const total = typeof settled[1] === 'number' ? settled[1] : 0;
-      const facetSource: FacetSourceRecord[] = includeFacets && Array.isArray(settled[2]) ? settled[2] : [];
+      const facetSource: FacetSourceRecord[] =
+        includeFacets && Array.isArray(settled[2]) ? settled[2] : [];
       const facets = includeFacets ? buildFacetBuckets(facetSource) : undefined;
 
       return {
@@ -419,8 +450,7 @@ export async function POST(request: NextRequest) {
     });
 
     return ApiResponseHandler.success(cachedResults);
-  } catch (error) {
-    console.error('Search POST error:', error);
+  } catch (_error) {
     return ApiResponseHandler.error('Failed to perform search');
   }
 }

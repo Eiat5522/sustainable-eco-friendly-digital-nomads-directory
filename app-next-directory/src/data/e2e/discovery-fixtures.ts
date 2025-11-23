@@ -1,44 +1,44 @@
-import type { CityDTO, CityDetailDTO, ListingSummaryDTO } from '@/types/dto'
-import type { SearchParamRecord } from '@/types/search'
+import type { CityDetailDTO, CityDTO, ListingSummaryDTO } from '@/types/dto';
+import type { SearchParamRecord } from '@/types/search';
 
 export type E2EDiscoveryListing = {
-  readonly _id: string
-  readonly name: string
-  readonly slug: string
-  readonly category: ListingSummaryDTO['type']
+  readonly _id: string;
+  readonly name: string;
+  readonly slug: string;
+  readonly category: ListingSummaryDTO['type'];
   readonly city: {
-    readonly _id: string
-    readonly name: string
-    readonly slug: string
-    readonly country: string
-  }
-  readonly shortDescription?: string
-  readonly amenityNames: readonly string[]
-  readonly ecoFocusTags: readonly string[]
-  readonly digitalNomadFeatures?: readonly string[]
-  readonly location?: { readonly lat: number; readonly lng: number }
-  readonly primaryImageUrl?: string
-  readonly priceRange?: ListingSummaryDTO['priceRange']
-  readonly featured?: boolean
-  readonly address?: string
-}
+    readonly _id: string;
+    readonly name: string;
+    readonly slug: string;
+    readonly country: string;
+  };
+  readonly shortDescription?: string;
+  readonly amenityNames: readonly string[];
+  readonly ecoFocusTags: readonly string[];
+  readonly digitalNomadFeatures?: readonly string[];
+  readonly location?: { readonly lat: number; readonly lng: number };
+  readonly primaryImageUrl?: string;
+  readonly priceRange?: ListingSummaryDTO['priceRange'];
+  readonly featured?: boolean;
+  readonly address?: string;
+};
 
 type FacetBuckets = {
-  category: Array<{ value: string; count: number }>
-  destination: Array<{ value: string; count: number }>
-  amenities: Array<{ value: string; count: number }>
-}
+  category: Array<{ value: string; count: number }>;
+  destination: Array<{ value: string; count: number }>;
+  amenities: Array<{ value: string; count: number }>;
+};
 
 type SearchComputationParams = {
-  readonly q: string
-  readonly categories: readonly string[]
-  readonly destinations: readonly string[]
-  readonly amenities: readonly string[]
-  readonly nomadFeatures: readonly string[]
-  readonly page: number
-  readonly limit: number
-  readonly includeFacets: boolean
-}
+  readonly q: string;
+  readonly categories: readonly string[];
+  readonly destinations: readonly string[];
+  readonly amenities: readonly string[];
+  readonly nomadFeatures: readonly string[];
+  readonly page: number;
+  readonly limit: number;
+  readonly includeFacets: boolean;
+};
 
 type SearchComputationResult = {
   results: Array<{
@@ -55,21 +55,21 @@ type SearchComputationResult = {
     [key: string]: unknown;
   }>;
   pagination: {
-    page: number
-    limit: number
-    total: number
-    totalPages: number
-    hasMore: boolean
-  }
-  facets?: FacetBuckets
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasMore: boolean;
+  };
+  facets?: FacetBuckets;
   filters: {
-    query: string
-    category: readonly string[]
-    destination: readonly string[]
-    amenities: readonly string[]
-    nomadFeatures: readonly string[]
-  }
-}
+    query: string;
+    category: readonly string[];
+    destination: readonly string[];
+    amenities: readonly string[];
+    nomadFeatures: readonly string[];
+  };
+};
 
 const discoveryListings: readonly E2EDiscoveryListing[] = [
   {
@@ -173,7 +173,7 @@ const discoveryListings: readonly E2EDiscoveryListing[] = [
     priceRange: 'premium',
     address: '5 Canopy Road, Chiang Mai',
   },
-]
+];
 
 const discoveryCities: readonly CityDetailDTO[] = [
   {
@@ -182,7 +182,8 @@ const discoveryCities: readonly CityDetailDTO[] = [
     slug: 'bangkok',
     country: 'Thailand',
     highlights: ['Green rooftops', 'Bike lanes', 'River taxis'],
-    description: 'Bangkok is embracing sustainability through green rooftops, river revitalisation, and low-carbon mobility.',
+    description:
+      'Bangkok is embracing sustainability through green rooftops, river revitalisation, and low-carbon mobility.',
     shortDescription: 'High-energy capital with a growing network of sustainable work hubs.',
     sustainabilityScore: 72 as CityDTO['sustainabilityScore'],
     imageUrl: '/placeholder_image.png',
@@ -192,7 +193,11 @@ const discoveryCities: readonly CityDetailDTO[] = [
     climate: 'Tropical',
     safety: 'Generally safe with vibrant expat communities',
     walkability: 'High in core neighbourhoods',
-    sustainabilityInitiatives: ['Solar rooftops for coworking hubs', 'Expanded urban rail network', 'Community recycling drives'],
+    sustainabilityInitiatives: [
+      'Solar rooftops for coworking hubs',
+      'Expanded urban rail network',
+      'Community recycling drives',
+    ],
     digitalNomadFeatures: ['Abundant coworking spaces', 'Night markets', 'Riverfront cafes'],
     galleryImages: [],
   },
@@ -202,7 +207,8 @@ const discoveryCities: readonly CityDetailDTO[] = [
     slug: 'chiang-mai',
     country: 'Thailand',
     highlights: ['Old city sustainability plan', 'Organic markets', 'Mountain escapes'],
-    description: 'Chiang Mai blends heritage, sustainability, and creative energy with slow-living initiatives.',
+    description:
+      'Chiang Mai blends heritage, sustainability, and creative energy with slow-living initiatives.',
     shortDescription: 'Creative capital of the north with thriving eco communities.',
     sustainabilityScore: 86 as CityDTO['sustainabilityScore'],
     imageUrl: '/placeholder_image.png',
@@ -222,7 +228,8 @@ const discoveryCities: readonly CityDetailDTO[] = [
     slug: 'phuket',
     country: 'Thailand',
     highlights: ['Marine conservation', 'Green hospitality', 'Cycle-friendly routes'],
-    description: 'Phuket is building a blue economy with marine conservation corridors and eco stays.',
+    description:
+      'Phuket is building a blue economy with marine conservation corridors and eco stays.',
     shortDescription: 'Island innovation hub with ocean-forward sustainability.',
     sustainabilityScore: 69 as CityDTO['sustainabilityScore'],
     imageUrl: '/placeholder_image.png',
@@ -236,32 +243,34 @@ const discoveryCities: readonly CityDetailDTO[] = [
     digitalNomadFeatures: ['Ocean views', 'Island excursions'],
     galleryImages: [],
   },
-]
+];
 
 export const e2eFilterMetadata = {
-  cities: discoveryCities.map((city) => ({
+  cities: discoveryCities.map(city => ({
     _id: city.id,
     name: city.name,
     slug: { current: city.slug } as const,
   })),
-  categories: Array.from(new Set(discoveryListings.map((listing) => listing.category))),
+  categories: Array.from(new Set(discoveryListings.map(listing => listing.category))),
   amenities: Array.from(
     new Set(
-      discoveryListings.flatMap((listing) => listing.amenityNames.map((name) => name.trim())).filter(Boolean)
+      discoveryListings
+        .flatMap(listing => listing.amenityNames.map(name => name.trim()))
+        .filter(Boolean)
     )
-  ).map((name) => ({ name })),
-} as const
+  ).map(name => ({ name })),
+} as const;
 
 export function isE2ERun() {
-  const env = process.env.NEXT_PUBLIC_E2E ?? process.env.E2E ?? ''
-  return ['1', 'true', 'yes'].includes(String(env).toLowerCase())
+  const env = process.env.NEXT_PUBLIC_E2E ?? process.env.E2E ?? '';
+  return ['1', 'true', 'yes'].includes(String(env).toLowerCase());
 }
 
-const normalize = (value: string) => value.trim().toLowerCase()
+const normalize = (value: string) => value.trim().toLowerCase();
 
 function matchesQuery(listing: E2EDiscoveryListing, query: string) {
-  if (!query) return true
-  const normalized = normalize(query)
+  if (!query) return true;
+  const normalized = normalize(query);
   const haystack = [
     listing.name,
     listing.slug,
@@ -269,20 +278,20 @@ function matchesQuery(listing: E2EDiscoveryListing, query: string) {
     listing.city.name,
     listing.city.country,
     listing.shortDescription ?? '',
-  ]
-  return haystack.some((value) => normalize(value).includes(normalized))
+  ];
+  return haystack.some(value => normalize(value).includes(normalized));
 }
 
 function matchesAny(valueList: readonly string[], selections: readonly string[]) {
-  if (!selections.length) return true
-  const normalizedValues = valueList.map(normalize)
-  return selections.some((selection) => normalizedValues.includes(normalize(selection)))
+  if (!selections.length) return true;
+  const normalizedValues = valueList.map(normalize);
+  return selections.some(selection => normalizedValues.includes(normalize(selection)));
 }
 
 function matchesAll(valueList: readonly string[], selections: readonly string[]) {
-  if (!selections.length) return true
-  const normalizedValues = valueList.map(normalize)
-  return selections.every((selection) => normalizedValues.includes(normalize(selection)))
+  if (!selections.length) return true;
+  const normalizedValues = valueList.map(normalize);
+  return selections.every(selection => normalizedValues.includes(normalize(selection)));
 }
 
 function toApiResult(listing: E2EDiscoveryListing) {
@@ -297,15 +306,13 @@ function toApiResult(listing: E2EDiscoveryListing) {
       slug: listing.city.slug,
       country: listing.city.country,
     },
-    primaryImage: listing.primaryImageUrl
-      ? { asset: { url: listing.primaryImageUrl } }
-      : null,
+    primaryImage: listing.primaryImageUrl ? { asset: { url: listing.primaryImageUrl } } : null,
     shortDescription: listing.shortDescription,
     amenityNames: listing.amenityNames,
     ecoFocusTags: listing.ecoFocusTags,
     ecoFeatures: listing.ecoFocusTags,
     moderation: listing.featured ? { featured: true } : undefined,
-  }
+  };
 }
 
 function toListingSummary(listing: E2EDiscoveryListing): ListingSummaryDTO {
@@ -324,41 +331,46 @@ function toListingSummary(listing: E2EDiscoveryListing): ListingSummaryDTO {
     shortDescription: listing.shortDescription,
     amenityNames: [...listing.amenityNames],
     ecoFocusTags: [...listing.ecoFocusTags],
-    digitalNomadFeatures: listing.digitalNomadFeatures ? [...listing.digitalNomadFeatures] : undefined,
-    location: listing.location ? { lat: listing.location.lat, lng: listing.location.lng } : undefined,
+    digitalNomadFeatures: listing.digitalNomadFeatures
+      ? [...listing.digitalNomadFeatures]
+      : undefined,
+    location: listing.location
+      ? { lat: listing.location.lat, lng: listing.location.lng }
+      : undefined,
     priceRange: listing.priceRange,
     featured: listing.featured,
     address: listing.address,
-  }
+  };
 }
 
 function computeFacets(listings: readonly E2EDiscoveryListing[]): FacetBuckets {
-  const categoryCounts = new Map<string, number>()
-  const destinationCounts = new Map<string, number>()
-  const amenityCounts = new Map<string, number>()
+  const categoryCounts = new Map<string, number>();
+  const destinationCounts = new Map<string, number>();
+  const amenityCounts = new Map<string, number>();
 
   const increment = (map: Map<string, number>, rawValue?: string) => {
-    if (!rawValue) return
-    const key = rawValue.trim()
-    if (!key) return
-    map.set(key, (map.get(key) ?? 0) + 1)
-  }
+    if (!rawValue) return;
+    const key = rawValue.trim();
+    if (!key) return;
+    map.set(key, (map.get(key) ?? 0) + 1);
+  };
 
   for (const listing of listings) {
-    increment(categoryCounts, listing.category)
-    increment(destinationCounts, listing.city.name)
+    increment(categoryCounts, listing.category);
+    increment(destinationCounts, listing.city.name);
     for (const amenity of listing.amenityNames) {
-      increment(amenityCounts, amenity)
+      increment(amenityCounts, amenity);
     }
   }
 
-  const mapToArray = (map: Map<string, number>) => Array.from(map.entries(), ([value, count]) => ({ value, count }))
+  const mapToArray = (map: Map<string, number>) =>
+    Array.from(map.entries(), ([value, count]) => ({ value, count }));
 
   return {
     category: mapToArray(categoryCounts),
     destination: mapToArray(destinationCounts),
     amenities: mapToArray(amenityCounts),
-  }
+  };
 }
 
 export function buildE2ESearchResponse({
@@ -371,21 +383,21 @@ export function buildE2ESearchResponse({
   limit,
   includeFacets,
 }: SearchComputationParams): SearchComputationResult {
-  const filtered = discoveryListings.filter((listing) => {
-    if (!matchesQuery(listing, q)) return false
-    if (!matchesAny([listing.category], categories)) return false
-    if (!matchesAny([listing.city.name, listing.city.slug], destinations)) return false
-    if (!matchesAll(listing.amenityNames, amenities)) return false
-    if (!matchesAll(listing.digitalNomadFeatures ?? [], nomadFeatures)) return false
-    return true
-  })
+  const filtered = discoveryListings.filter(listing => {
+    if (!matchesQuery(listing, q)) return false;
+    if (!matchesAny([listing.category], categories)) return false;
+    if (!matchesAny([listing.city.name, listing.city.slug], destinations)) return false;
+    if (!matchesAll(listing.amenityNames, amenities)) return false;
+    if (!matchesAll(listing.digitalNomadFeatures ?? [], nomadFeatures)) return false;
+    return true;
+  });
 
-  const total = filtered.length
-  const normalizedLimit = Math.max(1, limit)
-  const normalizedPage = Math.max(1, page)
-  const start = (normalizedPage - 1) * normalizedLimit
-  const end = start + normalizedLimit
-  const slice = filtered.slice(start, end)
+  const total = filtered.length;
+  const normalizedLimit = Math.max(1, limit);
+  const normalizedPage = Math.max(1, page);
+  const start = (normalizedPage - 1) * normalizedLimit;
+  const end = start + normalizedLimit;
+  const slice = filtered.slice(start, end);
 
   const pagination = {
     page: normalizedPage,
@@ -393,7 +405,7 @@ export function buildE2ESearchResponse({
     total,
     totalPages: Math.max(1, Math.ceil(total / normalizedLimit)),
     hasMore: normalizedPage * normalizedLimit < total,
-  }
+  };
 
   return {
     results: slice.map(toApiResult),
@@ -406,44 +418,59 @@ export function buildE2ESearchResponse({
       amenities,
       nomadFeatures,
     },
-  }
+  };
 }
 
 export function getE2ECitySummary(slug: string): CityDTO | null {
-  const detail = discoveryCities.find((city) => city.slug === slug)
-  if (!detail) return null
-  const { galleryImages: ignored_gallery, digitalNomadFeatures: ignored_dn, sustainabilityInitiatives: ignored_si, shortDescription: ignored_sd, airQuality: ignored_aq, internetSpeed: ignored_is, costOfLiving: ignored_cl, climate: ignored_climate, safety: ignored_safety, walkability: ignored_walk, ...rest } = detail
-  return { ...rest }
+  const detail = discoveryCities.find(city => city.slug === slug);
+  if (!detail) return null;
+  const {
+    galleryImages: ignored_gallery,
+    digitalNomadFeatures: ignored_dn,
+    sustainabilityInitiatives: ignored_si,
+    shortDescription: ignored_sd,
+    airQuality: ignored_aq,
+    internetSpeed: ignored_is,
+    costOfLiving: ignored_cl,
+    climate: ignored_climate,
+    safety: ignored_safety,
+    walkability: ignored_walk,
+    ...rest
+  } = detail;
+  return { ...rest };
 }
 
 export function getE2ECityDetail(slug: string): CityDetailDTO | null {
-  const detail = discoveryCities.find((city) => city.slug === slug)
-  return detail ? { ...detail } : null
+  const detail = discoveryCities.find(city => city.slug === slug);
+  return detail ? { ...detail } : null;
 }
 
 export function getE2ECityList(limit = 20): CityDTO[] {
-  return discoveryCities.slice(0, limit).map((city) => getE2ECitySummary(city.slug)!).filter(Boolean)
+  return discoveryCities
+    .slice(0, limit)
+    .map(city => getE2ECitySummary(city.slug)!)
+    .filter(Boolean);
 }
 
 export function getE2EListingsForCity(cityId: string): ListingSummaryDTO[] {
   return discoveryListings
-    .filter((listing) => listing.city._id === cityId)
-    .map((listing) => toListingSummary(listing))
+    .filter(listing => listing.city._id === cityId)
+    .map(listing => toListingSummary(listing));
 }
 
-export const e2eDiscoveryListings = discoveryListings
-export const e2eDiscoveryCities = discoveryCities
+export const e2eDiscoveryListings = discoveryListings;
+export const e2eDiscoveryCities = discoveryCities;
 
 export function parseSearchParamsForE2E(params: SearchParamRecord) {
   const normalizeParam = (value: string | string[] | undefined): string[] => {
-    if (value === undefined) return []
-    return Array.isArray(value) ? value.map(String) : [String(value)]
-  }
+    if (value === undefined) return [];
+    return Array.isArray(value) ? value.map(String) : [String(value)];
+  };
 
   const getFirst = (value: string | string[] | undefined): string => {
-    if (value === undefined) return ''
-    return Array.isArray(value) ? String(value[0] ?? '') : String(value)
-  }
+    if (value === undefined) return '';
+    return Array.isArray(value) ? String(value[0] ?? '') : String(value);
+  };
 
   return {
     q: getFirst(params.q),
@@ -451,5 +478,5 @@ export function parseSearchParamsForE2E(params: SearchParamRecord) {
     destinations: normalizeParam(params.destination),
     amenities: normalizeParam(params.amenities),
     nomadFeatures: normalizeParam(params.nomadFeatures),
-  }
+  };
 }

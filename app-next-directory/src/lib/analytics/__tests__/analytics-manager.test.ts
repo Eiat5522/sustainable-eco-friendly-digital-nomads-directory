@@ -39,7 +39,11 @@ describe('AnalyticsManager', () => {
     expect(again).toBe(analytics);
 
     analytics.trackExperiment(
-      { id: 'exp', name: 'Experiment', variants: [{ id: 'control', name: 'Control', weight: 100 }] },
+      {
+        id: 'exp',
+        name: 'Experiment',
+        variants: [{ id: 'control', name: 'Control', weight: 100 }],
+      },
       { id: 'control', name: 'Control', weight: 100 }
     );
 
@@ -65,7 +69,11 @@ describe('AnalyticsManager', () => {
     analytics.trackPageView('/dashboard');
     analytics.trackEvent({ name: 'test-event', properties: { foo: 'bar' } });
     analytics.trackExperiment(
-      { id: 'exp', name: 'Experiment', variants: [{ id: 'control', name: 'Control', weight: 100 }] },
+      {
+        id: 'exp',
+        name: 'Experiment',
+        variants: [{ id: 'control', name: 'Control', weight: 100 }],
+      },
       { id: 'control', name: 'Control', weight: 100 }
     );
 
@@ -96,7 +104,10 @@ describe('AnalyticsManager', () => {
     await analytics.initialize();
 
     const [, options] = mockPosthog.init.mock.calls[0];
-    expect(options).toMatchObject({ api_host: 'https://app.posthog.com', loaded: expect.any(Function) });
+    expect(options).toMatchObject({
+      api_host: 'https://app.posthog.com',
+      loaded: expect.any(Function),
+    });
 
     options.loaded?.({ debug: mockPosthog.debug } as any);
     expect(mockPosthog.debug).toHaveBeenCalled();

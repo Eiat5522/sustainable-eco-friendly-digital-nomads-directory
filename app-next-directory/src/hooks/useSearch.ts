@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { SearchFilters, SortOption } from '@/types/search';
 
 interface SearchResult {
@@ -49,8 +49,9 @@ export function useSearch({
   const [page, setPage] = useState(1);
 
   const [results, setResults] = useState<UseSearchResults>({
-    results: [], error: null,
-    pagination: { total: 0, page: 1, totalPages: 0, hasMore: false }
+    results: [],
+    error: null,
+    pagination: { total: 0, page: 1, totalPages: 0, hasMore: false },
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -64,51 +65,40 @@ export function useSearch({
     async function doSearch() {
       try {
         setIsLoading(true);
-        // FORTEST: Debug log for query
-         
-        console.log('FORTEST: Query sent to API:', debouncedQuery);
         const res = await fetch('/api/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             query: debouncedQuery,
             page,
-            limit: 12
-            ,filters
-            ,sort
-          })
+            limit: 12,
+            filters,
+            sort,
+          }),
         });
         if (!res.ok) {
           // Try to read error body for debugging
           try {
-            const txt = await res.text();
+            const _txt = await res.text();
             if (process.env.NODE_ENV !== 'production') {
-              console.error('Search API error response:', txt);
             }
-          } catch (parseError) {
-            console.error('Failed to parse error response:', parseError);
+          } catch (_parseError) {
           }
           throw new Error('Search request failed');
         }
         const data = await res.json();
-        // FORTEST: Debug log for API response
-         
-        console.log('FORTEST: API response data:', JSON.stringify(data));
         setResults(prev => ({
           ...prev,
           ...data,
           results: Array.isArray(data.results) ? data.results : [],
           pagination: data.pagination || prev.pagination,
-          error: data.error || null
+          error: data.error || null,
         }));
         // Ensure results.results is always an array for test compatibility
         if (!Array.isArray(data.results)) {
           setResults(prev => ({ ...prev, results: [] }));
         }
       } catch (err) {
-        // FORTEST: Debug log for error
-         
-        console.log('FORTEST: Caught error in search:', err);
         setResults(r => ({ ...r, error: err instanceof Error ? err : new Error('Unknown') }));
       } finally {
         setIsLoading(false);
@@ -127,7 +117,9 @@ export function useSearch({
     async function getSuggestions() {
       setIsLoadingSuggestions(true);
       try {
-        const res = await fetch(`/api/search/suggestions?q=${encodeURIComponent(debouncedSuggest)}`);
+        const res = await fetch(
+          `/api/search/suggestions?q=${encodeURIComponent(debouncedSuggest)}`
+        );
         if (!res.ok) throw new Error();
         const data = await res.json();
         if (!canceled) setSuggestions(data);
@@ -138,7 +130,9 @@ export function useSearch({
       }
     }
     getSuggestions();
-    return () => { canceled = true; };
+    return () => {
+      canceled = true;
+    };
   }, [debouncedSuggest]);
 
   const handleQueryChange = useCallback((q: string) => {
@@ -153,7 +147,7 @@ export function useSearch({
 
   const handleSortChange = useCallback((s: SortOption) => setSort(s), []);
   const handlePageChange = useCallback((p: number) => setPage(p), []);
-  const clearFilters   = useCallback(() => {
+  const clearFilters = useCallback(() => {
     setFilters(initialFilters);
     setSort(undefined);
   }, [initialFilters]);
@@ -173,6 +167,6 @@ export function useSearch({
     handleFiltersChange,
     handleSortChange,
     handlePageChange,
-    clearFilters
+    clearFilters,
   };
 }

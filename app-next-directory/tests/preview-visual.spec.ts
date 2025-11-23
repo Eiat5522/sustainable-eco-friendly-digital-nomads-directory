@@ -1,10 +1,10 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 // Visual regression tests for preview mode
 test.describe('Preview Mode Visual Tests', () => {
   const VIEWPORTS = [
-    { width: 375, height: 667, name: 'mobile' },    // iPhone SE
-    { width: 1280, height: 720, name: 'desktop' }   // Standard desktop
+    { width: 375, height: 667, name: 'mobile' }, // iPhone SE
+    { width: 1280, height: 720, name: 'desktop' }, // Standard desktop
   ];
 
   test.beforeEach(async ({ page }) => {
@@ -25,9 +25,12 @@ test.describe('Preview Mode Visual Tests', () => {
       await expect(previewBanner).toBeVisible();
 
       // Take screenshot of preview banner
-      await expect(page.getByTestId('preview-banner')).toHaveScreenshot(`preview-banner-${viewport.name}.png`, {
-        mask: [page.getByText(/last updated/i)] // Mask dynamic timestamp
-      });
+      await expect(page.getByTestId('preview-banner')).toHaveScreenshot(
+        `preview-banner-${viewport.name}.png`,
+        {
+          mask: [page.getByText(/last updated/i)], // Mask dynamic timestamp
+        }
+      );
     });
 
     test(`draft listing visual indicators - ${viewport.name}`, async ({ page }) => {
@@ -41,17 +44,20 @@ test.describe('Preview Mode Visual Tests', () => {
       await expect(page.getByText('Draft')).toBeVisible();
 
       // Take screenshot of the header area with draft indicator
-      await expect(page.locator('header')).toHaveScreenshot(`draft-listing-header-${viewport.name}.png`, {
-        mask: [page.getByText(/last updated/i)]
-      });
+      await expect(page.locator('header')).toHaveScreenshot(
+        `draft-listing-header-${viewport.name}.png`,
+        {
+          mask: [page.getByText(/last updated/i)],
+        }
+      );
 
       // Take screenshot of the full listing content
       await expect(page).toHaveScreenshot(`draft-listing-full-${viewport.name}.png`, {
         fullPage: true,
         mask: [
           page.getByText(/last updated/i),
-          page.getByTestId('dynamic-content')  // Mask any dynamic content
-        ]
+          page.getByTestId('dynamic-content'), // Mask any dynamic content
+        ],
       });
     });
 
@@ -66,17 +72,17 @@ test.describe('Preview Mode Visual Tests', () => {
       await expect(page.getByText('Draft')).toBeVisible();
 
       // Take screenshot of the header area with draft indicator
-      await expect(page.locator('header')).toHaveScreenshot(`draft-city-header-${viewport.name}.png`, {
-        mask: [page.getByText(/last updated/i)]
-      });
+      await expect(page.locator('header')).toHaveScreenshot(
+        `draft-city-header-${viewport.name}.png`,
+        {
+          mask: [page.getByText(/last updated/i)],
+        }
+      );
 
       // Take screenshot of the full city page
       await expect(page).toHaveScreenshot(`draft-city-full-${viewport.name}.png`, {
         fullPage: true,
-        mask: [
-          page.getByText(/last updated/i),
-          page.getByTestId('dynamic-content')
-        ]
+        mask: [page.getByText(/last updated/i), page.getByTestId('dynamic-content')],
       });
     });
 
@@ -87,7 +93,7 @@ test.describe('Preview Mode Visual Tests', () => {
 
       // Take screenshot before exit
       await expect(page).toHaveScreenshot(`before-exit-preview-${viewport.name}.png`, {
-        mask: [page.getByText(/last updated/i)]
+        mask: [page.getByText(/last updated/i)],
       });
 
       // Click exit preview button

@@ -3,7 +3,6 @@
 import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 
 const mockListings = [
   {
@@ -54,7 +53,9 @@ describe('TestSearchPage', () => {
     render(<TestSearchPage />);
 
     expect(screen.getByTestId('search-input')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Search by name, description, tag, or feature')).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText('Search by name, description, tag, or feature')
+    ).toBeInTheDocument();
   });
 
   it('should fetch listings on mount', async () => {
@@ -284,7 +285,7 @@ describe('TestSearchPage', () => {
 
     await waitFor(() => {
       const features = screen.getAllByTestId('nomad-feature');
-      const wifiFeatures = features.filter((f) => f.textContent?.includes('wifi'));
+      const wifiFeatures = features.filter(f => f.textContent?.includes('wifi'));
       expect(wifiFeatures.length).toBeGreaterThan(0);
     });
   });
@@ -349,7 +350,7 @@ describe('TestSearchPage', () => {
 
     await waitFor(() => {
       const descriptions = screen.getAllByTestId('listing-description');
-      const hasDefaultText = descriptions.some((d) =>
+      const hasDefaultText = descriptions.some(d =>
         d.textContent?.includes('Eco friendly workspace with sustainable amenities')
       );
       expect(hasDefaultText).toBe(true);

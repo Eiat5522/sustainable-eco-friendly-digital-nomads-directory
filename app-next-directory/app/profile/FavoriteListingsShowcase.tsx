@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { ArrowUpRight, ChevronDown, Heart, Leaf, MapPin, Sparkles, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowUpRight, ChevronDown, Heart, Leaf, MapPin, Sparkles, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 
 import { NeoBadge } from '@/components/ui/neo-badge';
 import { NeoButton } from '@/components/ui/neo-button';
@@ -38,13 +38,16 @@ const PRICE_RANGE_LABELS: Record<string, string> = {
   premium: 'Premium',
 };
 
-function toLabel(value: string | undefined, dictionary: Record<string, string>): string | undefined {
+function toLabel(
+  value: string | undefined,
+  dictionary: Record<string, string>
+): string | undefined {
   if (!value) return undefined;
   if (dictionary[value]) return dictionary[value];
   return value
     .split(/[-_\s]+/)
     .filter(Boolean)
-    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .map(segment => segment.charAt(0).toUpperCase() + segment.slice(1))
     .join(' ');
 }
 
@@ -64,14 +67,13 @@ export function FavoriteListingsShowcase({ listings, onRemove }: FavoriteListing
         const categoryLabel = toLabel(listing.category ?? listing.type, CATEGORY_LABELS);
         const priceLabel = toLabel(listing.priceRange, PRICE_RANGE_LABELS);
         const ecoTags = Array.isArray(listing.ecoFocusTags) ? listing.ecoFocusTags : [];
-        const digitalTags = Array.isArray(listing.digitalNomadFeatures) ? listing.digitalNomadFeatures : [];
-        const highlightTags = [
-          ...ecoTags.slice(0, 2),
-          ...digitalTags.slice(0, 2),
-        ];
+        const digitalTags = Array.isArray(listing.digitalNomadFeatures)
+          ? listing.digitalNomadFeatures
+          : [];
+        const highlightTags = [...ecoTags.slice(0, 2), ...digitalTags.slice(0, 2)];
         const description =
           listing.shortDescription ??
-          'This listing hasn\'t added a short description yet. Visit the listing page to explore more details about the experience.';
+          "This listing hasn't added a short description yet. Visit the listing page to explore more details about the experience.";
 
         return (
           <article
@@ -145,7 +147,9 @@ export function FavoriteListingsShowcase({ listings, onRemove }: FavoriteListing
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={() => setExpandedId((current) => (current === listing.id ? null : listing.id))}
+                      onClick={() =>
+                        setExpandedId(current => (current === listing.id ? null : listing.id))
+                      }
                       aria-expanded={isExpanded}
                       aria-controls={panelId}
                       className="gap-2"
@@ -188,11 +192,15 @@ export function FavoriteListingsShowcase({ listings, onRemove }: FavoriteListing
                   id={panelId}
                   aria-hidden={!isExpanded}
                   className={`grid gap-4 overflow-hidden transition-all duration-300 ${
-                    isExpanded ? 'max-h-[600px] opacity-100' : 'pointer-events-none max-h-0 opacity-0'
+                    isExpanded
+                      ? 'max-h-[600px] opacity-100'
+                      : 'pointer-events-none max-h-0 opacity-0'
                   } ${isExpanded ? 'mt-1' : ''}`}
                 >
                   <div className="rounded-2xl border-4 border-neo-border bg-neo-surface/85 p-4 shadow-[4px_4px_0px_0px_var(--color-neo-shadow)]">
-                    <h4 className="text-xs font-semibold uppercase tracking-wide text-neo-text-primary">Why we love it</h4>
+                    <h4 className="text-xs font-semibold uppercase tracking-wide text-neo-text-primary">
+                      Why we love it
+                    </h4>
                     <p className="mt-3 text-sm text-neo-text-secondary">{description}</p>
                   </div>
 
@@ -203,14 +211,16 @@ export function FavoriteListingsShowcase({ listings, onRemove }: FavoriteListing
                       </h5>
                       {listing.ecoFocusTags.length > 0 ? (
                         <div className="mt-3 flex flex-wrap gap-2">
-                          {listing.ecoFocusTags.map((tag) => (
+                          {listing.ecoFocusTags.map(tag => (
                             <NeoBadge key={`eco-${listing.id}-${tag}`} variant="success" size="sm">
                               {tag}
                             </NeoBadge>
                           ))}
                         </div>
                       ) : (
-                        <p className="mt-3 text-sm text-neo-text-secondary">No eco focus tags yet.</p>
+                        <p className="mt-3 text-sm text-neo-text-secondary">
+                          No eco focus tags yet.
+                        </p>
                       )}
                     </div>
 
@@ -220,14 +230,20 @@ export function FavoriteListingsShowcase({ listings, onRemove }: FavoriteListing
                       </h5>
                       {listing.digitalNomadFeatures.length > 0 ? (
                         <div className="mt-3 flex flex-wrap gap-2">
-                          {listing.digitalNomadFeatures.map((feature) => (
-                            <NeoBadge key={`nomad-${listing.id}-${feature}`} variant="secondary" size="sm">
+                          {listing.digitalNomadFeatures.map(feature => (
+                            <NeoBadge
+                              key={`nomad-${listing.id}-${feature}`}
+                              variant="secondary"
+                              size="sm"
+                            >
                               {feature}
                             </NeoBadge>
                           ))}
                         </div>
                       ) : (
-                        <p className="mt-3 text-sm text-neo-text-secondary">No digital nomad features listed yet.</p>
+                        <p className="mt-3 text-sm text-neo-text-secondary">
+                          No digital nomad features listed yet.
+                        </p>
                       )}
                     </div>
                   </div>

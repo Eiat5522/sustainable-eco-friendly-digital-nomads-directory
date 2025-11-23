@@ -7,7 +7,7 @@
  * 4. Error handling
  */
 
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 // Mock Next.js modules
 const mockEnable = jest.fn();
@@ -38,7 +38,7 @@ describe('Preview Mode API - GET /api/preview', () => {
     mockRedirect.mockImplementation((path: string) => {
       throw new Error(`NEXT_REDIRECT:${path}`);
     });
-    
+
     // Dynamically import the route handler
     const routeModule = await import('../route');
     GET = routeModule.GET;
@@ -48,7 +48,9 @@ describe('Preview Mode API - GET /api/preview', () => {
     it('should enable preview mode with valid token and slug', async () => {
       mockValidatePreviewToken.mockReturnValueOnce(true);
 
-      const request = new Request('http://localhost/api/preview?secret=valid-secret&slug=test-listing&type=listing');
+      const request = new Request(
+        'http://localhost/api/preview?secret=valid-secret&slug=test-listing&type=listing'
+      );
 
       try {
         await GET(request);
@@ -64,7 +66,9 @@ describe('Preview Mode API - GET /api/preview', () => {
     it('should redirect to listings path for listing type', async () => {
       mockValidatePreviewToken.mockReturnValueOnce(true);
 
-      const request = new Request('http://localhost/api/preview?secret=valid-secret&slug=eco-workspace&type=listing');
+      const request = new Request(
+        'http://localhost/api/preview?secret=valid-secret&slug=eco-workspace&type=listing'
+      );
 
       try {
         await GET(request);
@@ -78,7 +82,9 @@ describe('Preview Mode API - GET /api/preview', () => {
     it('should redirect to appropriate path for non-listing type', async () => {
       mockValidatePreviewToken.mockReturnValueOnce(true);
 
-      const request = new Request('http://localhost/api/preview?secret=valid-secret&slug=test-post&type=blog');
+      const request = new Request(
+        'http://localhost/api/preview?secret=valid-secret&slug=test-post&type=blog'
+      );
 
       try {
         await GET(request);
@@ -92,7 +98,9 @@ describe('Preview Mode API - GET /api/preview', () => {
     it('should handle preview without type parameter', async () => {
       mockValidatePreviewToken.mockReturnValueOnce(true);
 
-      const request = new Request('http://localhost/api/preview?secret=valid-secret&slug=test-slug');
+      const request = new Request(
+        'http://localhost/api/preview?secret=valid-secret&slug=test-slug'
+      );
 
       try {
         await GET(request);
@@ -107,7 +115,9 @@ describe('Preview Mode API - GET /api/preview', () => {
     it('should handle slug with hyphens', async () => {
       mockValidatePreviewToken.mockReturnValueOnce(true);
 
-      const request = new Request('http://localhost/api/preview?secret=valid-secret&slug=eco-workspace-amsterdam&type=listing');
+      const request = new Request(
+        'http://localhost/api/preview?secret=valid-secret&slug=eco-workspace-amsterdam&type=listing'
+      );
 
       try {
         await GET(request);
@@ -121,7 +131,9 @@ describe('Preview Mode API - GET /api/preview', () => {
     it('should return 401 when token is invalid', async () => {
       mockValidatePreviewToken.mockReturnValueOnce(false);
 
-      const request = new Request('http://localhost/api/preview?secret=invalid-secret&slug=test-listing&type=listing');
+      const request = new Request(
+        'http://localhost/api/preview?secret=invalid-secret&slug=test-listing&type=listing'
+      );
 
       const response = await GET(request);
 
@@ -146,7 +158,9 @@ describe('Preview Mode API - GET /api/preview', () => {
     it('should return 401 for empty token', async () => {
       mockValidatePreviewToken.mockReturnValueOnce(false);
 
-      const request = new Request('http://localhost/api/preview?secret=&slug=test-listing&type=listing');
+      const request = new Request(
+        'http://localhost/api/preview?secret=&slug=test-listing&type=listing'
+      );
 
       const response = await GET(request);
 
@@ -156,7 +170,9 @@ describe('Preview Mode API - GET /api/preview', () => {
     it('should handle token with special characters', async () => {
       mockValidatePreviewToken.mockReturnValueOnce(true);
 
-      const request = new Request('http://localhost/api/preview?secret=abc-123_xyz.token&slug=test&type=listing');
+      const request = new Request(
+        'http://localhost/api/preview?secret=abc-123_xyz.token&slug=test&type=listing'
+      );
 
       try {
         await GET(request);
@@ -185,7 +201,9 @@ describe('Preview Mode API - GET /api/preview', () => {
     it('should return 400 for empty slug', async () => {
       mockValidatePreviewToken.mockReturnValueOnce(true);
 
-      const request = new Request('http://localhost/api/preview?secret=valid-secret&slug=&type=listing');
+      const request = new Request(
+        'http://localhost/api/preview?secret=valid-secret&slug=&type=listing'
+      );
 
       const response = await GET(request);
 
@@ -199,7 +217,9 @@ describe('Preview Mode API - GET /api/preview', () => {
     it('should construct path with listing type', async () => {
       mockValidatePreviewToken.mockReturnValueOnce(true);
 
-      const request = new Request('http://localhost/api/preview?secret=valid-secret&slug=test-listing&type=listing');
+      const request = new Request(
+        'http://localhost/api/preview?secret=valid-secret&slug=test-listing&type=listing'
+      );
 
       try {
         await GET(request);
@@ -211,7 +231,9 @@ describe('Preview Mode API - GET /api/preview', () => {
     it('should construct path with blog type', async () => {
       mockValidatePreviewToken.mockReturnValueOnce(true);
 
-      const request = new Request('http://localhost/api/preview?secret=valid-secret&slug=blog-post&type=blog');
+      const request = new Request(
+        'http://localhost/api/preview?secret=valid-secret&slug=blog-post&type=blog'
+      );
 
       try {
         await GET(request);
@@ -223,7 +245,9 @@ describe('Preview Mode API - GET /api/preview', () => {
     it('should construct path with city type', async () => {
       mockValidatePreviewToken.mockReturnValueOnce(true);
 
-      const request = new Request('http://localhost/api/preview?secret=valid-secret&slug=amsterdam&type=city');
+      const request = new Request(
+        'http://localhost/api/preview?secret=valid-secret&slug=amsterdam&type=city'
+      );
 
       try {
         await GET(request);
@@ -250,7 +274,9 @@ describe('Preview Mode API - GET /api/preview', () => {
     it('should validate token before processing', async () => {
       mockValidatePreviewToken.mockReturnValueOnce(false);
 
-      const request = new Request('http://localhost/api/preview?secret=bad-secret&slug=test-listing&type=listing');
+      const request = new Request(
+        'http://localhost/api/preview?secret=bad-secret&slug=test-listing&type=listing'
+      );
 
       await GET(request);
 
@@ -261,7 +287,9 @@ describe('Preview Mode API - GET /api/preview', () => {
     it('should not enable draft mode without valid token', async () => {
       mockValidatePreviewToken.mockReturnValueOnce(false);
 
-      const request = new Request('http://localhost/api/preview?secret=invalid&slug=test&type=listing');
+      const request = new Request(
+        'http://localhost/api/preview?secret=invalid&slug=test&type=listing'
+      );
 
       await GET(request);
 
@@ -271,7 +299,9 @@ describe('Preview Mode API - GET /api/preview', () => {
     it('should not redirect without valid token', async () => {
       mockValidatePreviewToken.mockReturnValueOnce(false);
 
-      const request = new Request('http://localhost/api/preview?secret=invalid&slug=test&type=listing');
+      const request = new Request(
+        'http://localhost/api/preview?secret=invalid&slug=test&type=listing'
+      );
 
       await GET(request);
 
@@ -283,7 +313,9 @@ describe('Preview Mode API - GET /api/preview', () => {
     it('should handle URL-encoded slug', async () => {
       mockValidatePreviewToken.mockReturnValueOnce(true);
 
-      const request = new Request('http://localhost/api/preview?secret=valid-secret&slug=eco%20workspace&type=listing');
+      const request = new Request(
+        'http://localhost/api/preview?secret=valid-secret&slug=eco%20workspace&type=listing'
+      );
 
       try {
         await GET(request);
@@ -295,7 +327,9 @@ describe('Preview Mode API - GET /api/preview', () => {
     it('should handle multiple query parameters', async () => {
       mockValidatePreviewToken.mockReturnValueOnce(true);
 
-      const request = new Request('http://localhost/api/preview?secret=valid-secret&slug=test&type=listing&extra=ignored');
+      const request = new Request(
+        'http://localhost/api/preview?secret=valid-secret&slug=test&type=listing&extra=ignored'
+      );
 
       try {
         await GET(request);

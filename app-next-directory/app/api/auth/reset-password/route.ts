@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import dbConnect from '@/lib/dbConnect';
-import User from '@/models/User';
-import PasswordResetToken from '@/models/PasswordResetToken';
+import { getRequestContext, structuredLogger } from '@/lib/logger';
+import { getClientIp, getRetryAfterMs, isRateLimited } from '@/lib/rate-limit';
 import { hashToken } from '@/lib/tokens';
-import { getClientIp, isRateLimited, getRetryAfterMs } from '@/lib/rate-limit';
-import { structuredLogger, getRequestContext } from '@/lib/logger';
+import PasswordResetToken from '@/models/PasswordResetToken';
+import User from '@/models/User';
 
 type PasswordResetAudit = {
   outcome: 'success' | 'failure';
@@ -34,7 +34,6 @@ const logAuditEvent = (payload: PasswordResetAudit) => {
   if (typeof structuredLogger.info === 'function') {
     structuredLogger.info('password_reset audit', context);
   } else if (process.env.NODE_ENV === 'test') {
-    console.info('password_reset audit', context);
   }
 };
 
@@ -64,7 +63,13 @@ export async function POST(req: Request) {
         requestId,
         at: new Date().toISOString(),
       });
-      return NextResponse.json({ error: 'Too many requests' }, { status: 429, headers: { 'Retry-After': String(Math.ceil(await getRetryAfterMs(key) / 1000)) } });
+      return NextResponse.json(
+        { error: 'Too many requests' },
+        {
+          status: 429,
+          headers: { 'Retry-After': String(Math.ceil((await getRetryAfterMs(key)) / 1000)) },
+        }
+      );
     }
     if (!process.env.MONGODB_URI) {
       // Audit: server misconfiguration
@@ -91,16 +96,19 @@ export async function POST(req: Request) {
       });
       return NextResponse.json({ error: 'Invalid content type' }, { status: 400 });
     }
-    
+
     const body = await req.json();
     const { token, password } = Schema.parse(body);
     const tokenHash = hashToken(token);
     // Only accept non-expired tokens; TTL may lag, so enforce at query-time
-    const doc = await PasswordResetToken.findOne({ tokenHash, expiresAt: { $gt: new Date() } }).lean();
-    
+    const doc = await PasswordResetToken.findOne({
+      tokenHash,
+      expiresAt: { $gt: new Date() },
+    }).lean();
+
     // Check both conditions but always return the same error
     const isValid = doc && (!doc.expiresAt || new Date(doc.expiresAt).getTime() >= Date.now());
-    
+
     if (!isValid) {
       // Consider adding a small artificial delay here to normalize response times
       // Audit: invalid or expired token
@@ -128,7 +136,7 @@ export async function POST(req: Request) {
       });
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
-    
+
     // Ensure password field is writable and properly typed
     if (!('password' in u) || typeof u.password !== 'string') {
       throw new Error('User model password field is not accessible');
@@ -157,7 +165,7 @@ export async function POST(req: Request) {
     const resolvedError = error instanceof Error ? error : new Error('Unknown error');
     structuredLogger.authError('password reset', resolvedError, {
       ...getRequestContext(req),
-      operation: 'reset_password'
+      operation: 'reset_password',
     });
 
     if (error instanceof z.ZodError) {
@@ -173,7 +181,10 @@ export async function POST(req: Request) {
     }
     // Audit: generic failure
     const errorName =
-      typeof error === 'object' && error !== null && 'name' in error && typeof (error as { name?: unknown }).name === 'string'
+      typeof error === 'object' &&
+      error !== null &&
+      'name' in error &&
+      typeof (error as { name?: unknown }).name === 'string'
         ? (error as { name: string }).name
         : undefined;
 

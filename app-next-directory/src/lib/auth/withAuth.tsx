@@ -1,9 +1,9 @@
 'use client';
 
-import { useSession } from "next-auth/react";
-import { type ComponentType, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import type { UserRole } from "../../types/auth";
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { type ComponentType, useEffect } from 'react';
+import type { UserRole } from '../../types/auth';
 
 interface WithAuthOptions {
   requiredRole?: UserRole;
@@ -21,16 +21,12 @@ export function withAuth<P extends object>(
   Component: ComponentType<P>,
   options: WithAuthOptions = {}
 ) {
-  const {
-    requiredRole,
-    redirectTo = '/login',
-    requireAuth = true,
-  } = options;
+  const { requiredRole, redirectTo = '/login', requireAuth = true } = options;
 
   function AuthenticatedComponent(props: P) {
     const { data: session, status } = useSession();
     const router = useRouter();
-    
+
     const user = session?.user;
     const userRole = (user as { role?: UserRole })?.role || 'unidentifiedUser';
 
@@ -50,9 +46,11 @@ export function withAuth<P extends object>(
 
     // Show loading state while checking authentication
     if (status === 'loading') {
-      return <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-      </div>;
+      return (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+        </div>
+      );
     }
 
     // Don't render if authentication check fails

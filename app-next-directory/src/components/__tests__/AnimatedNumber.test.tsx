@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import { AnimatedNumber } from '../AnimatedNumber';
 import { useCounter } from '@/hooks/useCounter';
+import { AnimatedNumber } from '../AnimatedNumber';
 
 jest.mock('@/hooks/useCounter');
 
@@ -115,7 +115,7 @@ describe('AnimatedNumber', () => {
 
     it('handles many decimal places', () => {
       mockUseCounter.mockReturnValue({ formatted: '3.14159' });
-      render(<AnimatedNumber value={3.14159} decimals={5} />);
+      render(<AnimatedNumber value={Math.PI} decimals={5} />);
 
       expect(screen.getByText('3.14159')).toBeInTheDocument();
     });
@@ -161,9 +161,7 @@ describe('AnimatedNumber', () => {
   describe('Custom Styling', () => {
     it('applies custom className', () => {
       mockUseCounter.mockReturnValue({ formatted: '100' });
-      const { container } = render(
-        <AnimatedNumber value={100} className="text-lg font-bold" />
-      );
+      const { container } = render(<AnimatedNumber value={100} className="text-lg font-bold" />);
 
       const span = container.querySelector('span');
       expect(span).toHaveClass('text-lg');

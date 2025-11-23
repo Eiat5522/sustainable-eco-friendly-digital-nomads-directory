@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
-import { usePlausibleAnalytics } from '../hooks';
 import { ANALYTICS_EVENTS } from '../config';
+import { usePlausibleAnalytics } from '../hooks';
 
 describe('usePlausibleAnalytics', () => {
   const originalEnv = process.env.NODE_ENV;
@@ -22,7 +22,10 @@ describe('usePlausibleAnalytics', () => {
     result.current.trackReviewSubmission('listing-1');
     result.current.trackFilterApplication({ price: 'budget' });
 
-    expect(logSpy).toHaveBeenCalledWith('Analytics Event:', 'listing', { listingId: '1', action: 'view' });
+    expect(logSpy).toHaveBeenCalledWith('Analytics Event:', 'listing', {
+      listingId: '1',
+      action: 'view',
+    });
     expect(logSpy).toHaveBeenCalledTimes(5);
 
     logSpy.mockRestore();
@@ -41,6 +44,9 @@ describe('usePlausibleAnalytics', () => {
   });
 
   it('exposes event constants for consumers', () => {
-    expect(ANALYTICS_EVENTS).toMatchObject({ LISTING: 'listing_interaction', FILTER: 'filter_applied' });
+    expect(ANALYTICS_EVENTS).toMatchObject({
+      LISTING: 'listing_interaction',
+      FILTER: 'filter_applied',
+    });
   });
 });

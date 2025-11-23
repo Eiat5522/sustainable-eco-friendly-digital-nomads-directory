@@ -1,22 +1,22 @@
 import type {
-  ImageDimensionsDTO,
-  CityDTO,
-  CityDetailDTO,
+  AccommodationDetails,
+  ActivityDetails,
   AmenityDTO,
   BaseListingDTO,
+  CafeDetails,
+  CityDetailDTO,
+  CityDTO,
+  CoworkingDetails,
+  FeaturedListingDTO,
   GeoPoint,
+  ImageDimensionsDTO,
   InternetSpeedDTO,
+  ISODateString,
+  ListingDetailDTO,
+  ListingSummaryDTO,
   Money,
   OpeningHour,
-  ListingSummaryDTO,
-  FeaturedListingDTO,
-  CoworkingDetails,
-  CafeDetails,
   RestaurantDetails,
-  ActivityDetails,
-  AccommodationDetails,
-  ListingDetailDTO,
-  ISODateString
 } from '../dto';
 import { asISODateString, assertISODateString, isISODateString } from '../dto';
 
@@ -25,7 +25,7 @@ describe('dto types', () => {
     it('should accept dimensions with width and height', () => {
       const dims: ImageDimensionsDTO = {
         width: 800,
-        height: 600
+        height: 600,
       };
       expect(dims.width).toBe(800);
       expect(dims.height).toBe(600);
@@ -50,7 +50,7 @@ describe('dto types', () => {
         highlights: ['Transport', 'Parks'],
         imageUrl: 'https://example.com/bangkok.jpg',
         imageDimensions: { width: 1200, height: 800 },
-        description: 'Vibrant capital city'
+        description: 'Vibrant capital city',
       };
       expect(city.name).toBe('Bangkok');
       expect(city.sustainabilityScore).toBe(85);
@@ -73,7 +73,7 @@ describe('dto types', () => {
         walkability: 'Good',
         sustainabilityInitiatives: ['Solar', 'Recycling'],
         digitalNomadFeatures: ['Coworking', 'Cafes'],
-        galleryImages: ['https://example.com/img1.jpg']
+        galleryImages: ['https://example.com/img1.jpg'],
       };
       expect(detail.shortDescription).toBe('Mountain city');
       expect(detail.internetSpeed).toBe(100);
@@ -85,7 +85,7 @@ describe('dto types', () => {
         name: 'Test',
         slug: 'test',
         country: 'Test',
-        internetSpeed: { download: 100, upload: 50 }
+        internetSpeed: { download: 100, upload: 50 },
       };
       expect(typeof detail.internetSpeed).toBe('object');
     });
@@ -98,7 +98,7 @@ describe('dto types', () => {
         name: 'WiFi',
         slug: 'wifi',
         icon: 'wifi-icon',
-        category: 'Technology'
+        category: 'Technology',
       };
       expect(amenity.name).toBe('WiFi');
     });
@@ -116,7 +116,7 @@ describe('dto types', () => {
     it('should accept download and upload speeds', () => {
       const speed: InternetSpeedDTO = {
         download: 100,
-        upload: 50
+        upload: 50,
       };
       expect(speed.download).toBe(100);
       expect(speed.upload).toBe(50);
@@ -126,7 +126,7 @@ describe('dto types', () => {
       const speed: InternetSpeedDTO = {
         download: 200,
         upload: 100,
-        lastTested: '2024-01-15'
+        lastTested: '2024-01-15',
       };
       expect(speed.lastTested).toBe('2024-01-15');
     });
@@ -136,7 +136,7 @@ describe('dto types', () => {
     it('should accept amount and currency', () => {
       const money: Money = {
         amount: 5000,
-        currency: 'THB'
+        currency: 'THB',
       };
       expect(money.amount).toBe(5000);
       expect(money.currency).toBe('THB');
@@ -146,7 +146,7 @@ describe('dto types', () => {
       const money: Money = {
         amount: 300,
         currency: 'THB',
-        unit: 'night'
+        unit: 'night',
       };
       expect(money.unit).toBe('night');
     });
@@ -157,7 +157,7 @@ describe('dto types', () => {
       const hours: OpeningHour = {
         day: 'Monday',
         opens: '09:00',
-        closes: '18:00'
+        closes: '18:00',
       };
       expect(hours.day).toBe('Monday');
     });
@@ -174,7 +174,7 @@ describe('dto types', () => {
           id: 'city-1',
           name: 'Bangkok',
           slug: 'bangkok',
-          country: 'Thailand'
+          country: 'Thailand',
         },
         imageUrl: 'https://example.com/image.jpg',
         ecoFocusTags: ['solar', 'recycling'],
@@ -186,7 +186,7 @@ describe('dto types', () => {
         status: 'published',
         verification: 'verified',
         lastVerifiedAt: '2024-01-15',
-        featured: true
+        featured: true,
       };
       expect(listing.type).toBe('coworking');
       expect(listing.status).toBe('published');
@@ -198,7 +198,7 @@ describe('dto types', () => {
         name: 'Test',
         slug: 'test',
         type: 'cafe',
-        city: null
+        city: null,
       };
       expect(listing.city).toBeNull();
     });
@@ -213,7 +213,7 @@ describe('dto types', () => {
         type: 'accommodation',
         city: null,
         shortDescription: 'A nice place',
-        amenityNames: ['WiFi', 'Parking']
+        amenityNames: ['WiFi', 'Parking'],
       };
       expect(summary.shortDescription).toBe('A nice place');
       expect(summary.amenityNames).toContain('WiFi');
@@ -228,7 +228,7 @@ describe('dto types', () => {
         slug: 'featured-space',
         imageUrl: 'https://example.com/img.jpg',
         city: 'Bangkok',
-        amenityNames: ['WiFi']
+        amenityNames: ['WiFi'],
       };
       expect(featured.city).toBe('Bangkok');
     });
@@ -241,7 +241,7 @@ describe('dto types', () => {
         city: 'Bangkok',
         amenityNames: ['WiFi'],
         ecoFocusTags: ['solar'],
-        featured: true
+        featured: true,
       };
       expect(featured.featured).toBe(true);
     });
@@ -255,13 +255,11 @@ describe('dto types', () => {
             type: 'daily',
             price: { amount: 300, currency: 'THB' },
             period: 'day',
-            features: ['WiFi', 'Coffee']
-          }
+            features: ['WiFi', 'Coffee'],
+          },
         ],
-        openingHours: [
-          { day: 'Monday', opens: '09:00', closes: '18:00' }
-        ],
-        internetSpeed: { download: 100, upload: 50 }
+        openingHours: [{ day: 'Monday', opens: '09:00', closes: '18:00' }],
+        internetSpeed: { download: 100, upload: 50 },
       };
       expect(details.pricingPlans).toHaveLength(1);
     });
@@ -272,7 +270,7 @@ describe('dto types', () => {
         priceIndication: '$-$$',
         menuHighlights: ['Organic coffee', 'Pastries'],
         noiseLevel: 'moderate',
-        workPolicy: { laptopsAllowed: true, timeLimit: 4 }
+        workPolicy: { laptopsAllowed: true, timeLimit: 4 },
       };
       expect(details.menuHighlights).toContain('Organic coffee');
     });
@@ -282,7 +280,7 @@ describe('dto types', () => {
         cuisineType: ['Thai', 'Fusion'],
         operatingHours: [{ day: 'Monday', opens: '11:00', closes: '22:00' }],
         dietaryOptions: ['Vegetarian', 'Vegan'],
-        averageMealPrice: { amount: 250, currency: 'THB', unit: 'meal' }
+        averageMealPrice: { amount: 250, currency: 'THB', unit: 'meal' },
       };
       expect(details.cuisineType).toContain('Thai');
     });
@@ -292,7 +290,7 @@ describe('dto types', () => {
         activityType: 'Hiking',
         duration: '3 hours',
         skillLevel: 'beginner',
-        languages: ['English', 'Thai']
+        languages: ['English', 'Thai'],
       };
       expect(details.activityType).toBe('Hiking');
     });
@@ -302,7 +300,7 @@ describe('dto types', () => {
         accommodationType: 'Hotel',
         pricePerNight: { amount: 1500, currency: 'THB', unit: 'night' },
         roomTypes: ['Single', 'Double'],
-        minimumStay: 2
+        minimumStay: 2,
       };
       expect(details.roomTypes).toContain('Single');
     });
@@ -324,10 +322,10 @@ describe('dto types', () => {
             {
               type: 'monthly',
               price: { amount: 5000, currency: 'THB' },
-              period: 'month'
-            }
-          ]
-        }
+              period: 'month',
+            },
+          ],
+        },
       };
       expect(detail.type).toBe('coworking');
       expect(detail.coworkingDetails).toBeDefined();
@@ -343,8 +341,8 @@ describe('dto types', () => {
         galleryImages: [],
         amenities: [],
         cafeDetails: {
-          menuHighlights: ['Coffee', 'Pastries']
-        }
+          menuHighlights: ['Coffee', 'Pastries'],
+        },
       };
       expect(detail.type).toBe('cafe');
       expect(detail.cafeDetails).toBeDefined();
@@ -360,8 +358,8 @@ describe('dto types', () => {
         galleryImages: [],
         amenities: [],
         restaurantDetails: {
-          cuisineType: ['Thai']
-        }
+          cuisineType: ['Thai'],
+        },
       };
       expect(detail.type).toBe('restaurant');
       expect(detail.restaurantDetails).toBeDefined();
@@ -377,8 +375,8 @@ describe('dto types', () => {
         galleryImages: [],
         amenities: [],
         activityDetails: {
-          activityType: 'Tour'
-        }
+          activityType: 'Tour',
+        },
       };
       expect(detail.type).toBe('activities');
       expect(detail.activityDetails).toBeDefined();
@@ -394,8 +392,8 @@ describe('dto types', () => {
         galleryImages: [],
         amenities: [],
         accommodationDetails: {
-          accommodationType: 'Hotel'
-        }
+          accommodationType: 'Hotel',
+        },
       };
       expect(detail.type).toBe('accommodation');
       expect(detail.accommodationDetails).toBeDefined();
@@ -412,7 +410,7 @@ describe('dto types', () => {
         city: null,
         galleryImages: [],
         amenities: [],
-        coworkingDetails: { pricingPlans: [] }
+        coworkingDetails: { pricingPlans: [] },
       };
 
       if (listing.type === 'coworking') {
@@ -429,7 +427,7 @@ describe('dto types', () => {
         city: null,
         galleryImages: [],
         amenities: [],
-        cafeDetails: {}
+        cafeDetails: {},
       };
 
       if (listing.type === 'cafe') {
@@ -466,7 +464,7 @@ describe('dto types', () => {
 
     it('surfaces a descriptive error message when assertion fails', () => {
       expect(() => assertISODateString('invalid!')).toThrow(
-        new TypeError('Invalid ISO 8601 date/time string'),
+        new TypeError('Invalid ISO 8601 date/time string')
       );
     });
 

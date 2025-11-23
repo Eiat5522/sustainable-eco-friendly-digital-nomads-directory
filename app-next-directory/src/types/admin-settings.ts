@@ -8,29 +8,29 @@ export interface AdminSettings {
   _type: 'adminSettings';
   _createdAt?: string;
   _updatedAt?: string;
-  
+
   // General Settings
   siteName: string;
   siteDescription: string;
   maintenanceMode: boolean;
   allowRegistrations: boolean;
-  
+
   // Email Settings
   emailNotifications: boolean;
   adminEmail: string;
-  
+
   // Moderation Settings
   autoModeration: boolean;
   moderationThreshold: number;
-  
+
   // Content Settings
   postsPerPage: number;
   enableComments: boolean;
-  
+
   // Security Settings
   requireEmailVerification: boolean;
   sessionTimeout: number; // in minutes
-  
+
   // Backup Settings
   autoBackup: boolean;
   backupFrequency: 'daily' | 'weekly' | 'monthly';

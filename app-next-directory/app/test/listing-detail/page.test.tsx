@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react';
-import React from 'react';
 
 jest.mock('@/components/listings/ListingDetailView', () => ({
   ListingDetailView: jest.fn(({ listing, reviews, relatedListings, isSignedIn, isFavorited }) => (
@@ -32,30 +31,26 @@ describe('ListingDetailTestPage', () => {
   });
 
   it('renders the disabled message in production when test pages are not enabled', async () => {
-    
     Object.defineProperty(process.env, 'NODE_ENV', {
       value: 'production',
       writable: true,
-      configurable: true
-    })
+      configurable: true,
+    });
     delete process.env.ENABLE_TEST_PAGES;
 
     const { default: ListingDetailTestPage } = await import('./page');
     render(<ListingDetailTestPage />);
 
-    expect(
-      screen.getByText('This test page is not available in production.')
-    ).toBeInTheDocument();
+    expect(screen.getByText('This test page is not available in production.')).toBeInTheDocument();
     expect(screen.queryByTestId('listing-detail-view')).not.toBeInTheDocument();
   });
 
   it('renders the listing detail view when not in production', async () => {
-    
     Object.defineProperty(process.env, 'NODE_ENV', {
       value: 'development',
       writable: true,
-      configurable: true
-    })
+      configurable: true,
+    });
     process.env.ENABLE_TEST_PAGES = 'false';
 
     const { default: ListingDetailTestPage } = await import('./page');
@@ -76,12 +71,11 @@ describe('ListingDetailTestPage', () => {
   });
 
   it('allows enabling the page in production via the ENABLE_TEST_PAGES flag', async () => {
-    
     Object.defineProperty(process.env, 'NODE_ENV', {
       value: 'production',
       writable: true,
-      configurable: true
-    })
+      configurable: true,
+    });
     process.env.ENABLE_TEST_PAGES = 'true';
 
     const { default: ListingDetailTestPage } = await import('./page');

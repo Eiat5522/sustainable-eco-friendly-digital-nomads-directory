@@ -1,6 +1,7 @@
 import { jest } from '@jest/globals';
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
+
 // Mock dependencies
 const mockGetToken = getToken as jest.MockedFunction<typeof getToken>;
 const mockAuth = jest.fn();
@@ -12,14 +13,13 @@ jest.mock('@/lib/auth', () => ({
   auth: mockAuth,
 }));
 
-import { hasPagePermission, hasFeaturePermission } from '../../types/auth';
 
 import {
-  withAuthMatrix,
-  withAuthApiFeature,
-  withMinimumRole,
   getUserFromToken,
   withAuth,
+  withAuthApiFeature,
+  withAuthMatrix,
+  withMinimumRole,
 } from './withAuthMatrix';
 
 describe('withAuthMatrix', () => {
@@ -46,7 +46,14 @@ describe('withAuthMatrix', () => {
       mockGetToken.mockResolvedValue(null);
 
       const request = new NextRequest('http://localhost:3000/api/test');
-      const response = await withAuthMatrix(request, null, null, true, undefined, mockHasPagePermission);
+      const response = await withAuthMatrix(
+        request,
+        null,
+        null,
+        true,
+        undefined,
+        mockHasPagePermission
+      );
 
       expect(response.status).toBe(401);
       const json = await response.json();
@@ -58,7 +65,14 @@ describe('withAuthMatrix', () => {
       mockGetToken.mockResolvedValue({ role: 'user', email: 'test@example.com' });
 
       const request = new NextRequest('http://localhost:3000/api/test');
-      const response = await withAuthMatrix(request, null, null, true, undefined, mockHasPagePermission);
+      const response = await withAuthMatrix(
+        request,
+        null,
+        null,
+        true,
+        undefined,
+        mockHasPagePermission
+      );
 
       expect(mockGetToken).toHaveBeenCalled();
       expect(response).toBeInstanceOf(NextResponse);
@@ -232,7 +246,14 @@ describe('withAuthMatrix', () => {
       mockGetToken.mockResolvedValue({ role: 'user', email: 'user@example.com' });
 
       const request = new NextRequest('http://localhost:3000/profile');
-      const response = await withAuthMatrix(request, null, null, false, undefined, mockHasPagePermission);
+      const response = await withAuthMatrix(
+        request,
+        null,
+        null,
+        false,
+        undefined,
+        mockHasPagePermission
+      );
 
       expect(response).toBeInstanceOf(NextResponse);
       expect(response.status).not.toBe(307);
@@ -242,7 +263,14 @@ describe('withAuthMatrix', () => {
       mockGetToken.mockResolvedValue(null);
 
       const request = new NextRequest('http://localhost:3000/');
-      const response = await withAuthMatrix(request, null, null, false, undefined, mockHasPagePermission);
+      const response = await withAuthMatrix(
+        request,
+        null,
+        null,
+        false,
+        undefined,
+        mockHasPagePermission
+      );
 
       expect(response).toBeInstanceOf(NextResponse);
       expect(response.status).not.toBe(307);
@@ -482,9 +510,7 @@ describe('withAuth (legacy)', () => {
     const request = new NextRequest('http://localhost:3000/test');
     await withAuth(request);
 
-    expect(consoleWarn).toHaveBeenCalledWith(
-      expect.stringContaining('deprecated')
-    );
+    expect(consoleWarn).toHaveBeenCalledWith(expect.stringContaining('deprecated'));
     consoleWarn.mockRestore();
   });
 

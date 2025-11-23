@@ -6,8 +6,8 @@
  */
 
 import { jest } from '@jest/globals';
-import { GET } from './route';
 import { client } from '@/lib/sanity';
+import { GET } from './route';
 
 // Mock Sanity client
 jest.mock('@/lib/sanity', () => ({
@@ -29,7 +29,7 @@ describe('Eco Tags API - GET /api/eco-tags', () => {
       const mockTags = [
         { _id: '1', name: 'Solar Powered' },
         { _id: '2', name: 'Zero Waste' },
-        { _id: '3', name: 'Organic Food' }
+        { _id: '3', name: 'Organic Food' },
       ];
       mockedFetch.mockResolvedValueOnce(mockTags);
 

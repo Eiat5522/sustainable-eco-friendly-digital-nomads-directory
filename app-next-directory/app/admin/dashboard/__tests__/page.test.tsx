@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { RequestTimeoutError } from '@/lib/http/request';
 
@@ -69,10 +68,10 @@ const buildSnapshot = () => ({
 });
 
 describe('AdminDashboardPage', () => {
-beforeEach(() => {
-  jest.clearAllMocks();
-  mockLogger.error.mockReset();
-});
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockLogger.error.mockReset();
+  });
 
   it('renders analytics overview for admin users', async () => {
     mockAuth.mockResolvedValueOnce({
@@ -83,7 +82,7 @@ beforeEach(() => {
 
     const AdminDashboardPage = (await import('../page')).default;
     const element = await AdminDashboardPage();
-    render(<>{element}</>);
+    render(element);
 
     expect(mockFetchAnalytics).toHaveBeenCalledTimes(1);
     expect(await screen.findByTestId('admin-dashboard')).toBeInTheDocument();
@@ -101,16 +100,18 @@ beforeEach(() => {
     mockFetchAnalytics.mockRejectedValueOnce(new Error('boom'));
     const AdminDashboardPage = (await import('../page')).default;
     const element = await AdminDashboardPage();
-    render(<>{element}</>);
+    render(element);
 
-    expect(
-      screen.getByText(/Unable to load dashboard data/i),
-    ).toBeInTheDocument();
-    expect(mockLogger.error).toHaveBeenCalledWith('Failed to fetch admin analytics', expect.any(Error), {
-      component: 'AdminDashboardPage',
-      errorType: 'Error',
-      route: '/admin/dashboard',
-    });
+    expect(screen.getByText(/Unable to load dashboard data/i)).toBeInTheDocument();
+    expect(mockLogger.error).toHaveBeenCalledWith(
+      'Failed to fetch admin analytics',
+      expect.any(Error),
+      {
+        component: 'AdminDashboardPage',
+        errorType: 'Error',
+        route: '/admin/dashboard',
+      }
+    );
   });
 
   it('shows timeout specific messaging when analytics request times out', async () => {
@@ -123,11 +124,9 @@ beforeEach(() => {
 
     const AdminDashboardPage = (await import('../page')).default;
     const element = await AdminDashboardPage();
-    render(<>{element}</>);
+    render(element);
 
-    expect(
-      screen.getByText(/dashboard data request timed out/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/dashboard data request timed out/i)).toBeInTheDocument();
     expect(mockLogger.error).toHaveBeenCalledWith(
       'Failed to fetch admin analytics',
       expect.any(RequestTimeoutError),
@@ -164,7 +163,7 @@ beforeEach(() => {
 
     const AdminDashboardPage = (await import('../page')).default;
     const element = await AdminDashboardPage();
-    render(<>{element}</>);
+    render(element);
 
     const cards = await screen.findAllByTestId('analytics-card-value');
     cards.forEach(card => {

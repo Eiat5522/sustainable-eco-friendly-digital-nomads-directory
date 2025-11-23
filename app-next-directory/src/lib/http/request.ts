@@ -104,13 +104,19 @@ export async function fetchWithTimeout(
   } catch (error) {
     cleanup();
     if (timedOut) {
-      throw new RequestTimeoutError(`Request to ${typeof input === 'string' ? input : 'resource'} timed out after ${timeoutMs}ms`);
+      throw new RequestTimeoutError(
+        `Request to ${typeof input === 'string' ? input : 'resource'} timed out after ${timeoutMs}ms`
+      );
     }
     throw error;
   }
 }
 
-function shouldRetry(error: unknown, response: Response | null, retryOnStatuses: number[]): boolean {
+function shouldRetry(
+  error: unknown,
+  response: Response | null,
+  retryOnStatuses: number[]
+): boolean {
   if (response) {
     return retryOnStatuses.includes(response.status);
   }
@@ -172,13 +178,19 @@ export async function fetchJsonWithRetry<T>(
 
       if (!canRetry) {
         if (status) {
-          logger.error({ err: error, attempt, status, url: input }, 'HTTP request failed without retry');
+          logger.error(
+            { err: error, attempt, status, url: input },
+            'HTTP request failed without retry'
+          );
         }
         throw error;
       }
 
       const delayMs = minDelayMs * backoffFactor ** attempt;
-      logger.warn({ err: error, attempt, url: input, delayMs }, 'Retrying HTTP request after failure');
+      logger.warn(
+        { err: error, attempt, url: input, delayMs },
+        'Retrying HTTP request after failure'
+      );
       await delay(delayMs);
       attempt += 1;
     }
@@ -187,8 +199,15 @@ export async function fetchJsonWithRetry<T>(
   throw lastError ?? new Error('Request failed');
 }
 
-export function extractErrorMessage(error: unknown, fallback = 'An unexpected error occurred'): string {
-  if (error instanceof Error && typeof error.message === 'string' && error.message.trim().length > 0) {
+export function extractErrorMessage(
+  error: unknown,
+  fallback = 'An unexpected error occurred'
+): string {
+  if (
+    error instanceof Error &&
+    typeof error.message === 'string' &&
+    error.message.trim().length > 0
+  ) {
     return error.message;
   }
   if (typeof error === 'string') {
@@ -261,4 +280,3 @@ export function jsonDeleteOptions<T = unknown>(body?: T, init: RequestInit = {})
     ...(body && { body: JSON.stringify(body) }),
   };
 }
-

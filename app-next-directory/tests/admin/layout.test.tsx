@@ -1,8 +1,6 @@
-
-import React from 'react';
 import { render, screen } from '@testing-library/react';
-import AdminLayout from '@/app/admin/layout';
 import { redirect } from 'next/navigation';
+import AdminLayout from '@/app/admin/layout';
 import { auth } from '@/lib/auth';
 
 jest.mock('@/lib/auth', () => ({

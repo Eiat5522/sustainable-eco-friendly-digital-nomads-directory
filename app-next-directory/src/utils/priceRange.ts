@@ -20,20 +20,20 @@ export const PRICE_RANGE_MAP: Record<PriceRange, PriceRangeInfo> = {
     label: 'Budget',
     estimatedRange: '$15-40',
     displayText: 'Budget ($15-40)',
-    description: 'Affordable options for budget-conscious travelers'
+    description: 'Affordable options for budget-conscious travelers',
   },
   moderate: {
-    label: 'Moderate', 
+    label: 'Moderate',
     estimatedRange: '$40-100',
     displayText: 'Moderate ($40-100)',
-    description: 'Mid-range options with good value and comfort'
+    description: 'Mid-range options with good value and comfort',
   },
   premium: {
     label: 'Premium',
     estimatedRange: '$100+',
     displayText: 'Premium ($100+)',
-    description: 'High-end options with luxury amenities'
-  }
+    description: 'High-end options with luxury amenities',
+  },
 };
 
 /**
@@ -74,7 +74,7 @@ export function getPriceRangeInfo(priceRange?: PriceRange | string): PriceRangeI
  */
 export function getPriceRangeEmoji(priceRange?: PriceRange | string): string {
   if (!priceRange) return '💰';
-  
+
   switch (priceRange) {
     case 'budget':
       return '💰';
@@ -98,10 +98,10 @@ export function getAccommodationPriceDisplay(
   accommodationType: string = 'accommodation'
 ): string {
   const baseDisplay = getPriceRangeDisplay(priceRange, true);
-  
+
   if (accommodationType === 'Workspace' || accommodationType === 'Café') {
     return `${baseDisplay}/day`;
   }
-  
+
   return `${baseDisplay}/night`;
 }

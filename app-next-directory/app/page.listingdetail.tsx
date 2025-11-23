@@ -1,17 +1,19 @@
-
 import 'leaflet/dist/leaflet.css';
-import React from 'react';
-import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { Header } from '@/components/layout/Header';
 import { ListingDetailView } from '@/components/listings/ListingDetailView';
-import { mockListingDetail, mockReviews, mockRelatedListings } from '@/components/listings/listingDetailMockData';
+import {
+  mockListingDetail,
+  mockRelatedListings,
+  mockReviews,
+} from '@/components/listings/listingDetailMockData';
 
 export default function ListingDetailPreview() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <main>
-        <ListingDetailView 
+        <ListingDetailView
           listing={mockListingDetail}
           reviews={mockReviews}
           relatedListings={mockRelatedListings}

@@ -1,9 +1,7 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { VenueCard } from '../VenueCard';
 import type { FeaturedListingDTO } from '@/types/dto';
-import Link from 'next/link';
+import { VenueCard } from '../VenueCard';
 
 // Mock next/link
 jest.mock('next/link', () => {

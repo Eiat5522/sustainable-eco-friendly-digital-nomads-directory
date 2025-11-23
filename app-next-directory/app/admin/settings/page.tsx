@@ -1,7 +1,6 @@
-import React from 'react';
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
-import type { Metadata } from 'next';
 import type { UserRole } from '@/types/auth';
 import { SettingsForm } from './SettingsForm';
 
@@ -14,7 +13,9 @@ export const metadata: Metadata = {
 
 type SessionUser = { id?: string; role?: UserRole } | undefined;
 
-function ensureAdmin(sessionUser: SessionUser): sessionUser is { id: string; role: 'admin' | 'superAdmin' } {
+function ensureAdmin(
+  sessionUser: SessionUser
+): sessionUser is { id: string; role: 'admin' | 'superAdmin' } {
   const role = sessionUser?.role;
   return role === 'admin' || role === 'superAdmin';
 }
@@ -34,9 +35,7 @@ export default async function AdminSettingsPage() {
           <h1 className="text-3xl font-bold text-gray-900" data-testid="admin-settings-title">
             Admin Settings
           </h1>
-          <p className="mt-2 text-gray-600">
-            Configure application settings and preferences.
-          </p>
+          <p className="mt-2 text-gray-600">Configure application settings and preferences.</p>
         </div>
 
         <div className="bg-white shadow-sm rounded-lg border border-gray-200">

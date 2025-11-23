@@ -11,7 +11,7 @@ jest.mock('mongoose', () => {
     },
     set readyState(value: number) {
       mockReadyState.value = value;
-    }
+    },
   };
 
   return {

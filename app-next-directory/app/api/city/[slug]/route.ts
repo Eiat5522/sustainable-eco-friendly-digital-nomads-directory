@@ -1,16 +1,13 @@
 // No import needed for the Web Request type
 
-import { getCityBySlug } from '@/lib/data/city';
-import { ApiResponseHandler } from '@/utils/api-response';
 import type { NextRequest } from 'next/server';
+import { getCityBySlug } from '@/lib/data/city';
 import { structuredLogger } from '@/lib/logger';
+import { ApiResponseHandler } from '@/utils/api-response';
 
 type RouteContext = { params: Promise<{ slug: string }> };
 
-export async function GET(
-  request: NextRequest,
-  context: RouteContext
-) {
+export async function GET(_request: NextRequest, context: RouteContext) {
   const { slug } = await context.params;
   try {
     const city = await getCityBySlug(slug);

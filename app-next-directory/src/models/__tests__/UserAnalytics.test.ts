@@ -4,14 +4,11 @@ import UserAnalytics from '../UserAnalytics';
 describe('UserAnalytics model schema', () => {
   const schema = UserAnalytics.schema as any;
 
-  beforeAll(() => {
-  });
+  beforeAll(() => {});
 
-  afterAll(() => {
-  });
+  afterAll(() => {});
 
-  beforeEach(() => {
-  });
+  beforeEach(() => {});
 
   it('exposes the compiled model with expected metadata', () => {
     expect(UserAnalytics).toBeDefined();
@@ -87,16 +84,17 @@ describe('UserAnalytics model schema', () => {
     const indexes = schema.indexes();
     expect(indexes).toEqual(
       expect.arrayContaining([
-        [ { userId: 1 }, {} ],
-        [ { 'activity.lastLogin': -1 }, {} ],
-        [ { 'engagement.searchPatterns.timestamp': -1 }, {} ],
-        [ { 'engagement.viewHistory.viewedAt': -1 }, {} ],
+        [{ userId: 1 }, {}],
+        [{ 'activity.lastLogin': -1 }, {}],
+        [{ 'engagement.searchPatterns.timestamp': -1 }, {}],
+        [{ 'engagement.viewHistory.viewedAt': -1 }, {}],
       ])
     );
   });
 
   it('limits analytics arrays via the pre-save hook', () => {
-    const preHooks: Array<(this: any, next?: () => void) => void> = schema.preHooks?.get('save') ?? [];
+    const preHooks: Array<(this: any, next?: () => void) => void> =
+      schema.preHooks?.get('save') ?? [];
     expect(preHooks.length).toBeGreaterThan(0);
 
     const doc = {
@@ -114,7 +112,7 @@ describe('UserAnalytics model schema', () => {
       },
     };
 
-    preHooks.forEach((hook) => hook.call(doc, () => {}));
+    preHooks.forEach(hook => hook.call(doc, () => {}));
 
     expect(doc.engagement.searchPatterns).toHaveLength(100);
     expect(doc.engagement.viewHistory).toHaveLength(500);
@@ -123,7 +121,6 @@ describe('UserAnalytics model schema', () => {
   it('reuses the compiled model from mongoose.models', () => {
     expect(mongoose.models.UserAnalytics).toBe(UserAnalytics);
   });
-
 
   // Note: Database operation tests have been moved to UserAnalytics.integration.test.ts
   // This keeps unit tests fast and focused on schema validation

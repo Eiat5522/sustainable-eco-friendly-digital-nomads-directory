@@ -15,14 +15,17 @@ interface RateLimitInfo {
 const rateLimitStore = new Map<string, RateLimitInfo>();
 
 // Clean up expired entries every 10 minutes (only for in-memory fallback)
-const cleanupInterval = setInterval(() => {
-  const now = Date.now();
-  for (const [key, info] of rateLimitStore.entries()) {
-    if (now > info.resetTime) {
-      rateLimitStore.delete(key);
+const cleanupInterval = setInterval(
+  () => {
+    const now = Date.now();
+    for (const [key, info] of rateLimitStore.entries()) {
+      if (now > info.resetTime) {
+        rateLimitStore.delete(key);
+      }
     }
-  }
-}, 10 * 60 * 1000);
+  },
+  10 * 60 * 1000
+);
 
 cleanupInterval.unref?.();
 
@@ -33,7 +36,7 @@ function initializeRedis() {
   if (redis !== undefined) {
     return redis;
   }
-  
+
   const UPSTASH_REDIS_REST_URL = process.env.UPSTASH_REDIS_REST_URL;
   const UPSTASH_REDIS_REST_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 
@@ -43,15 +46,13 @@ function initializeRedis() {
         url: UPSTASH_REDIS_REST_URL,
         token: UPSTASH_REDIS_REST_TOKEN,
       });
-    } catch (error) {
-      console.warn('[rate-limit] Failed to initialize Redis, falling back to in-memory:', error);
+    } catch (_error) {
       redis = null;
     }
   } else {
-    console.warn('[rate-limit] Redis credentials not configured (UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN). Using in-memory rate limiting.');
     redis = null;
   }
-  
+
   return redis;
 }
 
@@ -89,9 +90,6 @@ function inMemoryRateLimit(key: string, max: number, windowMs: number): RateLimi
     info = { count: 0, resetTime };
     rateLimitStore.set(key, info);
   }
-
-  // Check if limit exceeded
-  console.log('Key:', key, 'Count:', info ? info.count : 0);
   if (info.count >= max) {
     return {
       success: false,
@@ -134,17 +132,16 @@ export function rateLimit(options: RateLimitOptions) {
       try {
         // Generate key for rate limiting (default to IP)
         const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
-        
+
         const { success, limit, remaining, reset } = await limiter.limit(key);
-        
+
         return {
           success,
           limit,
           remaining,
           resetTime: reset,
         };
-      } catch (error) {
-        console.warn('[rate-limit] Redis error, falling back to in-memory:', error);
+      } catch (_error) {
         // Fallback to in-memory on error
         const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
         return inMemoryRateLimit(key, max, windowMs);
@@ -161,12 +158,12 @@ export function rateLimit(options: RateLimitOptions) {
 
 /**
  * Extracts the client IP address from the request headers.
- * 
+ *
  * Checks multiple common headers used by proxies and load balancers:
  * - x-forwarded-for (first IP in the list)
  * - x-real-ip
  * - cf-connecting-ip (Cloudflare)
- * 
+ *
  * @param request - The incoming HTTP request
  * @returns The client IP address, or 'unknown' if none found
  */

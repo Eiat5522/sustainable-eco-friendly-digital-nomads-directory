@@ -1,14 +1,14 @@
-export type Theme = 'light' | 'dark' | 'system'
+export type Theme = 'light' | 'dark' | 'system';
 
 export function normalizeTheme(rawValue: string | null | undefined): Theme {
-  const candidate = rawValue?.toLowerCase().trim()
+  const candidate = rawValue?.toLowerCase().trim();
   return candidate === 'light' || candidate === 'dark' || candidate === 'system'
     ? (candidate as Theme)
-    : 'system'
+    : 'system';
 }
 
 export function themeClass(theme: Theme): string | undefined {
-  return theme === 'system' ? undefined : theme
+  return theme === 'system' ? undefined : theme;
 }
 
 export const THEME_INIT_SCRIPT = `(() => {
@@ -21,4 +21,4 @@ export const THEME_INIT_SCRIPT = `(() => {
     d.classList.toggle('dark', isDark);
     d.style.colorScheme = isDark ? 'dark' : 'light';
   } catch {}
-})();`
+})();`;

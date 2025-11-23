@@ -7,7 +7,7 @@
  * 4. Response structure validation
  */
 
-import { jest, beforeAll, beforeEach, describe, it, expect } from '@jest/globals';
+import { beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import type { NextRequest } from 'next/server';
 
 // Mock the city data module before importing
@@ -16,7 +16,6 @@ jest.mock('@/lib/data/city', () => ({
   getCityBySlug: jest.fn(),
 }));
 
-import { getCityBySlug } from '@/lib/data/city';
 import { getE2ECityDetail } from '@/data/e2e/discovery-fixtures';
 
 const cityDataMockModule = jest.requireMock('@/lib/data/city') as { getCityBySlug: jest.Mock };
@@ -49,7 +48,7 @@ describe('Cities Slug API - GET /api/cities/[slug]', () => {
 
       const request = {} as NextRequest;
       const context = { params: Promise.resolve({ slug: 'amsterdam' }) };
-      
+
       const response = await GET(request, context);
       const data = await response.json();
 
@@ -74,7 +73,7 @@ describe('Cities Slug API - GET /api/cities/[slug]', () => {
 
       const request = {} as NextRequest;
       const context = { params: Promise.resolve({ slug: 'lisbon' }) };
-      
+
       const response = await GET(request, context);
       const data = await response.json();
 
@@ -96,7 +95,7 @@ describe('Cities Slug API - GET /api/cities/[slug]', () => {
 
       const request = {} as NextRequest;
       const context = { params: Promise.resolve({ slug: 'sao-paulo' }) };
-      
+
       const response = await GET(request, context);
       const data = await response.json();
 
@@ -112,7 +111,7 @@ describe('Cities Slug API - GET /api/cities/[slug]', () => {
 
       const request = {} as NextRequest;
       const context = { params: Promise.resolve({ slug: 'nonexistent-city' }) };
-      
+
       const response = await GET(request, context);
       const data = await response.json();
 
@@ -127,7 +126,7 @@ describe('Cities Slug API - GET /api/cities/[slug]', () => {
 
       const request = {} as NextRequest;
       const context = { params: Promise.resolve({ slug: '' }) };
-      
+
       const response = await GET(request, context);
       const data = await response.json();
 
@@ -142,7 +141,7 @@ describe('Cities Slug API - GET /api/cities/[slug]', () => {
 
       const request = {} as NextRequest;
       const context = { params: Promise.resolve({ slug: 'amsterdam' }) };
-      
+
       const response = await GET(request, context);
       const data = await response.json();
 
@@ -156,7 +155,7 @@ describe('Cities Slug API - GET /api/cities/[slug]', () => {
 
       const request = {} as NextRequest;
       const context = { params: Promise.resolve({ slug: 'lisbon' }) };
-      
+
       const response = await GET(request, context);
       const data = await response.json();
 
@@ -177,9 +176,9 @@ describe('Cities Slug API - GET /api/cities/[slug]', () => {
 
       const request = {} as NextRequest;
       const context = { params: Promise.resolve({ slug: 'test-city' }) };
-      
+
       const response = await GET(request, context);
-      
+
       expect(response.headers.get('content-type')).toContain('application/json');
     });
 
@@ -194,7 +193,7 @@ describe('Cities Slug API - GET /api/cities/[slug]', () => {
 
       const request = {} as NextRequest;
       const context = { params: Promise.resolve({ slug: 'test-city' }) };
-      
+
       const response = await GET(request, context);
       const data = await response.json();
 
@@ -244,11 +243,11 @@ describe('Cities Slug API - GET /api/cities/[slug]', () => {
       const request = {} as NextRequest;
       // Test with async params resolution
       const context = {
-        params: new Promise((resolve) => {
+        params: new Promise(resolve => {
           setTimeout(() => resolve({ slug: 'test-city' }), 10);
         }),
       };
-      
+
       const response = await GET(request, context);
       const data = await response.json();
 

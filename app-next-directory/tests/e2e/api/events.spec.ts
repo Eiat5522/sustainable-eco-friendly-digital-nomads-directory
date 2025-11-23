@@ -1,6 +1,6 @@
 // events.spec.ts - Simple E2E test for /api/events endpoint structure
 
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 /**
  * Basic E2E test for the Events API route.

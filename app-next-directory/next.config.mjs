@@ -1,5 +1,9 @@
 // Enforce the var on Vercel Preview/Production
-if (process.env.VERCEL && process.env.NODE_ENV !== 'development' && !process.env.NEXT_PUBLIC_API_URL) {
+if (
+  process.env.VERCEL &&
+  process.env.NODE_ENV !== 'development' &&
+  !process.env.NEXT_PUBLIC_API_URL
+) {
   throw new Error('NEXT_PUBLIC_API_URL must be set for Preview/Production environments.');
 }
 
@@ -14,13 +18,15 @@ const nextConfig = {
   },
   eslint: {
     ignoreDuringBuilds: true,
- },
+  },
   env: {
     // Prefer per-environment env var; dev-only fallback.
     NEXT_PUBLIC_API_URL:
       process.env.NEXT_PUBLIC_API_URL ||
-      (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : process.env.NEXT_PUBLIC_API_URL),
- },
+      (process.env.NODE_ENV === 'development'
+        ? 'http://localhost:3000'
+        : process.env.NEXT_PUBLIC_API_URL),
+  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'cdn.sanity.io', pathname: '/**' },
@@ -28,13 +34,17 @@ const nextConfig = {
       { protocol: 'https', hostname: 'i.pravatar.cc', pathname: '/**' },
       { protocol: 'https', hostname: 'raw.githubusercontent.com', pathname: '/**' },
       // Use the active Vercel deployment host to allow previews and production without over-broad wildcards
-      { protocol: 'https', hostname: process.env.VERCEL_URL || 'your-app.vercel.app', pathname: '/**' },
+      {
+        protocol: 'https',
+        hostname: process.env.VERCEL_URL || 'your-app.vercel.app',
+        pathname: '/**',
+      },
     ],
   },
   webpack: (config, { dev, isServer }) => {
     // Use hidden source maps only for client prod builds
     if (!dev && !isServer) {
-      config.devtool = 'hidden-source-map'
+      config.devtool = 'hidden-source-map';
     }
 
     // Fix Framer Motion compatibility with Next.js 15 App Router
@@ -46,14 +56,15 @@ const nextConfig = {
     });
     // Exclude SVGs from the existing asset loader
     const fileLoaderRule = config.module.rules.find(
-      (rule) =>
+      rule =>
         typeof rule === 'object' &&
-        rule && 'test' in rule &&
+        rule &&
+        'test' in rule &&
         rule.test instanceof RegExp &&
         rule.test.test?.('.svg')
-    )
+    );
     if (fileLoaderRule && typeof fileLoaderRule === 'object') {
-      fileLoaderRule.exclude = /\.svg$/i
+      fileLoaderRule.exclude = /\.svg$/i;
     }
 
     // Add SVGR for React components and asset/resource for `?url`
@@ -69,9 +80,9 @@ const nextConfig = {
         resourceQuery: /url/,
         type: 'asset/resource',
       }
-    )
+    );
 
-    return config
+    return config;
   },
 };
 const withRedirects = {
