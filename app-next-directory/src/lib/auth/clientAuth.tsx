@@ -45,7 +45,7 @@ export function AuthProvider({
 }: AuthProviderProps & {
   hasPagePermission?: typeof hasPagePermission;
   hasFeaturePermission?: typeof hasFeaturePermission;
-}) {
+}): React.JSX.Element {
   const { data: session, status } = useSession();
 
   const user: AppUser = session?.user ?? null;

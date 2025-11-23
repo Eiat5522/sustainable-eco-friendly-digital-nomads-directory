@@ -1,5 +1,5 @@
-import pino from 'pino';
 import util from 'node:util';
+import pino from 'pino';
 
 // Environment check for safe logging configuration
 const isProduction = process.env.NODE_ENV === 'production';
@@ -150,10 +150,9 @@ const loggerConfig: pino.LoggerOptions = {
     },
     user: (user: UserLike | undefined) => {
       const email = typeof user?.email === 'string' ? user.email : undefined;
-      const maskedEmail =
-        email?.includes('@')
-          ? `${email.substring(0, 3)}***@${email.split('@')[1] ?? ''}`
-          : undefined;
+      const maskedEmail = email?.includes('@')
+        ? `${email.substring(0, 3)}***@${email.split('@')[1] ?? ''}`
+        : undefined;
 
       return {
         id: user?.id,

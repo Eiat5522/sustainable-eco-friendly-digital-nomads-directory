@@ -152,7 +152,7 @@ describe('clientAuth context and helpers', () => {
 
       render(
         <AuthProvider>
-          <RequireRole >
+          <RequireRole>
             <div>Admin section</div>
           </RequireRole>
         </AuthProvider>
@@ -169,7 +169,7 @@ describe('clientAuth context and helpers', () => {
 
       render(
         <AuthProvider>
-          <RequireRole >
+          <RequireRole>
             <div data-testid="role-pass">Allowed</div>
           </RequireRole>
         </AuthProvider>

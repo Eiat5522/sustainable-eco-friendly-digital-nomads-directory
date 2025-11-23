@@ -320,9 +320,9 @@ if (process.env.JEST_CONSOLE_NO_FILTER !== '1') {
   }) as typeof console.warn;
 }
 
+import { TextDecoder, TextEncoder } from 'node:util';
 // jest.setup.ts
 import { jest } from '@jest/globals';
-import { TextDecoder, TextEncoder } from 'node:util';
 import '@testing-library/jest-dom';
 import { createTestData } from './src/tests/helpers/test-data';
 
@@ -350,10 +350,10 @@ if (process.env.JEST_RUN_INTEGRATION === '1' && process.env.JEST_USE_REAL_MONGOO
         g.__GLOBAL_MONGO_SERVER__ = server;
         process.env.MONGODB_URI = (server as { getUri: () => string }).getUri();
       } catch (_e) {
-          const { MongoMemoryServer } = await import('mongodb-memory-server');
-          const server = await MongoMemoryServer.create();
-          g.__GLOBAL_MONGO_SERVER__ = server;
-          process.env.MONGODB_URI = server.getUri();
+        const { MongoMemoryServer } = await import('mongodb-memory-server');
+        const server = await MongoMemoryServer.create();
+        g.__GLOBAL_MONGO_SERVER__ = server;
+        process.env.MONGODB_URI = server.getUri();
       }
     } else {
       try {

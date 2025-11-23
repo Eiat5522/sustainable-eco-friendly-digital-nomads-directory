@@ -1,5 +1,3 @@
-
-import React from 'react';
 import { getHighlightedText, highlightText } from './highlight';
 
 describe('highlightText', () => {

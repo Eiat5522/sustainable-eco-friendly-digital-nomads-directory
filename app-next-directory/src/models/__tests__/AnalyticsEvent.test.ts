@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 import mongoose from 'mongoose';
-import { AnalyticsEvent, } from '../AnalyticsEvent';
+import { AnalyticsEvent } from '../AnalyticsEvent';
 
 describe('AnalyticsEvent Model', () => {
   beforeAll(() => {});

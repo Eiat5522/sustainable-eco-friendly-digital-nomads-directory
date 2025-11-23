@@ -121,21 +121,21 @@ export async function updateListingsWithCoordinates(options?: {
   const injectedFs = options?.fs ?? (await import('node:fs/promises'));
   const injectedPath = options?.path ?? (await import('node:path'));
   const injectedGeocodeAddress = options?.geocodeAddress ?? geocodeAddress;
-    const listingsPath =
-      options?.listingsPath ?? injectedPath.join(process.cwd(), 'src', 'data', 'listings.json');
-    const data = await injectedFs.readFile(listingsPath, 'utf-8');
-    const listings = JSON.parse(data);
+  const listingsPath =
+    options?.listingsPath ?? injectedPath.join(process.cwd(), 'src', 'data', 'listings.json');
+  const data = await injectedFs.readFile(listingsPath, 'utf-8');
+  const listings = JSON.parse(data);
 
-    for (const listing of listings) {
-      if (
-        !listing.coordinates ||
-        listing.coordinates.latitude == null ||
-        listing.coordinates.longitude == null
-      ) {
-        const coords = await injectedGeocodeAddress(listing.address, listing.city);
-        listing.coordinates = coords;
-      }
+  for (const listing of listings) {
+    if (
+      !listing.coordinates ||
+      listing.coordinates.latitude == null ||
+      listing.coordinates.longitude == null
+    ) {
+      const coords = await injectedGeocodeAddress(listing.address, listing.city);
+      listing.coordinates = coords;
     }
+  }
 
-    await injectedFs.writeFile(listingsPath, JSON.stringify(listings, null, 2));
+  await injectedFs.writeFile(listingsPath, JSON.stringify(listings, null, 2));
 }

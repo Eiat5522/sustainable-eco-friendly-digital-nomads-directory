@@ -11,6 +11,7 @@
  * import these modules without executing any Playwright behaviour.
  */
 
+import { createRequire } from 'node:module';
 import type {
   PlaywrightTestArgs,
   PlaywrightTestOptions,
@@ -18,7 +19,6 @@ import type {
   PlaywrightWorkerOptions,
   TestType,
 } from '@playwright/test';
-import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 

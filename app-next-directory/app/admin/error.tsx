@@ -2,15 +2,14 @@
 
 import { useEffect } from 'react';
 
-export default function Error({
+export default function AdminError({
   error: _error,
   reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-  }, []);
+  useEffect(() => {}, []);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">

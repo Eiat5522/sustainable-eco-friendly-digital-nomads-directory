@@ -131,8 +131,7 @@ const createModelMock = (modelName: string, schema?: SchemaMock) => {
     if (schema?.paths) {
       Object.keys(schema.paths).forEach(key => {
         const pathDef = schema.paths[key];
-        const opts =
-          pathDef?.options ? (pathDef.options as PathOptions) : ({} as PathOptions);
+        const opts = pathDef?.options ? (pathDef.options as PathOptions) : ({} as PathOptions);
         const hasSetter = !!(
           opts &&
           (opts.lowercase || opts.trim || typeof opts.set === 'function')
@@ -214,7 +213,7 @@ const createModelMock = (modelName: string, schema?: SchemaMock) => {
     // Run any registered pre('validate') hooks to emulate Mongoose behavior so
     // model-level pre('validate') normalization runs immediately in tests.
     try {
-      const validateHooks = (schema?.preHooks?.get('validate')) || [];
+      const validateHooks = schema?.preHooks?.get('validate') || [];
       validateHooks.forEach(h => {
         try {
           // Support both (next) => {} and function() { ... }

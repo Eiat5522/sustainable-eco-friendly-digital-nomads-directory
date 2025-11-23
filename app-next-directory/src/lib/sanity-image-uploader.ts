@@ -269,7 +269,7 @@ export class SanityImageUploader {
    * Delete image from Sanity
    */
   async deleteImage(assetId: string): Promise<void> {
-      await sanityHTTPClient.delete(assetId);
+    await sanityHTTPClient.delete(assetId);
   }
 
   /**
@@ -283,7 +283,7 @@ export class SanityImageUploader {
       altText?: string;
     }
   ): Promise<void> {
-      await sanityHTTPClient.update(assetId, metadata);
+    await sanityHTTPClient.update(assetId, metadata);
   }
 }
 

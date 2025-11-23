@@ -228,8 +228,7 @@ export async function POST(request: Request) {
           }
           return json({ success: true, data: null, message: 'You are already subscribed.' });
         }
-      } catch (_error) {
-      }
+      } catch (_error) {}
     }
     try {
       if (process.env.NODE_ENV !== 'test') {
@@ -237,8 +236,7 @@ export async function POST(request: Request) {
         const payload = await buildNewsletterConfirmEmail(email, token);
         await sendMail(payload);
       }
-    } catch (_error) {
-    }
+    } catch (_error) {}
 
     // Persist an email marker to prevent repeated sends within the window
     await storeSet(emailKey, '1', RATE_LIMIT_PER_EMAIL_WINDOW);

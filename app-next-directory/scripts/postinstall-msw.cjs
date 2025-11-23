@@ -11,8 +11,7 @@ const hasPublicDir = existsSync(path.resolve(__dirname, '../public'));
 const shouldInit = hasPublicDir && !hasWorker && !isCi && env !== 'production';
 
 if (shouldInit) {
-  const runner =
-    UA?.includes('pnpm') ? 'pnpm dlx' : UA?.includes('yarn') ? 'yarn dlx' : 'npx -y';
+  const runner = UA?.includes('pnpm') ? 'pnpm dlx' : UA?.includes('yarn') ? 'yarn dlx' : 'npx -y';
   const cmd = `${runner} msw init public --save`;
   try {
     console.log(`[postinstall-msw] Initializing MSW: ${cmd}`);

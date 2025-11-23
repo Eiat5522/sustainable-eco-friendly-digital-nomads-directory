@@ -10,7 +10,6 @@ jest.mock('@/lib/admin/analytics', () => ({
   runBulkOperation: jest.fn(),
 }));
 
-
 const authMockModule = jest.requireMock('@/lib/auth') as { auth: jest.Mock };
 const analyticsMockModule = jest.requireMock('@/lib/admin/analytics') as {
   runBulkOperation: jest.Mock;

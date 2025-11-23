@@ -30,7 +30,7 @@ try {
   // ignore - leave compilerOptions empty
 }
 
-const useMockedMongoose = process.env.JEST_USE_REAL_MONGOOSE !=='1';
+const useMockedMongoose = process.env.JEST_USE_REAL_MONGOOSE !== '1';
 
 const moduleNameMapper = {
   // Common Next/DOM/library mocks – adjust paths if needed
@@ -80,10 +80,9 @@ const moduleNameMapper = {
 
   // TS path aliases from tsconfig.json (resolved at runtime). If
   // ts-jest isn't available, this will be a no-op.
-  ...pathsToModuleNameMapper(
-    compilerOptions?.paths ? compilerOptions.paths : {},
-    { prefix: '<rootDir>/' }
-  ),
+  ...pathsToModuleNameMapper(compilerOptions?.paths ? compilerOptions.paths : {}, {
+    prefix: '<rootDir>/',
+  }),
   '^@/utils/api-response$': '<rootDir>/src/mocks/api-response.ts',
 };
 

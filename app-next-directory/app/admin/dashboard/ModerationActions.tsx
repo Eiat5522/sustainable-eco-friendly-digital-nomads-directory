@@ -162,13 +162,12 @@ export function ModerationActions({ moderationId, itemName }: ModerationActionsP
         </form>
       )}
       {feedback && (
-        <p
-          role="status"
+        <output
           className="text-xs text-gray-500"
           data-testid={`moderation-feedback-${moderationId}`}
         >
           {feedback}
-        </p>
+        </output>
       )}
     </div>
   );

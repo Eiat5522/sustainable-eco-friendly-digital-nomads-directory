@@ -23,7 +23,6 @@ jest.mock('@/lib/sanity/client', () => {
   };
 });
 
-
 const authMockModule = jest.requireMock('@/lib/auth') as { auth: jest.Mock };
 const clientMockModule = jest.requireMock('@/lib/sanity/client') as {
   client: { fetch: jest.Mock; patch: jest.Mock; delete: jest.Mock };

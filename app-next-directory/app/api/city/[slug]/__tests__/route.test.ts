@@ -26,7 +26,6 @@ jest.mock('@/lib/logger', () => ({
   },
 }));
 
-
 const cityDataMockModule = jest.requireMock('@/lib/data/city') as { getCityBySlug: jest.Mock };
 const loggerMockModule = jest.requireMock('@/lib/logger') as {
   structuredLogger: { error: jest.Mock; warn: jest.Mock; info: jest.Mock };

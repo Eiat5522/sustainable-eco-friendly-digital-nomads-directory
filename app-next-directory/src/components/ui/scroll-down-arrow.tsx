@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
  * - Centered at bottom of hero section
  * - Smooth animation transitions
  */
-export function ScrollDownArrow() {
+export function ScrollDownArrow(): React.JSX.Element {
   const [isVisible, setIsVisible] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 

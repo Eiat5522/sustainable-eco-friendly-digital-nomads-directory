@@ -1,6 +1,6 @@
-import levenshtein from 'fast-levenshtein';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import levenshtein from 'fast-levenshtein';
 import { client } from '../lib/sanity/client';
 
 interface ContentAnalysisResult {

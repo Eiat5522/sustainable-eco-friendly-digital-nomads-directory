@@ -626,11 +626,7 @@ describe('Contact API', () => {
         );
 
         expect(adminEmail).toBeDefined();
-        if (
-          adminEmail?.[0] &&
-          typeof adminEmail[0] === 'object' &&
-          'html' in adminEmail[0]
-        ) {
+        if (adminEmail?.[0] && typeof adminEmail[0] === 'object' && 'html' in adminEmail[0]) {
           const htmlContent = (adminEmail[0] as { html: string }).html;
           // Should contain escaped HTML entities, not raw script tags
           expect(htmlContent).toContain('&lt;script&gt;');
@@ -669,11 +665,7 @@ describe('Contact API', () => {
         );
 
         expect(adminEmail).toBeDefined();
-        if (
-          adminEmail?.[0] &&
-          typeof adminEmail[0] === 'object' &&
-          'html' in adminEmail[0]
-        ) {
+        if (adminEmail?.[0] && typeof adminEmail[0] === 'object' && 'html' in adminEmail[0]) {
           const htmlContent = (adminEmail[0] as { html: string }).html;
           // Should contain escaped HTML entities (< becomes &lt;)
           expect(htmlContent).toContain('&lt;img');

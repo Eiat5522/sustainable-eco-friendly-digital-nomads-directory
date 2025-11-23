@@ -1,7 +1,6 @@
 'use client';
 
 import 'leaflet/dist/leaflet.css';
-import type * as Leaflet from 'leaflet';
 import { MapPin } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -15,13 +14,13 @@ interface InteractiveMapProps {
 
 export function InteractiveMap({ location, address, name, className }: InteractiveMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<Leaflet.Map | null>(null);
-  const LRef = useRef<typeof Leaflet | null>(null);
-  const markerRef = useRef<Leaflet.Marker | null>(null);
+  const mapInstanceRef = useRef<any>(null);
+  const LRef = useRef<any>(null);
+  const markerRef = useRef<any>(null);
   const [tileLoadFailed, setTileLoadFailed] = useState(false);
 
-  const createCustomMarkerIcon = (L: typeof Leaflet) =>
-    L.divIcon({
+  const createCustomMarkerIcon = (leaflet: any) =>
+    leaflet.divIcon({
       html: `<div class="w-8 h-8 bg-neo-primary rounded-full flex items-center justify-center text-white shadow-lg">
                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
@@ -30,28 +29,26 @@ export function InteractiveMap({ location, address, name, className }: Interacti
       className: 'custom-marker',
       iconSize: [32, 32],
       iconAnchor: [16, 32],
-    }) as Leaflet.Icon;
+    });
 
   useEffect(() => {
     if (!location || !mapRef.current) {
       return;
     }
 
-    let tileLayer: Leaflet.TileLayer | null = null;
+    let tileLayer: any = null;
     let handleTileLoad: (() => void) | null = null;
-    let handleTileError: ((e: Leaflet.TileErrorEvent) => void) | null = null;
+    let handleTileError: ((e: any) => void) | null = null;
     let isMounted = true;
 
     const initMap = async () => {
       try {
         if (!LRef.current) {
-          const mod = (await import('leaflet')) as typeof import('leaflet') & {
-            default?: typeof import('leaflet');
-          };
-          LRef.current = mod.default ?? mod;
+          const mod = await import('leaflet');
+          LRef.current = mod;
         }
 
-        const L = LRef.current!;
+        const Leaflet = LRef.current;
         const container = mapRef.current;
         if (!container || !isMounted) {
           return;
@@ -62,7 +59,7 @@ export function InteractiveMap({ location, address, name, className }: Interacti
           mapInstanceRef.current = null;
         }
 
-        const map = L.map(container).setView([location.lat, location.lng], 15);
+        const map = Leaflet.map(container).setView([location.lat, location.lng], 15);
         mapInstanceRef.current = map;
 
         const tileUrl =
@@ -76,7 +73,7 @@ export function InteractiveMap({ location, address, name, className }: Interacti
           });
         };
 
-        handleTileError = (e: Leaflet.TileErrorEvent) => {
+        handleTileError = (e: any) => {
           if (!isMounted) return;
           setTileLoadFailed(true);
           if (process.env.NODE_ENV !== 'production') {
@@ -107,7 +104,7 @@ export function InteractiveMap({ location, address, name, className }: Interacti
           }
         };
 
-        tileLayer = L.tileLayer(tileUrl, {
+        tileLayer = Leaflet.tileLayer(tileUrl, {
           attribution:
             '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
           maxZoom: 19,
@@ -131,8 +128,8 @@ export function InteractiveMap({ location, address, name, className }: Interacti
           popupContent.appendChild(addrEl);
         }
 
-        const marker = L.marker([location.lat, location.lng], {
-          icon: createCustomMarkerIcon(L),
+        const marker = Leaflet.marker([location.lat, location.lng], {
+          icon: createCustomMarkerIcon(Leaflet),
         }).addTo(map);
         marker.bindPopup(popupContent);
         markerRef.current = marker;

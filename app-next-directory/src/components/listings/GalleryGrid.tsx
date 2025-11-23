@@ -87,8 +87,8 @@ export default function GalleryGrid({ images, fallback = '/placeholder_image.png
       (el): el is HTMLButtonElement => !!el
     );
     if (focusables.length === 0) return;
-    const current = document.activeElement as HTMLElement | null;
-    const idx = focusables.indexOf(current);
+    const current = document.activeElement;
+    const idx = current ? focusables.indexOf(current as HTMLButtonElement) : -1;
     if (e.shiftKey) {
       // Move focus backward when cycling with Shift+Tab.
       if (idx <= 0) {

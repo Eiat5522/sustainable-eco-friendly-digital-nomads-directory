@@ -7,7 +7,7 @@
  * Coverage Target: 85%+
  */
 
-import { fireEvent, render, screen, } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import type { FilterDefinition } from '@/hooks/useFilters';
 import { DigitalNomadSearchFilter } from '../DigitalNomadSearchFilter';
 

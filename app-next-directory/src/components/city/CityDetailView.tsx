@@ -21,7 +21,7 @@ interface CityDetailViewProps {
   listings: ListingSummaryDTO[];
 }
 
-export function CityDetailView({ city, listings }: CityDetailViewProps) {
+export function CityDetailView({ city, listings }: CityDetailViewProps): React.JSX.Element {
   const [imageError, setImageError] = useState(false);
 
   function isCityDetailDTO(city: CityDTO | CityDetailDTO): city is CityDetailDTO {

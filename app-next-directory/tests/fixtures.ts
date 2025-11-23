@@ -1,6 +1,6 @@
-import { type Browser, test as base, type Page } from '@playwright/test';
 import { existsSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
+import { type Browser, test as base, type Page } from '@playwright/test';
 import { type PlaywrightRole, resolveTestUser } from './config/test-users';
 
 export type TestFixtures = {

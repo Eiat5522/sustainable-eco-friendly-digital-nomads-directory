@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-import { describe, expect, it, } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
 import { getRequestContext } from '../logger';
 
 describe('Logger Utilities', () => {

@@ -26,7 +26,7 @@ jest.mock('@/components/auth/SocialAuthRow', () => ({
 
 jest.mock('@/components/ui/neo-input', () => ({
   NeoInput: ({ asChild, children, ...props }: any) => (
-    <input data-testid={props.id ?? props.name} {...props}/>
+    <input data-testid={props.id ?? props.name} {...props} />
   ),
 }));
 

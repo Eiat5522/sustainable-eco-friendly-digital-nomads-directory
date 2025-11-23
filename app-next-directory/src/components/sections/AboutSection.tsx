@@ -33,7 +33,7 @@ const features: Feature[] = [
   },
 ];
 
-export function AboutSection() {
+export function AboutSection(): React.JSX.Element {
   return (
     <section
       id="about"

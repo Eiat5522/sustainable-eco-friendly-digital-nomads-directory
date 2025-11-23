@@ -164,12 +164,11 @@ export async function generateMetadata({
       imageUrl = post?.imageUrl ?? undefined;
     }
 
-    const absoluteImage =
-      imageUrl?.startsWith('http')
-        ? imageUrl
-        : imageUrl
-          ? new URL(imageUrl, base).toString()
-          : undefined;
+    const absoluteImage = imageUrl?.startsWith('http')
+      ? imageUrl
+      : imageUrl
+        ? new URL(imageUrl, base).toString()
+        : undefined;
 
     return {
       title: title || 'Blog',

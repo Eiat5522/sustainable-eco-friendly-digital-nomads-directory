@@ -3,7 +3,7 @@
 import { Instagram, Leaf, Linkedin, Mail, MapPin, MessageSquare, Twitter } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React from 'react';
+import * as React from 'react';
 import { NeoButton } from '@/components/ui/neo-button';
 import { NeoCard } from '@/components/ui/neo-card';
 import { NeoInput } from '@/components/ui/neo-input';

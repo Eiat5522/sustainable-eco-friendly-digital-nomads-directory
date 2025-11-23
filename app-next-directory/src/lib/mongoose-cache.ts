@@ -25,15 +25,13 @@ export async function withMongooseCache<T>(
       }
       return cachedData as T;
     }
-  } catch (_error) {
-  }
+  } catch (_error) {}
 
   const data = await queryFn();
 
   try {
     await client.set(key, JSON.stringify(data), { ex: ttl });
-  } catch (_error) {
-  }
+  } catch (_error) {}
 
   return data;
 }

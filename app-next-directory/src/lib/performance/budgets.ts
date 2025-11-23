@@ -162,8 +162,7 @@ export async function sendAlert(alert: PerformanceAlert) {
             `Time: ${new Date(alert.timestamp).toISOString()}`,
         }),
       });
-    } catch (_error) {
-    }
+    } catch (_error) {}
   }
 
   // Email alerts (if configured)

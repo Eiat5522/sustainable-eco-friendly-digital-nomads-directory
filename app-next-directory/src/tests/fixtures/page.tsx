@@ -1,5 +1,3 @@
-
-
 import type { TestData } from '.';
 import {
   integrationCities,
@@ -35,7 +33,7 @@ export function buildIntegrationFixturesSummary(): IntegrationFixturesSummary {
   };
 }
 
-export default function IntegrationFixturesPage() {
+export default function IntegrationFixturesPage(): React.JSX.Element {
   const summary = buildIntegrationFixturesSummary();
 
   return (

@@ -53,11 +53,7 @@ function SearchResults({ listings, totalCount, hasMore, onClearFilters }: Search
   }
 
   return (
-    <section
-      aria-label="Search results"
-      aria-live="polite"
-      className="mt-6 space-y-4"
-    >
+    <section aria-label="Search results" aria-live="polite" className="mt-6 space-y-4">
       <div
         role="status"
         className="font-medium"
@@ -86,7 +82,7 @@ function SearchResults({ listings, totalCount, hasMore, onClearFilters }: Search
   );
 }
 
-export function SearchForm() {
+export function SearchForm(): React.JSX.Element {
   const router = useRouter();
   const { listings, loading, error, searchListings, totalCount, hasMore } = useSearchListings();
   const [query, setQuery] = useState('');

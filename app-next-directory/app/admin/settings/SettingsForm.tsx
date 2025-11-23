@@ -42,12 +42,11 @@ export function SettingsForm() {
       const data = (await response.json()) as AdminSettingsResponse;
 
       // Extract only the form fields from settings
-      // biome-ignore lint/correctness/noUnusedVariables: These are intentionally destructured to exclude from formData
       const {
-        _id,
-        _type,
-        _createdAt,
-        _updatedAt,
+        _id: _ignoredId,
+        _type: _ignoredType,
+        _createdAt: _ignoredCreatedAt,
+        _updatedAt: _ignoredUpdatedAt,
         ...formData
       } = data.settings;
       setSettings(formData);
@@ -94,12 +93,11 @@ export function SettingsForm() {
         setSuccessMessage(data.message || 'Settings saved successfully');
 
         // Update settings with saved data
-        // biome-ignore lint/correctness/noUnusedVariables: These are intentionally destructured to exclude from formData
         const {
-          _id,
-          _type,
-          _createdAt,
-          _updatedAt,
+          _id: _ignoredId,
+          _type: _ignoredType,
+          _createdAt: _ignoredCreatedAt,
+          _updatedAt: _ignoredUpdatedAt,
           ...formData
         } = data.settings;
         setSettings(formData);
@@ -202,6 +200,7 @@ export function SettingsForm() {
         <div className="bg-red-50 border border-red-200 rounded-md p-4">
           <p className="text-red-800">{error}</p>
           <button
+            type="button"
             onClick={fetchSettings}
             className="mt-2 text-sm text-red-600 hover:text-red-800 underline"
           >

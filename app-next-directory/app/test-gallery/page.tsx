@@ -1,4 +1,3 @@
-
 import GalleryGrid from '@/components/listings/GalleryGrid';
 
 // Test page to isolate gallery functionality issues

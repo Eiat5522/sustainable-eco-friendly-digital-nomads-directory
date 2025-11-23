@@ -27,6 +27,7 @@ async function getMetricsCollection() {
         if (!(error instanceof Error) || !error.message.includes('already exists')) {
           throw error;
         }
+        return undefined;
       });
   }
   return collection as {

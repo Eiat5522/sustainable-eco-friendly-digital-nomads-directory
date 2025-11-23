@@ -36,7 +36,7 @@ export function FavoriteButton({
   onToggle,
   optimistic = true,
   ...rest
-}: FavoriteButtonProps & Record<string, unknown>) {
+}: FavoriteButtonProps & Record<string, unknown>): React.JSX.Element {
   const { data: session } = useSession();
   const [isFavoritedState, setIsFavoritedState] = useState<boolean>(initialIsFavorited ?? false);
 

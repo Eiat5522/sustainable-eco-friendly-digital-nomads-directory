@@ -12,7 +12,6 @@ jest.mock('@/lib/admin/analytics', () => ({
   performModerationAction: jest.fn(),
 }));
 
-
 const authMockModule = jest.requireMock('@/lib/auth') as { auth: jest.Mock };
 const analyticsMockModule = jest.requireMock('@/lib/admin/analytics') as {
   fetchModerationQueue: jest.Mock;

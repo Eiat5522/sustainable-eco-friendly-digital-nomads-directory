@@ -13,8 +13,7 @@ export default function MswInit() {
       const { worker } = await import('../mocks/browser');
       try {
         await worker.start({ onUnhandledRequest: 'bypass' });
-      } catch (_e) {
-      }
+      } catch (_e) {}
     })();
   }, []);
 

@@ -82,8 +82,7 @@ export function useSearch({
             const _txt = await res.text();
             if (process.env.NODE_ENV !== 'production') {
             }
-          } catch (_parseError) {
-          }
+          } catch (_parseError) {}
           throw new Error('Search request failed');
         }
         const data = await res.json();

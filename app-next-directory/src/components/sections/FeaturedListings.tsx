@@ -66,7 +66,7 @@ const toFeaturedListing = (listing: unknown): FeaturedListingDTO | null => {
   };
 };
 
-export function FeaturedListings() {
+export function FeaturedListings(): React.JSX.Element {
   const [listings, setListings] = useState<FeaturedListingDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

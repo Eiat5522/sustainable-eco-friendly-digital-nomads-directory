@@ -139,19 +139,17 @@ export class SanityHTTPClient {
     } catch (_error: unknown) {
       // Catching unknown for better type safety
       // If an error is caught, authentication likely failed.
-      if (this.debug) 
-      return false;
+      if (this.debug) return false;
     }
     // Clean up test document
     try {
       // Ensure result._id is a string before deleting
-      if (result._id) {
-        await this.writeClient.delete(result._id);
+      if (result?._id) {
+        await this.writeClient.delete(String(result._id));
       }
     } catch (_cleanupError: unknown) {
       // Catching unknown for better type safety
       // Ignore cleanup errors for test contract
-      if (this.debug) 
     }
 
     return true;
@@ -248,7 +246,6 @@ export class SanityHTTPClient {
   }
 
   // Update document
-  // Use a partial record for patches and GeneratedSanityDocument for the return type.
   async update(id: string, patches: Record<string, unknown>): Promise<GeneratedSanityDocument> {
     if (!process.env.SANITY_API_TOKEN) {
       throw new SanityAPIError('Cannot update document: No API token provided');
@@ -264,15 +261,8 @@ export class SanityHTTPClient {
         throw new SanityAPIError('Update failed: commit is not a function on the patch object');
       }
 
-      let result: GeneratedSanityDocument; // Typed result
-      try {
-        result = await setObj.commit(); // commit should return GeneratedSanityDocument
-      } catch (error: unknown) {
-        // Catching unknown for better type safety
-        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-        const statusCode = extractStatusCode(error);
-        throw new SanityAPIError(`Update failed: ${errorMessage}`, statusCode, error);
-      }
+      const result = (await setObj.commit()) as GeneratedSanityDocument;
+
       const errorPayload = getErrorPayload(result);
       if (errorPayload?.error) {
         const message = formatErrorMessage(errorPayload.error, 'Update error');
@@ -291,7 +281,9 @@ export class SanityHTTPClient {
         throw new SanityAPIError('Update operation returned no result');
       }
 
-      if (this.debug) 
+      if (this.debug) {
+        // Debug logging removed for production
+      }
       return result;
     } catch (error: unknown) {
       // Catching unknown for better type safety
@@ -319,6 +311,7 @@ export class SanityHTTPClient {
           errorPayload
         );
       }
+      return result;
 
       if (typeof result === 'undefined') {
         throw new SanityAPIError('Delete failed: Delete error');
@@ -328,9 +321,7 @@ export class SanityHTTPClient {
         throw new SanityAPIError('Delete operation returned no result');
       }
 
-      if (this.debug) 
-
-      return result;
+      if (this.debug) return result;
     } catch (error: unknown) {
       // Catching unknown for better type safety
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
@@ -415,7 +406,9 @@ export class SanityHTTPClient {
         throw new SanityAPIError('Asset upload failed: Invalid asset id');
       }
 
-      if (this.debug) 
+      if (this.debug) {
+        // Debug logging removed for production
+      }
 
       // Convert asset document to a Sanity image field object
       // Use the custom SanityImageObject type.

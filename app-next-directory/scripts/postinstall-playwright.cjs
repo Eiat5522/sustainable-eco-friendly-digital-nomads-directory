@@ -15,8 +15,7 @@ if (shouldSkip) {
 
 // Detect package manager from npm_config_user_agent for consistent usage throughout
 const { npm_config_user_agent: UA } = process.env;
-const runner =
-  UA?.includes('pnpm') ? 'pnpm exec' : UA?.includes('yarn') ? 'yarn exec' : 'npx';
+const runner = UA?.includes('pnpm') ? 'pnpm exec' : UA?.includes('yarn') ? 'yarn exec' : 'npx';
 
 // Check if browsers are already installed using Playwright CLI
 let browsersInstalled = false;

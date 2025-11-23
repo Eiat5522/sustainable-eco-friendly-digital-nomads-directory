@@ -14,7 +14,7 @@ export const Form = FormProvider;
 export function FormField<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
->(props: ControllerProps<TFieldValues, TName>) {
+>(props: ControllerProps<TFieldValues, TName>): React.JSX.Element {
   const form = useFormContext<TFieldValues>();
   return <Controller {...props} control={props.control ?? form.control} />;
 }

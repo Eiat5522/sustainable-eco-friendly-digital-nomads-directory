@@ -17,7 +17,9 @@ export function registerMockReset(fn: MockResetFn) {
  * Reset all registered mocks.
  */
 export function resetAllMocks() {
-  registeredResets.forEach(fn => fn());
+  for (const fn of registeredResets) {
+    fn();
+  }
   jest.clearAllMocks();
 }
 

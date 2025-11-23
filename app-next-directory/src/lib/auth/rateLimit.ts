@@ -216,8 +216,7 @@ if (typeof onRedisClientChange === 'function') {
     try {
       const normalized = normalizeRedisClient(newClient);
       buildRateLimiter(normalized);
-    } catch (_error) {
-    }
+    } catch (_error) {}
   });
 }
 
@@ -226,8 +225,7 @@ export async function enforceLoginRateLimit(identifier: string): Promise<LoginRa
   if (!override && loginRateLimiterPromise) {
     try {
       await loginRateLimiterPromise;
-    } catch (_error) {
-    }
+    } catch (_error) {}
   }
 
   const limiter = override ?? loginRateLimiter;
@@ -302,8 +300,7 @@ export async function recordLoginAttempt(params: {
     try {
       await LoginAttempt.create(document);
       return;
-    } catch (_modelError) {
-    }
+    } catch (_modelError) {}
   }
 }
 

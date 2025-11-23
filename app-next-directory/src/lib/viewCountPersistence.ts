@@ -102,8 +102,7 @@ export async function initializeViewCountsCollection(): Promise<void> {
 
     // Create index on lastViewed for potential analytics queries
     await collection.createIndex({ lastViewed: -1 });
-  } catch (_error) {
-  }
+  } catch (_error) {}
 }
 
 /**
@@ -114,8 +113,8 @@ export async function resetViewCounts(): Promise<void> {
   if (process.env.NODE_ENV !== 'test') {
     throw new Error('resetViewCounts can only be called in test environment');
   }
-    const client = await clientPromise;
-    const db = client.db();
-    const collection = db.collection(COLLECTION_NAME);
-    await collection.deleteMany({});
+  const client = await clientPromise;
+  const db = client.db();
+  const collection = db.collection(COLLECTION_NAME);
+  await collection.deleteMany({});
 }

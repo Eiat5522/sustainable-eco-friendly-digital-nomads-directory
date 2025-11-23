@@ -1,9 +1,6 @@
 import { jest } from '@jest/globals';
 import mongoose from 'mongoose';
-import ContactSubmission, {
-  CONTACT_STATUSES,
-  CONTACT_TYPES,
-} from '../ContactSubmission';
+import ContactSubmission, { CONTACT_STATUSES, CONTACT_TYPES } from '../ContactSubmission';
 
 describe('ContactSubmission Model', () => {
   beforeEach(() => {

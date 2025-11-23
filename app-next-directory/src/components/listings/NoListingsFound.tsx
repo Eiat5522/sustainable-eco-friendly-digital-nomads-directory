@@ -1,6 +1,6 @@
 'use client';
 
-export function NoListingsFound() {
+export function NoListingsFound(): React.JSX.Element {
   return (
     <div className="text-center py-12" role="status" aria-live="polite">
       <div className="mx-auto mb-3 h-12 w-12 rounded-full bg-muted flex items-center justify-center shadow-inner">

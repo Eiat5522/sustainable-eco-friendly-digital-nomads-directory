@@ -17,7 +17,6 @@ jest.mock('@/utils/api-response', () => ({
   },
 }));
 
-
 const dbHelpersMock = jest.requireMock('@/utils/db-helpers') as { getCollection: jest.Mock };
 const mockGetCollection = dbHelpersMock.getCollection;
 

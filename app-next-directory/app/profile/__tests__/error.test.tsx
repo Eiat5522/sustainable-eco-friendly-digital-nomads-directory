@@ -15,17 +15,17 @@ describe('Profile Error Component', () => {
   });
 
   it('should render error message', () => {
-    const Error = require('../error').default;
-    render(<Error error={mockError} reset={mockReset} />);
+    const ErrorComponent = require('../error').default;
+    render(<ErrorComponent error={mockError} reset={mockReset} />);
 
     expect(screen.getByText('Something went wrong!')).toBeInTheDocument();
     expect(screen.getByText('Try again')).toBeInTheDocument();
   });
 
   it('should call reset when Try again button is clicked', async () => {
-    const Error = require('../error').default;
+    const ErrorComponent = require('../error').default;
     const user = userEvent.setup();
-    render(<Error error={mockError} reset={mockReset} />);
+    render(<ErrorComponent error={mockError} reset={mockReset} />);
 
     const tryAgainButton = screen.getByText('Try again');
     await user.click(tryAgainButton);
@@ -34,16 +34,16 @@ describe('Profile Error Component', () => {
   });
 
   it('should log error to console on mount', () => {
-    const Error = require('../error').default;
+    const ErrorComponent = require('../error').default;
     const consoleErrorSpy = jest.spyOn(console, 'error');
-    render(<Error error={mockError} reset={mockReset} />);
+    render(<ErrorComponent error={mockError} reset={mockReset} />);
 
     expect(consoleErrorSpy).toHaveBeenCalledWith('Dashboard error:', mockError);
   });
 
   it('should apply correct CSS classes', () => {
-    const Error = require('../error').default;
-    render(<Error error={mockError} reset={mockReset} />);
+    const ErrorComponent = require('../error').default;
+    render(<ErrorComponent error={mockError} reset={mockReset} />);
 
     const container = screen.getByText('Something went wrong!').parentElement;
     expect(container).toHaveClass(
@@ -95,34 +95,34 @@ describe('Profile Error Component', () => {
   });
 
   it('should render button as clickable element', () => {
-    const Error = require('../error').default;
-    render(<Error error={mockError} reset={mockReset} />);
+    const ErrorComponent = require('../error').default;
+    render(<ErrorComponent error={mockError} reset={mockReset} />);
 
     const button = screen.getByText('Try again');
     expect(button.tagName).toBe('BUTTON');
   });
 
   it('should center content vertically and horizontally', () => {
-    const Error = require('../error').default;
-    render(<Error error={mockError} reset={mockReset} />);
+    const ErrorComponent = require('../error').default;
+    render(<ErrorComponent error={mockError} reset={mockReset} />);
 
     const container = screen.getByText('Something went wrong!').closest('div');
     expect(container).toHaveClass('items-center', 'justify-center');
   });
 
   it('should render h2 heading element', () => {
-    const Error = require('../error').default;
-    render(<Error error={mockError} reset={mockReset} />);
+    const ErrorComponent = require('../error').default;
+    render(<ErrorComponent error={mockError} reset={mockReset} />);
 
     const heading = screen.getByText('Something went wrong!');
     expect(heading.tagName).toBe('H2');
   });
 
   it('should cleanup effect on unmount', () => {
-    const Error = require('../error').default;
+    const ErrorComponent = require('../error').default;
     const consoleErrorSpy = jest.spyOn(console, 'error');
 
-    const { unmount } = render(<Error error={mockError} reset={mockReset} />);
+    const { unmount } = render(<ErrorComponent error={mockError} reset={mockReset} />);
 
     expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
 
@@ -133,9 +133,9 @@ describe('Profile Error Component', () => {
   });
 
   it('should handle multiple button clicks', async () => {
-    const Error = require('../error').default;
+    const ErrorComponent = require('../error').default;
     const user = userEvent.setup();
-    render(<Error error={mockError} reset={mockReset} />);
+    render(<ErrorComponent error={mockError} reset={mockReset} />);
 
     const tryAgainButton = screen.getByText('Try again');
     await user.click(tryAgainButton);

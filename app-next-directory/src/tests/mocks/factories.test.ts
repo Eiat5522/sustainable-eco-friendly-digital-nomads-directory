@@ -3,7 +3,7 @@
  * Validates proper creation of mock requests, responses, and Next.js response objects
  */
 
-import { describe, expect, it, } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
 import { makeMockNextResponse, makeMockRequest, makeMockResponse } from './factories';
 
 describe('Mock Factories', () => {

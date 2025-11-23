@@ -155,7 +155,7 @@ export function ReviewsSection({
   listingId,
   isSignedIn = false,
   userId: _userId,
-}: ReviewsSectionProps) {
+}: ReviewsSectionProps): React.JSX.Element {
   const [newReview, setNewReview] = useState({ rating: 0, comment: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);

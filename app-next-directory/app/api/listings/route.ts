@@ -262,7 +262,7 @@ export function createListingsHandlers(overrides: Partial<ListingsDependencies> 
   };
 
   const POST = async (request: MaybeRequest) => {
-    let session;
+    let session: Awaited<ReturnType<typeof ensureAuth>> | undefined;
     try {
       session = await ensureAuth();
     } catch (error) {

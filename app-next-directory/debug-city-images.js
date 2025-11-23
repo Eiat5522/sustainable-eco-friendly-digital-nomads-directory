@@ -10,7 +10,6 @@ const client = createClient({
 
 async function debugCityAndImages() {
   try {
-
     // Test multiple city field possibilities
     const listings = await client.fetch(`
       *[_type == "listing" && moderation.featured == true][0...3] {
@@ -27,8 +26,7 @@ async function debugCityAndImages() {
         "moderation": moderation
       }
     `);
-    listings.forEach((_listing, _index) => {
-    });
+    listings.forEach((_listing, _index) => {});
     const cities = await client.fetch(`
       *[_type == "city"][0...5] {
         _id,
@@ -38,8 +36,7 @@ async function debugCityAndImages() {
       }
     `);
 
-    cities.forEach((_city, _index) => {
-    });
+    cities.forEach((_city, _index) => {});
     const referencedCities = await client.fetch(`
       *[_type == "listing" && defined(city) && moderation.featured == true] {
         "listingName": name,
@@ -48,10 +45,8 @@ async function debugCityAndImages() {
       }
     `);
 
-    referencedCities.forEach((_ref, _index) => {
-    });
-  } catch (_error) {
-  }
+    referencedCities.forEach((_ref, _index) => {});
+  } catch (_error) {}
 }
 
 debugCityAndImages();

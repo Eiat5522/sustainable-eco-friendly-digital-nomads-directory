@@ -18,8 +18,7 @@ const notifyListeners = () => {
   for (const listener of listeners) {
     try {
       listener(currentClient);
-    } catch (_error) {
-    }
+    } catch (_error) {}
   }
 };
 

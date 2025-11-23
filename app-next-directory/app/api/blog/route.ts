@@ -125,7 +125,6 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-
     if (error instanceof Error) {
       const name = error.name;
       const cause = (error as { cause?: { code?: string } }).cause;

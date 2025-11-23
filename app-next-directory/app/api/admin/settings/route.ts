@@ -108,8 +108,7 @@ export async function POST(request: NextRequest, _context: RouteContext) {
         .commit()) as AdminSettings;
     } else {
       // Create new settings document
-      // biome-ignore lint/correctness/noUnusedVariables: _type is intentionally destructured to exclude from defaultSettings
-      const { _type, ...defaultSettings } = DEFAULT_ADMIN_SETTINGS;
+      const { _type: _ignoredType, ...defaultSettings } = DEFAULT_ADMIN_SETTINGS;
       savedSettings = await client.create<AdminSettings>({
         _type: 'adminSettings',
         ...defaultSettings,

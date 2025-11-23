@@ -1,0 +1,36 @@
+   ▲ Next.js 15.5.0
+   - Environments: .env.local, .env
+
+   Creating an optimized production build ...
+Failed to compile.
+
+node:util
+Module build failed: UnhandledSchemeError: Reading from "node:util" is not handled by plugins (Unhandled scheme).
+Webpack supports "data:" and "file:" URIs by default.
+You may need an additional plugin to handle "node:" URIs.
+    at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/next@15.5.0_@babel+core@7.28.5_@playwright+test@1.56.1_react-dom@19.1.0_react@19.1.0__react@19.1.0/node_modules/next/dist/compiled/webpack/bundle5.js:29:408351
+    at Hook.eval [as callAsync] (eval at create (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/next@15.5.0_@babel+core@7.28.5_@playwright+test@1.56.1_react-dom@19.1.0_react@19.1.0__react@19.1.0/node_modules/next/dist/compiled/webpack/bundle5.js:14:9224), <anonymous>:6:1)
+    at Hook.CALL_ASYNC_DELEGATE [as _callAsync] (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/next@15.5.0_@babel+core@7.28.5_@playwright+test@1.56.1_react-dom@19.1.0_react@19.1.0__react@19.1.0/node_modules/next/dist/compiled/webpack/bundle5.js:14:6378)
+    at Object.processResource (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/next@15.5.0_@babel+core@7.28.5_@playwright+test@1.56.1_react-dom@19.1.0_react@19.1.0__react@19.1.0/node_modules/next/dist/compiled/webpack/bundle5.js:29:408276)
+    at processResource (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/next@15.5.0_@babel+core@7.28.5_@playwright+test@1.56.1_react-dom@19.1.0_react@19.1.0__react@19.1.0/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js:1:5308)
+    at iteratePitchingLoaders (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/next@15.5.0_@babel+core@7.28.5_@playwright+test@1.56.1_react-dom@19.1.0_react@19.1.0__react@19.1.0/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js:1:4667)
+    at runLoaders (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/next@15.5.0_@babel+core@7.28.5_@playwright+test@1.56.1_react-dom@19.1.0_react@19.1.0__react@19.1.0/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js:1:8590)
+    at NormalModule._doBuild (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/next@15.5.0_@babel+core@7.28.5_@playwright+test@1.56.1_react-dom@19.1.0_react@19.1.0__react@19.1.0/node_modules/next/dist/compiled/webpack/bundle5.js:29:408138)
+    at NormalModule.build (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/next@15.5.0_@babel+core@7.28.5_@playwright+test@1.56.1_react-dom@19.1.0_react@19.1.0__react@19.1.0/node_modules/next/dist/compiled/webpack/bundle5.js:29:410151)
+    at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/next@15.5.0_@babel+core@7.28.5_@playwright+test@1.56.1_react-dom@19.1.0_react@19.1.0__react@19.1.0/node_modules/next/dist/compiled/webpack/bundle5.js:29:82479
+    at NormalModule.needBuild (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/next@15.5.0_@babel+core@7.28.5_@playwright+test@1.56.1_react-dom@19.1.0_react@19.1.0__react@19.1.0/node_modules/next/dist/compiled/webpack/bundle5.js:29:414135)
+    at Compilation._buildModule (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/next@15.5.0_@babel+core@7.28.5_@playwright+test@1.56.1_react-dom@19.1.0_react@19.1.0__react@19.1.0/node_modules/next/dist/compiled/webpack/bundle5.js:29:82196)
+    at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/next@15.5.0_@babel+core@7.28.5_@playwright+test@1.56.1_react-dom@19.1.0_react@19.1.0__react@19.1.0/node_modules/next/dist/compiled/webpack/bundle5.js:29:1378123
+    at Hook.eval [as callAsync] (eval at create (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/next@15.5.0_@babel+core@7.28.5_@playwright+test@1.56.1_react-dom@19.1.0_react@19.1.0__react@19.1.0/node_modules/next/dist/compiled/webpack/bundle5.js:14:9224), <anonymous>:6:1)
+    at AsyncQueue._startProcessing (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/next@15.5.0_@babel+core@7.28.5_@playwright+test@1.56.1_react-dom@19.1.0_react@19.1.0__react@19.1.0/node_modules/next/dist/compiled/webpack/bundle5.js:29:1377994)
+    at AsyncQueue._ensureProcessing (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/next@15.5.0_@babel+core@7.28.5_@playwright+test@1.56.1_react-dom@19.1.0_react@19.1.0__react@19.1.0/node_modules/next/dist/compiled/webpack/bundle5.js:29:1377843)
+    at process.processImmediate (node:internal/timers:485:21)
+
+Import trace for requested module:
+node:util
+./src/lib/logger.ts
+./src/lib/error-handler.ts
+./app/admin/listings/ListingsManagementTable.tsx
+
+
+> Build failed because of webpack errors

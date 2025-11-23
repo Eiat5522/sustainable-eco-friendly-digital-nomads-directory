@@ -1,4 +1,28 @@
-import { logger } from '@/lib/logger';
+// Client-safe logger wrapper
+const logger = {
+  error: (..._args: any[]) => {
+    if (typeof window !== 'undefined') {
+    } else {
+      // Only log on server in development
+      if (process.env.NODE_ENV !== 'production') {
+      }
+    }
+  },
+  warn: (..._args: any[]) => {
+    if (typeof window !== 'undefined') {
+    } else {
+      if (process.env.NODE_ENV !== 'production') {
+      }
+    }
+  },
+  info: (..._args: any[]) => {
+    if (typeof window !== 'undefined') {
+    } else {
+      if (process.env.NODE_ENV !== 'production') {
+      }
+    }
+  },
+};
 
 const DEFAULT_TIMEOUT_MS = 8000;
 const DEFAULT_RETRIES = 2;

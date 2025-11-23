@@ -20,7 +20,7 @@ export function AnimatedNumber({
   prefix = '',
   suffix = '',
   className,
-}: AnimatedNumberProps) {
+}: AnimatedNumberProps): React.JSX.Element {
   const { formatted } = useCounter({ start, end: value, duration, decimals });
   return (
     <span className={className}>

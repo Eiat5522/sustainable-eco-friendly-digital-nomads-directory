@@ -1,7 +1,7 @@
 import { Star } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import React from 'react';
+import * as React from 'react';
 import { NeoCard, NeoCardContent, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
 import { cn } from '@/lib/utils';
 import type { FeaturedListingDTO } from '@/types/dto';

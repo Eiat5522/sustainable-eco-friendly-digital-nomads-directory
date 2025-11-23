@@ -138,8 +138,7 @@ const callbacks = {
           );
         }
       }
-    } catch (_e) {
-    }
+    } catch (_e) {}
     return true;
   },
   async jwt({ token, user, trigger }) {
@@ -166,8 +165,7 @@ const callbacks = {
       email,
       userId: t.id,
       currentRole: t.role ?? null,
-    }).catch(_err => {
-    });
+    }).catch(_err => {});
     return t as JWT | null;
   },
   async session({ session, token, user }) {
@@ -204,8 +202,8 @@ export const authOptions: NextAuthConfig = {
 };
 
 const nextAuthInstance = (() => {
-    const inst = NextAuth(authOptions);
-    return inst;
+  const inst = NextAuth(authOptions);
+  return inst;
 })();
 
 export const {

@@ -15,7 +15,7 @@ export function DigitalNomadSearchFilter({
   initialFilters,
   onChange,
   title = 'Filters',
-}: DigitalNomadSearchFilterProps) {
+}: DigitalNomadSearchFilterProps): React.JSX.Element {
   const { activeFilters, toggleFilter, clearFilters } = useFilters({
     definitions,
     initialFilters,

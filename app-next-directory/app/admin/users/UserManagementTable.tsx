@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState, useTransition } from 'react';
-import { getUserFacingMessage } from '@/lib/error-handler';
+import { getUserFacingMessage } from '@/lib/client-utils';
 import { fetchJsonWithRetry, getDefaultTimeout, RequestTimeoutError } from '@/lib/http/request';
 import type { UserRole } from '@/types/auth';
 
@@ -294,12 +294,9 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
   return (
     <div className="space-y-6 p-6">
       {feedback && (
-        <div
-          className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded"
-          role="status"
-        >
+        <output className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded">
           {feedback}
-        </div>
+        </output>
       )}
 
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
@@ -421,6 +418,7 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center gap-3">
                           <button
+                            type="button"
                             onClick={() =>
                               handleStatusChange(
                                 user.id,
@@ -438,6 +436,7 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
                           </button>
                           {canChangeRoles && (
                             <button
+                              type="button"
                               onClick={() => handleDeleteUser(user.id, user.name)}
                               disabled={isPending || user.id === currentUserId}
                               className="text-sm text-rose-600 hover:text-rose-700 disabled:text-rose-300"
@@ -458,6 +457,7 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
             <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
               <div className="flex flex-1 justify-between sm:hidden">
                 <button
+                  type="button"
                   onClick={() => loadUsers(pagination.page - 1)}
                   disabled={!pagination.hasPrevPage || loading}
                   className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
@@ -465,6 +465,7 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
                   Previous
                 </button>
                 <button
+                  type="button"
                   onClick={() => loadUsers(pagination.page + 1)}
                   disabled={!pagination.hasNextPage || loading}
                   className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
@@ -485,6 +486,7 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
                     aria-label="Pagination"
                   >
                     <button
+                      type="button"
                       onClick={() => loadUsers(pagination.page - 1)}
                       disabled={!pagination.hasPrevPage || loading}
                       className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:bg-gray-100 disabled:text-gray-400"
@@ -492,6 +494,7 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
                       <span className="sr-only">Previous</span>←
                     </button>
                     <button
+                      type="button"
                       onClick={() => loadUsers(pagination.page + 1)}
                       disabled={!pagination.hasNextPage || loading}
                       className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:bg-gray-100 disabled:text-gray-400"

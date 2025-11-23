@@ -93,7 +93,7 @@ pwTest.describe('User Dashboard API', () => {
     ];
 
     for (const req of invalidRequests) {
-      let response;
+      let response: Awaited<ReturnType<typeof request.get>> | undefined;
       const method = req.method.toLowerCase();
 
       switch (method) {

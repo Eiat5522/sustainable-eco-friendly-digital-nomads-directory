@@ -3,7 +3,7 @@
 import React from 'react';
 import { NeoButton } from '@/components/ui/neo-button';
 
-export default function Error({
+export default function RootError({
   error,
   reset,
 }: {
@@ -15,7 +15,7 @@ export default function Error({
     if (process.env.NODE_ENV === 'production') {
     } else {
     }
-  }, [error]);
+  }, []);
 
   return (
     <section

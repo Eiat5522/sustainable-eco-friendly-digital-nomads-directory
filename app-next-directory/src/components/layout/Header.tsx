@@ -27,7 +27,7 @@ function useSafeSession(): { session: Session | null; status: SessionStatus } {
   return { session: context.data ?? null, status: context.status as SessionStatus };
 }
 
-export function Header() {
+export function Header(): React.JSX.Element {
   const { session, status } = useSafeSession();
   const isAuthenticated = status === 'authenticated';
   const isAdmin = ['admin', 'superAdmin'].includes(session?.user?.role ?? '');

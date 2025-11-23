@@ -11,7 +11,7 @@ import type { CityDTO } from '@/types/dto';
 
 type ApiResponse = { success?: boolean; cities?: CityDTO[] };
 
-export function CityCarousel() {
+export function CityCarousel(): React.JSX.Element {
   const [cities, setCities] = useState<CityDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

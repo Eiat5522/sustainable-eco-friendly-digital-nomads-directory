@@ -13,7 +13,6 @@ jest.mock('@/lib/auth', () => ({
   auth: mockAuth,
 }));
 
-
 import {
   getUserFromToken,
   withAuth,

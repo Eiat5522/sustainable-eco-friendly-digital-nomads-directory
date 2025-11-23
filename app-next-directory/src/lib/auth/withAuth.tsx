@@ -20,7 +20,7 @@ interface WithAuthOptions {
 export function withAuth<P extends object>(
   Component: ComponentType<P>,
   options: WithAuthOptions = {}
-) {
+): ComponentType<P> {
   const { requiredRole, redirectTo = '/login', requireAuth = true } = options;
 
   function AuthenticatedComponent(props: P) {
@@ -74,13 +74,13 @@ export function withAuth<P extends object>(
 /**
  * HOC for admin-only components
  */
-export function withAdminAuth<P extends object>(Component: ComponentType<P>) {
+export function withAdminAuth<P extends object>(Component: ComponentType<P>): ComponentType<P> {
   return withAuth(Component, { requiredRole: 'admin' });
 }
 
 /**
  * HOC for authenticated components (any logged-in user)
  */
-export function withUserAuth<P extends object>(Component: ComponentType<P>) {
+export function withUserAuth<P extends object>(Component: ComponentType<P>): ComponentType<P> {
   return withAuth(Component, { requireAuth: true });
 }

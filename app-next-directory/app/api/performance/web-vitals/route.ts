@@ -86,8 +86,7 @@ export async function POST(request: Request) {
           timestamp: enhancedData.timestamp,
         }
       );
-    } catch (_alertError) {
-    }
+    } catch (_alertError) {}
 
     return new Response(JSON.stringify({ success: true, data: enhancedData }), {
       status: 200,

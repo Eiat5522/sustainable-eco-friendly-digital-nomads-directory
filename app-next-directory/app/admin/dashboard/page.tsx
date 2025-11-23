@@ -86,8 +86,7 @@ function StatusBadge({ status }: { status: string }) {
   const fallbackClasses = 'bg-gray-50 text-gray-700 border-gray-200';
 
   return (
-    <span
-      role="status"
+    <output
       aria-live="polite"
       aria-label={`Moderation status: ${readableStatus}`}
       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
@@ -95,7 +94,7 @@ function StatusBadge({ status }: { status: string }) {
       }`}
     >
       {readableStatus}
-    </span>
+    </output>
   );
 }
 

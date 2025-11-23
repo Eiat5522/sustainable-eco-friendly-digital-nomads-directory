@@ -13,7 +13,7 @@ interface HeroSectionProps {
   onToggleFavorite?: () => Promise<void> | void;
 }
 
-export function HeroSection(props: Readonly<HeroSectionProps>) {
+export function HeroSection(props: Readonly<HeroSectionProps>): React.JSX.Element {
   const { listing } = props;
   const hasRealHeroImage =
     typeof listing.imageUrl === 'string' &&

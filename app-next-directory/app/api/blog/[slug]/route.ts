@@ -240,7 +240,10 @@ const postQuery = groq`
 `;
 
 // GET endpoint for fetching a single blog post
-export async function GET(_request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ slug: string }> }
+) {
   try {
     const { slug } = await params;
 
@@ -278,7 +281,6 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     // Return a single canonical payload shape
     return ApiResponseHandler.success(response);
   } catch (error) {
-
     if (error instanceof Error) {
       if (error.message.includes('fetch failed')) {
         return ApiResponseHandler.error('Failed to connect to CMS. Please try again later.', 503);

@@ -19,7 +19,7 @@ export interface ListingContactInfoProps {
   listing: ListingDetailDTO;
 }
 
-export function ListingContactInfo({ listing }: ListingContactInfoProps) {
+export function ListingContactInfo({ listing }: ListingContactInfoProps): React.JSX.Element | null {
   const items: ContactItem[] = [
     {
       key: 'address',

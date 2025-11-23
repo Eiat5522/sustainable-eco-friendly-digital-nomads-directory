@@ -17,7 +17,6 @@ jest.mock('@/lib/sanity/client', () => ({
 
 let GET: any;
 
-
 describe('Events API - GET /api/events', () => {
   beforeEach(() => {
     jest.resetModules();

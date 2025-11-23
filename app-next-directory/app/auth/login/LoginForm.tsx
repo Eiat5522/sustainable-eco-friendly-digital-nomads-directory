@@ -158,7 +158,7 @@ export default function LoginForm() {
         </NeoButton>
       </form>
 
-      <div className="mt-6" aria-labelledby="social-signin-heading">
+      <section className="mt-6" aria-labelledby="social-signin-heading">
         <div className="relative flex items-center">
           <div className="flex-1 h-px bg-neo-border" />
           <span id="social-signin-heading" className="px-3 text-xs text-neo-text-secondary">
@@ -169,7 +169,7 @@ export default function LoginForm() {
         <div className="mt-4">
           <SocialAuthRow />
         </div>
-      </div>
+      </section>
     </div>
   );
 }

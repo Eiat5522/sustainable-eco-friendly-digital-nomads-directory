@@ -263,7 +263,6 @@ export class SanityBatchProcessor {
       try {
         return await this.processSingleListing(listing, skipImages);
       } catch (error) {
-
         if (attempt === this.retryAttempts) {
           throw error;
         }
@@ -308,11 +307,9 @@ export class SanityBatchProcessor {
 
     // Process images if not skipped
     if (!skipImages && listing.images && listing.images.length > 0) {
-
       const imageResults = await imageUploader.uploadBatch(listing.images, {
         concurrency: 2,
-        onProgress: (_completed, _total) => {
-        },
+        onProgress: (_completed, _total) => {},
       });
 
       if (imageResults.successful.length > 0) {

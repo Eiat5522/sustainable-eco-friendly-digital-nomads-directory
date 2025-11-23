@@ -18,7 +18,7 @@ export const resolveCallbackUrl = (loc?: { href?: string | null }) => {
   return '/auth/login';
 };
 
-export default function CommentForm({ postId }: Readonly<{ postId: string }>) {
+export default function CommentForm({ postId }: Readonly<{ postId: string }>): React.JSX.Element {
   const { data: session, status } = useSession();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);

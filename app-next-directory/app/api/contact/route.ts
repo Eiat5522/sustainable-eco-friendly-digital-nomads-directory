@@ -282,7 +282,6 @@ export async function POST(request: NextRequest) {
       successMessage
     );
   } catch (error) {
-
     // Handle specific nodemailer errors
     if (error instanceof Error) {
       if (error.message.includes('SMTP')) {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState, useTransition } from 'react';
-import { getUserFacingMessage } from '@/lib/error-handler';
+import { getUserFacingMessage } from '@/lib/client-utils';
 import { fetchJsonWithRetry, getDefaultTimeout, RequestTimeoutError } from '@/lib/http/request';
 import {
   isListingTypeValue,
@@ -301,14 +301,11 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
   if (loading && listings.length === 0) {
     return (
       <div className="p-8 text-center" data-testid="listings-loading">
-        <div
-          className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
-          role="status"
-        >
+        <output className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]">
           <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
             Loading...
           </span>
-        </div>
+        </output>
         <p className="mt-4 text-gray-600">Loading listings...</p>
       </div>
     );

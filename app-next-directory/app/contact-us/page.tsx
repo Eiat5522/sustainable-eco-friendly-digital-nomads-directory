@@ -359,14 +359,13 @@ function ContactForm() {
               </div>
 
               {submitMessage && (
-                <div
-                  role="status"
+                <output
                   data-testid={submitStatus === 'success' ? 'contact-success' : 'contact-error'}
                   aria-live="polite"
                   className={`mt-6 p-4 rounded-md text-center border ${submitStatus === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-rose-50 text-rose-800 border-rose-200'}`}
                 >
                   {submitMessage}
-                </div>
+                </output>
               )}
 
               <div className="flex items-center justify-end gap-4 mt-8">

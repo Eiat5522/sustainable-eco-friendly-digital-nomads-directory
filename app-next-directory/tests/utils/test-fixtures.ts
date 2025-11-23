@@ -11,12 +11,12 @@ type ListingsFixtures = {
 };
 
 export const test = base.extend<ListingsFixtures>({
-  mockListings: async ({}, use) => {
+  mockListings: async (_fixtures, use) => {
     const { listings } = createTestData();
     await use(listings);
   },
 
-  defaultFilters: async ({}, use) => {
+  defaultFilters: async (_fixtures, use) => {
     const data = createTestData();
     const categories = Array.from(new Set(data.listings.map(listing => listing.type)));
     const ecoTags = listEcoTags().map(tag => tag.slug.current);

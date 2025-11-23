@@ -25,7 +25,7 @@ async function makeApiRequest(
       headers,
     });
 
-    let data;
+    let data: unknown;
     try {
       data = response.headers.get('content-type')?.includes('application/json')
         ? await response.json()

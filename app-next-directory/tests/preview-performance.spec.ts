@@ -123,7 +123,7 @@ test.describe('Preview Mode Performance Tests', () => {
 });
 
 // Create performance report in JSON format
-test.afterAll(async ({}, testInfo) => {
+test.afterAll(async (_fixtures, testInfo) => {
   const report = {
     timestamp: new Date().toISOString(),
     status: testInfo.status,

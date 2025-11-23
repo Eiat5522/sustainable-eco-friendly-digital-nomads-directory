@@ -58,12 +58,12 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               Log in to manage your listings, save favorites, and discover eco-friendly spots for
               digital nomads.
             </p>
-            <div className="mt-8" aria-labelledby="social-signin-heading-left">
+            <section className="mt-8" aria-labelledby="social-signin-heading-left">
               <h3 id="social-signin-heading-left" className="sr-only">
                 Social sign-in options
               </h3>
               <SocialAuthRow />
-            </div>
+            </section>
           </div>
           {/* Auth card */}
           <NeoCard className="p-8 md:p-10">
@@ -72,12 +72,12 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             </NeoCardHeader>
             <NeoCardContent>
               <LoginForm />
-              <div className="mt-6 md:hidden" aria-labelledby="social-signin-heading-mobile">
+              <section className="mt-6 md:hidden" aria-labelledby="social-signin-heading-mobile">
                 <h3 id="social-signin-heading-mobile" className="sr-only">
                   Social sign-in options
                 </h3>
                 <SocialAuthRow />
-              </div>
+              </section>
               <p className="mt-6 text-sm text-center">
                 New user?{' '}
                 <Link

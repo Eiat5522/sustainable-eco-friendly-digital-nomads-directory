@@ -23,7 +23,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { structuredLogger } from '@/lib/logger';
 
 const listingFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -204,9 +203,7 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
         const response = await fetch('/api/cities');
         const data = (await response.json()) as { cities?: unknown };
         setCities(toOptions(data?.cities));
-      } catch (error) {
-        structuredLogger.error('Failed to fetch cities', error, { component: 'VenueListingForm' });
-      }
+      } catch (_error) {}
     };
 
     const fetchEcoTags = async () => {
@@ -214,11 +211,7 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
         const response = await fetch('/api/eco-tags');
         const data = (await response.json()) as { ecoTags?: unknown; tags?: unknown };
         setEcoTags(toOptions(data?.ecoTags ?? data?.tags));
-      } catch (error) {
-        structuredLogger.error('Failed to fetch eco tags', error, {
-          component: 'VenueListingForm',
-        });
-      }
+      } catch (_error) {}
     };
 
     const fetchDigitalNomadFeatures = async () => {
@@ -229,11 +222,7 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
           features?: unknown;
         };
         setDigitalNomadFeatures(toOptions(data?.digitalNomadFeatures ?? data?.features));
-      } catch (error) {
-        structuredLogger.error('Failed to fetch digital nomad features', error, {
-          component: 'VenueListingForm',
-        });
-      }
+      } catch (_error) {}
     };
 
     const fetchAmenities = async () => {
@@ -241,11 +230,7 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
         const response = await fetch('/api/amenities');
         const data = (await response.json()) as { amenities?: unknown };
         setAmenities(toOptions(data?.amenities));
-      } catch (error) {
-        structuredLogger.error('Failed to fetch amenities', error, {
-          component: 'VenueListingForm',
-        });
-      }
+      } catch (_error) {}
     };
 
     fetchCities();
@@ -304,9 +289,7 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
       };
 
       onSave?.(listingData);
-    } catch (error) {
-      structuredLogger.error('Failed to save listing', error, { component: 'VenueListingForm' });
-    }
+    } catch (_error) {}
   };
 
   return (

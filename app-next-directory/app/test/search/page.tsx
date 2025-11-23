@@ -129,8 +129,7 @@ export default function TestSearchPage() {
         if (active) {
           setListings(mapListings(data.listings));
         }
-      } catch (_error) {
-      }
+      } catch (_error) {}
     };
 
     fetchListings();

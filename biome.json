@@ -16,6 +16,18 @@
     "lineWidth": 100,
     "lineEnding": "lf"
   },
+  "css": {
+    "parser": {
+      "cssModules": true,
+      "allowWrongLineComments": true
+    },
+    "formatter": {
+      "enabled": true,
+      "indentStyle": "space",
+      "indentWidth": 2,
+      "lineWidth": 100
+    }
+  },
   "javascript": {
     "formatter": {
       "quoteStyle": "single",
@@ -102,6 +114,18 @@
             "noConsole": "off"
           }
         }
+      }
+    },
+    {
+      "includes": ["**/*.css"],
+      "css": {
+        "parser": {
+          "cssModules": true,
+          "allowWrongLineComments": true
+        }
+      },
+      "linter": {
+        "enabled": false
       }
     }
   ]

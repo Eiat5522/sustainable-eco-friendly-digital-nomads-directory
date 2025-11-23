@@ -2,6 +2,7 @@
 // Remove control characters and trim, and optionally limit length
 export function sanitizeBasic(input: string, maxLen = 200): string {
   if (typeof input !== 'string') return '';
+  // biome-ignore lint/suspicious/noControlCharactersInRegex: Intentionally removing control characters for security
   const trimmed = input.replace(/[\u0000-\u001F\u007F]/g, '').trim();
   return trimmed.length > maxLen ? trimmed.slice(0, maxLen) : trimmed;
 }

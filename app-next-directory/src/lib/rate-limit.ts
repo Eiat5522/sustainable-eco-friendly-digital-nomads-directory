@@ -27,8 +27,7 @@ const initializeRateLimiters = () => {
         prefix: 'ratelimit:api',
       });
     }
-  } catch (_error) {
-  }
+  } catch (_error) {}
 };
 
 // Initialize on module load

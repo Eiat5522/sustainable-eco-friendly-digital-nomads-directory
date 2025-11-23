@@ -30,7 +30,7 @@ export function CategoryFilters({
   defaultValue?: string[];
   onChange?: (next: string[]) => void;
   items?: ReadonlyArray<Category>;
-}) {
+}): React.JSX.Element {
   const [selectedCategories, setSelectedCategories] = useState<string[]>(value ?? defaultValue);
 
   // keep internal state in sync when controlled

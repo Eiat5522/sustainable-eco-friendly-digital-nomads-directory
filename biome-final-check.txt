@@ -1,0 +1,382 @@
+app-next-directory/app/dashboard/components/VenueListingForm.tsx:207:9 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    205 │         setCities(toOptions(data?.cities));
+    206 │       } catch (error) {
+  > 207 │         console.error('Failed to fetch cities', error, { component: 'VenueListingForm' });
+        │         ^^^^^^^^^^^^^
+    208 │       }
+    209 │     };
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+     205  205 │           setCities(toOptions(data?.cities));
+     206  206 │         } catch (error) {
+     207      │ - ········console.error('Failed·to·fetch·cities',·error,·{·component:·'VenueListingForm'·});
+     208  207 │         }
+     209  208 │       };
+  
+
+app-next-directory/app/dashboard/components/VenueListingForm.tsx:217:9 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    215 │         setEcoTags(toOptions(data?.ecoTags ?? data?.tags));
+    216 │       } catch (error) {
+  > 217 │         console.error('Failed to fetch eco tags', error, {
+        │         ^^^^^^^^^^^^^
+    218 │           component: 'VenueListingForm',
+    219 │         });
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+     215  215 │           setEcoTags(toOptions(data?.ecoTags ?? data?.tags));
+     216  216 │         } catch (error) {
+     217      │ - ········console.error('Failed·to·fetch·eco·tags',·error,·{
+     218      │ - ··········component:·'VenueListingForm',
+     219      │ - ········});
+     220  217 │         }
+     221  218 │       };
+  
+
+app-next-directory/app/dashboard/components/VenueListingForm.tsx:232:9 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    230 │         setDigitalNomadFeatures(toOptions(data?.digitalNomadFeatures ?? data?.features));
+    231 │       } catch (error) {
+  > 232 │         console.error('Failed to fetch digital nomad features', error, {
+        │         ^^^^^^^^^^^^^
+    233 │           component: 'VenueListingForm',
+    234 │         });
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+     230  230 │           setDigitalNomadFeatures(toOptions(data?.digitalNomadFeatures ?? data?.features));
+     231  231 │         } catch (error) {
+     232      │ - ········console.error('Failed·to·fetch·digital·nomad·features',·error,·{
+     233      │ - ··········component:·'VenueListingForm',
+     234      │ - ········});
+     235  232 │         }
+     236  233 │       };
+  
+
+app-next-directory/app/dashboard/components/VenueListingForm.tsx:244:9 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    242 │         setAmenities(toOptions(data?.amenities));
+    243 │       } catch (error) {
+  > 244 │         console.error('Failed to fetch amenities', error, {
+        │         ^^^^^^^^^^^^^
+    245 │           component: 'VenueListingForm',
+    246 │         });
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+     242  242 │           setAmenities(toOptions(data?.amenities));
+     243  243 │         } catch (error) {
+     244      │ - ········console.error('Failed·to·fetch·amenities',·error,·{
+     245      │ - ··········component:·'VenueListingForm',
+     246      │ - ········});
+     247  244 │         }
+     248  245 │       };
+  
+
+app-next-directory/app/dashboard/components/VenueListingForm.tsx:307:7 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    305 │       onSave?.(listingData);
+    306 │     } catch (error) {
+  > 307 │       console.error('Failed to save listing', error, { component: 'VenueListingForm' });
+        │       ^^^^^^^^^^^^^
+    308 │     }
+    309 │   };
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+     305  305 │         onSave?.(listingData);
+     306  306 │       } catch (error) {
+     307      │ - ······console.error('Failed·to·save·listing',·error,·{·component:·'VenueListingForm'·});
+     308  307 │       }
+     309  308 │     };
+  
+
+app-next-directory/app/error.tsx:14:9 lint/correctness/useExhaustiveDependencies  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This hook specifies more dependencies than necessary: error
+  
+    12 │ }) {
+    13 │   // Log error for diagnostics in both dev and production
+  > 14 │   React.useEffect(() => {
+       │         ^^^^^^^^^
+    15 │     if (process.env.NODE_ENV === 'production') {
+    16 │     } else {
+  
+  i Outer scope values aren't valid dependencies because mutating them doesn't re-render the component.
+  
+    16 │     } else {
+    17 │     }
+  > 18 │   }, [error]);
+       │       ^^^^^
+    19 │ 
+    20 │   return (
+  
+  i Unsafe fix: Remove the extra dependencies from the list.
+  
+    18 │ ··},·[error]);
+       │       -----   
+
+app-next-directory/app/error.tsx:6:25 lint/suspicious/noShadowRestrictedNames ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Do not shadow the global "Error" property.
+  
+    4 │ import { NeoButton } from '@/components/ui/neo-button';
+    5 │ 
+  > 6 │ export default function Error({
+      │                         ^^^^^
+    7 │   error,
+    8 │   reset,
+  
+  i Consider renaming this variable. It's easy to confuse the origin of variables when they're named after a known global.
+  
+
+app-next-directory/app/globals.css:3:2 parse ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Tailwind-specific syntax is disabled.
+  
+     1 │ @import "tailwindcss";
+     2 │ 
+   > 3 │ @theme inline {
+       │  ^^^^^^^^^^^^^^
+   > 4 │   --radius-sm: calc(var(--radius) - 4px);
+        ...
+  > 47 │   --color-neo-shadow: var(--neo-shadow);
+  > 48 │ }
+       │ ^
+    49 │ 
+    50 │ :root {
+  
+  i Enable `tailwindDirectives` in the css parser options, or remove this if you are not using Tailwind CSS.
+  
+
+app-next-directory/app/globals.css:137:6 parse ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Tailwind-specific syntax is disabled.
+  
+    135 │ @layer base {
+    136 │   * {
+  > 137 │     @apply border-border outline-ring/50;
+        │      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    138 │   }
+    139 │   
+  
+  i Enable `tailwindDirectives` in the css parser options, or remove this if you are not using Tailwind CSS.
+  
+
+app-next-directory/app/globals.css:141:6 parse ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Tailwind-specific syntax is disabled.
+  
+    140 │   body {
+  > 141 │     @apply bg-background text-foreground font-sans;
+        │      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    142 │     font-family: 'Inter', 'Space Grotesk', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    143 │   }
+  
+  i Enable `tailwindDirectives` in the css parser options, or remove this if you are not using Tailwind CSS.
+  
+
+app-next-directory/app/globals.css:146:2 parse ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Tailwind-specific syntax is disabled.
+  
+    144 │ }
+    145 │ 
+  > 146 │ @utility neo-card {
+        │  ^^^^^^^^^^^^^^^^^^
+  > 147 │   @apply bg-neo-surface border-4 border-neo-border shadow-[8px_8px_0px_0px] shadow-neo-shadow;
+  > 148 │ }
+        │ ^
+    149 │ 
+    150 │ @utility neo-button {
+  
+  i Enable `tailwindDirectives` in the css parser options, or remove this if you are not using Tailwind CSS.
+  
+
+app-next-directory/app/globals.css:150:2 parse ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Tailwind-specific syntax is disabled.
+  
+    148 │ }
+    149 │ 
+  > 150 │ @utility neo-button {
+        │  ^^^^^^^^^^^^^^^^^^^^
+  > 151 │   @apply border-4 border-neo-border shadow-[4px_4px_0px_0px] shadow-neo-shadow font-bold transition-all duration-150;
+  > 152 │ }
+        │ ^
+    153 │ 
+    154 │ @utility neo-button-hover {
+  
+  i Enable `tailwindDirectives` in the css parser options, or remove this if you are not using Tailwind CSS.
+  
+
+app-next-directory/app/globals.css:154:2 parse ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Tailwind-specific syntax is disabled.
+  
+    152 │ }
+    153 │ 
+  > 154 │ @utility neo-button-hover {
+        │  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 155 │   @apply hover:shadow-[2px_2px_0px_0px] hover:translate-x-[2px] hover:translate-y-[2px];
+  > 156 │ }
+        │ ^
+    157 │ 
+    158 │ @utility neo-input {
+  
+  i Enable `tailwindDirectives` in the css parser options, or remove this if you are not using Tailwind CSS.
+  
+
+app-next-directory/app/globals.css:158:2 parse ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Tailwind-specific syntax is disabled.
+  
+    156 │ }
+    157 │ 
+  > 158 │ @utility neo-input {
+        │  ^^^^^^^^^^^^^^^^^^^
+  > 159 │   @apply border-4 border-neo-border bg-neo-surface shadow-[inset_4px_4px_0px_0px] shadow-neo-shadow/20;
+  > 160 │ }
+        │ ^
+    161 │ 
+    162 │ @utility heading-display {
+  
+  i Enable `tailwindDirectives` in the css parser options, or remove this if you are not using Tailwind CSS.
+  
+
+app-next-directory/app/globals.css:162:2 parse ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Tailwind-specific syntax is disabled.
+  
+    160 │ }
+    161 │ 
+  > 162 │ @utility heading-display {
+        │  ^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 163 │   font-family: 'Space Grotesk', sans-serif;
+  > 164 │   @apply font-bold text-neo-text-primary;
+  > 165 │ }
+        │ ^
+    166 │ 
+    167 │ @utility heading-xl {
+  
+  i Enable `tailwindDirectives` in the css parser options, or remove this if you are not using Tailwind CSS.
+  
+
+app-next-directory/app/globals.css:167:2 parse ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Tailwind-specific syntax is disabled.
+  
+    165 │ }
+    166 │ 
+  > 167 │ @utility heading-xl {
+        │  ^^^^^^^^^^^^^^^^^^^^
+  > 168 │   @apply heading-display text-4xl md:text-5xl lg:text-6xl leading-tight;
+  > 169 │ }
+        │ ^
+    170 │ 
+    171 │ @utility heading-lg {
+  
+  i Enable `tailwindDirectives` in the css parser options, or remove this if you are not using Tailwind CSS.
+  
+
+app-next-directory/app/globals.css:171:2 parse ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Tailwind-specific syntax is disabled.
+  
+    169 │ }
+    170 │ 
+  > 171 │ @utility heading-lg {
+        │  ^^^^^^^^^^^^^^^^^^^^
+  > 172 │   @apply heading-display text-2xl md:text-3xl lg:text-4xl leading-tight;
+  > 173 │ }
+        │ ^
+    174 │ 
+    175 │ @utility heading-md {
+  
+  i Enable `tailwindDirectives` in the css parser options, or remove this if you are not using Tailwind CSS.
+  
+
+app-next-directory/app/globals.css:175:2 parse ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Tailwind-specific syntax is disabled.
+  
+    173 │ }
+    174 │ 
+  > 175 │ @utility heading-md {
+        │  ^^^^^^^^^^^^^^^^^^^^
+  > 176 │   @apply heading-display text-xl md:text-2xl leading-tight;
+  > 177 │ }
+        │ ^
+    178 │ 
+    179 │ @utility heading-sm {
+  
+  i Enable `tailwindDirectives` in the css parser options, or remove this if you are not using Tailwind CSS.
+  
+
+app-next-directory/app/globals.css:179:2 parse ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Tailwind-specific syntax is disabled.
+  
+    177 │ }
+    178 │ 
+  > 179 │ @utility heading-sm {
+        │  ^^^^^^^^^^^^^^^^^^^^
+  > 180 │   @apply heading-display text-lg md:text-xl leading-tight;
+  > 181 │ }
+        │ ^
+    182 │ 
+    183 │ @utility body-lg {
+  
+  i Enable `tailwindDirectives` in the css parser options, or remove this if you are not using Tailwind CSS.
+  
+
+app-next-directory/app/globals.css:183:2 parse ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Tailwind-specific syntax is disabled.
+  
+    181 │ }
+    182 │ 
+  > 183 │ @utility body-lg {
+        │  ^^^^^^^^^^^^^^^^^
+  > 184 │   @apply text-lg text-neo-text-secondary leading-relaxed;
+  > 185 │ }
+        │ ^
+    186 │ 
+    187 │ @utility body-md {
+  
+  i Enable `tailwindDirectives` in the css parser options, or remove this if you are not using Tailwind CSS.
+  
+
+The number of diagnostics exceeds the limit allowed. Use --max-diagnostics to increase it.
+Diagnostics not shown: 160.
+Checked 937 files in 2s. No fixes applied.
+Found 124 errors.
+Found 56 warnings.
+lint ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while running checks.
+  
+

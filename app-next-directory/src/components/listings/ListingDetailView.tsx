@@ -49,7 +49,7 @@ export function ListingDetailView({
   isSignedIn = false,
   isFavorited = false,
   userId,
-}: ListingDetailViewProps) {
+}: ListingDetailViewProps): React.JSX.Element {
   const [favorited, setFavorited] = useState<boolean>(Boolean(isFavorited));
   const pathname = usePathname();
 
@@ -119,8 +119,7 @@ export function ListingDetailView({
       setIsTogglingFavorite(true);
       const data = await res.json();
       setFavorited(Boolean(data?.favorited));
-    } catch (_err) {
-    }
+    } catch (_err) {}
   };
 
   const filteredRelatedListings = relatedListings.filter(related => related.id !== listing.id);

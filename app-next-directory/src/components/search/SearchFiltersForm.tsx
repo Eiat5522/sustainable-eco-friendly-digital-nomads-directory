@@ -2,7 +2,7 @@
 
 import { Building2, Home, Key, MapPin, Search, Shield, Wifi } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React from 'react';
+import * as React from 'react';
 import { FilterMultiSelect, type Option } from '@/components/ui/filter-multi-select';
 import { NeoButton } from '@/components/ui/neo-button';
 import { NeoInput } from '@/components/ui/neo-input';

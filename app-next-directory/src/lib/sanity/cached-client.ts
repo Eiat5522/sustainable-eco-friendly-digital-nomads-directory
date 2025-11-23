@@ -20,8 +20,7 @@ async function fetchAndCache<T>(
       if (cachedData) {
         return JSON.parse(cachedData);
       }
-    } catch (_error) {
-    }
+    } catch (_error) {}
   }
 
   // Check if request is already in-flight to prevent stampede
@@ -36,8 +35,7 @@ async function fetchAndCache<T>(
       if (redis) {
         try {
           await redis.set(key, JSON.stringify(data), { ex: ttl });
-        } catch (_error) {
-        }
+        } catch (_error) {}
       }
       return data;
     } finally {

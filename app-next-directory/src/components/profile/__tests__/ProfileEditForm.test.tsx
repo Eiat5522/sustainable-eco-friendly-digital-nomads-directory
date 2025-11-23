@@ -1,5 +1,3 @@
-
-
 // Test the profile utils functions instead of the complex form component
 import { normaliseFavorite, normaliseOwnerReviews } from '../../../../app/profile/utils';
 

@@ -4,7 +4,7 @@
  */
 
 import { describe, expect, it } from '@jest/globals';
-import type { City, Listing, } from '@/types/sanity.types';
+import type { City, Listing } from '@/types/sanity.types';
 
 describe('Sanity Generated Types', () => {
   describe('Type Structure Validation', () => {

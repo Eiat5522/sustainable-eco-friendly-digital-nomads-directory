@@ -7,7 +7,7 @@ interface SearchBoxProps {
   placeholder?: string;
 }
 
-export function SearchBox({ placeholder }: SearchBoxProps) {
+export function SearchBox({ placeholder }: SearchBoxProps): React.JSX.Element {
   return (
     <NeoCard variant="flat" className="mb-6">
       <div className="p-4">

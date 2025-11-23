@@ -17,13 +17,11 @@ async function checkCities() {
         }
       }
     `);
-    cities.forEach((_city, _index) => {
-    });
+    cities.forEach((_city, _index) => {});
 
     if (cities.length > 0) {
     }
-  } catch (_error) {
-  }
+  } catch (_error) {}
 }
 
 checkCities();

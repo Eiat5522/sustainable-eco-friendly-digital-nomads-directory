@@ -152,6 +152,7 @@ export async function GET(request: Request) {
                         regex: /excellent|amazing|fantastic|wonderful|perfect|outstanding/i,
                       },
                     },
+                    // biome-ignore lint/suspicious/noThenProperty: MongoDB $switch uses "then"
                     then: 'very_positive',
                   },
                   {
@@ -161,6 +162,7 @@ export async function GET(request: Request) {
                         regex: /good|great|nice|pleasant|satisfied|recommend/i,
                       },
                     },
+                    // biome-ignore lint/suspicious/noThenProperty: MongoDB $switch uses "then"
                     then: 'positive',
                   },
                   {
@@ -170,6 +172,7 @@ export async function GET(request: Request) {
                         regex: /terrible|awful|horrible|worst|hate|disgusting/i,
                       },
                     },
+                    // biome-ignore lint/suspicious/noThenProperty: MongoDB $switch uses "then"
                     then: 'very_negative',
                   },
                   {
@@ -179,6 +182,7 @@ export async function GET(request: Request) {
                         regex: /bad|poor|disappointing|not good|issues|problems/i,
                       },
                     },
+                    // biome-ignore lint/suspicious/noThenProperty: MongoDB $switch uses "then"
                     then: 'negative',
                   },
                 ],
