@@ -1,14 +1,16 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
-cd app-next-directory
 
-echo "💅 Running prettier..."
-npm run format
+echo "💅 Running Biome formatter..."
+cd "$(git rev-parse --show-toplevel)"
+pnpm format
 
 echo "🔍 Running type check..."
-npm run type-check
+cd app-next-directory
+pnpm type-check
 
-echo "🧹 Running lint..."
-npm run lint
+echo "🧹 Running Biome linter..."
+cd "$(git rev-parse --show-toplevel)"
+pnpm lint:biome:fix
 
 echo "✨ Pre-commit checks completed!"

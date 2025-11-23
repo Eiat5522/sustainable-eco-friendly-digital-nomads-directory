@@ -61,17 +61,18 @@ jobs:
       - name: Type check
         run: |
           cd app-next-directory
-          pnpm tsc --noEmit
+          pnpm type-check
 
-      - name: Lint
+      - name: Lint with Biome
+        run: pnpm lint:biome
+
+      - name: Check formatting with Biome
+        run: pnpm format:check
+      
+      - name: Lint with ESLint
         run: |
           cd app-next-directory
           pnpm lint
-
-      - name: Check formatting
-        run: |
-          cd app-next-directory
-          pnpm exec -- prettier --check "**/*.{ts,tsx,js,jsx,json,md}"
 
   build:
     runs-on: ubuntu-latest
