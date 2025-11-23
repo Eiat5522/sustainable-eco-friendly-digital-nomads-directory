@@ -46,6 +46,12 @@ export async function processMetricForAlert(
   const now = Date.now();
   if (lastAlertTime !== undefined && now - lastAlertTime < cooldownPeriod * 1000) {
     if (process.env.NODE_ENV !== 'production') {
+      console.log(
+        '[Alert Service] Suppressing alert due to cooldown:',
+        `${category}.${name}`,
+        'severity:',
+        severity
+      );
     }
     return null;
   }
@@ -74,7 +80,7 @@ export async function processMetricForAlert(
     await Promise.all(channels.map(channel => dispatchAlert(alert, channel)));
     return alert;
   } catch (error) {
-    console.error('Failed to dispatch alert:', error);
+    console.error('[Alert Service] Error dispatching alert:', error);
     return null;
   }
 }
@@ -107,6 +113,7 @@ async function dispatchAlert(alert: Alert, channel: NotificationChannel): Promis
 async function sendEmailAlert(_alert: Alert): Promise<boolean> {
   const _config = ALERT_DESTINATION_CONFIG[NOTIFICATION_CHANNELS.EMAIL];
   if (process.env.NODE_ENV !== 'production') {
+    console.log('Would send email to', _alert);
     return true;
   }
 

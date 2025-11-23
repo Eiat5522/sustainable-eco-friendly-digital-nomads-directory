@@ -1,7 +1,7 @@
 'use client';
 
 import type React from 'react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { recordMetric } from './web-vitals-reporter';
 
 export function withPerformanceTracking<P extends Record<string, unknown>>(
@@ -9,18 +9,25 @@ export function withPerformanceTracking<P extends Record<string, unknown>>(
   Component: React.ComponentType<P>
 ) {
   return function WrappedComponent(props: P) {
-    const startTime = typeof performance !== 'undefined' ? performance.now() : Date.now();
+    const startTimeRef = useRef<number>(
+      typeof performance !== 'undefined' ? performance.now() : Date.now()
+    );
 
     useEffect(() => {
       const endTime = typeof performance !== 'undefined' ? performance.now() : Date.now();
-      const renderTime = endTime - startTime;
+      const renderTime = endTime - startTimeRef.current;
       if (process.env.NODE_ENV === 'development') {
+        console.debug(`[Component Render] ${componentName}: ${renderTime.toFixed(2)}ms`);
+        console.debug(`component-render-${componentName}`, {
+          page: typeof window !== 'undefined' ? window.location.pathname : undefined,
+          renderTime: Math.round(renderTime),
+        });
       }
       recordMetric(`component-render-${componentName}`, Math.round(renderTime), {
         page: typeof window !== 'undefined' ? window.location.pathname : undefined,
       });
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [componentName, startTime]);
+    }, [componentName]);
 
     return <Component {...props} />;
   };
