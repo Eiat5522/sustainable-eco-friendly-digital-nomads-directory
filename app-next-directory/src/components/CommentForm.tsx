@@ -77,15 +77,12 @@ export default function CommentForm({ postId }: Readonly<{ postId: string }>): R
               }
             }
           } catch {
-            // JSON parsing failed - log the plain text error
-            console.error(`Failed to submit comment: ${res.status} ${res.statusText}`, errorText);
           }
         }
 
         setError(resolvedMessage ?? 'Failed to submit comment');
       }
     } catch (err) {
-      console.error('Failed to submit comment:', err);
       setError('Failed to submit comment. Please try again.');
     } finally {
       setIsSubmitting(false);

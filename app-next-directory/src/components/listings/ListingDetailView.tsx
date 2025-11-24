@@ -111,7 +111,6 @@ export function ListingDetailView({
           redirectTo(`/auth/login?callbackUrl=${encodeURIComponent(href)}`);
           return;
         }
-        console.error('Failed to toggle favorite:', res.status, res.statusText);
         return;
       }
 
@@ -121,7 +120,6 @@ export function ListingDetailView({
       const data = await res.json();
       setFavorited(Boolean(data?.favorited));
     } catch (err) {
-      console.error('Failed to toggle favorite:', err);
     }
   };
 

@@ -13,11 +13,6 @@ export const WebVitalsReporter = (metric: WebVitalsMetric) => {
   };
 
   if (process.env.NODE_ENV === 'development') {
-    console.log('Web Vitals:', {
-      name: metric.name,
-      value: metric.value,
-      delta: metric.delta,
-    });
   }
 
   const url = '/api/performance/web-vitals';
@@ -51,7 +46,6 @@ export function measureFunctionTime<T>(fn: () => T, _name = 'Function'): T {
   if (process.env.NODE_ENV === 'development') {
     const formatted =
       typeof _executionTime.toFixed === 'function' ? _executionTime.toFixed(2) : `${_executionTime}`;
-    console.debug(`[${_name}] Execution time: ${formatted}ms`);
   }
   return result;
 }
@@ -65,7 +59,6 @@ export const recordMetric = (
   // placeholder for sampling logic (disabled by default)
   if (Math.random() > 1) return;
   if (process.env.NODE_ENV === 'development') {
-    console.debug(`[Custom Metric] ${name}: ${value}`, details);
   }
   try {
     const body = JSON.stringify({ name, value, details, timestamp: Date.now() });

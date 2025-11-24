@@ -68,7 +68,6 @@ const providers: NextAuthConfig['providers'] = [
         };
         return result;
       } catch (error) {
-        console.error('[auth] Error during credential authorization:', error);
         // Avoid leaking internal error details during auth
         if (error instanceof Error && error.message.startsWith('Too many login attempts')) {
           throw error;
@@ -140,7 +139,6 @@ const callbacks = {
         }
       }
     } catch (error) {
-      console.warn('[auth] signIn verification sync failed', error);
     }
     return true;
   },
@@ -169,7 +167,6 @@ const callbacks = {
       userId: t.id,
       currentRole: t.role ?? null,
     }).catch(error => {
-      console.error('[auth] failed to queue admin allowlist promotion flow', error);
     });
     return t as JWT | null;
   },

@@ -28,7 +28,6 @@ const initializeRateLimiters = () => {
       });
     }
   } catch (error) {
-    console.warn('[rate-limit] Failed to initialize rate limiters:', error);
   }
 };
 
@@ -62,7 +61,6 @@ export let isRateLimited = async (key: string, _limit = 10, _windowSec = 60): Pr
     const { success } = await limiter.limit(key);
     return !success;
   } catch (error) {
-    console.warn('[rate-limit] Error checking rate limit:', error);
     // On error, allow the request to proceed
     return false;
   }
@@ -81,7 +79,6 @@ export let getRetryAfterMs = async (key: string): Promise<number> => {
     }
     return 0;
   } catch (error) {
-    console.warn('[rate-limit] Error getting retry after:', error);
     return 0;
   }
 };
@@ -112,6 +109,5 @@ if (process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID) {
     isRateLimited = maybeJest.fn(originalIsRateLimited) as typeof isRateLimited;
     getRetryAfterMs = maybeJest.fn(originalGetRetryAfterMs) as typeof getRetryAfterMs;
   } else {
-    console.warn('Jest not available for mocking in rate-limit module');
   }
 }

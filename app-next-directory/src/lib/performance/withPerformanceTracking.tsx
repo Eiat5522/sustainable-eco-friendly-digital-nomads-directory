@@ -17,11 +17,6 @@ export function withPerformanceTracking<P extends Record<string, unknown>>(
       const endTime = typeof performance !== 'undefined' ? performance.now() : Date.now();
       const renderTime = endTime - startTimeRef.current;
       if (process.env.NODE_ENV === 'development') {
-        console.debug(`[Component Render] ${componentName}: ${renderTime.toFixed(2)}ms`);
-        console.debug(`component-render-${componentName}`, {
-          page: typeof window !== 'undefined' ? window.location.pathname : undefined,
-          renderTime: Math.round(renderTime),
-        });
       }
       recordMetric(`component-render-${componentName}`, Math.round(renderTime), {
         page: typeof window !== 'undefined' ? window.location.pathname : undefined,

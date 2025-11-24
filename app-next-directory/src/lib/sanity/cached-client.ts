@@ -21,7 +21,6 @@ async function fetchAndCache<T>(
         return JSON.parse(cachedData);
       }
     } catch (error) {
-      console.warn('Cache read failed, falling through to fetch:', error);
     }
   }
 
@@ -38,7 +37,6 @@ async function fetchAndCache<T>(
         try {
           await redis.set(key, JSON.stringify(data), { ex: ttl });
         } catch (error) {
-          console.warn('Cache write failed, continuing without Redis:', error);
         }
       }
       return data;

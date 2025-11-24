@@ -19,7 +19,6 @@ const notifyListeners = () => {
     try {
       listener(currentClient);
     } catch (error) {
-      console.warn('[redis] listener threw error', error);
     }
   }
 };

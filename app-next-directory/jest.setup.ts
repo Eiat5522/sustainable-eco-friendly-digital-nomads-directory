@@ -299,6 +299,11 @@ declare global {
   var withConsoleFilters: typeof withConsoleFilters;
   // eslint-disable-next-line no-var
   var withDefaultConsoleFilters: typeof withDefaultConsoleFilters;
+  
+  interface Console {
+    originalConsoleError?: typeof console.error;
+    originalConsoleWarn?: typeof console.warn;
+  }
 }
 
 // Apply console filters globally by default to suppress noisy test errors
@@ -309,8 +314,8 @@ if (process.env.JEST_CONSOLE_NO_FILTER !== '1') {
   const originalConsoleLog = console.log;
 
   // Store originals for test access - tests can spy on these
-  (console as any).originalConsoleError = originalConsoleError;
-  (console as any).originalConsoleWarn = originalConsoleWarn;
+  console.originalConsoleError = originalConsoleError;
+  console.originalConsoleWarn = originalConsoleWarn;
 
   console.error = ((...args: unknown[]) => {
     // Check if this console.error has been spied on by a test

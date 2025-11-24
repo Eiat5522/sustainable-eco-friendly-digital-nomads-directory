@@ -2,7 +2,6 @@ import { type MongoClient, MongoServerError } from 'mongodb';
 import { sessionIndexes, sessionSchema } from './schemas/session';
 
 export async function initializeDatabase(client: MongoClient) {
-  try {
     const db = client.db();
 
     // Create collections with schemas when they don't already exist
@@ -39,10 +38,4 @@ export async function initializeDatabase(client: MongoClient) {
       { key: { email: 1 } },
       { key: { createdAt: 1 }, expireAfterSeconds: 900 }, // Auto-delete after 15 minutes
     ]);
-
-    console.log('Database initialization completed successfully');
-  } catch (error) {
-    console.error('Error initializing database:', error);
-    throw error;
-  }
 }

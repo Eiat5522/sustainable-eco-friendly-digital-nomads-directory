@@ -130,7 +130,6 @@ export default function TestSearchPage() {
           setListings(mapListings(data.listings));
         }
       } catch (error) {
-        console.error('Failed to load test listings', error);
       }
     };
 

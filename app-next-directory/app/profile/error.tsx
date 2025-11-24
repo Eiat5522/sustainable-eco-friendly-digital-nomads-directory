@@ -3,15 +3,14 @@
 import { useEffect } from 'react';
 
 export default function ProfileError({
-  error,
+  error: _error,
   reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('Dashboard error:', error);
-  }, [error]);
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">

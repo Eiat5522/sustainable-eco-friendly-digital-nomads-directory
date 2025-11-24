@@ -76,7 +76,6 @@ export function reportPerformanceEvent(event: PerformanceEvent) {
 
   if (!plausible) {
     if (!win) return;
-    console.warn('[Performance] Plausible Analytics not initialized');
     return;
   }
 
