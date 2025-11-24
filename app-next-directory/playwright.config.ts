@@ -65,22 +65,28 @@ export default defineConfig({
   ],
   webServer: isLocal
     ? {
-        command: 'pnpm dev',
+        command: 'pnpm start',
         url: serverWaitURL.toString(),
-        timeout: 180_000,
+        timeout: 60_000,
         reuseExistingServer: !process.env.CI,
         env: {
+          // Load .env.e2e file for isolated test environment
+          NODE_ENV: 'production',
           PORT: String(resolvedPort),
-          // Keep Next in dev mode; use explicit toggles for test behavior.
           E2E: '1',
           NEXT_PUBLIC_E2E: '1',
-          NEXT_PUBLIC_SANITY_PROJECT_ID:
-            process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'test-project',
-          NEXT_PUBLIC_SANITY_DATASET: process.env.NEXT_PUBLIC_SANITY_DATASET || 'test-dataset',
+          // Use isolated test credentials
+          NEXT_PUBLIC_SANITY_PROJECT_ID: 'test-project-id',
+          NEXT_PUBLIC_SANITY_DATASET: 'test',
           NEXT_TELEMETRY_DISABLED: '1',
-          MONGODB_URI: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/test',
-          NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || 'test-secret',
-          NEXTAUTH_URL: process.env.NEXTAUTH_URL || resolvedBaseURL.toString(),
+          MONGODB_URI: 'mongodb://127.0.0.1:27017/e2e_test',
+          NEXTAUTH_SECRET: 'e2e-test-secret-for-testing-only-not-production',
+          NEXTAUTH_URL: resolvedBaseURL.toString(),
+          NEXT_PUBLIC_FRONTEND_URL: resolvedBaseURL.toString(),
+          // Disable external services for E2E
+          RESEND_API_TOKEN: '',
+          UPSTASH_REDIS_REST_URL: '',
+          UPSTASH_REDIS_REST_TOKEN: '',
         },
       }
     : undefined,

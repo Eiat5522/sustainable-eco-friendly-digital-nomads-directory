@@ -1,0 +1,111 @@
+#!/usr/bin/env node
+/**
+ * E2E Test Setup Script
+ * 
+ * This script prepares the isolated E2E test environment:
+ * 1. Cleans up any existing test data
+ * 2. Seeds the database with test fixtures
+ * 3. Creates test user accounts
+ * 
+ * Run before E2E tests to ensure a clean, consistent state.
+ */
+
+import { MongoClient } from 'mongodb';
+
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/e2e_test';
+const DB_NAME = 'e2e_test';
+
+async function setupE2EDatabase() {
+  console.log('🚀 Setting up E2E test database...');
+  
+  let client;
+  
+  try {
+    // Connect to MongoDB
+    client = new MongoClient(MONGODB_URI);
+    await client.connect();
+    console.log('✅ Connected to MongoDB');
+    
+    const db = client.db(DB_NAME);
+    
+    // Drop existing collections to ensure clean state
+    console.log('🧹 Cleaning up existing test data...');
+    const collections = await db.listCollections().toArray();
+    
+    for (const collection of collections) {
+      await db.collection(collection.name).drop();
+      console.log(`  - Dropped collection: ${collection.name}`);
+    }
+    
+    // Create test collections with indexes
+    console.log('📦 Creating collections and indexes...');
+    
+    // Users collection
+    await db.createCollection('users');
+    await db.collection('users').createIndexes([
+      { key: { email: 1 }, unique: true, name: 'email_unique' }
+    ]);
+    console.log('  - Created users collection');
+    
+    // Sessions collection
+    await db.createCollection('sessions');
+    await db.collection('sessions').createIndexes([
+      { key: { sessionToken: 1 }, unique: true },
+      { key: { expires: 1 }, expireAfterSeconds: 0 }
+    ]);
+    console.log('  - Created sessions collection');
+    
+    // Test listings collection (if needed)
+    await db.createCollection('listings');
+    console.log('  - Created listings collection');
+    
+    // Seed test data
+    console.log('🌱 Seeding test data...');
+    
+    // Create a test user
+    const testUser = {
+      email: 'e2e-test@example.com',
+      name: 'E2E Test User',
+      password: '$2a$10$test.hash.for.Test123!@#SecurePassword', // Bcrypt hash
+      role: 'user',
+      emailVerified: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    
+    await db.collection('users').insertOne(testUser);
+    console.log('  - Created test user: e2e-test@example.com');
+    
+    // Create an admin test user
+    const adminUser = {
+      email: 'e2e-admin@example.com',
+      name: 'E2E Admin User',
+      password: '$2a$10$test.hash.for.Admin123!@#SecurePassword',
+      role: 'admin',
+      emailVerified: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    
+    await db.collection('users').insertOne(adminUser);
+    console.log('  - Created admin user: e2e-admin@example.com');
+    
+    console.log('\n✨ E2E database setup complete!\n');
+    console.log('Database:', DB_NAME);
+    console.log('Test User:', testUser.email);
+    console.log('Admin User:', adminUser.email);
+    console.log('');
+    
+  } catch (error) {
+    console.error('❌ Error setting up E2E database:', error);
+    process.exit(1);
+  } finally {
+    if (client) {
+      await client.close();
+      console.log('✅ Closed database connection');
+    }
+  }
+}
+
+// Run setup
+setupE2EDatabase().catch(console.error);
