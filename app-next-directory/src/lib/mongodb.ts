@@ -75,6 +75,8 @@ if (shouldMockMongo) {
         .connect()
         .then(clientInstance => clientInstance)
         .catch(error => {
+          const message = error instanceof Error ? error.message : String(error);
+          console.error('MongoDB connection failed:', message);
           globalWithMongo._mongoClientPromise = undefined;
           throw error;
         });
@@ -86,6 +88,8 @@ if (shouldMockMongo) {
       .connect()
       .then(clientInstance => clientInstance)
       .catch(error => {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error('MongoDB connection failed:', message);
         throw error;
       });
   }

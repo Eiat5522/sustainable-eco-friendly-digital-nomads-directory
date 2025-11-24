@@ -8,6 +8,13 @@ jest.mock('fs', () => ({
   },
 }));
 
+jest.mock('node:fs', () => ({
+  promises: {
+    mkdir: (...args: unknown[]) => mkdirMock(...args),
+    writeFile: (...args: unknown[]) => writeFileMock(...args),
+  },
+}));
+
 const fetchMock = jest.fn();
 
 jest.mock('../../lib/sanity/client', () => ({

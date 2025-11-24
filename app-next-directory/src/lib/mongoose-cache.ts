@@ -25,13 +25,17 @@ export async function withMongooseCache<T>(
       }
       return cachedData as T;
     }
-  } catch (_error) {}
+  } catch (error) {
+    console.warn('[mongoose-cache] Failed to read from Redis cache', error);
+  }
 
   const data = await queryFn();
 
   try {
     await client.set(key, JSON.stringify(data), { ex: ttl });
-  } catch (_error) {}
+  } catch (error) {
+    console.warn('[mongoose-cache] Failed to write to Redis cache', error);
+  }
 
   return data;
 }

@@ -1,0 +1,1880 @@
+
+> sustainable-eco-friendly-digital-nomads-directory-root@0.1.3 test:unit /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory
+> pnpm --filter app-next-directory test:unit --runInBand --detectOpenHandles --coverage
+
+
+> app-next-directory@0.1.0 test:unit /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory
+> cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --runInBand --passWithNoTests --runInBand --detectOpenHandles --coverage
+
+PASS app/api/contact/route.test.ts
+PASS src/lib/__tests__/sanity-http-client.test.ts
+PASS src/components/listings/__tests__/ListingDetailsCard.test.tsx
+PASS src/lib/auth/rateLimit.test.ts
+PASS src/components/favorites/__tests__/FavoriteButton.test.tsx
+PASS src/components/listings/__tests__/ListingGrid.test.tsx
+PASS app/dashboard/components/__tests__/VenueListingForm.test.tsx
+  ● Console
+
+    console.error
+      A component is changing an uncontrolled input to be controlled. This is likely caused by the value changing from undefined to a defined value, which should not happen. Decide between using a controlled or uncontrolled input element for the lifetime of the component. More info: https://react.dev/link/controlled-components
+
+      319 |     
+      320 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 321 |       originalConsoleError(...args);
+          |       ^
+      322 |     }
+      323 |   }) as typeof console.error;
+      324 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:321:7)
+      at updateProperties (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:18106:22)
+      at commitUpdate (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:19346:7)
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at commitHostUpdate (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:12297:9)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13364:13)
+      at recursivelyTraverseMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13123:11)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13134:11)
+      at recursivelyTraverseMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13123:11)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13347:11)
+      at recursivelyTraverseMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13123:11)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13134:11)
+      at recursivelyTraverseMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13123:11)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13347:11)
+      at recursivelyTraverseMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13123:11)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13134:11)
+      at recursivelyTraverseMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13123:11)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13134:11)
+      at recursivelyTraverseMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13123:11)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13134:11)
+      at recursivelyTraverseMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13123:11)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13347:11)
+      at recursivelyTraverseMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13123:11)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13347:11)
+      at recursivelyTraverseMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13123:11)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13562:11)
+      at recursivelyTraverseMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13123:11)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13134:11)
+      at recursivelyTraverseMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13123:11)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13134:11)
+      at recursivelyTraverseMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13123:11)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13405:11)
+      at flushMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:15426:13)
+      at commitRoot (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:15401:9)
+      at performWorkOnRoot (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14526:15)
+      at performSyncWorkOnRoot (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16231:7)
+      at flushSyncWorkAcrossRoots_impl (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16079:21)
+      at flushSyncWork$1 (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14721:12)
+      at batchedUpdates$1 (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:3270:14)
+      at dispatchEventForPluginEventSystem (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16572:7)
+      at dispatchEvent (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:20658:11)
+      at dispatchDiscreteEvent (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:20626:11)
+      at HTMLDivElement.callTheUserObjectsOperation (../node_modules/.pnpm/jsdom@20.0.3/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+      at innerInvokeEventListeners (../node_modules/.pnpm/jsdom@20.0.3/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+      at invokeEventListeners (../node_modules/.pnpm/jsdom@20.0.3/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+      at HTMLInputElementImpl._dispatch (../node_modules/.pnpm/jsdom@20.0.3/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+      at HTMLInputElementImpl.dispatchEvent (../node_modules/.pnpm/jsdom@20.0.3/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+      at HTMLInputElement.dispatchEvent (../node_modules/.pnpm/jsdom@20.0.3/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+      at ../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/events.js:19:20
+      at ../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.6_react-dom_b17c7cad9fbcb235bfdd90c58372f2d0/node_modules/@testing-library/react/dist/pure.js:108:16
+      at ../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.6_react-dom_b17c7cad9fbcb235bfdd90c58372f2d0/node_modules/@testing-library/react/dist/act-compat.js:48:24
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (../node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at ../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.6_react-dom_b17c7cad9fbcb235bfdd90c58372f2d0/node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at Object.eventWrapper (../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.6_react-dom_b17c7cad9fbcb235bfdd90c58372f2d0/node_modules/@testing-library/react/dist/pure.js:107:28)
+      at fireEvent (../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/events.js:12:35)
+      at Function.fireEvent.<computed> [as change] (../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/events.js:110:36)
+      at Function.fireEvent.<computed> [as change] (../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.6_react-dom_b17c7cad9fbcb235bfdd90c58372f2d0/node_modules/@testing-library/react/dist/fire-event.js:15:52)
+      at Object.change (app/dashboard/components/__tests__/VenueListingForm.test.tsx:490:15)
+
+PASS src/lib/auth/serverAuth.test.ts
+PASS src/components/auth/__tests__/SocialAuthRow.test.tsx
+PASS src/components/listings/__tests__/RelatedListings.test.tsx
+PASS src/components/search/__tests__/FiltersSidebar.test.tsx
+PASS src/tests/helpers/test-data.test.ts
+PASS src/components/listings/__tests__/ReviewsSection.test.tsx
+PASS app/admin/listings/__tests__/ListingsManagementTable.test.tsx
+  ● Console
+
+    console.error
+      `value` prop on `input` should not be null. Consider using an empty string to clear the component or `undefined` for uncontrolled components.
+
+      319 |     
+      320 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 321 |       originalConsoleError(...args);
+          |       ^
+      322 |     }
+      323 |   }) as typeof console.error;
+      324 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:321:7)
+      at validatePropertiesInDevelopment (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:17107:21)
+      at updateProperties (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:18008:7)
+      at commitUpdate (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:19346:7)
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at commitHostUpdate (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:12297:9)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13364:13)
+      at recursivelyTraverseMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13123:11)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13347:11)
+      at recursivelyTraverseMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13123:11)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13347:11)
+      at recursivelyTraverseMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13123:11)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13134:11)
+      at recursivelyTraverseMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13123:11)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13405:11)
+      at flushMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:15426:13)
+      at commitRoot (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:15401:9)
+      at performWorkOnRoot (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14526:15)
+      at performWorkOnRootViaSchedulerTask (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16216:7)
+      at flushActQueue (../node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:566:34)
+      at recursivelyFlushAsyncActWork (../node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:542:13)
+      at Immediate._onImmediate (../node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:824:32)
+
+    console.error
+      A component is changing a controlled input to be uncontrolled. This is likely caused by the value changing from a defined to undefined, which should not happen. Decide between using a controlled or uncontrolled input element for the lifetime of the component. More info: https://react.dev/link/controlled-components
+
+      319 |     
+      320 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 321 |       originalConsoleError(...args);
+          |       ^
+      322 |     }
+      323 |   }) as typeof console.error;
+      324 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:321:7)
+      at updateProperties (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:18113:22)
+      at commitUpdate (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:19346:7)
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at commitHostUpdate (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:12297:9)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13364:13)
+      at recursivelyTraverseMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13123:11)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13347:11)
+      at recursivelyTraverseMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13123:11)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13347:11)
+      at recursivelyTraverseMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13123:11)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13134:11)
+      at recursivelyTraverseMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13123:11)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13405:11)
+      at flushMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:15426:13)
+      at commitRoot (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:15401:9)
+      at performWorkOnRoot (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14526:15)
+      at performWorkOnRootViaSchedulerTask (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16216:7)
+      at flushActQueue (../node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:566:34)
+      at recursivelyFlushAsyncActWork (../node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:542:13)
+      at Immediate._onImmediate (../node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:824:32)
+
+PASS app/api/admin/users/__tests__/route.test.ts
+PASS app/api/listings/manage/[id]/__tests__/route.test.ts
+PASS src/lib/admin/__tests__/analytics.test.ts
+PASS src/components/search/__tests__/SearchForm.unit.test.tsx
+PASS src/lib/auth/withAuthMatrix.test.ts
+  ● Console
+
+    console.warn
+      [withAuth] This function is deprecated. Use withAuthMatrix instead for audit compliance.
+
+      328 |     
+      329 |     if (isMocked || !shouldFilterWithFilters(defaultWarnFilters, args)) {
+    > 330 |       originalConsoleWarn(...args);
+          |       ^
+      331 |     }
+      332 |   }) as typeof console.warn;
+      333 |
+
+      at console.originalConsoleWarn [as warn] (jest.setup.ts:330:7)
+      at warn (src/lib/auth/withAuthMatrix.ts:286:11)
+      at Object.<anonymous> (src/lib/auth/withAuthMatrix.test.ts:520:36)
+
+    console.warn
+      [withAuth] This function is deprecated. Use withAuthMatrix instead for audit compliance.
+
+      328 |     
+      329 |     if (isMocked || !shouldFilterWithFilters(defaultWarnFilters, args)) {
+    > 330 |       originalConsoleWarn(...args);
+          |       ^
+      331 |     }
+      332 |   }) as typeof console.warn;
+      333 |
+
+      at console.originalConsoleWarn [as warn] (jest.setup.ts:330:7)
+      at warn (src/lib/auth/withAuthMatrix.ts:286:11)
+      at Object.<anonymous> (src/lib/auth/withAuthMatrix.test.ts:531:36)
+
+    console.warn
+      [withAuth] This function is deprecated. Use withAuthMatrix instead for audit compliance.
+
+      328 |     
+      329 |     if (isMocked || !shouldFilterWithFilters(defaultWarnFilters, args)) {
+    > 330 |       originalConsoleWarn(...args);
+          |       ^
+      331 |     }
+      332 |   }) as typeof console.warn;
+      333 |
+
+      at console.originalConsoleWarn [as warn] (jest.setup.ts:330:7)
+      at warn (src/lib/auth/withAuthMatrix.ts:286:11)
+      at Object.<anonymous> (src/lib/auth/withAuthMatrix.test.ts:542:36)
+
+    console.warn
+      [withAuth] This function is deprecated. Use withAuthMatrix instead for audit compliance.
+
+      328 |     
+      329 |     if (isMocked || !shouldFilterWithFilters(defaultWarnFilters, args)) {
+    > 330 |       originalConsoleWarn(...args);
+          |       ^
+      331 |     }
+      332 |   }) as typeof console.warn;
+      333 |
+
+      at console.originalConsoleWarn [as warn] (jest.setup.ts:330:7)
+      at warn (src/lib/auth/withAuthMatrix.ts:286:11)
+      at Object.<anonymous> (src/lib/auth/withAuthMatrix.test.ts:552:36)
+
+PASS app/api/search/__tests__/route.test.ts
+PASS app/api/blog/[slug]/route.test.ts
+PASS src/utils/__tests__/rate-limit.test.ts
+PASS app/admin/users/__tests__/UserManagementTable.test.tsx
+PASS src/lib/sanity/client.test.ts
+PASS src/lib/auth/userService.test.ts
+PASS src/mocks/__tests__/handlers.test.ts
+PASS app/api/revalidate/__tests__/route.test.ts
+PASS src/lib/sanity/user.test.ts
+PASS src/components/listings/__tests__/ListingDetailView.test.tsx
+PASS app/api/reviews/analytics/route.test.ts
+PASS app/api/reviews/route.test.ts
+PASS src/types/__tests__/dto-schemas.test.ts
+PASS app/api/reviews/[reviewId]/vote/route.test.ts
+FAIL app/api/auth/register/route.test.ts
+  ● Registration API Routes › POST /api/auth/register › should return 400 if the body cannot be parsed
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "[register] Failed to parse request body", Any<Error>
+
+    Number of calls: 0
+
+      200 |       expect(response.status).toBe(400);
+      201 |       expect(body.error.code).toBe('INVALID_INPUT');
+    > 202 |       expect(warnSpy).toHaveBeenCalledWith(
+          |                       ^
+      203 |         '[register] Failed to parse request body',
+      204 |         expect.any(Error)
+      205 |       );
+
+      at Object.toHaveBeenCalledWith (app/api/auth/register/route.test.ts:202:23)
+
+PASS src/components/ui/__tests__/select.test.tsx
+FAIL src/lib/__tests__/auth.test.ts
+  ● auth module › callbacks.signIn › never blocks sign-in when verification syncing fails
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "[auth] signIn verification sync failed", Any<Error>
+
+    Number of calls: 0
+
+      282 |       } as any);
+      283 |
+    > 284 |       expect(warnSpy).toHaveBeenCalledWith(
+          |                       ^
+      285 |         '[auth] signIn verification sync failed',
+      286 |         expect.any(Error)
+      287 |       );
+
+      at Object.toHaveBeenCalledWith (src/lib/__tests__/auth.test.ts:284:23)
+
+  ● auth module › callbacks.jwt › enriches token metadata and reports allowlist failures in browser-like environments
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "[auth] failed to queue admin allowlist promotion flow", Any<Error>
+
+    Number of calls: 0
+
+      338 |       await nextTick();
+      339 |       expect(isAdminEmail).not.toHaveBeenCalled();
+    > 340 |       expect(errorSpy).toHaveBeenCalledWith(
+          |                        ^
+      341 |         '[auth] failed to queue admin allowlist promotion flow',
+      342 |         expect.any(Error)
+      343 |       );
+
+      at Object.toHaveBeenCalledWith (src/lib/__tests__/auth.test.ts:340:24)
+
+PASS app/admin/settings/__tests__/SettingsForm.test.tsx
+  ● Console
+
+    console.error
+      Received NaN for the `value` attribute. If this is expected, cast the value to a string.
+
+      319 |     
+      320 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 321 |       originalConsoleError(...args);
+          |       ^
+      322 |     }
+      323 |   }) as typeof console.error;
+      324 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:321:7)
+      at validateProperty (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:2988:19)
+      at warnUnknownProperties (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:3154:9)
+      at validatePropertiesInDevelopment (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:17117:9)
+      at updateProperties (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:18008:7)
+      at commitUpdate (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:19346:7)
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at commitHostUpdate (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:12297:9)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13364:13)
+      at recursivelyTraverseMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13123:11)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13347:11)
+      at recursivelyTraverseMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13123:11)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13347:11)
+      at recursivelyTraverseMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13123:11)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13347:11)
+      at recursivelyTraverseMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13123:11)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13347:11)
+      at recursivelyTraverseMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13123:11)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13134:11)
+      at recursivelyTraverseMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13123:11)
+      at commitMutationEffectsOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:13405:11)
+      at flushMutationEffects (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:15426:13)
+      at commitRoot (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:15401:9)
+      at performWorkOnRoot (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14526:15)
+      at performSyncWorkOnRoot (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16231:7)
+      at flushSyncWorkAcrossRoots_impl (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16079:21)
+      at flushSyncWork$1 (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14721:12)
+      at batchedUpdates$1 (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:3270:14)
+      at dispatchEventForPluginEventSystem (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16572:7)
+      at dispatchEvent (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:20658:11)
+      at dispatchDiscreteEvent (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:20626:11)
+      at HTMLDivElement.callTheUserObjectsOperation (../node_modules/.pnpm/jsdom@20.0.3/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+      at innerInvokeEventListeners (../node_modules/.pnpm/jsdom@20.0.3/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+      at invokeEventListeners (../node_modules/.pnpm/jsdom@20.0.3/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+      at HTMLInputElementImpl._dispatch (../node_modules/.pnpm/jsdom@20.0.3/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+      at HTMLInputElementImpl.dispatchEvent (../node_modules/.pnpm/jsdom@20.0.3/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+      at HTMLInputElement.dispatchEvent (../node_modules/.pnpm/jsdom@20.0.3/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+      at ../node_modules/.pnpm/@testing-library+user-event@14.6.1_@testing-library+dom@10.4.1/node_modules/@testing-library/user-event/dist/cjs/event/dispatchEvent.js:45:43
+      at ../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.6_react-dom_b17c7cad9fbcb235bfdd90c58372f2d0/node_modules/@testing-library/react/dist/pure.js:108:16
+      at ../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.6_react-dom_b17c7cad9fbcb235bfdd90c58372f2d0/node_modules/@testing-library/react/dist/act-compat.js:48:24
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (../node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at ../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.6_react-dom_b17c7cad9fbcb235bfdd90c58372f2d0/node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at Object.eventWrapper (../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.6_react-dom_b17c7cad9fbcb235bfdd90c58372f2d0/node_modules/@testing-library/react/dist/pure.js:107:28)
+      at Object.wrapEvent (../node_modules/.pnpm/@testing-library+user-event@14.6.1_@testing-library+dom@10.4.1/node_modules/@testing-library/user-event/dist/cjs/event/wrapEvent.js:6:28)
+      at Object.dispatchEvent (../node_modules/.pnpm/@testing-library+user-event@14.6.1_@testing-library+dom@10.4.1/node_modules/@testing-library/user-event/dist/cjs/event/dispatchEvent.js:45:22)
+      at Object.dispatchUIEvent (../node_modules/.pnpm/@testing-library+user-event@14.6.1_@testing-library+dom@10.4.1/node_modules/@testing-library/user-event/dist/cjs/event/dispatchEvent.js:22:26)
+      at commitInput (../node_modules/.pnpm/@testing-library+user-event@14.6.1_@testing-library+dom@10.4.1/node_modules/@testing-library/user-event/dist/cjs/event/input.js:145:14)
+      at editInputElement (../node_modules/.pnpm/@testing-library+user-event@14.6.1_@testing-library+dom@10.4.1/node_modules/@testing-library/user-event/dist/cjs/event/input.js:115:9)
+      at Object.input (../node_modules/.pnpm/@testing-library+user-event@14.6.1_@testing-library+dom@10.4.1/node_modules/@testing-library/user-event/dist/cjs/event/input.js:37:9)
+      at Object.clear (../node_modules/.pnpm/@testing-library+user-event@14.6.1_@testing-library+dom@10.4.1/node_modules/@testing-library/user-event/dist/cjs/utility/clear.js:29:11)
+      at ../node_modules/.pnpm/@testing-library+user-event@14.6.1_@testing-library+dom@10.4.1/node_modules/@testing-library/user-event/dist/cjs/setup/setup.js:85:45
+      at Object.asyncWrapper (../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.6_react-dom_b17c7cad9fbcb235bfdd90c58372f2d0/node_modules/@testing-library/react/dist/pure.js:88:28)
+      at Object.wrapAsync (../node_modules/.pnpm/@testing-library+user-event@14.6.1_@testing-library+dom@10.4.1/node_modules/@testing-library/user-event/dist/cjs/setup/wrapAsync.js:8:28)
+      at Object.method [as clear] (../node_modules/.pnpm/@testing-library+user-event@14.6.1_@testing-library+dom@10.4.1/node_modules/@testing-library/user-event/dist/cjs/setup/setup.js:85:26)
+      at Object.clear (app/admin/settings/__tests__/SettingsForm.test.tsx:152:16)
+
+PASS app/api/comments/route.test.ts
+PASS src/components/search/__tests__/DigitalNomadSearchFilter.test.tsx
+PASS src/types/__tests__/dto.test.ts
+FAIL app/api/performance/web-vitals/__tests__/route.test.ts
+  ● Web Vitals Performance API - POST /api/performance/web-vitals › Error Handling › should log errors to console
+
+    expect(jest.fn()).toHaveBeenCalled()
+
+    Expected number of calls: >= 1
+    Received number of calls:    0
+
+      342 |       await POST(request);
+      343 |
+    > 344 |       expect(consoleErrorSpy).toHaveBeenCalled();
+          |                               ^
+      345 |       expect(consoleErrorSpy.mock.calls[0][0]).toContain(
+      346 |         '[Performance API] Error processing metrics'
+      347 |       );
+
+      at Object.toHaveBeenCalled (app/api/performance/web-vitals/__tests__/route.test.ts:344:31)
+
+PASS app/__tests__/listings-slug-page.test.tsx
+PASS src/types/__tests__/moderation.test.ts
+PASS src/mocks/__tests__/handlers-server.test.ts
+PASS src/models/__tests__/EmailVerificationToken.test.ts
+PASS src/types/__tests__/search.test.ts
+PASS app/test/search/__tests__/page.test.tsx
+PASS src/types/__tests__/appView.test.ts
+PASS src/types/__tests__/api.test.ts
+PASS src/components/__tests__/CommentForm.test.tsx
+PASS src/models/__tests__/ContactSubmission.test.ts
+PASS app/api/newsletter/subscribe/route.test.ts
+PASS src/types/__tests__/query-types.test.ts
+PASS app/api/admin/settings/__tests__/route.test.ts
+PASS src/types/__tests__/sanity-compatible-json.test.ts
+PASS src/types/__tests__/listings.test.ts
+PASS src/types/__tests__/moderator.test.ts
+PASS app/api/user/favorites/__tests__/route.test.ts
+PASS src/lib/sanity/queries.test.ts
+PASS app/api/user/favorites/[slug]/__tests__/route.test.ts
+PASS app/api/auth/verify/__tests__/route.test.ts
+PASS src/components/listings/__tests__/HeroSection.test.tsx
+PASS app/api/city/[slug]/__tests__/route.test.ts
+PASS src/lib/performance/__tests__/web-vitals-reporter.test.ts
+  ● Console
+
+    console.debug
+      [Custom Metric] failure: 13 {}
+
+      at debug (src/lib/performance/web-vitals-reporter.ts:68:13)
+
+PASS src/lib/data/__tests__/city.test.ts
+PASS src/types/__tests__/components.test.ts
+PASS src/lib/performance/__tests__/budgets.test.ts
+PASS src/components/search/__tests__/DigitalNomadSearch.test.tsx (8.169 s)
+PASS src/components/ui/__tests__/InteractiveMap.test.tsx
+PASS app/api/listings/route.test.ts
+PASS src/lib/__tests__/cache-strategy.test.ts
+PASS src/lib/__tests__/dto-transformer.test.ts
+PASS src/utils/__tests__/db-helpers.test.ts
+PASS app/api/listings/city/[id]/__tests__/route.test.ts
+PASS app/api/newsletter/confirm/__tests__/route.test.ts
+PASS app/__tests__/profile-page.test.tsx
+PASS app/api/preview/__tests__/route.test.ts
+PASS app/__tests__/blog-slug-page.test.tsx
+PASS src/middleware/__tests__/cache.test.ts
+PASS src/types/__tests__/filters.test.ts
+PASS app/api/reviews/listing/[slug]/route.test.ts
+PASS src/lib/viewCountPersistence.test.ts
+PASS src/lib/performance/__tests__/plausible.test.ts
+PASS app/api/preview/exit/__tests__/route.test.ts
+PASS app/search/results/helpers.test.ts
+PASS src/lib/auth/clientAuth.test.tsx
+PASS src/utils/__tests__/sanitize.test.ts
+PASS app/search/results/page.test.tsx
+PASS src/hooks/__tests__/useFilters.test.ts
+PASS src/types/__tests__/listing.test.ts
+PASS src/lib/__tests__/redis.test.ts
+PASS app/listings/[slug]/__tests__/page.test.tsx
+PASS src/types/__tests__/ui.test.ts
+PASS src/lib/dashboard/__tests__/user-dashboard.test.ts
+PASS src/models/__tests__/LoginAttempt.test.ts
+PASS app/api/user/reviews/__tests__/route.test.ts
+FAIL app/api/auth/update-profile/route.test.ts
+  ● api/auth/update-profile route › logs and reports server errors
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "Profile update error:", [Error: database down]
+
+    Number of calls: 0
+
+      253 |       message: 'Failed to update profile.',
+      254 |     });
+    > 255 |     expect(consoleSpy).toHaveBeenCalledWith('Profile update error:', error);
+          |                        ^
+      256 |   });
+      257 |
+      258 |   it('supports POST requests as an alias for PATCH', async () => {
+
+      at Object.toHaveBeenCalledWith (app/api/auth/update-profile/route.test.ts:255:24)
+
+PASS src/lib/__tests__/logger.test.ts
+PASS src/utils/__tests__/auth-helpers.test.ts
+PASS src/middleware/__tests__/main-middleware.test.ts
+PASS app/api/user/analytics/route.test.ts
+PASS app/__tests__/cities-slug-page.test.tsx
+PASS src/lib/highlight.test.tsx
+PASS app/api/cities/[slug]/__tests__/route.test.ts
+PASS src/lib/performance/__tests__/collector.test.ts
+PASS app/contact-us/__tests__/page.test.tsx
+PASS app/api/auth/reset-password/__tests__/route.test.ts
+PASS app/api/listings/[slug]/route.test.ts
+PASS src/tests/mocks/factories.test.ts
+PASS src/components/ui/__tests__/skip-link.test.tsx
+PASS app/api/admin/listings/__tests__/route.test.ts
+PASS src/utils/__tests__/priceRange.test.ts
+FAIL src/lib/__tests__/rate-limit.test.ts
+  ● rate-limit helpers › isRateLimited handles errors gracefully
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "[rate-limit] Error checking rate limit:", Any<Error>
+
+    Number of calls: 0
+
+      168 |
+      169 |     expect(result).toBe(false);
+    > 170 |     expect(warnSpy).toHaveBeenCalledWith(
+          |                     ^
+      171 |       '[rate-limit] Error checking rate limit:',
+      172 |       expect.any(Error)
+      173 |     );
+
+      at Object.toHaveBeenCalledWith (src/lib/__tests__/rate-limit.test.ts:170:21)
+
+  ● rate-limit helpers › getRetryAfterMs handles errors gracefully
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "[rate-limit] Error getting retry after:", Any<Error>
+
+    Number of calls: 0
+
+      209 |
+      210 |     expect(result).toBe(0);
+    > 211 |     expect(warnSpy).toHaveBeenCalledWith(
+          |                     ^
+      212 |       '[rate-limit] Error getting retry after:',
+      213 |       expect.any(Error)
+      214 |     );
+
+      at Object.toHaveBeenCalledWith (src/lib/__tests__/rate-limit.test.ts:211:21)
+
+  ● rate-limit helpers › falls back to original functions when Jest is unavailable
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "Jest not available for mocking in rate-limit module"
+
+    Number of calls: 0
+
+      246 |       expect('mock' in (mod.isRateLimited as any)).toBe(false);
+      247 |       expect('mock' in (mod.getRetryAfterMs as any)).toBe(false);
+    > 248 |       expect(warnSpy).toHaveBeenCalledWith('Jest not available for mocking in rate-limit module');
+          |                       ^
+      249 |     } finally {
+      250 |       (global as any).jest = originalJest;
+      251 |       warnSpy.mockRestore();
+
+      at Object.toHaveBeenCalledWith (src/lib/__tests__/rate-limit.test.ts:248:23)
+
+  ● rate-limit helpers › handles Redis initialization errors gracefully
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "[rate-limit] Failed to initialize rate limiters:", Any<Error>
+
+    Number of calls: 0
+
+      261 |     const mod = await loadModule();
+      262 |
+    > 263 |     expect(warnSpy).toHaveBeenCalledWith(
+          |                     ^
+      264 |       '[rate-limit] Failed to initialize rate limiters:',
+      265 |       expect.any(Error)
+      266 |     );
+
+      at Object.toHaveBeenCalledWith (src/lib/__tests__/rate-limit.test.ts:263:21)
+
+PASS app/api/mock-env/__tests__/route.test.ts
+PASS src/components/city/__tests__/CityDetailView.test.tsx
+PASS src/lib/auth/withAuth.test.tsx
+PASS app/api/featured-listings/route.test.ts
+PASS app/api/admin/moderation/__tests__/route.test.ts
+PASS src/models/__tests__/AnalyticsEvent.test.ts
+PASS src/lib/performance/__tests__/withPerformanceTracking.test.tsx
+PASS src/types/__tests__/enums.test.ts
+PASS src/tests/helpers/assertions.test.ts
+PASS src/lib/__tests__/adapters.test.ts
+PASS app/dashboard/components/__tests__/VenueListingManagement.test.tsx
+PASS app/auth/login/__tests__/LoginForm.test.tsx
+PASS src/components/__tests__/AnimatedNumber.test.tsx
+PASS src/lib/__tests__/listing-views.test.ts
+PASS app/api/auth/request-password-reset/__tests__/route.test.ts
+PASS app/api/auth/[...nextauth]/__tests__/route.test.ts
+PASS src/utils/__tests__/revalidation-token.test.ts
+PASS src/components/profile/__tests__/ProfileEditForm.test.tsx
+PASS app/cities/[slug]/page.test.tsx
+PASS src/lib/__tests__/newsletterTokens.test.ts
+PASS src/lib/__tests__/sanity-batch-processor.test.ts
+PASS src/lib/performance/__tests__/alert-service.test.ts
+PASS app/api/upload/__tests__/route.test.ts
+PASS src/utils/__tests__/tag-styles.test.ts
+PASS src/components/listings/__tests__/NoListingsFound.test.tsx
+PASS src/components/ui/__tests__/StarRating.test.tsx
+PASS app/api/admin/bulk-operations/__tests__/route.test.ts
+PASS app/api/admin/analyze-content/__tests__/route.test.ts
+PASS src/types/__tests__/sort.test.ts
+FAIL src/lib/__tests__/mongodb.test.ts
+  ● mongodb client module › logs and rethrows connection errors outside of development caching
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "MongoDB connection failed:", "boom"
+
+    Number of calls: 0
+
+      106 |     const mod = await import('../mongodb.ts');
+      107 |     await expect(mod.default).rejects.toThrow('boom');
+    > 108 |     expect(errorSpy).toHaveBeenCalledWith('MongoDB connection failed:', 'boom');
+          |                      ^
+      109 |
+      110 |     errorSpy.mockRestore();
+      111 |   });
+
+      at Object.toHaveBeenCalledWith (src/lib/__tests__/mongodb.test.ts:108:22)
+
+  ● mongodb client module › resets cached promise when development connection fails
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "MongoDB connection failed:", "dev-fail"
+
+    Number of calls: 0
+
+      122 |     const mod = await import('../mongodb.ts');
+      123 |     await expect(mod.default).rejects.toThrow('dev-fail');
+    > 124 |     expect(errorSpy).toHaveBeenCalledWith('MongoDB connection failed:', 'dev-fail');
+          |                      ^
+      125 |     expect((global as any)._mongoClientPromise).toBeUndefined();
+      126 |
+      127 |     errorSpy.mockRestore();
+
+      at Object.toHaveBeenCalledWith (src/lib/__tests__/mongodb.test.ts:124:22)
+
+PASS app/api/user/profile/route.test.ts
+PASS src/components/ui/__tests__/neo-badge.test.tsx
+PASS src/lib/__tests__/tokens.test.ts
+PASS src/components/ui/__tests__/SectionHeader.test.tsx
+PASS src/components/search/__tests__/SearchBox.test.tsx
+PASS src/types/__tests__/sanity.test.ts
+PASS src/components/ui/__tests__/separator.test.tsx
+  ● Console
+
+    console.error
+      Received `true` for a non-boolean attribute `decorative`.
+      
+      If you want to write it to the DOM, pass a string instead: decorative="true" or decorative={value.toString()}.
+
+      319 |     
+      320 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 321 |       originalConsoleError(...args);
+          |       ^
+      322 |     }
+      323 |   }) as typeof console.error;
+      324 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:321:7)
+      at validateProperty (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:3078:27)
+      at warnUnknownProperties (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:3154:9)
+      at validatePropertiesInDevelopment (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:17117:9)
+      at setInitialProperties (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:17741:7)
+      at completeWork (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:11391:18)
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at completeUnitOfWork (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:15268:19)
+      at performUnitOfWork (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:15149:11)
+      at workLoopSync (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14956:41)
+      at renderRootSync (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14936:11)
+      at performWorkOnRoot (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14419:13)
+      at performWorkOnRootViaSchedulerTask (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16216:7)
+      at flushActQueue (../node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:566:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (../node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:859:10)
+      at ../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.6_react-dom_b17c7cad9fbcb235bfdd90c58372f2d0/node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.6_react-dom_b17c7cad9fbcb235bfdd90c58372f2d0/node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.6_react-dom_b17c7cad9fbcb235bfdd90c58372f2d0/node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (src/components/ui/__tests__/separator.test.tsx:16:35)
+
+PASS src/__tests__/instrumentation.test.ts
+PASS src/models/__tests__/NewsletterSubscriber.test.ts
+PASS src/lib/http/__tests__/request-json-helpers.test.ts
+PASS src/components/ui/__tests__/label.test.tsx
+PASS src/lib/__tests__/dbConnect-simplified.test.ts
+PASS src/lib/__tests__/error-handler.test.ts
+PASS app/admin/dashboard/__tests__/page.test.tsx
+PASS src/hooks/useSearch.test.ts
+PASS src/models/__tests__/User.test.ts
+PASS app/api/user/dashboard/route.test.ts
+PASS src/lib/__tests__/sanity-image-uploader.test.ts
+PASS src/lib/auth/serverAuth-simplified.test.ts
+PASS app/profile/__tests__/utils.test.ts
+PASS src/hooks/useAnalytics.test.ts
+PASS src/lib/sanity/data.test.ts
+PASS app/__tests__/blog-page.test.tsx
+PASS src/types/__tests__/api-responses.test.ts
+PASS src/lib/sanity/__tests__/env.test.ts
+PASS src/components/search/__tests__/SearchFiltersForm.test.tsx
+PASS src/tests/sanity-generated-types.test.ts
+PASS app/dashboard/__tests__/error.test.tsx
+PASS app/profile/__tests__/error.test.tsx
+PASS app/admin/__tests__/error.test.tsx
+PASS app/search/page.test.tsx
+PASS src/lib/__tests__/api.test.ts
+PASS app/api/admin/stats/__tests__/route.test.ts
+PASS src/lib/__tests__/listings.test.ts
+PASS app/api/events/route.test.ts
+FAIL src/lib/sanity/cached-client.test.ts
+  ● cachedClient › logs and continues when redis read fails
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "Cache read failed, falling through to fetch:", [Error: redis down]
+
+    Number of calls: 0
+
+      100 |
+      101 |     expect(result).toEqual({ value: 1 });
+    > 102 |     expect(warnSpy).toHaveBeenCalledWith('Cache read failed, falling through to fetch:', error);
+          |                     ^
+      103 |
+      104 |     warnSpy.mockRestore();
+      105 |   });
+
+      at Object.toHaveBeenCalledWith (src/lib/sanity/cached-client.test.ts:102:21)
+
+  ● cachedClient › ignores redis write errors after fetching fresh data
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "Cache write failed, continuing without Redis:", [Error: write failed]
+
+    Number of calls: 0
+
+      119 |
+      120 |     expect(result).toEqual({ value: 2 });
+    > 121 |     expect(warnSpy).toHaveBeenCalledWith(
+          |                     ^
+      122 |       'Cache write failed, continuing without Redis:',
+      123 |       writeError
+      124 |     );
+
+      at Object.toHaveBeenCalledWith (src/lib/sanity/cached-client.test.ts:121:21)
+
+PASS app/api/listings/[slug]/views/__tests__/route.test.ts
+PASS src/components/ui/__tests__/city-carousel-wave.test.tsx
+PASS src/components/profile/__tests__/ProfileEditForm.component.test.tsx
+FAIL src/lib/__tests__/email.test.ts
+  ● email utilities › skips sending when API key is missing
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "[email] RESEND_API_KEY not set; skipping send"
+
+    Number of calls: 0
+
+      56 |     expect(ResendConstructor).not.toHaveBeenCalled();
+      57 |     expect(resendSendMock).not.toHaveBeenCalled();
+    > 58 |     expect(warnSpy).toHaveBeenCalledWith('[email] RESEND_API_KEY not set; skipping send');
+         |                     ^
+      59 |     warnSpy.mockRestore();
+      60 |   });
+      61 |
+
+      at Object.toHaveBeenCalledWith (src/lib/__tests__/email.test.ts:58:21)
+
+PASS app/auth/signup/__tests__/SignupPageContent.test.tsx
+PASS app/api/admin/analytics/__tests__/route.test.ts
+PASS app/api/cities/__tests__/route.test.ts
+PASS src/components/listings/__tests__/ListingCategoryDetails.test.tsx
+PASS src/models/__tests__/UserAnalytics.test.ts
+PASS app/api/search/suggestions/__tests__/route.test.ts
+PASS app/api/admin/listings/stats/__tests__/route.test.ts
+PASS src/types/type-tests/__tests__/strict-component-type-tests.test.tsx
+PASS src/components/sections/__tests__/CityCarousel.test.tsx
+PASS src/lib/__tests__/absolute-url.test.ts
+PASS src/hooks/useFilters.test.ts
+PASS src/types/type-tests/strict-component-type-tests.test.ts (9.112 s)
+PASS app/api/categories/route.test.ts
+PASS app/layout.test.tsx
+  ● Console
+
+    console.error
+      In HTML, <html> cannot be a child of <div>.
+      This will cause a hydration error.
+
+      319 |     
+      320 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 321 |       originalConsoleError(...args);
+          |       ^
+      322 |     }
+      323 |   }) as typeof console.error;
+      324 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:321:7)
+      at validateDOMNesting (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:2606:19)
+      at resolveSingletonInstance (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:19684:9)
+      at completeWork (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:11268:29)
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at completeUnitOfWork (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:15268:19)
+      at performUnitOfWork (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:15149:11)
+      at workLoopSync (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14956:41)
+      at renderRootSync (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14936:11)
+      at performWorkOnRoot (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14419:13)
+      at performWorkOnRootViaSchedulerTask (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16216:7)
+      at flushActQueue (../node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:566:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (../node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:859:10)
+      at ../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.6_react-dom_b17c7cad9fbcb235bfdd90c58372f2d0/node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.6_react-dom_b17c7cad9fbcb235bfdd90c58372f2d0/node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.6_react-dom_b17c7cad9fbcb235bfdd90c58372f2d0/node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (app/layout.test.tsx:55:11)
+
+PASS src/hooks/useSearchListings.test.ts
+PASS src/utils/__tests__/api-response.test.ts
+PASS app/admin/dashboard/__tests__/ModerationActions.test.tsx
+PASS app/__tests__/auth-login-page.test.tsx
+FAIL src/lib/mongodb/__tests__/init.test.ts
+  ● initializeDatabase › creates the sessions collection, indexes, and other index definitions
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "Database initialization completed successfully"
+
+    Number of calls: 0
+
+      84 |       { key: { createdAt: 1 }, expireAfterSeconds: 900 },
+      85 |     ]);
+    > 86 |     expect(logSpy).toHaveBeenCalledWith('Database initialization completed successfully');
+         |                    ^
+      87 |     expect(errorSpy).not.toHaveBeenCalled();
+      88 |   });
+      89 |
+
+      at Object.toHaveBeenCalledWith (src/lib/mongodb/__tests__/init.test.ts:86:20)
+
+  ● initializeDatabase › continues when the sessions collection already exists
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "Database initialization completed successfully"
+
+    Number of calls: 0
+
+       99 |
+      100 |     expect(sessionsCollection.createIndexes).toHaveBeenCalledWith(sessionIndexes);
+    > 101 |     expect(logSpy).toHaveBeenCalledWith('Database initialization completed successfully');
+          |                    ^
+      102 |     expect(errorSpy).not.toHaveBeenCalled();
+      103 |   });
+      104 |
+
+      at Object.toHaveBeenCalledWith (src/lib/mongodb/__tests__/init.test.ts:101:20)
+
+  ● initializeDatabase › logs and rethrows unexpected errors
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "Error initializing database:", [Error: boom]
+
+    Number of calls: 0
+
+      109 |     await expect(initializeDatabase(mockClient as MongoClient)).rejects.toThrow(failure);
+      110 |
+    > 111 |     expect(errorSpy).toHaveBeenCalledWith('Error initializing database:', failure);
+          |                      ^
+      112 |     expect(logSpy).not.toHaveBeenCalled();
+      113 |   });
+      114 | });
+
+      at Object.toHaveBeenCalledWith (src/lib/mongodb/__tests__/init.test.ts:111:22)
+
+PASS src/models/__tests__/PasswordResetToken.test.ts
+PASS app/__tests__/sitemap.test.ts
+PASS app/auth/login/__tests__/page.test.tsx
+PASS app/listings/__tests__/error.test.tsx
+PASS src/lib/__tests__/client.test.ts
+PASS src/components/listings/__tests__/GalleryGrid.test.tsx
+PASS src/lib/analytics/__tests__/config.test.ts
+PASS src/tests/sanity-client.test.ts
+PASS src/data/e2e/__tests__/discovery-fixtures.test.ts
+FAIL src/scripts/__tests__/analyze-content.test.ts
+  ● analyzeContent script › evaluates listings and writes a report
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: StringContaining "reports", {"recursive": true}
+
+    Number of calls: 0
+
+      69 |     expect(result.duplicateContent[0]).toMatchObject({ listing1Id: '1', listing2Id: '2' });
+      70 |
+    > 71 |     expect(mkdirMock).toHaveBeenCalledWith(expect.stringContaining('reports'), { recursive: true });
+         |                       ^
+      72 |     const [outputPath, fileContents] = writeFileMock.mock.calls[0];
+      73 |     expect(outputPath).toContain('reports/content-analysis-');
+      74 |     expect(fileContents).toContain('"thinContent"');
+
+      at Object.toHaveBeenCalledWith (src/scripts/__tests__/analyze-content.test.ts:71:23)
+
+  ● analyzeContent script › flags missing metadata even when descriptions are long enough
+
+    expect(jest.fn()).toHaveBeenLastCalledWith(...expected)
+
+    Expected: "/tmp/project/reports", {"recursive": true}
+
+    Number of calls: 0
+
+      114 |     ]);
+      115 |     expect(result.duplicateContent).toHaveLength(0);
+    > 116 |     expect(mkdirMock).toHaveBeenLastCalledWith('/tmp/project/reports', { recursive: true });
+          |                       ^
+      117 |
+      118 |     cwdSpy.mockRestore();
+      119 |   });
+
+      at Object.toHaveBeenLastCalledWith (src/scripts/__tests__/analyze-content.test.ts:116:23)
+
+PASS src/tests/fixtures/__tests__/index.test.ts
+PASS src/lib/analytics/__tests__/analytics-manager.test.ts
+PASS app/dashboard/listings/edit/[id]/__tests__/page.test.tsx
+PASS src/lib/auth/config.test.ts
+PASS src/lib/__tests__/sanity.test.js
+PASS src/lib/__tests__/envLoader.test.ts
+PASS src/components/ui/__tests__/filter-multi-select.test.tsx
+PASS app/__tests__/test-listing-detail-page.test.tsx
+PASS app/profile/__tests__/FavoriteListingsShowcase.test.tsx
+PASS app/api/revalidate-all/__tests__/route.test.ts
+PASS src/lib/__tests__/search.test.ts
+PASS src/middleware/__tests__/authCallbackHandler.test.ts
+PASS app/api/blog/route.test.ts
+PASS src/components/ui/__tests__/ImageCarousel.test.tsx
+PASS app/__tests__/error.test.tsx
+PASS app/__tests__/test-reviews-page.test.tsx
+PASS app/admin/settings/__tests__/page.test.tsx
+PASS src/models/__tests__/UserFavorite.test.ts
+PASS src/hooks/useAuth.test.ts
+PASS src/components/__tests__/Providers.test.tsx
+PASS app/test/listing-detail/page.test.tsx
+PASS app/api/featured-listings/route.msw.test.ts
+PASS src/types/__tests__/auth.test.ts
+PASS app/newsletter/confirmed/__tests__/page.test.tsx
+PASS app/api/listings/city/[id]/__tests__/route.msw.test.ts
+PASS app/__tests__/page.listingdetail.test.tsx
+PASS src/components/ui/__tests__/checkbox.test.tsx
+PASS src/hooks/useCounter.test.ts
+PASS src/lib/__tests__/sanity.utils.test.ts
+PASS src/lib/__tests__/landmark-coordinates.test.ts
+PASS src/types/auth-types.test.ts
+PASS src/lib/performance/__tests__/performance-budgets.test.ts
+PASS app/api/cities/[slug]/__tests__/route.msw.test.ts
+PASS src/components/sections/__tests__/TestimonialsSection.test.tsx
+PASS src/components/blog/__tests__/portableTextComponents.test.tsx
+PASS src/components/listings/__tests__/listingDetailMockData.test.ts
+PASS app/sitemap.test.ts
+PASS app/api/digital-nomad-features/route.test.ts
+PASS src/components/ui/__tests__/VenueCard.test.tsx
+PASS src/utils/__tests__/navigation.test.ts
+PASS app/auth/signup/__tests__/page.test.tsx
+PASS src/lib/performance/__tests__/baseline-testing.test.ts
+PASS app/test-gallery/page.test.tsx
+PASS app/api/search/__tests__/route.msw.test.ts
+PASS src/components/sections/__tests__/FeaturedListings.test.tsx
+PASS src/components/sections/__tests__/CategoryFilters.test.tsx
+PASS app/api/amenities/route.test.ts
+PASS src/lib/mongodb/__tests__/testDbConnector.test.ts
+PASS app/api/eco-tags/route.test.ts
+PASS src/components/__tests__/MswInit.test.tsx
+PASS app/test-reviews/page.test.tsx
+PASS app/__tests__/test-gallery-page.test.tsx
+PASS src/utils/__tests__/ecoRatingCalculator.test.ts
+PASS src/hooks/useClickOutside.test.tsx
+PASS app/dashboard/listings/new/__tests__/page.test.tsx
+PASS app/api/sanity-test/__tests__/route.test.ts
+PASS src/components/sections/__tests__/HeroSection.test.tsx
+PASS app/api/listings/featured/route.test.ts
+PASS src/tests/fixtures/index.test.ts
+PASS src/components/layout/__tests__/Footer.test.tsx
+PASS app/api/revalidate-all/__tests__/route.repair.test.ts
+PASS app/api/revalidate-all/__tests__/route.clean.test.ts
+PASS src/mocks/__tests__/api-response.test.ts
+PASS src/components/sections/__tests__/AboutSection.test.tsx
+PASS src/lib/__tests__/image-optimizer.test.ts
+PASS app/__tests__/page.featuredvenues.test.tsx
+PASS app/__tests__/dashboard-listings-page.test.tsx
+PASS app/__tests__/robots.test.ts
+PASS app/__tests__/ClientRootLayout.test.tsx
+PASS app/api/test-mongodb/__tests__/route.test.ts
+PASS src/lib/auth/callbackUrl.test.ts
+PASS src/lib/auth/adapter.test.ts
+PASS src/lib/performance/__tests__/alerting-thresholds.test.ts
+PASS src/components/listings/__tests__/ListingContactInfo.test.tsx
+PASS src/tests/fixtures/__tests__/page.test.tsx
+PASS app/admin/listings/__tests__/page.test.tsx
+PASS src/lib/performance/__tests__/web-vitals-reporter.test.fixed.ts
+PASS src/test-helpers/__tests__/createMongoMemoryServer.test.ts
+PASS app/admin/users/__tests__/page.test.tsx
+PASS app/__tests__/page.test.tsx
+PASS app/search/__tests__/page.test.tsx
+PASS app/__tests__/layout-utils.test.ts
+PASS src/lib/performance/__tests__/bundle-analyzer.test.ts
+PASS src/utils/__tests__/helpers.test.ts
+PASS app/city/[slug]/__tests__/error.test.tsx
+FAIL src/lib/analytics/plausible/__tests__/hooks.test.tsx
+  ● usePlausibleAnalytics › logs events in development mode
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "Analytics Event:", "listing", {"action": "view", "listingId": "1"}
+
+    Number of calls: 0
+
+      23 |     result.current.trackFilterApplication({ price: 'budget' });
+      24 |
+    > 25 |     expect(logSpy).toHaveBeenCalledWith('Analytics Event:', 'listing', {
+         |                    ^
+      26 |       listingId: '1',
+      27 |       action: 'view',
+      28 |     });
+
+      at Object.toHaveBeenCalledWith (src/lib/analytics/plausible/__tests__/hooks.test.tsx:25:20)
+
+PASS app/api/test-listings/__tests__/route.test.ts
+PASS src/components/ui/__tests__/scroll-down-arrow.test.tsx
+PASS src/lib/analytics/__tests__/useExperiment.test.tsx
+PASS src/lib/mongodb/__tests__/sessionSchema.test.ts
+PASS src/middleware/__tests__/server-timing.test.ts
+PASS src/lib/analytics/__tests__/experiments.test.ts
+PASS app/admin/__tests__/layout.test.tsx
+PASS src/types/__tests__/city.test.ts
+PASS src/lib/sanity/image.test.ts
+PASS src/lib/performance/__tests__/monitoring-config.test.ts
+PASS app/listings/[slug]/__tests__/layout.test.tsx
+PASS src/lib/__tests__/utils.test.ts
+PASS src/components/ui/__tests__/textarea.test.tsx
+PASS src/lib/queries/__tests__/index.test.ts
+PASS src/components/__tests__/CommentList.test.tsx
+PASS src/middleware/__tests__/session.test.ts
+PASS app/city/[slug]/__tests__/page.test.tsx
+PASS app/api/reviews/moderation/__tests__/route.test.ts
+PASS src/lib/analytics/plausible/__tests__/provider.test.tsx
+PASS src/__tests__/require-react-fc-type-parameters.test.ts
+PASS app/api/exit-preview/route.test.ts
+PASS src/lib/image-utils/getImageDimensions.test.ts
+PASS src/models/__tests__/mongoose-mock.guard.test.ts
+PASS src/lib/utils/__tests__/slug.test.ts
+PASS app/__tests__/dashboard-page.test.tsx
+PASS src/components/city/__tests__/cityDetailMockData.test.ts
+PASS src/mocks/__tests__/browser.test.ts
+PASS app/api/session/__tests__/route.test.ts
+PASS src/lib/analytics/plausible/__tests__/index.test.ts
+PASS src/test-helpers/__tests__/msw-server-bridge.test.ts
+PASS src/lib/performance/__tests__/web-vitals-reporter.minimal.test.ts
+PASS src/components/layout/__tests__/Header.test.tsx
+PASS src/lib/__tests__/geocode.test.ts
+PASS src/lib/__tests__/mongoose-cache.test.ts
+-------------------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------------
+File                                 | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                 
+-------------------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------------
+All files                            |   93.28 |    80.44 |   92.27 |   94.84 |                                                                                                                   
+ app                                 |   96.82 |    84.21 |   88.88 |   96.66 |                                                                                                                   
+  ClientRootLayout.tsx               |     100 |      100 |     100 |     100 |                                                                                                                   
+  error.tsx                          |   88.88 |      100 |      75 |   88.88 | 39                                                                                                                
+  layout.metadata.ts                 |     100 |      100 |     100 |     100 |                                                                                                                   
+  layout.tsx                         |    90.9 |      100 |     100 |    90.9 | 6                                                                                                                 
+  not-found.tsx                      |       0 |        0 |       0 |       0 |                                                                                                                   
+  page.featuredvenues.tsx            |     100 |      100 |     100 |     100 |                                                                                                                   
+  page.listingdetail.tsx             |     100 |      100 |     100 |     100 |                                                                                                                   
+  page.tsx                           |     100 |      100 |     100 |     100 |                                                                                                                   
+  robots.ts                          |     100 |      100 |     100 |     100 |                                                                                                                   
+  sitemap.ts                         |     100 |    76.92 |     100 |     100 | 53,62,69                                                                                                          
+ app/admin                           |     100 |       80 |     100 |     100 |                                                                                                                   
+  error.tsx                          |     100 |      100 |     100 |     100 |                                                                                                                   
+  layout.tsx                         |     100 |       80 |     100 |     100 | 53                                                                                                                
+ app/admin/dashboard                 |   84.21 |    71.42 |   88.88 |   87.64 |                                                                                                                   
+  ModerationActions.tsx              |   86.84 |    76.92 |   76.92 |   88.88 | 63,147-156                                                                                                        
+  page.tsx                           |   82.45 |    70.17 |     100 |   86.79 | 29,36-38,138,154,181                                                                                              
+ app/admin/listings                  |   85.71 |    80.95 |   82.22 |    90.9 |                                                                                                                   
+  ListingsManagementTable.tsx        |   85.71 |       80 |   81.39 |    89.9 | 209,265-269,277,293-297,321,485-513                                                                               
+  page.tsx                           |   85.71 |      100 |     100 |     100 |                                                                                                                   
+ app/admin/settings                  |   89.79 |       74 |   78.57 |   96.66 |                                                                                                                   
+  SettingsForm.tsx                   |   90.47 |    72.34 |      75 |   96.15 | 69,140,215                                                                                                        
+  page.tsx                           |   85.71 |      100 |     100 |     100 |                                                                                                                   
+ app/admin/users                     |   81.61 |    87.69 |   78.94 |   85.59 |                                                                                                                   
+  UserManagementTable.tsx            |   81.14 |    87.09 |   77.77 |   83.96 | 214-215,232-233,240-242,261-263,267-269,288-289,490-498                                                           
+  page.tsx                           |   85.71 |      100 |     100 |     100 |                                                                                                                   
+ app/api/admin/analytics             |     100 |     87.5 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |     87.5 |     100 |     100 | 39                                                                                                                
+ app/api/admin/analyze-content       |     100 |       96 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |       96 |     100 |     100 | 83                                                                                                                
+ app/api/admin/bulk-operations       |     100 |      100 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |      100 |     100 |     100 |                                                                                                                   
+ app/api/admin/listings              |   82.97 |     67.3 |   71.42 |   84.78 |                                                                                                                   
+  route.ts                           |   82.97 |     67.3 |   71.42 |   84.78 | 99,104,152-156,204-211,226-230,263-267                                                                            
+ app/api/admin/listings/stats        |     100 |    65.21 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |    65.21 |     100 |     100 | 76-96                                                                                                             
+ app/api/admin/moderation            |     100 |      100 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |      100 |     100 |     100 |                                                                                                                   
+ app/api/admin/settings              |     100 |    83.33 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |    83.33 |     100 |     100 | 60,135                                                                                                            
+ app/api/admin/settings/backup       |     100 |      100 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |      100 |     100 |     100 |                                                                                                                   
+ app/api/admin/stats                 |     100 |    83.33 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |    83.33 |     100 |     100 | 47                                                                                                                
+ app/api/admin/users                 |   97.87 |     98.3 |    87.5 |   98.87 |                                                                                                                   
+  route.ts                           |   97.87 |     98.3 |    87.5 |   98.87 | 197                                                                                                               
+ app/api/amenities                   |    90.9 |      100 |     100 |     100 |                                                                                                                   
+  route.ts                           |    90.9 |      100 |     100 |     100 |                                                                                                                   
+ app/api/auth/[...nextauth]          |     100 |       80 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |       80 |     100 |     100 | 17,41                                                                                                             
+ app/api/auth/register               |     100 |    89.65 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |    89.65 |     100 |     100 | 13,97,107                                                                                                         
+ app/api/auth/request-password-reset |     100 |    83.33 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |    83.33 |     100 |     100 | 43                                                                                                                
+ app/api/auth/reset-password         |   98.41 |    90.62 |     100 |   98.41 |                                                                                                                   
+  route.ts                           |   98.41 |    90.62 |     100 |   98.41 | 35                                                                                                                
+ app/api/auth/test                   |     100 |       90 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |       90 |     100 |     100 | 59                                                                                                                
+ app/api/auth/update-profile         |     100 |    92.85 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |    92.85 |     100 |     100 | 38-40                                                                                                             
+ app/api/auth/verify                 |     100 |     90.9 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |     90.9 |     100 |     100 | 61                                                                                                                
+ app/api/blog                        |   96.55 |    82.92 |     100 |   96.36 |                                                                                                                   
+  route.ts                           |   96.55 |    82.92 |     100 |   96.36 | 139,143                                                                                                           
+ app/api/blog/[slug]                 |   97.65 |    90.69 |     100 |    97.6 |                                                                                                                   
+  route.ts                           |   97.65 |    90.69 |     100 |    97.6 | 76,111,264                                                                                                        
+ app/api/categories                  |    91.3 |     92.3 |     100 |   95.45 |                                                                                                                   
+  route.ts                           |    91.3 |     92.3 |     100 |   95.45 | 42                                                                                                                
+ app/api/cities                      |     100 |       80 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |       80 |     100 |     100 | 9                                                                                                                 
+ app/api/cities/[slug]               |   94.11 |       60 |     100 |   94.11 |                                                                                                                   
+  route.ts                           |   94.11 |       60 |     100 |   94.11 | 17                                                                                                                
+ app/api/city/[slug]                 |     100 |      100 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |      100 |     100 |     100 |                                                                                                                   
+ app/api/comments                    |   98.14 |    89.47 |     100 |   99.05 |                                                                                                                   
+  route.ts                           |   98.14 |    89.47 |     100 |   99.05 | 60                                                                                                                
+ app/api/contact                     |   96.59 |    84.61 |     100 |   96.51 |                                                                                                                   
+  route.ts                           |   96.59 |    84.61 |     100 |   96.51 | 78,250,325                                                                                                        
+ app/api/digital-nomad-features      |     100 |      100 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |      100 |     100 |     100 |                                                                                                                   
+ app/api/eco-tags                    |    90.9 |      100 |     100 |     100 |                                                                                                                   
+  route.ts                           |    90.9 |      100 |     100 |     100 |                                                                                                                   
+ app/api/events                      |     100 |       80 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |       80 |     100 |     100 | 12                                                                                                                
+ app/api/exit-preview                |     100 |      100 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |      100 |     100 |     100 |                                                                                                                   
+ app/api/featured-listings           |     100 |    86.95 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |    86.95 |     100 |     100 | 156,171,198                                                                                                       
+ app/api/listings                    |    94.4 |       80 |      90 |   97.52 |                                                                                                                   
+  route.ts                           |    94.4 |       80 |      90 |   97.52 | 86,119,296                                                                                                        
+ app/api/listings/[slug]             |     100 |     90.9 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |     90.9 |     100 |     100 | 25                                                                                                                
+ app/api/listings/[slug]/views       |   95.45 |       90 |     100 |     100 |                                                                                                                   
+  route.ts                           |   95.45 |       90 |     100 |     100 | 32                                                                                                                
+ app/api/listings/city/[id]          |   94.11 |    71.42 |     100 |   94.11 |                                                                                                                   
+  route.ts                           |   94.11 |    71.42 |     100 |   94.11 | 16                                                                                                                
+ app/api/listings/featured           |     100 |      100 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |      100 |     100 |     100 |                                                                                                                   
+ app/api/listings/manage/[id]        |    96.1 |    86.95 |     100 |   98.59 |                                                                                                                   
+  route.ts                           |    96.1 |    86.95 |     100 |   98.59 | 132                                                                                                               
+ app/api/mock-env                    |   88.23 |       90 |   33.33 |   88.23 |                                                                                                                   
+  route.ts                           |   88.23 |       90 |   33.33 |   88.23 | 25,30                                                                                                             
+ app/api/newsletter/confirm          |     100 |      100 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |      100 |     100 |     100 |                                                                                                                   
+ app/api/newsletter/subscribe        |   93.91 |    77.96 |     100 |    93.8 |                                                                                                                   
+  route.ts                           |   93.91 |    77.96 |     100 |    93.8 | 63,93-94,177-179,182                                                                                              
+ app/api/performance/web-vitals      |   83.33 |    83.33 |     100 |   86.95 |                                                                                                                   
+  route.ts                           |   83.33 |    83.33 |     100 |   86.95 | 31,37,71                                                                                                          
+ app/api/preview                     |     100 |      100 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |      100 |     100 |     100 |                                                                                                                   
+ app/api/preview/exit                |     100 |      100 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |      100 |     100 |     100 |                                                                                                                   
+ app/api/revalidate                  |   88.46 |    88.88 |     100 |     100 |                                                                                                                   
+  route.ts                           |   88.46 |    88.88 |     100 |     100 | 42                                                                                                                
+ app/api/revalidate-all              |   83.33 |    66.66 |     100 |    90.9 |                                                                                                                   
+  route.ts                           |   83.33 |    66.66 |     100 |    90.9 | 49-53                                                                                                             
+ app/api/reviews                     |     100 |    89.36 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |    89.36 |     100 |     100 | 29-32,40,146,222                                                                                                  
+ app/api/reviews/[reviewId]/vote     |     100 |    88.88 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |    88.88 |     100 |     100 | 70,93-94                                                                                                          
+ app/api/reviews/analytics           |     100 |    82.97 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |    82.97 |     100 |     100 | 278-280,285-288,306,326                                                                                           
+ app/api/reviews/listing/[slug]      |     100 |      100 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |      100 |     100 |     100 |                                                                                                                   
+ app/api/reviews/moderation          |     100 |      100 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |      100 |     100 |     100 |                                                                                                                   
+ app/api/sanity-test                 |     100 |       80 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |       80 |     100 |     100 | 14,28                                                                                                             
+ app/api/search                      |   96.17 |    82.41 |   95.23 |   99.31 |                                                                                                                   
+  route.ts                           |   96.17 |    82.41 |   95.23 |   99.31 | 98                                                                                                                
+ app/api/search/suggestions          |     100 |    84.61 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |    84.61 |     100 |     100 | 10,42                                                                                                             
+ app/api/session                     |     100 |      100 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |      100 |     100 |     100 |                                                                                                                   
+ app/api/test-listings               |   94.11 |       60 |     100 |     100 |                                                                                                                   
+  route.ts                           |   94.11 |       60 |     100 |     100 | 13,28-35                                                                                                          
+ app/api/test-mongodb                |    87.5 |    66.66 |     100 |     100 |                                                                                                                   
+  route.ts                           |    87.5 |    66.66 |     100 |     100 | 10,25,33                                                                                                          
+ app/api/upload                      |   91.11 |    71.42 |   33.33 |   93.18 |                                                                                                                   
+  route.ts                           |   91.11 |    71.42 |   33.33 |   93.18 | 95-96,113                                                                                                         
+ app/api/user/analytics              |   94.87 |      100 |     100 |     100 |                                                                                                                   
+  route.ts                           |   94.87 |      100 |     100 |     100 |                                                                                                                   
+ app/api/user/dashboard              |   93.54 |       75 |     100 |    93.1 |                                                                                                                   
+  route-helpers.ts                   |     100 |       75 |     100 |     100 | 46-48                                                                                                             
+  route.ts                           |       0 |      100 |     100 |       0 | 1-8                                                                                                               
+ app/api/user/favorites              |   97.77 |     93.1 |      80 |     100 |                                                                                                                   
+  route.ts                           |   97.77 |     93.1 |      80 |     100 | 34,77,170,244                                                                                                     
+ app/api/user/favorites/[slug]       |     100 |      100 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |      100 |     100 |     100 |                                                                                                                   
+ app/api/user/profile                |   93.93 |      100 |     100 |   96.87 |                                                                                                                   
+  route.ts                           |   93.93 |      100 |     100 |   96.87 | 109                                                                                                               
+ app/api/user/reviews                |     100 |    86.66 |     100 |     100 |                                                                                                                   
+  route.ts                           |     100 |    86.66 |     100 |     100 | 61-62,108,117,144,156,172                                                                                         
+ app/auth/login                      |   98.92 |       94 |     100 |   98.87 |                                                                                                                   
+  LoginForm.tsx                      |   98.63 |    93.02 |     100 |   98.55 | 97                                                                                                                
+  page.tsx                           |     100 |      100 |     100 |     100 |                                                                                                                   
+ app/auth/signup                     |   97.72 |    81.81 |     100 |     100 |                                                                                                                   
+  SignupPageContent.tsx              |   96.42 |      100 |     100 |     100 |                                                                                                                   
+  page.tsx                           |     100 |    71.42 |     100 |     100 | 16,26                                                                                                             
+ app/blog                            |   93.33 |    75.38 |     100 |   94.23 |                                                                                                                   
+  page.tsx                           |   93.33 |    75.38 |     100 |   94.23 | 12,64,95                                                                                                          
+ app/blog/[slug]                     |   86.48 |    66.29 |     100 |    87.5 |                                                                                                                   
+  page.tsx                           |   86.48 |    66.29 |     100 |    87.5 | 29,33,41,76,160-164                                                                                               
+ app/cities/[slug]                   |   89.47 |    83.33 |    87.5 |    92.3 |                                                                                                                   
+  page.tsx                           |   89.47 |    83.33 |    87.5 |    92.3 | 46,149,209,249                                                                                                    
+ app/city/[slug]                     |   85.71 |      100 |      60 |   85.71 |                                                                                                                   
+  error.tsx                          |      75 |      100 |   66.66 |      75 | 23                                                                                                                
+  not-found.tsx                      |       0 |        0 |       0 |       0 |                                                                                                                   
+  page.tsx                           |     100 |      100 |     100 |     100 |                                                                                                                   
+ app/contact-us                      |   98.68 |    95.45 |    90.9 |   98.68 |                                                                                                                   
+  page.tsx                           |   98.68 |    95.45 |    90.9 |   98.68 | 158                                                                                                               
+ app/dashboard                       |   88.88 |      100 |     100 |     100 |                                                                                                                   
+  error.tsx                          |     100 |      100 |     100 |     100 |                                                                                                                   
+  page.tsx                           |      80 |      100 |     100 |     100 |                                                                                                                   
+ app/dashboard/components            |   94.35 |    94.57 |   87.83 |   94.32 |                                                                                                                   
+  VenueListingForm.tsx               |   93.12 |    96.29 |   85.93 |   93.12 | 762,812,894,941,1164,1214,1263,1310,1357                                                                          
+  VenueListingManagement.tsx         |   96.87 |    91.66 |     100 |   96.82 | 44,72                                                                                                             
+ app/dashboard/listings              |     100 |      100 |     100 |     100 |                                                                                                                   
+  page.tsx                           |     100 |      100 |     100 |     100 |                                                                                                                   
+ app/dashboard/listings/edit/[id]    |     100 |    78.57 |     100 |     100 |                                                                                                                   
+  page.tsx                           |     100 |    78.57 |     100 |     100 | 12,31,61                                                                                                          
+ app/dashboard/listings/new          |     100 |      100 |     100 |     100 |                                                                                                                   
+  page.tsx                           |     100 |      100 |     100 |     100 |                                                                                                                   
+ app/listings                        |     100 |      100 |     100 |     100 |                                                                                                                   
+  error.tsx                          |     100 |      100 |     100 |     100 |                                                                                                                   
+ app/listings/[slug]                 |   86.33 |    64.64 |   93.75 |   89.84 |                                                                                                                   
+  layout.tsx                         |     100 |      100 |     100 |     100 |                                                                                                                   
+  not-found.tsx                      |       0 |        0 |       0 |       0 |                                                                                                                   
+  page.tsx                           |   86.13 |    64.64 |     100 |   89.68 | 106,112,130-131,149,210,255,276,287-289,298,358                                                                   
+ app/newsletter/confirmed            |     100 |      100 |     100 |     100 |                                                                                                                   
+  page.tsx                           |     100 |      100 |     100 |     100 |                                                                                                                   
+ app/profile                         |   85.61 |    64.34 |   73.68 |   85.09 |                                                                                                                   
+  FavoriteListingsShowcase.tsx       |     100 |    82.35 |     100 |     100 | 67-75,92,128                                                                                                      
+  error.tsx                          |     100 |      100 |     100 |     100 |                                                                                                                   
+  page.tsx                           |   75.15 |    48.55 |   61.53 |   75.16 | 61-129,177-182,228-235,240-241,264-266,291,305-306,406,584-743,751-779,918-935                                    
+  utils.ts                           |     100 |    91.37 |     100 |     100 | 123-125,161-162                                                                                                   
+ app/search                          |   96.55 |    72.97 |     100 |     100 |                                                                                                                   
+  page.tsx                           |   96.55 |    72.97 |     100 |     100 | 21,23,55,109,148-149                                                                                              
+ app/search/results                  |   84.27 |    60.28 |   83.33 |   85.91 |                                                                                                                   
+  helpers.ts                         |     100 |    57.77 |     100 |     100 | 73-97                                                                                                             
+  page.tsx                           |   96.66 |    83.33 |     100 |     100 | 16-20,33,72,126                                                                                                   
+  server.ts                          |    82.5 |    45.94 |   33.33 |    82.5 | 65,85-90,122,134                                                                                                  
+  shared.ts                          |   71.18 |    52.17 |    87.5 |   72.34 | 14,64-83                                                                                                          
+ app/test-gallery                    |     100 |      100 |     100 |     100 |                                                                                                                   
+  page.tsx                           |     100 |      100 |     100 |     100 |                                                                                                                   
+ app/test-reviews                    |     100 |      100 |     100 |     100 |                                                                                                                   
+  page.tsx                           |     100 |      100 |     100 |     100 |                                                                                                                   
+ app/test/listing-detail             |     100 |      100 |     100 |     100 |                                                                                                                   
+  page.tsx                           |     100 |      100 |     100 |     100 |                                                                                                                   
+ app/test/search                     |   98.13 |    94.28 |     100 |   98.87 |                                                                                                                   
+  page.tsx                           |   98.13 |    94.28 |     100 |   98.87 | 41                                                                                                                
+ src                                 |   86.11 |    84.61 |   83.33 |   88.23 |                                                                                                                   
+  instrumentation.ts                 |   86.11 |    84.61 |   83.33 |   88.23 | 11-22                                                                                                             
+ src/components                      |     100 |      100 |     100 |     100 |                                                                                                                   
+  AnimatedNumber.tsx                 |     100 |      100 |     100 |     100 |                                                                                                                   
+  CommentForm.tsx                    |     100 |      100 |     100 |     100 |                                                                                                                   
+  CommentList.tsx                    |     100 |      100 |     100 |     100 |                                                                                                                   
+  MswInit.tsx                        |     100 |      100 |     100 |     100 |                                                                                                                   
+  Providers.tsx                      |     100 |      100 |     100 |     100 |                                                                                                                   
+ src/components/auth                 |     100 |      100 |     100 |     100 |                                                                                                                   
+  SocialAuthRow.tsx                  |     100 |      100 |     100 |     100 |                                                                                                                   
+ src/components/blog                 |     100 |       96 |     100 |     100 |                                                                                                                   
+  portableTextComponents.tsx         |     100 |       96 |     100 |     100 | 48                                                                                                                
+ src/components/city                 |   90.19 |    90.14 |     100 |   93.18 |                                                                                                                   
+  CityDetailView.tsx                 |   89.36 |    90.14 |     100 |   92.85 | 47,73-74                                                                                                          
+  cityDetailMockData.ts              |     100 |      100 |     100 |     100 |                                                                                                                   
+ src/components/favorites            |   91.89 |     87.3 |     100 |   93.15 |                                                                                                                   
+  FavoriteButton.tsx                 |   91.89 |     87.3 |     100 |   93.15 | 120-123,148,153                                                                                                   
+ src/components/layout               |   98.55 |    95.65 |   92.85 |     100 |                                                                                                                   
+  Footer.tsx                         |     100 |      100 |     100 |     100 |                                                                                                                   
+  Header.tsx                         |   97.61 |    97.29 |     100 |     100 | 51                                                                                                                
+  PageLayout.tsx                     |       0 |        0 |       0 |       0 |                                                                                                                   
+ src/components/listings             |   95.76 |    83.82 |   93.33 |   97.46 |                                                                                                                   
+  GalleryGrid.tsx                    |   94.73 |    82.97 |   95.23 |   98.43 | 153                                                                                                               
+  HeroSection.tsx                    |     100 |      100 |     100 |     100 |                                                                                                                   
+  ListingCategoryDetails.tsx         |   94.73 |    72.72 |     100 |   93.93 | 70,289                                                                                                            
+  ListingContactInfo.tsx             |     100 |    89.47 |     100 |     100 | 87-90                                                                                                             
+  ListingDetailView.tsx              |      90 |    78.94 |     100 |   93.61 | 75-81                                                                                                             
+  ListingDetailsCard.tsx             |    92.5 |     87.5 |   82.35 |   96.96 | 16                                                                                                                
+  ListingGrid.tsx                    |     100 |      100 |     100 |     100 |                                                                                                                   
+  NoListingsFound.tsx                |     100 |      100 |     100 |     100 |                                                                                                                   
+  RelatedListings.tsx                |   93.93 |    95.45 |   83.33 |   93.54 | 77,179                                                                                                            
+  ReviewsSection.tsx                 |   99.07 |    80.24 |   94.73 |     100 | 123,203-222,275,325,405                                                                                           
+  listingDetailMockData.ts           |     100 |      100 |     100 |     100 |                                                                                                                   
+ src/components/profile              |     100 |    94.73 |     100 |     100 |                                                                                                                   
+  ProfileEditForm.tsx                |     100 |    94.73 |     100 |     100 | 63                                                                                                                
+ src/components/search               |   87.27 |    64.36 |   86.95 |   91.28 |                                                                                                                   
+  DigitalNomadSearch.tsx             |     100 |      100 |     100 |     100 |                                                                                                                   
+  DigitalNomadSearchFilter.tsx       |     100 |      100 |     100 |     100 |                                                                                                                   
+  FiltersSidebar.tsx                 |   92.73 |    69.49 |     100 |   95.54 | 126,211-213,287-288,330                                                                                           
+  SearchBox.tsx                      |     100 |      100 |     100 |     100 |                                                                                                                   
+  SearchFiltersForm.tsx              |   75.67 |    47.05 |   67.44 |   81.88 | 20-22,71-75,124-138,155,177,200,218,246,249                                                                       
+  SearchForm.tsx                     |      90 |    88.23 |      95 |    94.2 | 166-169                                                                                                           
+ src/components/sections             |   89.07 |    72.38 |   78.43 |   92.76 |                                                                                                                   
+  AboutSection.tsx                   |     100 |      100 |     100 |     100 |                                                                                                                   
+  CategoryFilters.tsx                |     100 |      100 |     100 |     100 |                                                                                                                   
+  CityCarousel.tsx                   |   87.67 |     75.6 |   70.58 |   91.17 | 76,133-134,184-215                                                                                                
+  FeaturedListings.tsx               |    83.8 |    59.09 |   68.42 |   89.58 | 29,44,50-53,201-214                                                                                               
+  HeroSection.tsx                    |     100 |      100 |     100 |     100 |                                                                                                                   
+  TestimonialsSection.tsx            |     100 |       50 |     100 |     100 | 87                                                                                                                
+  featuredVenuesMockData.ts          |     100 |      100 |     100 |     100 |                                                                                                                   
+ src/components/ui                   |   95.19 |    88.59 |   95.45 |   96.96 |                                                                                                                   
+  ImageCarousel.tsx                  |     100 |    92.85 |     100 |     100 | 23                                                                                                                
+  InteractiveMap.tsx                 |   89.65 |       80 |   84.61 |   92.66 | 57,61-62,72-75,196                                                                                                
+  SectionHeader.tsx                  |     100 |      100 |     100 |     100 |                                                                                                                   
+  StarRating.tsx                     |     100 |      100 |     100 |     100 |                                                                                                                   
+  VenueCard.tsx                      |   92.85 |    90.47 |      75 |   92.85 | 49                                                                                                                
+  checkbox.tsx                       |     100 |      100 |     100 |     100 |                                                                                                                   
+  city-carousel-wave.tsx             |   93.18 |    80.95 |     100 |    97.5 | 43                                                                                                                
+  filter-multi-select.tsx            |     100 |       90 |     100 |     100 | 32                                                                                                                
+  form.tsx                           |     100 |    66.66 |     100 |     100 | 19                                                                                                                
+  input.tsx                          |     100 |      100 |     100 |     100 |                                                                                                                   
+  label.tsx                          |     100 |      100 |     100 |     100 |                                                                                                                   
+  neo-badge.tsx                      |     100 |      100 |     100 |     100 |                                                                                                                   
+  neo-button.tsx                     |     100 |      100 |     100 |     100 |                                                                                                                   
+  neo-card.tsx                       |   93.75 |      100 |     100 |     100 |                                                                                                                   
+  neo-input.tsx                      |     100 |      100 |     100 |     100 |                                                                                                                   
+  scroll-down-arrow.tsx              |     100 |      100 |     100 |     100 |                                                                                                                   
+  select.tsx                         |     100 |      100 |     100 |     100 |                                                                                                                   
+  separator.tsx                      |     100 |      100 |     100 |     100 |                                                                                                                   
+  skip-link.tsx                      |     100 |      100 |     100 |     100 |                                                                                                                   
+  textarea.tsx                       |     100 |      100 |     100 |     100 |                                                                                                                   
+ src/data/e2e                        |   88.46 |    56.09 |   96.96 |    97.5 |                                                                                                                   
+  discovery-fixtures.ts              |   88.46 |    56.09 |   96.96 |    97.5 | 293-294                                                                                                           
+ src/hooks                           |   96.62 |    84.21 |   98.33 |   97.66 |                                                                                                                   
+  useAnalytics.ts                    |     100 |    83.33 |     100 |     100 | 20                                                                                                                
+  useAuth.ts                         |     100 |      100 |     100 |     100 |                                                                                                                   
+  useClickOutside.ts                 |     100 |      100 |     100 |     100 |                                                                                                                   
+  useCounter.ts                      |     100 |    84.61 |     100 |     100 | 23-25                                                                                                             
+  useFilters.ts                      |     100 |      100 |     100 |     100 |                                                                                                                   
+  useSearch.ts                       |   95.89 |       70 |     100 |   98.38 | 126                                                                                                               
+  useSearchListings.ts               |   90.19 |    81.25 |   83.33 |   91.66 | 51,60,129-130                                                                                                     
+ src/lib                             |   90.54 |    75.84 |   89.64 |   92.12 |                                                                                                                   
+  absolute-url.ts                    |   88.88 |     87.5 |   66.66 |     100 | 18                                                                                                                
+  adapters.ts                        |   87.09 |    71.79 |     100 |   87.09 | 81-87                                                                                                             
+  api.ts                             |    90.9 |    66.66 |     100 |    90.9 | 35,42                                                                                                             
+  auth.ts                            |   89.32 |    71.42 |   88.88 |   94.38 | 183,232-235                                                                                                       
+  cache-strategy.ts                  |   91.01 |    78.37 |    87.5 |   93.75 | 120,180,207,294-295                                                                                               
+  client-utils.ts                    |      50 |       60 |     100 |      50 | 16-19                                                                                                             
+  client.ts                          |     100 |      100 |     100 |     100 |                                                                                                                   
+  dbConnect.ts                       |   94.93 |    94.73 |   94.73 |   94.52 | 107,170-175                                                                                                       
+  dto-transformer.ts                 |   94.73 |    78.16 |   96.42 |   97.77 | 127,134,188                                                                                                       
+  email.ts                           |   97.72 |    54.54 |     100 |   97.72 | 15                                                                                                                
+  envLoader.ts                       |     100 |      100 |     100 |     100 |                                                                                                                   
+  error-handler.ts                   |     100 |      100 |     100 |     100 |                                                                                                                   
+  geocode.ts                         |   98.43 |    85.36 |     100 |   98.11 | 21                                                                                                                
+  highlight.tsx                      |     100 |      100 |     100 |     100 |                                                                                                                   
+  image-optimizer.ts                 |     100 |      100 |     100 |     100 |                                                                                                                   
+  landmark-coordinates.ts            |     100 |      100 |     100 |     100 |                                                                                                                   
+  listings.ts                        |    90.9 |    72.72 |     100 |     100 | 20-23,89-96,118-155,166-168,171-174,186-191                                                                       
+  logger.ts                          |   56.81 |    45.12 |   46.66 |   54.91 | 72,95-97,122-157,197,223,267-294,309,329,339-368,378-411,418                                                      
+  mongodb.ts                         |   91.89 |      100 |      80 |   91.66 | 30,35-36                                                                                                          
+  mongoose-cache.ts                  |     100 |      100 |     100 |     100 |                                                                                                                   
+  newsletter-utils.ts                |   84.21 |    85.71 |      90 |   86.11 | 18-19,71-73,88,113,126-127,144                                                                                    
+  newsletterTokens.ts                |     100 |      100 |     100 |     100 |                                                                                                                   
+  rate-limit.ts                      |   94.23 |    76.92 |     100 |   93.75 | 5-8,79                                                                                                            
+  redis.ts                           |   96.96 |     87.5 |     100 |   96.77 | 48,71                                                                                                             
+  sanity-batch-processor.ts          |   92.02 |       80 |    87.5 |      96 | 144-149,157,267,275                                                                                               
+  sanity-http-client.ts              |      95 |    78.64 |     100 |   95.69 | 51-53,144,358,433-435,467                                                                                         
+  sanity-image-uploader.ts           |   86.11 |    61.11 |   93.33 |   92.42 | 166,171,208-209,230                                                                                               
+  sanity.js                          |     100 |      100 |     100 |     100 |                                                                                                                   
+  sanity.utils.ts                    |   88.88 |      100 |     100 |     100 |                                                                                                                   
+  search.ts                          |   94.73 |    78.12 |     100 |   94.73 | 102-105                                                                                                           
+  tokens.ts                          |     100 |      100 |     100 |     100 |                                                                                                                   
+  utils.ts                           |   97.77 |    80.76 |     100 |   97.77 | 6                                                                                                                 
+  viewCountPersistence.ts            |   95.12 |       80 |     100 |   95.12 | 51,58                                                                                                             
+ src/lib/admin                       |   96.12 |    88.73 |     100 |   96.55 |                                                                                                                   
+  analytics.ts                       |   96.12 |    88.73 |     100 |   96.55 | 107,276,293,380,398                                                                                               
+ src/lib/analytics                   |    92.3 |    82.75 |   83.33 |    95.4 |                                                                                                                   
+  AnalyticsProvider.tsx              |       0 |        0 |       0 |       0 |                                                                                                                   
+  analytics.ts                       |     100 |      100 |     100 |     100 |                                                                                                                   
+  analytics.tsx                      |     100 |      100 |     100 |     100 |                                                                                                                   
+  config.ts                          |   86.04 |    81.25 |   57.14 |   91.42 | 31-32,87                                                                                                          
+  experiments.ts                     |    91.3 |       50 |     100 |      95 | 24                                                                                                                
+  useExperiment.ts                   |     100 |      100 |     100 |     100 |                                                                                                                   
+ src/lib/analytics/plausible         |     100 |      100 |     100 |     100 |                                                                                                                   
+  config.ts                          |     100 |      100 |     100 |     100 |                                                                                                                   
+  hooks.ts                           |     100 |      100 |     100 |     100 |                                                                                                                   
+  index.ts                           |     100 |      100 |     100 |     100 |                                                                                                                   
+  provider.tsx                       |     100 |      100 |     100 |     100 |                                                                                                                   
+ src/lib/auth                        |   98.63 |    94.39 |   98.21 |   98.98 |                                                                                                                   
+  adapter.ts                         |   89.47 |       80 |     100 |   94.44 | 11                                                                                                                
+  callbackUrl.ts                     |     100 |      100 |     100 |     100 |                                                                                                                   
+  clientAuth.tsx                     |     100 |      100 |     100 |     100 |                                                                                                                   
+  config.ts                          |     100 |      100 |     100 |     100 |                                                                                                                   
+  rateLimit.ts                       |   97.29 |    95.83 |   93.33 |   97.91 | 337-339                                                                                                           
+  serverAuth.ts                      |   98.79 |      100 |     100 |   98.78 | 184                                                                                                               
+  userService.ts                     |     100 |       95 |     100 |     100 | 9                                                                                                                 
+  withAuth.tsx                       |     100 |      100 |     100 |     100 |                                                                                                                   
+  withAuthMatrix.ts                  |     100 |    88.33 |     100 |     100 | 24-26,107,139,164,213,295                                                                                         
+ src/lib/constants                   |     100 |      100 |     100 |     100 |                                                                                                                   
+  categories.ts                      |     100 |      100 |     100 |     100 |                                                                                                                   
+ src/lib/dashboard                   |   96.57 |     69.3 |     100 |   96.29 |                                                                                                                   
+  user-dashboard.ts                  |   96.57 |     69.3 |     100 |   96.29 | 398-399,406,453,466                                                                                               
+ src/lib/data                        |   97.14 |    94.73 |     100 |   98.48 |                                                                                                                   
+  city.ts                            |   97.14 |    94.73 |     100 |   98.48 | 120                                                                                                               
+ src/lib/http                        |   82.07 |    55.17 |   81.81 |    81.9 |                                                                                                                   
+  request.ts                         |   82.07 |    55.17 |   81.81 |    81.9 | 7,14-21,39,72,98-99,105,110,114-117,131,149,223,237-240                                                           
+ src/lib/image-utils                 |     100 |       90 |     100 |     100 |                                                                                                                   
+  getImageDimensions.ts              |     100 |       90 |     100 |     100 | 19                                                                                                                
+ src/lib/metrics                     |     100 |    93.75 |     100 |     100 |                                                                                                                   
+  listing-views.ts                   |     100 |    93.75 |     100 |     100 | 42                                                                                                                
+ src/lib/mongodb                     |     100 |      100 |     100 |     100 |                                                                                                                   
+  init.ts                            |     100 |      100 |     100 |     100 |                                                                                                                   
+  testDbConnector.ts                 |     100 |      100 |     100 |     100 |                                                                                                                   
+ src/lib/mongodb/schemas             |     100 |      100 |     100 |     100 |                                                                                                                   
+  session.ts                         |     100 |      100 |     100 |     100 |                                                                                                                   
+ src/lib/performance                 |   93.03 |    75.84 |   97.01 |   95.02 |                                                                                                                   
+  alert-service.ts                   |   85.93 |    76.92 |     100 |   86.66 | 109,167,172-173,180,191,196-197                                                                                   
+  alerting-thresholds.ts             |   91.93 |    77.77 |     100 |   92.98 | 71,243,249,287                                                                                                    
+  baseline-testing.ts                |   92.95 |    48.71 |    90.9 |   95.58 | 210,309,320                                                                                                       
+  budgets.ts                         |   95.55 |     82.6 |     100 |     100 | 115,138,172                                                                                                       
+  bundle-analyzer.ts                 |     100 |      100 |     100 |     100 |                                                                                                                   
+  collector.ts                       |    96.2 |    84.37 |   95.83 |   98.57 | 70                                                                                                                
+  monitoring-config.ts               |    92.3 |       50 |     100 |     100 | 64                                                                                                                
+  performance-budgets.ts             |     100 |      100 |     100 |     100 |                                                                                                                   
+  plausible-integration.ts           |      88 |    73.07 |     100 |   89.13 | 26-30,44-45                                                                                                       
+  web-vitals-reporter.ts             |   97.56 |    95.23 |     100 |     100 | 46                                                                                                                
+  withPerformanceTracking.tsx        |   92.85 |    77.77 |     100 |     100 | 22-27                                                                                                             
+ src/lib/queries                     |     100 |      100 |     100 |     100 |                                                                                                                   
+  index.ts                           |     100 |      100 |     100 |     100 |                                                                                                                   
+ src/lib/sanity                      |    98.8 |    91.66 |     100 |   99.32 |                                                                                                                   
+  cached-client.ts                   |     100 |    83.33 |     100 |     100 | 53                                                                                                                
+  client.ts                          |   91.66 |    85.71 |     100 |   94.44 | 39                                                                                                                
+  data.ts                            |     100 |      100 |     100 |     100 |                                                                                                                   
+  env.ts                             |     100 |      100 |     100 |     100 |                                                                                                                   
+  image.ts                           |     100 |      100 |     100 |     100 |                                                                                                                   
+  queries.ts                         |     100 |      100 |     100 |     100 |                                                                                                                   
+  user.ts                            |     100 |    91.66 |     100 |     100 | 26,196                                                                                                            
+ src/lib/utils                       |     100 |      100 |     100 |     100 |                                                                                                                   
+  slug.ts                            |     100 |      100 |     100 |     100 |                                                                                                                   
+ src/middleware                      |   98.78 |       84 |     100 |     100 |                                                                                                                   
+  authCallbackHandler.ts             |     100 |       80 |     100 |     100 | 33                                                                                                                
+  cache.ts                           |     100 |      100 |     100 |     100 |                                                                                                                   
+  server-timing.ts                   |   96.15 |     62.5 |     100 |     100 | 17,23,58                                                                                                          
+  session.ts                         |     100 |      100 |     100 |     100 |                                                                                                                   
+ src/mocks                           |    82.6 |    65.27 |   92.68 |   83.06 |                                                                                                                   
+  api-response.ts                    |    87.5 |      100 |     100 |     100 |                                                                                                                   
+  browser.ts                         |     100 |      100 |     100 |     100 |                                                                                                                   
+  handlers.ts                        |   81.37 |    63.63 |   94.11 |    80.2 | 288-305,325-339                                                                                                   
+  sanity-handlers.ts                 |   83.33 |    58.33 |      75 |   86.66 | 57-66                                                                                                             
+  server.ts                          |   83.33 |      100 |     100 |     100 |                                                                                                                   
+ src/models                          |   96.73 |    89.47 |   95.45 |   96.53 |                                                                                                                   
+  AnalyticsEvent.ts                  |     100 |      100 |     100 |     100 |                                                                                                                   
+  ContactSubmission.ts               |     100 |      100 |     100 |     100 |                                                                                                                   
+  EmailVerificationToken.ts          |     100 |      100 |     100 |     100 |                                                                                                                   
+  LoginAttempt.ts                    |   95.37 |    84.81 |     100 |   95.32 | 144,161,165-166,184                                                                                               
+  NewsletterSubscriber.ts            |   95.74 |       92 |     100 |   95.55 | 21,55                                                                                                             
+  PasswordResetToken.ts              |     100 |      100 |     100 |     100 |                                                                                                                   
+  User.ts                            |   95.45 |      100 |      50 |   94.44 | 54                                                                                                                
+  UserAnalytics.ts                   |     100 |      100 |     100 |     100 |                                                                                                                   
+  UserFavorite.ts                    |     100 |      100 |     100 |     100 |                                                                                                                   
+ src/scripts                         |     100 |    83.33 |     100 |     100 |                                                                                                                   
+  analyze-content.ts                 |     100 |    83.33 |     100 |     100 | 75,114                                                                                                            
+ src/test-helpers                    |   95.23 |    83.33 |     100 |   94.44 |                                                                                                                   
+  createMongoMemoryServer.ts         |   94.73 |    83.33 |     100 |   94.11 | 44                                                                                                                
+  msw-server-bridge.ts               |     100 |      100 |     100 |     100 |                                                                                                                   
+ src/tests/fixtures                  |     100 |       50 |     100 |     100 |                                                                                                                   
+  index.ts                           |     100 |      100 |     100 |     100 |                                                                                                                   
+  page.tsx                           |     100 |       50 |     100 |     100 | 66                                                                                                                
+ src/tests/helpers                   |     100 |      100 |     100 |     100 |                                                                                                                   
+  assertions.ts                      |     100 |      100 |     100 |     100 |                                                                                                                   
+  test-data.ts                       |     100 |      100 |     100 |     100 |                                                                                                                   
+ src/tests/mocks                     |     100 |      100 |     100 |     100 |                                                                                                                   
+  factories.ts                       |     100 |      100 |     100 |     100 |                                                                                                                   
+ src/types                           |   90.75 |      100 |     100 |     100 |                                                                                                                   
+  admin-settings.ts                  |     100 |      100 |     100 |     100 |                                                                                                                   
+  auth.ts                            |     100 |      100 |     100 |     100 |                                                                                                                   
+  dto-schemas.ts                     |   87.09 |      100 |     100 |     100 |                                                                                                                   
+  dto.ts                             |     100 |      100 |     100 |     100 |                                                                                                                   
+  enums.ts                           |     100 |      100 |     100 |     100 |                                                                                                                   
+  listings.ts                        |      75 |      100 |     100 |     100 |                                                                                                                   
+  moderator.ts                       |     100 |      100 |     100 |     100 |                                                                                                                   
+  sort.ts                            |     100 |      100 |     100 |     100 |                                                                                                                   
+ src/types/type-tests                |     100 |      100 |     100 |     100 |                                                                                                                   
+  strict-component-type-tests.tsx    |     100 |      100 |     100 |     100 |                                                                                                                   
+ src/utils                           |   88.72 |    77.94 |   97.91 |   88.77 |                                                                                                                   
+  api-response.ts                    |     100 |    94.73 |     100 |     100 | 30                                                                                                                
+  auth-helpers.ts                    |     100 |    94.44 |     100 |     100 | 38                                                                                                                
+  db-helpers.ts                      |   87.62 |    71.42 |     100 |   88.33 | 76-84,143,207,225,227,246,265,270-271,305,326-327,338,386,419-420,435,444,483,493,498,505,516,535-538,551,559,574 
+  ecoRatingCalculator.ts             |   93.75 |       75 |     100 |   93.33 | 37                                                                                                                
+  navigation.ts                      |   88.88 |       50 |     100 |   85.71 | 3                                                                                                                 
+  priceRange.ts                      |     100 |      100 |     100 |     100 |                                                                                                                   
+  rate-limit.ts                      |   66.12 |    52.38 |   71.42 |   66.66 | 20-23,40-56,125-147                                                                                               
+  revalidation-token.ts              |   96.15 |    86.66 |     100 |   96.15 | 30                                                                                                                
+  sanitize.ts                        |     100 |      100 |     100 |     100 |                                                                                                                   
+  tag-styles.ts                      |     100 |      100 |     100 |     100 |                                                                                                                   
+  theme.ts                           |     100 |      100 |     100 |     100 |                                                                                                                   
+-------------------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------------
+
+Summary of all failing tests
+FAIL app/api/auth/register/route.test.ts
+  ● Registration API Routes › POST /api/auth/register › should return 400 if the body cannot be parsed
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "[register] Failed to parse request body", Any<Error>
+
+    Number of calls: 0
+
+      200 |       expect(response.status).toBe(400);
+      201 |       expect(body.error.code).toBe('INVALID_INPUT');
+    > 202 |       expect(warnSpy).toHaveBeenCalledWith(
+          |                       ^
+      203 |         '[register] Failed to parse request body',
+      204 |         expect.any(Error)
+      205 |       );
+
+      at Object.toHaveBeenCalledWith (app/api/auth/register/route.test.ts:202:23)
+
+FAIL src/lib/__tests__/auth.test.ts
+  ● auth module › callbacks.signIn › never blocks sign-in when verification syncing fails
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "[auth] signIn verification sync failed", Any<Error>
+
+    Number of calls: 0
+
+      282 |       } as any);
+      283 |
+    > 284 |       expect(warnSpy).toHaveBeenCalledWith(
+          |                       ^
+      285 |         '[auth] signIn verification sync failed',
+      286 |         expect.any(Error)
+      287 |       );
+
+      at Object.toHaveBeenCalledWith (src/lib/__tests__/auth.test.ts:284:23)
+
+  ● auth module › callbacks.jwt › enriches token metadata and reports allowlist failures in browser-like environments
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "[auth] failed to queue admin allowlist promotion flow", Any<Error>
+
+    Number of calls: 0
+
+      338 |       await nextTick();
+      339 |       expect(isAdminEmail).not.toHaveBeenCalled();
+    > 340 |       expect(errorSpy).toHaveBeenCalledWith(
+          |                        ^
+      341 |         '[auth] failed to queue admin allowlist promotion flow',
+      342 |         expect.any(Error)
+      343 |       );
+
+      at Object.toHaveBeenCalledWith (src/lib/__tests__/auth.test.ts:340:24)
+
+FAIL app/api/performance/web-vitals/__tests__/route.test.ts
+  ● Web Vitals Performance API - POST /api/performance/web-vitals › Error Handling › should log errors to console
+
+    expect(jest.fn()).toHaveBeenCalled()
+
+    Expected number of calls: >= 1
+    Received number of calls:    0
+
+      342 |       await POST(request);
+      343 |
+    > 344 |       expect(consoleErrorSpy).toHaveBeenCalled();
+          |                               ^
+      345 |       expect(consoleErrorSpy.mock.calls[0][0]).toContain(
+      346 |         '[Performance API] Error processing metrics'
+      347 |       );
+
+      at Object.toHaveBeenCalled (app/api/performance/web-vitals/__tests__/route.test.ts:344:31)
+
+FAIL app/api/auth/update-profile/route.test.ts
+  ● api/auth/update-profile route › logs and reports server errors
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "Profile update error:", [Error: database down]
+
+    Number of calls: 0
+
+      253 |       message: 'Failed to update profile.',
+      254 |     });
+    > 255 |     expect(consoleSpy).toHaveBeenCalledWith('Profile update error:', error);
+          |                        ^
+      256 |   });
+      257 |
+      258 |   it('supports POST requests as an alias for PATCH', async () => {
+
+      at Object.toHaveBeenCalledWith (app/api/auth/update-profile/route.test.ts:255:24)
+
+FAIL src/lib/__tests__/rate-limit.test.ts
+  ● rate-limit helpers › isRateLimited handles errors gracefully
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "[rate-limit] Error checking rate limit:", Any<Error>
+
+    Number of calls: 0
+
+      168 |
+      169 |     expect(result).toBe(false);
+    > 170 |     expect(warnSpy).toHaveBeenCalledWith(
+          |                     ^
+      171 |       '[rate-limit] Error checking rate limit:',
+      172 |       expect.any(Error)
+      173 |     );
+
+      at Object.toHaveBeenCalledWith (src/lib/__tests__/rate-limit.test.ts:170:21)
+
+  ● rate-limit helpers › getRetryAfterMs handles errors gracefully
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "[rate-limit] Error getting retry after:", Any<Error>
+
+    Number of calls: 0
+
+      209 |
+      210 |     expect(result).toBe(0);
+    > 211 |     expect(warnSpy).toHaveBeenCalledWith(
+          |                     ^
+      212 |       '[rate-limit] Error getting retry after:',
+      213 |       expect.any(Error)
+      214 |     );
+
+      at Object.toHaveBeenCalledWith (src/lib/__tests__/rate-limit.test.ts:211:21)
+
+  ● rate-limit helpers › falls back to original functions when Jest is unavailable
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "Jest not available for mocking in rate-limit module"
+
+    Number of calls: 0
+
+      246 |       expect('mock' in (mod.isRateLimited as any)).toBe(false);
+      247 |       expect('mock' in (mod.getRetryAfterMs as any)).toBe(false);
+    > 248 |       expect(warnSpy).toHaveBeenCalledWith('Jest not available for mocking in rate-limit module');
+          |                       ^
+      249 |     } finally {
+      250 |       (global as any).jest = originalJest;
+      251 |       warnSpy.mockRestore();
+
+      at Object.toHaveBeenCalledWith (src/lib/__tests__/rate-limit.test.ts:248:23)
+
+  ● rate-limit helpers › handles Redis initialization errors gracefully
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "[rate-limit] Failed to initialize rate limiters:", Any<Error>
+
+    Number of calls: 0
+
+      261 |     const mod = await loadModule();
+      262 |
+    > 263 |     expect(warnSpy).toHaveBeenCalledWith(
+          |                     ^
+      264 |       '[rate-limit] Failed to initialize rate limiters:',
+      265 |       expect.any(Error)
+      266 |     );
+
+      at Object.toHaveBeenCalledWith (src/lib/__tests__/rate-limit.test.ts:263:21)
+
+FAIL src/lib/__tests__/mongodb.test.ts
+  ● mongodb client module › logs and rethrows connection errors outside of development caching
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "MongoDB connection failed:", "boom"
+
+    Number of calls: 0
+
+      106 |     const mod = await import('../mongodb.ts');
+      107 |     await expect(mod.default).rejects.toThrow('boom');
+    > 108 |     expect(errorSpy).toHaveBeenCalledWith('MongoDB connection failed:', 'boom');
+          |                      ^
+      109 |
+      110 |     errorSpy.mockRestore();
+      111 |   });
+
+      at Object.toHaveBeenCalledWith (src/lib/__tests__/mongodb.test.ts:108:22)
+
+  ● mongodb client module › resets cached promise when development connection fails
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "MongoDB connection failed:", "dev-fail"
+
+    Number of calls: 0
+
+      122 |     const mod = await import('../mongodb.ts');
+      123 |     await expect(mod.default).rejects.toThrow('dev-fail');
+    > 124 |     expect(errorSpy).toHaveBeenCalledWith('MongoDB connection failed:', 'dev-fail');
+          |                      ^
+      125 |     expect((global as any)._mongoClientPromise).toBeUndefined();
+      126 |
+      127 |     errorSpy.mockRestore();
+
+      at Object.toHaveBeenCalledWith (src/lib/__tests__/mongodb.test.ts:124:22)
+
+FAIL src/lib/sanity/cached-client.test.ts
+  ● cachedClient › logs and continues when redis read fails
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "Cache read failed, falling through to fetch:", [Error: redis down]
+
+    Number of calls: 0
+
+      100 |
+      101 |     expect(result).toEqual({ value: 1 });
+    > 102 |     expect(warnSpy).toHaveBeenCalledWith('Cache read failed, falling through to fetch:', error);
+          |                     ^
+      103 |
+      104 |     warnSpy.mockRestore();
+      105 |   });
+
+      at Object.toHaveBeenCalledWith (src/lib/sanity/cached-client.test.ts:102:21)
+
+  ● cachedClient › ignores redis write errors after fetching fresh data
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "Cache write failed, continuing without Redis:", [Error: write failed]
+
+    Number of calls: 0
+
+      119 |
+      120 |     expect(result).toEqual({ value: 2 });
+    > 121 |     expect(warnSpy).toHaveBeenCalledWith(
+          |                     ^
+      122 |       'Cache write failed, continuing without Redis:',
+      123 |       writeError
+      124 |     );
+
+      at Object.toHaveBeenCalledWith (src/lib/sanity/cached-client.test.ts:121:21)
+
+FAIL src/lib/__tests__/email.test.ts
+  ● email utilities › skips sending when API key is missing
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "[email] RESEND_API_KEY not set; skipping send"
+
+    Number of calls: 0
+
+      56 |     expect(ResendConstructor).not.toHaveBeenCalled();
+      57 |     expect(resendSendMock).not.toHaveBeenCalled();
+    > 58 |     expect(warnSpy).toHaveBeenCalledWith('[email] RESEND_API_KEY not set; skipping send');
+         |                     ^
+      59 |     warnSpy.mockRestore();
+      60 |   });
+      61 |
+
+      at Object.toHaveBeenCalledWith (src/lib/__tests__/email.test.ts:58:21)
+
+FAIL src/lib/mongodb/__tests__/init.test.ts
+  ● initializeDatabase › creates the sessions collection, indexes, and other index definitions
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "Database initialization completed successfully"
+
+    Number of calls: 0
+
+      84 |       { key: { createdAt: 1 }, expireAfterSeconds: 900 },
+      85 |     ]);
+    > 86 |     expect(logSpy).toHaveBeenCalledWith('Database initialization completed successfully');
+         |                    ^
+      87 |     expect(errorSpy).not.toHaveBeenCalled();
+      88 |   });
+      89 |
+
+      at Object.toHaveBeenCalledWith (src/lib/mongodb/__tests__/init.test.ts:86:20)
+
+  ● initializeDatabase › continues when the sessions collection already exists
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "Database initialization completed successfully"
+
+    Number of calls: 0
+
+       99 |
+      100 |     expect(sessionsCollection.createIndexes).toHaveBeenCalledWith(sessionIndexes);
+    > 101 |     expect(logSpy).toHaveBeenCalledWith('Database initialization completed successfully');
+          |                    ^
+      102 |     expect(errorSpy).not.toHaveBeenCalled();
+      103 |   });
+      104 |
+
+      at Object.toHaveBeenCalledWith (src/lib/mongodb/__tests__/init.test.ts:101:20)
+
+  ● initializeDatabase › logs and rethrows unexpected errors
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "Error initializing database:", [Error: boom]
+
+    Number of calls: 0
+
+      109 |     await expect(initializeDatabase(mockClient as MongoClient)).rejects.toThrow(failure);
+      110 |
+    > 111 |     expect(errorSpy).toHaveBeenCalledWith('Error initializing database:', failure);
+          |                      ^
+      112 |     expect(logSpy).not.toHaveBeenCalled();
+      113 |   });
+      114 | });
+
+      at Object.toHaveBeenCalledWith (src/lib/mongodb/__tests__/init.test.ts:111:22)
+
+FAIL src/scripts/__tests__/analyze-content.test.ts
+  ● analyzeContent script › evaluates listings and writes a report
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: StringContaining "reports", {"recursive": true}
+
+    Number of calls: 0
+
+      69 |     expect(result.duplicateContent[0]).toMatchObject({ listing1Id: '1', listing2Id: '2' });
+      70 |
+    > 71 |     expect(mkdirMock).toHaveBeenCalledWith(expect.stringContaining('reports'), { recursive: true });
+         |                       ^
+      72 |     const [outputPath, fileContents] = writeFileMock.mock.calls[0];
+      73 |     expect(outputPath).toContain('reports/content-analysis-');
+      74 |     expect(fileContents).toContain('"thinContent"');
+
+      at Object.toHaveBeenCalledWith (src/scripts/__tests__/analyze-content.test.ts:71:23)
+
+  ● analyzeContent script › flags missing metadata even when descriptions are long enough
+
+    expect(jest.fn()).toHaveBeenLastCalledWith(...expected)
+
+    Expected: "/tmp/project/reports", {"recursive": true}
+
+    Number of calls: 0
+
+      114 |     ]);
+      115 |     expect(result.duplicateContent).toHaveLength(0);
+    > 116 |     expect(mkdirMock).toHaveBeenLastCalledWith('/tmp/project/reports', { recursive: true });
+          |                       ^
+      117 |
+      118 |     cwdSpy.mockRestore();
+      119 |   });
+
+      at Object.toHaveBeenLastCalledWith (src/scripts/__tests__/analyze-content.test.ts:116:23)
+
+FAIL src/lib/analytics/plausible/__tests__/hooks.test.tsx
+  ● usePlausibleAnalytics › logs events in development mode
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "Analytics Event:", "listing", {"action": "view", "listingId": "1"}
+
+    Number of calls: 0
+
+      23 |     result.current.trackFilterApplication({ price: 'budget' });
+      24 |
+    > 25 |     expect(logSpy).toHaveBeenCalledWith('Analytics Event:', 'listing', {
+         |                    ^
+      26 |       listingId: '1',
+      27 |       action: 'view',
+      28 |     });
+
+      at Object.toHaveBeenCalledWith (src/lib/analytics/plausible/__tests__/hooks.test.tsx:25:20)
+
+
+Test Suites: 11 failed, 321 passed, 332 total
+Tests:       20 failed, 4108 passed, 4128 total
+Snapshots:   0 total
+Time:        208.081 s
+Ran all test suites.
+/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  app-next-directory@0.1.0 test:unit: `cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --runInBand --passWithNoTests --runInBand --detectOpenHandles --coverage`
+Exit status 1
+ ELIFECYCLE  Command failed with exit code 1.

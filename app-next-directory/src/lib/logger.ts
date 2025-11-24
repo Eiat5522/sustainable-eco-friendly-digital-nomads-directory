@@ -1,4 +1,3 @@
-import util from 'node:util';
 import pino from 'pino';
 
 // Environment check for safe logging configuration
@@ -325,8 +324,15 @@ export default structuredLogger;
 
 type ConsoleLevel = 'info' | 'warn' | 'error' | 'debug';
 
-const sanitizeConsoleArg = (arg: unknown): string =>
-  typeof arg === 'string' ? arg : util.inspect(arg, { depth: 4, breakLength: 120 });
+const sanitizeConsoleArg = (arg: unknown): string => {
+  if (typeof arg === 'string') return arg;
+  // Fallback to JSON.stringify for client-side or when util is unavailable
+  try {
+    return JSON.stringify(arg, null, 2);
+  } catch {
+    return String(arg);
+  }
+};
 
 const formatConsoleInvocation = (
   level: ConsoleLevel,
@@ -346,7 +352,8 @@ const formatConsoleInvocation = (
 
   if (argsWithoutError.length > 0 && typeof argsWithoutError[0] === 'string') {
     const [template, ...rest] = argsWithoutError as [string, ...unknown[]];
-    message = util.formatWithOptions({ colors: false }, template, ...rest);
+    // Simple string template formatting without util.formatWithOptions
+    message = template;
     remainingArgs = rest;
   } else if (argsWithoutError.length > 0) {
     message = argsWithoutError.map(sanitizeConsoleArg).join(' ');

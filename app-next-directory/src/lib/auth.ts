@@ -67,10 +67,11 @@ const providers: NextAuthConfig['providers'] = [
           role: user.role,
         };
         return result;
-      } catch (_err) {
+      } catch (error) {
+        console.error('[auth] Error during credential authorization:', error);
         // Avoid leaking internal error details during auth
-        if (_err instanceof Error && _err.message.startsWith('Too many login attempts')) {
-          throw _err;
+        if (error instanceof Error && error.message.startsWith('Too many login attempts')) {
+          throw error;
         }
         return null;
       }
@@ -138,7 +139,9 @@ const callbacks = {
           );
         }
       }
-    } catch (_e) {}
+    } catch (error) {
+      console.warn('[auth] signIn verification sync failed', error);
+    }
     return true;
   },
   async jwt({ token, user, trigger }) {
@@ -165,7 +168,9 @@ const callbacks = {
       email,
       userId: t.id,
       currentRole: t.role ?? null,
-    }).catch(_err => {});
+    }).catch(error => {
+      console.error('[auth] failed to queue admin allowlist promotion flow', error);
+    });
     return t as JWT | null;
   },
   async session({ session, token, user }) {

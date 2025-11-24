@@ -22,7 +22,7 @@ jest.mock('path', () => ({
  */
 global.fetch = jest.fn() as jest.MockedFunction<typeof fetch>;
 
-const fs = require('node:fs/promises');
+const fs = require('fs/promises') as jest.Mocked<typeof import('fs/promises')>;
 
 describe('findLandmarkCoordinates', () => {
   it('returns coordinates for a matching landmark', () => {
@@ -262,7 +262,8 @@ describe('updateListingsWithCoordinates', () => {
         if (
           pathArg === mockedPath ||
           pathArg === '/mocked/path/listings.json' ||
-          pathArg.replaceAll('\\', '/').endsWith('/mocked/path/listings.json')
+          pathArg.replaceAll('\\', '/').endsWith('/mocked/path/listings.json') ||
+          pathArg.endsWith('listings.json')
         ) {
           return JSON.stringify(listings);
         }
@@ -289,6 +290,7 @@ describe('updateListingsWithCoordinates', () => {
       fs: fsMock,
       path,
       geocodeAddress: mockGeocodeAddress,
+      listingsPath: mockedPath,
     });
 
     expect(fsMock.readFile).toHaveBeenCalled();
@@ -299,7 +301,16 @@ describe('updateListingsWithCoordinates', () => {
   });
 
   it('handles errors gracefully', async () => {
-    fs.readFile.mockRejectedValueOnce(new Error('File error'));
+    jest.resetModules();
+    const fsMock = {
+      readFile: jest.fn().mockRejectedValueOnce(new Error('File error')),
+      writeFile: jest.fn(),
+    };
+    jest.doMock('fs/promises', () => fsMock);
+    jest.doMock('path', () => ({
+      join: jest.fn(() => mockedPath),
+    }));
+    
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const geocodeModule = require('../geocode');
     const updateListingsWithCoordinates = async () => {
@@ -322,7 +333,16 @@ describe('updateListingsWithCoordinates', () => {
    * Handles invalid JSON in listings file gracefully.
    */
   it('handles invalid JSON in listings file', async () => {
-    fs.readFile.mockResolvedValueOnce('not a json');
+    jest.resetModules();
+    const fsMock = {
+      readFile: jest.fn().mockResolvedValueOnce('not a json'),
+      writeFile: jest.fn(),
+    };
+    jest.doMock('fs/promises', () => fsMock);
+    jest.doMock('path', () => ({
+      join: jest.fn(() => mockedPath),
+    }));
+    
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const geocodeModule = require('../geocode');
     const updateListingsWithCoordinates = async () => {
@@ -345,7 +365,16 @@ describe('updateListingsWithCoordinates', () => {
    * Handles empty listings file gracefully.
    */
   it('handles empty listings file', async () => {
-    fs.readFile.mockResolvedValueOnce('');
+    jest.resetModules();
+    const fsMock = {
+      readFile: jest.fn().mockResolvedValueOnce(''),
+      writeFile: jest.fn(),
+    };
+    jest.doMock('fs/promises', () => fsMock);
+    jest.doMock('path', () => ({
+      join: jest.fn(() => mockedPath),
+    }));
+    
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const geocodeModule = require('../geocode');
     const updateListingsWithCoordinates = async () => {

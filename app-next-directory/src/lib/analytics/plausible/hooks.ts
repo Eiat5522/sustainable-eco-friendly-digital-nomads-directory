@@ -8,9 +8,10 @@
 import type { ListingEvent, MapEvent, SearchEvent } from './config';
 
 export function usePlausibleAnalytics() {
-  const noop = (..._args: unknown[]) => {
+  const noop = (...args: unknown[]) => {
     // No-op function for development
     if (process.env.NODE_ENV === 'development') {
+      console.log('Analytics Event:', ...args);
     }
   };
 

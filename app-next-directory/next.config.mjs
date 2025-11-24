@@ -9,7 +9,6 @@ if (
 
 const nextConfig = {
   transpilePackages: ['framer-motion'],
-  distDir: 'dist',
   // Avoid publicly exposing source maps in production. Use hidden client maps instead.
   productionBrowserSourceMaps: false,
   reactStrictMode: false,

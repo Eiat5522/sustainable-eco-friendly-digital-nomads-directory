@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { useRouter } from 'next/navigation';
 import type { Session } from 'next-auth';
 import * as nextAuth from 'next-auth/react';
+import React from 'react';
 import { Header } from '../Header';
 
 // Mock next/image used inside Header - strip props that aren't valid DOM attributes (like priority)
