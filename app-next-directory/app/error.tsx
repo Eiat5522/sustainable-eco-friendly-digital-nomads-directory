@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { NeoButton } from '@/components/ui/neo-button';
 
 export default function RootError({
@@ -10,13 +9,6 @@ export default function RootError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  // Log error for diagnostics in both dev and production
-  React.useEffect(() => {
-    if (process.env.NODE_ENV === 'production') {
-    } else {
-    }
-  }, []);
-
   return (
     <section
       className="min-h-screen flex items-center justify-center bg-background p-6"
