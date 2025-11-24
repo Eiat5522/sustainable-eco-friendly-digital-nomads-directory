@@ -79,7 +79,7 @@ export default defineConfig({
           NEXT_PUBLIC_SANITY_PROJECT_ID: 'test-project-id',
           NEXT_PUBLIC_SANITY_DATASET: 'test',
           NEXT_TELEMETRY_DISABLED: '1',
-          MONGODB_URI: 'mongodb://127.0.0.1:27017/e2e_test',
+          MONGODB_URI: process.env.MONGODB_URI ?? 'mongodb://127.0.0.1:27017/e2e_test',
           NEXTAUTH_SECRET: 'e2e-test-secret-for-testing-only-not-production',
           NEXTAUTH_URL: resolvedBaseURL.toString(),
           NEXT_PUBLIC_FRONTEND_URL: resolvedBaseURL.toString(),
