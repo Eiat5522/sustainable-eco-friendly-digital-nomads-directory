@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # MongoDB for E2E tests
+  mongodb:
+    image: mongo:7.0
+    container_name: e2e-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=e2e_test
+    networks:
+      - e2e-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Application with E2E tests
+  app-e2e:
+    build:
+      context: .
+      dockerfile: Dockerfile.e2e
+    container_name: e2e-app
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    environment:
+      # E2E environment variables
+      NODE_ENV: production
+      E2E: "1"
+      NEXT_PUBLIC_E2E: "1"
+      
+      # MongoDB connection
+      MONGODB_URI: mongodb://mongodb:27017/e2e_test
+      
+      # Auth
+      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_SECRET: e2e-test-secret-for-testing-only-not-production
+      
+      # Sanity (test project)
+      NEXT_PUBLIC_SANITY_PROJECT_ID: test-project-id
+      NEXT_PUBLIC_SANITY_DATASET: test
+      SANITY_API_TOKEN: test-token
+      
+      # Disable external services
+      NEXT_TELEMETRY_DISABLED: "1"
+      
+      # Frontend
+      NEXT_PUBLIC_FRONTEND_URL: http://localhost:3000
+    ports:
+      - "3000:3000"
+    networks:
+      - e2e-network
+    volumes:
+      # Mount test results out of container
+      - ./app-next-directory/playwright-report:/app/app-next-directory/playwright-report
+      - ./app-next-directory/test-results:/app/app-next-directory/test-results
+
+networks:
+  e2e-network:
+    driver: bridge
