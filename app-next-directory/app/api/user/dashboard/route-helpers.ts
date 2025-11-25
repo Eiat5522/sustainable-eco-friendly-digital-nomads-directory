@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import type { auth } from '@/lib/auth';
-import type { getUserDashboardData } from '@/lib/dashboard/user-dashboard';
+import { auth } from '@/lib/auth'; // Import auth directly
+import { getUserDashboardData } from '@/lib/dashboard/user-dashboard'; // Import getUserDashboardData directly
 import { structuredLogger } from '@/lib/logger';
 import type { UserRole } from '@/types/auth';
 
@@ -14,16 +14,10 @@ export function normalizeMonthWindow(monthsParam: string | null): number {
   return Math.min(Math.max(parsed, 1), MAX_MONTH_WINDOW);
 }
 
-type DashboardDependencies = {
-  authFn: typeof auth;
-  fetchDashboard: typeof getUserDashboardData;
-  logger?: Pick<typeof structuredLogger, 'error'>;
-};
-
-export function createDashboardHandler({ authFn, fetchDashboard, logger }: DashboardDependencies) {
+export function createDashboardHandler({ logger }: Pick<typeof structuredLogger, 'error'>) { // Modify function signature
   return async function GET(request: NextRequest) {
     try {
-      const session = await authFn();
+      const session = await auth(); // Use imported auth directly
       const sessionUser = session?.user as
         | {
             id?: string;
@@ -40,7 +34,7 @@ export function createDashboardHandler({ authFn, fetchDashboard, logger }: Dashb
       const { searchParams } = new URL(request.url);
       const months = normalizeMonthWindow(searchParams.get('months'));
 
-      const dashboard = await fetchDashboard(
+      const dashboard = await getUserDashboardData( // Use imported getUserDashboardData directly
         {
           id: sessionUser.id,
           role: sessionUser.role ?? 'user',

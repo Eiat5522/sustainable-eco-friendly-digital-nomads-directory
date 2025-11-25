@@ -1,9 +1,9 @@
 import { Suspense } from 'react';
-import { Footer } from '@/components/layout/Footer';
-import { Header } from '@/components/layout/Header';
+// Remove direct imports for Header and Footer
 import { getAllCitySlugs } from '@/lib/data/city';
 import { structuredLogger } from '@/lib/logger';
 import { CityDetail } from './CityDetail';
+import { CityDetailViewSkeleton } from '@/components/city/CityDetailViewSkeleton';
 
 type Params = { slug: string };
 type Props = { params: Params | Promise<Params> };
@@ -35,13 +35,13 @@ export default async function CityPage({ params }: Props) {
 
   return (
     <>
-      <Header />
+      {/* Header and Footer are now handled by the root layout (ClientRootLayout) */}
       <main>
-        <Suspense fallback={<div className="h-screen rounded-lg bg-muted animate-pulse" role="status" aria-label="Loading city details" aria-busy="true" />}>
+        <Suspense fallback={<CityDetailViewSkeleton />}>
           <CityDetail slug={slug} />
         </Suspense>
       </main>
-      <Footer />
+      {/* Header and Footer are now handled by the root layout (ClientRootLayout) */}
     </>
   );
 }

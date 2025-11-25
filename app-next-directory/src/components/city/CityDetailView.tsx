@@ -1,4 +1,5 @@
 'use client';
+import { useEffect, useState } from 'react'; // Removed explicit React import
 import type { LucideIcon } from 'lucide-react';
 import {
   DollarSign,
@@ -11,8 +12,11 @@ import {
   Wind,
 } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
-import { RelatedListings } from '@/components/listings/RelatedListings';
+import dynamic from 'next/dynamic';
+const DynamicRelatedListings = dynamic(() => import('@/components/listings/RelatedListings').then(mod => mod.RelatedListings), {
+  ssr: false,
+  loading: () => <div className="h-48 rounded-lg bg-muted animate-pulse" />,
+});
 import { NeoBadge } from '@/components/ui/neo-badge';
 import type { CityDetailDTO, CityDTO, InternetSpeedDTO, ListingSummaryDTO } from '@/types/dto';
 
@@ -22,7 +26,12 @@ interface CityDetailViewProps {
 }
 
 export function CityDetailView({ city, listings }: CityDetailViewProps): React.JSX.Element {
+  const [hasMounted, setHasMounted] = useState(false);
   const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   function isCityDetailDTO(city: CityDTO | CityDetailDTO): city is CityDetailDTO {
     return 'shortDescription' in city;
@@ -121,7 +130,7 @@ export function CityDetailView({ city, listings }: CityDetailViewProps): React.J
   const listingsSection = (
     <div data-testid="city-listings-section" className="flex flex-col gap-6">
       <h2 className="heading-md">Places to Work &amp; Stay</h2>
-      <RelatedListings listings={transformedListings} />
+      <DynamicRelatedListings listings={transformedListings} />
     </div>
   );
 
@@ -223,7 +232,7 @@ export function CityDetailView({ city, listings }: CityDetailViewProps): React.J
                 imageError ? 'bg-gradient-to-br from-emerald-200 to-sky-200' : 'bg-white'
               }`}
             >
-              {!imageError && (
+              {hasMounted && !imageError && (
                 <Image
                   src={city.imageUrl}
                   alt={`${city.name} cityscape`}

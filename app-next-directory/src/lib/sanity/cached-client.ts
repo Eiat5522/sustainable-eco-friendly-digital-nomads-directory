@@ -1,5 +1,5 @@
 import { getRedisClient } from '../redis';
-import { client } from './client';
+import { getSanityClient } from './client'; // Changed import
 
 const CACHE_TTL_SECONDS = 60 * 60; // 1 hour
 const inflightRequests = new Map<string, Promise<unknown>>();
@@ -32,7 +32,7 @@ async function fetchAndCache<T>(
 
   const fetchPromise = (async () => {
     try {
-      const data = await client.fetch<T>(query, params);
+      const data = await getSanityClient().fetch<T>(query, params); // Updated to use getSanityClient().fetch
 
       if (redis) {
         try {

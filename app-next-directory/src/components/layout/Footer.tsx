@@ -34,9 +34,13 @@ const socialLinks = [
 
 export function Footer() {
   const router = useRouter();
-  const year = new Date().getFullYear();
+  const [year, setYear] = useState<number | undefined>(undefined);
   const [email, setEmail] = React.useState('');
   const [errors, setErrors] = React.useState({ email: '' });
+
+  useEffect(() => {
+    setYear(new Date().getFullYear());
+  }, []);
   return (
     <footer
       id="footer-content"

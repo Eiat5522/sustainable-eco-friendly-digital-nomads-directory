@@ -11,8 +11,9 @@
  *
  * @example
  * ```typescript
- * import { client, urlFor } from '@/lib/sanity/client';
+ * import { getSanityClient, urlFor } from '@/lib/sanity/client';
  *
+ * const client = getSanityClient();
  * // Query content
  * const listings = await client.fetch('*[_type == "listing"][0...10]');
  *
@@ -61,17 +62,19 @@ const clientConfig = {
   ...(token ? { token, ignoreBrowserTokenWarning: true } : {}),
 };
 
+let cachedClient: ReturnType<typeof createClient> | null = null;
+
 /**
- * Configured Sanity client instance.
- *
- * Connects to the Sanity project specified by environment variables:
- * - NEXT_PUBLIC_SANITY_PROJECT_ID
- * - NEXT_PUBLIC_SANITY_DATASET
- * - SANITY_API_READ_TOKEN (optional, for accessing draft/private content)
- *
- * Configured with `useCdn: false` to ensure fresh data for server-side logic.
+ * Returns a singleton instance of the configured Sanity client.
+ * The client is lazily instantiated to prevent premature network connections
+ * during module evaluation (e.g., during Next.js prerendering).
  */
-export const client = createClient(clientConfig);
+export function getSanityClient() {
+  if (!cachedClient) {
+    cachedClient = createClient(clientConfig);
+  }
+  return cachedClient;
+}
 
 type ImageUrlBuilderModule = typeof SanityImageUrl & {
   default?: typeof SanityImageUrl;
@@ -87,7 +90,7 @@ const imageUrlBuilderFactory = imageUrlModule.default ?? imageUrlModule;
  *
  * @see {@link urlFor} for a more convenient wrapper function
  */
-export const builder = imageUrlBuilderFactory(client);
+export const builder = imageUrlBuilderFactory(getSanityClient()); // Use getSanityClient
 
 /**
  * Creates an image URL builder for a Sanity image source.
@@ -113,17 +116,3 @@ export const builder = imageUrlBuilderFactory(client);
  */
 export const urlFor = (source: SanityImageSource) => builder.image(source);
 
-/**
- * Default export for broader compatibility.
- *
- * Provides all exported members as a single object for environments
- * that prefer default imports.
- */
-const sanityClientExports = {
-  createClient,
-  client,
-  builder,
-  urlFor,
-};
-
-export default sanityClientExports;

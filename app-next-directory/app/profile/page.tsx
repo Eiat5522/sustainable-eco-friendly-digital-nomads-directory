@@ -5,8 +5,15 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useEffect, useMemo, useState } from 'react';
-import { Footer } from '@/components/layout/Footer';
-import { Header } from '@/components/layout/Header';
+import dynamic from 'next/dynamic';
+const DynamicHeader = dynamic(() => import('@/components/layout/Header').then(mod => mod.Header), {
+  ssr: false,
+  loading: () => <div className="h-16 w-full bg-muted animate-pulse" />,
+});
+const DynamicFooter = dynamic(() => import('@/components/layout/Footer').then(mod => mod.Footer), {
+  ssr: false,
+  loading: () => <div className="h-48 w-full bg-muted animate-pulse" />,
+});
 import { ProfileEditForm } from '@/components/profile/ProfileEditForm';
 import { NeoBadge } from '@/components/ui/neo-badge';
 import { NeoButton } from '@/components/ui/neo-button';
@@ -33,6 +40,7 @@ import {
   normaliseOwnerReviews,
   type OwnerReviewsResponse,
 } from './utils';
+import { ClientDateFormatter } from '@/components/common/ClientDateFormatter';
 
 interface FavoritesResponse {
   favorites?: Array<FavoriteEntry | null> | null;
@@ -445,7 +453,7 @@ export default function ProfilePage() {
                       </NeoCardTitle>
                       <Link
                         href={`/listings/${listing.slug}`}
-                        className="text-sm font-medium text-neo-primary hover:underline"
+                        className="font-medium text-neo-primary hover:underline"
                       >
                         View public listing
                       </Link>
@@ -604,7 +612,7 @@ export default function ProfilePage() {
                         {favorite.listing.city ?? '—'}
                       </td>
                       <td className="px-4 py-4 text-neo-text-secondary">
-                        {new Date(favorite.createdAt).toLocaleDateString()}
+                        <ClientDateFormatter dateString={favorite.createdAt} formatOptions={{ year: 'numeric', month: 'short', day: 'numeric' }} />
                       </td>
                     </tr>
                   );
@@ -620,10 +628,9 @@ export default function ProfilePage() {
   const renderVenueOwnerDashboard = (data: VenueOwnerDashboardDTO) => (
     <section aria-labelledby="venue-owner-dashboard" className="space-y-10">
       <header className="space-y-2">
-        <h2 id="venue-owner-dashboard" className="heading-md">
-          Listing performance
-        </h2>
-        <p className="text-sm text-neo-text-secondary">
+                  <h2 id="venue-owner-dashboard" className="heading-md">
+                    Listing performance
+                  </h2>        <p className="text-sm text-neo-text-secondary">
           Showing lifetime metrics plus the last {dashboard?.range.months ?? 3} months of trend data
           for your published listings.
         </p>
@@ -793,7 +800,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <DynamicHeader />
       <main className="container mx-auto space-y-12 px-4 py-12" data-testid="user-profile-page">
         {status === 'loading' ? (
           <section className="flex flex-col items-center justify-center py-24">
@@ -830,11 +837,11 @@ export default function ProfilePage() {
                   </p>
                   {dashboard && (
                     <p className="mt-2 text-xs text-neo-text-tertiary">
-                      Insights refreshed {new Date(dashboard.generatedAt).toLocaleString()}
+                      Insights refreshed <ClientDateFormatter dateString={dashboard.generatedAt} />
                     </p>
                   )}
                 </div>
-              </div>
+              </div >
 
               <nav
                 aria-label="Profile navigation"
@@ -883,7 +890,7 @@ export default function ProfilePage() {
                             className="h-full w-full object-cover"
                           />
                         ) : (
-                          <div className="flex h-full w-full items-center justify-center bg-neo-secondary text-lg font-semibold text-neo-text-primary">
+                          <div className="flex h-full w-full items-center justify-center text-lg font-semibold text-neo-text-primary">
                             {initials}
                           </div>
                         )}
@@ -1025,7 +1032,7 @@ export default function ProfilePage() {
           </section>
         )}
       </main>
-      <Footer />
+      <DynamicFooter />
     </div>
   );
 }

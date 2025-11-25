@@ -1,4 +1,3 @@
-import { CityDetailView } from '@/components/city/CityDetailView';
 import {
   getCityBySlug,
   getCityDetailBySlug,
@@ -11,6 +10,8 @@ import {
   CityDTOSchema,
   ListingSummaryDTOArraySchema,
 } from '@/types/dto-schemas';
+import { Suspense } from 'react';
+import ClientCityDetailViewWrapper from './ClientCityDetailViewWrapper'; // Import the new wrapper
 
 const toTitleCaseFromSlug = (s: string) =>
   s
@@ -53,7 +54,10 @@ const sanitizeErrorForLogging = (error: unknown): unknown => {
 
 export async function CityDetail({ slug }: { slug: string }) {
   // Prefer detailed city data; fall back to basic data and guard exceptions
+  let city: CityDTO | CityDetailDTO = makeFallbackCity(slug); // Initialize city with fallback
   let rawCity: unknown = null;
+  let listings: ListingSummaryDTO[] = []; // Initialize listings
+
   try {
     rawCity = await getCityDetailBySlug(slug);
     if (!rawCity) rawCity = await getCityBySlug(slug);
@@ -66,58 +70,59 @@ export async function CityDetail({ slug }: { slug: string }) {
     });
   }
 
-  if (!rawCity) {
-    const fallbackCity = makeFallbackCity(slug);
-    return <CityDetailView city={fallbackCity} listings={[]} />;
-  }
-
-  // Validate using schema-first approach (detail → basic)
-  const detailResult = CityDetailDTOSchema.safeParse(rawCity);
-  let city: CityDTO | CityDetailDTO;
-  if (detailResult.success) {
-    city = detailResult.data as CityDetailDTO;
-  } else {
-    const basicResult = CityDTOSchema.safeParse(rawCity);
-    if (basicResult.success) {
-      city = basicResult.data as CityDTO;
+  if (rawCity) {
+    // Validate using schema-first approach (detail → basic)
+    const detailResult = CityDetailDTOSchema.safeParse(rawCity);
+    if (detailResult.success) {
+      city = detailResult.data as CityDetailDTO;
     } else {
-      structuredLogger.error('Invalid city DTO validation failed', null, {
-        component: 'city-page',
-        operation: 'validate_city_dto',
-        slug: slug,
-        validationErrors: {
-          detailError: detailResult.error.message,
-          basicError: basicResult.error.message,
-        },
-      });
-      return <CityDetailView city={makeFallbackCity(slug)} listings={[]} />;
+      const basicResult = CityDTOSchema.safeParse(rawCity);
+      if (basicResult.success) {
+        city = basicResult.data as CityDTO;
+      } else {
+        structuredLogger.error('Invalid city DTO validation failed', null, {
+          component: 'city-page',
+          operation: 'validate_city_dto',
+          slug: slug,
+          validationErrors: {
+            detailError: detailResult.error.message,
+            basicError: basicResult.error.message,
+          },
+        });
+        // city remains fallbackCity if validation fails
+      }
     }
   }
 
   // Only fetch listings when city validation passes
-  let listings: ListingSummaryDTO[] = [];
-  try {
-    const rawListings: unknown = await getListingsByCityId(city.id);
-    const listingsResult = ListingSummaryDTOArraySchema.safeParse(rawListings);
-    if (!listingsResult.success) {
-      structuredLogger.error('Invalid ListingSummaryDTO validation failed', null, {
+  if (city) { // Ensure city is defined before fetching listings
+    try {
+      const rawListings: unknown = await getListingsByCityId(city.id);
+      const listingsResult = ListingSummaryDTOArraySchema.safeParse(rawListings);
+      if (!listingsResult.success) {
+        structuredLogger.error('Invalid ListingSummaryDTO validation failed', null, {
+          component: 'city-page',
+          operation: 'validate_listings_dto',
+          cityId: city.id,
+          slug: slug,
+          validationError: listingsResult.error.message,
+        });
+      } else {
+        listings = listingsResult.data as ListingSummaryDTO[];
+      }
+    } catch (err) {
+      structuredLogger.error('Listings fetch failed', sanitizeErrorForLogging(err), {
         component: 'city-page',
-        operation: 'validate_listings_dto',
+        operation: 'fetch_city_listings',
         cityId: city.id,
         slug: slug,
-        validationError: listingsResult.error.message,
       });
-    } else {
-      listings = listingsResult.data as ListingSummaryDTO[];
     }
-  } catch (err) {
-    structuredLogger.error('Listings fetch failed', sanitizeErrorForLogging(err), {
-      component: 'city-page',
-      operation: 'fetch_city_listings',
-      cityId: city.id,
-      slug: slug,
-    });
   }
-
-  return <CityDetailView city={city} listings={listings} />;
+  
+  return (
+    <Suspense fallback={<div className="h-screen rounded-lg bg-muted animate-pulse" role="status" aria-label="Loading city view" aria-busy="true" />}>
+      <ClientCityDetailViewWrapper city={city} listings={listings} />
+    </Suspense>
+  );
 }

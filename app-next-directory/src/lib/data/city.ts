@@ -294,11 +294,12 @@ export const getListingsByCityId = cache(
   }
 );
 
-export const getCitiesList = cache(async (limit = 20): Promise<CityDTO[]> => {
-  if (isE2ERun()) {
-    return getE2ECityList(limit);
-  }
-  const getAllCitiesPaginatedQuery = groq`*[_type == "city"] | order(_createdAt desc)[0...$limit]{
+export const getCitiesList = cache(
+  async (limit = 20): Promise<CityDTO[]> => {
+    if (isE2ERun()) {
+      return getE2ECityList(limit);
+    }
+    const getAllCitiesPaginatedQuery = groq`*[_type == "city"] | order(_createdAt desc)[0...$limit]{
     _id,
     name,
     "slug": slug.current,
@@ -314,27 +315,30 @@ export const getCitiesList = cache(async (limit = 20): Promise<CityDTO[]> => {
     }
   }`;
 
-  const raw = await cachedClient.fetch(getAllCitiesPaginatedQuery, { limit });
-  return ((Array.isArray(raw) ? raw : []) as SanityCitySummary[])
-    .map(toCityDTO)
-    .filter(Boolean) as CityDTO[];
-});
+    const raw = await cachedClient.fetch(getAllCitiesPaginatedQuery, { limit });
+    return ((Array.isArray(raw) ? raw : []) as SanityCitySummary[])
+      .map(toCityDTO)
+      .filter(Boolean) as CityDTO[];
+  }
+);
 
 /**
  * Get all city slugs for static generation
  * This function is used by generateStaticParams in city pages
  */
-export const getAllCitySlugs = cache(async (): Promise<string[]> => {
-  if (isE2ERun()) {
-    // Return E2E test fixture slugs
-    const cities = getE2ECityList(100);
-    return cities.map(city => city.slug);
+export const getAllCitySlugs = cache(
+  async (): Promise<string[]> => {
+    if (isE2ERun()) {
+      // Return E2E test fixture slugs
+      const cities = getE2ECityList(100);
+      return cities.map(city => city.slug);
+    }
+
+    const getAllCitySlugsQuery = groq`*[_type == "city"].slug.current`;
+
+    const slugs = await cachedClient.fetch<string[]>(getAllCitySlugsQuery);
+    return Array.isArray(slugs)
+      ? slugs.filter((slug): slug is string => typeof slug === 'string' && slug.length > 0)
+      : [];
   }
-
-  const getAllCitySlugsQuery = groq`*[_type == "city"].slug.current`;
-
-  const slugs = await cachedClient.fetch<string[]>(getAllCitySlugsQuery);
-  return Array.isArray(slugs)
-    ? slugs.filter((slug): slug is string => typeof slug === 'string' && slug.length > 0)
-    : [];
-});
+);

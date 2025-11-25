@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { structuredLogger } from '@/lib/logger';
-import { client } from '@/lib/sanity/client';
+import { getSanityClient } from '@/lib/sanity/client'; // Changed import
 import type {
   AdminSettings,
   AdminSettingsError,
@@ -41,7 +41,8 @@ export async function GET(_request: NextRequest, _context: RouteContext) {
     // Query for admin settings document
     const query = `*[_type == "adminSettings"][0]`;
 
-    let settings = await client.fetch<AdminSettings | null>(query);
+    const sanityClient = getSanityClient(); // Get the lazily instantiated client
+    let settings = await sanityClient.fetch<AdminSettings | null>(query); // Updated to use sanityClient.fetch
 
     // If no settings exist, return defaults
     if (!settings) {
@@ -93,13 +94,14 @@ export async function POST(request: NextRequest, _context: RouteContext) {
 
     // Query for existing settings document
     const existingQuery = `*[_type == "adminSettings"][0]`;
-    const existingSettings = await client.fetch<AdminSettings | null>(existingQuery);
+    const sanityClient = getSanityClient(); // Get the lazily instantiated client
+    const existingSettings = await sanityClient.fetch<AdminSettings | null>(existingQuery); // Updated to use sanityClient.fetch
 
     let savedSettings: AdminSettings;
 
     if (existingSettings?._id) {
       // Update existing settings
-      savedSettings = (await client
+      savedSettings = (await sanityClient // Updated to use sanityClient.patch
         .patch(existingSettings._id)
         .set({
           ...body.settings,
@@ -109,7 +111,7 @@ export async function POST(request: NextRequest, _context: RouteContext) {
     } else {
       // Create new settings document
       const { _type: _ignoredType, ...defaultSettings } = DEFAULT_ADMIN_SETTINGS;
-      savedSettings = await client.create<AdminSettings>({
+      savedSettings = await sanityClient.create<AdminSettings>({
         _type: 'adminSettings',
         ...defaultSettings,
         ...body.settings,

@@ -1,8 +1,7 @@
 'use client';
 
 import type React from 'react';
-import { Footer } from '@/components/layout/Footer';
-import { Header } from '@/components/layout/Header';
+// Remove direct imports for Header and Footer
 import { SkipLink } from '@/components/ui/skip-link';
 import { Suspense } from 'react';
 
@@ -24,15 +23,13 @@ export function PageLayout({ children, className = '' }: PageLayoutProps) {
       {/* Skip Links - Styled to blend with white header, visible only on focus */}
       <SkipLink href="#main-content">Skip to main content</SkipLink>
 
-      <Header />
+      {/* Header and Footer are now handled by the root layout (ClientRootLayout) */}
 
       <main id="main-content" tabIndex={-1}>
         {children}
       </main>
 
-      <Suspense fallback={<div className="h-48 rounded-lg bg-muted animate-pulse" role="status" aria-label="Loading footer" aria-busy="true" />}>
-        <Footer />
-      </Suspense>
+      {/* Header and Footer are now handled by the root layout (ClientRootLayout) */}
     </div>
   );
 }
