@@ -20,6 +20,7 @@
         "dev:clean": "bash ./scripts/clean-build-artifacts.sh && pnpm dev:next",
         "dev:sanity": "pnpm --filter sanity dev",
         "dev": "pnpm dev:next",
+        "dev:optimize-images": "python3 scripts/batch_optimize_images.py app-next-directory/public/test-images app-next-directory/public/images",
         "build:next": "pnpm --filter app-next-directory build",
         "build:sanity": "pnpm --filter sanity build",
         "build": "pnpm build:next && pnpm build:sanity",

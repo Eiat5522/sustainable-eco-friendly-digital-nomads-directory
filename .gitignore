@@ -225,3 +225,10 @@ tasks.json
 tasks/ 
 .taskmaster/config.json
 app-next-directory/.gemini/settings.json
+
+# Image optimization logs
+image_optimization_log.json
+migration_*.json
+
+# Generated images
+app-next-directory/public/images/*_processed.jpg
