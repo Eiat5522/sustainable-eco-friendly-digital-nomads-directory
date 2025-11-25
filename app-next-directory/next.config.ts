@@ -16,9 +16,6 @@ const withAnalyzer = withBundleAnalyzer({ enabled: isAnalyze });
 const nextConfig: NextConfig = {
   productionBrowserSourceMaps: process.env.ENABLE_SOURCE_MAPS === 'true',
   reactStrictMode: true,
-  eslint: {
-    ignoreDuringBuilds: process.env.NODE_ENV === 'development',
-  },
   typescript: {
     ignoreBuildErrors: process.env.NODE_ENV === 'development',
   },

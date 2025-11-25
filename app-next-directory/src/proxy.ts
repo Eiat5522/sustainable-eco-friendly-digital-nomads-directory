@@ -1,6 +1,8 @@
 import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getRequestContext, structuredLogger } from '@/lib/logger';
 import { ACCESS_CONTROL_MATRIX, type PagePermissions, type UserRole } from '@/types/auth';
+import { auth } from '@/lib/auth';
 
 const secret = process.env.NEXTAUTH_SECRET;
 
@@ -127,7 +129,7 @@ export function createMiddleware({
   getToken: GetTokenFn;
   NextResponse: NextResponseFactory;
 }) {
-  return async function middleware(request: NextRequest) {
+  return async function proxy(request: NextRequest) {
     try {
       const token = await getToken({ req: request, secret });
       const { pathname } = request.nextUrl;
@@ -280,5 +282,15 @@ export const config = {
 // CJS/ESM compatibility for Jest
 if (typeof module !== 'undefined' && module.exports) {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  module.exports = { middleware: require('@/lib/auth').auth, config, createMiddleware };
+  const { auth } = require('@/lib/auth');
+  module.exports = { proxy: auth, config, createMiddleware };
 }
+
+// Next.js 16 proxy export
+export const proxy = createMiddleware({ 
+  getToken: auth, 
+  NextResponse 
+});
+
+// Next.js 16 proxy export
+export { proxy };
