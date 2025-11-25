@@ -233,7 +233,7 @@ export async function POST(request: Request) {
     const slug = postDoc.slug?.current ?? undefined;
     if (slug) {
       try {
-        revalidateTag(`post:${slug}`);
+        revalidateTag(`post:${slug}`, 'default');
       } catch (error) {
         structuredLogger.warn('Failed to revalidate comment tag', {
           component: 'api/comments',

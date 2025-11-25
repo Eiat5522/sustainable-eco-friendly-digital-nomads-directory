@@ -15,8 +15,6 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  turbopack: {},
-  turbopack: {},
   env: {
     // Prefer per-environment env var; dev-only fallback.
     NEXT_PUBLIC_API_URL:

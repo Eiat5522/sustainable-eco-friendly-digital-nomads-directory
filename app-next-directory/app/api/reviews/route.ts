@@ -211,7 +211,7 @@ export async function POST(request: NextRequest) {
       ?.current;
     if (listingSlug) {
       try {
-        revalidateTag(`listing:${listingSlug}`);
+        revalidateTag(`listing:${listingSlug}`, 'default');
       } catch {
         // Ignore revalidation errors in non-ISR contexts
       }
