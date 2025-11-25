@@ -4,6 +4,7 @@ import type React from 'react';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
 import { SkipLink } from '@/components/ui/skip-link';
+import { Suspense } from 'react';
 
 interface PageLayoutProps {
   children: React.ReactNode;
@@ -29,7 +30,9 @@ export function PageLayout({ children, className = '' }: PageLayoutProps) {
         {children}
       </main>
 
-      <Footer />
+      <Suspense fallback={<div className="h-48 rounded-lg bg-muted animate-pulse" role="status" aria-label="Loading footer" aria-busy="true" />}>
+        <Footer />
+      </Suspense>
     </div>
   );
 }

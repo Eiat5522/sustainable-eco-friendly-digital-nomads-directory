@@ -1,4 +1,4 @@
-export const revalidate = 300; // ISR: revalidate every 5 minutes
+// MIGRATED: Removed export const revalidate = 300 (incompatible with Cache Components)
 
 import type { Collection, Filter } from 'mongodb';
 import type { Metadata } from 'next';

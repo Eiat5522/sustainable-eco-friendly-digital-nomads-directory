@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic';
+// MIGRATED: Removed export const dynamic = 'force-dynamic' (incompatible with Cache Components)
 
 import { auth } from '@/lib/auth';
 import { getUserDashboardData } from '@/lib/dashboard/user-dashboard';

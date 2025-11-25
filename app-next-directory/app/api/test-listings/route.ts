@@ -21,7 +21,7 @@ if (process.env.NODE_ENV === 'test') {
   (module.exports as Record<string, unknown>)._testControl = _testControl;
 }
 
-export const dynamic = 'force-static';
+// MIGRATED: Removed export const dynamic = 'force-static' (incompatible with Cache Components)
 
 export async function GET(): Promise<Response> {
   const nodeEnvOverride = _testControl?.nodeEnvOverride;

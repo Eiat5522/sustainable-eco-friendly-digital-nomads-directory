@@ -4,7 +4,7 @@ import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 import { ListingsManagementTable } from './ListingsManagementTable';
 
-export const dynamic = 'force-dynamic';
+// MIGRATED: Removed export const dynamic = 'force-dynamic' (incompatible with Cache Components)
 
 export const metadata: Metadata = {
   title: 'Listing Management - Admin Dashboard',

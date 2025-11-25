@@ -12,7 +12,7 @@ import { structuredLogger } from '@/lib/logger';
 import type { UserRole } from '@/types/auth';
 import { ModerationActions } from './ModerationActions';
 
-export const dynamic = 'force-dynamic';
+// MIGRATED: Removed export const dynamic = 'force-dynamic' (incompatible with Cache Components)
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard',

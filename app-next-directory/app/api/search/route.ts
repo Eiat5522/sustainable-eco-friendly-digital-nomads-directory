@@ -12,7 +12,7 @@ import {
 } from '@/utils/sanitize';
 
 // Enable route segment caching for 10 minutes
-export const revalidate = 600; // 10 minutes
+// MIGRATED: Removed export const revalidate = 600 (incompatible with Cache Components)
 
 // Type for search request body
 type SearchRequestBody = {

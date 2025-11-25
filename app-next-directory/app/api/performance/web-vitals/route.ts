@@ -102,4 +102,4 @@ export async function POST(request: Request) {
 }
 
 // Only accept POST requests for this endpoint
-export const runtime = 'edge';
+// MIGRATED: Removed export const runtime = 'edge' (incompatible with Cache Components)

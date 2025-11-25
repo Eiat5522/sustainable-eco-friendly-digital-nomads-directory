@@ -17,8 +17,8 @@ if (process.env.NODE_ENV === 'test') {
   (module.exports as Record<string, unknown>)._testControl = _testControl;
 }
 
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
+// MIGRATED: Removed export const dynamic = 'force-dynamic' (incompatible with Cache Components)
+// MIGRATED: Removed export const runtime = 'nodejs' (incompatible with Cache Components)
 export async function GET() {
   try {
     // Test the connection

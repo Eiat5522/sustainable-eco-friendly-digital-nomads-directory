@@ -255,4 +255,4 @@ export async function POST(request: Request) {
   }
 }
 
-export const dynamic = 'force-dynamic';
+// MIGRATED: Removed export const dynamic = 'force-dynamic' (incompatible with Cache Components)

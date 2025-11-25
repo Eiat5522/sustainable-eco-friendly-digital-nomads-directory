@@ -3,7 +3,7 @@ import { cacheHelpers } from '@/lib/cache-strategy';
 import { client } from '@/lib/sanity';
 
 // Cache for 24 hours - eco tags rarely change
-export const revalidate = 86400; // 24 hours
+// MIGRATED: Removed export const revalidate = 86400 (incompatible with Cache Components)
 
 export async function GET() {
   try {

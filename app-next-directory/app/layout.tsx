@@ -1,11 +1,9 @@
 import './globals.css';
-import { cookies } from 'next/headers';
 import type React from 'react';
 
 import { rootLayoutMetadata } from './layout.metadata';
 export { rootLayoutMetadata as metadata };
 
-import { normalizeTheme, THEME_INIT_SCRIPT, themeClass } from '@/utils/theme';
 import ClientRootLayout from './ClientRootLayout';
 
 const BODY_FONT_CLASS = 'font-sans antialiased';
@@ -15,18 +13,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const rawTheme = (await cookies()).get('theme')?.value;
-  const theme = normalizeTheme(rawTheme);
-  const htmlThemeClass = themeClass(theme);
-
   return (
-    <html lang="en" className={htmlThemeClass} suppressHydrationWarning>
-      <head>
-        {/* SSR-safe, no-FOUC theme init: sets `dark` before hydration */}
-        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
-      </head>
+    <html lang="en">
       <body className={BODY_FONT_CLASS}>
-        <ClientRootLayout theme={theme}>{children}</ClientRootLayout>
+        <ClientRootLayout>{children}</ClientRootLayout>
       </body>
     </html>
   );

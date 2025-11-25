@@ -6,7 +6,7 @@ import { client } from '@/lib/sanity/client';
 import { ApiResponseHandler } from '@/utils/api-response';
 
 // Cache for 24 hours - categories rarely change
-export const revalidate = 86400; // 24 hours
+// MIGRATED: Removed export const revalidate = 86400 (incompatible with Cache Components)
 
 export async function GET() {
   try {

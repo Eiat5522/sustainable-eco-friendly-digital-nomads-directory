@@ -4,9 +4,9 @@ import { structuredLogger } from '@/lib/logger';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { validateRevalidationToken } from '@/utils/revalidation-token';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-export const runtime = 'nodejs';
+// MIGRATED: Removed export const dynamic = 'force-dynamic' (incompatible with Cache Components)
+// MIGRATED: Removed export const revalidate = 0 (incompatible with Cache Components)
+// MIGRATED: Removed export const runtime = 'nodejs' (incompatible with Cache Components)
 
 export async function GET(request: NextRequest) {
   let pathParam: string | null = null;

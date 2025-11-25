@@ -16,9 +16,9 @@ async function fetchAndCache<T>(
 
   if (redis) {
     try {
-      const cachedData = await redis.get<string>(key);
+      const cachedData = await redis.get<T>(key);
       if (cachedData) {
-        return JSON.parse(cachedData);
+        return cachedData;
       }
     } catch (error) {
       console.warn('Cache read failed, falling through to fetch:', error);
@@ -36,7 +36,7 @@ async function fetchAndCache<T>(
 
       if (redis) {
         try {
-          await redis.set(key, JSON.stringify(data), { ex: ttl });
+          await redis.set(key, data, { ex: ttl });
         } catch (error) {
           console.warn('Cache write failed, continuing without Redis:', error);
         }

@@ -8,6 +8,10 @@ if (
 }
 
 const nextConfig = {
+  experimental: {
+    cacheComponents: true,
+  },
+  turbopack: {},
   transpilePackages: ['framer-motion'],
   // Avoid publicly exposing source maps in production. Use hidden client maps instead.
   productionBrowserSourceMaps: false,
