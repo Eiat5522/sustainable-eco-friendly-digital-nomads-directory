@@ -69,7 +69,7 @@ let cachedClient: ReturnType<typeof createClient> | null = null;
  * The client is lazily instantiated to prevent premature network connections
  * during module evaluation (e.g., during Next.js prerendering).
  */
-export function getSanityClient() {
+export function client() {
   if (!cachedClient) {
     cachedClient = createClient(clientConfig);
   }
@@ -90,7 +90,7 @@ const imageUrlBuilderFactory = imageUrlModule.default ?? imageUrlModule;
  *
  * @see {@link urlFor} for a more convenient wrapper function
  */
-export const builder = imageUrlBuilderFactory(getSanityClient()); // Use getSanityClient
+export const builder = imageUrlBuilderFactory(client());
 
 /**
  * Creates an image URL builder for a Sanity image source.
@@ -115,4 +115,6 @@ export const builder = imageUrlBuilderFactory(getSanityClient()); // Use getSani
  * ```
  */
 export const urlFor = (source: SanityImageSource) => builder.image(source);
+
+
 

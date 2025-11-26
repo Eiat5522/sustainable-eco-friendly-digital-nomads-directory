@@ -94,8 +94,8 @@ export async function GET(request: NextRequest) {
     if (search) params.search = search;
 
     const [postsRaw, totalCount] = await Promise.all([
-      sanityClient.fetch(finalQuery, params as QueryParams),
-      sanityClient.fetch(finalCountQuery, params as QueryParams),
+      sanityClient().fetch(finalQuery, params as QueryParams),
+      sanityClient().fetch(finalCountQuery, params as QueryParams),
     ]);
 
     const posts = Array.isArray(postsRaw)

@@ -43,7 +43,7 @@ export const getPosts = cache(async (params: {
     params.search && `title match "${params.search}*" || excerpt match "${params.search}*"`,
   ].filter(Boolean).join(' && ');
 
-  const posts = await client.fetch(
+  const posts = await client().fetch(
     groq`*[${filters}] | order(publishedAt desc) [${start}...${end}] {
       "id": _id,
       title,
@@ -54,7 +54,7 @@ export const getPosts = cache(async (params: {
     }`
   );
 
-  const totalCount = await client.fetch(groq`count(*[${filters}])`);
+  const totalCount = await client().fetch(groq`count(*[${filters}])`);
 
   const totalPages = Math.ceil(totalCount / limit);
 

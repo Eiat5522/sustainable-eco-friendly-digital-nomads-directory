@@ -52,7 +52,7 @@ export async function GET() {
   const ensureUser = _testControl?.ensureSanityUserOverride ?? ensureSanityUser;
   const fetchFn =
     _testControl?.clientFetchOverride ??
-    ((query: string, params?: Record<string, unknown>) => client.fetch(query, params));
+    ((query: string, params?: Record<string, unknown>) => client().fetch(query, params));
 
   const session = await authFn();
 
@@ -147,10 +147,10 @@ export async function POST(request: NextRequest) {
   const ensureUser = _testControl?.ensureSanityUserOverride ?? ensureSanityUser;
   const fetchFn =
     _testControl?.clientFetchOverride ??
-    ((query: string, params?: Record<string, unknown>) => client.fetch(query, params));
+    ((query: string, params?: Record<string, unknown>) => client().fetch(query, params));
   const createOrReplaceFn =
     _testControl?.clientCreateOrReplaceOverride ??
-    ((doc: CreateOrReplaceDocument) => client.createOrReplace(doc));
+    ((doc: CreateOrReplaceDocument) => client().createOrReplace(doc));
 
   const session = await authFn();
 
@@ -223,8 +223,8 @@ export async function DELETE(request: NextRequest) {
   const authFn = _testControl?.authOverride ?? auth;
   const fetchFn =
     _testControl?.clientFetchOverride ??
-    ((query: string, params?: Record<string, unknown>) => client.fetch(query, params));
-  const deleteFn = _testControl?.clientDeleteOverride ?? ((id: string) => client.delete(id));
+    ((query: string, params?: Record<string, unknown>) => client().fetch(query, params));
+  const deleteFn = _testControl?.clientDeleteOverride ?? ((id: string) => client().delete(id));
 
   const session = await authFn();
 

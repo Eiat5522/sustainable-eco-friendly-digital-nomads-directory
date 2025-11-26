@@ -1,4 +1,4 @@
-import pino from 'pino';
+// src/lib/logger.ts
 
 // Environment check for safe logging configuration
 const isProduction = process.env.NODE_ENV === 'production';
@@ -7,10 +7,11 @@ const isTest = process.env.NODE_ENV === 'test';
 const isE2E = process.env.E2E === '1';
 
 // Check if we're running in a Node.js environment (server-side)
-// pino-pretty with worker threads doesn't work well in Next.js server contexts
 const isServer = typeof window === 'undefined';
 
-// Redact sensitive fields to prevent information leakage
+// Helper function to sanitize error objects (moved here to resolve scope issue)
+type SanitizedError = Record<string, unknown> | undefined;
+
 const redactPaths = [
   'password',
   'token',
@@ -27,6 +28,50 @@ const redactPaths = [
   'err.config.headers.authorization',
   'error.config.headers.authorization',
 ];
+
+const shouldRedactKey = (key: string): boolean =>
+  redactPaths.some(path => key.toLowerCase().includes(path.toLowerCase()));
+
+function sanitizeError(error: unknown): SanitizedError {
+  if (!error) return undefined;
+
+  if (error instanceof Error) {
+    const sanitized: Record<string, unknown> = {
+      message: error.message,
+      name: error.name,
+      stack: isProduction ? undefined : error.stack,
+    };
+
+    const record = error as unknown as Record<string, unknown>;
+    if (record.code !== undefined) {
+      sanitized.code = record.code;
+    }
+    const status = record.status ?? record.statusCode;
+    if (status !== undefined) {
+      sanitized.status = status;
+    }
+
+    Object.entries(record).forEach(([key, value]) => {
+      if (!shouldRedactKey(key) && value !== undefined) {
+        sanitized[key] = value;
+      }
+    });
+
+    return sanitized;
+  }
+
+  if (typeof error === 'object') {
+    const sanitized: Record<string, unknown> = {};
+    Object.entries(error as unknown as Record<string, unknown>).forEach(([key, value]) => {
+      if (!shouldRedactKey(key) && value !== undefined) {
+        sanitized[key] = value;
+      }
+    });
+    return sanitized;
+  }
+
+  return { message: String(error) };
+}
 
 type HeaderGetter = (name: string) => string | null | undefined;
 type HeaderValue = string | string[] | undefined;
@@ -55,7 +100,7 @@ interface UserLike {
 type LogPrimitive = string | number | boolean | null | undefined;
 type LogValue = LogPrimitive | LogValue[] | { [key: string]: LogValue };
 
-interface LogContext extends Record<string, LogValue> {
+interface LogContext {
   userId?: string;
   requestId?: string;
   userAgent?: string;
@@ -63,9 +108,9 @@ interface LogContext extends Record<string, LogValue> {
   path?: string;
   method?: string;
   component?: string;
+  details?: any; // Keep details as any for now to avoid deeper recursion with LogValue
+  [key: string]: LogValue | any; // Allow for other arbitrary properties
 }
-
-type SanitizedError = Record<string, unknown> | undefined;
 
 const toRedacted = (value: string | undefined): string | undefined =>
   value ? '[REDACTED]' : undefined;
@@ -100,11 +145,18 @@ const getHeaderValue = (
   return undefined;
 };
 
-const shouldRedactKey = (key: string): boolean =>
-  redactPaths.some(path => key.toLowerCase().includes(path.toLowerCase()));
+// Define a simple serializer for errors, mimicking pino.stdSerializers.err
+// This avoids direct reference to pino before it's dynamically imported.
+const errorSerializer = (err: Error) => ({
+  type: err.name,
+  message: err.message,
+  stack: isProduction ? undefined : err.stack,
+  ...((err as any).code && { code: (err as any).code }),
+  ...((err as any).statusCode && { statusCode: (err as any).statusCode }),
+});
 
 // Create base logger configuration
-const loggerConfig: pino.LoggerOptions = {
+const loggerConfig = {
   level: isE2E ? 'silent' : isProduction ? 'info' : isDevelopment ? 'debug' : 'silent',
 
   // Redaction configuration for security
@@ -115,8 +167,8 @@ const loggerConfig: pino.LoggerOptions = {
 
   // Serialization for common objects
   serializers: {
-    err: pino.stdSerializers.err,
-    error: pino.stdSerializers.err,
+    err: errorSerializer,
+    error: errorSerializer,
     req: (req: RequestLike | undefined) => {
       const headers = req?.headers;
       const authorization = getHeaderValue(headers, 'authorization');
@@ -170,80 +222,63 @@ const loggerConfig: pino.LoggerOptions = {
   },
 };
 
-// Configure pretty printing for development
-// IMPORTANT: We avoid using pino's transport mechanism with pino-pretty because it spawns
-// worker threads that fail to resolve paths correctly in Next.js with custom distDir.
-// Instead, we use pino-pretty as a direct stream destination without worker threads.
-const logger: pino.Logger = pino(loggerConfig);
+// Define a no-op logger for client-side or when pino is not loaded
+// Methods now accept arbitrary arguments to match pino's flexible API
+const noopLogger = {
+  debug: (...args: any[]) => {},
+  info: (...args: any[]) => {},
+  warn: (...args: any[]) => {},
+  error: (...args: any[]) => {},
+  fatal: (...args: any[]) => {},
+  child: (...args: any[]) => noopLogger, // Child also returns no-op
+};
 
-// Pretty-printing is disabled in this environment to avoid bundling `pino-pretty`,
-// which depends on Node-specific modules (worker threads) that break Next.js client builds.
-
-// Enhanced logging interface with context support
-// Helper function to sanitize error objects
-function sanitizeError(error: unknown): SanitizedError {
-  if (!error) return undefined;
-
-  if (error instanceof Error) {
-    const sanitized: Record<string, unknown> = {
-      message: error.message,
-      name: error.name,
-      stack: isProduction ? undefined : error.stack,
-    };
-
-    const record = error as unknown as Record<string, unknown>;
-    if (record.code !== undefined) {
-      sanitized.code = record.code;
-    }
-    const status = record.status ?? record.statusCode;
-    if (status !== undefined) {
-      sanitized.status = status;
-    }
-
-    Object.entries(record).forEach(([key, value]) => {
-      if (!shouldRedactKey(key) && value !== undefined) {
-        sanitized[key] = value;
-      }
-    });
-
-    return sanitized;
-  }
-
-  if (typeof error === 'object') {
-    const sanitized: Record<string, unknown> = {};
-    Object.entries(error as unknown as Record<string, unknown>).forEach(([key, value]) => {
-      if (!shouldRedactKey(key) && value !== undefined) {
-        sanitized[key] = value;
-      }
-    });
-    return sanitized;
-  }
-
-  return { message: String(error) };
+// Type definition for pino logger interface
+interface PinoBaseLogger {
+  debug: (obj: object | string, msg?: string, ...args: any[]) => void;
+  info: (obj: object | string, msg?: string, ...args: any[]) => void;
+  warn: (obj: object | string, msg?: string, ...args: any[]) => void;
+  error: (obj: object | string, msg?: string, ...args: any[]) => void;
+  fatal: (obj: object | string, msg?: string, ...args: any[]) => void;
+  child: (bindings: object, options?: object) => PinoBaseLogger;
 }
 
-// Enhanced logger with structured logging methods
+// Function to create the pino logger (or no-op for client)
+const createPinoLogger = (): PinoBaseLogger => {
+  if (isServer) {
+    // Use require for synchronous import on server to avoid async issues
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const pinoModule = require('pino');
+    return pinoModule.default(loggerConfig) as PinoBaseLogger;
+  } else {
+    return noopLogger as PinoBaseLogger;
+  }
+};
+
+// Initialize the logger synchronously for server-side
+const internalLogger = createPinoLogger();
+
 export const structuredLogger = {
-  // Core logging methods
+  // Core logging methods - they directly call internalLogger with pino-compatible arguments
   debug: (msg: string, context?: LogContext) => {
-    logger.debug(context, msg);
+    internalLogger.debug(context || {}, msg); // Pass context as first arg, msg as second
   },
 
   info: (msg: string, context?: LogContext) => {
-    logger.info(context, msg);
+    internalLogger.info(context || {}, msg);
   },
 
   warn: (msg: string, context?: LogContext) => {
-    logger.warn(context, msg);
+    internalLogger.warn(context || {}, msg);
   },
 
   error: (msg: string, error?: unknown, context?: LogContext) => {
-    const sanitizedError = sanitizeError(error);
-    const logContext = {
+    const processedError = sanitizeError(error);
+    const logContextWithErr = {
       ...context,
-      ...(sanitizedError ? { err: sanitizedError, error: sanitizedError } : {}),
+      ...(processedError ? { err: processedError, error: processedError } : {}),
     };
-    logger.error(logContext, msg);
+    internalLogger.error(logContextWithErr, msg); // Pass (obj, msg)
   },
 
   // Specialized logging methods for common use cases
@@ -278,7 +313,7 @@ export const structuredLogger = {
 
   // Performance and operational logging
   performance: (operation: string, duration: number, context?: LogContext) => {
-    logger.info(
+    internalLogger.info(
       {
         ...context,
         duration,
@@ -290,7 +325,7 @@ export const structuredLogger = {
 
   // Security-related logging
   security: (event: string, context?: LogContext) => {
-    logger.warn(
+    internalLogger.warn(
       {
         ...context,
         component: 'security',
@@ -301,7 +336,7 @@ export const structuredLogger = {
 };
 
 // Export the base logger for advanced use cases
-export { logger };
+export { internalLogger as logger };
 
 // Backward compatibility - maps console.error to structured logging
 export const logError = (message: string, error?: unknown, context?: LogContext) => {

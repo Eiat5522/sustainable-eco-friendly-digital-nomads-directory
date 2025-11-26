@@ -1,5 +1,5 @@
 import { structuredLogger } from '@/lib/logger';
-import { getSanityClient } from '@/lib/sanity/client'; // Changed import
+import { client } from '@/lib/sanity/client';
 
 type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<unknown>;
 
@@ -38,7 +38,7 @@ export async function GET(_request: Request) {
     const fetchFn =
       _testControl?.clientFetchOverride ??
       ((queryString: string, params?: Record<string, unknown>) =>
-        getSanityClient().fetch(queryString, params)); // Updated to use getSanityClient().fetch
+        client().fetch(queryString, params)); // Updated to use getSanityClient().fetch
     const events = await fetchFn(query, { now });
 
     return new Response(JSON.stringify({ success: true, data: events }), {

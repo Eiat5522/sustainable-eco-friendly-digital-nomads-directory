@@ -42,7 +42,7 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     }
 
     // Resolve listing by slug to get its Sanity ID
-    const listing = await client.fetch(`*[_type == "listing" && slug.current == $slug][0]{ _id }`, {
+    const listing = await client().fetch(`*[_type == "listing" && slug.current == $slug][0]{ _id }`, {
       slug,
     });
     if (!listing?._id) {
@@ -51,18 +51,18 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     const listingId = listing._id;
 
     // Check if already favorited
-    const existingFavorite = await client.fetch(
+    const existingFavorite = await client().fetch(
       `*[_type == "userFavorite" && user._ref == $userId && listing._ref == $listingId][0]`,
       { userId, listingId }
     );
 
     if (existingFavorite) {
       // Remove from favorites
-      await client.delete(existingFavorite._id);
+      await client().delete(existingFavorite._id);
       return NextResponse.json({ favorited: false, message: 'Removed from favorites' });
     } else {
       // Add to favorites
-      const favorite = await client.create({
+      const favorite = await client().create({
         _type: 'userFavorite',
         user: { _type: 'reference', _ref: sanityUser._id },
         listing: { _type: 'reference', _ref: listingId },
@@ -125,14 +125,14 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
 
     if (!slug) return NextResponse.json({ favorited: false });
 
-    const listing = await client.fetch(`*[_type == "listing" && slug.current == $slug][0]{ _id }`, {
+    const listing = await client().fetch(`*[_type == "listing" && slug.current == $slug][0]{ _id }`, {
       slug,
     });
     const listingId = listing?._id;
 
     if (!listingId) return NextResponse.json({ favorited: false });
 
-    const favorite = await client.fetch(
+    const favorite = await client().fetch(
       `*[_type == "userFavorite" && user._ref == $userId && listing._ref == $listingId][0]`,
       { userId, listingId }
     );

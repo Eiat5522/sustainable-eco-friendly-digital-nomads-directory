@@ -75,7 +75,7 @@ export async function getListingData(
   _usePreview = false
 ): Promise<AppListingDetail | null> {
   try {
-    const listing = await client.fetch(LISTING_BY_SLUG_QUERY, { slug });
+    const listing = await client().fetch(LISTING_BY_SLUG_QUERY, { slug });
     // Map the raw listing to the DTO
     if (!listing) return null;
     const { mapSanityListingToAppListingDetail } = await import('@/lib/listings');

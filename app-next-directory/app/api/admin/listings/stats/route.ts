@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { getDefaultTimeout, RequestTimeoutError, withRequestTimeout } from '@/lib/http/request';
 import { structuredLogger } from '@/lib/logger';
-import { getSanityClient } from '@/lib/sanity/client'; // Changed import
+import { client } from '@/lib/sanity/client';
 import type { UserRole } from '@/types/auth';
 
 type RouteContext = { params: Promise<Record<string, never>> };
@@ -33,7 +33,7 @@ export async function GET(_request: NextRequest, _context: RouteContext) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
-    const sanityClient = getSanityClient(); // Get the lazily instantiated client
+    const sanityClient = client(); // Get the lazily instantiated client
 
     const [
       totalCount,
@@ -45,17 +45,17 @@ export async function GET(_request: NextRequest, _context: RouteContext) {
       typesCounts,
     ] = await withRequestTimeout(
       Promise.all([
-        sanityClient.fetch<number>('count(*[_type == "listing"])'),
-        sanityClient.fetch<number>('count(*[_type == "listing" && adminWorkflow.status == "published"])'),
-        sanityClient.fetch<number>(
+        sanityClient().fetch<number>('count(*[_type == "listing"])'),
+        sanityClient().fetch<number>('count(*[_type == "listing" && adminWorkflow.status == "published"])'),
+        sanityClient().fetch<number>(
           'count(*[_type == "listing" && adminWorkflow.status == "unpublished"])'
         ),
-        sanityClient.fetch<number>('count(*[_type == "listing" && adminWorkflow.status == "pending"])'),
-        sanityClient.fetch<number>(
+        sanityClient().fetch<number>('count(*[_type == "listing" && adminWorkflow.status == "pending"])'),
+        sanityClient().fetch<number>(
           'count(*[_type == "listing" && (!defined(adminWorkflow.status) || adminWorkflow.status == "draft")])'
         ),
-        sanityClient.fetch<number>('count(*[_type == "listing" && adminWorkflow.isFeatured == true])'),
-        sanityClient.fetch<Array<{ type: string; count: number }>>(
+        sanityClient().fetch<number>('count(*[_type == "listing" && adminWorkflow.isFeatured == true])'),
+        sanityClient().fetch<Array<{ type: string; count: number }>>(
           `*[_type == "listing"] | order(type) {
             type
           } | {

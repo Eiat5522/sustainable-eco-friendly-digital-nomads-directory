@@ -11,7 +11,7 @@ import { ApiResponseHandler } from '@/utils/api-response';
 export async function GET() {
   try {
     const categories: string[] = await cacheHelpers.categories(async () => {
-      return await client.fetch(
+      return await client().fetch(
         groq`array::unique(*[_type == "listing" && defined(category)].category)`
       );
     });

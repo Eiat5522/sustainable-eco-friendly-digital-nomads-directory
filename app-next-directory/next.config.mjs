@@ -7,11 +7,21 @@ if (
   throw new Error('NEXT_PUBLIC_API_URL must be set for Preview/Production environments.');
 }
 
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 const nextConfig = {
-  experimental: {
-    cacheComponents: true,
+  turbopack: {
+    root: path.join(__dirname, '..'),
   },
-  turbopack: {},
+  cacheComponents: true,
+  serverExternalPackages: ['pino', 'pino-pretty'],
+  experimental: {
+    // Enable filesystem caching for `next dev`
+    turbopackFileSystemCacheForDev: true,
+  },
   transpilePackages: ['framer-motion'],
   // Avoid publicly exposing source maps in production. Use hidden client maps instead.
   productionBrowserSourceMaps: false,

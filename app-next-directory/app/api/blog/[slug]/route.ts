@@ -254,7 +254,7 @@ export async function GET(
     // Fetch the blog post
     const fetchFn =
       _testControl?.sanityFetchOverride ??
-      ((query: string, params?: Record<string, unknown>) => sanityClient.fetch(query, params));
+      ((query: string, params?: Record<string, unknown>) => sanityClient().fetch(query, params));
     const post = (await fetchFn(postQuery, { slug })) as RawSanityBlogPost | null;
 
     if (!isSanityBlogPost(post)) {
@@ -322,7 +322,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       // Find post ID by slug
       const fetchFn =
         _testControl?.sanityFetchOverride ??
-        ((query: string, params?: Record<string, unknown>) => sanityClient.fetch(query, params));
+        ((query: string, params?: Record<string, unknown>) => sanityClient().fetch(query, params));
       const post = (await fetchFn(
         groq`*[_type == "blogPost" && slug.current == $slug][0]{ _id, "slug": slug.current }`,
         { slug }

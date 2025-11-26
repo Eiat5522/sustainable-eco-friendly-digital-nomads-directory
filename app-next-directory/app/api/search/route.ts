@@ -301,7 +301,7 @@ export async function GET(request: NextRequest) {
       const fetchFn =
         _testControl?.clientFetchOverride ??
         ((queryString: string, params?: unknown) =>
-          client.fetch(queryString, params as Record<string, unknown> | undefined));
+          client().fetch(queryString, params as Record<string, unknown> | undefined));
 
       // Fetch results and total concurrently; facets only if requested
       const promises: Array<Promise<unknown>> = [fetchFn(query), fetchFn(countQuery)];
@@ -417,7 +417,7 @@ export async function POST(request: NextRequest) {
       const fetchFn =
         _testControl?.clientFetchOverride ??
         ((queryString: string, params?: unknown) =>
-          client.fetch(queryString, params as Record<string, unknown> | undefined));
+          client().fetch(queryString, params as Record<string, unknown> | undefined));
       // Fetch results and total concurrently; facets only if requested
       const promises: Array<Promise<unknown>> = [fetchFn(query), fetchFn(countQuery)];
       if (includeFacets) promises.push(fetchFn(facetQuery));

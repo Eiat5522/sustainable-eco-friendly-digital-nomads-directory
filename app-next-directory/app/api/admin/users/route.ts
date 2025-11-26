@@ -85,7 +85,7 @@ export async function GET(request: NextRequest, _context: RouteContext) {
 
     const [users, totalCount] = await withRequestTimeout(
       Promise.all([
-        client.fetch<
+        client().fetch<
           Array<{
             _id: string;
             name?: string | null;
@@ -96,7 +96,7 @@ export async function GET(request: NextRequest, _context: RouteContext) {
             status?: 'active' | 'inactive';
           }>
         >(query),
-        client.fetch<number>(countQuery),
+        client().fetch<number>(countQuery),
       ]),
       getDefaultTimeout(),
       'Fetching admin users timed out'
@@ -222,7 +222,7 @@ export async function PATCH(request: NextRequest, _context: RouteContext) {
     updateData.updatedBy = sessionUser?.id;
 
     await withRequestTimeout(
-      client.patch(userIdValue).set(updateData).commit(),
+      client().patch(userIdValue).set(updateData).commit(),
       getDefaultTimeout(),
       'Updating user timed out'
     );
@@ -267,7 +267,7 @@ export async function DELETE(request: NextRequest, _context: RouteContext) {
     }
 
     await withRequestTimeout(
-      client.delete(userIdValue),
+      client().delete(userIdValue),
       getDefaultTimeout(),
       'Deleting user timed out'
     );

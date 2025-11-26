@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger';
+import structuredLogger from '@/lib/logger';
 import { ApiResponseHandler } from '@/utils/api-response';
 
 export type ErrorContext = {
@@ -21,16 +21,17 @@ function normalizeError(error: unknown): Error {
 
 export function logError(error: unknown, context: ErrorContext): void {
   const normalized = normalizeError(error);
-  logger.error(
-    {
-      err: normalized,
-      scope: context.scope,
-      action: context.action,
-      userId: context.userId,
-      component: context.component,
-      details: context.details,
-    },
-    normalized.message
+  const combinedContext = {
+    scope: context.scope,
+    action: context.action,
+    userId: context.userId,
+    component: context.component,
+    details: context.details,
+  };
+  structuredLogger.error(
+    normalized.message, // Message (first argument)
+    normalized,         // Error object (second argument)
+    combinedContext     // Context object (third argument)
   );
 }
 

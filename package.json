@@ -1,6 +1,6 @@
 {
   "name": "sustainable-eco-friendly-digital-nomads-directory-root",
-  "packageManager": "pnpm@10.15.0",
+  "packageManager": "pnpm@10.23.0",
   "workspaces": [
     "app-next-directory",
     "sanity"
@@ -99,7 +99,7 @@
     "@types/jest": "^30.0.0",
     "ajv": "^8.12.0",
     "cross-fetch": "^4.1.0",
-    "eslint": "^8.57.1",
+    "eslint": "^9.39.1",
     "eslint-config-next": "^15.5.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "jest-environment-jsdom": "^30.2.0",

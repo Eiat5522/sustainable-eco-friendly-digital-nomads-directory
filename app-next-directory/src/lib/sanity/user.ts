@@ -51,7 +51,7 @@ async function ensureSanityUserInternal({
   const safeRole = role ?? 'user';
 
   try {
-    const baseDoc = await client.createIfNotExists<SanityUser>({
+    const baseDoc = await client().createIfNotExists<SanityUser>({
       _id: id,
       _type: 'user',
       name: safeName,
@@ -78,8 +78,7 @@ async function ensureSanityUserInternal({
       return baseDoc;
     }
 
-    const updated = await client
-      .patch(id)
+    const updated = await client().patch(id)
       .set(patch)
       .commit<SanityUser>({ autoGenerateArrayKeys: true });
     return updated;
@@ -99,13 +98,13 @@ async function ensureSanityUserInternal({
  */
 export async function unfavoriteListing(userId: string, listingId: string): Promise<void> {
   try {
-    const favorite = await client.fetch(
+    const favorite = await client().fetch(
       `*[_type == "userFavorite" && user._ref == $userId && listing._ref == $listingId][0]`,
       { userId, listingId }
     );
 
     if (favorite) {
-      await client.delete(favorite._id);
+      await client().delete(favorite._id);
     }
   } catch (error) {
     structuredLogger.error('Failed to unfavorite listing', error, {

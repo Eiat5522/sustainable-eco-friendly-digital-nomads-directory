@@ -2,6 +2,8 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 // Images come preprocessed via DTOs (see API). No builder needed here.
 
@@ -43,19 +45,51 @@ type BlogApiResponse = {
   filters: { tag: string | null; search: string | null };
 };
 
-export default function BlogPageClient({
-  posts,
-  pagination,
-  search,
-  tag,
-  limit,
-}: {
-  posts: Post[];
-  pagination: BlogApiResponse['pagination'];
-  search: string | undefined;
-  tag: string | undefined;
-  limit: string | undefined;
-}) {
+export default function BlogPageClient() {
+  const searchParams = useSearchParams();
+  const [data, setData] = useState<BlogApiResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const params = new URLSearchParams(searchParams);
+        const response = await fetch(`/api/blog?${params.toString()}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch posts');
+        }
+        const result = await response.json();
+        setData(result.data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unknown error');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, [searchParams]);
+
+  if (loading) {
+    return <div className="h-screen rounded-lg bg-muted animate-pulse" role="status" aria-label="Loading blog posts" aria-busy="true" />;
+  }
+
+  if (error) {
+    return <div className="container mx-auto px-4 py-8 text-center text-red-500">Error: {error}</div>;
+  }
+
+  if (!data) {
+    return <div className="container mx-auto px-4 py-8 text-center">No data</div>;
+  }
+
+  const { posts, pagination } = data;
+  const search = searchParams.get('search');
+  const tag = searchParams.get('tag');
+  const limit = searchParams.get('limit');
+
   const uniqueTags = Array.from(
     new Set(
       posts

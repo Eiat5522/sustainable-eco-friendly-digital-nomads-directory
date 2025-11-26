@@ -137,7 +137,7 @@ export async function getUserDashboardData(
     };
 
     const [favorites, userReviews] = await Promise.all([
-      client.fetch<RawFavoriteDoc[]>(
+      client().fetch<RawFavoriteDoc[]>(
         `*[_type == "userFavorite" && user._ref == $userId] | order(coalesce(createdAt, _createdAt) desc)[0...100]{
           _id,
           "createdAt": coalesce(createdAt, _createdAt),
@@ -150,7 +150,7 @@ export async function getUserDashboardData(
         }`,
         { userId: id }
       ),
-      client.fetch<RawUserReviewDoc[]>(
+      client().fetch<RawUserReviewDoc[]>(
         `*[_type == "review" && user._ref == $userId]{
           rating,
           "createdAt": coalesce(_updatedAt, _createdAt)
@@ -232,7 +232,7 @@ export async function getUserDashboardData(
     };
   }
 
-  const userDoc = await client.fetch<{
+  const userDoc = await client().fetch<{
     ownedListings?: Array<{
       _id: string;
       name?: string;
@@ -306,7 +306,7 @@ export async function getUserDashboardData(
 
   const [reviews, favorites, analytics, monthlyViewMetrics, lifetimeViewTotals] = await Promise.all(
     [
-      client.fetch<ReviewDoc[]>(
+      client().fetch<ReviewDoc[]>(
         `*[_type == "review" && listing._ref in $listingIds]{
         "listingId": listing._ref,
         rating,
@@ -314,14 +314,14 @@ export async function getUserDashboardData(
       }`,
         { listingIds }
       ),
-      client.fetch<FavoriteDoc[]>(
+      client().fetch<FavoriteDoc[]>(
         `*[_type == "userFavorite" && listing._ref in $listingIds]{
         "listingId": listing._ref,
         "createdAt": coalesce(createdAt, _createdAt)
       }`,
         { listingIds }
       ),
-      client.fetch<AnalyticsDoc[]>(
+      client().fetch<AnalyticsDoc[]>(
         `*[_type == "listingAnalytics" && listing._ref in $listingIds]{
         "listingId": listing._ref,
         viewCount,

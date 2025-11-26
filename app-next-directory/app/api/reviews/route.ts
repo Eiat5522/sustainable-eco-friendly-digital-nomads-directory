@@ -155,7 +155,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const [listingDoc, sanityUser] = await Promise.all([
-      client.getDocument(listingId),
+      client().getDocument(listingId),
       ensureSanityUser({
         id: userId,
         name: user?.name ?? null,
@@ -168,7 +168,7 @@ export async function POST(request: NextRequest) {
       return ApiResponseHandler.error('Invalid reference(s)', 400);
     }
 
-    const existingReview = await client.fetch(
+    const existingReview = await client().fetch(
       `*[_type == "review" && listing._ref == $listingId && user._ref == $userId][0]`,
       { listingId, userId }
     );
@@ -205,7 +205,7 @@ export async function POST(request: NextRequest) {
       reviewDoc.nomadRating = nomadRating;
     }
 
-    const newReview = await client.create(reviewDoc);
+    const newReview = await client().create(reviewDoc);
 
     const listingSlug = (listingDoc as { slug?: { current?: string } } | null | undefined)?.slug
       ?.current;

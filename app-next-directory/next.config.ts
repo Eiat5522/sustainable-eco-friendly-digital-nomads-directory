@@ -9,12 +9,14 @@ const APP_DIR =
   typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
 
 import type { Configuration } from 'webpack';
+import webpack from 'webpack';
 
 const isAnalyze = /^(1|true|yes)$/i.test(process.env.ANALYZE ?? '');
 const withAnalyzer = withBundleAnalyzer({ enabled: isAnalyze });
 
 const nextConfig: NextConfig = {
   productionBrowserSourceMaps: process.env.ENABLE_SOURCE_MAPS === 'true',
+  serverExternalPackages: ['pino', 'pino-pretty', 'thread-stream'],
   reactStrictMode: true,
   typescript: {
     ignoreBuildErrors: process.env.NODE_ENV === 'development',
@@ -51,7 +53,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  webpack(config: Configuration) {
+  webpack(config: Configuration, { isServer }) {
     // Ensure @ alias resolves to this app's src directory
     config.resolve = config.resolve || {};
     config.resolve.alias = {

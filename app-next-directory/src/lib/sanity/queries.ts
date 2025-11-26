@@ -34,7 +34,7 @@ async function getListingBySlug(slug: string, _preview = false) {
     }
   }`;
 
-  return await sanityClient.fetch(query, { slug });
+  return await sanityClient().fetch(query, { slug });
 }
 
 // Get all available cities for filtering
@@ -64,7 +64,7 @@ async function getAllCities(_preview = false) {
     }
   }`;
 
-  return await sanityClient.fetch(query);
+  return await sanityClient().fetch(query);
 }
 
 // Get all eco focus tags for filtering
@@ -78,7 +78,7 @@ async function getAllEcoTags(_preview = false) {
     description
   }`;
 
-  return await sanityClient.fetch(query);
+  return await sanityClient().fetch(query);
 }
 
 // Get latest blog posts
@@ -95,7 +95,7 @@ async function getLatestBlogPosts(limit = 3, _preview = false) {
     "author": author->name
   }`;
 
-  return await sanityClient.fetch(query, { limit: limit - 1 });
+  return await sanityClient().fetch(query, { limit: limit - 1 });
 }
 
 async function getFeaturedListings(limit = 10, _preview = false) {
@@ -122,7 +122,7 @@ async function getFeaturedListings(limit = 10, _preview = false) {
     priceRange
   }`;
 
-  return await sanityClient.fetch(query, { limit });
+  return await sanityClient().fetch(query, { limit });
 }
 
 // Export all functions

@@ -74,7 +74,7 @@ type AdminAnalyticsTuple = [
 
 async function fetchRoleCounts(): Promise<AdminRoleCounts> {
   const counts = await withRequestTimeout<number[]>(
-    Promise.all(ROLE_QUERIES.map(({ query }) => client.fetch<number>(query) as Promise<number>)),
+    Promise.all(ROLE_QUERIES.map(({ query }) => client().fetch<number>(query) as Promise<number>)),
     getDefaultTimeout(),
     'Fetching admin role counts timed out'
   );
@@ -130,7 +130,7 @@ const mapModerationProjectionToEntry = (item: ModerationQueueProjection): AdminM
 });
 
 async function fetchModerationEntryById(id: string): Promise<AdminModerationEntry | null> {
-  const result = await client.fetch<ModerationQueueProjection | ModerationQueueProjection[] | null>(
+  const result = await client().fetch<ModerationQueueProjection | ModerationQueueProjection[] | null>(
     `*[_type == "moderationStatus" && _id == $id][0] {${MODERATION_QUEUE_PROJECTION}}`,
     { id }
   );
@@ -140,7 +140,7 @@ async function fetchModerationEntryById(id: string): Promise<AdminModerationEntr
 
 export async function fetchModerationQueue(limit = 10): Promise<AdminModerationEntry[]> {
   const queue = await withRequestTimeout<ModerationQueueProjection[]>(
-    client.fetch<ModerationQueueProjection[]>(
+    client().fetch<ModerationQueueProjection[]>(
       `*[_type == "moderationStatus" && status == "pending"] | order(_createdAt desc)[0...$limit] {${MODERATION_QUEUE_PROJECTION}}`,
       { limit }
     ) as Promise<ModerationQueueProjection[]>,
@@ -161,10 +161,10 @@ export async function fetchAdminAnalytics(): Promise<AdminAnalyticsSnapshot> {
     roleCounts,
   ] = await withRequestTimeout<AdminAnalyticsTuple>(
     Promise.all([
-      client.fetch<number>('count(*[_type == "user"])') as Promise<number>,
-      client.fetch<number>('count(*[_type == "listing"])') as Promise<number>,
-      client.fetch<number>('count(*[_type == "review"])') as Promise<number>,
-      client.fetch<number>(
+      client().fetch<number>('count(*[_type == "user"])') as Promise<number>,
+      client().fetch<number>('count(*[_type == "listing"])') as Promise<number>,
+      client().fetch<number>('count(*[_type == "review"])') as Promise<number>,
+      client().fetch<number>(
         'count(*[_type == "moderationStatus" && status == "pending"])'
       ) as Promise<number>,
       fetchModerationQueue(),
@@ -177,7 +177,7 @@ export async function fetchAdminAnalytics(): Promise<AdminAnalyticsSnapshot> {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
   const weeklySignups = await withRequestTimeout<number>(
-    client.fetch<number>('count(*[_type == "user" && _createdAt >= $sevenDaysAgo])', {
+    client().fetch<number>('count(*[_type == "user" && _createdAt >= $sevenDaysAgo])', {
       sevenDaysAgo: sevenDaysAgo.toISOString(),
     }) as Promise<number>,
     getDefaultTimeout(),
@@ -249,7 +249,7 @@ export async function performModerationAction({
   }
 
   const timestamp = new Date().toISOString();
-  const patch = client
+  const patch = client()
     .patch(moderationId)
     .set(status ? { status, lastActionAt: timestamp } : { lastActionAt: timestamp })
     .setIfMissing(createEmptyModerationHistory())
@@ -326,7 +326,7 @@ const commitBatch = async (
   totalBatches: number,
   operation: BulkOperationType
 ): Promise<BulkBatchResult> => {
-  const transaction = client.transaction();
+  const transaction = client().transaction();
 
   for (const id of batchIds) {
     transaction.patch(id, patch => patch.set(patchFactory(timestamp)));
@@ -543,14 +543,14 @@ export async function analyzeContent({
     "recent": count(*[_type == $type && _createdAt >= $windowStart])
   }`;
 
-  const result = await client.fetch<{
+  const result = await client().fetch<{
     all: number;
     flagged: number;
     pendingModeration: number;
     recent: number;
   }>(query, { type, windowStart: windowStart.toISOString() });
 
-  const reports = await client.fetch<number>(
+  const reports = await client().fetch<number>(
     'sum(*[_type == $type && defined(reports)][]{"reportCount": count(reports)}.reportCount)',
     { type }
   );

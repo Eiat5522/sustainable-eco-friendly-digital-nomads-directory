@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { getDefaultTimeout, withRequestTimeout } from '@/lib/http/request';
 import { structuredLogger } from '@/lib/logger';
-import { getSanityClient } from '@/lib/sanity/client'; // Changed import
+import { client } from '@/lib/sanity/client';
 import type { UserRole } from '@/types/auth';
 import {
   isListingModerationState,
@@ -119,12 +119,12 @@ export async function GET(request: NextRequest, _context: RouteContext) {
 
     const countQuery = `count(*[_type == "listing" ${searchCondition} ${statusCondition} ${typeCondition}])`;
 
-    const sanityClient = getSanityClient(); // Get the lazily instantiated client
+    const sanityClient = client(); // Get the lazily instantiated client
 
     const [listings, totalCount] = await withRequestTimeout(
       Promise.all([
-        sanityClient.fetch<AdminListingProjection[]>(query),
-        sanityClient.fetch<number>(countQuery),
+        sanityClient().fetch<AdminListingProjection[]>(query),
+        sanityClient().fetch<number>(countQuery),
       ]),
       getDefaultTimeout(),
       'Fetching admin listings timed out'
@@ -213,9 +213,9 @@ export async function PATCH(request: NextRequest, _context: RouteContext) {
         break;
     }
 
-    const sanityClient = getSanityClient(); // Get the lazily instantiated client
+    const sanityClient = client(); // Get the lazily instantiated client
     await withRequestTimeout(
-      sanityClient.patch(listingIdValue).set(updateData).commit(), // Updated to use sanityClient.patch
+      sanityClient().patch(listingIdValue).set(updateData).commit(), // Updated to use sanityClient.patch
       getDefaultTimeout(),
       'Updating listing timed out'
     );
@@ -252,9 +252,9 @@ export async function DELETE(request: NextRequest, _context: RouteContext) {
       return NextResponse.json({ error: 'listingId is required' }, { status: 400 });
     }
 
-    const sanityClient = getSanityClient(); // Get the lazily instantiated client
+    const sanityClient = client(); // Get the lazily instantiated client
     await withRequestTimeout(
-      sanityClient.delete(listingIdValue), // Updated to use sanityClient.delete
+      sanityClient().delete(listingIdValue), // Updated to use sanityClient.delete
       getDefaultTimeout(),
       'Deleting listing timed out'
     );

@@ -1,6 +1,6 @@
 // PATCH: Align GROQ query and DTO mapping with appView.ts
 import { structuredLogger } from '@/lib/logger';
-import { getSanityClient } from '@/lib/sanity/client'; // Changed import
+import { client } from '@/lib/sanity/client';
 import type { SanityImage } from '@/types/appView';
 
 interface FeaturedListing {
@@ -143,8 +143,8 @@ export async function GET() {
     });
     const queryStartTime = performance.now();
 
-    const sanityClient = getSanityClient(); // Get the lazily instantiated client
-    const listings = await sanityClient.fetch<FeaturedListing[]>(FEATURED_LISTINGS_QUERY); // Updated to use sanityClient.fetch
+    const sanityClient = client(); // Get the lazily instantiated client
+    const listings = await sanityClient().fetch<FeaturedListing[]>(FEATURED_LISTINGS_QUERY); // Updated to use sanityClient.fetch
 
     const queryEndTime = performance.now();
     structuredLogger.info('Featured listings query completed', {

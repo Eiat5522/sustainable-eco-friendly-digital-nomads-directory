@@ -132,11 +132,11 @@ export async function searchListings(
   } [${start}...${start + limit}]`;
 
   // Execute query
-  const results = await sanityClient.fetch<SearchResult[]>(groqQuery, params);
+  const results = await sanityClient().fetch<SearchResult[]>(groqQuery, params);
 
   // Get total count
   const countQuery = groqQuery.replace(/\{[^}]*\} \[\d+\.\.\.\d+\]$/, '').replace('*[', 'count(*[');
-  const total = await sanityClient.fetch<number>(countQuery, params);
+  const total = await sanityClient().fetch<number>(countQuery, params);
 
   return {
     results,
@@ -167,11 +167,11 @@ export async function getSearchSuggestions(
     "keywords": searchMetadata.keywords[]->name
   }`;
 
-  const results = await sanityClient.fetch<SuggestionDocument[]>(groqQuery, { searchTerm: query });
+  const results = await sanityClient().fetch<SuggestionDocument[]>(groqQuery, { searchTerm: query });
 
   // Extract and flatten unique suggestions
   const suggestions = new Set<string>();
-  results.forEach(result => {
+  results.forEach((result: SuggestionDocument) => {
     if (
       typeof result.name === 'string' &&
       result.name.toLowerCase().includes(query.toLowerCase())
@@ -179,7 +179,7 @@ export async function getSearchSuggestions(
       suggestions.add(result.name);
     }
     if (Array.isArray(result.keywords)) {
-      result.keywords.forEach(keyword => {
+      result.keywords.forEach((keyword: string) => {
         if (typeof keyword === 'string' && keyword.toLowerCase().includes(query.toLowerCase())) {
           suggestions.add(keyword);
         }
@@ -219,5 +219,5 @@ export async function getSimilarListings(
     }
   }.similar`;
 
-  return sanityClient.fetch<SimilarListingResult[]>(query, { listingId });
+  return sanityClient().fetch<SimilarListingResult[]>(query, { listingId });
 }

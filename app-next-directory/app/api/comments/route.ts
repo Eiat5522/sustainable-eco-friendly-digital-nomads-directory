@@ -134,7 +134,7 @@ export async function GET(request: Request) {
         "user": user->{_id, name}
       }`;
 
-    const comments = await client.fetch(query, { postId, skip, end });
+    const comments = await client().fetch(query, { postId, skip, end });
     const safeComments = Array.isArray(comments) ? comments : [];
 
     return successResponse({
@@ -217,12 +217,12 @@ export async function POST(request: Request) {
       slug?: { current?: string | null } | null;
     };
 
-    const postDoc = await client.getDocument<PostDocument>(postId);
+    const postDoc = await client().getDocument<PostDocument>(postId);
     if (!postDoc) {
       return errorResponse('Invalid reference(s)', 400);
     }
 
-    const created = await client.create({
+    const created = await client().create({
       _type: 'comment',
       post: { _type: 'reference', _ref: postId },
       user: { _type: 'reference', _ref: userRef },

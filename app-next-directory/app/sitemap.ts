@@ -44,7 +44,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     // Fetch listings
-    const listingsRaw = await client.fetch<ListingRecord[]>(
+    const listingsRaw = await client().fetch<ListingRecord[]>(
       `*[_type == "listing"]{
         "slug": slug.current,
         _updatedAt
@@ -58,7 +58,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     );
 
     // Fetch cities with slugs
-    const citiesRaw = await client.fetch<CityRecord[]>(`*[_type == "city"]{"slug": slug.current}`);
+    const citiesRaw = await client().fetch<CityRecord[]>(`*[_type == "city"]{"slug": slug.current}`);
     const cities = (Array.isArray(citiesRaw) ? citiesRaw : [])
       .map(city => city?.slug)
       .filter((value): value is string => typeof value === 'string' && value.length > 0);

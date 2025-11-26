@@ -29,7 +29,7 @@ export async function GET(): Promise<Response> {
     const nodeEnv = rawEnv?.toLowerCase();
     const fetchFn =
       _testControl?.clientFetchOverride ??
-      ((query: string, params?: Record<string, unknown>) => client.fetch(query, params));
+      ((query: string, params?: Record<string, unknown>) => client().fetch(query, params));
 
     if (nodeEnv === 'production') {
       return ApiResponseHandler.error('Not found', 404);
