@@ -22,7 +22,7 @@ jest.mock('@/lib/logger', () => ({
 }));
 
 jest.mock('@/lib/sanity/client', () => ({
-  client: { fetch: (...args: any[]) => fetchMock(...args) },
+  client: jest.fn(() => ({ fetch: (...args: any[]) => fetchMock(...args) })),
 }));
 jest.mock('@/lib/dto-transformer', () => ({
   transformToBlogDetailDTO: (...args: any[]) => transformMock(...args),

@@ -7,7 +7,7 @@ const mockedBuildE2EResponse = jest.fn();
 
 // Mock sanity client, e2e fixture utilities and ensure route uses these mocks
 jest.mock('@/lib/sanity/client', () => ({
-  client: { fetch: (...args: any[]) => mockedFetch(...args) },
+  client: jest.fn(() => ({ fetch: (...args: any[]) => mockedFetch(...args) })),
 }));
 jest.mock('@/data/e2e/discovery-fixtures', () => ({
   isE2ERun: () => mockedIsE2ERun(),

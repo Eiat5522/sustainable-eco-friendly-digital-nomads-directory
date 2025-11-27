@@ -12,7 +12,7 @@ const fetchMock = jest.fn();
 
 // Mock the Sanity client used by the route to intercept .fetch calls
 jest.mock('@/lib/sanity/client', () => ({
-  client: { fetch: (...args: any[]) => fetchMock(...args) },
+  client: jest.fn(() => ({ fetch: (...args: any[]) => fetchMock(...args) })),
 }));
 
 let GET: any;

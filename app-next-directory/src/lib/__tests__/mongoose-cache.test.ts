@@ -1,4 +1,5 @@
 import { withMongooseCache } from '../mongoose-cache';
+import { structuredLogger } from '@/lib/logger';
 
 const getRedisClientMock = jest.fn();
 
@@ -55,7 +56,7 @@ describe('withMongooseCache', () => {
   it('logs a warning and falls back to executing the query when cache read fails', async () => {
     const queryResult = { id: 'fresh' };
     const queryFn = jest.fn().mockResolvedValue(queryResult);
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const warnSpy = jest.spyOn(structuredLogger, 'warn').mockImplementation(() => {});
     const clientGet = jest.fn().mockRejectedValue(new Error('read error'));
     const clientSet = jest.fn();
     getRedisClientMock.mockReturnValue({ get: clientGet, set: clientSet });
@@ -79,7 +80,7 @@ describe('withMongooseCache', () => {
   it('logs a warning when cache write fails but still returns the query result', async () => {
     const queryResult = { id: 'fresh' };
     const queryFn = jest.fn().mockResolvedValue(queryResult);
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const warnSpy = jest.spyOn(structuredLogger, 'warn').mockImplementation(() => {});
     const client = {
       get: jest.fn().mockResolvedValue(null),
       set: jest.fn().mockRejectedValue(new Error('write error')),

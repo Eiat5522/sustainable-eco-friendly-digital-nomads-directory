@@ -1,4 +1,5 @@
 import { type MongoClient, MongoServerError } from 'mongodb';
+import { structuredLogger } from '@/lib/logger';
 import { sessionIndexes, sessionSchema } from './schemas/session';
 
 export async function initializeDatabase(client: MongoClient) {
@@ -9,6 +10,7 @@ export async function initializeDatabase(client: MongoClient) {
     await db.createCollection('sessions', sessionSchema);
   } catch (error) {
     if (!(error instanceof MongoServerError && error.code === 48)) {
+      structuredLogger.error('Error initializing database:', error); // Log unexpected errors
       throw error;
     }
   }
@@ -16,7 +18,7 @@ export async function initializeDatabase(client: MongoClient) {
   // Ensure session indexes exist independently of collection creation
   await db.collection('sessions').createIndexes(sessionIndexes);
 
-  // Create indexes - Single source of truth for all index definitions
+  // Create indexes - Single source of truth for all index definition
   await db.collection('users').createIndexes([
     {
       key: { email: 1 },
@@ -38,4 +40,6 @@ export async function initializeDatabase(client: MongoClient) {
     { key: { email: 1 } },
     { key: { createdAt: 1 }, expireAfterSeconds: 900 }, // Auto-delete after 15 minutes
   ]);
+
+  structuredLogger.info('Database initialization completed successfully'); // Log successful initialization
 }

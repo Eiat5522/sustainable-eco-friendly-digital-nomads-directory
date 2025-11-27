@@ -1,5 +1,6 @@
 import { groq } from 'next-sanity';
 import { client } from './client';
+import { structuredLogger } from '@/lib/logger';
 
 // GROQ query to fetch a single listing by slug
 const LISTING_BY_SLUG_QUERY = groq`
@@ -81,6 +82,7 @@ export async function getListingData(
     const { mapSanityListingToAppListingDetail } = await import('@/lib/listings');
     return mapSanityListingToAppListingDetail(listing);
   } catch (error) {
+    structuredLogger.error(`Error fetching listing data for slug: ${slug}`, error);
     return null;
   }
 }

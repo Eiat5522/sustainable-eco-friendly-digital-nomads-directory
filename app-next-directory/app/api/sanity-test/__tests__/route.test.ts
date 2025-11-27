@@ -1,10 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
-const mockedFetch = jest.fn();
+// Mock Sanity client
+const mockFetch = jest.fn();
+const mockClientInstance = {
+  fetch: mockFetch,
+};
 jest.mock('@/lib/sanity/client', () => ({
-  client: { fetch: (...args: any[]) => mockedFetch(...args) },
+  client: jest.fn(() => mockClientInstance),
 }));
 
+// require after mocks
 let GET: any;
 let routeTestControl: any;
 const originalEnv = { ...process.env };
@@ -12,8 +17,7 @@ const originalEnv = { ...process.env };
 describe('/api/sanity-test', () => {
   beforeEach(async () => {
     jest.resetModules();
-    mockedFetch.mockReset();
-    // require after mocks
+    mockFetch.mockReset(); // Reset the mockFetch
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     ({ GET, _testControl: routeTestControl } = require('../route'));
     routeTestControl.clientFetchOverride = undefined;

@@ -12,13 +12,15 @@ jest.mock('@/lib/sanity/client', () => {
   const patchMock = jest.fn().mockImplementation(() => ({ set: setMock }));
   const deleteMock = jest.fn();
 
+  const clientInstance = {
+    fetch: fetchMock,
+    patch: patchMock,
+    delete: deleteMock,
+  };
+
   return {
     __esModule: true,
-    client: {
-      fetch: fetchMock,
-      patch: patchMock,
-      delete: deleteMock,
-    },
+    client: jest.fn(() => clientInstance),
     __mock: { fetchMock, patchMock, setMock, commitMock, deleteMock },
   };
 });

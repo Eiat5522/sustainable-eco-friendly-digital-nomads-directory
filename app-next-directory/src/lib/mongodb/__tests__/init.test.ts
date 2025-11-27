@@ -4,6 +4,7 @@ import { MongoServerError } from 'mongodb';
 
 import { initializeDatabase } from '../init';
 import { sessionIndexes, sessionSchema } from '../schemas/session';
+import { structuredLogger } from '@/lib/logger';
 
 type MockedCollection = {
   createIndexes: jest.Mock;
@@ -48,8 +49,8 @@ describe('initializeDatabase', () => {
       db: jest.fn().mockReturnValue(mockDb),
     } as unknown as Pick<MongoClient, 'db'>;
 
-    logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-    errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    logSpy = jest.spyOn(structuredLogger, 'info').mockImplementation(() => {});
+    errorSpy = jest.spyOn(structuredLogger, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {

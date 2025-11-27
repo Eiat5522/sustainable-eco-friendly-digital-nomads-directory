@@ -14,13 +14,13 @@ import {
 
 // Mock the client module
 jest.mock('./client', () => ({
-  client: {
+  client: jest.fn(() => ({
     fetch: jest.fn(),
-  },
+  })),
 }));
 
 describe('queries.ts', () => {
-  const mockClient = client as jest.Mocked<typeof client>;
+  const mockClient = client as jest.Mock<() => { fetch: jest.Mock }>;
 
   beforeEach(() => {
     jest.clearAllMocks();

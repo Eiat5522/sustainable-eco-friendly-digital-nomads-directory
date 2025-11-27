@@ -44,7 +44,7 @@ jest.mock('@/lib/absolute-url', () => ({
 }));
 
 jest.mock('@/lib/sanity/client', () => ({
-  client: { fetch: jest.fn() },
+  client: jest.fn(() => ({ fetch: jest.fn() })),
 }));
 
 const originalFetch = global.fetch;

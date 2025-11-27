@@ -1,7 +1,7 @@
 import { getUserDashboardData } from '../user-dashboard';
 
 jest.mock('@/lib/sanity/client', () => ({
-  client: { fetch: jest.fn() },
+  client: jest.fn(() => ({ fetch: jest.fn() })),
 }));
 
 jest.mock('@/lib/sanity/user', () => ({
@@ -13,12 +13,16 @@ jest.mock('@/lib/metrics/listing-views', () => ({
   getLifetimeViewCounts: jest.fn(),
 }));
 
-const fetchMock = jest.requireMock('@/lib/sanity/client').client.fetch as jest.Mock;
+const clientMock = jest.requireMock('@/lib/sanity/client').client as jest.Mock;
+const fetchMock = jest.fn();
 const ensureSanityUserMock = jest.requireMock('@/lib/sanity/user').ensureSanityUser as jest.Mock;
 const getMonthlyViewCountsMock = jest.requireMock('@/lib/metrics/listing-views')
   .getMonthlyViewCounts as jest.Mock;
 const getLifetimeViewCountsMock = jest.requireMock('@/lib/metrics/listing-views')
   .getLifetimeViewCounts as jest.Mock;
+
+// Setup client mock to return fetch mock
+clientMock.mockImplementation(() => ({ fetch: fetchMock }));
 
 describe('getUserDashboardData', () => {
   beforeEach(() => {

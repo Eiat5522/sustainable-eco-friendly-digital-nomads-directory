@@ -4,12 +4,15 @@
 
 import { client } from './client';
 import { getListingData } from './data';
+import { structuredLogger } from '@/lib/logger';
 
 // Mock the client module
+const mockFetch = jest.fn();
+const mockClientInstance = {
+  fetch: mockFetch,
+};
 jest.mock('./client', () => ({
-  client: {
-    fetch: jest.fn(),
-  },
+  client: jest.fn(() => mockClientInstance),
 }));
 
 // Mock the listings module
@@ -20,8 +23,15 @@ jest.mock('@/lib/listings', () => ({
   })),
 }));
 
+// Mock the logger
+jest.mock('@/lib/logger', () => ({
+  structuredLogger: {
+    error: jest.fn(),
+  },
+}));
+
 describe('data.ts', () => {
-  const mockClient = client as jest.Mocked<typeof client>;
+  const mockClient = client as jest.Mock<() => { fetch: jest.Mock }>;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -44,11 +54,11 @@ describe('data.ts', () => {
         website: 'https://test.com',
       };
 
-      mockClient.fetch.mockResolvedValue(mockListing);
+      mockClient().fetch.mockResolvedValue(mockListing);
 
       const result = await getListingData('test-listing');
 
-      expect(mockClient.fetch).toHaveBeenCalledWith(
+      expect(mockClient().fetch).toHaveBeenCalledWith(
         expect.stringContaining('*[_type == "listing" && slug.current == $slug]'),
         { slug: 'test-listing' }
       );
@@ -59,11 +69,11 @@ describe('data.ts', () => {
     });
 
     it('should return null when listing is not found', async () => {
-      mockClient.fetch.mockResolvedValue(null);
+      mockClient().fetch.mockResolvedValue(null);
 
       const result = await getListingData('non-existent-slug');
 
-      expect(mockClient.fetch).toHaveBeenCalledWith(
+      expect(mockClient().fetch).toHaveBeenCalledWith(
         expect.stringContaining('*[_type == "listing" && slug.current == $slug]'),
         { slug: 'non-existent-slug' }
       );
@@ -71,19 +81,18 @@ describe('data.ts', () => {
     });
 
     it('should handle fetch errors gracefully', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-      mockClient.fetch.mockRejectedValue(new Error('Network error'));
+      const errorSpy = jest.spyOn(structuredLogger, 'error').mockImplementation(() => {});
+      mockClient().fetch.mockRejectedValue(new Error('Network error'));
 
       const result = await getListingData('error-slug');
 
       expect(result).toBeNull();
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Error fetching listing data for slug:',
-        'error-slug',
+      expect(errorSpy).toHaveBeenCalledWith(
+        'Error fetching listing data for slug: error-slug',
         expect.any(Error)
       );
 
-      consoleErrorSpy.mockRestore();
+      errorSpy.mockRestore();
     });
 
     it('should accept usePreview parameter', async () => {
@@ -93,11 +102,11 @@ describe('data.ts', () => {
         slug: 'preview-listing',
       };
 
-      mockClient.fetch.mockResolvedValue(mockListing);
+      mockClient().fetch.mockResolvedValue(mockListing);
 
       await getListingData('preview-listing', true);
 
-      expect(mockClient.fetch).toHaveBeenCalled();
+      expect(mockClient().fetch).toHaveBeenCalled();
     });
 
     it('should handle listings with complete data structure', async () => {
@@ -111,7 +120,7 @@ describe('data.ts', () => {
           slug: 'full-city',
           country: 'Full Country',
         },
-        type: 'accommodation',
+        type: 'coworking',
         category: 'hotel',
         address: '123 Test St',
         location: { lat: 0, lng: 0, alt: 0 },
@@ -135,7 +144,7 @@ describe('data.ts', () => {
         moderation: { status: 'published', featured: true, verificationStatus: 'verified' },
       };
 
-      mockClient.fetch.mockResolvedValue(mockListing);
+      mockClient().fetch.mockResolvedValue(mockListing);
 
       const result = await getListingData('full-listing');
 
@@ -152,7 +161,7 @@ describe('data.ts', () => {
         slug: 'minimal-listing',
       };
 
-      mockClient.fetch.mockResolvedValue(mockListing);
+      mockClient().fetch.mockResolvedValue(mockListing);
 
       const result = await getListingData('minimal-listing');
 
@@ -163,13 +172,12 @@ describe('data.ts', () => {
     });
 
     it('should use GROQ query with correct fields', async () => {
-      mockClient.fetch.mockResolvedValue({ _id: 'test', name: 'Test', slug: 'test' });
+      mockClient().fetch.mockResolvedValue({ _id: 'test', name: 'Test', slug: 'test' });
 
       await getListingData('test-slug');
 
-      const query = mockClient.fetch.mock.calls[0][0];
+      const query = mockClient().fetch.mock.calls[0][0];
 
-      // Verify key fields are in the query
       expect(query).toContain('_id');
       expect(query).toContain('name');
       expect(query).toContain('slug');

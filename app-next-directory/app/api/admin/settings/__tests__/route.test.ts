@@ -12,26 +12,36 @@ jest.mock('@/lib/sanity/client', () => {
   const setMock = jest.fn().mockImplementation(() => ({ commit: commitMock }));
   const patchMock = jest.fn().mockImplementation(() => ({ set: setMock }));
 
+  const mockClientInstance = {
+    fetch: fetchMock,
+    create: createMock,
+    patch: patchMock,
+  };
+
   return {
     __esModule: true,
-    client: {
-      fetch: fetchMock,
-      create: createMock,
-      patch: patchMock,
+    client: jest.fn(() => mockClientInstance), // Mock `client` as a function returning the mocked instance
+    __mock: {
+      fetchMock,
+      createMock,
+      patchMock,
+      setMock,
+      commitMock,
+      mockClientInstance, // Export the mock client instance
     },
-    __mock: { fetchMock, createMock, patchMock, setMock, commitMock },
   };
 });
 
 const authMockModule = jest.requireMock('@/lib/auth') as { auth: jest.Mock };
 const clientMockModule = jest.requireMock('@/lib/sanity/client') as {
-  client: { fetch: jest.Mock; create: jest.Mock; patch: jest.Mock };
+  client: jest.Mock<() => { fetch: jest.Mock; create: jest.Mock; patch: jest.Mock }>;
   __mock: {
     fetchMock: jest.Mock;
     createMock: jest.Mock;
     patchMock: jest.Mock;
     setMock: jest.Mock;
     commitMock: jest.Mock;
+    mockClientInstance: { fetch: jest.Mock; create: jest.Mock; patch: jest.Mock };
   };
 };
 
@@ -43,9 +53,9 @@ type BackupRouteModule = typeof import('../backup/route');
 let BACKUP_POST: BackupRouteModule['POST'];
 
 const mockAuth = authMockModule.auth;
-const mockFetch = clientMockModule.__mock.fetchMock;
-const mockCreate = clientMockModule.__mock.createMock;
-const mockPatch = clientMockModule.__mock.patchMock;
+const mockFetch = clientMockModule.__mock.mockClientInstance.fetch; // Reference the fetch mock from the instance
+const mockCreate = clientMockModule.__mock.mockClientInstance.create; // Reference the create mock from the instance
+const mockPatch = clientMockModule.__mock.mockClientInstance.patch; // Reference the patch mock from the instance
 const mockSet = clientMockModule.__mock.setMock;
 const mockCommit = clientMockModule.__mock.commitMock;
 

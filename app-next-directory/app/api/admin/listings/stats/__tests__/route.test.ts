@@ -10,9 +10,7 @@ jest.mock('@/lib/sanity/client', () => {
 
   return {
     __esModule: true,
-    client: {
-      fetch: fetchMock,
-    },
+    client: jest.fn(() => ({ fetch: fetchMock })),
     __mock: { fetchMock },
   };
 });

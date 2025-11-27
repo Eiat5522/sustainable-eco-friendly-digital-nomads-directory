@@ -39,7 +39,7 @@ jest.mock('@/lib/dto-transformer', () => ({
 }));
 
 jest.mock('@/lib/sanity/client', () => ({
-  client: { fetch: jest.fn() },
+  client: jest.fn(() => ({ fetch: jest.fn() })),
 }));
 
 jest.mock('@/lib/auth', () => ({

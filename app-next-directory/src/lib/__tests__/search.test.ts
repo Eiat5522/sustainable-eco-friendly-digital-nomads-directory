@@ -4,9 +4,9 @@ import { getSearchSuggestions, getSimilarListings, searchListings } from '../sea
 const fetchMock = jest.fn();
 
 jest.mock('@/lib/sanity/client', () => ({
-  client: {
+  client: jest.fn(() => ({
     fetch: (...args: unknown[]) => fetchMock(...args),
-  },
+  })),
 }));
 
 describe('search utilities', () => {

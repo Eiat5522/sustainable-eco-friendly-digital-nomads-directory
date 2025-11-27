@@ -4,9 +4,7 @@ import sitemap from './sitemap';
 
 // Mock the sanity client
 jest.mock('@/lib/sanity/client', () => ({
-  client: {
-    fetch: jest.fn(),
-  },
+  client: jest.fn(() => ({ fetch: jest.fn() })),
 }));
 
 const mockedClient = client as jest.Mocked<typeof client>;

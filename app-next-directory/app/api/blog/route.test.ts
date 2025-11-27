@@ -4,7 +4,7 @@ const fetchMock = jest.fn<any, any[]>();
 const transformMock = jest.fn((post: any) => ({ id: post._id, title: post.title }));
 
 jest.mock('@/lib/sanity/client', () => ({
-  client: { fetch: (...args: any[]) => fetchMock(...args) },
+  client: jest.fn(() => ({ fetch: (...args: any[]) => fetchMock(...args) })),
 }));
 jest.mock('@/lib/dto-transformer', () => ({
   transformToBlogSummaryDTO: (...args: any[]) => transformMock(...args),

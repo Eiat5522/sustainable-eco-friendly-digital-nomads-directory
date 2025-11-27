@@ -11,7 +11,7 @@ const renderListingDetailView = jest.fn();
 const mockGetCollection = jest.fn();
 
 jest.mock('@/lib/sanity/client', () => ({
-  client: { fetch: mockClientFetch },
+  client: jest.fn(() => ({ fetch: mockClientFetch })),
 }));
 
 jest.mock('@/lib/dto-transformer', () => ({

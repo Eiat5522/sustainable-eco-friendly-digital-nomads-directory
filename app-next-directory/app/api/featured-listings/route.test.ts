@@ -14,9 +14,7 @@ import { GET } from './route';
 
 // Mock Sanity client
 jest.mock('@/lib/sanity/client', () => ({
-  client: {
-    fetch: jest.fn(),
-  },
+  client: jest.fn(() => ({ fetch: jest.fn() })),
 }));
 
 describe('Featured Listings API - GET /api/featured-listings', () => {

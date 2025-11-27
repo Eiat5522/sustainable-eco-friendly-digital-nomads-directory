@@ -4,14 +4,25 @@ jest.mock('../redis', () => ({
   getRedisClient: jest.fn(),
 }));
 
-jest.mock('./client', () => ({
-  client: {
-    fetch: jest.fn(),
-  },
-}));
+jest.mock('./client', () => {
+  const fetchMock = jest.fn();
+  const mockClientInstance = {
+    fetch: fetchMock,
+  };
+  return {
+    __esModule: true,
+    client: jest.fn(() => mockClientInstance), // Mock `client` as a function returning the mocked instance
+    __mock: {
+      fetchMock,
+      mockClientInstance,
+    },
+  };
+});
 
 const getRedisClientMock = jest.requireMock('../redis').getRedisClient as jest.Mock;
-const sanityClientMock = jest.requireMock('./client').client as { fetch: jest.Mock };
+const sanityClientMock = jest.requireMock('./client').client as jest.Mock<
+  () => { fetch: jest.Mock }
+>;
 
 describe('cachedClient', () => {
   beforeEach(() => {
@@ -28,7 +39,7 @@ describe('cachedClient', () => {
 
     expect(result).toEqual(cachedValue);
     expect(getMock).toHaveBeenCalledWith(expect.stringContaining('sanity:mock-query'));
-    expect(sanityClientMock.fetch).not.toHaveBeenCalled();
+    expect(sanityClientMock().fetch).not.toHaveBeenCalled();
   });
 
   it('fetches from Sanity and caches when redis has no data', async () => {
@@ -37,7 +48,7 @@ describe('cachedClient', () => {
     getRedisClientMock.mockReturnValue(redisClient);
 
     const freshData = { id: '456', title: 'Fresh result' };
-    sanityClientMock.fetch.mockResolvedValueOnce(freshData);
+    sanityClientMock().fetch.mockResolvedValueOnce(freshData);
 
     const result = await cachedClient.fetch('fresh-query', { alpha: 'beta' });
 
@@ -52,12 +63,12 @@ describe('cachedClient', () => {
   it('fetches directly when redis client is unavailable', async () => {
     getRedisClientMock.mockReturnValue(undefined);
     const payload = { id: 'no-redis' };
-    sanityClientMock.fetch.mockResolvedValueOnce(payload);
+    sanityClientMock().fetch.mockResolvedValueOnce(payload);
 
     const result = await cachedClient.fetch('no-redis', { env: 'test' });
 
     expect(result).toEqual(payload);
-    expect(sanityClientMock.fetch).toHaveBeenCalledWith('no-redis', { env: 'test' });
+    expect(sanityClientMock().fetch).toHaveBeenCalledWith('no-redis', { env: 'test' });
   });
 
   it('deduplicates concurrent fetches for the same query and params', async () => {
@@ -69,7 +80,7 @@ describe('cachedClient', () => {
       resolveFetch = resolve;
     });
 
-    sanityClientMock.fetch.mockReturnValue(fetchPromise);
+    sanityClientMock().fetch.mockReturnValue(fetchPromise);
 
     const promise1 = cachedClient.fetch('coalesce-query', { page: 1 });
     const promise2 = cachedClient.fetch('coalesce-query', { page: 1 });
@@ -79,13 +90,13 @@ describe('cachedClient', () => {
     const [result1, result2] = await Promise.all([promise1, promise2]);
     expect(result1).toEqual({ docs: ['a', 'b'] });
     expect(result2).toEqual({ docs: ['a', 'b'] });
-    expect(sanityClientMock.fetch).toHaveBeenCalledTimes(1);
+    expect(sanityClientMock().fetch).toHaveBeenCalledTimes(1);
 
-    sanityClientMock.fetch.mockReset();
-    sanityClientMock.fetch.mockResolvedValueOnce({ docs: ['c'] });
+    sanityClientMock().fetch.mockReset();
+    sanityClientMock().fetch.mockResolvedValueOnce({ docs: ['c'] });
     const nextResult = await cachedClient.fetch('coalesce-query', { page: 1 });
     expect(nextResult).toEqual({ docs: ['c'] });
-    expect(sanityClientMock.fetch).toHaveBeenCalledTimes(1);
+    expect(sanityClientMock().fetch).toHaveBeenCalledTimes(1);
   });
 
   it('logs and continues when redis read fails', async () => {
@@ -94,7 +105,7 @@ describe('cachedClient', () => {
     const redisClient = { get: jest.fn().mockRejectedValue(error), set: jest.fn() };
     getRedisClientMock.mockReturnValue(redisClient);
 
-    sanityClientMock.fetch.mockResolvedValueOnce({ value: 1 });
+    sanityClientMock().fetch.mockResolvedValueOnce({ value: 1 });
 
     const result = await cachedClient.fetch('unstable-query', {});
 
@@ -113,7 +124,7 @@ describe('cachedClient', () => {
     };
     getRedisClientMock.mockReturnValue(redisClient);
 
-    sanityClientMock.fetch.mockResolvedValueOnce({ value: 2 });
+    sanityClientMock().fetch.mockResolvedValueOnce({ value: 2 });
 
     const result = await cachedClient.fetch('write-failure', {});
 

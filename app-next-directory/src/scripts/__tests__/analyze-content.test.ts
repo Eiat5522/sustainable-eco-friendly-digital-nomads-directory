@@ -18,7 +18,7 @@ jest.mock('node:fs', () => ({
 const fetchMock = jest.fn();
 
 jest.mock('../../lib/sanity/client', () => ({
-  client: { fetch: (...args: unknown[]) => fetchMock(...args) },
+  client: jest.fn(() => ({ fetch: (...args: unknown[]) => fetchMock(...args) })),
 }));
 
 const levenshteinMock = jest.fn();

@@ -1,8 +1,23 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { structuredLogger } from '@/lib/logger';
-import { _createAnalyticsHandler as createAnalyticsHandler } from './route';
+import { structuredLogger } from '@/lib/logger'; // Keep import for type inference
+import { auth } from '@/lib/auth'; // Keep import for type inference
+import { getUserDashboardData } from '@/lib/dashboard/user-dashboard'; // Keep import for type inference
+import { GET } from './route'; // Import GET directly
 
-type RouteHandler = ReturnType<typeof createAnalyticsHandler>;
+// Mock external dependencies
+jest.mock('@/lib/auth', () => ({
+  auth: jest.fn(),
+}));
+
+jest.mock('@/lib/dashboard/user-dashboard', () => ({
+  getUserDashboardData: jest.fn(),
+}));
+
+jest.mock('@/lib/logger', () => ({
+  structuredLogger: {
+    error: jest.fn(), // Mock the error method of structuredLogger
+  },
+}));
 
 const createRequest = (url: string) => new Request(url, { method: 'GET' });
 
@@ -18,34 +33,27 @@ const baseSession = {
 describe('/api/user/analytics GET', () => {
   let authMock: jest.Mock;
   let fetchDashboardMock: jest.Mock;
-  let loggerMock: { error: jest.Mock };
-  let GET: RouteHandler;
-  let consoleErrorSpy: jest.SpyInstance;
-  let structuredLoggerSpy: jest.SpyInstance;
+  let structuredLoggerErrorMock: jest.Mock; // Renamed for clarity
 
   beforeEach(() => {
-    authMock = jest.fn().mockResolvedValue({ ...baseSession });
-    fetchDashboardMock = jest.fn();
-    loggerMock = { error: jest.fn() };
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    structuredLoggerSpy = jest.spyOn(structuredLogger, 'error').mockImplementation(() => undefined);
+    jest.resetAllMocks(); // Reset all mocks for a clean state
+    authMock = jest.mocked(auth); // Access the mocked auth function
+    fetchDashboardMock = jest.mocked(getUserDashboardData); // Access the mocked getUserDashboardData function
+    structuredLoggerErrorMock = jest.mocked(structuredLogger.error); // Access the mocked structuredLogger.error function
 
-    GET = createAnalyticsHandler({
-      authFn: authMock as any,
-      fetchDashboard: fetchDashboardMock as any,
-      logger: loggerMock,
-    });
+    authMock.mockResolvedValue({ ...baseSession });
+    // No need for loggerMock as we're directly spying on structuredLogger.error
+    // No need for consoleErrorSpy as structuredLogger handles internal logging
   });
 
   afterEach(() => {
-    consoleErrorSpy.mockRestore();
-    structuredLoggerSpy.mockRestore();
+    // jest.restoreAllMocks is handled by jest.resetAllMocks in beforeEach
   });
 
   it('returns 401 for unauthenticated requests', async () => {
     authMock.mockResolvedValueOnce(null);
 
-    const response = await GET(createRequest('http://localhost/api/user/analytics') as any);
+    const response = await GET(createRequest('http://localhost/api/user/analytics'));
 
     expect(response.status).toBe(401);
     await expect(response.json()).resolves.toEqual({ error: 'Authentication required' });
@@ -142,7 +150,7 @@ describe('/api/user/analytics GET', () => {
   it('returns 404 when analytics data is missing', async () => {
     fetchDashboardMock.mockResolvedValueOnce(null);
 
-    const response = await GET(createRequest('http://localhost/api/user/analytics') as any);
+    const response = await GET(createRequest('http://localhost/api/user/analytics'));
 
     expect(response.status).toBe(404);
     await expect(response.json()).resolves.toEqual({ error: 'Analytics unavailable' });
@@ -178,7 +186,7 @@ describe('/api/user/analytics GET', () => {
     };
     fetchDashboardMock.mockResolvedValueOnce(dashboardPayload);
 
-    const response = await GET(createRequest('http://localhost/api/user/analytics') as any);
+    const response = await GET(createRequest('http://localhost/api/user/analytics'));
     const body = await response.json();
 
     expect(response.status).toBe(200);
@@ -203,32 +211,16 @@ describe('/api/user/analytics GET', () => {
     const failure = new Error('analytics failure');
     fetchDashboardMock.mockRejectedValueOnce(failure);
 
-    const response = await GET(createRequest('http://localhost/api/user/analytics') as any);
+    const response = await GET(createRequest('http://localhost/api/user/analytics'));
 
-    expect(loggerMock.error).toHaveBeenCalledWith('[user-analytics] GET failed', failure, {
+    expect(structuredLoggerErrorMock).toHaveBeenCalledWith('[user-analytics] GET failed', failure, {
       route: '/api/user/analytics',
     });
     expect(response.status).toBe(500);
     await expect(response.json()).resolves.toEqual({ error: 'Unable to load analytics data' });
   });
 
-  it('falls back to structuredLogger logging when no logger is provided', async () => {
-    fetchDashboardMock.mockRejectedValueOnce(new Error('analytics failure'));
 
-    const handler = createAnalyticsHandler({
-      authFn: authMock as any,
-      fetchDashboard: fetchDashboardMock as any,
-    });
-
-    const response = await handler(createRequest('http://localhost/api/user/analytics') as any);
-
-    expect(structuredLoggerSpy).toHaveBeenCalledWith(
-      '[user-analytics] GET failed',
-      expect.any(Error),
-      { route: '/api/user/analytics' }
-    );
-    expect(response.status).toBe(500);
-  });
 
   it('uses default role and clears nullable fields when session omits optional properties', async () => {
     authMock.mockResolvedValueOnce({ user: { id: 'bare-user' } } as any);
@@ -243,7 +235,7 @@ describe('/api/user/analytics GET', () => {
       },
     });
 
-    await GET(createRequest('http://localhost/api/user/analytics') as any);
+    await GET(createRequest('http://localhost/api/user/analytics'));
 
     expect(fetchDashboardMock).toHaveBeenCalledWith(
       {
