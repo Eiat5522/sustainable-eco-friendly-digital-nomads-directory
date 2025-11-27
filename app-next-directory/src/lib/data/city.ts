@@ -162,12 +162,11 @@ function toCityDetailDTO(raw: SanityCityDetail | null | undefined): CityDetailDT
   };
 }
 
-export const getCityBySlug = cache(
-  async (slug: string): Promise<CityDTO | null> => {
-    if (isE2ERun()) {
-      return getE2ECitySummary(slug);
-    }
-    const getCitySummaryBySlugQuery = groq`*[_type == "city" && slug.current == $slug][0]{
+export const getCityBySlug = cache(async (slug: string): Promise<CityDTO | null> => {
+  if (isE2ERun()) {
+    return getE2ECitySummary(slug);
+  }
+  const getCitySummaryBySlugQuery = groq`*[_type == "city" && slug.current == $slug][0]{
     _id,
     name,
     "slug": slug.current,
@@ -183,22 +182,17 @@ export const getCityBySlug = cache(
     }
   }`;
 
-    const raw = await cachedClient.fetch<SanityCitySummary | null>(
-      getCitySummaryBySlugQuery,
-      {
-        slug,
-      }
-    );
-    return toCityDTO(raw);
-  }
-);
+  const raw = await cachedClient.fetch<SanityCitySummary | null>(getCitySummaryBySlugQuery, {
+    slug,
+  });
+  return toCityDTO(raw);
+});
 
-export const getCityDetailBySlug = cache(
-  async (slug: string): Promise<CityDetailDTO | null> => {
-    if (isE2ERun()) {
-      return getE2ECityDetail(slug);
-    }
-    const getCityFullDetailsBySlugQuery = groq`*[_type == "city" && slug.current == $slug][0]{
+export const getCityDetailBySlug = cache(async (slug: string): Promise<CityDetailDTO | null> => {
+  if (isE2ERun()) {
+    return getE2ECityDetail(slug);
+  }
+  const getCityFullDetailsBySlugQuery = groq`*[_type == "city" && slug.current == $slug][0]{
     _id,
     name,
     "slug": slug.current,
@@ -228,22 +222,17 @@ export const getCityDetailBySlug = cache(
     }
   }`;
 
-    const raw = await cachedClient.fetch<SanityCityDetail | null>(
-      getCityFullDetailsBySlugQuery,
-      {
-        slug,
-      }
-    );
-    return toCityDetailDTO(raw);
-  }
-);
+  const raw = await cachedClient.fetch<SanityCityDetail | null>(getCityFullDetailsBySlugQuery, {
+    slug,
+  });
+  return toCityDetailDTO(raw);
+});
 
-export const getListingsByCityId = cache(
-  async (cityId: string): Promise<ListingSummaryDTO[]> => {
-    if (isE2ERun()) {
-      return getE2EListingsForCity(cityId);
-    }
-    const getPublishedListingsInCityQuery = groq`*[_type == "listing" && moderation.status == "published" && city._ref == $cityId]{
+export const getListingsByCityId = cache(async (cityId: string): Promise<ListingSummaryDTO[]> => {
+  if (isE2ERun()) {
+    return getE2EListingsForCity(cityId);
+  }
+  const getPublishedListingsInCityQuery = groq`*[_type == "listing" && moderation.status == "published" && city._ref == $cityId]{
     _id,
     name,
     "slug": slug.current,
@@ -277,29 +266,25 @@ export const getListingsByCityId = cache(
     }
   }`;
 
-    const listingsRaw = await cachedClient.fetch<ListingSummarySource[]>(
-      getPublishedListingsInCityQuery,
-      { cityId }
-    );
+  const listingsRaw = await cachedClient.fetch<ListingSummarySource[]>(
+    getPublishedListingsInCityQuery,
+    { cityId }
+  );
 
-    return listingsRaw.map((listing: ListingSummarySource) =>
-      transformToSummaryDTO({
-        ...listing,
-        slug: { current: listing.slug },
-        city: listing.city
-          ? { ...listing.city, slug: { current: listing.city.slug } }
-          : undefined,
-      } as DereferencedSanityListing)
-    );
+  return listingsRaw.map((listing: ListingSummarySource) =>
+    transformToSummaryDTO({
+      ...listing,
+      slug: { current: listing.slug },
+      city: listing.city ? { ...listing.city, slug: { current: listing.city.slug } } : undefined,
+    } as DereferencedSanityListing)
+  );
+});
+
+export const getCitiesList = cache(async (limit = 20): Promise<CityDTO[]> => {
+  if (isE2ERun()) {
+    return getE2ECityList(limit);
   }
-);
-
-export const getCitiesList = cache(
-  async (limit = 20): Promise<CityDTO[]> => {
-    if (isE2ERun()) {
-      return getE2ECityList(limit);
-    }
-    const getAllCitiesPaginatedQuery = groq`*[_type == "city"] | order(_createdAt desc)[0...$limit]{
+  const getAllCitiesPaginatedQuery = groq`*[_type == "city"] | order(_createdAt desc)[0...$limit]{
     _id,
     name,
     "slug": slug.current,
@@ -315,30 +300,27 @@ export const getCitiesList = cache(
     }
   }`;
 
-    const raw = await cachedClient.fetch(getAllCitiesPaginatedQuery, { limit });
-    return ((Array.isArray(raw) ? raw : []) as SanityCitySummary[])
-      .map(toCityDTO)
-      .filter(Boolean) as CityDTO[];
-  }
-);
+  const raw = await cachedClient.fetch(getAllCitiesPaginatedQuery, { limit });
+  return ((Array.isArray(raw) ? raw : []) as SanityCitySummary[])
+    .map(toCityDTO)
+    .filter(Boolean) as CityDTO[];
+});
 
 /**
  * Get all city slugs for static generation
  * This function is used by generateStaticParams in city pages
  */
-export const getAllCitySlugs = cache(
-  async (): Promise<string[]> => {
-    if (isE2ERun()) {
-      // Return E2E test fixture slugs
-      const cities = getE2ECityList(100);
-      return cities.map(city => city.slug);
-    }
-
-    const getAllCitySlugsQuery = groq`*[_type == "city"].slug.current`;
-
-    const slugs = await cachedClient.fetch<string[]>(getAllCitySlugsQuery);
-    return Array.isArray(slugs)
-      ? slugs.filter((slug): slug is string => typeof slug === 'string' && slug.length > 0)
-      : [];
+export const getAllCitySlugs = cache(async (): Promise<string[]> => {
+  if (isE2ERun()) {
+    // Return E2E test fixture slugs
+    const cities = getE2ECityList(100);
+    return cities.map(city => city.slug);
   }
-);
+
+  const getAllCitySlugsQuery = groq`*[_type == "city"].slug.current`;
+
+  const slugs = await cachedClient.fetch<string[]>(getAllCitySlugsQuery);
+  return Array.isArray(slugs)
+    ? slugs.filter((slug): slug is string => typeof slug === 'string' && slug.length > 0)
+    : [];
+});

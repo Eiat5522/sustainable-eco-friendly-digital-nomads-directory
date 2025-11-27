@@ -2,7 +2,13 @@
 
 import { useEffect, useState } from 'react';
 
-export function ClientDateFormatter({ dateString, formatOptions }: { dateString: string; formatOptions?: Intl.DateTimeFormatOptions }) {
+export function ClientDateFormatter({
+  dateString,
+  formatOptions,
+}: {
+  dateString: string;
+  formatOptions?: Intl.DateTimeFormatOptions;
+}) {
   const [formattedDate, setFormattedDate] = useState<string | null>(null);
 
   useEffect(() => {

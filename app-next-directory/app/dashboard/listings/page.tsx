@@ -19,9 +19,7 @@ export default async function VenueListingsPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-4">Manage Your Listings</h1>
-      <Suspense fallback={
-        <div className="p-8 text-center text-gray-500">Loading listings...</div>
-      }>
+      <Suspense fallback={<div className="p-8 text-center text-gray-500">Loading listings...</div>}>
         <VenueListingManagement />
       </Suspense>
     </div>

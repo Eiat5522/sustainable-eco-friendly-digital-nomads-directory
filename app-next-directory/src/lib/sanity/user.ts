@@ -78,7 +78,8 @@ async function ensureSanityUserInternal({
       return baseDoc;
     }
 
-    const updated = await client().patch(id)
+    const updated = await client()
+      .patch(id)
       .set(patch)
       .commit<SanityUser>({ autoGenerateArrayKeys: true });
     return updated;

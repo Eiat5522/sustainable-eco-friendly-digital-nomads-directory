@@ -40,9 +40,9 @@ export default async function AdminSettingsPage() {
         </div>
 
         <div className="bg-white shadow-sm rounded-lg border border-gray-200">
-          <Suspense fallback={
-            <div className="p-8 text-center text-gray-500">Loading settings...</div>
-          }>
+          <Suspense
+            fallback={<div className="p-8 text-center text-gray-500">Loading settings...</div>}
+          >
             <SettingsForm />
           </Suspense>
         </div>

@@ -130,10 +130,9 @@ const mapModerationProjectionToEntry = (item: ModerationQueueProjection): AdminM
 });
 
 async function fetchModerationEntryById(id: string): Promise<AdminModerationEntry | null> {
-  const result = await client().fetch<ModerationQueueProjection | ModerationQueueProjection[] | null>(
-    `*[_type == "moderationStatus" && _id == $id][0] {${MODERATION_QUEUE_PROJECTION}}`,
-    { id }
-  );
+  const result = await client().fetch<
+    ModerationQueueProjection | ModerationQueueProjection[] | null
+  >(`*[_type == "moderationStatus" && _id == $id][0] {${MODERATION_QUEUE_PROJECTION}}`, { id });
   const projection = Array.isArray(result) ? result[0] : result;
   return projection ? mapModerationProjectionToEntry(projection) : null;
 }

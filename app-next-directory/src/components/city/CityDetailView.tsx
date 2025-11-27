@@ -13,10 +13,13 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
-const DynamicRelatedListings = dynamic(() => import('@/components/listings/RelatedListings').then(mod => mod.RelatedListings), {
-  ssr: false,
-  loading: () => <div className="h-48 rounded-lg bg-muted animate-pulse" />,
-});
+const DynamicRelatedListings = dynamic(
+  () => import('@/components/listings/RelatedListings').then(mod => mod.RelatedListings),
+  {
+    ssr: false,
+    loading: () => <div className="h-48 rounded-lg bg-muted animate-pulse" />,
+  }
+);
 import { NeoBadge } from '@/components/ui/neo-badge';
 import type { CityDetailDTO, CityDTO, InternetSpeedDTO, ListingSummaryDTO } from '@/types/dto';
 

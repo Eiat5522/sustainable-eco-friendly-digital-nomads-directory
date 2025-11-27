@@ -8,9 +8,5 @@ interface ClientRootLayoutProps {
 }
 
 export default function ClientRootLayout({ children }: Readonly<ClientRootLayoutProps>) {
-  return (
-    <SessionProvider>
-      {children}
-    </SessionProvider>
-  );
+  return <SessionProvider>{children}</SessionProvider>;
 }

@@ -287,7 +287,7 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 // Next.js 16 proxy export
-export const proxy = createMiddleware({ 
-  getToken, 
-  NextResponse 
+export const proxy = createMiddleware({
+  getToken,
+  NextResponse,
 });

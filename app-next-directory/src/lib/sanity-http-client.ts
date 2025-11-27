@@ -308,12 +308,12 @@ export class SanityHTTPClient {
     }
     try {
       const result = await this.writeClient.delete(id); // delete returns null or a status object
-      
+
       // Check if result is undefined (error case)
       if (result === undefined) {
         throw new SanityAPIError('Delete failed: Delete error');
       }
-      
+
       const errorPayload = getErrorPayload(result);
       if (errorPayload?.error) {
         const message = formatErrorMessage(errorPayload.error, 'Delete error');
@@ -323,11 +323,11 @@ export class SanityHTTPClient {
           errorPayload
         );
       }
-      
+
       if (this.debug) {
         console.log(`✅ Deleted document: ${id}`);
       }
-      
+
       return result;
     } catch (error: unknown) {
       // Catching unknown for better type safety

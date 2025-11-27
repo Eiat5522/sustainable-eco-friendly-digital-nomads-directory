@@ -40,7 +40,7 @@ const providers: NextAuthConfig['providers'] = [
         const email = String(credentials.email).trim().toLowerCase();
         const password = String(credentials.password);
         const forwardedFor =
-          request?.headers?.get('x-forwarded-for') ?? (request?.headers?.get('x-real-ip') ?? '');
+          request?.headers?.get('x-forwarded-for') ?? request?.headers?.get('x-real-ip') ?? '';
         const ip = forwardedFor ? forwardedFor.split(',')[0]?.trim() : null;
         const identifier = ip ? `${email}:${ip}` : email;
 

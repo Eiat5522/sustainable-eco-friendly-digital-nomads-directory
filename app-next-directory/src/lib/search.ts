@@ -167,7 +167,9 @@ export async function getSearchSuggestions(
     "keywords": searchMetadata.keywords[]->name
   }`;
 
-  const results = await sanityClient().fetch<SuggestionDocument[]>(groqQuery, { searchTerm: query });
+  const results = await sanityClient().fetch<SuggestionDocument[]>(groqQuery, {
+    searchTerm: query,
+  });
 
   // Extract and flatten unique suggestions
   const suggestions = new Set<string>();

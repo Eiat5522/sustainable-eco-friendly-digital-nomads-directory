@@ -1,3 +1,5 @@
+import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
+import nextTypescript from 'eslint-config-next/typescript';
 import { fileURLToPath } from 'node:url';
 import requireReactFcTypeParametersRule from './eslint/rules/require-react-fc-type-parameters.js';
 
@@ -12,10 +14,6 @@ try {
 const { FlatCompat } = eslintrc;
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
 
 /** @type {import('eslint').Linter.FlatConfig[]} */
 const eslintConfig = [
@@ -47,7 +45,8 @@ const eslintConfig = [
       },
     },
   },
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
+  ...nextCoreWebVitals,
+  ...nextTypescript,
   {
     plugins: {
       'local-react-strictness': {

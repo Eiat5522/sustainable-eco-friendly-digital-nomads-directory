@@ -612,7 +612,10 @@ export default function ProfilePage() {
                         {favorite.listing.city ?? '—'}
                       </td>
                       <td className="px-4 py-4 text-neo-text-secondary">
-                        <ClientDateFormatter dateString={favorite.createdAt} formatOptions={{ year: 'numeric', month: 'short', day: 'numeric' }} />
+                        <ClientDateFormatter
+                          dateString={favorite.createdAt}
+                          formatOptions={{ year: 'numeric', month: 'short', day: 'numeric' }}
+                        />
                       </td>
                     </tr>
                   );
@@ -628,9 +631,10 @@ export default function ProfilePage() {
   const renderVenueOwnerDashboard = (data: VenueOwnerDashboardDTO) => (
     <section aria-labelledby="venue-owner-dashboard" className="space-y-10">
       <header className="space-y-2">
-                  <h2 id="venue-owner-dashboard" className="heading-md">
-                    Listing performance
-                  </h2>        <p className="text-sm text-neo-text-secondary">
+        <h2 id="venue-owner-dashboard" className="heading-md">
+          Listing performance
+        </h2>{' '}
+        <p className="text-sm text-neo-text-secondary">
           Showing lifetime metrics plus the last {dashboard?.range.months ?? 3} months of trend data
           for your published listings.
         </p>
@@ -841,7 +845,7 @@ export default function ProfilePage() {
                     </p>
                   )}
                 </div>
-              </div >
+              </div>
 
               <nav
                 aria-label="Profile navigation"

@@ -30,8 +30,8 @@ export function logError(error: unknown, context: ErrorContext): void {
   };
   structuredLogger.error(
     normalized.message, // Message (first argument)
-    normalized,         // Error object (second argument)
-    combinedContext     // Context object (third argument)
+    normalized, // Error object (second argument)
+    combinedContext // Context object (third argument)
   );
 }
 

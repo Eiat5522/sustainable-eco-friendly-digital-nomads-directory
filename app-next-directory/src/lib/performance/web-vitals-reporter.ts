@@ -50,7 +50,9 @@ export function measureFunctionTime<T>(fn: () => T, _name = 'Function'): T {
   const _executionTime = end - start;
   if (process.env.NODE_ENV === 'development') {
     const formatted =
-      typeof _executionTime.toFixed === 'function' ? _executionTime.toFixed(2) : `${_executionTime}`;
+      typeof _executionTime.toFixed === 'function'
+        ? _executionTime.toFixed(2)
+        : `${_executionTime}`;
     console.debug(`[${_name}] Execution time: ${formatted}ms`);
   }
   return result;

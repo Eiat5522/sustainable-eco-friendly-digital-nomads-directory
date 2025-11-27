@@ -281,7 +281,9 @@ export async function recordLoginAttempt(params: {
   const trimmedEmail = rawEmail.trim();
 
   if (!validator.isEmail(trimmedEmail)) {
-    console.warn('[auth] Skipping login attempt record due to invalid email', { email: trimmedEmail });
+    console.warn('[auth] Skipping login attempt record due to invalid email', {
+      email: trimmedEmail,
+    });
     return;
   }
 

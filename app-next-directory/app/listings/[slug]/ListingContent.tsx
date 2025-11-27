@@ -150,7 +150,7 @@ function mapCityRecordToDTO(city?: RelatedListingRecord['city']): CityDTO | null
   };
 }
 
-const LISTING_QUERY = groq`*[_type == "listing" && moderation.status == "published" && slug.current == $slug][0]{
+const LISTING_QUERY = groq`*[_type == "listing" && moderation.status == "published" && slug.current == $slug && defined(type)][0]{
   _id,
   name,
   "slug": slug.current,
@@ -191,7 +191,11 @@ const FAVORITE_QUERY = groq`*[_type == "userFavorite" && user._ref == $userId &&
 
 // Wrap in React cache() to deduplicate requests within the same render pass
 const fetchListingBySlug = cache(async (slug: string): Promise<ListingDetailDTO | null> => {
-  const raw = await client().fetch<SanityListing | null>(LISTING_QUERY, { slug }, { revalidate: 60 }); // Add revalidate
+  const raw = await client().fetch<SanityListing | null>(
+    LISTING_QUERY,
+    { slug },
+    { revalidate: 60 }
+  ); // Add revalidate
   if (!raw) return null;
   try {
     return transformToDetailDTO(raw);
@@ -213,10 +217,14 @@ async function fetchRelatedListings(cityId?: string, excludeId?: string) {
       ecoFocusTags: string[];
     }>;
   try {
-    const records = await client().fetch<RelatedListingRecord[]>(RELATED_QUERY, {
-      cityId,
-      excludeId,
-    }, { revalidate: 60 }); // Add revalidate
+    const records = await client().fetch<RelatedListingRecord[]>(
+      RELATED_QUERY,
+      {
+        cityId,
+        excludeId,
+      },
+      { revalidate: 60 }
+    ); // Add revalidate
     return records.map(record => {
       const priceRange = isPriceRange(record.priceRange) ? record.priceRange : 'moderate';
 
@@ -333,10 +341,14 @@ async function fetchReviews(listingSlug: string, userId?: string): Promise<Revie
 async function checkIsFavorited(listingId: string, userId?: string): Promise<boolean> {
   if (!userId) return false;
   try {
-    const favorite = await client().fetch<{ _id?: string | null } | null>(FAVORITE_QUERY, {
-      userId,
-      listingId,
-    }, { revalidate: 60 }); // Add revalidate
+    const favorite = await client().fetch<{ _id?: string | null } | null>(
+      FAVORITE_QUERY,
+      {
+        userId,
+        listingId,
+      },
+      { revalidate: 60 }
+    ); // Add revalidate
     return Boolean(favorite?._id);
   } catch (error) {
     logger.error('Failed to check favorite status', error, {

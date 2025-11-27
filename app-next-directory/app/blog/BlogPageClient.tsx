@@ -74,11 +74,20 @@ export default function BlogPageClient() {
   }, [searchParams]);
 
   if (loading) {
-    return <div className="h-screen rounded-lg bg-muted animate-pulse" role="status" aria-label="Loading blog posts" aria-busy="true" />;
+    return (
+      <div
+        className="h-screen rounded-lg bg-muted animate-pulse"
+        role="status"
+        aria-label="Loading blog posts"
+        aria-busy="true"
+      />
+    );
   }
 
   if (error) {
-    return <div className="container mx-auto px-4 py-8 text-center text-red-500">Error: {error}</div>;
+    return (
+      <div className="container mx-auto px-4 py-8 text-center text-red-500">Error: {error}</div>
+    );
   }
 
   if (!data) {

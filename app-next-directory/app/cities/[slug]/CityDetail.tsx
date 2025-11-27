@@ -1,8 +1,4 @@
-import {
-  getCityBySlug,
-  getCityDetailBySlug,
-  getListingsByCityId,
-} from '@/lib/data/city';
+import { getCityBySlug, getCityDetailBySlug, getListingsByCityId } from '@/lib/data/city';
 import { structuredLogger } from '@/lib/logger';
 import type { CityDetailDTO, CityDTO, ListingSummaryDTO } from '@/types/dto';
 import {
@@ -95,7 +91,8 @@ export async function CityDetail({ slug }: { slug: string }) {
   }
 
   // Only fetch listings when city validation passes
-  if (city) { // Ensure city is defined before fetching listings
+  if (city) {
+    // Ensure city is defined before fetching listings
     try {
       const rawListings: unknown = await getListingsByCityId(city.id);
       const listingsResult = ListingSummaryDTOArraySchema.safeParse(rawListings);
@@ -119,9 +116,18 @@ export async function CityDetail({ slug }: { slug: string }) {
       });
     }
   }
-  
+
   return (
-    <Suspense fallback={<div className="h-screen rounded-lg bg-muted animate-pulse" role="status" aria-label="Loading city view" aria-busy="true" />}>
+    <Suspense
+      fallback={
+        <div
+          className="h-screen rounded-lg bg-muted animate-pulse"
+          role="status"
+          aria-label="Loading city view"
+          aria-busy="true"
+        />
+      }
+    >
       <ClientCityDetailViewWrapper city={city} listings={listings} />
     </Suspense>
   );

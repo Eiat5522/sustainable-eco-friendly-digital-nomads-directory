@@ -316,7 +316,7 @@ if (process.env.JEST_CONSOLE_NO_FILTER !== '1') {
     // Check if this console.error has been spied on by a test
     // If it has a mock property, it's being tested, so always call through
     const isMocked = 'mock' in console.error;
-    
+
     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
       originalConsoleError(...args);
     }
@@ -325,7 +325,7 @@ if (process.env.JEST_CONSOLE_NO_FILTER !== '1') {
   console.warn = ((...args: unknown[]) => {
     // Check if this console.warn has been spied on by a test
     const isMocked = 'mock' in console.warn;
-    
+
     if (isMocked || !shouldFilterWithFilters(defaultWarnFilters, args)) {
       originalConsoleWarn(...args);
     }

@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Footer } from '@/components/layout/Footer';
@@ -55,7 +56,9 @@ export default function NewsletterConfirmedPage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <Content />
+      <Suspense fallback={<div>Loading confirmation...</div>}>
+        <Content />
+      </Suspense>
       <Footer />
     </div>
   );

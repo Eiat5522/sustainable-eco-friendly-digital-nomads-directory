@@ -115,6 +115,3 @@ export const builder = imageUrlBuilderFactory(client());
  * ```
  */
 export const urlFor = (source: SanityImageSource) => builder.image(source);
-
-
-

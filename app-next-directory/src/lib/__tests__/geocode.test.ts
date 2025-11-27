@@ -310,7 +310,7 @@ describe('updateListingsWithCoordinates', () => {
     jest.doMock('path', () => ({
       join: jest.fn(() => mockedPath),
     }));
-    
+
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const geocodeModule = require('../geocode');
     const updateListingsWithCoordinates = async () => {
@@ -342,7 +342,7 @@ describe('updateListingsWithCoordinates', () => {
     jest.doMock('path', () => ({
       join: jest.fn(() => mockedPath),
     }));
-    
+
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const geocodeModule = require('../geocode');
     const updateListingsWithCoordinates = async () => {
@@ -374,7 +374,7 @@ describe('updateListingsWithCoordinates', () => {
     jest.doMock('path', () => ({
       join: jest.fn(() => mockedPath),
     }));
-    
+
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const geocodeModule = require('../geocode');
     const updateListingsWithCoordinates = async () => {

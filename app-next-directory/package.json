@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "next dev",
     "dev:clean": "bash ../scripts/clean-build-artifacts.sh && next dev",
-    "build": "pnpm run build:types && cross-env TURBOPACK=true next build",
+    "build": "pnpm run build:types && cross-env TURBOPACK=true next build \"$@\"",
     "build:types": "tsc -p tsconfig.types.json",
     "check-types": "tsc --noEmit",
     "type-check": "tsc --noEmit",
@@ -45,7 +45,8 @@
     "e2e:clean": "node tests/setup-e2e-db.mjs",
     "test:e2e:isolated": "pnpm e2e:setup && pnpm test:e2e",
     "test:e2e:debug": "PWDEBUG=1 playwright test --config=playwright.config.ts",
-    "test:e2e:ui": "playwright test --ui --config=playwright.config.ts"
+    "test:e2e:ui": "playwright test --ui --config=playwright.config.ts",
+    "build:debug-prerender": "pnpm run build:types && cross-env TURBOPACK=true next build --debug-prerender"
   },
   "dependencies": {
     "@21st-extension/react": "^0.5.14",
@@ -131,6 +132,7 @@
     "nanoid": "^5.1.5",
     "next": "^16.0.0",
     "next-auth": "5.0.0-beta.30",
+    "next-devtools-mcp": "^0.3.5",
     "next-sanity": "^11.6.5",
     "next-sanity-image": "^6.2.0",
     "next-themes": "^0.4.6",
@@ -170,7 +172,6 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",
-    "@eslint/eslintrc": "^3.3.1",
     "@jest/globals": "^29.3.1",
     "@svgr/webpack": "^8.1.0",
     "@swc/jest": "^0.2.39",

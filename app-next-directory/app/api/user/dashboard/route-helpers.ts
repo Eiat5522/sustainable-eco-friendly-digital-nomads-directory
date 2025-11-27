@@ -14,7 +14,8 @@ export function normalizeMonthWindow(monthsParam: string | null): number {
   return Math.min(Math.max(parsed, 1), MAX_MONTH_WINDOW);
 }
 
-export function createDashboardHandler({ logger }: Pick<typeof structuredLogger, 'error'>) { // Modify function signature
+export function createDashboardHandler({ logger }: Pick<typeof structuredLogger, 'error'>) {
+  // Modify function signature
   return async function GET(request: NextRequest) {
     try {
       const session = await auth(); // Use imported auth directly
@@ -34,7 +35,8 @@ export function createDashboardHandler({ logger }: Pick<typeof structuredLogger,
       const { searchParams } = new URL(request.url);
       const months = normalizeMonthWindow(searchParams.get('months'));
 
-      const dashboard = await getUserDashboardData( // Use imported getUserDashboardData directly
+      const dashboard = await getUserDashboardData(
+        // Use imported getUserDashboardData directly
         {
           id: sessionUser.id,
           role: sessionUser.role ?? 'user',

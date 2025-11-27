@@ -42,9 +42,9 @@ export default async function AdminListingsPage() {
         </div>
 
         <div className="bg-white shadow-sm rounded-lg border border-gray-200">
-          <Suspense fallback={
-            <div className="p-8 text-center text-gray-500">Loading listings...</div>
-          }>
+          <Suspense
+            fallback={<div className="p-8 text-center text-gray-500">Loading listings...</div>}
+          >
             <ListingsManagementTable
               currentUserRole={sessionUser.role}
               currentUserId={sessionUser.id}

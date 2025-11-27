@@ -27,6 +27,11 @@ export default function BlogPostClient() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (slug === 'no-posts') {
+      setLoading(false);
+      return;
+    }
+
     const fetchPost = async () => {
       setLoading(true);
       setError(null);
@@ -67,7 +72,9 @@ export default function BlogPostClient() {
   }
 
   if (error) {
-    return <div className="container mx-auto px-4 py-8 text-center text-red-500">Error: {error}</div>;
+    return (
+      <div className="container mx-auto px-4 py-8 text-center text-red-500">Error: {error}</div>
+    );
   }
 
   if (!data) {

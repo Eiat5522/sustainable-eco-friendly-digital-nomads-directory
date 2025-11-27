@@ -42,9 +42,12 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     }
 
     // Resolve listing by slug to get its Sanity ID
-    const listing = await client().fetch(`*[_type == "listing" && slug.current == $slug][0]{ _id }`, {
-      slug,
-    });
+    const listing = await client().fetch(
+      `*[_type == "listing" && slug.current == $slug][0]{ _id }`,
+      {
+        slug,
+      }
+    );
     if (!listing?._id) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
     }
@@ -125,9 +128,12 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
 
     if (!slug) return NextResponse.json({ favorited: false });
 
-    const listing = await client().fetch(`*[_type == "listing" && slug.current == $slug][0]{ _id }`, {
-      slug,
-    });
+    const listing = await client().fetch(
+      `*[_type == "listing" && slug.current == $slug][0]{ _id }`,
+      {
+        slug,
+      }
+    );
     const listingId = listing?._id;
 
     if (!listingId) return NextResponse.json({ favorited: false });

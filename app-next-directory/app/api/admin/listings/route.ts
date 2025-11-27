@@ -215,7 +215,10 @@ export async function PATCH(request: NextRequest, _context: RouteContext) {
 
     const sanityClient = client(); // Get the lazily instantiated client
     await withRequestTimeout(
-      sanityClient().patch(listingIdValue).set(updateData).commit(), // Updated to use sanityClient.patch
+      sanityClient()
+        .patch(listingIdValue)
+        .set(updateData)
+        .commit(), // Updated to use sanityClient.patch
       getDefaultTimeout(),
       'Updating listing timed out'
     );

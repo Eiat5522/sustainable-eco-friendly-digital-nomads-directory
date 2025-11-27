@@ -40,10 +40,13 @@ export default async function AdminUsersPage() {
         </div>
 
         <div className="bg-white shadow-sm rounded-lg border border-gray-200">
-          <Suspense fallback={
-            <div className="p-8 text-center text-gray-500">Loading users...</div>
-          }>
-            <UserManagementTable currentUserRole={sessionUser.role} currentUserId={sessionUser.id} />
+          <Suspense
+            fallback={<div className="p-8 text-center text-gray-500">Loading users...</div>}
+          >
+            <UserManagementTable
+              currentUserRole={sessionUser.role}
+              currentUserId={sessionUser.id}
+            />
           </Suspense>
         </div>
       </div>

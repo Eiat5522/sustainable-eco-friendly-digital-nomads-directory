@@ -20,13 +20,7 @@
     {
       "listingId": "1",
       "listingName": "Listing One",
-      "missingFields": [
-        "longDescription",
-        "primary_image_url",
-        "eco_features",
-        "amenities",
-        "city"
-      ]
+      "missingFields": ["longDescription", "primary_image_url", "eco_features", "amenities", "city"]
     }
   ]
 }

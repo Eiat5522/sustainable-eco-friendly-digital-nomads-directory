@@ -12,7 +12,9 @@ export default function BlogPostPage() {
   return (
     <>
       <Header />
-      <Suspense fallback={<div className="container mx-auto px-4 py-8 text-center">Loading post...</div>}>
+      <Suspense
+        fallback={<div className="container mx-auto px-4 py-8 text-center">Loading post...</div>}
+      >
         <BlogPostClient />
       </Suspense>
       <Footer />
@@ -29,9 +31,9 @@ export async function generateMetadata({
     return { title: 'No Blog Posts Found' };
   }
 
-  const base = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'; // Use static base URL
-  const { slug } = params; // Directly use params.slug, already typed correctly
-  
+  const base = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const { slug } = params;
+
   const post = await client().fetch(
     groq`*[_type == "post" && slug.current == $slug][0]{
       title,
@@ -39,7 +41,7 @@ export async function generateMetadata({
       "imageUrl": primaryImage.asset->url
     }`,
     { slug },
-    { revalidate: 60 } // Add revalidate option for caching
+    { revalidate: 60 }
   );
 
   if (!post) {
@@ -80,7 +82,7 @@ export async function generateStaticParams() {
     { revalidate: 60 } // Add revalidate option for caching
   );
   if (!posts || posts.length === 0) {
-    return [{ slug: 'no-posts' }];
+    return []; // Return empty array to prevent prerendering a 'no-posts' page
   }
   return posts.map((post: { slug: string }) => ({
     slug: post.slug,
