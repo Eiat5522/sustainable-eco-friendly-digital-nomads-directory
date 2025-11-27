@@ -24,17 +24,17 @@ jest.mock('@/lib/constants/categories', () => ({
 }));
 
 describe('Categories API - GET /api/categories', () => {
-  let mockedFetch: jest.Mock;
+  let mockedSanityFetch: jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockedFetch = client.fetch as jest.Mock;
+    mockedSanityFetch = jest.mocked(client).fetch;
   });
 
   describe('Successful Requests', () => {
     it('should return categories from CMS', async () => {
       const mockCategories = ['Coworking', 'Accommodation', 'Cafe', 'Restaurant', 'Hotel'];
-      mockedFetch.mockResolvedValueOnce(mockCategories);
+      mockedSanityFetch.mockResolvedValueOnce(mockCategories);
 
       const response = await GET();
       const data = await response.json();
@@ -43,15 +43,15 @@ describe('Categories API - GET /api/categories', () => {
       expect(data.success).toBe(true);
       expect(data.data.categories).toEqual(mockCategories);
       expect(data.data.categories.length).toBe(5);
-      expect(mockedFetch).toHaveBeenCalledTimes(1);
+      expect(mockedSanityFetch).toHaveBeenCalledTimes(1);
     });
 
     it('should use correct GROQ query for categories', async () => {
-      mockedFetch.mockResolvedValueOnce(['Coworking']);
+      mockedSanityFetch.mockResolvedValueOnce(['Coworking']);
 
       await GET();
 
-      const query = mockedFetch.mock.calls[0][0];
+      const query = mockedSanityFetch.mock.calls[0][0];
       expect(query).toContain('_type == "listing"');
       expect(query).toContain('defined(category)');
       expect(query).toContain('array::unique');
@@ -60,7 +60,7 @@ describe('Categories API - GET /api/categories', () => {
 
   describe('Fallback Handling', () => {
     it('should return default categories when CMS returns empty array', async () => {
-      mockedFetch.mockResolvedValueOnce([]);
+      mockedSanityFetch.mockResolvedValueOnce([]);
 
       const response = await GET();
       const data = await response.json();
@@ -71,7 +71,7 @@ describe('Categories API - GET /api/categories', () => {
     });
 
     it('should return default categories when CMS returns null', async () => {
-      mockedFetch.mockResolvedValueOnce(null);
+      mockedSanityFetch.mockResolvedValueOnce(null);
 
       const response = await GET();
       const data = await response.json();
@@ -82,7 +82,7 @@ describe('Categories API - GET /api/categories', () => {
     });
 
     it('should return default categories when CMS returns undefined', async () => {
-      mockedFetch.mockResolvedValueOnce(undefined);
+      mockedSanityFetch.mockResolvedValueOnce(undefined);
 
       const response = await GET();
       const data = await response.json();
@@ -95,7 +95,7 @@ describe('Categories API - GET /api/categories', () => {
 
   describe('Error Handling', () => {
     it('should return default categories on database fetch failure', async () => {
-      mockedFetch.mockRejectedValueOnce(new Error('Sanity fetch error'));
+      mockedSanityFetch.mockRejectedValueOnce(new Error('Sanity fetch error'));
 
       const response = await GET();
       const data = await response.json();
@@ -103,11 +103,11 @@ describe('Categories API - GET /api/categories', () => {
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
       expect(data.data.categories).toEqual(DEFAULT_CATEGORIES);
-      expect(mockedFetch).toHaveBeenCalledTimes(1);
+      expect(mockedSanityFetch).toHaveBeenCalledTimes(1);
     });
 
     it('should handle network timeout errors with fallback', async () => {
-      mockedFetch.mockRejectedValueOnce(new Error('Network timeout'));
+      mockedSanityFetch.mockRejectedValueOnce(new Error('Network timeout'));
 
       const response = await GET();
       const data = await response.json();
@@ -120,7 +120,7 @@ describe('Categories API - GET /api/categories', () => {
     it('should handle error with status code', async () => {
       const error = new Error('Sanity error') as any;
       error.status = 503;
-      mockedFetch.mockRejectedValueOnce(error);
+      mockedSanityFetch.mockRejectedValueOnce(error);
 
       const response = await GET();
       const data = await response.json();

@@ -20,22 +20,21 @@ jest.mock('@/lib/sanity/client', () => ({
 }));
 
 describe('Featured Listings API - GET /api/featured-listings', () => {
-  let mockedFetch: jest.Mock;
-  const ORIGINAL_ENV = { ...process.env };
+  let mockedSanityFetch: jest.Mock; // Renamed for clarity
+  const ORIGINAL_ENV = { ...process.env }; // Capture original env once
 
   beforeEach(() => {
-    jest.resetModules();
-    jest.clearAllMocks();
-    mockedFetch = client.fetch as jest.Mock;
+    jest.resetAllMocks(); // Resets all mocks, including module mocks
+    mockedSanityFetch = jest.mocked(client).fetch; // Correctly get the mocked function
     process.env = {
-      ...ORIGINAL_ENV,
+      ...ORIGINAL_ENV, // Restore original env and then apply test-specific ones
       NEXT_PUBLIC_SANITY_PROJECT_ID: 'test-project',
       NEXT_PUBLIC_SANITY_DATASET: 'production',
     };
   });
 
   afterEach(() => {
-    process.env = { ...ORIGINAL_ENV };
+    process.env = { ...ORIGINAL_ENV }; // Restore original process.env
   });
 
   describe('Successful Requests', () => {
@@ -55,7 +54,7 @@ describe('Featured Listings API - GET /api/featured-listings', () => {
           },
         },
       ];
-      mockedFetch.mockResolvedValueOnce(mockListings);
+      mockedSanityFetch.mockResolvedValueOnce(mockListings);
 
       const response = await GET();
       const data = await response.json();
@@ -74,11 +73,11 @@ describe('Featured Listings API - GET /api/featured-listings', () => {
         ecoFocusTags: ['Solar Powered', 'Zero Waste'],
         featured: true,
       });
-      expect(mockedFetch).toHaveBeenCalledTimes(1);
+      expect(mockedSanityFetch).toHaveBeenCalledTimes(1);
     });
 
     it('should return empty array when no featured listings exist', async () => {
-      mockedFetch.mockResolvedValueOnce([]);
+      mockedSanityFetch.mockResolvedValueOnce([]);
 
       const response = await GET();
       const data = await response.json();
@@ -97,7 +96,7 @@ describe('Featured Listings API - GET /api/featured-listings', () => {
           imageUrl: null,
         },
       ];
-      mockedFetch.mockResolvedValueOnce(mockListings);
+      mockedSanityFetch.mockResolvedValueOnce(mockListings);
 
       const response = await GET();
       const data = await response.json();
@@ -116,11 +115,11 @@ describe('Featured Listings API - GET /api/featured-listings', () => {
     });
 
     it('should use correct GROQ query for featured listings', async () => {
-      mockedFetch.mockResolvedValueOnce([]);
+      mockedSanityFetch.mockResolvedValueOnce([]);
 
       await GET();
 
-      const query = mockedFetch.mock.calls[0][0];
+      const query = mockedSanityFetch.mock.calls[0][0];
       expect(query).toContain('_type == "listing"');
       expect(query).toContain('moderation.featured == true');
       expect(query).toContain('moderation.status == "published"');
@@ -129,11 +128,11 @@ describe('Featured Listings API - GET /api/featured-listings', () => {
     });
 
     it('should include all required listing fields in query', async () => {
-      mockedFetch.mockResolvedValueOnce([]);
+      mockedSanityFetch.mockResolvedValueOnce([]);
 
       await GET();
 
-      const query = mockedFetch.mock.calls[0][0];
+      const query = mockedSanityFetch.mock.calls[0][0];
       expect(query).toContain('_id');
       expect(query).toContain('name');
       expect(query).toContain('slug');
@@ -147,7 +146,7 @@ describe('Featured Listings API - GET /api/featured-listings', () => {
 
   describe('Error Handling', () => {
     it('should return 500 on database fetch failure', async () => {
-      mockedFetch.mockRejectedValueOnce(new Error('Sanity fetch error'));
+      mockedSanityFetch.mockRejectedValueOnce(new Error('Sanity fetch error'));
 
       const response = await GET();
       const data = await response.json();
@@ -159,11 +158,11 @@ describe('Featured Listings API - GET /api/featured-listings', () => {
       if (data.data?.details) {
         expect(data.data.details).toBe('Sanity fetch error');
       }
-      expect(mockedFetch).toHaveBeenCalledTimes(1);
+      expect(mockedSanityFetch).toHaveBeenCalledTimes(1);
     });
 
     it('should handle network timeout errors', async () => {
-      mockedFetch.mockRejectedValueOnce(new Error('Network timeout'));
+      mockedSanityFetch.mockRejectedValueOnce(new Error('Network timeout'));
 
       const response = await GET();
       const data = await response.json();
@@ -186,7 +185,7 @@ describe('Featured Listings API - GET /api/featured-listings', () => {
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
       expect(data.data?.listings).toEqual(mockFeaturedVenues);
-      expect(mockedFetch).not.toHaveBeenCalled();
+      expect(mockedSanityFetch).not.toHaveBeenCalled();
     });
 
     it('should return mock featured venues when dataset is missing', async () => {
@@ -198,7 +197,7 @@ describe('Featured Listings API - GET /api/featured-listings', () => {
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
       expect(data.data?.listings).toEqual(mockFeaturedVenues);
-      expect(mockedFetch).not.toHaveBeenCalled();
+      expect(mockedSanityFetch).not.toHaveBeenCalled();
     });
   });
 
@@ -217,7 +216,7 @@ describe('Featured Listings API - GET /api/featured-listings', () => {
           ],
         },
       ];
-      mockedFetch.mockResolvedValueOnce(mockListings);
+      mockedSanityFetch.mockResolvedValueOnce(mockListings);
 
       const response = await GET();
       const data = await response.json();
@@ -234,7 +233,7 @@ describe('Featured Listings API - GET /api/featured-listings', () => {
           ecoFocusTags: ['Solar', '', null, 'Wind Power', undefined],
         },
       ];
-      mockedFetch.mockResolvedValueOnce(mockListings);
+      mockedSanityFetch.mockResolvedValueOnce(mockListings);
 
       const response = await GET();
       const data = await response.json();
