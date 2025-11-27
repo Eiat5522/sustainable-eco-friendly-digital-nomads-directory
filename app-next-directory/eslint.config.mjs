@@ -1,6 +1,6 @@
+import { fileURLToPath } from 'node:url';
 import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
 import nextTypescript from 'eslint-config-next/typescript';
-import { fileURLToPath } from 'node:url';
 import requireReactFcTypeParametersRule from './eslint/rules/require-react-fc-type-parameters.js';
 
 // Robust import with CJS fallback for @eslint/eslintrc

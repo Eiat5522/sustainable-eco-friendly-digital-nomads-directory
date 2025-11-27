@@ -15,7 +15,6 @@ export function ClientDateFormatter({
     try {
       setFormattedDate(new Date(dateString).toLocaleString(undefined, formatOptions));
     } catch (e) {
-      console.error('Failed to format date:', e);
       setFormattedDate('Invalid Date');
     }
   }, [dateString, formatOptions]);

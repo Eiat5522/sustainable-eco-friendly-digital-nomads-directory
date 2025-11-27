@@ -140,9 +140,6 @@ export async function sendAlert(alert: PerformanceAlert) {
   // Console logging (development & production)
   if (ALERT_CHANNELS.console.enabled) {
     const severity = alert.severity.toUpperCase();
-    console.log(
-      `[Performance ${severity}] ${alert.metric}: ${alert.value} (threshold: ${alert.threshold})`
-    );
   }
 
   // Slack alerts (if configured)
@@ -165,9 +162,7 @@ export async function sendAlert(alert: PerformanceAlert) {
             `Time: ${new Date(alert.timestamp).toISOString()}`,
         }),
       });
-    } catch (error) {
-      console.error('Failed to send Slack alert:', error);
-    }
+    } catch (error) {}
   }
 
   // Email alerts (if configured)

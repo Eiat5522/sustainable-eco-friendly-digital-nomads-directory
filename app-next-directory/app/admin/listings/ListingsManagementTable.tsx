@@ -4,7 +4,6 @@ import { useSession } from 'next-auth/react';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { getUserFacingMessage } from '@/lib/client-utils';
 import { fetchJsonWithRetry, getDefaultTimeout, RequestTimeoutError } from '@/lib/http/request';
-import type { UserRole } from '@/types/auth';
 import {
   isListingTypeValue,
   isListingWorkflowStatus,

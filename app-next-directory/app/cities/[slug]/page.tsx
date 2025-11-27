@@ -1,9 +1,9 @@
 import { Suspense } from 'react';
+import { CityDetailViewSkeleton } from '@/components/city/CityDetailViewSkeleton';
 // Remove direct imports for Header and Footer
 import { getAllCitySlugs } from '@/lib/data/city';
 import { structuredLogger } from '@/lib/logger';
 import { CityDetail } from './CityDetail';
-import { CityDetailViewSkeleton } from '@/components/city/CityDetailViewSkeleton';
 
 type Params = { slug: string };
 type Props = { params: Params | Promise<Params> };

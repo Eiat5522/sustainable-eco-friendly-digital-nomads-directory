@@ -3,7 +3,6 @@
 import type React from 'react';
 // Remove direct imports for Header and Footer
 import { SkipLink } from '@/components/ui/skip-link';
-import { Suspense } from 'react';
 
 interface PageLayoutProps {
   children: React.ReactNode;

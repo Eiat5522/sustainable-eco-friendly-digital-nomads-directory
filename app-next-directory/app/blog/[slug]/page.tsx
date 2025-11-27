@@ -1,10 +1,8 @@
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
-import { notFound } from 'next/navigation';
 import { groq } from 'next-sanity';
+import { Suspense } from 'react';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
-import { getBaseUrl } from '@/lib/absolute-url';
 import { client } from '@/lib/sanity/client';
 import BlogPostClient from './BlogPostClient';
 

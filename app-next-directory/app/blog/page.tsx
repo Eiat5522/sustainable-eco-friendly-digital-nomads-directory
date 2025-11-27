@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
-import BlogPageWrapper from './BlogPageWrapper';
-import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { Header } from '@/components/layout/Header';
+import BlogPageWrapper from './BlogPageWrapper';
 
 export const metadata: Metadata = {
   title: "The Nomad's Chronicle – Blog",

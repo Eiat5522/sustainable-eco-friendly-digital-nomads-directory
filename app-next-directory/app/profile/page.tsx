@@ -1,11 +1,12 @@
 'use client';
 
 import { Edit, Heart, Loader2, MessageSquare, Star } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useEffect, useMemo, useState } from 'react';
-import dynamic from 'next/dynamic';
+
 const DynamicHeader = dynamic(() => import('@/components/layout/Header').then(mod => mod.Header), {
   ssr: false,
   loading: () => <div className="h-16 w-full bg-muted animate-pulse" />,
@@ -14,6 +15,8 @@ const DynamicFooter = dynamic(() => import('@/components/layout/Footer').then(mo
   ssr: false,
   loading: () => <div className="h-48 w-full bg-muted animate-pulse" />,
 });
+
+import { ClientDateFormatter } from '@/components/common/ClientDateFormatter';
 import { ProfileEditForm } from '@/components/profile/ProfileEditForm';
 import { NeoBadge } from '@/components/ui/neo-badge';
 import { NeoButton } from '@/components/ui/neo-button';
@@ -40,7 +43,6 @@ import {
   normaliseOwnerReviews,
   type OwnerReviewsResponse,
 } from './utils';
-import { ClientDateFormatter } from '@/components/common/ClientDateFormatter';
 
 interface FavoritesResponse {
   favorites?: Array<FavoriteEntry | null> | null;

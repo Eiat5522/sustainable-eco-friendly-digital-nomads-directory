@@ -1,5 +1,4 @@
 'use client';
-import { useEffect, useState } from 'react'; // Removed explicit React import
 import type { LucideIcon } from 'lucide-react';
 import {
   DollarSign,
@@ -11,8 +10,10 @@ import {
   Wifi,
   Wind,
 } from 'lucide-react';
-import Image from 'next/image';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
+import { useEffect, useState } from 'react'; // Removed explicit React import
+
 const DynamicRelatedListings = dynamic(
   () => import('@/components/listings/RelatedListings').then(mod => mod.RelatedListings),
   {
@@ -20,6 +21,7 @@ const DynamicRelatedListings = dynamic(
     loading: () => <div className="h-48 rounded-lg bg-muted animate-pulse" />,
   }
 );
+
 import { NeoBadge } from '@/components/ui/neo-badge';
 import type { CityDetailDTO, CityDTO, InternetSpeedDTO, ListingSummaryDTO } from '@/types/dto';
 

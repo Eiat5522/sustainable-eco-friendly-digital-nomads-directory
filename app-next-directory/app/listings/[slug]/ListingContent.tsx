@@ -9,10 +9,9 @@ import {
   mockRelatedListings,
   mockReviews,
 } from '@/components/listings/listingDetailMockData';
-import { structuredLogger as logger } from '@/lib/logger';
 import { transformToDetailDTO } from '@/lib/dto-transformer';
+import { structuredLogger as logger } from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
-import type { UserRole } from '@/types/auth';
 import type { CityDTO, ListingDetailDTO } from '@/types/dto';
 import type { SanityListing } from '@/types/sanity.types';
 import { getCollection } from '@/utils/db-helpers';

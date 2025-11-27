@@ -9,7 +9,7 @@ import CommentForm from '@/components/CommentForm';
 import CommentList from '@/components/CommentList';
 
 type Comment = { _id: string; content: string; user?: { name?: string } | null };
-type PostDTO = { id: string; title: string; body: any[]; imageUrl?: string | null };
+type PostDTO = { id: string; title: string; body: Array<Record<string, unknown>>; imageUrl?: string | null };
 
 type PostResponse = { post: PostDTO; comments: Comment[] };
 

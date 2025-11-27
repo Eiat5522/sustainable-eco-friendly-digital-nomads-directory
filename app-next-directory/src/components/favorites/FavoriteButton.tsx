@@ -75,7 +75,6 @@ export function FavoriteButton({
           setIsFavoritedState(data.favorited ?? false);
         }
       } catch (error) {
-        console.error('Error checking favorite status:', error);
       } finally {
         setIsCheckingStatus(false);
       }

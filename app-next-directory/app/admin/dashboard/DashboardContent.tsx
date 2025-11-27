@@ -7,7 +7,6 @@ import {
 } from '@/lib/admin/analytics';
 import { RequestTimeoutError } from '@/lib/http/request';
 import { structuredLogger } from '@/lib/logger';
-import type { UserRole } from '@/types/auth';
 import { ModerationActions } from './ModerationActions';
 
 // --- Re-use existing helper functions from page.tsx ---

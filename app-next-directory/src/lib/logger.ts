@@ -108,8 +108,8 @@ interface LogContext {
   path?: string;
   method?: string;
   component?: string;
-  details?: any; // Keep details as any for now to avoid deeper recursion with LogValue
-  [key: string]: LogValue | any; // Allow for other arbitrary properties
+  details?: Record<string, unknown>; // Keep details as any for now to avoid deeper recursion with LogValue
+  [key: string]: LogValue | Record<string, unknown>; // Allow for other arbitrary properties
 }
 
 const toRedacted = (value: string | undefined): string | undefined =>
@@ -147,13 +147,23 @@ const getHeaderValue = (
 
 // Define a simple serializer for errors, mimicking pino.stdSerializers.err
 // This avoids direct reference to pino before it's dynamically imported.
-const errorSerializer = (err: Error) => ({
-  type: err.name,
-  message: err.message,
-  stack: isProduction ? undefined : err.stack,
-  ...((err as any).code && { code: (err as any).code }),
-  ...((err as any).statusCode && { statusCode: (err as any).statusCode }),
-});
+const errorSerializer = (err: Error) => {
+  const serialized: Record<string, unknown> = {
+    type: err.name,
+    message: err.message,
+  };
+  if (!isProduction) {
+    serialized.stack = err.stack;
+  }
+  const errAsRecord = err as unknown as Record<string, unknown>;
+  if (errAsRecord.code) {
+    serialized.code = errAsRecord.code;
+  }
+  if (errAsRecord.statusCode) {
+    serialized.statusCode = errAsRecord.statusCode;
+  }
+  return serialized;
+};
 
 // Create base logger configuration
 const loggerConfig = {
@@ -225,21 +235,21 @@ const loggerConfig = {
 // Define a no-op logger for client-side or when pino is not loaded
 // Methods now accept arbitrary arguments to match pino's flexible API
 const noopLogger = {
-  debug: (...args: any[]) => {},
-  info: (...args: any[]) => {},
-  warn: (...args: any[]) => {},
-  error: (...args: any[]) => {},
-  fatal: (...args: any[]) => {},
-  child: (...args: any[]) => noopLogger, // Child also returns no-op
+  debug: (..._args: unknown[]) => {},
+  info: (..._args: unknown[]) => {},
+  warn: (..._args: unknown[]) => {},
+  error: (..._args: unknown[]) => {},
+  fatal: (..._args: unknown[]) => {},
+  child: (..._args: unknown[]) => noopLogger, // Child also returns no-op
 };
 
 // Type definition for pino logger interface
 interface PinoBaseLogger {
-  debug: (obj: object | string, msg?: string, ...args: any[]) => void;
-  info: (obj: object | string, msg?: string, ...args: any[]) => void;
-  warn: (obj: object | string, msg?: string, ...args: any[]) => void;
-  error: (obj: object | string, msg?: string, ...args: any[]) => void;
-  fatal: (obj: object | string, msg?: string, ...args: any[]) => void;
+  debug: (obj: object | string, msg?: string, ...args: unknown[]) => void;
+  info: (obj: object | string, msg?: string, ...args: unknown[]) => void;
+  warn: (obj: object | string, msg?: string, ...args: unknown[]) => void;
+  error: (obj: object | string, msg?: string, ...args: unknown[]) => void;
+  fatal: (obj: object | string, msg?: string, ...args: unknown[]) => void;
   child: (bindings: object, options?: object) => PinoBaseLogger;
 }
 

@@ -13,11 +13,9 @@ export default function RootError({
   // Log error for diagnostics in both dev and production
   React.useEffect(() => {
     if (process.env.NODE_ENV === 'production') {
-      console.error('App segment error caught:', { message: error.message, digest: error.digest });
     } else {
-      console.error('App segment error caught:', error);
     }
-  }, [error]);
+  }, []);
 
   return (
     <section

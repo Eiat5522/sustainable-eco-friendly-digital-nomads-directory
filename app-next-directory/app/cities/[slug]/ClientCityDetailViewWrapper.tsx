@@ -1,8 +1,8 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import { useEffect, useState } from 'react';
 import type { CityDetailDTO, CityDTO, ListingSummaryDTO } from '@/types/dto';
-import { useState, useEffect } from 'react';
 
 const DynamicCityDetailView = dynamic(
   () => import('@/components/city/CityDetailView').then(mod => mod.CityDetailView),

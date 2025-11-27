@@ -9,7 +9,6 @@ const APP_DIR =
   typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
 
 import type { Configuration } from 'webpack';
-import webpack from 'webpack';
 
 const isAnalyze = /^(1|true|yes)$/i.test(process.env.ANALYZE ?? '');
 const withAnalyzer = withBundleAnalyzer({ enabled: isAnalyze });
@@ -57,7 +56,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  webpack(config: Configuration, { isServer }) {
+  webpack(config: Configuration, { _isServer }) {
     // Ensure @ alias resolves to this app's src directory
     config.resolve = config.resolve || {};
     config.resolve.alias = {

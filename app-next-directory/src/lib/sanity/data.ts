@@ -81,7 +81,6 @@ export async function getListingData(
     const { mapSanityListingToAppListingDetail } = await import('@/lib/listings');
     return mapSanityListingToAppListingDetail(listing);
   } catch (error) {
-    console.error('Error fetching listing data for slug:', slug, error);
     return null;
   }
 }

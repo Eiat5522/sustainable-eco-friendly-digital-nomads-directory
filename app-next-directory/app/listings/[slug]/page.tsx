@@ -1,12 +1,10 @@
 // MIGRATED: Removed export const revalidate = 300 (incompatible with Cache Components)
 
 import type { Metadata } from 'next';
-import { Suspense } from 'react'; // Add Suspense import
 import { groq } from 'next-sanity';
-import { cache } from 'react';
+import { cache, Suspense } from 'react';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
-import { structuredLogger as logger } from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
 import ListingContent from './ListingContent'; // Import the new component
 

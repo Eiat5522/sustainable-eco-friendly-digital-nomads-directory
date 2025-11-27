@@ -1,8 +1,8 @@
 'use client';
 
-import { Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
 import { NeoButton } from '@/components/ui/neo-button';

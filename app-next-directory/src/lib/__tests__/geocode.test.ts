@@ -22,7 +22,7 @@ jest.mock('path', () => ({
  */
 global.fetch = jest.fn() as jest.MockedFunction<typeof fetch>;
 
-const fs = require('fs/promises') as jest.Mocked<typeof import('fs/promises')>;
+const fs = require('node:fs/promises') as jest.Mocked<typeof import('fs/promises')>;
 
 describe('findLandmarkCoordinates', () => {
   it('returns coordinates for a matching landmark', () => {

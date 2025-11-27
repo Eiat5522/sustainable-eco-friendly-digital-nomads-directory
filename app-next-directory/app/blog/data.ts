@@ -1,6 +1,6 @@
+import { groq } from 'next-sanity';
 import { cache } from 'react';
 import { client } from '@/lib/sanity/client';
-import { groq } from 'next-sanity';
 
 type Post = {
   id: string;

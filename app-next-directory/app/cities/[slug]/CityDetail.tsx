@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { getCityBySlug, getCityDetailBySlug, getListingsByCityId } from '@/lib/data/city';
 import { structuredLogger } from '@/lib/logger';
 import type { CityDetailDTO, CityDTO, ListingSummaryDTO } from '@/types/dto';
@@ -6,7 +7,6 @@ import {
   CityDTOSchema,
   ListingSummaryDTOArraySchema,
 } from '@/types/dto-schemas';
-import { Suspense } from 'react';
 import ClientCityDetailViewWrapper from './ClientCityDetailViewWrapper'; // Import the new wrapper
 
 const toTitleCaseFromSlug = (s: string) =>

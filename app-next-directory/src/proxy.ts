@@ -1,8 +1,8 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 import { getRequestContext, structuredLogger } from '@/lib/logger';
 import { ACCESS_CONTROL_MATRIX, type PagePermissions, type UserRole } from '@/types/auth';
-import { getToken } from 'next-auth/jwt';
 
 const secret = process.env.NEXTAUTH_SECRET;
 

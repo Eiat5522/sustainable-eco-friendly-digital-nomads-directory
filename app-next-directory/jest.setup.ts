@@ -309,8 +309,10 @@ if (process.env.JEST_CONSOLE_NO_FILTER !== '1') {
   const originalConsoleLog = console.log;
 
   // Store originals for test access - tests can spy on these
-  (console as any).originalConsoleError = originalConsoleError;
-  (console as any).originalConsoleWarn = originalConsoleWarn;
+  (console as unknown as { originalConsoleError: () => void }).originalConsoleError =
+    originalConsoleError;
+  (console as unknown as { originalConsoleWarn: () => void }).originalConsoleWarn =
+    originalConsoleWarn;
 
   console.error = ((...args: unknown[]) => {
     // Check if this console.error has been spied on by a test
