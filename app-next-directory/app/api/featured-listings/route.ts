@@ -143,8 +143,8 @@ export async function GET() {
     });
     const queryStartTime = performance.now();
 
-    const sanityClient = client(); // Get the lazily instantiated client
-    const listings = await sanityClient().fetch<FeaturedListing[]>(FEATURED_LISTINGS_QUERY); // Updated to use sanityClient.fetch
+    const sanityClientInstance = client();
+    const listings = await sanityClientInstance.fetch<FeaturedListing[]>(FEATURED_LISTINGS_QUERY);
 
     const queryEndTime = performance.now();
     structuredLogger.info('Featured listings query completed', {

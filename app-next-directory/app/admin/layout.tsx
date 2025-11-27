@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import type React from 'react';
+import React, { Suspense, use } from 'react';
 import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 
@@ -12,7 +12,7 @@ function ensureAdmin(sessionUser: SessionUser): boolean {
 }
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const session = await auth();
+  const session = use(auth());
   const sessionUser = session?.user as SessionUser;
 
   if (!ensureAdmin(sessionUser)) {
@@ -57,7 +57,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
       </nav>
 
-      {children}
+      <Suspense fallback={<div>Loading...</div>}>
+        {children}
+      </Suspense>
     </div>
   );
 }

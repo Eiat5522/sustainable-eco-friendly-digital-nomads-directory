@@ -25,8 +25,12 @@ export async function generateMetadata({
 }: {
   params: { slug: string };
 }): Promise<Metadata> {
-  const base = await getBaseUrl();
-  const { slug } = await Promise.resolve(params as unknown as { slug: string });
+  if (params.slug === 'no-posts') {
+    return { title: 'No Blog Posts Found' };
+  }
+
+  const base = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'; // Use static base URL
+  const { slug } = params; // Directly use params.slug, already typed correctly
   
   const post = await client().fetch(
     groq`*[_type == "post" && slug.current == $slug][0]{
@@ -34,7 +38,8 @@ export async function generateMetadata({
       excerpt,
       "imageUrl": primaryImage.asset->url
     }`,
-    { slug }
+    { slug },
+    { revalidate: 60 } // Add revalidate option for caching
   );
 
   if (!post) {
@@ -69,7 +74,11 @@ export async function generateMetadata({
 }
 
 export async function generateStaticParams() {
-  const posts = await client().fetch(groq`*[_type == "post" && defined(slug.current)]{ "slug": slug.current }`);
+  const posts = await client().fetch(
+    groq`*[_type == "post" && defined(slug.current)]{ "slug": slug.current }`,
+    {}, // No params needed for this query
+    { revalidate: 60 } // Add revalidate option for caching
+  );
   if (!posts || posts.length === 0) {
     return [{ slug: 'no-posts' }];
   }

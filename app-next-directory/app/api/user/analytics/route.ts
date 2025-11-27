@@ -1,5 +1,3 @@
-// MIGRATED: Removed export const dynamic = 'force-dynamic' (incompatible with Cache Components)
-
 import { type NextRequest, NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';

@@ -21,6 +21,10 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: process.env.NODE_ENV === 'development',
   },
+  experimental: {
+    // Enable Cache Components for Next.js 16+
+    cacheComponents: true,
+  },
   async redirects() {
     return [
       { source: '/contact', destination: '/contact-us', permanent: true },

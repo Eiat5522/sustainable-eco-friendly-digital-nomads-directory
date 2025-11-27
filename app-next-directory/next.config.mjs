@@ -16,7 +16,7 @@ const nextConfig = {
   turbopack: {
     root: path.join(__dirname, '..'),
   },
-  cacheComponents: true,
+  cacheComponents: false,
   serverExternalPackages: ['pino', 'pino-pretty'],
   experimental: {
     // Enable filesystem caching for `next dev`

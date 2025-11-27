@@ -1,8 +1,10 @@
 'use client';
 
+import { useSession } from 'next-auth/react';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { getUserFacingMessage } from '@/lib/client-utils';
 import { fetchJsonWithRetry, getDefaultTimeout, RequestTimeoutError } from '@/lib/http/request';
+import type { UserRole } from '@/types/auth';
 import {
   isListingTypeValue,
   isListingWorkflowStatus,
@@ -145,7 +147,10 @@ function ModerationBadge({ status }: { status: 'pending' | 'approved' | 'rejecte
   );
 }
 
-export function ListingsManagementTable(_props: ListingsManagementTableProps) {
+export function ListingsManagementTable() {
+  const { data: session } = useSession();
+  const currentUserRole = session?.user?.role;
+  const currentUserId = session?.user?.id;
   const [listings, setListings] = useState<ListingManagementItem[]>([]);
   const [stats, setStats] = useState<ListingStats | null>(null);
   const [pagination, setPagination] = useState<ListingManagementPagination>({

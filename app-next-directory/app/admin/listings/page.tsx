@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { Suspense, use } from 'react';
 import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 import { ListingsManagementTable } from './ListingsManagementTable';
@@ -21,7 +22,7 @@ function ensureAdmin(
 }
 
 export default async function AdminListingsPage() {
-  const session = await auth();
+  const session = use(auth());
   const sessionUser = session?.user as SessionUser;
 
   if (!ensureAdmin(sessionUser)) {
@@ -41,10 +42,14 @@ export default async function AdminListingsPage() {
         </div>
 
         <div className="bg-white shadow-sm rounded-lg border border-gray-200">
-          <ListingsManagementTable
-            currentUserRole={sessionUser.role}
-            currentUserId={sessionUser.id}
-          />
+          <Suspense fallback={
+            <div className="p-8 text-center text-gray-500">Loading listings...</div>
+          }>
+            <ListingsManagementTable
+              currentUserRole={sessionUser.role}
+              currentUserId={sessionUser.id}
+            />
+          </Suspense>
         </div>
       </div>
     </main>

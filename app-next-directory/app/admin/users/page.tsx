@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { Suspense } from 'react'; // Add Suspense import
 import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 import { UserManagementTable } from './UserManagementTable';
@@ -39,7 +40,11 @@ export default async function AdminUsersPage() {
         </div>
 
         <div className="bg-white shadow-sm rounded-lg border border-gray-200">
-          <UserManagementTable currentUserRole={sessionUser.role} currentUserId={sessionUser.id} />
+          <Suspense fallback={
+            <div className="p-8 text-center text-gray-500">Loading users...</div>
+          }>
+            <UserManagementTable currentUserRole={sessionUser.role} currentUserId={sessionUser.id} />
+          </Suspense>
         </div>
       </div>
     </main>

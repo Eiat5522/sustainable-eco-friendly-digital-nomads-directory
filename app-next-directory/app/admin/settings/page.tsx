@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { Suspense } from 'react'; // Add Suspense import
 import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 import { SettingsForm } from './SettingsForm';
@@ -39,7 +40,11 @@ export default async function AdminSettingsPage() {
         </div>
 
         <div className="bg-white shadow-sm rounded-lg border border-gray-200">
-          <SettingsForm />
+          <Suspense fallback={
+            <div className="p-8 text-center text-gray-500">Loading settings...</div>
+          }>
+            <SettingsForm />
+          </Suspense>
         </div>
       </div>
     </main>
