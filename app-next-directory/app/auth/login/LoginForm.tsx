@@ -99,6 +99,7 @@ export default function LoginForm() {
         router.replace(callbackUrl);
       }
     } catch (err) {
+      console.error('Login submission failed:', err);
       setError('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);

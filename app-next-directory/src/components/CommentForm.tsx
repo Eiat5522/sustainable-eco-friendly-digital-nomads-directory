@@ -65,6 +65,10 @@ export default function CommentForm({ postId }: Readonly<{ postId: string }>): R
         router.refresh();
       } else {
         const errorText = await res.text();
+        console.error(
+          `Failed to submit comment: ${res.status} ${res.statusText}`,
+          errorText || undefined
+        );
         let resolvedMessage: string | null = null;
 
         if (errorText) {
@@ -82,6 +86,7 @@ export default function CommentForm({ postId }: Readonly<{ postId: string }>): R
         setError(resolvedMessage ?? 'Failed to submit comment');
       }
     } catch (err) {
+      console.error('Failed to submit comment:', err);
       setError('Failed to submit comment. Please try again.');
     } finally {
       setIsSubmitting(false);

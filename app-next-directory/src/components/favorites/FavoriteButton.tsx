@@ -75,6 +75,7 @@ export function FavoriteButton({
           setIsFavoritedState(data.favorited ?? false);
         }
       } catch (error) {
+        console.error('Error checking favorite status:', error);
       } finally {
         setIsCheckingStatus(false);
       }
@@ -165,7 +166,8 @@ export function FavoriteButton({
           setIsFavoritedState(true);
         }
       }
-    } catch (_error) {
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
       // Revert optimistic update on error
       if (optimistic) {
         setIsFavoritedState(previousState);

@@ -163,7 +163,7 @@ function normalizeAnalyticsSnapshot(
   };
 }
 
-async function loadAnalytics(): Promise<AnalyticsLoadResult> {
+export async function loadAnalytics(): Promise<AnalyticsLoadResult> {
   try {
     const analytics = await fetchAdminAnalytics();
     const normalized = normalizeAnalyticsSnapshot(analytics);
@@ -188,9 +188,15 @@ async function loadAnalytics(): Promise<AnalyticsLoadResult> {
   }
 }
 
-export default async function DashboardContent() {
-  const { analytics, errorMessage } = await loadAnalytics();
+export type DashboardContentProps = {
+  analytics: AdminAnalyticsSnapshot | null;
+  errorMessage?: string | null;
+};
 
+export default function DashboardContent({
+  analytics,
+  errorMessage,
+}: DashboardContentProps) {
   if (!analytics) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
