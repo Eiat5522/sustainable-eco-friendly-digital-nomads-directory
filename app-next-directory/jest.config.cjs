@@ -123,6 +123,7 @@ module.exports = {
   // Optionally start an in-memory MongoDB for integration tests.
   globalSetup: '<rootDir>/jest/globalSetup.cjs',
   globalTeardown: '<rootDir>/jest/globalTeardown.cjs',
+  clearMocks: true,
 
   testMatch: [
     '<rootDir>/src/**/*.test.(ts|tsx|js|jsx)',

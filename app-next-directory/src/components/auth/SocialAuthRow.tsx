@@ -82,6 +82,7 @@ export function SocialAuthRow({ providers = PROVIDERS }: Readonly<{ providers?: 
         setAvailableProviderIds(ids);
       } catch (err) {
         if (!cancelled) {
+          console.warn('[auth] Failed to load providers', err);
           setLoadError(true);
           setAvailableProviderIds([]);
         }

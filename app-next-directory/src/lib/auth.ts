@@ -8,6 +8,7 @@ import Google from 'next-auth/providers/google';
 // Additional OAuth providers can be added here when their credentials are available.
 import { createAuthAdapter } from '@/lib/auth/adapter';
 import { isAdminEmail } from '@/lib/auth/config';
+import { structuredLogger } from '@/lib/logger';
 import { enforceLoginRateLimit, recordLoginAttempt } from '@/lib/auth/rateLimit';
 import { authenticateUser, getUserById } from '@/lib/auth/serverAuth';
 import dbConnect from '@/lib/dbConnect';
@@ -138,7 +139,9 @@ const callbacks = {
           );
         }
       }
-    } catch (error) {}
+    } catch (error) {
+      structuredLogger.warn('[auth] signIn verification sync failed', error as Error);
+    }
     return true;
   },
   async jwt({ token, user, trigger }) {
@@ -165,7 +168,9 @@ const callbacks = {
       email,
       userId: t.id,
       currentRole: t.role ?? null,
-    }).catch(error => {});
+    }).catch(error => {
+      structuredLogger.error('[auth] failed to queue admin allowlist promotion flow', error as Error);
+    });
     return t as JWT | null;
   },
   async session({ session, token, user }) {
