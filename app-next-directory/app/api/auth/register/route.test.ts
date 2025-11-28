@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { structuredLogger } from '@/lib/logger';
 
 // Mock dependencies first to avoid hoisting issues
 jest.mock('@/lib/dbConnect', () => ({
@@ -189,7 +190,6 @@ describe('Registration API Routes', () => {
     });
 
     test('should return 400 if the body cannot be parsed', async () => {
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
       const req = {
         json: jest.fn().mockRejectedValue(new Error('invalid json')),
       } as any;
@@ -199,11 +199,10 @@ describe('Registration API Routes', () => {
 
       expect(response.status).toBe(400);
       expect(body.error.code).toBe('INVALID_INPUT');
-      expect(warnSpy).toHaveBeenCalledWith(
+      expect(structuredLogger.warn).toHaveBeenCalledWith(
         '[register] Failed to parse request body',
         expect.any(Error)
       );
-      warnSpy.mockRestore();
     });
 
     test('should return 503 when database configuration is missing', async () => {

@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { structuredLogger } from '@/lib/logger';
 
 describe('redis module', () => {
   const originalEnv = process.env;
@@ -16,6 +17,7 @@ describe('redis module', () => {
     process.env = { ...originalEnv, NODE_ENV: 'test', JEST_WORKER_ID: '1' };
     delete process.env.UPSTASH_REDIS_REST_URL;
     delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    structuredLogger.warn.mockClear(); // Clear the mock before each test
   });
 
   afterEach(() => {
@@ -42,8 +44,8 @@ describe('redis module', () => {
     const mod = await (async () => {
       let redisModule: typeof import('../redis');
       await jest.isolateModulesAsync(async () => {
-        redisCtor = jest.fn(() => redisInstance);
-        jest.doMock('@upstash/redis', () => ({ Redis: redisCtor }));
+        ctor = jest.fn(() => redisInstance);
+        jest.doMock('@upstash/redis', () => ({ Redis: ctor }));
         redisModule = await import('../redis');
       });
       return redisModule!;
@@ -51,7 +53,7 @@ describe('redis module', () => {
 
     const client = mod.createRedisClient();
 
-    expect(redisCtor!).toHaveBeenCalledWith({
+    expect(ctor!).toHaveBeenCalledWith({
       url: 'https://redis.upstash.io',
       token: 'token-123',
     });
@@ -88,8 +90,6 @@ describe('redis module', () => {
         throw new Error('listener failure');
       });
 
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-
     const unsubscribe = redisModule.onRedisClientChange(listener);
     redisModule.onRedisClientChange(otherListener);
     unsubscribeCalls.push(unsubscribe);
@@ -100,7 +100,10 @@ describe('redis module', () => {
     redisModule.setRedisClient(clientA);
 
     expect(listener).toHaveBeenLastCalledWith(clientA);
-    expect(warnSpy).toHaveBeenCalledWith('[redis] listener threw error', expect.any(Error));
+    expect(structuredLogger.warn).toHaveBeenCalledWith(
+      '[redis] listener threw error',
+      expect.any(Error)
+    );
 
     unsubscribe();
 
@@ -109,7 +112,6 @@ describe('redis module', () => {
 
     expect(listener).not.toHaveBeenLastCalledWith(clientB);
 
-    warnSpy.mockRestore();
     unsubscribeCalls.forEach(off => off?.());
   });
 
@@ -244,7 +246,6 @@ describe('redis helpers', () => {
 
   it('logs a warning when a listener throws during notification', async () => {
     const { onRedisClientChange, setRedisClient } = await import('../redis');
-    const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     const error = new Error('listener failure');
 
     const unsubscribe = onRedisClientChange(client => {
@@ -255,10 +256,9 @@ describe('redis helpers', () => {
 
     setRedisClient({ id: 3 } as any);
 
-    expect(consoleSpy).toHaveBeenCalledWith('[redis] listener threw error', error);
+    expect(structuredLogger.warn).toHaveBeenCalledWith('[redis] listener threw error', error);
 
     unsubscribe();
-    consoleSpy.mockRestore();
   });
 
   it('creates real redis clients outside of test environments', async () => {

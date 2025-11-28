@@ -82,7 +82,9 @@ describe('AdminDashboardPage', () => {
 
     const AdminDashboardPage = (await import('../page')).default;
     const element = await AdminDashboardPage();
-    render(element);
+    await act(async () => {
+      render(element);
+    });
 
     expect(mockFetchAnalytics).toHaveBeenCalledTimes(1);
     expect(await screen.findByTestId('admin-dashboard')).toBeInTheDocument();
@@ -100,7 +102,9 @@ describe('AdminDashboardPage', () => {
     mockFetchAnalytics.mockRejectedValueOnce(new Error('boom'));
     const AdminDashboardPage = (await import('../page')).default;
     const element = await AdminDashboardPage();
-    render(element);
+    await act(async () => {
+      render(element);
+    });
 
     expect(screen.getByText(/Unable to load dashboard data/i)).toBeInTheDocument();
     expect(mockLogger.error).toHaveBeenCalledWith(
@@ -124,7 +128,9 @@ describe('AdminDashboardPage', () => {
 
     const AdminDashboardPage = (await import('../page')).default;
     const element = await AdminDashboardPage();
-    render(element);
+    await act(async () => {
+      render(element);
+    });
 
     expect(screen.getByText(/dashboard data request timed out/i)).toBeInTheDocument();
     expect(mockLogger.error).toHaveBeenCalledWith(
@@ -163,7 +169,9 @@ describe('AdminDashboardPage', () => {
 
     const AdminDashboardPage = (await import('../page')).default;
     const element = await AdminDashboardPage();
-    render(element);
+    await act(async () => {
+      render(element);
+    });
 
     const cards = await screen.findAllByTestId('analytics-card-value');
     cards.forEach(card => {

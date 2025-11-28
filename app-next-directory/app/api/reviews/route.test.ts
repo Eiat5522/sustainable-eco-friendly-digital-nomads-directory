@@ -3,11 +3,11 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 jest.mock('@/lib/auth', () => ({ __esModule: true, auth: jest.fn() }));
 jest.mock('@/lib/sanity/client', () => ({
   __esModule: true,
-  client: {
+  client: jest.fn(() => ({
     getDocument: jest.fn(),
     create: jest.fn(),
     fetch: jest.fn(),
-  },
+  })),
 }));
 jest.mock('@/lib/sanity/user', () => ({ __esModule: true, ensureSanityUser: jest.fn() }));
 jest.mock('@/utils/db-helpers', () => ({ __esModule: true, getCollection: jest.fn() }));

@@ -1,16 +1,15 @@
 import { render, screen } from '@testing-library/react';
 
+jest.mock('next/navigation', () => ({
+  redirect: jest.fn(),
+}));
+
 jest.mock('@/lib/auth', () => ({
   auth: jest.fn(),
 }));
 
-const redirectMock = jest.fn();
-
-jest.mock('next/navigation', () => ({
-  redirect: (...args: unknown[]) => redirectMock(...args),
-}));
-
 const mockAuth = jest.requireMock('@/lib/auth').auth as jest.Mock;
+const mockRedirect = jest.requireMock('next/navigation').redirect as jest.Mock;
 
 describe('Admin layout', () => {
   beforeEach(() => {
@@ -18,13 +17,12 @@ describe('Admin layout', () => {
   });
 
   it('renders navigation for admin and super admin users', async () => {
-    mockAuth.mockResolvedValueOnce({
+    mockAuth.mockResolvedValue({
       user: { id: 'user-1', role: 'admin' },
     });
     const AdminLayout = (await import('../layout')).default;
 
-    const tree = await AdminLayout({ children: <div data-testid="layout-child">Child</div> });
-    render(tree);
+    render(await AdminLayout({ children: <div data-testid="layout-child">Child</div> }));
 
     expect(screen.getByText('Admin Panel')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /dashboard/i })).toHaveAttribute(
@@ -32,20 +30,20 @@ describe('Admin layout', () => {
       '/admin/dashboard'
     );
     expect(screen.getByTestId('layout-child')).toBeInTheDocument();
-    expect(redirectMock).not.toHaveBeenCalled();
+    expect(mockRedirect).not.toHaveBeenCalled();
   });
 
   it('redirects non-admin users to the login page', async () => {
-    mockAuth.mockResolvedValueOnce({
+    mockAuth.mockResolvedValue({
       user: { id: 'user-2', role: 'user' },
     });
-    redirectMock.mockImplementation(() => {
+    mockRedirect.mockImplementation(() => {
       throw new Error('redirect');
     });
 
     const AdminLayout = (await import('../layout')).default;
 
     await expect(AdminLayout({ children: <div /> })).rejects.toThrow('redirect');
-    expect(redirectMock).toHaveBeenCalledWith('/auth/login');
+    expect(mockRedirect).toHaveBeenCalledWith('/auth/login');
   });
 });

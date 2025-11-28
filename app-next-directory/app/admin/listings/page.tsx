@@ -21,14 +21,11 @@ function ensureAdmin(
   return role === 'admin' || role === 'superAdmin';
 }
 
-export default async function AdminListingsPage() {
-  const session = use(auth());
-  const sessionUser = session?.user as SessionUser;
+type AdminListingsPageContentProps = {
+  sessionUser: { id: string; role: 'admin' | 'superAdmin' };
+};
 
-  if (!ensureAdmin(sessionUser)) {
-    redirect('/auth/login?callbackUrl=/admin/listings');
-  }
-
+function AdminListingsPageContent({ sessionUser }: AdminListingsPageContentProps) {
   return (
     <main className="min-h-screen bg-gray-50" data-testid="admin-listings-page">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -54,4 +51,15 @@ export default async function AdminListingsPage() {
       </div>
     </main>
   );
+}
+
+export default async function AdminListingsPage() {
+  const session = await auth();
+  const sessionUser = session?.user as SessionUser;
+
+  if (!ensureAdmin(sessionUser)) {
+    redirect('/auth/login?callbackUrl=/admin/listings');
+  }
+
+  return <AdminListingsPageContent sessionUser={sessionUser} />;
 }

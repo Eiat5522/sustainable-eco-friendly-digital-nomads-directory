@@ -8,11 +8,7 @@ jest.mock('next/headers', () => ({
 
 jest.mock('./ClientRootLayout', () => ({
   __esModule: true,
-  default: jest.fn(({ children }) => (
-    <div data-testid="client-root-layout">
-      {children}
-    </div>
-  )),
+  default: jest.fn(({ children }) => <div data-testid="client-root-layout">{children}</div>),
 }));
 
 describe('RootLayout', () => {

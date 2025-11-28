@@ -20,10 +20,10 @@ jest.mock('@/components/layout/Footer', () => ({
 }));
 
 describe('SearchPage', () => {
-  it('renders the header, footer, and SearchFiltersForm', async () => {
-    const searchParams = { q: 'test' };
     const ui = await SearchPage({ searchParams: Promise.resolve(searchParams) });
-    render(ui);
+    await act(async () => {
+      render(ui);
+    });
 
     expect(screen.getByTestId('header')).toBeInTheDocument();
     expect(screen.getByTestId('footer')).toBeInTheDocument();
@@ -33,7 +33,9 @@ describe('SearchPage', () => {
   it('passes searchParams to SearchFiltersForm', async () => {
     const searchParams = { q: 'test', city: 'Testville' };
     const ui = await SearchPage({ searchParams: Promise.resolve(searchParams) });
-    render(ui);
+    await act(async () => {
+      render(ui);
+    });
 
     const searchFiltersForm = screen.getByTestId('search-filters-form');
     expect(searchFiltersForm.textContent).toBe(JSON.stringify(searchParams));
@@ -41,7 +43,9 @@ describe('SearchPage', () => {
 
   it('handles empty searchParams', async () => {
     const ui = await SearchPage({ searchParams: Promise.resolve({}) });
-    render(ui);
+    await act(async () => {
+      render(ui);
+    });
 
     const searchFiltersForm = screen.getByTestId('search-filters-form');
     expect(searchFiltersForm.textContent).toBe(JSON.stringify({}));

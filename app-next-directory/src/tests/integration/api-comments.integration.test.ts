@@ -10,11 +10,12 @@ jest.mock('@/lib/auth', () => ({
 }));
 
 jest.mock('@/lib/sanity/client', () => ({
-  client: {
+  __esModule: true,
+  client: jest.fn(() => ({
     fetch: jest.fn(),
     create: jest.fn(),
     getDocument: jest.fn(),
-  },
+  })),
 }));
 
 import { auth } from '@/lib/auth';

@@ -1,5 +1,5 @@
-import { withMongooseCache } from '../mongoose-cache';
 import { structuredLogger } from '@/lib/logger';
+import { withMongooseCache } from '../mongoose-cache';
 
 const getRedisClientMock = jest.fn();
 

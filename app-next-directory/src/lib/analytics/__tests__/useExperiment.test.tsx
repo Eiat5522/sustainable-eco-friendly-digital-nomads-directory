@@ -1,4 +1,5 @@
 import { renderHook, waitFor } from '@testing-library/react';
+import { structuredLogger } from '@/lib/logger';
 import { useExperiment } from '../useExperiment';
 
 const activateExperimentMock = jest.fn();
@@ -8,8 +9,12 @@ jest.mock('../experiments', () => ({
 }));
 
 describe('useExperiment hook', () => {
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   it('loads experiment variants and exposes helpers', async () => {
@@ -27,7 +32,6 @@ describe('useExperiment hook', () => {
   });
 
   it('handles activation failures gracefully', async () => {
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
     activateExperimentMock.mockImplementation(() => {
       throw new Error('failed');
     });
@@ -37,8 +41,9 @@ describe('useExperiment hook', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     expect(result.current.variant).toBeNull();
-    expect(errorSpy).toHaveBeenCalledWith('Failed to load experiment:', expect.any(Error));
-
-    errorSpy.mockRestore();
+    expect(structuredLogger.error).toHaveBeenCalledWith(
+      'Failed to load experiment:',
+      expect.any(Error)
+    );
   });
 });

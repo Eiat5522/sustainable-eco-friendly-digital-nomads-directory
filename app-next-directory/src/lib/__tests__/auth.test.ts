@@ -1,5 +1,6 @@
 import type { NextAuthConfig } from 'next-auth';
 import type { JWT } from 'next-auth/jwt';
+import { structuredLogger } from '@/lib/logger';
 
 jest.mock('server-only', () => ({}));
 
@@ -132,6 +133,11 @@ describe('auth module', () => {
     isAdminEmail.mockReturnValue(false);
     credentialsSpy.mockClear();
     googleSpy.mockClear();
+
+    // Clear structuredLogger mocks
+    structuredLogger.warn.mockClear();
+    structuredLogger.error.mockClear();
+    structuredLogger.info.mockClear();
   });
 
   afterAll(() => {
@@ -245,7 +251,6 @@ describe('auth module', () => {
         NextAuthConfig['callbacks']
       >['signIn'];
       updateOne.mockResolvedValue({ acknowledged: true });
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
       const result = await signIn?.({
         user: { email: 'verified@example.com' },
@@ -263,7 +268,6 @@ describe('auth module', () => {
         { maxTimeMS: 5000 }
       );
       expect(result).toBe(true);
-      warnSpy.mockRestore();
     });
 
     it('never blocks sign-in when verification syncing fails', async () => {
@@ -273,7 +277,6 @@ describe('auth module', () => {
         NextAuthConfig['callbacks']
       >['signIn'];
       updateOne.mockRejectedValue(new Error('write failed'));
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
       const result = await signIn?.({
         user: { email: 'user@example.com' },
@@ -281,12 +284,11 @@ describe('auth module', () => {
         profile: { email_verified: true },
       } as any);
 
-      expect(warnSpy).toHaveBeenCalledWith(
+      expect(structuredLogger.warn).toHaveBeenCalledWith(
         '[auth] signIn verification sync failed',
         expect.any(Error)
       );
       expect(result).toBe(true);
-      warnSpy.mockRestore();
     });
 
     it('skips verification flow for credentials provider', async () => {
@@ -310,8 +312,6 @@ describe('auth module', () => {
     it('enriches token metadata and reports allowlist failures in browser-like environments', async () => {
       isAdminEmail.mockReturnValue(true);
       getUserById.mockResolvedValue({ name: 'Updated Name', role: 'member' });
-      const infoSpy = jest.spyOn(console, 'info').mockImplementation(() => {});
-      const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
       const { authOptions } = await importAuthModule();
       const configModule = await import('@/lib/auth/config');
@@ -337,13 +337,11 @@ describe('auth module', () => {
 
       await nextTick();
       expect(isAdminEmail).not.toHaveBeenCalled();
-      expect(errorSpy).toHaveBeenCalledWith(
+      expect(structuredLogger.error).toHaveBeenCalledWith(
         '[auth] failed to queue admin allowlist promotion flow',
         expect.any(Error)
       );
-      expect(infoSpy).not.toHaveBeenCalled();
-      infoSpy.mockRestore();
-      errorSpy.mockRestore();
+      expect(structuredLogger.info).not.toHaveBeenCalled();
     });
 
     it('refreshes token details when user object is absent', async () => {

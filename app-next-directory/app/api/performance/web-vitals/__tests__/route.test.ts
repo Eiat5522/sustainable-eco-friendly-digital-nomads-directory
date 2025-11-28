@@ -8,6 +8,7 @@
  */
 
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { structuredLogger } from '@/lib/logger';
 
 // Mock the alert service
 const mockProcessMetricForAlert = jest.fn();
@@ -331,8 +332,6 @@ describe('Web Vitals Performance API - POST /api/performance/web-vitals', () => 
     });
 
     it('should log errors to console', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-
       const request = new Request('http://localhost/api/performance/web-vitals', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
@@ -341,11 +340,10 @@ describe('Web Vitals Performance API - POST /api/performance/web-vitals', () => 
 
       await POST(request);
 
-      expect(consoleErrorSpy).toHaveBeenCalled();
-      expect(consoleErrorSpy.mock.calls[0][0]).toContain(
+      expect(structuredLogger.error).toHaveBeenCalled();
+      expect(structuredLogger.error.mock.calls[0][0]).toContain(
         '[Performance API] Error processing metrics'
       );
-      consoleErrorSpy.mockRestore();
     });
 
     it('should handle missing metric name', async () => {

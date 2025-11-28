@@ -1,5 +1,5 @@
-import { getRedisClient } from './redis';
 import { structuredLogger } from '@/lib/logger';
+import { getRedisClient } from './redis';
 
 const CACHE_TTL_SECONDS = 60 * 60; // 1 hour
 

@@ -972,3 +972,56 @@ jest.mock('@/lib/email', () => {
       // ignore
     });
 })();
+
+// Ensure structuredLogger is globally mocked
+jest.mock('@/lib/logger', () => {
+  const actual = jest.requireActual('@/lib/logger') as typeof import('./src/lib/logger');
+
+  const createMockLogger = () => ({
+    debug: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    fatal: jest.fn(),
+    apiError: jest.fn(),
+    authError: jest.fn(),
+    emailError: jest.fn(),
+    middlewareError: jest.fn(),
+    performance: jest.fn(),
+    security: jest.fn(),
+    child: jest.fn(() => createMockLogger()), // Each child call returns a new mock logger
+  });
+
+  const mockLogger = createMockLogger();
+
+  return {
+    __esModule: true,
+    structuredLogger: mockLogger,
+    internalLogger: mockLogger, // Alias for internalLogger
+    logError: mockLogger.error, // Alias for logError
+    // Wrap the actual getRequestContext in jest.fn so it can be spied on but retains original functionality
+    getRequestContext: jest.fn(actual.getRequestContext),
+    redirectConsoleToStructuredLogger: jest.fn(), // Mock this to prevent it from running in tests
+    default: mockLogger,
+  };
+});
+
+// Also defensively patch to ensure any previously loaded actual logger instances are replaced
+(() => {
+  import('@/lib/logger')
+    .then(l => {
+      const mockLogger = l.structuredLogger as jest.Mocked<typeof l.structuredLogger>;
+      l.internalLogger = mockLogger;
+      l.logError = mockLogger.error;
+      (l as any).default = mockLogger;
+      // Ensure redirectConsoleToStructuredLogger is also mocked in case it's loaded early
+      l.redirectConsoleToStructuredLogger = jest.fn();
+      // Ensure getRequestContext is also correctly mocked if it was loaded early
+      if (!('mock' in l.getRequestContext)) {
+        l.getRequestContext = jest.fn(jest.requireActual('@/lib/logger').getRequestContext);
+      }
+    })
+    .catch(() => {
+      // ignore
+    });
+})();

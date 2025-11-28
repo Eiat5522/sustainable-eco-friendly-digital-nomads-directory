@@ -1,13 +1,11 @@
 import { render, screen } from '@testing-library/react';
 
-jest.mock('@/lib/auth', () => ({
-  auth: jest.fn(),
+jest.mock('next/navigation', () => ({
+  redirect: jest.fn(),
 }));
 
-const redirectMock = jest.fn();
-
-jest.mock('next/navigation', () => ({
-  redirect: (...args: unknown[]) => redirectMock(...args),
+jest.mock('@/lib/auth', () => ({
+  auth: jest.fn(),
 }));
 
 const listingsTableMock = jest.fn();
@@ -19,9 +17,8 @@ jest.mock('../ListingsManagementTable', () => ({
   },
 }));
 
-const mockAuth = jest.requireMock('@/lib/auth').auth as jest.MockedFunction<
-  () => Promise<{ user?: unknown } | null>
->;
+const mockAuth = jest.requireMock('@/lib/auth').auth as jest.Mock;
+const mockRedirect = jest.requireMock('next/navigation').redirect as jest.Mock;
 
 describe('Admin listings page', () => {
   beforeEach(() => {
@@ -29,13 +26,12 @@ describe('Admin listings page', () => {
   });
 
   it('renders the listings management interface for admins', async () => {
-    mockAuth.mockResolvedValueOnce({
+    mockAuth.mockResolvedValue({
       user: { id: 'admin-1', role: 'admin' },
     });
 
     const AdminListingsPage = (await import('../page')).default;
-    const element = await AdminListingsPage();
-    render(element);
+    render(await AdminListingsPage());
 
     expect(screen.getByTestId('admin-listings-page')).toBeInTheDocument();
     expect(screen.getByTestId('admin-listings-title')).toHaveTextContent('Listing Management');
@@ -44,20 +40,20 @@ describe('Admin listings page', () => {
       currentUserRole: 'admin',
       currentUserId: 'admin-1',
     });
-    expect(redirectMock).not.toHaveBeenCalled();
+    expect(mockRedirect).not.toHaveBeenCalled();
   });
 
   it('redirects when the viewer is not an admin', async () => {
-    mockAuth.mockResolvedValueOnce({
+    mockAuth.mockResolvedValue({
       user: { id: 'user-1', role: 'user' },
     });
-    redirectMock.mockImplementation(() => {
+    mockRedirect.mockImplementation(() => {
       throw new Error('redirect');
     });
 
     const AdminListingsPage = (await import('../page')).default;
 
     await expect(AdminListingsPage()).rejects.toThrow('redirect');
-    expect(redirectMock).toHaveBeenCalledWith('/auth/login?callbackUrl=/admin/listings');
+    expect(mockRedirect).toHaveBeenCalledWith('/auth/login?callbackUrl=/admin/listings');
   });
 });

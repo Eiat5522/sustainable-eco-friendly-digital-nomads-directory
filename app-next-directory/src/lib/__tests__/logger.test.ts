@@ -3,7 +3,7 @@
  */
 
 import { describe, expect, it } from '@jest/globals';
-import { getRequestContext } from '../logger';
+import { getRequestContext, internalLogger, logError, structuredLogger } from '../logger';
 
 describe('Logger Utilities', () => {
   describe('getRequestContext', () => {
@@ -307,23 +307,21 @@ describe('Logger Utilities', () => {
 
   describe('structuredLogger existence', () => {
     it('should export structuredLogger', () => {
-      const { structuredLogger } = require('../logger');
       expect(structuredLogger).toBeDefined();
-      expect(typeof structuredLogger.debug).toBe('function');
-      expect(typeof structuredLogger.info).toBe('function');
-      expect(typeof structuredLogger.warn).toBe('function');
-      expect(typeof structuredLogger.error).toBe('function');
+      expect(structuredLogger.debug).toBeInstanceOf(Function);
+      expect(structuredLogger.info).toBeInstanceOf(Function);
+      expect(structuredLogger.warn).toBeInstanceOf(Function);
+      expect(structuredLogger.error).toBeInstanceOf(Function);
     });
 
-    it('should export logger', () => {
-      const { logger } = require('../logger');
-      expect(logger).toBeDefined();
+    it('should export internalLogger', () => {
+      expect(internalLogger).toBeDefined();
+      expect(internalLogger.info).toBeInstanceOf(Function);
     });
 
     it('should export logError helper', () => {
-      const { logError } = require('../logger');
       expect(logError).toBeDefined();
-      expect(typeof logError).toBe('function');
+      expect(logError).toBeInstanceOf(Function);
     });
   });
 });

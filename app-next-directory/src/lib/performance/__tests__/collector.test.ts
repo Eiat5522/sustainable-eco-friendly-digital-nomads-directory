@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { structuredLogger } from '@/lib/logger';
 
 import {
   dependencies,
@@ -90,7 +91,6 @@ describe('performance collector', () => {
     dependencies.global = dependencies.window;
 
     process.env.NODE_ENV = 'development';
-    const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
 
     initPerformanceMonitoring();
 
@@ -101,7 +101,9 @@ describe('performance collector', () => {
     callbacks.FID?.(buildMetric({ name: 'FID', value: 450 }));
     callbacks.INP?.(buildMetric({ name: 'INP', value: 650 }));
 
-    expect(consoleLogSpy).toHaveBeenCalledWith('[Performance] CLS: 0.2 (needs-improvement)');
+    expect(structuredLogger.info).toHaveBeenCalledWith(
+      '[Performance] CLS: 0.2 (needs-improvement)'
+    );
     expect(plausible).toHaveBeenCalledWith(
       'performance',
       expect.objectContaining({
@@ -235,14 +237,14 @@ describe('performance collector', () => {
     dependencies.global = {} as Record<string, any>;
 
     process.env.NODE_ENV = 'production';
-    const consoleLogSpy = jest.spyOn(console, 'log');
 
     initPerformanceMonitoring();
 
     callbacks.CLS?.(buildMetric({ name: 'CLS', value: 0.05 }));
 
-    expect(consoleLogSpy).not.toHaveBeenCalledWith(expect.stringContaining('[Performance]'));
-    consoleLogSpy.mockRestore();
+    expect(structuredLogger.info).not.toHaveBeenCalledWith(
+      expect.stringContaining('[Performance]')
+    );
   });
 
   it('gracefully handles missing performance observers', () => {

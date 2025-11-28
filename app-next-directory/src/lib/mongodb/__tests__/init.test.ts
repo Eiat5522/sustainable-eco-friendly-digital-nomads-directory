@@ -1,10 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import type { MongoClient } from 'mongodb';
 import { MongoServerError } from 'mongodb';
-
+import { structuredLogger } from '@/lib/logger';
 import { initializeDatabase } from '../init';
 import { sessionIndexes, sessionSchema } from '../schemas/session';
-import { structuredLogger } from '@/lib/logger';
 
 type MockedCollection = {
   createIndexes: jest.Mock;

@@ -1,123 +1,19 @@
-Summary
-Overall Health Score: 8/10. The codebase is well-structured and follows many best practices (strict TypeScript, E2E tests, modular components). Authentication and routing are largely implemented correctly. However, several areas of technical debt and unused code exist, mostly around outdated dependencies (Next.js, NextAuth), legacy route files, and incomplete caching. Performance optimizations (caching, image handling) and minor security improvements are pending. With some refactoring to remove dead code and address these issues, the project will be production-ready.
-Key Findings: Outdated libraries (NextAuth v4, Next.js 14) and config flags, presence of legacy �_bak� route files and unused utilities, lack of distributed caching for rate-limiting, and minor code-quality gaps (console logs, inconsistent naming). Improvements are recommended in upgrading critical dependencies, removing or consolidating dead code, and enhancing coding standards (type safety in auth, static generation for all pages, image optimization, consistent tooling).
-Technical Debt Analysis
-* Outdated Next.js and NextAuth Versions (Medium): The app uses Next.js 14.2 and NextAuth 4.24[1]. Next.js 15 and NextAuth 5 are now available with performance and security improvements. Sticking to older versions could deprive the app of stability fixes (e.g. App Router enhancements) and newer features. Fix: Plan an upgrade to Next.js 15 and NextAuth 5 after thorough testing. NextAuth v5 in particular simplifies OAuth and has improved default security; upgrading will future-proof the auth system.
-* Mixed Session Strategy in Auth (Medium): The auth uses JWT strategy with a MongoDB adapter[2][3], which is slightly inconsistent � JWT means sessions are not truly persisted in DB despite the adapter. This could be technical debt if the intent was persistent sessions[4]. Fix: Decide on one strategy � if persistent sessions are needed, switch session.strategy to "database" (store session tokens in Mongo). Otherwise, keep JWT but remove any unnecessary DB session logic. Ensure the NEXTAUTH_SECRET is set in production for JWT encryption (likely already in place).
-* Rate Limiter Not Using Redis (High): The rateLimit utility in the contact API appears to use in-memory tracking (no explicit Redis calls in code)[5]. In a serverless or multi-instance environment, this won�t effectively limit across requests. The intent was to use Redis for rate-limiting, but it�s not fully implemented � a recent fix indicates Redis was made �optional�[6]. Fix: Integrate Redis properly in the rate limiter (e.g. use a Redis store or Upstash) so that IP counters persist across deployments. Also set key expirations (the code uses a 1-minute window) to prevent memory leaks if Redis is used. This is critical to curb abuse (spam submissions, brute force) in production.
-* Redundant Data Fetching (Medium): Some data is fetched multiple times for the same page. For example, the Listing detail page performs one Sanity query for SEO metadata and another for page content[7][8]. While the metadata query is lightweight, it duplicates the slug lookup. Fix: Where possible, consolidate fetches. Next.js 13+ doesn�t easily share data between generateMetadata and the page, but you could fetch all needed fields once in the page and derive meta locally, or use caching. Consider using Next.js�s <Suspense> and parallel data fetching patterns or the new generateMetadata caching features to avoid redundant calls.
-* No Caching for Expensive Queries (Medium): The search/listings API and Sanity queries do not implement caching or revalidation. A GET /api/listings (with filters, full-text search, geo queries) could be heavy. Currently, each request likely triggers a fresh GROQ query over the dataset. Fix: Implement caching layers: for example, use revalidate (ISR) for listing pages or cache frequent API query results in Redis (with an appropriate TTL). Also, ensure Sanity queries use projections to limit fields and consider Sanity�s query caching via CDN. For text search, evaluate indexing strategies (Sanity�s built-in search or an external search service) if the dataset grows large.
-* Legacy Route Files (Low): Old dynamic route implementations are still in the codebase, renamed as backups. The app has stale directories app/city/_city_bak and app/listings/_id_bak that duplicate the new slug-based routes[9][6]. These are not used in routing anymore (the App Router ignores directories starting with �_�). They add maintenance overhead. Fix: Remove the _city_bak and _id_bak directories now that slug routes are verified working[6]. This cleanup will eliminate confusion and dead code.
-* Console Logging in Production Code (Low): Several console logs for debugging remain (e.g. logging fetched listing data[10]). In a production build, these add noise and slight overhead. Fix: Remove or guard debug logs behind a dev flag. Rely on Next.js built-in logging or monitoring tools instead of console.log for production diagnostics.
-* Minor Security Hardening (Low): The contact form directly injects user input into HTML email content[11] without escaping. While most email clients sanitize scripts, it�s best practice to escape or strip HTML tags from untrusted input to avoid any chance of XSS if the email is viewed in a browser. Fix: Sanitize subject and message before constructing the email body (e.g. replace </> with HTML entities) or use a templating library that auto-escapes. Also ensure all environment secrets (SMTP credentials, NextAuth secret, etc.) are loaded from .env.local and not logged anywhere (current code appears safe on this front).
-Dead Code Report
-The following functions and modules are not referenced anywhere in the codebase and can be removed to streamline maintenance. Each item includes its file path, a code snippet, and the impact of removal:
-File Path
-Line(s)
-Snippet (Unused Code)
-Removal Impact
-app-next-directory/src/app/city/_city_bak/page.tsx
-�
-// Legacy city page backup using [city] param (folder renamed to _city_bak)[9]
-No effect on app � Old city-route code preserved as backup. Safe to delete after confirming new /city/[slug] pages work[6].
-app-next-directory/src/app/listings/_id_bak/page.tsx
-�
-// Legacy listing page backup using [id] param (folder _id_bak)[9]
-No effect on app � Old listing-route code preserved as backup. Can be removed now that /listings/[slug] is standard[6].
-app-next-directory/src/lib/getListingImages.js
-L9-16
-const listingDir = path.join(process.cwd(), 'public', 'images', 'listings', listingId); � fs.readdirSync(listingDir)[12]
-No impact � Was used for local image files, but listings now load images from Sanity. This utility isn�t called anywhere (public image fallback was for development only[13]). Removing it will eliminate unused code.
-(No other dead code found. All components listed in docs (e.g. ListingCard, ListingFilter, ListingMap) are either used or intended for upcoming features, so they are not flagged as �abandoned.� Commented-out code blocks are minimal.)*
-Coding Standards & Best Practices Improvements
-1. Authentication & Authorization (Improve Type Safety and Consistency): The NextAuth configuration should leverage TypeScript to its fullest. Currently, the code uses session.user.role and token.role in places[14], but we should ensure these properties are typed. Before: No custom NextAuth types, meaning session.user is the default {name, email, image} and token has no role. This forces type assertions when checking roles. After: Extend NextAuth�s types to include id and role. For example, create next-auth.d.ts with:
-  import NextAuth from "next-auth";
+# Product Requirements Document
 
-declare module "next-auth" {
-  interface User { 
-    id: string; 
-    role: string; 
-    name: string; 
-    email: string; 
-  }
-  interface Session { 
-    user: User;  // includes role 
-  }
-}
-declare module "next-auth/jwt" {
-  interface JWT { 
-    id: string; 
-    role: string; 
-    email: string; 
-    name: string; 
-  }
-}
-  This way, getServerSession() returns a session with session.user.role properly typed, and the middleware() auth checks can be done without type casts. Additionally, consider enforcing password complexity and rate limiting on auth endpoints. For example, ensure the credentials provider�s authorize() uses bcrypt.compare() on hashed passwords and that errors don�t leak sensitive info (the implementation likely does this already). Finally, once NextAuth v5 is adopted, review any config changes (the adapter and secret setup might differ slightly).
-2. Data Fetching & Routing (Leverage Next.js App Router features): Optimize how pages load data and handle errors using the App Router conventions:
-3. Static Generation for All CMS Content: The project uses generateStaticParams for listing pages[15][16], which is excellent for performance. Extend this to other dynamic routes like city and category pages. For example: in app/city/[slug]/page.tsx, pre-generate pages for all city slugs:
+## Project: Sustainable Eco-Friendly Digital Nomads Directory
 
-  export async function generateStaticParams() {
-  const citySlugs = await getClient().fetch(
-    `*[_type=="city"]{ "slug": slug.current }`
-  );
-  return citySlugs.map(c => ({ slug: c.slug }));
-}
-export const revalidate = 3600; // revalidate city pages every hour (optional)
-  This ensures city pages are statically built and periodically refreshed, reducing on-demand load.
-4. Error Handling with error.js: Instead of try/catch in every page component[8][17], use Next.js error boundaries. Create an app/[...]/error.tsx file to capture unhandled exceptions in that route segment. This component can render a user-friendly error message. For instance, an error.tsx in the app/listings/[slug] folder would automatically display if the Listing fetch throws an error, eliminating the need for the manual <h1>"An error occurred"</h1> block[18]. Centralizing error UI in error.tsx makes the code cleaner and ensures consistent styling of error states.
-5. Loading States with Suspense or loading.tsx: Similarly, implement app/(route)/loading.tsx for pages that fetch data. A good candidate is the listing detail page � while images load or data is being fetched, a skeleton or spinner can improve perceived performance. Next.js will automatically use loading.tsx when a page is delayed in streaming data. This avoids a blank screen on slow network conditions and uses React�s Suspense under the hood.
-6. Avoid N+1 Fetch Patterns: Audit any components that might fetch data in a loop. For example, if a city page lists many listings and the ListingCard component fetches additional data for each listing, that would be inefficient. Instead, fetch all required data in one query (e.g. Sanity GROQ can join related documents). The current code mostly does single queries, which is good. Just ensure that the RelatedListings component (rendered on the listing page) also uses a batched query. If RelatedListings is doing a separate fetch for, say, 3 related items, that�s fine; but if it triggers multiple sequential fetches, refactor it to use a single GROQ query that returns all needed related listings. Use Next.js 13�s ability to await multiple promises in parallel to fetch unrelated data concurrently inside the page component.
-7. UI/UX and Performance Enhancements:
-8. Image Optimization: Use Next.js Image component for automatic lazy-loading and resizing. The custom ImageGallery currently likely renders raw <img> tags. Before:
+### Introduction
+This project aims to create a comprehensive directory for sustainable and eco-friendly digital nomads. It will feature listings of eco-lodges, co-working spaces with green initiatives, sustainable travel resources, and community forums.
 
-  <img src={imageUrl} alt={altText} />
-  This loads full-sized images and relies on browser default lazy loading. After: replace with Next�s <Image> for better optimization:
+### Features
+1.  **User Authentication**: Allow users to register, log in, and manage their profiles.
+2.  **Listing Management**: Enable users to create, edit, and view listings for eco-friendly accommodations, co-working spaces, and other relevant services.
+3.  **Search and Filtering**: Provide robust search and filtering capabilities based on location, amenities, eco-certifications, and other criteria.
+4.  **Community Forum**: Implement a forum where digital nomads can connect, share experiences, and exchange tips on sustainable living and travel.
+5.  **Admin Panel**: A backend interface for administrators to manage users, listings, and forum content.
 
-  import Image from 'next/image';
-// ... in component render:
-<Image 
-  src={imageUrl} 
-  alt={altText} 
-  width={800} height={600} // example dimensions or use fill 
-  placeholder="blur" 
-  loading="lazy"
-/>
-  Next�s Image will serve appropriately sized images (if using the built-in loader or statically imported images) and lazy-load by default offscreen. This reduces bandwidth and improves Lighthouse scores. Additionally, define a <code>sizes</code> prop or use responsive layouts so that mobile clients get smaller images.
-9. Tailwind CSS Usage: Continue the utility-first approach and minimize any custom CSS. The project already keeps global CSS minimal[19]. To prevent bloat, ensure Tailwind�s purge (content scanning) is configured to include all src files (it likely is). Avoid adding long lists of classes conditionally in components � instead, use helper libraries like clsx (already included)[20] or Tailwind�s variant utilities. Also prefer Tailwind�s built-in features (animations, aspect-ratio, line-clamp, etc.) over custom CSS when possible, to keep everything in the same utility style. No major issues were found with Tailwind usage; just ensure consistency (e.g. use the design tokens defined in tailwind.config if any).
-10. Responsive and Accessible Design: Since Radix UI is used for accessible primitives (dialogs, menus)[21], ensure custom components also follow suit. For example, verify that interactive elements (buttons, toggles) have proper ARIA labels or use semantic tags. Consistent use of the <Button> and <Input> from your UI library will help. On responsiveness: test pages on mobile � the container classes (e.g. mx-auto py-12 px-4 sm:px-6 on <main>)[22] suggest responsive padding is considered. Continue using Tailwind�s responsive prefixes (sm:, md: etc.) to adapt layouts on smaller screens (for instance, ensure multi-column layouts collapse on mobile). Consider adding lazy-loading for non-critical content (e.g., if a map or video is present, use dynamic import() to load it only when needed or when in viewport). This will keep initial load snappy.
-11. Code Quality and Tooling:
-12. Linting & Formatting: The project uses Prettier and ESLint via a Husky pre-commit hook[23], which is great for maintaining style. To further strengthen this, integrate the lint and format checks into the CI pipeline (e.g. a GitHub Actions workflow) so that code style mistakes are caught on pull requests as well. As an alternative, consider adopting Biome (the successor to Rome) as a unified tool. Biome can replace both ESLint and Prettier with a single config and faster run-time. This could simplify setup (one tool instead of two) and ensure consistent formatting in CI and locally. For example, you could add a npm script: "format:check": "biome check --apply" to auto-fix issues, and run that in pre-commit or CI. Biome has low configuration overhead, which improves developer experience.
-13. Naming Consistency: Enforce a consistent naming convention across the codebase. Currently, most variables and functions use camelCase (which is standard in JavaScript/TypeScript), but some data fields coming from Sanity use snake_case or lowercase with underscores (e.g. description_long vs descriptionLong). This inconsistency requires mapping fields (as seen in the Listing page where descriptionLong from Sanity is assigned to description_long in props)[24][25]. It�s better to choose one style. Recommendation: Use camelCase for JavaScript objects and adjust GROQ queries to alias fields accordingly. For instance, query Sanity as:
-
-  *[_type=="listing" && slug.current==$slug][0]{
-   _id, name, 
-   "descriptionLong": description_long, 
-   ...
-}
-  so that the returned JSON keys match your desired casing. This eliminates the need for renaming fields in code, reducing chances of error. ESLint rules (like camelcase: ["error", {properties: "never"}]) can catch any stray snake_case in object literals if they�re unintended.
-14. Add JSDoc Comments for Complex Utilities: Some utility modules (e.g. the rate limiter, custom Sanity client in lib/sanity, etc.) would benefit from inline documentation. Adding /** ... */ comments describing the function purpose, params, and return values helps future developers (and can improve IntelliSense). For example, atop the rateLimit() function definition, describe the algorithm and note it uses a 5-per-minute rule. This is a low-effort improvement that boosts maintainability.
-15. Increase Unit Test Coverage: The E2E Playwright tests are comprehensive[26][27], but unit tests are still �planned�. Begin adding unit tests for critical logic � e.g., test the authorize() function in NextAuth (with hashed vs wrong passwords), test the role-checking middleware, test utility functions like the spam filter in the contact form, etc. Using Jest and React Testing Library for component tests will catch regressions in isolated scenarios. For instance, a unit test for the contact form schema can validate that invalid emails or short messages indeed produce errors. Aim to cover edge cases that are hard to hit in E2E tests. This layered testing (unit + integration + E2E) ensures robust quality.
-16. Husky Hooks & Git Hygiene: The repository already has a pre-commit hook running format, type-check, and lint[23]. This is excellent � ensure it stays up to date with any new tools (if Biome is added, update the hook to use it). You might also add a pre-push hook to run the test suite (npm run test) so that no code is pushed without passing tests. This, combined with CI, creates multiple lines of defense against mistakes. Also consider using a commit message linter or conventional commits to maintain clear project history, though this is more of a team preference.
-By addressing the above points, the project will reduce technical debt and align even more with modern best practices. These changes will improve performance (faster page loads via optimized images and caching), enhance security (solid rate-limiting, up-to-date dependencies), and make the code easier to maintain (cleaner structure without dead code, consistent patterns, and automated tooling). The end result will be a more scalable and contributor-friendly codebase ready for production deployment.
-Sources: The findings and recommendations are based on the repository�s code and documentation. Key references include the package setup[1], authentication docs[28][14], route fix notes[9][6], and example code snippets from the project (cited inline).
-
-[1] WORKSPACE_GUIDE.md
-https://github.com/Eiat5522/sustainable-eco-friendly-digital-nomads-directory/blob/cb3c72aa700b0ff4f87ed528ee3950c56fa22e07/docs/monorepo/WORKSPACE_GUIDE.md
-[2] [3] [4] [14] [28] AUTHENTICATION.md
-https://github.com/Eiat5522/sustainable-eco-friendly-digital-nomads-directory/blob/cb3c72aa700b0ff4f87ed528ee3950c56fa22e07/docs/app-next-directory/AUTHENTICATION.md
-[5] [11] route.ts
-https://github.com/Eiat5522/sustainable-eco-friendly-digital-nomads-directory/blob/cb3c72aa700b0ff4f87ed528ee3950c56fa22e07/app-next-directory/src/app/api/contact/route.ts
-[6] [9] ROUTES_FIX.md
-https://github.com/Eiat5522/sustainable-eco-friendly-digital-nomads-directory/blob/cb3c72aa700b0ff4f87ed528ee3950c56fa22e07/app-next-directory/ROUTES_FIX.md
-[7] [8] [10] [15] [16] [17] [18] [22] [24] [25] page.tsx
-https://github.com/Eiat5522/sustainable-eco-friendly-digital-nomads-directory/blob/cb3c72aa700b0ff4f87ed528ee3950c56fa22e07/app-next-directory/src/app/listings/[slug]/page.tsx
-[12] getListingImages.js
-https://github.com/Eiat5522/sustainable-eco-friendly-digital-nomads-directory/blob/cb3c72aa700b0ff4f87ed528ee3950c56fa22e07/app-next-directory/src/lib/getListingImages.js
-[13] migrate_listings_to_sanity.py
-https://github.com/Eiat5522/sustainable-eco-friendly-digital-nomads-directory/blob/cb3c72aa700b0ff4f87ed528ee3950c56fa22e07/scripts/migrate_listings_to_sanity.py
-[19] [20] [21] COMPONENTS.md
-https://github.com/Eiat5522/sustainable-eco-friendly-digital-nomads-directory/blob/cb3c72aa700b0ff4f87ed528ee3950c56fa22e07/docs/app-next-directory/COMPONENTS.md
-[23] pre-commit
-https://github.com/Eiat5522/sustainable-eco-friendly-digital-nomads-directory/blob/cb3c72aa700b0ff4f87ed528ee3950c56fa22e07/.husky/pre-commit
-[26] [27] TESTING.md
-https://github.com/Eiat5522/sustainable-eco-friendly-digital-nomads-directory/blob/cb3c72aa700b0ff4f87ed528ee3950c56fa22e07/docs/app-next-directory/TESTING.md
+### Technologies
+-   **Frontend**: Next.js (React)
+-   **Backend**: Node.js, MongoDB
+-   **Database**: MongoDB
+-   **CMS**: Sanity.io

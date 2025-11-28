@@ -3,6 +3,7 @@ jest.mock('../budgets.ts', () => ({
   shouldAlert: jest.fn(),
 }));
 
+import { structuredLogger } from '@/lib/logger';
 import { shouldAlert } from '../budgets.ts';
 import {
   dependencies,
@@ -17,7 +18,7 @@ describe('plausible-integration', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.spyOn(console, 'warn').mockImplementation();
+    structuredLogger.warn.mockClear();
 
     // Setup window mock
     mockPlausible = jest.fn();
@@ -70,7 +71,7 @@ describe('plausible-integration', () => {
         category: 'WEB_VITALS',
       });
 
-      expect(console.warn).toHaveBeenCalledWith(
+      expect(structuredLogger.warn).toHaveBeenCalledWith(
         '[Performance] Plausible Analytics not initialized'
       );
     });
@@ -345,7 +346,7 @@ describe('plausible-integration', () => {
         trackPerformance({ name: 'test', value: 100 });
       }).not.toThrow();
 
-      expect(console.warn).toHaveBeenCalledWith(
+      expect(structuredLogger.warn).toHaveBeenCalledWith(
         '[Performance] Plausible Analytics not initialized'
       );
     });

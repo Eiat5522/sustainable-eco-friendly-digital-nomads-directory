@@ -45,23 +45,23 @@ export async function GET(_request: NextRequest, _context: RouteContext) {
       typesCounts,
     ] = await withRequestTimeout(
       Promise.all([
-        sanityClient().fetch<number>('count(*[_type == "listing"])'),
-        sanityClient().fetch<number>(
+        sanityClient.fetch<number>('count(*[_type == "listing"])'),
+        sanityClient.fetch<number>(
           'count(*[_type == "listing" && adminWorkflow.status == "published"])'
         ),
-        sanityClient().fetch<number>(
+        sanityClient.fetch<number>(
           'count(*[_type == "listing" && adminWorkflow.status == "unpublished"])'
         ),
-        sanityClient().fetch<number>(
+        sanityClient.fetch<number>(
           'count(*[_type == "listing" && adminWorkflow.status == "pending"])'
         ),
-        sanityClient().fetch<number>(
+        sanityClient.fetch<number>(
           'count(*[_type == "listing" && (!defined(adminWorkflow.status) || adminWorkflow.status == "draft")])'
         ),
-        sanityClient().fetch<number>(
+        sanityClient.fetch<number>(
           'count(*[_type == "listing" && adminWorkflow.isFeatured == true])'
         ),
-        sanityClient().fetch<Array<{ type: string; count: number }>>(
+        sanityClient.fetch<Array<{ type: string; count: number }>>(
           `*[_type == "listing"] | order(type) {
             type
           } | {

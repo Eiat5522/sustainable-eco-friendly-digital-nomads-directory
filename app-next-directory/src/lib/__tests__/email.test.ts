@@ -1,11 +1,11 @@
+import { structuredLogger } from '@/lib/logger';
+
 const resendSendMock = jest.fn();
 const ResendConstructor = jest.fn().mockImplementation(() => ({
   emails: { send: resendSendMock },
 }));
 
 const getBaseUrlMock = jest.fn();
-
-const emailErrorMock = jest.fn();
 
 describe('email utilities', () => {
   const originalEnv = process.env;
@@ -34,20 +34,34 @@ describe('email utilities', () => {
       jest.doMock('@/lib/absolute-url', () => ({
         getBaseUrl: () => getBaseUrlMock(),
       }));
-      jest.doMock('@/lib/logger', () => ({
-        structuredLogger: { emailError: (...args: unknown[]) => emailErrorMock(...args) },
-      }));
-      emailModule = await import('../email');
-    });
-    if (!emailModule) {
-      throw new Error('Failed to import email module for testing');
-    }
-    return emailModule;
-  };
+      jest.doMock('@/lib/logger', () => {
+        const mockLogger = {
+          debug: jest.fn(),
+          info: jest.fn(),
+          warn: jest.fn(),
+          error: jest.fn(),
+          fatal: jest.fn(),
+          apiError: jest.fn(),
+          authError: jest.fn(),
+          emailError: jest.fn(),
+          middlewareError: jest.fn(),
+          performance: jest.fn(),
+          security: jest.fn(),
+          child: jest.fn(() => mockLogger), // Return mockLogger itself for child calls
+        };
+        return {
+          __esModule: true,
+          structuredLogger: mockLogger,
+          internalLogger: mockLogger, // Alias for internalLogger
+          logError: mockLogger.error, // Alias for logError
+          getRequestContext: jest.fn(() => ({})), // Mock getRequestContext
+          redirectConsoleToStructuredLogger: jest.fn(), // Mock this to prevent it from running in tests
+          default: mockLogger,
+        };
+      });
 
   it('skips sending when API key is missing', async () => {
     delete process.env.RESEND_API_KEY;
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     const { sendMail } = await importEmailModule();
 
     const result = await sendMail({ to: 'user@example.com', subject: 'Hello', html: '<p>Hi</p>' });
@@ -55,8 +69,9 @@ describe('email utilities', () => {
     expect(result).toEqual({ skipped: true });
     expect(ResendConstructor).not.toHaveBeenCalled();
     expect(resendSendMock).not.toHaveBeenCalled();
-    expect(warnSpy).toHaveBeenCalledWith('[email] RESEND_API_KEY not set; skipping send');
-    warnSpy.mockRestore();
+    expect(structuredLogger.warn).toHaveBeenCalledWith(
+      '[email] RESEND_API_KEY not set; skipping send'
+    );
   });
 
   it('sends email using Resend when API key is configured', async () => {
@@ -92,7 +107,7 @@ describe('email utilities', () => {
       html: '<p>Alert</p>',
     });
 
-    expect(emailErrorMock).toHaveBeenCalledWith('send email', expect.any(Error), {
+    expect(structuredLogger.emailError).toHaveBeenCalledWith('send email', expect.any(Error), {
       to: 'user@example.com',
       subject: 'Alert',
       component: 'email-service',

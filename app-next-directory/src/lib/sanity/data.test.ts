@@ -2,9 +2,9 @@
  * Tests for data.ts - Sanity data fetching functions
  */
 
+import { structuredLogger } from '@/lib/logger';
 import { client } from './client';
 import { getListingData } from './data';
-import { structuredLogger } from '@/lib/logger';
 
 // Mock the client module
 const mockFetch = jest.fn();

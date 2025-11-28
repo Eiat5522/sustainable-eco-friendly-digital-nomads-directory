@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { structuredLogger } from '@/lib/logger';
 
 // Mock the auth library
 const mockAuthGET = jest.fn();
@@ -16,13 +17,13 @@ let GET: GetHandler;
 let POST: PostHandler;
 
 describe('NextAuth Route Handler', () => {
-  let consoleLogSpy: jest.SpiedFunction<typeof console.log>;
-  let consoleErrorSpy: jest.SpiedFunction<typeof console.error>;
+  let loggerInfoSpy: jest.SpiedFunction<typeof structuredLogger.info>;
+  let loggerErrorSpy: jest.SpiedFunction<typeof structuredLogger.error>;
 
   beforeEach(async () => {
     jest.clearAllMocks();
-    consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    loggerInfoSpy = jest.spyOn(structuredLogger, 'info').mockImplementation(() => {});
+    loggerErrorSpy = jest.spyOn(structuredLogger, 'error').mockImplementation(() => {});
 
     // Set default mock responses
     mockAuthGET.mockResolvedValue(new Response('OK', { status: 200 }));
@@ -37,8 +38,8 @@ describe('NextAuth Route Handler', () => {
   });
 
   afterEach(() => {
-    consoleLogSpy.mockRestore();
-    consoleErrorSpy.mockRestore();
+    loggerInfoSpy.mockRestore();
+    loggerErrorSpy.mockRestore();
   });
 
   describe('GET handler', () => {
@@ -54,7 +55,7 @@ describe('NextAuth Route Handler', () => {
 
       expect(mockAuthGET).toHaveBeenCalled();
       expect(response).toBe(mockResponse);
-      expect(consoleLogSpy).toHaveBeenCalled();
+      expect(loggerInfoSpy).toHaveBeenCalled();
     });
 
     it('logs the pathname for GET requests', async () => {
@@ -64,7 +65,10 @@ describe('NextAuth Route Handler', () => {
 
       await GET(request);
 
-      expect(consoleLogSpy).toHaveBeenCalledWith('[auth route] incoming GET', '/api/auth/signin');
+      expect(loggerInfoSpy).toHaveBeenCalledWith(
+        '[auth route] incoming GET',
+        expect.objectContaining({ path: '/api/auth/signin' })
+      );
     });
 
     it('handles errors during URL parsing gracefully', async () => {
@@ -80,7 +84,7 @@ describe('NextAuth Route Handler', () => {
 
       expect(mockAuthGET).toHaveBeenCalledWith(request);
       expect(response).toBe(mockResponse);
-      expect(consoleErrorSpy).toHaveBeenCalled();
+      expect(loggerErrorSpy).toHaveBeenCalled();
     });
 
     it('passes through NextAuth response', async () => {
@@ -134,7 +138,10 @@ describe('NextAuth Route Handler', () => {
 
       await POST(request);
 
-      expect(consoleLogSpy).toHaveBeenCalledWith('[auth route] incoming POST', '/api/auth/signin');
+      expect(loggerInfoSpy).toHaveBeenCalledWith(
+        '[auth route] incoming POST',
+        expect.objectContaining({ path: '/api/auth/signin' })
+      );
     });
 
     it('handles errors during URL parsing in POST', async () => {
@@ -192,7 +199,7 @@ describe('NextAuth Route Handler', () => {
       await POST(request);
 
       expect(mockAuthPOST).toHaveBeenCalled();
-      expect(consoleLogSpy).toHaveBeenCalled();
+      expect(loggerInfoSpy).toHaveBeenCalled();
     });
   });
 
@@ -200,7 +207,7 @@ describe('NextAuth Route Handler', () => {
     it('logs module load on import', () => {
       // The module load message is logged when the module is imported
       // This happens before the tests run
-      expect(consoleLogSpy).toHaveBeenCalled();
+      expect(loggerInfoSpy).toHaveBeenCalledWith('[auth route] module loaded');
     });
 
     it('logs incoming requests', async () => {
@@ -210,10 +217,13 @@ describe('NextAuth Route Handler', () => {
 
       await GET(request);
 
-      // Check that console.log was called with the incoming GET message
-      const calls = consoleLogSpy.mock.calls;
-      const hasIncomingGetLog = calls.some(call =>
-        call.some(arg => typeof arg === 'string' && arg.includes('[auth route] incoming GET'))
+      // Check that structuredLogger.info was called with the incoming GET message
+      const hasIncomingGetLog = loggerInfoSpy.mock.calls.some(
+        call =>
+          call[0] === '[auth route] incoming GET' &&
+          call[1] &&
+          typeof call[1] === 'object' &&
+          (call[1] as any).path === '/api/auth/signin'
       );
       expect(hasIncomingGetLog).toBe(true);
     });

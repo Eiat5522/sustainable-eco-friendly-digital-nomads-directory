@@ -29,7 +29,7 @@ export async function POST(_request: NextRequest, _context: RouteContext) {
     const sanityClient = client(); // Get the lazily instantiated client
 
     const existingSettings = await withRequestTimeout(
-      sanityClient().fetch<Pick<AdminSettings, '_id'> | null>(
+      sanityClient.fetch<Pick<AdminSettings, '_id'> | null>(
         '*[_type == "adminSettings"][0]{ _id }'
       ), // Updated to use sanityClient.fetch
       getDefaultTimeout(),

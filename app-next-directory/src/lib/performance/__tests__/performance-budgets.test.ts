@@ -1,3 +1,4 @@
+import { structuredLogger } from '@/lib/logger';
 import {
   evaluatePerformanceMetric,
   getMetricThresholds,
@@ -14,20 +15,6 @@ describe('performance-budgets', () => {
   });
 
   describe('evaluatePerformanceMetric', () => {
-    let warnSpy: jest.SpyInstance;
-
-    beforeAll(() => {
-      warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-    });
-
-    beforeEach(() => {
-      warnSpy.mockClear();
-    });
-
-    afterAll(() => {
-      warnSpy.mockRestore();
-    });
-
     it('returns thresholds for non-CLS metrics', () => {
       expect(evaluatePerformanceMetric('pageLoad', 'FCP', 1400)).toBe('good');
       expect(evaluatePerformanceMetric('pageLoad', 'FCP', 2000)).toBe('needs-improvement');
@@ -42,32 +29,18 @@ describe('performance-budgets', () => {
 
     it('logs a warning and returns unknown for missing categories or metrics', () => {
       expect(evaluatePerformanceMetric('unknownCategory', 'metric', 100)).toBe('unknown');
-      expect(warnSpy).toHaveBeenLastCalledWith(
+      expect(structuredLogger.warn).toHaveBeenLastCalledWith(
         'Unknown performance metric: unknownCategory.metric'
       );
 
       expect(evaluatePerformanceMetric('pageLoad', 'unknownMetric', 100)).toBe('unknown');
-      expect(warnSpy).toHaveBeenLastCalledWith(
+      expect(structuredLogger.warn).toHaveBeenLastCalledWith(
         'Unknown performance metric: pageLoad.unknownMetric'
       );
     });
   });
 
   describe('getMetricThresholds', () => {
-    let warnSpy: jest.SpyInstance;
-
-    beforeAll(() => {
-      warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-    });
-
-    beforeEach(() => {
-      warnSpy.mockClear();
-    });
-
-    afterAll(() => {
-      warnSpy.mockRestore();
-    });
-
     it('returns the matching thresholds when the metric is known', () => {
       const thresholds = getMetricThresholds('resourceSize', 'javascript');
 
@@ -80,12 +53,12 @@ describe('performance-budgets', () => {
 
     it('returns null and logs when the metric is missing', () => {
       expect(getMetricThresholds('invalidCategory', 'metric')).toBeNull();
-      expect(warnSpy).toHaveBeenLastCalledWith(
+      expect(structuredLogger.warn).toHaveBeenLastCalledWith(
         'Unknown performance metric: invalidCategory.metric'
       );
 
       expect(getMetricThresholds('resourceSize', 'invalidMetric')).toBeNull();
-      expect(warnSpy).toHaveBeenLastCalledWith(
+      expect(structuredLogger.warn).toHaveBeenLastCalledWith(
         'Unknown performance metric: resourceSize.invalidMetric'
       );
     });

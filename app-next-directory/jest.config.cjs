@@ -76,7 +76,7 @@ const moduleNameMapper = {
   '^@/models/User$': '<rootDir>/__mocks__/@/models/User.js',
   // '^@/lib/redis(?:\\.(?:js|ts))?$': '<rootDir>/__mocks__/lib/redis.ts', // REMOVED: global Redis mock mapping for best practice
   '^@/lib/rate-limit(?:\\.(?:js|ts))?$': '<rootDir>/__mocks__/lib/rate-limit.js',
-  '^@/lib/logger(?:\\.(?:js|ts))?$': '<rootDir>/__mocks__/lib/logger.js',
+  '^@/lib/logger$': '<rootDir>/__mocks__/@/lib/logger.ts',
 
   // TS path aliases from tsconfig.json (resolved at runtime). If
   // ts-jest isn't available, this will be a no-op.

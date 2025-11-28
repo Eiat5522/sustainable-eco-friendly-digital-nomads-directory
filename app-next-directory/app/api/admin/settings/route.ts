@@ -42,7 +42,7 @@ export async function GET(_request: NextRequest, _context: RouteContext) {
     const query = `*[_type == "adminSettings"][0]`;
 
     const sanityClient = client(); // Get the lazily instantiated client
-    let settings = await sanityClient().fetch<AdminSettings | null>(query); // Updated to use sanityClient().fetch
+    let settings = await sanityClient.fetch<AdminSettings | null>(query); // Updated to use sanityClient.fetch
 
     // If no settings exist, return defaults
     if (!settings) {
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest, _context: RouteContext) {
     // Query for existing settings document
     const existingQuery = `*[_type == "adminSettings"][0]`;
     const sanityClient = client(); // Get the lazily instantiated client
-    const existingSettings = await sanityClient().fetch<AdminSettings | null>(existingQuery); // Updated to use sanityClient().fetch
+    const existingSettings = await sanityClient.fetch<AdminSettings | null>(existingQuery); // Updated to use sanityClient.fetch
 
     let savedSettings: AdminSettings;
 

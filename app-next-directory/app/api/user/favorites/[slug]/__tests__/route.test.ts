@@ -49,11 +49,11 @@ const loadRouteHandlers = async () => {
 
   jest.doMock('@/lib/sanity/client', () => ({
     __esModule: true,
-    client: {
+    client: jest.fn(() => ({
       fetch: mockClientFetch,
       create: mockClientCreate,
       delete: mockClientDelete,
-    },
+    })),
   }));
 
   const mod = await import('../route');

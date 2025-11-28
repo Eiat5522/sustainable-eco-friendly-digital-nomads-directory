@@ -123,8 +123,8 @@ export async function GET(request: NextRequest, _context: RouteContext) {
 
     const [listings, totalCount] = await withRequestTimeout(
       Promise.all([
-        sanityClient().fetch<AdminListingProjection[]>(query),
-        sanityClient().fetch<number>(countQuery),
+        sanityClient.fetch<AdminListingProjection[]>(query),
+        sanityClient.fetch<number>(countQuery),
       ]),
       getDefaultTimeout(),
       'Fetching admin listings timed out'
@@ -257,7 +257,7 @@ export async function DELETE(request: NextRequest, _context: RouteContext) {
 
     const sanityClient = client(); // Get the lazily instantiated client
     await withRequestTimeout(
-      sanityClient().delete(listingIdValue), // Updated to use sanityClient.delete
+      sanityClient.delete(listingIdValue), // Updated to use sanityClient.delete
       getDefaultTimeout(),
       'Deleting listing timed out'
     );

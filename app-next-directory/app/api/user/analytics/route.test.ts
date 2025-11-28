@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { structuredLogger } from '@/lib/logger'; // Keep import for type inference
 import { auth } from '@/lib/auth'; // Keep import for type inference
 import { getUserDashboardData } from '@/lib/dashboard/user-dashboard'; // Keep import for type inference
+import { structuredLogger } from '@/lib/logger'; // Keep import for type inference
 import { GET } from './route'; // Import GET directly
 
 // Mock external dependencies
@@ -219,8 +219,6 @@ describe('/api/user/analytics GET', () => {
     expect(response.status).toBe(500);
     await expect(response.json()).resolves.toEqual({ error: 'Unable to load analytics data' });
   });
-
-
 
   it('uses default role and clears nullable fields when session omits optional properties', async () => {
     authMock.mockResolvedValueOnce({ user: { id: 'bare-user' } } as any);

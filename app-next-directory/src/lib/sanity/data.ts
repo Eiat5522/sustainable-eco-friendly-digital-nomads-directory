@@ -1,6 +1,6 @@
 import { groq } from 'next-sanity';
-import { client } from './client';
 import { structuredLogger } from '@/lib/logger';
+import { client } from './client';
 
 // GROQ query to fetch a single listing by slug
 const LISTING_BY_SLUG_QUERY = groq`

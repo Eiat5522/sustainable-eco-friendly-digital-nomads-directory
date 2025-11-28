@@ -12,14 +12,12 @@ function ensureAdmin(sessionUser: SessionUser): boolean {
   return role === 'admin' || role === 'superAdmin';
 }
 
-export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const session = use(auth());
-  const sessionUser = session?.user as SessionUser;
+type AdminLayoutContentProps = {
+  sessionUser: { id?: string; role?: UserRole };
+  children: React.ReactNode;
+};
 
-  if (!ensureAdmin(sessionUser)) {
-    redirect('/auth/login');
-  }
-
+function AdminLayoutContent({ sessionUser, children }: AdminLayoutContentProps) {
   const navItems = [
     { href: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
     { href: '/admin/users', label: 'Users', icon: '👥' },
@@ -61,4 +59,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
     </div>
   );
+}
+
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth();
+  const sessionUser = session?.user as SessionUser;
+
+  if (!ensureAdmin(sessionUser)) {
+    redirect('/auth/login');
+  }
+
+  return <AdminLayoutContent sessionUser={sessionUser} children={children} />;
 }
