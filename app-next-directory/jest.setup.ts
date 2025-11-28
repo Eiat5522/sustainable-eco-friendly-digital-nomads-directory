@@ -315,25 +315,47 @@ if (process.env.JEST_CONSOLE_NO_FILTER !== '1') {
     originalConsoleWarn;
 
   console.error = ((...args: unknown[]) => {
-    // Check if this console.error has been spied on by a test
-    // If it has a mock property, it's being tested, so always call through
-    const isMocked = 'mock' in console.error;
+    // First check if console.error has been spied on - if so, call the spy AND our filtering logic
+    const mock = (console.error as { mock?: { callThrough: boolean } }).mock;
+    const isMocked = !!mock;
 
+    // Always call the mock if it exists (for test assertions)
+    if (isMocked && mock!.callThrough) {
+      mock!.apply(console, [args]);
+    }
+
+    // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
       originalConsoleError(...args);
     }
   }) as typeof console.error;
 
   console.warn = ((...args: unknown[]) => {
-    // Check if this console.warn has been spied on by a test
-    const isMocked = 'mock' in console.warn;
+    // First check if console.warn has been spied on - if so, call the spy AND our filtering logic
+    const mock = (console.warn as { mock?: { callThrough: boolean } }).mock;
+    const isMocked = !!mock;
 
+    // Always call the mock if it exists (for test assertions)
+    if (isMocked && mock!.callThrough) {
+      mock!.apply(console, [args]);
+    }
+
+    // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
     if (isMocked || !shouldFilterWithFilters(defaultWarnFilters, args)) {
       originalConsoleWarn(...args);
     }
   }) as typeof console.warn;
 
   console.log = ((...args: unknown[]) => {
+    // First check if console.log has been spied on - if so, call the spy
+    const mock = (console.log as { mock?: { callThrough: boolean } }).mock;
+    const isMocked = !!mock;
+
+    // Always call the mock if it exists (for test assertions)
+    if (isMocked && mock!.callThrough) {
+      mock!.apply(console, [args]);
+    }
+
     // Don't filter console.log by default, but make it available
     originalConsoleLog(...args);
   }) as typeof console.log;

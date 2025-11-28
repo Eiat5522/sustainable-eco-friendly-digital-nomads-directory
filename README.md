@@ -3,7 +3,9 @@
 A curated monorepo platform for sustainable, eco-friendly venues and services for digital nomads. Built with Next.js 15+, Sanity CMS, and modern authentication.
 
 ---
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Eiat5522/sustainable-eco-friendly-digital-nomads-directory)
 
+---
 ## 🏗️ Monorepo Architecture
 
 ```
