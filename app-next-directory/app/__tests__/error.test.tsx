@@ -24,16 +24,10 @@ import ErrorComponent from '../error';
 describe('Error Component', () => {
   let mockError: Error;
   let mockReset: jest.Mock;
-  let consoleErrorSpy: jest.SpyInstance;
 
   beforeEach(() => {
     mockError = new Error('Test error message');
     mockReset = jest.fn();
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    consoleErrorSpy.mockRestore();
   });
 
   it('renders error message and buttons', () => {
@@ -54,7 +48,7 @@ describe('Error Component', () => {
     expect(mockReset).toHaveBeenCalledTimes(1);
   });
 
-  it('displays error digest in production mode', () => {
+  it('hides error details in production mode', () => {
     const originalEnv = process.env.NODE_ENV;
     process.env.NODE_ENV = 'production';
     const errorWithDigest = Object.assign(new Error('Test error'), { digest: 'abc123' });
@@ -67,28 +61,14 @@ describe('Error Component', () => {
     process.env.NODE_ENV = originalEnv;
   });
 
-  it('logs error in development mode', () => {
+  it('shows error details in development mode', () => {
     const originalEnv = process.env.NODE_ENV;
     process.env.NODE_ENV = 'development';
 
     render(<ErrorComponent error={mockError} reset={mockReset} />);
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith('App segment error caught:', mockError);
-
-    process.env.NODE_ENV = originalEnv;
-  });
-
-  it('logs error with digest in production mode', () => {
-    const originalEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'production';
-    const errorWithDigest = Object.assign(new Error('Test error'), { digest: 'abc123' });
-
-    render(<ErrorComponent error={errorWithDigest} reset={mockReset} />);
-
-    expect(consoleErrorSpy).toHaveBeenCalledWith('App segment error caught:', {
-      digest: 'abc123',
-      message: 'Test error',
-    });
+    // The error message is shown in a pre element in development
+    expect(screen.getByText('Test error message')).toBeInTheDocument();
 
     process.env.NODE_ENV = originalEnv;
   });

@@ -1,19 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-// Import the component as a module to avoid React hook execution during test setup
-const ErrorComponent = () => {
-  const ErrorComponent = require('../error').default;
-  return Error;
-};
-
 describe('Listings Error Component', () => {
   const mockReset = jest.fn();
   const mockError = new Error('Test error message');
 
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -37,14 +30,6 @@ describe('Listings Error Component', () => {
     await user.click(tryAgainButton);
 
     expect(mockReset).toHaveBeenCalledTimes(1);
-  });
-
-  it('should log error to console on mount', () => {
-    const ErrorComponent = require('../error').default;
-    const consoleErrorSpy = jest.spyOn(console, 'error');
-    render(<ErrorComponent error={mockError} reset={mockReset} />);
-
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Dashboard error:', mockError);
   });
 
   it('should apply correct CSS classes', () => {
@@ -81,23 +66,8 @@ describe('Listings Error Component', () => {
       digest: 'abc123',
     });
 
-    render(<ErrorComponent error={errorWithDigest} reset={mockReset} />);
-
-    expect(console.error).toHaveBeenCalledWith('Dashboard error:', errorWithDigest);
-  });
-
-  it('should re-log error when error prop changes', () => {
-    const ErrorComponent = require('../error').default;
-
-    const { rerender } = render(<ErrorComponent error={mockError} reset={mockReset} />);
-
-    expect(console.error).toHaveBeenCalledTimes(1);
-
-    const newError = new Error('New error');
-    rerender(<ErrorComponent error={newError} reset={mockReset} />);
-
-    expect(console.error).toHaveBeenCalledTimes(2);
-    expect(console.error).toHaveBeenCalledWith('Dashboard error:', newError);
+    // Should not throw when rendering with a digest
+    expect(() => render(<ErrorComponent error={errorWithDigest} reset={mockReset} />)).not.toThrow();
   });
 
   it('should render button as clickable element', () => {

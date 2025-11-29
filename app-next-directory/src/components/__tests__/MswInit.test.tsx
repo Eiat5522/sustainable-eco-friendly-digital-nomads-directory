@@ -9,10 +9,6 @@ jest.mock('../../mocks/browser', () => ({
   },
 }));
 
-// Mock console.log and console.warn to spy on them
-const mockConsoleLog = jest.spyOn(console, 'log').mockImplementation(() => {});
-const mockConsoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
-
 describe('MswInit', () => {
   const originalEnv = process.env;
   const originalPwE2e = (globalThis as any).__PW_E2E__;
@@ -20,8 +16,6 @@ describe('MswInit', () => {
   beforeEach(() => {
     jest.resetModules();
     mockStart.mockClear();
-    mockConsoleLog.mockClear();
-    mockConsoleWarn.mockClear();
     process.env = { ...originalEnv };
     (globalThis as any).__PW_E2E__ = originalPwE2e;
   });
@@ -29,8 +23,6 @@ describe('MswInit', () => {
   afterAll(() => {
     process.env = originalEnv;
     (globalThis as any).__PW_E2E__ = originalPwE2e;
-    mockConsoleLog.mockRestore();
-    mockConsoleWarn.mockRestore();
   });
 
   it('should render null', () => {
@@ -51,9 +43,6 @@ describe('MswInit', () => {
     await waitFor(() => {
       expect(mockStart).toHaveBeenCalledWith({ onUnhandledRequest: 'bypass' });
     });
-    expect(mockConsoleLog).toHaveBeenCalledWith(
-      '[MSW] Browser worker started for Playwright tests'
-    );
   });
 
   it('should start the worker if __PW_E2E__ is true', async () => {
@@ -64,12 +53,9 @@ describe('MswInit', () => {
     await waitFor(() => {
       expect(mockStart).toHaveBeenCalledWith({ onUnhandledRequest: 'bypass' });
     });
-    expect(mockConsoleLog).toHaveBeenCalledWith(
-      '[MSW] Browser worker started for Playwright tests'
-    );
   });
 
-  it('should log a warning if the worker fails to start', async () => {
+  it('should handle worker start failure silently', async () => {
     process.env.NEXT_PUBLIC_E2E = '1';
     const error = new Error('Failed to start');
     mockStart.mockRejectedValueOnce(error);
@@ -78,6 +64,6 @@ describe('MswInit', () => {
     await waitFor(() => {
       expect(mockStart).toHaveBeenCalled();
     });
-    expect(mockConsoleWarn).toHaveBeenCalledWith('[MSW] Failed to start worker:', error);
+    // The component silently catches errors, so we just verify the start was attempted
   });
 });
