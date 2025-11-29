@@ -59,6 +59,10 @@ describe('email utilities', () => {
           default: mockLogger,
         };
       });
+      emailModule = await import('../email');
+    });
+    return emailModule!;
+  };
 
   it('skips sending when API key is missing', async () => {
     delete process.env.RESEND_API_KEY;

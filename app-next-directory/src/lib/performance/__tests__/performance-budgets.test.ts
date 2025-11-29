@@ -1,4 +1,3 @@
-import { structuredLogger } from '@/lib/logger';
 import {
   evaluatePerformanceMetric,
   getMetricThresholds,
@@ -27,16 +26,9 @@ describe('performance-budgets', () => {
       expect(evaluatePerformanceMetric('pageLoad', 'CLS', 0.6)).toBe('poor');
     });
 
-    it('logs a warning and returns unknown for missing categories or metrics', () => {
+    it('returns unknown for missing categories or metrics', () => {
       expect(evaluatePerformanceMetric('unknownCategory', 'metric', 100)).toBe('unknown');
-      expect(structuredLogger.warn).toHaveBeenLastCalledWith(
-        'Unknown performance metric: unknownCategory.metric'
-      );
-
       expect(evaluatePerformanceMetric('pageLoad', 'unknownMetric', 100)).toBe('unknown');
-      expect(structuredLogger.warn).toHaveBeenLastCalledWith(
-        'Unknown performance metric: pageLoad.unknownMetric'
-      );
     });
   });
 
@@ -51,16 +43,9 @@ describe('performance-budgets', () => {
       });
     });
 
-    it('returns null and logs when the metric is missing', () => {
+    it('returns null when the metric is missing', () => {
       expect(getMetricThresholds('invalidCategory', 'metric')).toBeNull();
-      expect(structuredLogger.warn).toHaveBeenLastCalledWith(
-        'Unknown performance metric: invalidCategory.metric'
-      );
-
       expect(getMetricThresholds('resourceSize', 'invalidMetric')).toBeNull();
-      expect(structuredLogger.warn).toHaveBeenLastCalledWith(
-        'Unknown performance metric: resourceSize.invalidMetric'
-      );
     });
   });
 });

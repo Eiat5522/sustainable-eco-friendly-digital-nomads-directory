@@ -10,13 +10,6 @@ jest.mock('next-auth/react', () => ({
   ),
 }));
 
-// Mock next-themes
-jest.mock('next-themes', () => ({
-  ThemeProvider: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="theme-provider">{children}</div>
-  ),
-}));
-
 describe('ClientRootLayout', () => {
   it('renders children within provider hierarchy', () => {
     const { getByText, getByTestId, queryByTestId } = render(
@@ -27,41 +20,12 @@ describe('ClientRootLayout', () => {
 
     expect(getByText('Test Content')).toBeInTheDocument();
     expect(getByTestId('session-provider')).toBeInTheDocument();
-    expect(getByTestId('theme-provider')).toBeInTheDocument();
+    // ThemeProvider was removed from ClientRootLayout
+    expect(queryByTestId('theme-provider')).not.toBeInTheDocument();
     expect(queryByTestId('analytics-provider')).not.toBeInTheDocument();
   });
 
-  it('renders with light theme', () => {
-    const { getByText } = render(
-      <ClientRootLayout theme="light">
-        <div>Test Content</div>
-      </ClientRootLayout>
-    );
-
-    expect(getByText('Test Content')).toBeInTheDocument();
-  });
-
-  it('renders with dark theme', () => {
-    const { getByText } = render(
-      <ClientRootLayout theme="dark">
-        <div>Test Content</div>
-      </ClientRootLayout>
-    );
-
-    expect(getByText('Test Content')).toBeInTheDocument();
-  });
-
-  it('renders with system theme (default)', () => {
-    const { getByText } = render(
-      <ClientRootLayout theme="system">
-        <div>Test Content</div>
-      </ClientRootLayout>
-    );
-
-    expect(getByText('Test Content')).toBeInTheDocument();
-  });
-
-  it('renders without explicit theme prop', () => {
+  it('wraps children with SessionProvider', () => {
     const { getByText } = render(
       <ClientRootLayout>
         <div>Test Content</div>

@@ -41,7 +41,7 @@ describe('/api/sanity-test', () => {
 
     expect(response.status).toBe(404);
     expect(json.error).toBe('Not found');
-    expect(mockedFetch).not.toHaveBeenCalled();
+    expect(mockFetch).not.toHaveBeenCalled();
   });
 
   it('tests Sanity connection successfully in non-production', async () => {
@@ -50,7 +50,7 @@ describe('/api/sanity-test', () => {
     process.env.NEXT_PUBLIC_SANITY_DATASET = 'test-dataset';
 
     const mockResult = [{ _id: 'test-1', title: 'Test Listing' }];
-    mockedFetch.mockResolvedValue(mockResult);
+    mockFetch.mockResolvedValue(mockResult);
 
     const response = await GET();
     const json = await response.json();
@@ -62,12 +62,12 @@ describe('/api/sanity-test', () => {
       dataset: 'test-dataset',
     });
     expect(json.data.testResult).toEqual(mockResult);
-    expect(mockedFetch).toHaveBeenCalledTimes(1);
+    expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 
   it('handles Sanity connection errors', async () => {
     process.env.NODE_ENV = 'development';
-    mockedFetch.mockRejectedValue(new Error('Connection failed'));
+    mockFetch.mockRejectedValue(new Error('Connection failed'));
 
     const response = await GET();
     const json = await response.json();

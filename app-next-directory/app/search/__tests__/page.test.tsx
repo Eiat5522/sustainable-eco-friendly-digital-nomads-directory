@@ -19,35 +19,39 @@ jest.mock('@/components/layout/Footer', () => ({
   Footer: () => <footer data-testid="footer" />,
 }));
 
+// Mock SearchPageContent to make it synchronous for testing
+jest.mock('../SearchPageContent', () => ({
+  __esModule: true,
+  default: ({ searchParams }: { searchParams: Record<string, unknown> }) => (
+    <div data-testid="search-page-content">{JSON.stringify(searchParams)}</div>
+  ),
+}));
+
 describe('SearchPage', () => {
+  it('renders header, footer and search page content', async () => {
+    const searchParams = { q: 'test' };
     const ui = await SearchPage({ searchParams: Promise.resolve(searchParams) });
-    await act(async () => {
-      render(ui);
-    });
+    render(ui);
 
     expect(screen.getByTestId('header')).toBeInTheDocument();
     expect(screen.getByTestId('footer')).toBeInTheDocument();
-    expect(screen.getByTestId('search-filters-form')).toBeInTheDocument();
   });
 
-  it('passes searchParams to SearchFiltersForm', async () => {
+  it('passes searchParams to SearchPageContent', async () => {
     const searchParams = { q: 'test', city: 'Testville' };
     const ui = await SearchPage({ searchParams: Promise.resolve(searchParams) });
-    await act(async () => {
-      render(ui);
-    });
+    render(ui);
 
-    const searchFiltersForm = screen.getByTestId('search-filters-form');
-    expect(searchFiltersForm.textContent).toBe(JSON.stringify(searchParams));
+    const searchPageContent = screen.getByTestId('search-page-content');
+    expect(searchPageContent.textContent).toBe(JSON.stringify(searchParams));
   });
 
   it('handles empty searchParams', async () => {
     const ui = await SearchPage({ searchParams: Promise.resolve({}) });
-    await act(async () => {
-      render(ui);
-    });
+    render(ui);
 
-    const searchFiltersForm = screen.getByTestId('search-filters-form');
-    expect(searchFiltersForm.textContent).toBe(JSON.stringify({}));
+    const searchPageContent = screen.getByTestId('search-page-content');
+    expect(searchPageContent.textContent).toBe(JSON.stringify({}));
   });
 });
+
