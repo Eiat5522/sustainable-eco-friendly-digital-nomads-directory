@@ -1,11 +1,8 @@
 import { fileURLToPath } from 'node:url';
-import { defineConfig, globalIgnores } from "eslint/config";
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTs from "eslint-config-next/typescript";
-import jestPlugin from "eslint-plugin-jest";
-import jestDomPlugin from "eslint-plugin-jest-dom";
-import testingLibraryPlugin from "eslint-plugin-testing-library";
-import { defaultConfig } from "next/dist/server/config-shared";
+import nextVitals from 'eslint-config-next/core-web-vitals';
+import nextTs from 'eslint-config-next/typescript';
+import jestPlugin from 'eslint-plugin-jest';
+import testingLibraryPlugin from 'eslint-plugin-testing-library';
 
 // Robust import with CJS fallback for @eslint/eslintrc
 let eslintrc;
@@ -20,8 +17,8 @@ const { FlatCompat } = eslintrc;
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 const eslintConfig = [
-    ...nextVitals,
-    ...nextTs,  
+  ...nextVitals,
+  ...nextTs,
   {
     ignores: [
       '**/node_modules/**',

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import type React from 'react';
-import { Suspense, use } from 'react';
+import { Suspense } from 'react';
 import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 

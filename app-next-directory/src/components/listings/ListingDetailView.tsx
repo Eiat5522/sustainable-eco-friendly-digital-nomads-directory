@@ -105,7 +105,6 @@ export function ListingDetailView({
       const res = await fetch(`/api/user/favorites/${listing.slug}`, jsonPostOptions({}));
 
       if (!res.ok) {
-        console.error('Failed to toggle favorite:', res.status, res.statusText);
         if (res.status === 401) {
           // Unauthorized - redirect to login
           const href = getCurrentHref();
@@ -120,9 +119,7 @@ export function ListingDetailView({
       setIsTogglingFavorite(true);
       const data = await res.json();
       setFavorited(Boolean(data?.favorited));
-    } catch (err) {
-      console.error('Failed to toggle favorite:', err);
-    }
+    } catch (err) {}
   };
 
   const filteredRelatedListings = relatedListings.filter(related => related.id !== listing.id);

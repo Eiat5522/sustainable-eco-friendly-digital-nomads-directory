@@ -8,10 +8,10 @@ import Google from 'next-auth/providers/google';
 // Additional OAuth providers can be added here when their credentials are available.
 import { createAuthAdapter } from '@/lib/auth/adapter';
 import { isAdminEmail } from '@/lib/auth/config';
-import { structuredLogger } from '@/lib/logger';
 import { enforceLoginRateLimit, recordLoginAttempt } from '@/lib/auth/rateLimit';
 import { authenticateUser, getUserById } from '@/lib/auth/serverAuth';
 import dbConnect from '@/lib/dbConnect';
+import { structuredLogger } from '@/lib/logger';
 import User, { type IUser } from '@/models/User';
 import type { UserRole } from '@/types/auth';
 
@@ -169,7 +169,10 @@ const callbacks = {
       userId: t.id,
       currentRole: t.role ?? null,
     }).catch(error => {
-      structuredLogger.error('[auth] failed to queue admin allowlist promotion flow', error as Error);
+      structuredLogger.error(
+        '[auth] failed to queue admin allowlist promotion flow',
+        error as Error
+      );
     });
     return t as JWT | null;
   },

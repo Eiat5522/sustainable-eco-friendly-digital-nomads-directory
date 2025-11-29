@@ -242,7 +242,6 @@ export function ReviewsSection({
           return;
       }
     } catch (err) {
-      console.error('Failed to submit review:', err);
       setError('Failed to submit review. Please try again.');
     } finally {
       setIsSubmitting(false);

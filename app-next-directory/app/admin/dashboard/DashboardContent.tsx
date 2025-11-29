@@ -193,10 +193,7 @@ export type DashboardContentProps = {
   errorMessage?: string | null;
 };
 
-export default function DashboardContent({
-  analytics,
-  errorMessage,
-}: DashboardContentProps) {
+export default function DashboardContent({ analytics, errorMessage }: DashboardContentProps) {
   if (!analytics) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">

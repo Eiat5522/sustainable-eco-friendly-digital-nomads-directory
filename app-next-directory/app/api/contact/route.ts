@@ -198,7 +198,6 @@ export async function POST(request: NextRequest) {
           }).then(result => ({ type: 'admin', result }))
         );
       } else {
-        console.warn('No CONTACT_EMAIL configured; skipping admin notification email');
       }
 
       resendJobs.push(
