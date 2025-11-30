@@ -190,6 +190,7 @@
     "broadcast-channel": "^7.1.0",
     "comment-json": "^4.2.5",
     "cross-env": "^10.0.0",
+    "csv-loader": "^3.0.5",
     "dotenv-cli": "^11.0.0",
     "eslint": "^9.39.1",
     "eslint-config-next": "16.0.5",

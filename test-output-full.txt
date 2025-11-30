@@ -1,0 +1,936 @@
+
+> sustainable-eco-friendly-digital-nomads-directory-root@0.1.3 test:unit /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory
+> pnpm --filter app-next-directory test:unit --runInBand --detectOpenHandles --onlyFailures --verbose
+
+
+> app-next-directory@0.1.0 test:unit /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory
+> cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --runInBand --passWithNoTests --runInBand --detectOpenHandles --onlyFailures --verbose
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 🗂️ backup and recover secrets: https://dotenvx.com/ops
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: ⚙️  enable debug logging with { debug: true }
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: ⚙️  override existing env vars with { override: true }
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.error
+    <ListingContent> is an async Client Component. Only Server Components can be async at the moment. This error is often caused by accidentally adding `'use client'` to a module that was originally written for the server.
+
+      327 |     // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
+      328 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 329 |       originalConsoleError(...args);
+          |       ^
+      330 |     }
+      331 |   }) as typeof console.error;
+      332 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:329:7)
+      at renderWithHooks (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:7645:21)
+      at updateFunctionComponent (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:10166:19)
+      at beginWork (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:11778:18)
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at performUnitOfWork (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:17641:22)
+      at workLoopSync (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:17469:41)
+      at renderRootSync (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:17450:11)
+      at performWorkOnRoot (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:16504:11)
+      at performWorkOnRootViaSchedulerTask (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:18957:7)
+      at flushActQueue (../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:590:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:884:10)
+      at ../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.7_react-dom_5ec2dc1689fe39fc3158890011c6ece0/node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.7_react-dom_5ec2dc1689fe39fc3158890011c6ece0/node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.7_react-dom_5ec2dc1689fe39fc3158890011c6ece0/node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (app/listings/[slug]/__tests__/page.test.tsx:103:11)
+
+  console.error
+    A suspended resource finished loading inside a test, but the event was not wrapped in act(...).
+    
+    When testing, code that resolves suspended data should be wrapped into act(...):
+    
+    act(() => {
+      /* finish loading suspended data */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      327 |     // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
+      328 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 329 |       originalConsoleError(...args);
+          |       ^
+      330 |     }
+      331 |   }) as typeof console.error;
+      332 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:329:7)
+      at pingSuspendedRoot (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:18600:17)
+
+  console.error
+    A component suspended inside an `act` scope, but the `act` call was not awaited. When testing React components that depend on asynchronous data, you must await the result:
+    
+    await act(() => ...)
+
+      327 |     // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
+      328 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 329 |       originalConsoleError(...args);
+          |       ^
+      330 |     }
+      331 |   }) as typeof console.error;
+      332 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:329:7)
+      at ../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:890:23
+      at invokeTheCallbackFunction (../node_modules/.pnpm/jsdom@20.0.3/node_modules/jsdom/lib/jsdom/living/generated/Function.js:19:26)
+      at ../node_modules/.pnpm/jsdom@20.0.3/node_modules/jsdom/lib/jsdom/browser/Window.js:554:9
+
+  console.error
+    A suspended resource finished loading inside a test, but the event was not wrapped in act(...).
+    
+    When testing, code that resolves suspended data should be wrapped into act(...):
+    
+    act(() => {
+      /* finish loading suspended data */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      327 |     // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
+      328 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 329 |       originalConsoleError(...args);
+          |       ^
+      330 |     }
+      331 |   }) as typeof console.error;
+      332 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:329:7)
+      at pingSuspendedRoot (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:18600:17)
+
+  console.error
+    A suspended resource finished loading inside a test, but the event was not wrapped in act(...).
+    
+    When testing, code that resolves suspended data should be wrapped into act(...):
+    
+    act(() => {
+      /* finish loading suspended data */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      327 |     // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
+      328 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 329 |       originalConsoleError(...args);
+          |       ^
+      330 |     }
+      331 |   }) as typeof console.error;
+      332 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:329:7)
+      at pingSuspendedRoot (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:18600:17)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: ⚙️  enable debug logging with { debug: true }
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: ✅ audit secrets and track compliance: https://dotenvx.com/ops
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: ⚙️  suppress all logs with { quiet: true }
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: ⚙️  override existing env vars with { override: true }
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: ⚙️  suppress all logs with { quiet: true }
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.error
+    <CityDetail> is an async Client Component. Only Server Components can be async at the moment. This error is often caused by accidentally adding `'use client'` to a module that was originally written for the server.
+
+      327 |     // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
+      328 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 329 |       originalConsoleError(...args);
+          |       ^
+      330 |     }
+      331 |   }) as typeof console.error;
+      332 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:329:7)
+      at renderWithHooks (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:7645:21)
+      at updateFunctionComponent (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:10166:19)
+      at beginWork (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:11778:18)
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at performUnitOfWork (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:17641:22)
+      at workLoopSync (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:17469:41)
+      at renderRootSync (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:17450:11)
+      at performWorkOnRoot (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:16504:11)
+      at performWorkOnRootViaSchedulerTask (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:18957:7)
+      at flushActQueue (../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:590:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:884:10)
+      at ../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.7_react-dom_5ec2dc1689fe39fc3158890011c6ece0/node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.7_react-dom_5ec2dc1689fe39fc3158890011c6ece0/node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.7_react-dom_5ec2dc1689fe39fc3158890011c6ece0/node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (app/__tests__/cities-slug-page.test.tsx:51:11)
+
+  console.error
+    A component suspended inside an `act` scope, but the `act` call was not awaited. When testing React components that depend on asynchronous data, you must await the result:
+    
+    await act(() => ...)
+
+      327 |     // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
+      328 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 329 |       originalConsoleError(...args);
+          |       ^
+      330 |     }
+      331 |   }) as typeof console.error;
+      332 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:329:7)
+      at ../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:890:23
+      at invokeTheCallbackFunction (../node_modules/.pnpm/jsdom@20.0.3/node_modules/jsdom/lib/jsdom/living/generated/Function.js:19:26)
+      at ../node_modules/.pnpm/jsdom@20.0.3/node_modules/jsdom/lib/jsdom/browser/Window.js:554:9
+
+  console.error
+    A suspended resource finished loading inside a test, but the event was not wrapped in act(...).
+    
+    When testing, code that resolves suspended data should be wrapped into act(...):
+    
+    act(() => {
+      /* finish loading suspended data */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      327 |     // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
+      328 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 329 |       originalConsoleError(...args);
+          |       ^
+      330 |     }
+      331 |   }) as typeof console.error;
+      332 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:329:7)
+      at pingSuspendedRoot (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:18600:17)
+
+  console.error
+    A suspended resource finished loading inside a test, but the event was not wrapped in act(...).
+    
+    When testing, code that resolves suspended data should be wrapped into act(...):
+    
+    act(() => {
+      /* finish loading suspended data */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      327 |     // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
+      328 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 329 |       originalConsoleError(...args);
+          |       ^
+      330 |     }
+      331 |   }) as typeof console.error;
+      332 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:329:7)
+      at pingSuspendedRoot (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:18600:17)
+
+  console.error
+    A suspended resource finished loading inside a test, but the event was not wrapped in act(...).
+    
+    When testing, code that resolves suspended data should be wrapped into act(...):
+    
+    act(() => {
+      /* finish loading suspended data */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      327 |     // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
+      328 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 329 |       originalConsoleError(...args);
+          |       ^
+      330 |     }
+      331 |   }) as typeof console.error;
+      332 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:329:7)
+      at pingSuspendedRoot (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:18600:17)
+
+  console.error
+    A suspended resource finished loading inside a test, but the event was not wrapped in act(...).
+    
+    When testing, code that resolves suspended data should be wrapped into act(...):
+    
+    act(() => {
+      /* finish loading suspended data */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      327 |     // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
+      328 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 329 |       originalConsoleError(...args);
+          |       ^
+      330 |     }
+      331 |   }) as typeof console.error;
+      332 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:329:7)
+      at pingSuspendedRoot (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:18600:17)
+
+  console.error
+    A suspended resource finished loading inside a test, but the event was not wrapped in act(...).
+    
+    When testing, code that resolves suspended data should be wrapped into act(...):
+    
+    act(() => {
+      /* finish loading suspended data */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      327 |     // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
+      328 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 329 |       originalConsoleError(...args);
+          |       ^
+      330 |     }
+      331 |   }) as typeof console.error;
+      332 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:329:7)
+      at pingSuspendedRoot (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:18600:17)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 🗂️ backup and recover secrets: https://dotenvx.com/ops
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.error
+    <ListingContent> is an async Client Component. Only Server Components can be async at the moment. This error is often caused by accidentally adding `'use client'` to a module that was originally written for the server.
+
+      327 |     // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
+      328 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 329 |       originalConsoleError(...args);
+          |       ^
+      330 |     }
+      331 |   }) as typeof console.error;
+      332 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:329:7)
+      at renderWithHooks (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:7645:21)
+      at updateFunctionComponent (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:10166:19)
+      at beginWork (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:11778:18)
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at performUnitOfWork (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:17641:22)
+      at workLoopSync (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:17469:41)
+      at renderRootSync (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:17450:11)
+      at performWorkOnRoot (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:16504:11)
+      at performWorkOnRootViaSchedulerTask (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:18957:7)
+      at flushActQueue (../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:590:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:884:10)
+      at ../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.7_react-dom_5ec2dc1689fe39fc3158890011c6ece0/node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.7_react-dom_5ec2dc1689fe39fc3158890011c6ece0/node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.7_react-dom_5ec2dc1689fe39fc3158890011c6ece0/node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (app/__tests__/listings-slug-page.test.tsx:88:11)
+
+  console.error
+    A suspended resource finished loading inside a test, but the event was not wrapped in act(...).
+    
+    When testing, code that resolves suspended data should be wrapped into act(...):
+    
+    act(() => {
+      /* finish loading suspended data */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      327 |     // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
+      328 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 329 |       originalConsoleError(...args);
+          |       ^
+      330 |     }
+      331 |   }) as typeof console.error;
+      332 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:329:7)
+      at pingSuspendedRoot (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:18600:17)
+
+  console.error
+    A component suspended inside an `act` scope, but the `act` call was not awaited. When testing React components that depend on asynchronous data, you must await the result:
+    
+    await act(() => ...)
+
+      327 |     // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
+      328 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 329 |       originalConsoleError(...args);
+          |       ^
+      330 |     }
+      331 |   }) as typeof console.error;
+      332 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:329:7)
+      at ../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:890:23
+      at invokeTheCallbackFunction (../node_modules/.pnpm/jsdom@20.0.3/node_modules/jsdom/lib/jsdom/living/generated/Function.js:19:26)
+      at ../node_modules/.pnpm/jsdom@20.0.3/node_modules/jsdom/lib/jsdom/browser/Window.js:554:9
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: ⚙️  write to custom object with { processEnv: myObject }
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 🗂️ backup and recover secrets: https://dotenvx.com/ops
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.error
+    <CityDetail> is an async Client Component. Only Server Components can be async at the moment. This error is often caused by accidentally adding `'use client'` to a module that was originally written for the server.
+
+      327 |     // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
+      328 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 329 |       originalConsoleError(...args);
+          |       ^
+      330 |     }
+      331 |   }) as typeof console.error;
+      332 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:329:7)
+      at renderWithHooks (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:7645:21)
+      at updateFunctionComponent (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:10166:19)
+      at beginWork (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:11778:18)
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at performUnitOfWork (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:17641:22)
+      at workLoopSync (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:17469:41)
+      at renderRootSync (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:17450:11)
+      at performWorkOnRoot (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:16504:11)
+      at performWorkOnRootViaSchedulerTask (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:18957:7)
+      at flushActQueue (../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:590:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:884:10)
+      at ../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.7_react-dom_5ec2dc1689fe39fc3158890011c6ece0/node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.7_react-dom_5ec2dc1689fe39fc3158890011c6ece0/node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.7_react-dom_5ec2dc1689fe39fc3158890011c6ece0/node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (app/cities/[slug]/page.test.tsx:110:11)
+
+  console.error
+    A component suspended inside an `act` scope, but the `act` call was not awaited. When testing React components that depend on asynchronous data, you must await the result:
+    
+    await act(() => ...)
+
+      327 |     // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
+      328 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 329 |       originalConsoleError(...args);
+          |       ^
+      330 |     }
+      331 |   }) as typeof console.error;
+      332 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:329:7)
+      at ../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:890:23
+      at invokeTheCallbackFunction (../node_modules/.pnpm/jsdom@20.0.3/node_modules/jsdom/lib/jsdom/living/generated/Function.js:19:26)
+      at ../node_modules/.pnpm/jsdom@20.0.3/node_modules/jsdom/lib/jsdom/browser/Window.js:554:9
+
+  console.error
+    A suspended resource finished loading inside a test, but the event was not wrapped in act(...).
+    
+    When testing, code that resolves suspended data should be wrapped into act(...):
+    
+    act(() => {
+      /* finish loading suspended data */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      327 |     // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
+      328 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 329 |       originalConsoleError(...args);
+          |       ^
+      330 |     }
+      331 |   }) as typeof console.error;
+      332 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:329:7)
+      at pingSuspendedRoot (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:18600:17)
+
+  console.error
+    A suspended resource finished loading inside a test, but the event was not wrapped in act(...).
+    
+    When testing, code that resolves suspended data should be wrapped into act(...):
+    
+    act(() => {
+      /* finish loading suspended data */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      327 |     // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
+      328 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 329 |       originalConsoleError(...args);
+          |       ^
+      330 |     }
+      331 |   }) as typeof console.error;
+      332 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:329:7)
+      at pingSuspendedRoot (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:18600:17)
+
+  console.error
+    A suspended resource finished loading inside a test, but the event was not wrapped in act(...).
+    
+    When testing, code that resolves suspended data should be wrapped into act(...):
+    
+    act(() => {
+      /* finish loading suspended data */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      327 |     // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
+      328 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 329 |       originalConsoleError(...args);
+          |       ^
+      330 |     }
+      331 |   }) as typeof console.error;
+      332 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:329:7)
+      at pingSuspendedRoot (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:18600:17)
+
+  console.error
+    A suspended resource finished loading inside a test, but the event was not wrapped in act(...).
+    
+    When testing, code that resolves suspended data should be wrapped into act(...):
+    
+    act(() => {
+      /* finish loading suspended data */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      327 |     // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
+      328 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 329 |       originalConsoleError(...args);
+          |       ^
+      330 |     }
+      331 |   }) as typeof console.error;
+      332 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:329:7)
+      at pingSuspendedRoot (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:18600:17)
+
+  console.error
+    A suspended resource finished loading inside a test, but the event was not wrapped in act(...).
+    
+    When testing, code that resolves suspended data should be wrapped into act(...):
+    
+    act(() => {
+      /* finish loading suspended data */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      327 |     // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
+      328 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 329 |       originalConsoleError(...args);
+          |       ^
+      330 |     }
+      331 |   }) as typeof console.error;
+      332 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:329:7)
+      at pingSuspendedRoot (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:18600:17)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: ⚙️  enable debug logging with { debug: true }
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.error
+    Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
+    1. You might have mismatching versions of React and the renderer (such as React DOM)
+    2. You might be breaking the Rules of Hooks
+    3. You might have more than one copy of React in the same app
+    See https://react.dev/link/invalid-hook-call for tips about how to debug and fix this problem.
+
+      327 |     // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
+      328 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 329 |       originalConsoleError(...args);
+          |       ^
+      330 |     }
+      331 |   }) as typeof console.error;
+      332 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:329:7)
+      at resolveDispatcher (../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:518:17)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.useContext (../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:1207:24)
+      at useContext (../node_modules/.pnpm/next@16.0.4_@babel+core@7.28.5_@playwright+test@1.57.0_react-dom@19.2.0_react@19.2.0__react@19.2.0/node_modules/next/src/shared/lib/loadable.shared-runtime.tsx:114:27)
+      at useLoadableModule (../node_modules/.pnpm/next@16.0.4_@babel+core@7.28.5_@playwright+test@1.57.0_react-dom@19.2.0_react@19.2.0__react@19.2.0/node_modules/next/src/shared/lib/loadable.shared-runtime.tsx:123:5)
+      at Object.react_stack_bottom_frame (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:25904:20)
+      at renderWithHooks (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:7662:22)
+      at updateForwardRef (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:9724:19)
+      at beginWork (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:12117:18)
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at performUnitOfWork (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:17641:22)
+      at workLoopSync (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:17469:41)
+      at renderRootSync (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:17450:11)
+      at performWorkOnRoot (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:16504:11)
+      at performWorkOnRootViaSchedulerTask (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:18957:7)
+      at flushActQueue (../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:590:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:884:10)
+      at ../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.7_react-dom_5ec2dc1689fe39fc3158890011c6ece0/node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.7_react-dom_5ec2dc1689fe39fc3158890011c6ece0/node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.7_react-dom_5ec2dc1689fe39fc3158890011c6ece0/node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (app/__tests__/blog-page.test.tsx:80:11)
+
+  console.error
+    Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
+    1. You might have mismatching versions of React and the renderer (such as React DOM)
+    2. You might be breaking the Rules of Hooks
+    3. You might have more than one copy of React in the same app
+    See https://react.dev/link/invalid-hook-call for tips about how to debug and fix this problem.
+
+      327 |     // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
+      328 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 329 |       originalConsoleError(...args);
+          |       ^
+      330 |     }
+      331 |   }) as typeof console.error;
+      332 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:329:7)
+      at resolveDispatcher (../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:518:17)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.useContext (../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:1207:24)
+      at useContext (../node_modules/.pnpm/next@16.0.4_@babel+core@7.28.5_@playwright+test@1.57.0_react-dom@19.2.0_react@19.2.0__react@19.2.0/node_modules/next/src/shared/lib/loadable.shared-runtime.tsx:114:27)
+      at useLoadableModule (../node_modules/.pnpm/next@16.0.4_@babel+core@7.28.5_@playwright+test@1.57.0_react-dom@19.2.0_react@19.2.0__react@19.2.0/node_modules/next/src/shared/lib/loadable.shared-runtime.tsx:123:5)
+      at Object.react_stack_bottom_frame (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:25904:20)
+      at renderWithHooks (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:7662:22)
+      at updateForwardRef (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:9724:19)
+      at beginWork (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:12117:18)
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at performUnitOfWork (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:17641:22)
+      at workLoopSync (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:17469:41)
+      at renderRootSync (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:17450:11)
+      at performWorkOnRoot (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:16583:35)
+      at performWorkOnRootViaSchedulerTask (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:18957:7)
+      at flushActQueue (../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:590:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:884:10)
+      at ../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.7_react-dom_5ec2dc1689fe39fc3158890011c6ece0/node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.7_react-dom_5ec2dc1689fe39fc3158890011c6ece0/node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.7_react-dom_5ec2dc1689fe39fc3158890011c6ece0/node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (app/__tests__/blog-page.test.tsx:80:11)
+
+  console.error
+    Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
+    1. You might have mismatching versions of React and the renderer (such as React DOM)
+    2. You might be breaking the Rules of Hooks
+    3. You might have more than one copy of React in the same app
+    See https://react.dev/link/invalid-hook-call for tips about how to debug and fix this problem.
+
+      327 |     // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
+      328 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 329 |       originalConsoleError(...args);
+          |       ^
+      330 |     }
+      331 |   }) as typeof console.error;
+      332 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:329:7)
+      at resolveDispatcher (../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:518:17)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.useContext (../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:1207:24)
+      at useContext (../node_modules/.pnpm/next@16.0.4_@babel+core@7.28.5_@playwright+test@1.57.0_react-dom@19.2.0_react@19.2.0__react@19.2.0/node_modules/next/src/shared/lib/loadable.shared-runtime.tsx:114:27)
+      at useLoadableModule (../node_modules/.pnpm/next@16.0.4_@babel+core@7.28.5_@playwright+test@1.57.0_react-dom@19.2.0_react@19.2.0__react@19.2.0/node_modules/next/src/shared/lib/loadable.shared-runtime.tsx:123:5)
+      at Object.react_stack_bottom_frame (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:25904:20)
+      at renderWithHooks (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:7662:22)
+      at updateForwardRef (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:9724:19)
+      at beginWork (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:12117:18)
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at performUnitOfWork (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:17641:22)
+      at workLoopSync (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:17469:41)
+      at renderRootSync (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:17450:11)
+      at performWorkOnRoot (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:16504:11)
+      at performWorkOnRootViaSchedulerTask (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:18957:7)
+      at flushActQueue (../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:590:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:884:10)
+      at ../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.7_react-dom_5ec2dc1689fe39fc3158890011c6ece0/node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.7_react-dom_5ec2dc1689fe39fc3158890011c6ece0/node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.7_react-dom_5ec2dc1689fe39fc3158890011c6ece0/node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (app/__tests__/blog-page.test.tsx:137:11)
+
+  console.error
+    Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
+    1. You might have mismatching versions of React and the renderer (such as React DOM)
+    2. You might be breaking the Rules of Hooks
+    3. You might have more than one copy of React in the same app
+    See https://react.dev/link/invalid-hook-call for tips about how to debug and fix this problem.
+
+      327 |     // Filter logic: allow through if mocked (so tests can assert) OR if not filtered
+      328 |     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
+    > 329 |       originalConsoleError(...args);
+          |       ^
+      330 |     }
+      331 |   }) as typeof console.error;
+      332 |
+
+      at console.originalConsoleError [as error] (jest.setup.ts:329:7)
+      at resolveDispatcher (../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:518:17)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.useContext (../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:1207:24)
+      at useContext (../node_modules/.pnpm/next@16.0.4_@babel+core@7.28.5_@playwright+test@1.57.0_react-dom@19.2.0_react@19.2.0__react@19.2.0/node_modules/next/src/shared/lib/loadable.shared-runtime.tsx:114:27)
+      at useLoadableModule (../node_modules/.pnpm/next@16.0.4_@babel+core@7.28.5_@playwright+test@1.57.0_react-dom@19.2.0_react@19.2.0__react@19.2.0/node_modules/next/src/shared/lib/loadable.shared-runtime.tsx:123:5)
+      at Object.react_stack_bottom_frame (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:25904:20)
+      at renderWithHooks (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:7662:22)
+      at updateForwardRef (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:9724:19)
+      at beginWork (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:12117:18)
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at performUnitOfWork (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:17641:22)
+      at workLoopSync (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:17469:41)
+      at renderRootSync (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:17450:11)
+      at performWorkOnRoot (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:16583:35)
+      at performWorkOnRootViaSchedulerTask (../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/cjs/react-dom-client.development.js:18957:7)
+      at flushActQueue (../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:590:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (../node_modules/.pnpm/react@19.2.0/node_modules/react/cjs/react.development.js:884:10)
+      at ../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.7_react-dom_5ec2dc1689fe39fc3158890011c6ece0/node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.7_react-dom_5ec2dc1689fe39fc3158890011c6ece0/node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (../node_modules/.pnpm/@testing-library+react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.7_react-dom_5ec2dc1689fe39fc3158890011c6ece0/node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (app/__tests__/blog-page.test.tsx:137:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 📡 add observability to secrets: https://dotenvx.com/ops
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: ⚙️  suppress all logs with { quiet: true }
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 📡 add observability to secrets: https://dotenvx.com/ops
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 🗂️ backup and recover secrets: https://dotenvx.com/ops
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 🗂️ backup and recover secrets: https://dotenvx.com/ops
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: ✅ audit secrets and track compliance: https://dotenvx.com/ops
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: ✅ audit secrets and track compliance: https://dotenvx.com/ops
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 🗂️ backup and recover secrets: https://dotenvx.com/ops
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 🗂️ backup and recover secrets: https://dotenvx.com/ops
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: ⚙️  suppress all logs with { quiet: true }
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: ⚙️  suppress all logs with { quiet: true }
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 📡 add observability to secrets: https://dotenvx.com/ops
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (16) from .env.test -- tip: 📡 add observability to secrets: https://dotenvx.com/ops
+
+      at _log (../node_modules/.pnpm/dotenv@17.2.3/node_modules/dotenv/lib/main.js:142:11)
+
+/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  app-next-directory@0.1.0 test:unit: `cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --runInBand --passWithNoTests --runInBand --detectOpenHandles --onlyFailures --verbose`
+Exit status 1
+ ELIFECYCLE  Command failed with exit code 1.
