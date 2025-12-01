@@ -18,7 +18,7 @@ import { createRequire } from 'node:module';
 
 const APP_DIR =
   typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
-const MONOREPO_ROOT = path.join(APP_DIR, '..');
+const TURBOPACK_ROOT = path.join(APP_DIR, '..');
 const require = createRequire(import.meta.url);
 
 const isAnalyze = /^(1|true|yes)$/i.test(process.env.ANALYZE ?? '');
@@ -28,12 +28,14 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
   turbopack: {
-    root: MONOREPO_ROOT,
+    // Point Turbopack to the monorepo root so shared workspace packages resolve correctly
+    root: TURBOPACK_ROOT,
   },
-  cacheComponents: false,
+  cacheComponents: true,
   productionBrowserSourceMaps: process.env.ENABLE_SOURCE_MAPS === 'true',
   serverExternalPackages: ['pino', 'pino-pretty', 'thread-stream'],
-  transpilePackages: ['framer-motion'],
+  // Transpile shared workspace packages so Turbopack/Next can consume uncompiled TS/ESM code
+  transpilePackages: ['framer-motion', 'sustainable-nomads'],
   compiler: {
     styledComponents: true,
   },
@@ -67,13 +69,6 @@ const nextConfig: NextConfig = {
     minimumCacheTTL: 60,
     deviceSizes: [640, 768, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    domains: [
-      'cdn.sanity.io',
-      'images.unsplash.com',
-      'images.pexels.com',
-      'i.pravatar.cc',
-      'raw.githubusercontent.com',
-    ],
     remotePatterns: [
       {
         protocol: 'https',

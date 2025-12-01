@@ -1,22 +1,22 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
-// Mock the client before import
+const mockedClient = {
+  fetch: jest.fn(),
+};
+
 jest.mock('@/lib/sanity/client', () => ({
-  client: jest.fn(() => ({ fetch: jest.fn() })),
+  client: mockedClient,
 }));
 
-import { client } from '@/lib/sanity/client';
 import sitemap from '../sitemap';
 
-const mockClient = client as jest.Mocked<typeof client>;
-
 describe('sitemap', () => {
-  const originalEnv = process.env.NEXT_PUBLIC_SITE_URL;
-
   beforeEach(() => {
     jest.clearAllMocks();
-    mockClient.fetch.mockClear();
+    mockedClient.fetch.mockClear();
   });
+
+  const originalEnv = process.env.NEXT_PUBLIC_SITE_URL;
 
   afterEach(() => {
     if (originalEnv) {
@@ -28,7 +28,7 @@ describe('sitemap', () => {
 
   it('returns static pages only when Sanity fetch fails', async () => {
     delete process.env.NEXT_PUBLIC_SITE_URL;
-    mockClient.fetch.mockRejectedValue(new Error('Sanity error'));
+    mockedClient.fetch.mockRejectedValue(new Error('Sanity error'));
 
     const result = await sitemap();
 
@@ -40,7 +40,7 @@ describe('sitemap', () => {
 
   it('uses custom site URL from environment', async () => {
     process.env.NEXT_PUBLIC_SITE_URL = 'https://example.com';
-    mockClient.fetch.mockRejectedValue(new Error('Sanity error'));
+    mockedClient.fetch.mockRejectedValue(new Error('Sanity error'));
 
     const result = await sitemap();
 
@@ -49,7 +49,7 @@ describe('sitemap', () => {
   });
 
   it('includes static pages with correct priorities', async () => {
-    mockClient.fetch.mockRejectedValue(new Error('Sanity error'));
+    mockedClient.fetch.mockRejectedValue(new Error('Sanity error'));
 
     const result = await sitemap();
 
@@ -65,7 +65,7 @@ describe('sitemap', () => {
   });
 
   it('includes static pages with correct change frequencies', async () => {
-    mockClient.fetch.mockRejectedValue(new Error('Sanity error'));
+    mockedClient.fetch.mockRejectedValue(new Error('Sanity error'));
 
     const result = await sitemap();
 
@@ -81,7 +81,7 @@ describe('sitemap', () => {
   it('handles data fetch gracefully', async () => {
     process.env.NEXT_PUBLIC_SITE_URL = 'https://example.com';
 
-    mockClient.fetch
+    mockedClient.fetch
       .mockResolvedValueOnce([
         { slug: 'eco-cafe-bali', _updatedAt: '2024-01-10T00:00:00.000Z' },
         { slug: 'green-coworking', _updatedAt: '2024-01-15T00:00:00.000Z' },

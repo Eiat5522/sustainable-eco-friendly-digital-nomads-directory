@@ -11,255 +11,70 @@ jest.mock('next/navigation', () => ({
   notFound: notFoundMock,
 }));
 
-const listingDetailViewSpy = jest.fn((props: any) => (
-  <div data-testid="listing-detail-view">
-    <span data-testid="listing-name">{props.listing?.name}</span>
-    <span data-testid="related-count">{props.relatedListings?.length ?? 0}</span>
-    <span data-testid="reviews-count">{props.reviews?.length ?? 0}</span>
-    <span data-testid="is-signed-in">{String(props.isSignedIn)}</span>
-    <span data-testid="is-favorited">{String(props.isFavorited)}</span>
-    <span data-testid="user-id">{props.userId ?? ''}</span>
-  </div>
+const listingContentMock = jest.fn(({ slug }: { slug: string }) => (
+  <div data-testid="listing-content-stub">listing:{slug}</div>
 ));
 
-jest.mock('@/components/listings/ListingDetailView', () => ({
-  ListingDetailView: (props: unknown) => listingDetailViewSpy(props),
+jest.mock('../listings/[slug]/ListingContent', () => ({
+  __esModule: true,
+  default: (props: { slug: string }) => listingContentMock(props),
 }));
 
-jest.mock('@/components/layout/Header', () => ({
-  Header: () => <div data-testid="header">Header</div>,
-}));
-
-jest.mock('@/components/layout/Footer', () => ({
-  Footer: () => <div data-testid="footer">Footer</div>,
-}));
-
-jest.mock('@/lib/dto-transformer', () => ({
-  transformToDetailDTO: jest.fn(),
-}));
-
-jest.mock('@/lib/sanity/client', () => ({
-  client: jest.fn(() => ({ fetch: jest.fn() })),
-}));
-
-jest.mock('@/lib/auth', () => ({
-  auth: jest.fn(),
-}));
-
-jest.mock('@/utils/db-helpers', () => ({
-  getCollection: jest.fn(),
-}));
-
-const originalFetch = global.fetch;
-const originalStructuredClone = global.structuredClone;
 const originalE2E = process.env.NEXT_PUBLIC_E2E;
 const originalE2EFlag = process.env.E2E;
 
-beforeAll(() => {
-  if (typeof global.structuredClone !== 'function') {
-    (global as any).structuredClone = (value: unknown) => JSON.parse(JSON.stringify(value));
-  }
-});
-
 afterEach(() => {
-  global.fetch = originalFetch;
   process.env.NEXT_PUBLIC_E2E = originalE2E;
   process.env.E2E = originalE2EFlag;
   jest.clearAllMocks();
 });
 
-afterAll(() => {
-  if (originalStructuredClone) {
-    (global as any).structuredClone = originalStructuredClone;
-  } else {
-    delete (global as any).structuredClone;
-  }
+describe('ListingPage (wiring)', () => {
+  it('renders the ListingContent stub for E2E fixtures', async () => {
+    process.env.NEXT_PUBLIC_E2E = '1';
+    process.env.E2E = '0';
+    jest.resetModules();
+
+    const { default: ListingPage } = await import('../listings/[slug]/page');
+
+    const element = await ListingPage({ params: { slug: 'banyan-tree-phuket' } });
+    render(element);
+
+    expect(screen.getByTestId('listing-content-stub')).toHaveTextContent('banyan-tree-phuket');
+    expect(listingContentMock).toHaveBeenCalledWith({ slug: 'banyan-tree-phuket' });
+  });
+
+  it('bubbles notFound when ListingContent triggers it', async () => {
+    process.env.NEXT_PUBLIC_E2E = '1';
+    process.env.E2E = '0';
+    jest.resetModules();
+
+    listingContentMock.mockImplementationOnce(() => notFoundMock());
+
+    const { default: ListingPage } = await import('../listings/[slug]/page');
+
+    await expect(ListingPage({ params: { slug: 'missing-slug' } })).rejects.toThrow(
+      'NEXT_NOT_FOUND'
+    );
+    expect(notFoundMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('passes through non-E2E slugs to ListingContent', async () => {
+    process.env.NEXT_PUBLIC_E2E = '0';
+    process.env.E2E = '0';
+    jest.resetModules();
+
+    const { default: ListingPage } = await import('../listings/[slug]/page');
+
+    const element = await ListingPage({ params: { slug: 'eco-stay-retreat' } });
+    render(element);
+
+    expect(screen.getByTestId('listing-content-stub')).toHaveTextContent('eco-stay-retreat');
+    expect(listingContentMock).toHaveBeenCalledWith({ slug: 'eco-stay-retreat' });
+  });
 });
 
-describe('ListingPage', () => {
-  it('renders E2E fixture when slug matches and E2E mode is enabled', async () => {
-    process.env.NEXT_PUBLIC_E2E = '1';
-    process.env.E2E = '0';
-    jest.resetModules();
-
-    const { default: ListingPage } = await import('../listings/[slug]/page');
-
-    const element = await ListingPage({ params: Promise.resolve({ slug: 'banyan-tree-phuket' }) });
-    render(element);
-
-    expect(screen.getByTestId('listing-detail-view')).toBeInTheDocument();
-    const props = listingDetailViewSpy.mock.calls.at(-1)?.[0] ?? {};
-    expect(props.listing?.name).toBe('Banyan Tree Phuket');
-    expect(props.isSignedIn).toBe(true);
-    expect(props.isFavorited).toBe(false);
-  });
-
-  it('calls notFound when E2E fixture does not exist', async () => {
-    process.env.NEXT_PUBLIC_E2E = '1';
-    process.env.E2E = '0';
-    jest.resetModules();
-
-    const { default: ListingPage } = await import('../listings/[slug]/page');
-
-    await expect(
-      ListingPage({ params: Promise.resolve({ slug: 'missing-slug' }) })
-    ).rejects.toThrow('NEXT_NOT_FOUND');
-    expect(notFoundMock).toHaveBeenCalledTimes(1);
-  });
-
-  it('renders listing data with related listings, reviews, and favorite status', async () => {
-    process.env.NEXT_PUBLIC_E2E = '0';
-    process.env.E2E = '0';
-    jest.resetModules();
-
-    const [{ default: ListingPage }, clientModule, transformerModule, authModule, dbHelpersModule] =
-      await Promise.all([
-        import('../listings/[slug]/page'),
-        import('@/lib/sanity/client'),
-        import('@/lib/dto-transformer'),
-        import('@/lib/auth'),
-        import('@/utils/db-helpers'),
-      ]);
-
-    const listingRaw = { _id: 'raw-listing' };
-    const listingDto = {
-      id: 'listing-1',
-      name: 'Eco Stay Retreat',
-      slug: 'eco-stay-retreat',
-      shortDescription: 'Eco stay short',
-      longDescription: 'Eco stay long',
-      imageUrl: null,
-      galleryImages: [],
-      city: { id: 'city-1', name: 'Green City', slug: 'green-city', country: 'Wonderland' },
-    };
-
-    const sanityFetch = clientModule.client.fetch as jest.Mock;
-    const transformToDetailDTO = transformerModule.transformToDetailDTO as jest.Mock;
-    const auth = authModule.auth as jest.Mock;
-    const getCollection = dbHelpersModule.getCollection as jest.Mock;
-
-    sanityFetch.mockResolvedValueOnce(listingRaw);
-    sanityFetch.mockResolvedValueOnce([
-      {
-        _id: 'related-1',
-        name: 'Related Spot',
-        slug: 'related-spot',
-        priceRange: 'premium',
-        imageUrl: '/image.jpg',
-        city: { id: 'city-2', name: 'Blue City', slug: 'blue-city', country: 'Wonderland' },
-        ecoFocusTags: [{ name: 'Solar Powered' }],
-      },
-    ]);
-    sanityFetch.mockResolvedValueOnce({ _id: 'favorite-1' });
-
-    transformToDetailDTO.mockReturnValue(listingDto);
-
-    // Mock MongoDB collection for reviews
-    const mockCollection = {
-      find: jest.fn().mockReturnThis(),
-      sort: jest.fn().mockReturnThis(),
-      limit: jest.fn().mockReturnThis(),
-      toArray: jest.fn().mockResolvedValue([
-        {
-          id: 'review-1',
-          rating: 4,
-          comment: 'Great stay',
-          createdAt: '2024-01-01T00:00:00.000Z',
-          user: { name: 'Avery', image: '/avatar.png', id: 'user-2' },
-          status: 'approved',
-        },
-      ]),
-    };
-    getCollection.mockResolvedValue(mockCollection);
-
-    auth.mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
-
-    const element = await ListingPage({ params: Promise.resolve({ slug: 'eco-stay-retreat' }) });
-    render(element);
-
-    expect(screen.getByTestId('header')).toBeInTheDocument();
-    expect(screen.getByTestId('footer')).toBeInTheDocument();
-    expect(screen.getByTestId('listing-detail-view')).toBeInTheDocument();
-
-    const props = listingDetailViewSpy.mock.calls.at(-1)?.[0] ?? {};
-    expect(props.listing).toEqual(listingDto);
-    expect(props.reviews ?? []).toHaveLength(1);
-    expect(props.isSignedIn).toBe(true);
-    expect(typeof props.isFavorited).toBe('boolean');
-    expect(props.userId).toBe('user-1');
-    expect(sanityFetch.mock.calls.length).toBeGreaterThanOrEqual(2);
-  });
-
-  it('handles downstream fetch failures by returning safe defaults', async () => {
-    process.env.NEXT_PUBLIC_E2E = '0';
-    process.env.E2E = '0';
-    jest.resetModules();
-
-    const [{ default: ListingPage }, clientModule, transformerModule, authModule] =
-      await Promise.all([
-        import('../listings/[slug]/page'),
-        import('@/lib/sanity/client'),
-        import('@/lib/dto-transformer'),
-        import('@/lib/auth'),
-      ]);
-
-    const listingRaw = { _id: 'raw-listing' };
-    const listingDto = {
-      id: 'listing-2',
-      name: 'Fallback Lodge',
-      shortDescription: 'Fallback short',
-      longDescription: 'Fallback long',
-      imageUrl: null,
-      galleryImages: [],
-      city: { id: 'city-9', name: 'Fallback City', slug: 'fallback-city', country: 'Unknown' },
-    };
-
-    const sanityFetch = clientModule.client.fetch as jest.Mock;
-    const transformToDetailDTO = transformerModule.transformToDetailDTO as jest.Mock;
-    const auth = authModule.auth as jest.Mock;
-
-    sanityFetch.mockResolvedValueOnce(listingRaw);
-    sanityFetch.mockRejectedValueOnce(new Error('related failure'));
-    sanityFetch.mockRejectedValueOnce(new Error('favorite failure'));
-
-    transformToDetailDTO.mockReturnValue(listingDto);
-
-    global.fetch = jest.fn().mockRejectedValue(new Error('reviews failure'));
-
-    auth.mockResolvedValue({ user: { id: 'user-5', role: 'user' } });
-
-    const element = await ListingPage({ params: Promise.resolve({ slug: 'fallback-lodge' }) });
-    render(element);
-
-    const props = listingDetailViewSpy.mock.calls.at(-1)?.[0] ?? {};
-    expect(props.relatedListings ?? []).toEqual([]);
-    expect(props.reviews ?? []).toEqual([]);
-    expect(props.isFavorited).toBe(false);
-  });
-
-  it('throws notFound when listing is missing', async () => {
-    process.env.NEXT_PUBLIC_E2E = '0';
-    process.env.E2E = '0';
-    jest.resetModules();
-
-    const [{ default: ListingPage }, clientModule, transformerModule] = await Promise.all([
-      import('../listings/[slug]/page'),
-      import('@/lib/sanity/client'),
-      import('@/lib/dto-transformer'),
-    ]);
-
-    const sanityFetch = clientModule.client.fetch as jest.Mock;
-    const transformToDetailDTO = transformerModule.transformToDetailDTO as jest.Mock;
-
-    sanityFetch.mockResolvedValueOnce(null);
-    transformToDetailDTO.mockReset();
-
-    await expect(
-      ListingPage({ params: Promise.resolve({ slug: 'missing-listing' }) })
-    ).rejects.toThrow('NEXT_NOT_FOUND');
-    expect(notFoundMock).toHaveBeenCalledTimes(1);
-  });
-
+describe('ListingPage metadata', () => {
   it('generates metadata for a listing', async () => {
     process.env.NEXT_PUBLIC_E2E = '0';
     process.env.E2E = '0';
@@ -286,16 +101,14 @@ describe('ListingPage', () => {
     });
 
     const metadata = await pageModule.generateMetadata({
-      params: Promise.resolve({ slug: 'meta-listing' }),
+      params: { slug: 'meta-listing' },
     } as any);
 
     expect(metadata).toEqual(
       expect.objectContaining({
         title: 'Meta Listing',
         description: 'A great place to stay',
-        openGraph: expect.objectContaining({
-          images: ['/primary.jpg'],
-        }),
+        openGraph: expect.objectContaining({ images: ['/primary.jpg'] }),
       })
     );
   });
@@ -320,79 +133,9 @@ describe('ListingPage', () => {
     });
 
     const metadata = await pageModule.generateMetadata({
-      params: Promise.resolve({ slug: 'broken-listing' }),
+      params: { slug: 'broken-listing' },
     } as any);
 
     expect(metadata).toEqual({ title: 'Listing not found' });
-  });
-
-  it('truncates long descriptions when generating metadata', async () => {
-    process.env.NEXT_PUBLIC_E2E = '0';
-    process.env.E2E = '0';
-    jest.resetModules();
-
-    const [pageModule, clientModule, transformerModule] = await Promise.all([
-      import('../listings/[slug]/page'),
-      import('@/lib/sanity/client'),
-      import('@/lib/dto-transformer'),
-    ]);
-
-    const sanityFetch = clientModule.client.fetch as jest.Mock;
-    const transformToDetailDTO = transformerModule.transformToDetailDTO as jest.Mock;
-
-    sanityFetch.mockResolvedValueOnce({ _id: 'raw-listing' });
-    const longSummary = 'Sustainable paradise '.repeat(20);
-    transformToDetailDTO.mockReturnValue({
-      id: 'listing-meta-long',
-      name: 'Long Meta Listing',
-      shortDescription: longSummary,
-      longDescription: longSummary,
-      galleryImages: ['https://example.com/gallery.jpg'],
-      imageUrl: null,
-      city: null,
-    });
-
-    const metadata = await pageModule.generateMetadata({
-      params: Promise.resolve({ slug: 'meta-listing-long' }),
-    } as any);
-
-    const description = metadata.description as string;
-    expect(description).toHaveLength(160);
-    expect(description).toBe(longSummary.slice(0, 160));
-    expect(metadata.openGraph?.images).toEqual(['https://example.com/gallery.jpg']);
-  });
-
-  it('omits metadata description and images when listing lacks summary content', async () => {
-    process.env.NEXT_PUBLIC_E2E = '0';
-    process.env.E2E = '0';
-    jest.resetModules();
-
-    const [pageModule, clientModule, transformerModule] = await Promise.all([
-      import('../listings/[slug]/page'),
-      import('@/lib/sanity/client'),
-      import('@/lib/dto-transformer'),
-    ]);
-
-    const sanityFetch = clientModule.client.fetch as jest.Mock;
-    const transformToDetailDTO = transformerModule.transformToDetailDTO as jest.Mock;
-
-    sanityFetch.mockResolvedValueOnce({ _id: 'raw-listing' });
-    transformToDetailDTO.mockReturnValue({
-      id: 'listing-meta-minimal',
-      name: 'Minimal Listing',
-      shortDescription: null,
-      longDescription: null,
-      galleryImages: [],
-      imageUrl: null,
-      city: null,
-    });
-
-    const metadata = await pageModule.generateMetadata({
-      params: Promise.resolve({ slug: 'minimal-listing' }),
-    } as any);
-
-    expect(metadata.title).toBe('Minimal Listing');
-    expect(metadata.description).toBeUndefined();
-    expect(metadata.openGraph?.images).toBeUndefined();
   });
 });

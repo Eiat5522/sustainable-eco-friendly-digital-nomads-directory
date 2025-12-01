@@ -98,7 +98,7 @@ describe('app/listings/[slug]/page', () => {
     const pageModule = await importPageModule();
 
     const element = await pageModule.default({
-      params: Promise.resolve({ slug: 'banyan-tree-phuket' }),
+      params: { slug: 'banyan-tree-phuket' },
     });
     render(element);
 
@@ -117,7 +117,7 @@ describe('app/listings/[slug]/page', () => {
     const pageModule = await importPageModule();
 
     await expect(
-      pageModule.default({ params: Promise.resolve({ slug: 'unknown-fixture' }) })
+      pageModule.default({ params: { slug: 'unknown-fixture' } })
     ).rejects.toThrow('NOT_FOUND_TRIGGERED');
     expect(mockNotFound).toHaveBeenCalled();
   });
@@ -127,7 +127,7 @@ describe('app/listings/[slug]/page', () => {
     mockClientFetch.mockResolvedValue(null);
 
     await expect(
-      pageModule.default({ params: Promise.resolve({ slug: 'not-a-real-slug' }) })
+      pageModule.default({ params: { slug: 'not-a-real-slug' } })
     ).rejects.toThrow('NOT_FOUND_TRIGGERED');
 
     expect(mockClientFetch).toHaveBeenCalled();
@@ -188,7 +188,7 @@ describe('app/listings/[slug]/page', () => {
     };
     mockGetCollection.mockResolvedValue(mockCollection);
 
-    const element = await pageModule.default({ params: Promise.resolve({ slug: 'eco-retreat' }) });
+    const element = await pageModule.default({ params: { slug: 'eco-retreat' } });
     render(element);
 
     expect(mockTransformToDetailDTO).toHaveBeenCalledWith({ _id: 'listing-raw' });
@@ -218,7 +218,7 @@ describe('app/listings/[slug]/page', () => {
     const pageModule = await importPageModule();
 
     await expect(
-      pageModule.default({ params: Promise.resolve({ slug: 'broken-listing' }) })
+      pageModule.default({ params: { slug: 'broken-listing' } })
     ).rejects.toThrow('NOT_FOUND_TRIGGERED');
 
     // structuredLogger.error is called, but we don't verify the exact call here
@@ -230,7 +230,7 @@ describe('app/listings/[slug]/page', () => {
 
     const pageModule = await importPageModule();
     const metadata = await pageModule.generateMetadata({
-      params: Promise.resolve({ slug: 'missing' }),
+      params: { slug: 'missing' },
     });
 
     expect(metadata).toEqual({ title: 'Listing not found' });
@@ -248,7 +248,7 @@ describe('app/listings/[slug]/page', () => {
 
     const pageModule = await importPageModule();
     const metadata = await pageModule.generateMetadata({
-      params: Promise.resolve({ slug: 'ocean-escape' }),
+      params: { slug: 'ocean-escape' },
     });
 
     expect(metadata).toEqual({
@@ -285,7 +285,7 @@ describe('app/listings/[slug]/page', () => {
     });
 
     const element = await pageModule.default({
-      params: Promise.resolve({ slug: 'mountain-base' }),
+      params: { slug: 'mountain-base' },
     });
     render(element);
 
