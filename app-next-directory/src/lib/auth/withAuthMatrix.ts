@@ -283,6 +283,7 @@ export async function getUserFromToken(request: NextRequest) {
 // Legacy compatibility - keep the old withAuth function but mark as deprecated
 /** @deprecated Use withAuthMatrix instead for audit compliance */
 export async function withAuth(request: NextRequest, requiredRoles?: string[]) {
+  console.warn('withAuth is deprecated. Use withAuthMatrix instead for better access control.');
   const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
   if (!token) {
     const url = new URL('/auth/signin', request.url);

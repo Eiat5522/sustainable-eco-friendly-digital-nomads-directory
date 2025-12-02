@@ -20,7 +20,9 @@ async function fetchAndCache<T>(
       if (cachedData) {
         return JSON.parse(cachedData);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.warn('Cache read failed, falling through to fetch:', error);
+    }
   }
 
   // Check if request is already in-flight to prevent stampede

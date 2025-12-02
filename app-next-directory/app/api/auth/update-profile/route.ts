@@ -202,6 +202,7 @@ async function handleProfileMutation(request: NextRequest): Promise<NextResponse
       error: null,
     });
   } catch (error) {
+    console.error('Profile update error:', error);
     return json(
       {
         success: false,
