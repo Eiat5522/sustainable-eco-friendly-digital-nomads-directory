@@ -43,6 +43,18 @@ jest.mock('broadcast-channel', () => {
   return { __esModule: true, BroadcastChannel, default: BroadcastChannel };
 });
 
+// Mock next/image component as suggested in ADVANCE_MOCKING_STRATEGIES_FOR_NEXTJS_APPLICATION_WITH_JEST.md
+// Must use React.createElement instead of JSX in jest.setup.ts
+jest.mock('next/image', () => {
+  const React = require('react');
+  return {
+    __esModule: true,
+    default: (props: React.ImgHTMLAttributes<HTMLImageElement>) => {
+      return React.createElement('img', props);
+    },
+  };
+});
+
 // Load polyfills FIRST before any other imports (after jest.mock calls which are hoisted)
 import './jest.polyfills';
 
@@ -522,6 +534,8 @@ if (!(global as Record<string, unknown>).window) {
 }
 
 // Mock next/navigation globally for all tests using jest.fn
+// For tests that need realistic router behavior, you can use next-router-mock
+// by importing mockRouter directly (see examples in src/__tests__/examples/)
 jest.mock('next/navigation', () => ({
   __esModule: true,
   useRouter: jest.fn(() => ({

@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { generateAsyncValue } from '@/test-helpers/async-mock-helpers';
 
 jest.mock('@/lib/auth', () => ({
   auth: jest.fn(),
@@ -55,7 +56,7 @@ describe('LoginPage', () => {
     });
 
     const LoginPage = (await import('../page')).default;
-    await expect(LoginPage({ searchParams: { callbackUrl: '/dashboard' } })).rejects.toThrow(
+    await expect(LoginPage({ searchParams: generateAsyncValue({ callbackUrl: '/dashboard' }) })).rejects.toThrow(
       'redirect'
     );
     expect(sanitizeCallbackUrlMock).toHaveBeenCalledWith('/dashboard', 'https://example.com');
@@ -71,7 +72,7 @@ describe('LoginPage', () => {
     });
 
     const LoginPage = (await import('../page')).default;
-    await expect(LoginPage({ searchParams: { callbackUrl: '/dashboard' } })).rejects.toThrow(
+    await expect(LoginPage({ searchParams: generateAsyncValue({ callbackUrl: '/dashboard' }) })).rejects.toThrow(
       'redirect'
     );
     expect(sanitizeCallbackUrlMock).toHaveBeenCalledWith('/dashboard', undefined);
@@ -96,7 +97,7 @@ describe('LoginPage', () => {
     authMock.mockResolvedValueOnce(null);
 
     const LoginPage = (await import('../page')).default;
-    const element = await LoginPage({ searchParams: { callbackUrl: '/welcome' } });
+    const element = await LoginPage({ searchParams: generateAsyncValue({ callbackUrl: '/welcome' }) });
     render(element);
 
     expect(screen.getByTestId('mock-header')).toBeInTheDocument();

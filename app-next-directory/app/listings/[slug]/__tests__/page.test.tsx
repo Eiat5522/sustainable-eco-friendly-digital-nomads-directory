@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
+import { generateAsyncValue } from '@/test-helpers/async-mock-helpers';
 
 const mockClientFetch = jest.fn();
 const mockTransformToDetailDTO = jest.fn();
@@ -98,7 +99,7 @@ describe('app/listings/[slug]/page', () => {
     const pageModule = await importPageModule();
 
     const element = await pageModule.default({
-      params: { slug: 'banyan-tree-phuket' },
+      params: generateAsyncValue({ slug: 'banyan-tree-phuket' }),
     });
     render(element);
 
@@ -117,7 +118,7 @@ describe('app/listings/[slug]/page', () => {
     const pageModule = await importPageModule();
 
     await expect(
-      pageModule.default({ params: { slug: 'unknown-fixture' } })
+      pageModule.default({ params: generateAsyncValue({ slug: 'unknown-fixture' }) })
     ).rejects.toThrow('NOT_FOUND_TRIGGERED');
     expect(mockNotFound).toHaveBeenCalled();
   });
@@ -127,7 +128,7 @@ describe('app/listings/[slug]/page', () => {
     mockClientFetch.mockResolvedValue(null);
 
     await expect(
-      pageModule.default({ params: { slug: 'not-a-real-slug' } })
+      pageModule.default({ params: generateAsyncValue({ slug: 'not-a-real-slug' }) })
     ).rejects.toThrow('NOT_FOUND_TRIGGERED');
 
     expect(mockClientFetch).toHaveBeenCalled();
@@ -188,7 +189,7 @@ describe('app/listings/[slug]/page', () => {
     };
     mockGetCollection.mockResolvedValue(mockCollection);
 
-    const element = await pageModule.default({ params: { slug: 'eco-retreat' } });
+    const element = await pageModule.default({ params: generateAsyncValue({ slug: 'eco-retreat' }) });
     render(element);
 
     expect(mockTransformToDetailDTO).toHaveBeenCalledWith({ _id: 'listing-raw' });
@@ -218,7 +219,7 @@ describe('app/listings/[slug]/page', () => {
     const pageModule = await importPageModule();
 
     await expect(
-      pageModule.default({ params: { slug: 'broken-listing' } })
+      pageModule.default({ params: generateAsyncValue({ slug: 'broken-listing' }) })
     ).rejects.toThrow('NOT_FOUND_TRIGGERED');
 
     // structuredLogger.error is called, but we don't verify the exact call here
@@ -230,7 +231,7 @@ describe('app/listings/[slug]/page', () => {
 
     const pageModule = await importPageModule();
     const metadata = await pageModule.generateMetadata({
-      params: { slug: 'missing' },
+      params: generateAsyncValue({ slug: 'missing' }),
     });
 
     expect(metadata).toEqual({ title: 'Listing not found' });
@@ -248,7 +249,7 @@ describe('app/listings/[slug]/page', () => {
 
     const pageModule = await importPageModule();
     const metadata = await pageModule.generateMetadata({
-      params: { slug: 'ocean-escape' },
+      params: generateAsyncValue({ slug: 'ocean-escape' }),
     });
 
     expect(metadata).toEqual({
@@ -285,7 +286,7 @@ describe('app/listings/[slug]/page', () => {
     });
 
     const element = await pageModule.default({
-      params: { slug: 'mountain-base' },
+      params: generateAsyncValue({ slug: 'mountain-base' }),
     });
     render(element);
 

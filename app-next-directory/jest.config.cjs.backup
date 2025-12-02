@@ -2,19 +2,30 @@
 /**
  * jest.config.cjs
  * Jest config for TypeScript + ESM + React 18/19 compatible unit tests
- * Updated to use next/jest for better Next.js integration as per
- * ADVANCE_MOCKING_STRATEGIES_FOR_NEXTJS_APPLICATION_WITH_JEST.md
  */
 
+// Jest configuration for app-next-directory
+// This config ensures tests load tests/jest.setup.ts and run a global setup
+// that performs linting and type checking before the test suite runs.
+
+module.exports = {
+  rootDir: __dirname,
+  testEnvironment: 'jsdom',
+  setupFilesAfterEnv: ['<rootDir>/tests/jest.setup.ts'],
+  globalSetup: '<rootDir>/tests/jest.global-setup.js',
+  transform: {
+    '^.+\\.(ts|tsx)$': 'ts-jest',
+  },
+  moduleNameMapper: {
+    // map next/image and next/link if needed by jest transforms; adjust if your monorepo shares configs
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
+  testPathIgnorePatterns: ['/node_modules/', '/.next/'],
+};
+
+// Convert to CommonJS-compatible synchronous config so Node can load this file
 const path = require('node:path');
 const fs = require('node:fs');
-const nextJest = require('next/jest');
-
-// Create the Next.js Jest config wrapper
-const createJestConfig = nextJest({
-  // Provide the path to your Next.js app to load next.config.js and .env files
-  dir: './',
-});
 
 // Attempt to load pathsToModuleNameMapper from ts-jest if available. If not,
 // fall back to a no-op mapper so the rest of the config still works.
@@ -99,13 +110,26 @@ if (useMockedMongoose) {
   moduleNameMapper['^mongodb$'] = '<rootDir>/__mocks__/mongodb.js';
 }
 
-// Custom Jest configuration
-const customJestConfig = {
+module.exports = {
   // Scope discovery to your source dirs in this package
   roots: ['<rootDir>/src', '<rootDir>/app'],
 
-  // next/jest handles SWC transforms automatically, but we keep this for compatibility
-  // The createJestConfig wrapper will merge this with Next.js defaults
+  // Transform with SWC and emit ESM so top-level await & unstable_mockModule work
+  transform: {
+    '^.+\\.(t|j)sx?$': [
+      '@swc/jest',
+      {
+        jsc: {
+          target: 'es2022',
+          transform: { react: { runtime: 'automatic' } },
+        },
+        module: { type: 'es6' },
+      },
+    ],
+  },
+
+  // Treat these as ESM inside Jest to support ESM-only packages shipped as .js
+  extensionsToTreatAsEsm: ['.ts', '.tsx', '.jsx'],
 
   testEnvironment: process.env.JEST_RUN_INTEGRATION === '1' ? 'node' : 'jsdom',
   testEnvironmentOptions: {
@@ -170,6 +194,3 @@ const customJestConfig = {
       : []
   ),
 };
-
-// Export the config wrapped with createJestConfig to enable async Next.js config loading
-module.exports = createJestConfig(customJestConfig);

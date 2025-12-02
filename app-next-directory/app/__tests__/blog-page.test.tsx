@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom';
+import { generateAsyncValue } from '@/test-helpers/async-mock-helpers';
 import { render, screen } from '@testing-library/react';
 
 jest.mock('@/components/layout/Header', () => ({
@@ -82,7 +83,7 @@ describe('BlogPage', () => {
     global.fetch = fetchMock;
 
     const element = await pageModule.default({
-      searchParams: { page: '2', limit: '12', tag: 'eco', search: 'retreat' },
+      searchParams: generateAsyncValue({ page: '2', limit: '12', tag: 'eco', search: 'retreat' }),
     });
     render(element);
 
@@ -119,7 +120,7 @@ describe('BlogPage', () => {
       }),
     } as Response);
 
-    const element = await pageModule.default({ searchParams: {} });
+    const element = await pageModule.default({ searchParams: generateAsyncValue({}) });
     render(element);
 
     expect(screen.getByTestId('blog-page-client')).toBeInTheDocument();
@@ -143,7 +144,7 @@ describe('BlogPage', () => {
       json: async () => ({ success: false }),
     } as Response);
 
-    await expect(pageModule.default({ searchParams: {} })).rejects.toThrow(
+    await expect(pageModule.default({ searchParams: generateAsyncValue({}) })).rejects.toThrow(
       'Blog API responded with success=false or missing/invalid data'
     );
   });

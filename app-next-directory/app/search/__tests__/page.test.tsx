@@ -2,6 +2,7 @@
 
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
+import { generateAsyncValue } from '@/test-helpers/async-mock-helpers';
 import SearchPage from '../page';
 
 // Mock the SearchFiltersForm component
@@ -30,7 +31,7 @@ jest.mock('../SearchPageContent', () => ({
 describe('SearchPage', () => {
   it('renders header, footer and search page content', async () => {
     const searchParams = { q: 'test' };
-    const ui = await SearchPage({ searchParams: Promise.resolve(searchParams) });
+    const ui = await SearchPage({ searchParams: generateAsyncValue(searchParams) });
     render(ui);
 
     expect(screen.getByTestId('header')).toBeInTheDocument();
@@ -39,7 +40,7 @@ describe('SearchPage', () => {
 
   it('passes searchParams to SearchPageContent', async () => {
     const searchParams = { q: 'test', city: 'Testville' };
-    const ui = await SearchPage({ searchParams: Promise.resolve(searchParams) });
+    const ui = await SearchPage({ searchParams: generateAsyncValue(searchParams) });
     render(ui);
 
     const searchPageContent = screen.getByTestId('search-page-content');
@@ -47,7 +48,7 @@ describe('SearchPage', () => {
   });
 
   it('handles empty searchParams', async () => {
-    const ui = await SearchPage({ searchParams: Promise.resolve({}) });
+    const ui = await SearchPage({ searchParams: generateAsyncValue({}) });
     render(ui);
 
     const searchPageContent = screen.getByTestId('search-page-content');

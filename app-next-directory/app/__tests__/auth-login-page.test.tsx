@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import type React from 'react';
+import { generateAsyncValue } from '@/test-helpers/async-mock-helpers';
 
 jest.mock('next/navigation', () => ({
   redirect: jest.fn(),
@@ -81,7 +82,7 @@ describe('LoginPage', () => {
     mockGetBaseUrl.mockResolvedValue('https://example.com');
     mockSanitizeCallbackUrl.mockReturnValue('/dashboard');
 
-    await LoginPage({ searchParams: Promise.resolve({ callbackUrl: ['/dashboard', '/other'] }) });
+    await LoginPage({ searchParams: generateAsyncValue({ callbackUrl: ['/dashboard', '/other'] }) });
 
     expect(mockGetBaseUrl).toHaveBeenCalledTimes(1);
     expect(mockSanitizeCallbackUrl).toHaveBeenCalledWith('/dashboard', 'https://example.com');
@@ -95,7 +96,7 @@ describe('LoginPage', () => {
     mockGetBaseUrl.mockRejectedValue(new Error('network'));
     mockSanitizeCallbackUrl.mockReturnValue(null);
 
-    await LoginPage({ searchParams: { callbackUrl: '/unsafe' } });
+    await LoginPage({ searchParams: generateAsyncValue({ callbackUrl: '/unsafe' }) });
 
     expect(mockGetBaseUrl).toHaveBeenCalledTimes(1);
     expect(mockSanitizeCallbackUrl).toHaveBeenCalledWith('/unsafe', undefined);

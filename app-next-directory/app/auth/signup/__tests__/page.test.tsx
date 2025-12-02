@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { generateAsyncValue } from '@/test-helpers/async-mock-helpers';
 
 jest.mock('@/lib/auth', () => ({
   auth: jest.fn(),
@@ -43,7 +44,7 @@ describe('SignupPage (server)', () => {
 
     const SignupPage = (await import('../page')).default;
 
-    await expect(SignupPage({ searchParams: { callbackUrl: '/dashboard' } })).rejects.toThrow(
+    await expect(SignupPage({ searchParams: generateAsyncValue({ callbackUrl: '/dashboard' }) })).rejects.toThrow(
       'redirect'
     );
 
@@ -62,7 +63,7 @@ describe('SignupPage (server)', () => {
 
     const SignupPage = (await import('../page')).default;
 
-    await expect(SignupPage({ searchParams: { callbackUrl: '/account' } })).rejects.toThrow(
+    await expect(SignupPage({ searchParams: generateAsyncValue({ callbackUrl: '/account' }) })).rejects.toThrow(
       'redirect'
     );
 

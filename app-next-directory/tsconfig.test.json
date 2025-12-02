@@ -8,5 +8,5 @@
     "esModuleInterop": true,
     "types": ["jest", "@testing-library/jest-dom"]
   },
-  "include": ["app", "src", "**/*.ts", "**/*.tsx", "jest.setup.ts"]
+  "include": ["app", "src", "tests", "**/*.ts", "**/*.tsx", "jest.setup.ts"]
 }

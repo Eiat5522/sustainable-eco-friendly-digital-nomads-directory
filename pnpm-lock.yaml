@@ -558,6 +558,9 @@ importers:
       msw:
         specifier: ^2.11.1
         version: 2.12.3(@types/node@22.19.1)(typescript@5.9.3)
+      next-router-mock:
+        specifier: ^1.0.4
+        version: 1.0.4(next@16.0.4(@babel/core@7.28.5)(@playwright/test@1.57.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
       next-test-api-route-handler:
         specifier: ^5.0.3
         version: 5.0.3(next@16.0.4(@babel/core@7.28.5)(@playwright/test@1.57.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
@@ -9336,6 +9339,12 @@ packages:
   next-devtools-mcp@0.3.5:
     resolution: {integrity: sha512-fZsVChLqDeSBjM4BRZTYwDaSCh0lGkthOD9ESo88ZQFZMQUxm9D3mtgBdGnhqfcq1OCdLo0dUHgSwt2LAoWaow==}
     hasBin: true
+
+  next-router-mock@1.0.4:
+    resolution: {integrity: sha512-EBOd/J2PxgZ9WH732ppfEojZgSTSOkjEz0DgQn+9c/PELKnc9P19PAcmQUi7fSlk3LAKbMGzl5DEOb40x7l8kA==}
+    peerDependencies:
+      next: '>=10.0.0'
+      react: '>=17.0.0'
 
   next-sanity-image@6.2.0:
     resolution: {integrity: sha512-8noOyLjtvuGfMksy1rnizi33SpqbkNQ3mStTPx3Jo9ayYhX+DECy8U2U3vkpAuL0TKpCrPHQp1zMGu39kVlnpw==}
@@ -20206,7 +20215,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.12.1(@typescript-eslint/parser@8.48.0(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.1(jiti@2.6.1)):
+  eslint-module-utils@2.12.1(@typescript-eslint/parser@8.48.0(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1)):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
@@ -20228,7 +20237,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 9.39.1(jiti@2.6.1)
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.12.1(@typescript-eslint/parser@8.48.0(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.1(jiti@2.6.1))
+      eslint-module-utils: 2.12.1(@typescript-eslint/parser@8.48.0(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1))
       hasown: 2.0.2
       is-core-module: 2.16.1
       is-glob: 4.0.3
@@ -22806,6 +22815,11 @@ snapshots:
     transitivePeerDependencies:
       - '@cfworker/json-schema'
       - supports-color
+
+  next-router-mock@1.0.4(next@16.0.4(@babel/core@7.28.5)(@playwright/test@1.57.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0):
+    dependencies:
+      next: 16.0.4(@babel/core@7.28.5)(@playwright/test@1.57.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      react: 19.2.0
 
   next-sanity-image@6.2.0(@sanity/client@7.13.0)(next@16.0.4(@babel/core@7.28.5)(@playwright/test@1.57.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0):
     dependencies:

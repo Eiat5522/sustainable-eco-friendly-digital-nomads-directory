@@ -1,3 +1,4 @@
+/** @jest-environment node */
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 jest.mock('@/lib/auth', () => ({ __esModule: true, auth: jest.fn() }));

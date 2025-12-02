@@ -200,6 +200,7 @@
     "jest-pnp-resolver": "^1.2.3",
     "mongodb-memory-server": "^10.1.4",
     "msw": "^2.11.1",
+    "next-router-mock": "^1.0.4",
     "next-test-api-route-handler": "^5.0.3",
     "playwright": "^1.55.0",
     "postcss": "^8.5.6",

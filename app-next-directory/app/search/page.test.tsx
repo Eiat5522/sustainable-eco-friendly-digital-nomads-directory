@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
+import { generateAsyncValue } from '@/test-helpers/async-mock-helpers';
 import type { SearchParamRecord } from '@/types/search';
 
 const headerRenderMock = jest.fn(() => <header data-testid="header" />);
@@ -38,7 +39,7 @@ describe('SearchPage', () => {
   });
 
   it('renders header, footer, and search page content', async () => {
-    const searchParams = Promise.resolve({
+    const searchParams = generateAsyncValue({
       q: 'eco hubs',
       destination: ['bangkok'],
     } as SearchParamRecord);
@@ -51,7 +52,7 @@ describe('SearchPage', () => {
   });
 
   it('passes resolved searchParams to SearchPageContent', async () => {
-    const searchParams = Promise.resolve({
+    const searchParams = generateAsyncValue({
       q: 'eco hubs',
       destination: ['bangkok'],
       limit: '24',

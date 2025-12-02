@@ -2,6 +2,7 @@
 
 import '@testing-library/jest-dom';
 import { render, screen, within } from '@testing-library/react';
+import { generateAsyncValue } from '@/test-helpers/async-mock-helpers';
 
 import { extractTagNames, mapResultToDTO } from './helpers';
 
@@ -75,7 +76,7 @@ describe('Search results page module', () => {
       pages: [1, 2, 3],
     });
 
-    const ui = await ResultsPage({ searchParams: Promise.resolve({ city: 'lisbon' }) });
+    const ui = await ResultsPage({ searchParams: generateAsyncValue({ city: 'lisbon' }) });
     render(ui);
 
     const listings = JSON.parse(screen.getByTestId('listing-grid').textContent || '[]');
@@ -112,7 +113,7 @@ describe('Search results page module', () => {
       configurable: true,
     });
 
-    const ui = await ResultsPage({ searchParams: Promise.resolve({ retry: '2' }) });
+    const ui = await ResultsPage({ searchParams: generateAsyncValue({ retry: '2' }) });
     render(ui);
 
     const errorState = await screen.findByTestId('search-error-state');
@@ -141,7 +142,7 @@ describe('Search results page module', () => {
       configurable: true,
     });
 
-    const ui = await ResultsPage({ searchParams: Promise.resolve({}) });
+    const ui = await ResultsPage({ searchParams: generateAsyncValue({}) });
     render(ui);
 
     const errorState = await screen.findByTestId('search-error-state');
@@ -170,7 +171,7 @@ describe('Search results page module', () => {
       pages: [1, 2, 3, 4],
     });
 
-    const searchParams = Promise.resolve({
+    const searchParams = generateAsyncValue({
       city: 'lisbon',
       tags: ['wifi', 'vegan'],
       page: '2',
@@ -249,7 +250,7 @@ describe('Search results page module', () => {
       pages: [1],
     });
 
-    const ui = await ResultsPage({ searchParams: Promise.resolve({}) });
+    const ui = await ResultsPage({ searchParams: generateAsyncValue({}) });
     render(ui);
 
     expect(screen.getByText('Showing page 1 of 1')).toBeInTheDocument();
@@ -266,7 +267,7 @@ describe('Search results page module', () => {
       status: 500,
       statusText: 'Server Error',
     });
-    const ui = await ResultsPage({ searchParams: Promise.resolve({ retry: 'invalid' }) });
+    const ui = await ResultsPage({ searchParams: generateAsyncValue({ retry: 'invalid' }) });
     render(ui);
 
     const retryLink = screen.getByRole('link', { name: /retry search/i });
@@ -282,7 +283,7 @@ describe('Search results page module', () => {
       pages: [1],
     });
 
-    const ui = await ResultsPage({ searchParams: Promise.resolve({}) });
+    const ui = await ResultsPage({ searchParams: generateAsyncValue({}) });
     render(ui);
 
     expect(screen.getByText('No results found.')).toBeInTheDocument();

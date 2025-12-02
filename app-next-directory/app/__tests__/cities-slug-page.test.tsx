@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom';
+import { generateAsyncValue } from '@/test-helpers/async-mock-helpers';
 import { render, screen } from '@testing-library/react';
 
 const cityDetailMock = jest.fn(({ slug }: { slug: string }) => (
@@ -27,7 +28,7 @@ describe('CityPage (wiring)', () => {
 
     const { default: CityPage } = await import('../cities/[slug]/page');
 
-    const element = await CityPage({ params: { slug: 'eco-city' } });
+    const element = await CityPage({ params: generateAsyncValue({ slug: 'eco-city' }) });
     render(element);
 
     expect(screen.getByTestId('city-detail-stub')).toHaveTextContent('eco-city');
