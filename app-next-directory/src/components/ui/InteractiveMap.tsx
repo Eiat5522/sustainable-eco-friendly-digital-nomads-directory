@@ -144,6 +144,7 @@ export function InteractiveMap({ location, address, name, className }: Interacti
           });
         });
       } catch (error) {
+        console.error('Failed to load map:', error);
         if (isMounted) {
           setTileLoadFailed(true);
         }

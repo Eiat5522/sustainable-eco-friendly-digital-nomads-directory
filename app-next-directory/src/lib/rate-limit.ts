@@ -60,6 +60,7 @@ export let isRateLimited = async (key: string, _limit = 10, _windowSec = 60): Pr
     const { success } = await limiter.limit(key);
     return !success;
   } catch (error) {
+    console.warn('[rate-limit] Error checking rate limit:', error);
     // On error, allow the request to proceed
     return false;
   }
