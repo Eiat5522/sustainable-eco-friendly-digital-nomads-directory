@@ -193,6 +193,7 @@ export const buildRateLimiter = (redis: Redis | undefined) => {
         }
       }
     } catch (error) {
+      console.warn('[auth] Failed to initialize login rate limiter', error);
       loginRateLimiter = undefined;
       if (isTestEnvironment) {
         lastRateLimiterConfigForTests = undefined;
@@ -205,6 +206,7 @@ let initialRedis: Redis | undefined;
 try {
   initialRedis = getRedisClient();
 } catch (error) {
+  console.warn('[auth] Failed to obtain Redis client during initialization', error);
   initialRedis = undefined;
 }
 
@@ -216,7 +218,9 @@ if (typeof onRedisClientChange === 'function') {
     try {
       const normalized = normalizeRedisClient(newClient);
       buildRateLimiter(normalized);
-    } catch (error) {}
+    } catch (error) {
+      console.warn('[auth] Failed to rebuild login rate limiter', error);
+    }
   });
 }
 
@@ -225,7 +229,9 @@ export async function enforceLoginRateLimit(identifier: string): Promise<LoginRa
   if (!override && loginRateLimiterPromise) {
     try {
       await loginRateLimiterPromise;
-    } catch (error) {}
+    } catch (error) {
+      console.warn('[auth] Login ratelimiter initialisation error; allowing attempt', error);
+    }
   }
 
   const limiter = override ?? loginRateLimiter;
@@ -267,6 +273,7 @@ export async function recordLoginAttempt(params: {
   // and block disposable domains before writing audit artifacts.
   const rawEmail = params?.email;
   if (typeof rawEmail !== 'string') {
+    console.warn('[auth] Skipping login attempt record due to invalid email', { email: rawEmail });
     return;
   }
 
@@ -274,6 +281,7 @@ export async function recordLoginAttempt(params: {
   const trimmedEmail = rawEmail.trim();
 
   if (!validator.isEmail(trimmedEmail)) {
+    console.warn('[auth] Skipping login attempt record due to invalid email', { email: rawEmail });
     return;
   }
 

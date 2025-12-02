@@ -37,7 +37,9 @@ async function fetchAndCache<T>(
       if (redis) {
         try {
           await redis.set(key, JSON.stringify(data), { ex: ttl });
-        } catch (error) {}
+        } catch (error) {
+          console.warn('Cache write failed, continuing without Redis:', error);
+        }
       }
       return data;
     } finally {

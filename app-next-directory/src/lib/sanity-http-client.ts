@@ -235,7 +235,9 @@ export class SanityHTTPClient {
 
       if (this.debug) {
         if (result?._id) {
+          console.log(`✅ Created document: ${result._id}`);
         } else {
+          console.log('✅ Created document (no _id)');
         }
       }
 
@@ -285,6 +287,7 @@ export class SanityHTTPClient {
       }
 
       if (this.debug) {
+        console.log(`✅ Updated document: ${id}`);
       }
       return result;
     } catch (error: unknown) {
@@ -321,6 +324,7 @@ export class SanityHTTPClient {
       }
 
       if (this.debug) {
+        console.log(`✅ Deleted document: ${id}`);
       }
 
       return result;

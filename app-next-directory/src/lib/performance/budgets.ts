@@ -163,7 +163,9 @@ export async function sendAlert(alert: PerformanceAlert) {
             `Time: ${new Date(alert.timestamp).toISOString()}`,
         }),
       });
-    } catch (error) {}
+    } catch (error) {
+      console.error('Failed to send Slack alert:', error);
+    }
   }
 
   // Email alerts (if configured)
