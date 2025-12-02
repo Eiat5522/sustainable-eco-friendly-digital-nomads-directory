@@ -138,7 +138,9 @@ const callbacks = {
           );
         }
       }
-    } catch (error) {}
+    } catch (error) {
+      console.warn('[auth] signIn verification sync failed', error);
+    }
     return true;
   },
   async jwt({ token, user, trigger }) {

@@ -13,6 +13,7 @@ export const WebVitalsReporter = (metric: WebVitalsMetric) => {
   };
 
   if (process.env.NODE_ENV === 'development') {
+    console.log('Web Vitals:', metricPayload);
   }
 
   const url = '/api/performance/web-vitals';

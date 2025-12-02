@@ -11,6 +11,7 @@ export function usePlausibleAnalytics() {
   const noop = (..._args: unknown[]) => {
     // No-op function for development
     if (process.env.NODE_ENV === 'development') {
+      console.log('Analytics Event:', ..._args);
     }
   };
 

@@ -93,6 +93,7 @@ export async function POST(request: Request) {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
+    console.error('[Performance API] Error processing metrics:', error);
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },

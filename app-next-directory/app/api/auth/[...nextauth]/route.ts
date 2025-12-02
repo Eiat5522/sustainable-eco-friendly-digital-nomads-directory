@@ -10,6 +10,7 @@ export async function GET(request: Request) {
     const { pathname } = new URL(request.url);
     structuredLogger.info('[auth route] incoming GET', { path: pathname });
     if (process.env.NODE_ENV === 'test') {
+      console.log('[auth route] GET handler called');
     }
   } catch (error) {
     const errorForLog = error instanceof Error ? error : new Error(String(error));
@@ -18,9 +19,11 @@ export async function GET(request: Request) {
       error: errorForLog.message,
     });
     if (process.env.NODE_ENV === 'test') {
+      console.log('[auth route] failed to parse GET request URL');
     }
     structuredLogger.info('[auth route] incoming GET');
     if (process.env.NODE_ENV === 'test') {
+      console.log('[auth route] GET handler called');
     }
   }
   return authGET(request as Parameters<typeof authGET>[0]);

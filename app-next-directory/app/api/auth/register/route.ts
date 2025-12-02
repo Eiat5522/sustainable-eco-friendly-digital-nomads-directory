@@ -11,6 +11,7 @@ export async function POST(request: NextRequest) {
       body = await request.json();
     } catch (error) {
       const errorForLog = error instanceof Error ? error : new Error(String(error));
+      console.warn('[register] Failed to parse request body', errorForLog);
       structuredLogger.warn('[register] Failed to parse request body', {
         component: 'auth',
         error: errorForLog.message,
