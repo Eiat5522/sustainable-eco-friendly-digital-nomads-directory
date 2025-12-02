@@ -17,7 +17,6 @@ function useSafeSession(): { session: Session | null; status: SessionStatus } {
   useEffect(() => {
     if (!context && process.env.NODE_ENV !== 'production' && !hasLoggedMissingProviderRef.current) {
       hasLoggedMissingProviderRef.current = true;
-      console.warn('[auth] Header rendered without SessionProvider; defaulting to unauthenticated state');
     }
   }, [context]);
 

@@ -108,7 +108,6 @@ export class SanityHTTPClient {
     // Warn about missing optional vars
     for (const envVar of optionalEnvVars) {
       if (!process.env[envVar]) {
-        console.warn(`Warning: Missing optional environment variable: ${envVar}`);
       }
     }
   }
@@ -141,7 +140,6 @@ export class SanityHTTPClient {
       // Catching unknown for better type safety
       // If an error is caught, authentication likely failed.
       if (this.debug) {
-        console.error('Authentication test failed:', error);
       }
       return false;
     }
@@ -236,9 +234,7 @@ export class SanityHTTPClient {
 
       if (this.debug) {
         if (result?._id) {
-          console.log(`✅ Created document: ${result._id}`);
         } else {
-          console.log('✅ Created document (no _id)');
         }
       }
 
@@ -288,7 +284,6 @@ export class SanityHTTPClient {
       }
 
       if (this.debug) {
-        console.log(`✅ Updated document: ${id}`);
       }
       return result;
     } catch (error: unknown) {
@@ -308,12 +303,12 @@ export class SanityHTTPClient {
     }
     try {
       const result = await this.writeClient.delete(id); // delete returns null or a status object
-      
+
       // Check if result is undefined (error case)
       if (result === undefined) {
         throw new SanityAPIError('Delete failed: Delete error');
       }
-      
+
       const errorPayload = getErrorPayload(result);
       if (errorPayload?.error) {
         const message = formatErrorMessage(errorPayload.error, 'Delete error');
@@ -323,11 +318,10 @@ export class SanityHTTPClient {
           errorPayload
         );
       }
-      
+
       if (this.debug) {
-        console.log(`✅ Deleted document: ${id}`);
       }
-      
+
       return result;
     } catch (error: unknown) {
       // Catching unknown for better type safety

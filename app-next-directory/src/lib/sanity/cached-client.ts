@@ -20,9 +20,7 @@ async function fetchAndCache<T>(
       if (cachedData) {
         return JSON.parse(cachedData);
       }
-    } catch (error) {
-      console.warn('Cache read failed, falling through to fetch:', error);
-    }
+    } catch (error) {}
   }
 
   // Check if request is already in-flight to prevent stampede
@@ -37,9 +35,7 @@ async function fetchAndCache<T>(
       if (redis) {
         try {
           await redis.set(key, JSON.stringify(data), { ex: ttl });
-        } catch (error) {
-          console.warn('Cache write failed, continuing without Redis:', error);
-        }
+        } catch (error) {}
       }
       return data;
     } finally {

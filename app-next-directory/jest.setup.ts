@@ -309,14 +309,14 @@ if (process.env.JEST_CONSOLE_NO_FILTER !== '1') {
   const originalConsoleLog = console.log;
 
   // Store originals for test access - tests can spy on these
-  (console as any).originalConsoleError = originalConsoleError;
-  (console as any).originalConsoleWarn = originalConsoleWarn;
+  (console as Console & { originalConsoleError?: typeof console.error }).originalConsoleError = originalConsoleError;
+  (console as Console & { originalConsoleWarn?: typeof console.warn }).originalConsoleWarn = originalConsoleWarn;
 
   console.error = ((...args: unknown[]) => {
     // Check if this console.error has been spied on by a test
     // If it has a mock property, it's being tested, so always call through
     const isMocked = 'mock' in console.error;
-    
+
     if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
       originalConsoleError(...args);
     }
@@ -325,7 +325,7 @@ if (process.env.JEST_CONSOLE_NO_FILTER !== '1') {
   console.warn = ((...args: unknown[]) => {
     // Check if this console.warn has been spied on by a test
     const isMocked = 'mock' in console.warn;
-    
+
     if (isMocked || !shouldFilterWithFilters(defaultWarnFilters, args)) {
       originalConsoleWarn(...args);
     }

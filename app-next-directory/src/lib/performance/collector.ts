@@ -207,7 +207,6 @@ function getRating(name: string, value: number): PerformanceMetric['rating'] {
  */
 function reportMetric({ name, value, rating }: PerformanceMetric) {
   if (process.env.NODE_ENV === 'development') {
-    console.log(`[Performance] ${name}: ${value} (${rating})`);
   }
 
   const plausible = getPlausibleClient();

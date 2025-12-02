@@ -99,7 +99,6 @@ export default function LoginForm() {
         router.replace(callbackUrl);
       }
     } catch (err) {
-      console.error('Sign in error:', err);
       setError('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);

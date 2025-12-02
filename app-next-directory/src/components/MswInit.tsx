@@ -13,10 +13,7 @@ export default function MswInit() {
       const { worker } = await import('../mocks/browser');
       try {
         await worker.start({ onUnhandledRequest: 'bypass' });
-        console.log('[MSW] Browser worker started for Playwright tests');
-      } catch (e) {
-        console.warn('[MSW] Failed to start worker:', e);
-      }
+      } catch (e) {}
     })();
   }, []);
 
