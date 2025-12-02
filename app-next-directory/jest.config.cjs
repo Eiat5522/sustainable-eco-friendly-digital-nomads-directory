@@ -118,14 +118,7 @@ module.exports = {
   },
 
   setupFiles: ['<rootDir>/jest/setEnvVars.js'],
-  // Include the main Jest setup plus the legacy tests/jest.setup.ts (from the old jest.config.js)
-  setupFilesAfterEnv: [
-    '<rootDir>/jest.setup.ts',
-    // Only load if it exists to avoid module-not-found errors in other packages
-    fs.existsSync(path.resolve(__dirname, './tests/jest.setup.ts'))
-      ? '<rootDir>/tests/jest.setup.ts'
-      : undefined,
-  ].filter(Boolean),
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
 
   // Optionally start an in-memory MongoDB for integration tests.
   globalSetup: '<rootDir>/jest/globalSetup.cjs',

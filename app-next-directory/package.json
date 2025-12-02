@@ -49,11 +49,8 @@
     "test:e2e:ui": "playwright test --ui --config=playwright.config.ts"
   },
   "dependencies": {
-    "@21st-extension/react": "^0.5.14",
-    "@21st-extension/toolbar-next": "^0.5.14",
     "@auth/mongodb-adapter": "3.11.1",
     "@hookform/resolvers": "^5.2.1",
-    "@kombai/react-error-boundary": "^1.1.0",
     "@next/bundle-analyzer": "^15.4.4",
     "@panva/hkdf": "^1.2.1",
     "@playwright/test": "^1.55.0",
@@ -137,7 +134,6 @@
     "node-fetch": "^3.3.2",
     "nodemailer": "^7.0.10",
     "pino": "^9.9.5",
-    "pino-pretty": "^13.1.1",
     "postcss": "^8.5.6",
     "posthog-js": "^1.258.2",
     "preact-render-to-string": "^6.5.13",
@@ -200,6 +196,7 @@
     "mongodb-memory-server": "^10.1.4",
     "msw": "^2.11.1",
     "next-test-api-route-handler": "^5.0.3",
+    "pino-pretty": "^13.1.2",
     "playwright": "^1.55.0",
     "postcss": "^8.5.6",
     "postcss-import": "^16.1.1",

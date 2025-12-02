@@ -171,13 +171,32 @@ const loggerConfig: pino.LoggerOptions = {
 };
 
 // Configure pretty printing for development
-// IMPORTANT: We avoid using pino's transport mechanism with pino-pretty because it spawns
-// worker threads that fail to resolve paths correctly in Next.js with custom distDir.
-// Instead, we use pino-pretty as a direct stream destination without worker threads.
-const logger: pino.Logger = pino(loggerConfig);
+// IMPORTANT: We use pino-pretty as a direct destination stream for better Next.js compatibility
+const createPrettyStream = () => {
+  if (!isDevelopment || !isServer) {
+    return undefined;
+  }
+  
+  try {
+    // Dynamically import pino-pretty only when needed (development + server-side)
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const pinoPretty = require('pino-pretty');
+    return pinoPretty({
+      colorize: true,
+      translateTime: 'HH:MM:ss',
+      ignore: 'pid,hostname',
+      singleLine: false,
+    });
+  } catch {
+    // pino-pretty not available, use default
+    return undefined;
+  }
+};
 
-// Pretty-printing is disabled in this environment to avoid bundling `pino-pretty`,
-// which depends on Node-specific modules (worker threads) that break Next.js client builds.
+const logger: pino.Logger = pino(
+  loggerConfig,
+  createPrettyStream()
+);
 
 // Enhanced logging interface with context support
 // Helper function to sanitize error objects
@@ -414,9 +433,8 @@ export const redirectConsoleToStructuredLogger = () => {
           break;
       }
 
-      if (isDevelopment) {
-        original(...args);
-      }
+      // In development, we don't call original because pino-pretty handles the output
+      // This avoids duplicate console messages
     };
   });
 };

@@ -1,0 +1,12 @@
+
+> sustainable-eco-friendly-digital-nomads-directory-root@0.1.3 test:unit /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory
+> pnpm --filter app-next-directory test:unit
+
+
+> app-next-directory@0.1.0 test:unit /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory
+> cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --runInBand --passWithNoTests
+
+/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  app-next-directory@0.1.0 test:unit: `cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --runInBand --passWithNoTests`
+Exit status 1
+ ELIFECYCLE  Command failed with exit code 1.

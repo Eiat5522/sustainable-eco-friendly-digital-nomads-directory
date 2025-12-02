@@ -3,13 +3,15 @@
 import { useEffect } from 'react';
 
 export default function AdminError({
-  error: _error,
+  error,
   reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {}, []);
+  useEffect(() => {
+    console.error('Dashboard error:', error);
+  }, [error]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
