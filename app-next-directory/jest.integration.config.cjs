@@ -3,8 +3,8 @@ const baseConfig = require('./jest.config.cjs');
 const unique = items => Array.from(new Set(items.filter(Boolean)));
 
 const integrationTestPatterns = [
-  '<rootDir>/src/**/*.integration.test.(ts|js)',
-  '<rootDir>/src/**/*.int.test.(ts|js)',
+  '<rootDir>/src/**/*.integration.test.(ts|tsx|js|jsx)',
+  '<rootDir>/src/**/*.int.test.(ts|tsx|js|jsx)',
 ];
 
 module.exports = {
