@@ -9,6 +9,7 @@ export async function initializeDatabase(client: MongoClient) {
     await db.createCollection('sessions', sessionSchema);
   } catch (error) {
     if (!(error instanceof MongoServerError && error.code === 48)) {
+      console.error('Error initializing database:', error);
       throw error;
     }
   }
@@ -38,4 +39,6 @@ export async function initializeDatabase(client: MongoClient) {
     { key: { email: 1 } },
     { key: { createdAt: 1 }, expireAfterSeconds: 900 }, // Auto-delete after 15 minutes
   ]);
+
+  console.log('Database initialization completed successfully');
 }

@@ -247,6 +247,7 @@ export async function enforceLoginRateLimit(identifier: string): Promise<LoginRa
       reset: result.reset,
     };
   } catch (error) {
+    console.warn('[auth] Login ratelimiter error; allowing attempt', error);
     return { success: true } as const;
   }
 }
@@ -281,6 +282,7 @@ export async function recordLoginAttempt(params: {
   try {
     await dbConnect();
   } catch (error) {
+    console.warn('[auth] Failed to record login attempt', error);
     return;
   }
 
@@ -303,6 +305,9 @@ export async function recordLoginAttempt(params: {
     } catch (modelError) {
       // Both failed - log model error as it may have more details
       if (modelError) {
+        console.warn('[auth] Failed to record login attempt', modelError);
+      } else {
+        console.warn('[auth] Failed to record login attempt', collectionError);
       }
     }
   }

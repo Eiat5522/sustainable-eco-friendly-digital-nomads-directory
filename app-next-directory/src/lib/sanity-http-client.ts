@@ -108,6 +108,7 @@ export class SanityHTTPClient {
     // Warn about missing optional vars
     for (const envVar of optionalEnvVars) {
       if (!process.env[envVar]) {
+        console.warn(`Warning: Missing optional environment variable: ${envVar}`);
       }
     }
   }

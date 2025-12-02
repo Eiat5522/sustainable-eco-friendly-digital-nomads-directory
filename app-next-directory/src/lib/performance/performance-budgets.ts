@@ -80,6 +80,7 @@ export function evaluatePerformanceMetric(
 ): 'good' | 'needs-improvement' | 'poor' | 'unknown' {
   const budget = getBudget(category, metric);
   if (!budget) {
+    console.warn(`Unknown performance metric: ${category}.${metric}`);
     return 'unknown';
   }
 
@@ -97,6 +98,7 @@ export function evaluatePerformanceMetric(
 export function getMetricThresholds(category: string, metric: string) {
   const budget = getBudget(category, metric);
   if (!budget) {
+    console.warn(`Unknown performance metric: ${category}.${metric}`);
     return null;
   }
   return budget;
