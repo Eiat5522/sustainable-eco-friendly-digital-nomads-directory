@@ -3,14 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { structuredLogger } from '@/lib/logger';
 
-jest.mock('@/lib/logger', () => ({
-  structuredLogger: {
-    warn: jest.fn(),
-    error: jest.fn(),
-    info: jest.fn(),
-    debug: jest.fn(),
-  },
-}));
+jest.mock('@/lib/logger');
 
 // Mock dependencies
 const mockGetToken = getToken as jest.MockedFunction<typeof getToken>;

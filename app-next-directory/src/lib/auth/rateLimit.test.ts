@@ -1,4 +1,7 @@
 import { jest } from '@jest/globals';
+import { structuredLogger } from '@/lib/logger';
+
+jest.mock('@/lib/logger');
 
 type SetupOptions = {
   initialRedis?: Record<string, unknown> | undefined;
@@ -526,7 +529,6 @@ describe('auth rateLimit utilities', () => {
     });
 
     it('clears stored config when limiter construction fails', async () => {
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
       const ctorError = new Error('constructor failure');
       const failingCtor = jest.fn(() => {
         throw ctorError;
@@ -541,22 +543,15 @@ describe('auth rateLimit utilities', () => {
 
       expect(result).toEqual({ success: true });
       expect(rateLimitModule.__getLastRateLimiterConfigForTests()).toBeUndefined();
-      expect(warnSpy).toHaveBeenCalledWith(
+      expect(structuredLogger.warn).toHaveBeenCalledWith(
         '[auth] Failed to initialize login rate limiter',
-        ctorError
+        ctorError,
+        { component: 'auth-rate-limit' }
       );
-
-      warnSpy.mockRestore();
     });
 
     it('logs initialization rejections while allowing login attempts', async () => {
       const ctorError = new Error('constructor failure');
-      const warnSpy = jest
-        .spyOn(console, 'warn')
-        .mockImplementationOnce(() => {
-          throw ctorError;
-        })
-        .mockImplementation(() => undefined);
 
       const failingCtor = jest.fn(() => {
         throw ctorError;
@@ -570,12 +565,11 @@ describe('auth rateLimit utilities', () => {
       const result = await rateLimitModule.enforceLoginRateLimit('user@example.com');
 
       expect(result).toEqual({ success: true });
-      expect(warnSpy).toHaveBeenCalledWith(
+      expect(structuredLogger.warn).toHaveBeenCalledWith(
         '[auth] Login ratelimiter initialisation error; allowing attempt',
-        ctorError
+        ctorError,
+        { component: 'auth-rate-limit' }
       );
-
-      warnSpy.mockRestore();
     });
 
     describe('recordLoginAttempt', () => {
@@ -602,22 +596,21 @@ describe('auth rateLimit utilities', () => {
       it('skips invalid email addresses', async () => {
         const { module: rateLimitModule, mocks } = await loadRecorder();
         mocks.validatorIsEmail.mockReturnValue(false);
-        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
         await rateLimitModule.recordLoginAttempt({ ...baseParams, email: 'not-an-email' });
 
         expect(mocks.dbConnect).not.toHaveBeenCalled();
-        expect(warnSpy).toHaveBeenCalledWith(
+        expect(structuredLogger.warn).toHaveBeenCalledWith(
           '[auth] Skipping login attempt record due to invalid email',
-          { email: 'not-an-email' }
+          {
+            component: 'auth-rate-limit',
+            email: 'not-an-email',
+          }
         );
-
-        warnSpy.mockRestore();
       });
 
       it('skips records when email parameter is not a string', async () => {
         const { module: rateLimitModule, mocks } = await loadRecorder();
-        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
         await rateLimitModule.recordLoginAttempt({
           ...baseParams,
@@ -625,12 +618,13 @@ describe('auth rateLimit utilities', () => {
         });
 
         expect(mocks.dbConnect).not.toHaveBeenCalled();
-        expect(warnSpy).toHaveBeenCalledWith(
+        expect(structuredLogger.warn).toHaveBeenCalledWith(
           '[auth] Skipping login attempt record due to invalid email',
-          { email: null }
+          {
+            component: 'auth-rate-limit',
+            email: null,
+          }
         );
-
-        warnSpy.mockRestore();
       });
 
       it('uses the named validator export when no default export exists', async () => {

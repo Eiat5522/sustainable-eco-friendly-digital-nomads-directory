@@ -1,4 +1,7 @@
 import { type AlertSeverity, PERFORMANCE_BUDGETS, type PerformanceAlert } from '../budgets';
+import { structuredLogger } from '@/lib/logger';
+
+jest.mock('@/lib/logger');
 
 describe('budgets', () => {
   let originalEnv: NodeJS.ProcessEnv;
@@ -7,8 +10,7 @@ describe('budgets', () => {
   beforeEach(() => {
     originalEnv = { ...process.env };
     jest.resetModules(); // Reset modules before each test
-    jest.spyOn(console, 'log').mockImplementation();
-    jest.spyOn(console, 'error').mockImplementation();
+    jest.clearAllMocks();
 
     mockFetch = jest.fn().mockResolvedValue({
       ok: true,
@@ -19,7 +21,7 @@ describe('budgets', () => {
 
   afterEach(() => {
     process.env = originalEnv;
-    jest.restoreAllMocks();
+    jest.clearAllMocks();
   });
 
   describe('PERFORMANCE_BUDGETS', () => {
@@ -198,7 +200,13 @@ describe('budgets', () => {
 
       await sendAlert(alert);
 
-      expect(console.log).toHaveBeenCalledWith('[Performance WARNING] CLS: 0.3 (threshold: 0.25)');
+      expect(structuredLogger.info).toHaveBeenCalledWith('[Performance Alert]', {
+        component: 'performance',
+        severity: 'WARNING',
+        metric: 'CLS',
+        value: 0.3,
+        threshold: 0.25,
+      });
     });
 
     it('should log with correct severity format', async () => {
@@ -206,13 +214,17 @@ describe('budgets', () => {
       const testCases: AlertSeverity[] = ['info', 'warning', 'error', 'critical'];
 
       for (const severity of testCases) {
-        (console.log as jest.Mock).mockClear();
+        jest.clearAllMocks();
         const alert = createAlert(severity);
 
         await sendAlert(alert);
 
-        expect(console.log).toHaveBeenCalledWith(
-          expect.stringContaining(`[Performance ${severity.toUpperCase()}]`)
+        expect(structuredLogger.info).toHaveBeenCalledWith(
+          '[Performance Alert]',
+          expect.objectContaining({
+            component: 'performance',
+            severity: severity.toUpperCase(),
+          })
         );
       }
     });

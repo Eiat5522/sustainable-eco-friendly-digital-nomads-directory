@@ -1,14 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { structuredLogger } from '@/lib/logger';
 
-jest.mock('@/lib/logger', () => ({
-  structuredLogger: {
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn(),
-  },
-}));
+jest.mock('@/lib/logger');
 
 // Mock the auth library
 const mockAuthGET = jest.fn();

@@ -2,14 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { structuredLogger } from '@/lib/logger';
 
-jest.mock('@/lib/logger', () => ({
-  structuredLogger: {
-    error: jest.fn(),
-    warn: jest.fn(),
-    info: jest.fn(),
-    debug: jest.fn(),
-  },
-}));
+jest.mock('@/lib/logger');
 
 describe('Profile Error Component', () => {
   const mockReset = jest.fn();
@@ -134,16 +127,15 @@ describe('Profile Error Component', () => {
 
   it('should cleanup effect on unmount', () => {
     const ErrorComponent = require('../error').default;
-    const consoleErrorSpy = jest.spyOn(console, 'error');
 
     const { unmount } = render(<ErrorComponent error={mockError} reset={mockReset} />);
 
-    expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
+    expect(structuredLogger.error).toHaveBeenCalledTimes(1);
 
     unmount();
 
     // Should not log again after unmount
-    expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
+    expect(structuredLogger.error).toHaveBeenCalledTimes(1);
   });
 
   it('should handle multiple button clicks', async () => {

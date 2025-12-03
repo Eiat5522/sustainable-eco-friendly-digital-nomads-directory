@@ -1,14 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { structuredLogger } from '@/lib/logger';
 
-jest.mock('@/lib/logger', () => ({
-  structuredLogger: {
-    warn: jest.fn(),
-    info: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn(),
-  },
-}));
+jest.mock('@/lib/logger');
 
 const REQUIRED_ENV = {
   NEXT_PUBLIC_SANITY_PROJECT_ID: 'test-project-id',
