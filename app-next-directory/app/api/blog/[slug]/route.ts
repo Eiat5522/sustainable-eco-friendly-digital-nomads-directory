@@ -240,10 +240,8 @@ const postQuery = groq`
 `;
 
 // GET endpoint for fetching a single blog post
-export async function GET(
-  _request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
-) {
+export async function GET(_request: NextRequest, props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   try {
     const { slug } = await params;
 
@@ -313,7 +311,8 @@ async function trackViewCount(postId: string): Promise<number> {
 }
 
 // PUT endpoint for updating view count (optional)
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
+export async function PUT(request: NextRequest, props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   try {
     const { slug } = await params;
     const body = await request.json();

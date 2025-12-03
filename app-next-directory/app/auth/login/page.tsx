@@ -15,7 +15,8 @@ type LoginPageProps = Readonly<{
   searchParams?: LoginPageSearchParams | Promise<LoginPageSearchParams>;
 }>;
 
-export default async function LoginPage({ searchParams }: LoginPageProps) {
+export default async function LoginPage(props: LoginPageProps) {
+  const searchParams = await props.searchParams;
   const session = await auth();
   const sp = await Promise.resolve(searchParams ?? {});
   const rawCallback = Array.isArray(sp.callbackUrl) ? sp.callbackUrl[0] : sp.callbackUrl;

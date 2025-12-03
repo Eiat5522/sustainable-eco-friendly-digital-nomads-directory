@@ -1,10 +1,11 @@
 import { permanentRedirect } from 'next/navigation';
 
 type Props = {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 };
 
 // Legacy alias: /city/[slug] → /cities/[slug]
-export default function LegacyCityAlias({ params }: Props) {
+export default async function LegacyCityAlias(props: Props) {
+  const params = await props.params;
   permanentRedirect(`/cities/${encodeURIComponent(params.slug)}`);
 }

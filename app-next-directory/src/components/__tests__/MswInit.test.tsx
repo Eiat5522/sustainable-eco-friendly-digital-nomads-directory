@@ -1,5 +1,15 @@
 import { render, waitFor } from '@testing-library/react';
 import MswInit from '../MswInit';
+import { structuredLogger } from '@/lib/logger';
+
+jest.mock('@/lib/logger', () => ({
+  structuredLogger: {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+  },
+}));
 
 // Mock the browser worker
 const mockStart = jest.fn();
@@ -9,10 +19,6 @@ jest.mock('../../mocks/browser', () => ({
   },
 }));
 
-// Mock console.log and console.warn to spy on them
-const mockConsoleLog = jest.spyOn(console, 'log').mockImplementation(() => {});
-const mockConsoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
-
 describe('MswInit', () => {
   const originalEnv = process.env;
   const originalPwE2e = (globalThis as any).__PW_E2E__;
@@ -20,8 +26,7 @@ describe('MswInit', () => {
   beforeEach(() => {
     jest.resetModules();
     mockStart.mockClear();
-    mockConsoleLog.mockClear();
-    mockConsoleWarn.mockClear();
+    jest.clearAllMocks();
     process.env = { ...originalEnv };
     (globalThis as any).__PW_E2E__ = originalPwE2e;
   });
@@ -29,8 +34,6 @@ describe('MswInit', () => {
   afterAll(() => {
     process.env = originalEnv;
     (globalThis as any).__PW_E2E__ = originalPwE2e;
-    mockConsoleLog.mockRestore();
-    mockConsoleWarn.mockRestore();
   });
 
   it('should render null', () => {
@@ -51,8 +54,9 @@ describe('MswInit', () => {
     await waitFor(() => {
       expect(mockStart).toHaveBeenCalledWith({ onUnhandledRequest: 'bypass' });
     });
-    expect(mockConsoleLog).toHaveBeenCalledWith(
-      '[MSW] Browser worker started for Playwright tests'
+    expect(structuredLogger.info).toHaveBeenCalledWith(
+      '[MSW] Browser worker started for Playwright tests',
+      { component: 'msw' }
     );
   });
 
@@ -64,8 +68,9 @@ describe('MswInit', () => {
     await waitFor(() => {
       expect(mockStart).toHaveBeenCalledWith({ onUnhandledRequest: 'bypass' });
     });
-    expect(mockConsoleLog).toHaveBeenCalledWith(
-      '[MSW] Browser worker started for Playwright tests'
+    expect(structuredLogger.info).toHaveBeenCalledWith(
+      '[MSW] Browser worker started for Playwright tests',
+      { component: 'msw' }
     );
   });
 
@@ -78,6 +83,9 @@ describe('MswInit', () => {
     await waitFor(() => {
       expect(mockStart).toHaveBeenCalled();
     });
-    expect(mockConsoleWarn).toHaveBeenCalledWith('[MSW] Failed to start worker:', error);
+    expect(structuredLogger.warn).toHaveBeenCalledWith('[MSW] Failed to start worker', {
+      component: 'msw',
+      err: error.message,
+    });
   });
 });

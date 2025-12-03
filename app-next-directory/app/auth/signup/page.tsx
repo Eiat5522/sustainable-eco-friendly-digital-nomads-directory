@@ -10,7 +10,8 @@ type SignupPageProps = Readonly<{
   searchParams?: SignupPageSearchParams | Promise<SignupPageSearchParams>;
 }>;
 
-export default async function SignupPage({ searchParams }: SignupPageProps) {
+export default async function SignupPage(props: SignupPageProps) {
+  const searchParams = await props.searchParams;
   const session = await auth();
   const sp = await Promise.resolve(searchParams ?? {});
   const rawCallback = Array.isArray(sp.callbackUrl) ? sp.callbackUrl[0] : sp.callbackUrl;

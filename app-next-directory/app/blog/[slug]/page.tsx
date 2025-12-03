@@ -88,7 +88,8 @@ type Comment = { _id: string; content: string; user?: { name?: string } | null }
 type PostDTO = { id: string; title: string; body: PortableTextBlock[]; imageUrl?: string | null };
 type PostResponse = { post: PostDTO; comments: Comment[] };
 
-export default async function BlogPostPage({ params }: Readonly<{ params: { slug: string } }>) {
+export default async function BlogPostPage(props: Readonly<{ params: { slug: string } }>) {
+  const params = await props.params;
   // Support Next 14 (sync) and Next 15 (async) params
   const { slug } = await Promise.resolve(params as unknown as { slug: string });
   const { post, comments } = await getPost(slug);
@@ -132,11 +133,12 @@ export default async function BlogPostPage({ params }: Readonly<{ params: { slug
   );
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { slug: string };
-}): Promise<Metadata> {
+export async function generateMetadata(
+  props: {
+    params: Promise<{ slug: string }>;
+  }
+): Promise<Metadata> {
+  const params = await props.params;
   const base = await getBaseUrl();
   const { slug } = await Promise.resolve(params as unknown as { slug: string });
   const url = new URL(`/api/blog/${encodeURIComponent(slug)}`, base);

@@ -100,9 +100,10 @@ export const metadata: Metadata = {
   description: 'Stories, tips, and sustainability insights for digital nomads.',
 };
 
-export default async function BlogPage({
-  searchParams,
-}: Readonly<{ searchParams?: { page?: string; limit?: string; tag?: string; search?: string } }>) {
+export default async function BlogPage(
+  props: Readonly<{ searchParams?: { page?: string; limit?: string; tag?: string; search?: string } }>
+) {
+  const searchParams = await props.searchParams;
   // Support Next 14 (sync) and Next 15 (async) searchParams
   const sp = await Promise.resolve((searchParams ?? {}) as Record<string, string>);
   const { page, limit, tag, search } = sp;

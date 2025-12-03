@@ -1,5 +1,15 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { structuredLogger } from '@/lib/logger';
+
+jest.mock('@/lib/logger', () => ({
+  structuredLogger: {
+    error: jest.fn(),
+    warn: jest.fn(),
+    info: jest.fn(),
+    debug: jest.fn(),
+  },
+}));
 
 // Import the component as a module to avoid React hook execution during test setup
 const ErrorComponent = () => {
@@ -13,7 +23,6 @@ describe('Listings Error Component', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -41,10 +50,11 @@ describe('Listings Error Component', () => {
 
   it('should log error to console on mount', () => {
     const ErrorComponent = require('../error').default;
-    const consoleErrorSpy = jest.spyOn(console, 'error');
     render(<ErrorComponent error={mockError} reset={mockReset} />);
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Dashboard error:', mockError);
+    expect(structuredLogger.error).toHaveBeenCalledWith('Dashboard error', mockError, {
+      component: 'listings',
+    });
   });
 
   it('should apply correct CSS classes', () => {
@@ -83,7 +93,9 @@ describe('Listings Error Component', () => {
 
     render(<ErrorComponent error={errorWithDigest} reset={mockReset} />);
 
-    expect(console.error).toHaveBeenCalledWith('Dashboard error:', errorWithDigest);
+    expect(structuredLogger.error).toHaveBeenCalledWith('Dashboard error', errorWithDigest, {
+      component: 'listings',
+    });
   });
 
   it('should re-log error when error prop changes', () => {
@@ -91,13 +103,15 @@ describe('Listings Error Component', () => {
 
     const { rerender } = render(<ErrorComponent error={mockError} reset={mockReset} />);
 
-    expect(console.error).toHaveBeenCalledTimes(1);
+    expect(structuredLogger.error).toHaveBeenCalledTimes(1);
 
     const newError = new Error('New error');
     rerender(<ErrorComponent error={newError} reset={mockReset} />);
 
-    expect(console.error).toHaveBeenCalledTimes(2);
-    expect(console.error).toHaveBeenCalledWith('Dashboard error:', newError);
+    expect(structuredLogger.error).toHaveBeenCalledTimes(2);
+    expect(structuredLogger.error).toHaveBeenCalledWith('Dashboard error', newError, {
+      component: 'listings',
+    });
   });
 
   it('should render button as clickable element', () => {
