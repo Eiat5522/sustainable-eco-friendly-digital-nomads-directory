@@ -1,5 +1,4 @@
 import { type AlertSeverity, PERFORMANCE_BUDGETS, type PerformanceAlert } from '../budgets';
-import { structuredLogger } from '@/lib/logger';
 
 jest.mock('@/lib/logger');
 
@@ -200,7 +199,7 @@ describe('budgets', () => {
 
       await sendAlert(alert);
 
-      expect(structuredLogger.info).toHaveBeenCalledWith('[Performance Alert]', {
+      expect(jest.requireMock<typeof import("@/lib/logger")>("@/lib/logger").structuredLogger.info).toHaveBeenCalledWith('[Performance Alert]', {
         component: 'performance',
         severity: 'WARNING',
         metric: 'CLS',
@@ -219,7 +218,7 @@ describe('budgets', () => {
 
         await sendAlert(alert);
 
-        expect(structuredLogger.info).toHaveBeenCalledWith(
+        expect(jest.requireMock<typeof import("@/lib/logger")>("@/lib/logger").structuredLogger.info).toHaveBeenCalledWith(
           '[Performance Alert]',
           expect.objectContaining({
             component: 'performance',

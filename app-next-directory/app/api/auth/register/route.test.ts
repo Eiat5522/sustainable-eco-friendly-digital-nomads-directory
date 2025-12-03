@@ -1,5 +1,4 @@
 import { NextRequest } from 'next/server';
-import { structuredLogger } from '@/lib/logger';
 
 jest.mock('@/lib/logger');
 
@@ -201,7 +200,7 @@ describe('Registration API Routes', () => {
 
       expect(response.status).toBe(400);
       expect(body.error.code).toBe('INVALID_INPUT');
-      expect(structuredLogger.warn).toHaveBeenCalledWith(
+      expect(jest.requireMock<typeof import("@/lib/logger")>("@/lib/logger").structuredLogger.warn).toHaveBeenCalledWith(
         '[register] Failed to parse request body',
         expect.any(Error),
         { component: 'auth' }

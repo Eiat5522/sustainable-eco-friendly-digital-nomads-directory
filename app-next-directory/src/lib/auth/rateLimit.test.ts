@@ -1,5 +1,4 @@
 import { jest } from '@jest/globals';
-import { structuredLogger } from '@/lib/logger';
 
 jest.mock('@/lib/logger');
 
@@ -543,7 +542,7 @@ describe('auth rateLimit utilities', () => {
 
       expect(result).toEqual({ success: true });
       expect(rateLimitModule.__getLastRateLimiterConfigForTests()).toBeUndefined();
-      expect(structuredLogger.warn).toHaveBeenCalledWith(
+      expect(jest.requireMock<typeof import("@/lib/logger")>("@/lib/logger").structuredLogger.warn).toHaveBeenCalledWith(
         '[auth] Failed to initialize login rate limiter',
         ctorError,
         { component: 'auth-rate-limit' }
@@ -565,7 +564,7 @@ describe('auth rateLimit utilities', () => {
       const result = await rateLimitModule.enforceLoginRateLimit('user@example.com');
 
       expect(result).toEqual({ success: true });
-      expect(structuredLogger.warn).toHaveBeenCalledWith(
+      expect(jest.requireMock<typeof import("@/lib/logger")>("@/lib/logger").structuredLogger.warn).toHaveBeenCalledWith(
         '[auth] Login ratelimiter initialisation error; allowing attempt',
         ctorError,
         { component: 'auth-rate-limit' }
@@ -600,7 +599,7 @@ describe('auth rateLimit utilities', () => {
         await rateLimitModule.recordLoginAttempt({ ...baseParams, email: 'not-an-email' });
 
         expect(mocks.dbConnect).not.toHaveBeenCalled();
-        expect(structuredLogger.warn).toHaveBeenCalledWith(
+        expect(jest.requireMock<typeof import("@/lib/logger")>("@/lib/logger").structuredLogger.warn).toHaveBeenCalledWith(
           '[auth] Skipping login attempt record due to invalid email',
           {
             component: 'auth-rate-limit',
@@ -618,7 +617,7 @@ describe('auth rateLimit utilities', () => {
         });
 
         expect(mocks.dbConnect).not.toHaveBeenCalled();
-        expect(structuredLogger.warn).toHaveBeenCalledWith(
+        expect(jest.requireMock<typeof import("@/lib/logger")>("@/lib/logger").structuredLogger.warn).toHaveBeenCalledWith(
           '[auth] Skipping login attempt record due to invalid email',
           {
             component: 'auth-rate-limit',
