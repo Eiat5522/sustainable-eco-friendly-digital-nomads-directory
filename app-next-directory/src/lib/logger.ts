@@ -9,6 +9,7 @@ const isE2E = process.env.E2E === '1';
 // Check if we're running in a Node.js environment (server-side)
 // pino-pretty with worker threads doesn't work well in Next.js server contexts
 const isServer = typeof window === 'undefined';
+const shouldMirrorStructuredLogsToConsole = isTest || process.env.LOGGER_ENABLE_CONSOLE_MIRROR === '1';
 
 // Redact sensitive fields to prevent information leakage
 const redactPaths = [
@@ -242,23 +243,50 @@ function sanitizeError(error: unknown): SanitizedError {
 export const structuredLogger = {
   // Core logging methods
   debug: (msg: string, context?: LogContext) => {
+    mirrorStructuredLogToConsole('debug', msg, undefined, context);
     logger.debug(context, msg);
   },
 
   info: (msg: string, context?: LogContext) => {
+    mirrorStructuredLogToConsole('info', msg, undefined, context);
     logger.info(context, msg);
   },
 
-  warn: (msg: string, context?: LogContext) => {
-    logger.warn(context, msg);
+  warn: (msg: string, errorOrContext?: unknown, maybeContext?: LogContext) => {
+    // Support older callsites that pass (msg, error, context)
+    let err: unknown | undefined;
+    let context: LogContext | undefined;
+
+    if (errorOrContext && (errorOrContext instanceof Error || typeof errorOrContext === 'object') && !('component' in (errorOrContext as LogContext))) {
+      err = errorOrContext;
+      context = maybeContext;
+    } else {
+      context = errorOrContext as LogContext | undefined;
+    }
+
+    if (err) {
+      const sanitizedError = sanitizeError(err);
+      const errorPayload = sanitizedError ? (sanitizedError as unknown as LogValue) : undefined;
+      const logContext: LogContext = {
+        ...(context ?? {}),
+        ...(errorPayload ? { err: errorPayload, error: errorPayload } : {}),
+      };
+      mirrorStructuredLogToConsole('warn', msg, err, logContext);
+      logger.warn(logContext, msg);
+    } else {
+      mirrorStructuredLogToConsole('warn', msg, undefined, context);
+      logger.warn(context, msg);
+    }
   },
 
   error: (msg: string, error?: unknown, context?: LogContext) => {
     const sanitizedError = sanitizeError(error);
-    const logContext = {
+    const errorPayload = sanitizedError ? (sanitizedError as unknown as LogValue) : undefined;
+    const logContext: LogContext = {
       ...context,
-      ...(sanitizedError ? { err: sanitizedError, error: sanitizedError } : {}),
+      ...(errorPayload ? { err: errorPayload, error: errorPayload } : {}),
     };
+    mirrorStructuredLogToConsole('error', msg, error, logContext);
     logger.error(logContext, msg);
   },
 
@@ -294,25 +322,25 @@ export const structuredLogger = {
 
   // Performance and operational logging
   performance: (operation: string, duration: number, context?: LogContext) => {
-    logger.info(
-      {
-        ...context,
-        duration,
-        component: 'performance',
-      },
-      `Operation ${operation} completed in ${duration}ms`
-    );
+    const logContext = {
+      ...context,
+      duration,
+      component: 'performance',
+    };
+    const message = `Operation ${operation} completed in ${duration}ms`;
+    mirrorStructuredLogToConsole('info', message, undefined, logContext);
+    logger.info(logContext, message);
   },
 
   // Security-related logging
   security: (event: string, context?: LogContext) => {
-    logger.warn(
-      {
-        ...context,
-        component: 'security',
-      },
-      `Security Event: ${event}`
-    );
+    const logContext = {
+      ...context,
+      component: 'security',
+    };
+    const message = `Security Event: ${event}`;
+    mirrorStructuredLogToConsole('warn', message, undefined, logContext);
+    logger.warn(logContext, message);
   },
 };
 
@@ -391,10 +419,95 @@ const formatConsoleInvocation = (
   return { message, error: errorArg, context };
 };
 
+const legacyConsoleMethodMap: Record<ConsoleLevel, keyof Console> = {
+  info: 'log',
+  warn: 'warn',
+  error: 'error',
+  debug: typeof console.debug === 'function' ? 'debug' : 'log',
+};
+
+const isBracketPrefixedMessage = (message: string): boolean => message.trimStart().startsWith('[');
+
+const buildLegacyConsoleArgs = (message: string, error?: unknown, context?: LogContext): unknown[] => {
+  if (!message) {
+    return [];
+  }
+
+  const args: unknown[] = [];
+  const statusValues: Array<number | string> = [];
+
+  const status = (context as { status?: number | string })?.status;
+  if (typeof status === 'number' || typeof status === 'string') {
+    statusValues.push(status);
+  }
+
+  const statusCode = (context as { statusCode?: number | string })?.statusCode;
+  if (
+    (typeof statusCode === 'number' || typeof statusCode === 'string') &&
+    (statusValues.length === 0 || statusValues[0] !== statusCode)
+  ) {
+    statusValues.push(statusCode);
+  }
+
+  const statusText = (context as { statusText?: string })?.statusText;
+  if (typeof statusText === 'string' && statusText.length > 0) {
+    statusValues.push(statusText);
+  }
+
+  const hasError = typeof error !== 'undefined';
+  const hasExtraArgs = hasError || statusValues.length > 0;
+  const trimmedMessage = message.trimEnd();
+  const shouldAppendColon =
+    hasExtraArgs && !isBracketPrefixedMessage(message) && !trimmedMessage.endsWith(':');
+  const normalizedMessage = shouldAppendColon ? `${message}:` : message;
+
+  args.push(normalizedMessage);
+  if (statusValues.length) {
+    args.push(...statusValues);
+  }
+  if (hasError) {
+    args.push(error);
+  }
+  return args;
+};
+
+const mirrorStructuredLogToConsole = (
+  level: ConsoleLevel,
+  message: string,
+  error?: unknown,
+  context?: LogContext
+) => {
+  if (!shouldMirrorStructuredLogsToConsole) {
+    return;
+  }
+
+  const method = legacyConsoleMethodMap[level];
+  const consoleMethod = console[method];
+  const fn =
+    typeof consoleMethod === 'function'
+      ? (consoleMethod as (...args: unknown[]) => void).bind(console)
+      : undefined;
+  if (typeof fn !== 'function') {
+    return;
+  }
+
+  const args = buildLegacyConsoleArgs(message, error, context);
+  if (!args.length) {
+    return;
+  }
+
+  try {
+    fn(...args);
+  } catch {
+    // Swallow console mirroring errors to keep tests reliable
+  }
+};
+
 let consoleRedirectInstalled = false;
 
 export const redirectConsoleToStructuredLogger = () => {
-  if (consoleRedirectInstalled || !isServer) {
+  // Avoid installing console redirection while running unit tests
+  if (isTest || consoleRedirectInstalled || !isServer) {
     return;
   }
 
@@ -410,7 +523,7 @@ export const redirectConsoleToStructuredLogger = () => {
 
   (Object.keys(levelMap) as Array<keyof typeof levelMap>).forEach(method => {
     const level = levelMap[method];
-    const original = console[method].bind(console);
+    const _ignoredOriginal = console[method].bind(console);
 
     console[method] = (...args: unknown[]) => {
       const { message, error, context } = formatConsoleInvocation(level, args);

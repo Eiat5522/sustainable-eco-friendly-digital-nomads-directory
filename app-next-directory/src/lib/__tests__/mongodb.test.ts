@@ -98,33 +98,41 @@ describe('mongodb client module', () => {
     const { MongoClient } = jest.requireMock('mongodb') as { MongoClient: jest.Mock };
     const error = new Error('boom');
     MongoClient.mockImplementation(() => ({ connect: jest.fn().mockRejectedValue(error) }));
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const errorSpy = jest.fn();
+    jest.doMock('@/lib/logger', () => ({
+      structuredLogger: { error: errorSpy, warn: jest.fn(), info: jest.fn(), debug: jest.fn() },
+    }));
 
     process.env.NODE_ENV = 'production';
     process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
 
     const mod = await import('../mongodb.ts');
     await expect(mod.default).rejects.toThrow('boom');
-    expect(errorSpy).toHaveBeenCalledWith('MongoDB connection failed:', 'boom');
-
-    errorSpy.mockRestore();
+    expect(errorSpy).toHaveBeenCalledWith('MongoDB connection failed', error, {
+      component: 'mongodb',
+      message: 'boom',
+    });
   });
 
   it('resets cached promise when development connection fails', async () => {
     const { MongoClient } = jest.requireMock('mongodb') as { MongoClient: jest.Mock };
     const error = new Error('dev-fail');
     MongoClient.mockImplementation(() => ({ connect: jest.fn().mockRejectedValue(error) }));
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const errorSpy = jest.fn();
+    jest.doMock('@/lib/logger', () => ({
+      structuredLogger: { error: errorSpy, warn: jest.fn(), info: jest.fn(), debug: jest.fn() },
+    }));
 
     process.env.NODE_ENV = 'development';
     process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
 
     const mod = await import('../mongodb.ts');
     await expect(mod.default).rejects.toThrow('dev-fail');
-    expect(errorSpy).toHaveBeenCalledWith('MongoDB connection failed:', 'dev-fail');
+    expect(errorSpy).toHaveBeenCalledWith('MongoDB connection failed', error, {
+      component: 'mongodb',
+      message: 'dev-fail',
+    });
     expect((global as any)._mongoClientPromise).toBeUndefined();
-
-    errorSpy.mockRestore();
   });
 
   it('returns a connected client in production when credentials are valid', async () => {

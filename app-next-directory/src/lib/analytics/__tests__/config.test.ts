@@ -109,15 +109,15 @@ describe('analytics config helpers', () => {
       identifyUser = mod.identifyUser;
     });
 
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    const loggerMock = jest.requireMock('@/lib/logger').structuredLogger as {
+      error: jest.Mock;
+    };
 
     await trackPageView({ title: 'Error', path: '/error' });
     await trackEvent({ name: 'oops' });
     await identifyUser('user-2');
 
-    expect(errorSpy).toHaveBeenCalledTimes(3);
-
-    errorSpy.mockRestore();
+    expect(loggerMock.error).toHaveBeenCalledTimes(3);
   });
 
   it('enables posthog debug in development mode', () => {

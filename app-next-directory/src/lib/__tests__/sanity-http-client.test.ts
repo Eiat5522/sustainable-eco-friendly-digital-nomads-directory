@@ -1,4 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { structuredLogger } from '@/lib/logger';
+
+jest.mock('@/lib/logger', () => ({
+  structuredLogger: {
+    warn: jest.fn(),
+    info: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+  },
+}));
 
 const REQUIRED_ENV = {
   NEXT_PUBLIC_SANITY_PROJECT_ID: 'test-project-id',
@@ -104,15 +114,14 @@ describe('SanityHTTPClient', () => {
 
   it('warns about missing optional environment variables', async () => {
     delete process.env.SANITY_API_TOKEN;
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
     const clientModule = await loadModule();
 
     new clientModule.SanityHTTPClient();
 
-    expect(warnSpy).toHaveBeenCalledWith(
-      'Warning: Missing optional environment variable: SANITY_API_TOKEN'
+    expect(structuredLogger.warn).toHaveBeenCalledWith(
+      'Missing optional environment variable: SANITY_API_TOKEN',
+      { component: 'sanity-http' }
     );
-    warnSpy.mockRestore();
   });
 
   describe('query', () => {
@@ -256,15 +265,16 @@ describe('SanityHTTPClient', () => {
       const clientModule = await loadModule();
       const client = new clientModule.SanityHTTPClient();
       const doc = { _id: 'doc-1', _type: 'test' };
-      const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
       mockWriteClient.create.mockResolvedValue(doc);
 
       const result = await client.create({ _type: 'test' });
 
       expect(mockWriteClient.create).toHaveBeenCalledWith({ _type: 'test' });
       expect(result).toEqual(doc);
-      expect(logSpy).toHaveBeenCalledWith('✅ Created document: doc-1');
-      logSpy.mockRestore();
+      expect(structuredLogger.info).toHaveBeenCalledWith('Sanity document created', {
+        component: 'sanity-http',
+        id: 'doc-1',
+      });
       delete process.env.SANITY_HTTP_DEBUG;
     });
 
@@ -272,14 +282,14 @@ describe('SanityHTTPClient', () => {
       process.env.SANITY_HTTP_DEBUG = '1';
       const clientModule = await loadModule();
       const client = new clientModule.SanityHTTPClient();
-      const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
       mockWriteClient.create.mockResolvedValue({ _type: 'test', title: 'no-id' });
 
       const result = await client.create({ _type: 'test' });
 
       expect(result).toEqual({ _type: 'test', title: 'no-id' });
-      expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('✅ Created document (no _id)'));
-      logSpy.mockRestore();
+      expect(structuredLogger.info).toHaveBeenCalledWith('Sanity document created (no _id)', {
+        component: 'sanity-http',
+      });
       delete process.env.SANITY_HTTP_DEBUG;
     });
 
@@ -336,13 +346,14 @@ describe('SanityHTTPClient', () => {
       process.env.SANITY_HTTP_DEBUG = '1';
       const clientModule = await loadModule();
       const client = new clientModule.SanityHTTPClient();
-      const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
       mockCommit.mockResolvedValue({ _id: 'doc-2', _type: 'test' });
 
       await client.update('doc-2', { title: 'debug' });
 
-      expect(logSpy).toHaveBeenCalledWith('✅ Updated document: doc-2');
-      logSpy.mockRestore();
+      expect(structuredLogger.info).toHaveBeenCalledWith('Sanity document updated', {
+        component: 'sanity-http',
+        id: 'doc-2',
+      });
       delete process.env.SANITY_HTTP_DEBUG;
     });
 
@@ -418,13 +429,14 @@ describe('SanityHTTPClient', () => {
       process.env.SANITY_HTTP_DEBUG = '1';
       const clientModule = await loadModule();
       const client = new clientModule.SanityHTTPClient();
-      const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
       mockWriteClient.delete.mockResolvedValue({ success: true });
 
       await client.delete('doc-3');
 
-      expect(logSpy).toHaveBeenCalledWith('✅ Deleted document: doc-3');
-      logSpy.mockRestore();
+      expect(structuredLogger.info).toHaveBeenCalledWith('Sanity document deleted', {
+        component: 'sanity-http',
+        id: 'doc-3',
+      });
       delete process.env.SANITY_HTTP_DEBUG;
     });
 

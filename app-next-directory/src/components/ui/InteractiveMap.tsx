@@ -13,15 +13,25 @@ interface InteractiveMapProps {
   readonly className?: string;
 }
 
+// Leaflet types - using unknown for dynamic imports
+type LeafletMap = { remove: () => void; setView: (latlng: [number, number], zoom: number) => LeafletMap; invalidateSize: () => void };
+type LeafletMarker = { addTo: (map: LeafletMap) => LeafletMarker; remove: () => void };
+type LeafletModule = {
+  map: (container: HTMLElement) => LeafletMap;
+  tileLayer: (url: string, options: Record<string, unknown>) => { on: (event: string, handler: () => void) => void; addTo: (map: LeafletMap) => void; off: (event: string) => void };
+  marker: (latlng: [number, number], options?: Record<string, unknown>) => LeafletMarker;
+  divIcon: (options: Record<string, unknown>) => unknown;
+};
+
 export function InteractiveMap({ location, address, name, className }: InteractiveMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<any>(null);
-  const LRef = useRef<any>(null);
-  const markerRef = useRef<any>(null);
+  const mapInstanceRef = useRef<LeafletMap | null>(null);
+  const LRef = useRef<LeafletModule | null>(null);
+  const markerRef = useRef<LeafletMarker | null>(null);
   const [tileLoadFailed, setTileLoadFailed] = useState(false);
 
   const createCustomMarkerIcon = useCallback(
-    (leaflet: any) =>
+    (leaflet: LeafletModule) =>
       leaflet.divIcon({
         html: `<div class="w-8 h-8 bg-neo-primary rounded-full flex items-center justify-center text-white shadow-lg">
                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -40,9 +50,9 @@ export function InteractiveMap({ location, address, name, className }: Interacti
       return;
     }
 
-    let tileLayer: any = null;
+    let tileLayer: ReturnType<LeafletModule['tileLayer']> | null = null;
     let handleTileLoad: (() => void) | null = null;
-    let handleTileError: ((e: any) => void) | null = null;
+    let handleTileError: ((e: { error?: unknown; tile?: HTMLImageElement }) => void) | null = null;
     let isMounted = true;
 
     const initMap = async () => {
@@ -77,11 +87,11 @@ export function InteractiveMap({ location, address, name, className }: Interacti
           });
         };
 
-        handleTileError = (e: any) => {
+        handleTileError = (e: { error?: unknown; tile?: HTMLImageElement }) => {
           if (!isMounted) return;
           setTileLoadFailed(true);
           if (process.env.NODE_ENV !== 'production') {
-            const _detail = (() => {
+            const _ignoredDetail = (() => {
               const errorDetail = e.error;
               if (errorDetail && typeof errorDetail === 'object') {
                 if (
@@ -101,7 +111,7 @@ export function InteractiveMap({ location, address, name, className }: Interacti
               if (errorDetail instanceof Error) return errorDetail.message;
               return undefined;
             })();
-            const _tileSrc =
+            const _ignoredTileSrc =
               typeof (e.tile as HTMLImageElement | undefined)?.src === 'string'
                 ? (e.tile as HTMLImageElement).src
                 : undefined;

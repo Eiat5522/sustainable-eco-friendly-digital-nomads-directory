@@ -41,6 +41,7 @@
         "role": "development",
         "connectionTimeout": 30
       }
-    ]
+    ],
+    "terminal.integrated.defaultProfile.linux": "bash"
   }
 }

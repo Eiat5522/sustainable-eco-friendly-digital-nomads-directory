@@ -17,9 +17,10 @@ export const WebVitalsReporter = (metric: WebVitalsMetric) => {
   if (process.env.NODE_ENV === 'development') {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id: _id, entries: _entries, ...logMetric } = metricPayload;
+    const metricForLog = logMetric as unknown as Record<string, unknown>;
     structuredLogger.debug('Web Vitals metric received', {
       component: 'performance',
-      metric: logMetric,
+      metric: metricForLog,
     });
   }
 
@@ -69,10 +70,11 @@ export const recordMetric = (
   // placeholder for sampling logic (disabled by default)
   if (Math.random() > 1) return;
   if (process.env.NODE_ENV === 'development') {
+    const detailsForLog = details as unknown as Record<string, unknown>;
     structuredLogger.debug(`[Custom Metric] ${name}`, {
       component: 'performance',
       value,
-      details,
+      details: detailsForLog,
     });
   }
   try {

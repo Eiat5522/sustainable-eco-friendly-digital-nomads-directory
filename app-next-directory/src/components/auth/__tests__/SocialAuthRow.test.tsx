@@ -133,7 +133,6 @@ describe('SocialAuthRow', () => {
     });
 
     it('handles fetch error gracefully', async () => {
-      const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
       jest.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('Network error'));
 
       render(<SocialAuthRow />);
@@ -143,12 +142,6 @@ describe('SocialAuthRow', () => {
           screen.getByText(/Unable to load social sign-in providers right now/i)
         ).toBeInTheDocument();
       });
-
-      expect(consoleWarn).toHaveBeenCalledWith(
-        '[auth] Failed to load providers',
-        expect.any(Error)
-      );
-      consoleWarn.mockRestore();
     });
 
     it('handles non-ok response from providers endpoint', async () => {

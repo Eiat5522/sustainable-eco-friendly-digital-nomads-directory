@@ -3,6 +3,16 @@ import userEvent from '@testing-library/user-event';
 import { useRouter } from 'next/navigation';
 import { signIn, useSession } from 'next-auth/react';
 import CommentForm, { resolveCallbackUrl } from '../CommentForm';
+import { structuredLogger } from '@/lib/logger';
+
+jest.mock('@/lib/logger', () => ({
+  structuredLogger: {
+    error: jest.fn(),
+    warn: jest.fn(),
+    info: jest.fn(),
+    debug: jest.fn(),
+  },
+}));
 
 jest.mock('next/navigation', () => ({
   __esModule: true,
@@ -264,7 +274,6 @@ describe('CommentForm', () => {
 
   it('displays a fallback error message when the request throws', async () => {
     mockUseSession.mockReturnValue({ data: { user: { id: 'user-1' } }, status: 'authenticated' });
-    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
     fetchMock.mockRejectedValue(new Error('Network error'));
 
     try {
@@ -278,7 +287,7 @@ describe('CommentForm', () => {
         await screen.findByText('Failed to submit comment. Please try again.')
       ).toBeInTheDocument();
     } finally {
-      consoleError.mockRestore();
+      jest.clearAllMocks();
     }
   });
 
@@ -318,7 +327,6 @@ describe('CommentForm', () => {
 
   it('falls back to a generic error message when the API response is not JSON', async () => {
     mockUseSession.mockReturnValue({ data: { user: { id: 'user-1' } }, status: 'authenticated' });
-    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
 
     fetchMock.mockResolvedValue(
       new Response('Plain failure', {
@@ -335,11 +343,10 @@ describe('CommentForm', () => {
     await user.click(screen.getByRole('button', { name: /submit comment/i }));
 
     expect(await screen.findByText('Failed to submit comment')).toBeInTheDocument();
-    expect(consoleError).toHaveBeenCalledWith(
+    expect(structuredLogger.error).toHaveBeenCalledWith(
       'Failed to submit comment: 502 Bad Gateway',
-      'Plain failure'
+      undefined,
+      { component: 'comments' }
     );
-
-    consoleError.mockRestore();
   });
 });

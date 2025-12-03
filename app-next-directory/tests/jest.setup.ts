@@ -2,6 +2,10 @@
 // Add this file to your Jest config under `setupFilesAfterEnv` to enable global behavior:
 // "setupFilesAfterEnv": ["<rootDir>/tests/jest.setup.ts"]
 
+// Globally mock the structured logger so tests can assert console behavior consistently.
+// This uses the manual mock in __mocks__/lib/logger.js
+jest.mock('@/lib/logger');
+
 /**
  * Whitelist of expected console messages that should not fail tests.
  * Keep this list minimal to avoid masking real issues.

@@ -1,6 +1,16 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 import type React from 'react';
+import { structuredLogger } from '@/lib/logger';
+
+jest.mock('@/lib/logger', () => ({
+  structuredLogger: {
+    error: jest.fn(),
+    warn: jest.fn(),
+    info: jest.fn(),
+    debug: jest.fn(),
+  },
+}));
 
 // Mock NeoButton
 jest.mock('@/components/ui/neo-button', () => ({
@@ -24,16 +34,10 @@ import ErrorComponent from '../error';
 describe('Error Component', () => {
   let mockError: Error;
   let mockReset: jest.Mock;
-  let consoleErrorSpy: jest.SpyInstance;
 
   beforeEach(() => {
     mockError = new Error('Test error message');
     mockReset = jest.fn();
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    consoleErrorSpy.mockRestore();
   });
 
   it('renders error message and buttons', () => {
@@ -73,7 +77,10 @@ describe('Error Component', () => {
 
     render(<ErrorComponent error={mockError} reset={mockReset} />);
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith('App segment error caught:', mockError);
+    expect(structuredLogger.error).toHaveBeenCalledWith('App segment error caught', mockError, {
+      component: 'app',
+      digest: undefined,
+    });
 
     process.env.NODE_ENV = originalEnv;
   });
@@ -85,10 +92,14 @@ describe('Error Component', () => {
 
     render(<ErrorComponent error={errorWithDigest} reset={mockReset} />);
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith('App segment error caught:', {
-      digest: 'abc123',
-      message: 'Test error',
-    });
+    expect(structuredLogger.error).toHaveBeenCalledWith(
+      'App segment error caught',
+      errorWithDigest,
+      {
+        component: 'app',
+        digest: 'abc123',
+      }
+    );
 
     process.env.NODE_ENV = originalEnv;
   });

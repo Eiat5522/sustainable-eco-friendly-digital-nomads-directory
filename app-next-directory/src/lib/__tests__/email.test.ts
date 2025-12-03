@@ -26,6 +26,7 @@ describe('email utilities', () => {
   const importEmailModule = async () => {
     jest.resetModules();
     let emailModule: typeof import('../email') | undefined;
+    const warnSpy = jest.fn();
     await jest.isolateModulesAsync(async () => {
       jest.unmock('@/lib/email');
       jest.doMock('resend', () => ({
@@ -35,33 +36,38 @@ describe('email utilities', () => {
         getBaseUrl: () => getBaseUrlMock(),
       }));
       jest.doMock('@/lib/logger', () => ({
-        structuredLogger: { emailError: (...args: unknown[]) => emailErrorMock(...args) },
+        structuredLogger: {
+          emailError: (...args: unknown[]) => emailErrorMock(...args),
+          warn: warnSpy,
+        },
       }));
       emailModule = await import('../email');
     });
     if (!emailModule) {
       throw new Error('Failed to import email module for testing');
     }
-    return emailModule;
+    return { emailModule, warnSpy };
   };
 
   it('skips sending when API key is missing', async () => {
     delete process.env.RESEND_API_KEY;
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-    const { sendMail } = await importEmailModule();
+    const { emailModule, warnSpy } = await importEmailModule();
+    const { sendMail } = emailModule;
 
     const result = await sendMail({ to: 'user@example.com', subject: 'Hello', html: '<p>Hi</p>' });
 
     expect(result).toEqual({ skipped: true });
     expect(ResendConstructor).not.toHaveBeenCalled();
     expect(resendSendMock).not.toHaveBeenCalled();
-    expect(warnSpy).toHaveBeenCalledWith('[email] RESEND_API_KEY not set; skipping send');
-    warnSpy.mockRestore();
+    expect(warnSpy).toHaveBeenCalledWith('[email] RESEND_API_KEY not set; skipping send', {
+      component: 'email-service',
+    });
   });
 
   it('sends email using Resend when API key is configured', async () => {
     process.env.RESEND_API_KEY = 'test-api-key';
-    const { sendMail } = await importEmailModule();
+    const { emailModule } = await importEmailModule();
+    const { sendMail } = emailModule;
 
     const result = await sendMail({
       to: 'user@example.com',
@@ -84,7 +90,8 @@ describe('email utilities', () => {
   it('returns error payload when sending fails', async () => {
     process.env.RESEND_API_KEY = 'test-api-key';
     resendSendMock.mockRejectedValueOnce(new Error('network error'));
-    const { sendMail } = await importEmailModule();
+    const { emailModule } = await importEmailModule();
+    const { sendMail } = emailModule;
 
     const result = await sendMail({
       to: 'user@example.com',
@@ -101,7 +108,8 @@ describe('email utilities', () => {
   });
 
   it('builds verification email payloads with encoded links', async () => {
-    const { buildVerifyEmail } = await importEmailModule();
+    const { emailModule } = await importEmailModule();
+    const { buildVerifyEmail } = emailModule;
     const payload = await buildVerifyEmail('user@example.com', 'token-123');
 
     expect(getBaseUrlMock).toHaveBeenCalled();
@@ -111,7 +119,8 @@ describe('email utilities', () => {
   });
 
   it('builds password reset email payloads', async () => {
-    const { buildResetEmail } = await importEmailModule();
+    const { emailModule } = await importEmailModule();
+    const { buildResetEmail } = emailModule;
     const payload = await buildResetEmail('user@example.com', 'reset-456');
 
     expect(payload.link).toBe('https://app.example.com/auth/reset?token=reset-456');
@@ -120,7 +129,8 @@ describe('email utilities', () => {
   });
 
   it('builds newsletter confirmation emails without text body', async () => {
-    const { buildNewsletterConfirmEmail } = await importEmailModule();
+    const { emailModule } = await importEmailModule();
+    const { buildNewsletterConfirmEmail } = emailModule;
     const payload = await buildNewsletterConfirmEmail('user@example.com', 'news-token');
 
     expect(payload).toMatchObject({

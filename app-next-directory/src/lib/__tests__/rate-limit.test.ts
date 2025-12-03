@@ -29,6 +29,8 @@ jest.mock('@upstash/ratelimit', () => ({
   Ratelimit: mockRatelimitConstructor,
 }));
 
+const warnSpy = jest.fn();
+
 const loadModule = async (setup?: () => void) => {
   jest.resetModules();
   jest.clearAllMocks();
@@ -43,6 +45,10 @@ const loadModule = async (setup?: () => void) => {
   jest.doMock('@upstash/ratelimit', () => ({
     __esModule: true,
     Ratelimit: mockRatelimitConstructor,
+  }));
+
+  jest.doMock('@/lib/logger', () => ({
+    structuredLogger: { warn: warnSpy, error: jest.fn(), info: jest.fn(), debug: jest.fn() },
   }));
 
   return jest.requireActual<typeof import('../rate-limit')>('../rate-limit');
@@ -161,18 +167,14 @@ describe('rate-limit helpers', () => {
 
   it('isRateLimited handles errors gracefully', async () => {
     const mod = await loadModule();
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     mockRatelimitLimit.mockRejectedValue(new Error('Redis error'));
 
     const result = await mod.isRateLimited('test-key', 10, 60);
 
     expect(result).toBe(false);
-    expect(warnSpy).toHaveBeenCalledWith(
-      '[rate-limit] Error checking rate limit:',
-      expect.any(Error)
-    );
-
-    warnSpy.mockRestore();
+    expect(warnSpy).toHaveBeenCalledWith('[rate-limit] Error checking rate limit', expect.any(Error), {
+      component: 'rate-limit',
+    });
   });
 
   it('getRetryAfterMs returns time until reset', async () => {
@@ -202,18 +204,14 @@ describe('rate-limit helpers', () => {
 
   it('getRetryAfterMs handles errors gracefully', async () => {
     const mod = await loadModule();
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     mockRatelimitLimit.mockRejectedValue(new Error('Redis error'));
 
     const result = await mod.getRetryAfterMs('test-key');
 
     expect(result).toBe(0);
-    expect(warnSpy).toHaveBeenCalledWith(
-      '[rate-limit] Error getting retry after:',
-      expect.any(Error)
-    );
-
-    warnSpy.mockRestore();
+    expect(warnSpy).toHaveBeenCalledWith('[rate-limit] Error getting retry after', expect.any(Error), {
+      component: 'rate-limit',
+    });
   });
 
   it('wraps exports with jest.fn when Jest is available', async () => {
@@ -235,7 +233,6 @@ describe('rate-limit helpers', () => {
 
   it('falls back to original functions when Jest is unavailable', async () => {
     const originalJest = (global as any).jest;
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
     try {
       const mod = await loadModule(() => {
@@ -245,15 +242,15 @@ describe('rate-limit helpers', () => {
       expect('mock' in (mod.getClientIp as any)).toBe(false);
       expect('mock' in (mod.isRateLimited as any)).toBe(false);
       expect('mock' in (mod.getRetryAfterMs as any)).toBe(false);
-      expect(warnSpy).toHaveBeenCalledWith('Jest not available for mocking in rate-limit module');
+      expect(warnSpy).toHaveBeenCalledWith('Jest not available for mocking in rate-limit module', {
+        component: 'rate-limit',
+      });
     } finally {
       (global as any).jest = originalJest;
-      warnSpy.mockRestore();
     }
   });
 
   it('handles Redis initialization errors gracefully', async () => {
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     mockGetRedisClient.mockImplementation(() => {
       throw new Error('Redis connection failed');
     });
@@ -261,14 +258,13 @@ describe('rate-limit helpers', () => {
     const mod = await loadModule();
 
     expect(warnSpy).toHaveBeenCalledWith(
-      '[rate-limit] Failed to initialize rate limiters:',
-      expect.any(Error)
+      '[rate-limit] Failed to initialize rate limiters',
+      expect.any(Error),
+      { component: 'rate-limit' }
     );
 
     // Should still allow requests when initialization fails
     const result = await mod.isRateLimited('test-key', 10, 60);
     expect(result).toBe(false);
-
-    warnSpy.mockRestore();
   });
 });

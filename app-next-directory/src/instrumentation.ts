@@ -29,7 +29,11 @@ export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     const { redirectConsoleToStructuredLogger, structuredLogger } = await import('@/lib/logger');
 
-    redirectConsoleToStructuredLogger();
+    // Avoid reassigning global console during Jest unit tests so that
+    // `jest.spyOn(console, ...)` remains attached to the real console methods.
+    if (process.env.NODE_ENV !== 'test') {
+      redirectConsoleToStructuredLogger();
+    }
 
     const logInTest = <T extends (...args: unknown[]) => void>(fn: T, ...args: Parameters<T>) => {
       if (process.env.NODE_ENV === 'test') {

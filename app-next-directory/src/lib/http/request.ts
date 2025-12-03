@@ -1,6 +1,6 @@
 // Client-safe logger wrapper
 const logger = {
-  error: (..._args: any[]) => {
+  error: (..._args: unknown[]) => {
     if (typeof window !== 'undefined') {
     } else {
       // Only log on server in development
@@ -8,14 +8,14 @@ const logger = {
       }
     }
   },
-  warn: (..._args: any[]) => {
+  warn: (..._args: unknown[]) => {
     if (typeof window !== 'undefined') {
     } else {
       if (process.env.NODE_ENV !== 'production') {
       }
     }
   },
-  info: (..._args: any[]) => {
+  info: (..._args: unknown[]) => {
     if (typeof window !== 'undefined') {
     } else {
       if (process.env.NODE_ENV !== 'production') {
