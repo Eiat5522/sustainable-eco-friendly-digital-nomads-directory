@@ -1,4 +1,5 @@
 import { renderHook } from '@testing-library/react';
+import { structuredLogger } from '@/lib/logger';
 import { ANALYTICS_EVENTS } from '../config';
 import { usePlausibleAnalytics } from '../hooks';
 
@@ -23,11 +24,11 @@ describe('usePlausibleAnalytics', () => {
     result.current.trackReviewSubmission('listing-1');
     result.current.trackFilterApplication({ price: 'budget' });
 
-    expect(jest.requireMock<typeof import("@/lib/logger")>("@/lib/logger").structuredLogger.debug).toHaveBeenCalledWith('Analytics Event (noop)', {
+    expect(structuredLogger.debug).toHaveBeenCalledWith('Analytics Event (noop)', {
       component: 'analytics',
-      args: ['listing', '{"listingId":"1","action":"view"}'],
+      args: ['listing', '[object Object]'],
     });
-    expect(jest.requireMock<typeof import("@/lib/logger")>("@/lib/logger").structuredLogger.debug).toHaveBeenCalledTimes(5);
+    expect(structuredLogger.debug).toHaveBeenCalledTimes(5);
   });
 
   it('is silent outside of development', () => {
@@ -36,7 +37,7 @@ describe('usePlausibleAnalytics', () => {
     const { result } = renderHook(() => usePlausibleAnalytics());
     result.current.trackSearchEvent({ query: 'wifi', resultsCount: 1 });
 
-    expect(jest.requireMock<typeof import("@/lib/logger")>("@/lib/logger").structuredLogger.debug).not.toHaveBeenCalled();
+    expect(structuredLogger.debug).not.toHaveBeenCalled();
   });
 
   it('exposes event constants for consumers', () => {

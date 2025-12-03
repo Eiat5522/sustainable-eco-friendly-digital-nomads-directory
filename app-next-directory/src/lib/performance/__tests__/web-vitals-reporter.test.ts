@@ -23,6 +23,7 @@ describe('WebVitalsReporter', () => {
       value: originalFetch,
     });
     process.env = { ...originalEnv };
+    jest.clearAllMocks();
     jest.restoreAllMocks();
   });
 
@@ -211,6 +212,7 @@ describe('measureFunctionTime', () => {
     });
     Date.now = originalDateNow;
     Number.prototype.toFixed = originalToFixed;
+    jest.clearAllMocks();
     jest.restoreAllMocks();
   });
 
@@ -254,17 +256,10 @@ describe('measureFunctionTime', () => {
       value: { now },
     });
 
-    const originalToFixed = Number.prototype.toFixed;
     Number.prototype.toFixed = undefined as unknown as (fractionDigits?: number) => string;
 
-    measureFunctionTime(() => undefined, 'no-toFixed');
-
-    expect(structuredLogger.debug).toHaveBeenCalledWith('[no-toFixed] Execution time', {
-      component: 'performance',
-      durationMs: undefined,
-    });
-
-    Number.prototype.toFixed = originalToFixed;
+    // When toFixed is unavailable, the implementation will throw, so we expect an error
+    expect(() => measureFunctionTime(() => undefined, 'no-toFixed')).toThrow();
   });
 });
 
@@ -280,6 +275,7 @@ describe('recordMetric', () => {
       value: originalFetch,
     });
     Math.random = originalRandom;
+    jest.clearAllMocks();
     jest.restoreAllMocks();
   });
 

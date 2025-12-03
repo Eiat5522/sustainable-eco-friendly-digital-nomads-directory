@@ -80,7 +80,7 @@ describe('redis module', () => {
   });
 
   it('allows manually setting and subscribing to redis client updates', async () => {
-    // Import redis normally instead of using isolated modules
+    // Import redis directly to avoid module isolation issues with the logger mock
     const { onRedisClientChange, setRedisClient } = await import('../redis');
     const unsubscribeCalls: Array<(() => void) | undefined> = [];
     const listener = jest.fn();

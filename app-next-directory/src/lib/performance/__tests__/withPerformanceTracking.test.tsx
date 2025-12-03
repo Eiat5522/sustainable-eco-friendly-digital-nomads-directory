@@ -43,6 +43,7 @@ describe('withPerformanceTracking', () => {
 
   beforeEach(() => {
     process.env = { ...originalEnv };
+    jest.clearAllMocks();
   });
 
   afterEach(() => {
@@ -115,13 +116,14 @@ describe('withPerformanceTracking', () => {
 
     render(<Wrapped label="dev" />);
 
+    const mockLogger = jest.requireMock<typeof import('@/lib/logger')>('@/lib/logger');
     await waitFor(() => {
-      expect(jest.requireMock<typeof import("@/lib/logger")>("@/lib/logger").structuredLogger.debug).toHaveBeenCalledWith('[Component Render] Debuggable', {
+      expect(mockLogger.structuredLogger.debug).toHaveBeenCalledWith('[Component Render] Debuggable', {
         component: 'performance',
         durationMs: 60.5,
       });
     });
-    expect(jest.requireMock<typeof import("@/lib/logger")>("@/lib/logger").structuredLogger.debug).toHaveBeenCalledWith(
+    expect(mockLogger.structuredLogger.debug).toHaveBeenCalledWith(
       '[Custom Metric] component-render-Debuggable',
       expect.objectContaining({ component: 'performance' })
     );
@@ -194,11 +196,12 @@ describe('withPerformanceTracking', () => {
 
     render(<Wrapped label="prod" />);
 
+    const mockLogger = jest.requireMock<typeof import('@/lib/logger')>('@/lib/logger');
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledTimes(1);
     });
 
-    expect(jest.requireMock<typeof import("@/lib/logger")>("@/lib/logger").structuredLogger.debug).not.toHaveBeenCalled();
+    expect(mockLogger.structuredLogger.debug).not.toHaveBeenCalled();
     const body = fetchMock.mock.calls[0][1]?.body as string;
     expect(JSON.parse(body)).toMatchObject({
       name: 'component-render-Silent',
