@@ -13,6 +13,7 @@ export const WebVitalsReporter = (metric: WebVitalsMetric) => {
   };
 
   if (process.env.NODE_ENV === 'development') {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id: _id, entries: _entries, ...logMetric } = metricPayload;
     console.log('Web Vitals:', logMetric);
   }
