@@ -307,6 +307,7 @@ export async function recordLoginAttempt(params: {
     await collection.insertOne({ ...document });
     return;
   } catch (collectionError) {
+    console.warn('[auth] Failed to record login attempt', collectionError);
     try {
       await LoginAttempt.create(document);
       return;

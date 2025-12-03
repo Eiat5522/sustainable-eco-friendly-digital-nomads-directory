@@ -167,7 +167,9 @@ const callbacks = {
       email,
       userId: t.id,
       currentRole: t.role ?? null,
-    }).catch(error => {});
+    }).catch(error => {
+      console.error('[auth] failed to queue admin allowlist promotion flow', error);
+    });
     return t as JWT | null;
   },
   async session({ session, token, user }) {
