@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { structuredLogger } from '@/lib/logger';
 
 jest.mock('@/lib/logger');
 
@@ -19,6 +18,9 @@ let GET: GetHandler;
 let POST: PostHandler;
 
 describe('NextAuth Route Handler', () => {
+  // Helper to get the mocked logger
+  const getMockLogger = () => jest.requireMock<typeof import('@/lib/logger')>('@/lib/logger');
+
   beforeEach(async () => {
     jest.clearAllMocks();
 
@@ -51,7 +53,7 @@ describe('NextAuth Route Handler', () => {
 
       expect(mockAuthGET).toHaveBeenCalled();
       expect(response).toBe(mockResponse);
-      expect(structuredLogger.info).toHaveBeenCalled();
+      expect(getMockLogger().structuredLogger.info).toHaveBeenCalled();
     });
 
     it('logs the pathname for GET requests', async () => {
@@ -61,7 +63,7 @@ describe('NextAuth Route Handler', () => {
 
       await GET(request);
 
-      expect(structuredLogger.info).toHaveBeenCalledWith('[auth route] incoming GET', {
+      expect(getMockLogger().structuredLogger.info).toHaveBeenCalledWith('[auth route] incoming GET', {
         path: '/api/auth/signin',
       });
     });
@@ -79,7 +81,7 @@ describe('NextAuth Route Handler', () => {
 
       expect(mockAuthGET).toHaveBeenCalledWith(request);
       expect(response).toBe(mockResponse);
-      expect(structuredLogger.warn).toHaveBeenCalledWith(
+      expect(getMockLogger().structuredLogger.warn).toHaveBeenCalledWith(
         '[auth route] failed to parse GET request URL',
         { component: 'auth', error: expect.any(String) }
       );
@@ -136,7 +138,7 @@ describe('NextAuth Route Handler', () => {
 
       await POST(request);
 
-      expect(structuredLogger.info).toHaveBeenCalledWith('[auth route] incoming POST', {
+      expect(getMockLogger().structuredLogger.info).toHaveBeenCalledWith('[auth route] incoming POST', {
         path: '/api/auth/signin',
       });
     });
@@ -196,7 +198,7 @@ describe('NextAuth Route Handler', () => {
       await POST(request);
 
       expect(mockAuthPOST).toHaveBeenCalled();
-      expect(structuredLogger.info).toHaveBeenCalled();
+      expect(getMockLogger().structuredLogger.info).toHaveBeenCalled();
     });
   });
 
@@ -204,7 +206,7 @@ describe('NextAuth Route Handler', () => {
     it('logs module load on import', () => {
       // The module load message is logged when the module is imported
       // This happens before the tests run
-      expect(structuredLogger.info).toHaveBeenCalledWith('[auth route] module loaded');
+      expect(getMockLogger().structuredLogger.info).toHaveBeenCalledWith('[auth route] module loaded');
     });
 
     it('logs incoming requests', async () => {
@@ -215,7 +217,7 @@ describe('NextAuth Route Handler', () => {
       await GET(request);
 
       // Check that console.log was called with the incoming GET message
-      const calls = (structuredLogger.info as jest.Mock).mock.calls;
+      const calls = (getMockLogger().structuredLogger.info as jest.Mock).mock.calls;
       const hasIncomingGetLog = calls.some(call => call[0] === '[auth route] incoming GET');
       expect(hasIncomingGetLog).toBe(true);
     });

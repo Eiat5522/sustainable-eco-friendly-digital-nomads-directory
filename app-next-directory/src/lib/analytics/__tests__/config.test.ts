@@ -9,6 +9,8 @@ const googleAnalyticsPlugin = jest.fn(() => ({ name: 'ga' }));
 const posthogInit = jest.fn();
 const posthogDebug = jest.fn();
 
+jest.mock('@/lib/logger');
+
 jest.mock(
   'analytics',
   () => ({
