@@ -1,9 +1,12 @@
+import { structuredLogger } from '@/lib/logger';
 import {
   measureFunctionTime,
   recordMetric,
   reportWebVitals,
   WebVitalsReporter,
 } from '../web-vitals-reporter';
+
+jest.mock('@/lib/logger');
 
 describe('WebVitalsReporter', () => {
   const originalNavigator = global.navigator;
@@ -47,7 +50,6 @@ describe('WebVitalsReporter', () => {
 
   it('logs metrics in development mode before sending them', () => {
     process.env = { ...originalEnv, NODE_ENV: 'development' };
-    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
 
     const sendBeacon = jest.fn(() => true);
     Object.defineProperty(global, 'navigator', {
@@ -57,10 +59,9 @@ describe('WebVitalsReporter', () => {
 
     WebVitalsReporter({ id: 'dev', name: 'FCP', value: 1500, delta: 10 });
 
-    expect(logSpy).toHaveBeenCalledWith('Web Vitals:', {
-      name: 'FCP',
-      value: 1500,
-      delta: 10,
+    expect(structuredLogger.debug).toHaveBeenCalledWith('Web Vitals metric received', {
+      component: 'performance',
+      metric: { name: 'FCP', value: 1500, delta: 10 },
     });
   });
 
@@ -221,13 +222,14 @@ describe('measureFunctionTime', () => {
       value: { now },
     });
 
-    const debugSpy = jest.spyOn(console, 'debug').mockImplementation(() => {});
-
     const result = measureFunctionTime(() => 'done', 'test-function');
 
     expect(result).toBe('done');
     expect(now.mock.calls.length).toBeGreaterThanOrEqual(2);
-    expect(debugSpy).toHaveBeenCalledWith('[test-function] Execution time: 25.00ms');
+    expect(structuredLogger.debug).toHaveBeenCalledWith('[test-function] Execution time', {
+      component: 'performance',
+      durationMs: 25,
+    });
   });
 
   it('falls back to Date.now when performance API is unavailable', () => {
@@ -252,12 +254,17 @@ describe('measureFunctionTime', () => {
       value: { now },
     });
 
+    const originalToFixed = Number.prototype.toFixed;
     Number.prototype.toFixed = undefined as unknown as (fractionDigits?: number) => string;
-    const debugSpy = jest.spyOn(console, 'debug').mockImplementation(() => {});
 
     measureFunctionTime(() => undefined, 'no-toFixed');
 
-    expect(debugSpy).toHaveBeenCalledWith('[no-toFixed] Execution time: 5ms');
+    expect(structuredLogger.debug).toHaveBeenCalledWith('[no-toFixed] Execution time', {
+      component: 'performance',
+      durationMs: undefined,
+    });
+
+    Number.prototype.toFixed = originalToFixed;
   });
 });
 
@@ -285,12 +292,10 @@ describe('recordMetric', () => {
       value: fetchMock,
     });
 
-    const debugSpy = jest.spyOn(console, 'debug').mockImplementation(() => {});
-
     recordMetric('metric', 123);
 
     expect(fetchMock).not.toHaveBeenCalled();
-    expect(debugSpy).not.toHaveBeenCalled();
+    expect(structuredLogger.debug).not.toHaveBeenCalled();
   });
 
   it('skips sending metrics when sampling gate fails', () => {
@@ -303,11 +308,9 @@ describe('recordMetric', () => {
       value: fetchMock,
     });
 
-    const debugSpy = jest.spyOn(console, 'debug').mockImplementation(() => {});
-
     recordMetric('custom', 1);
 
-    expect(debugSpy).not.toHaveBeenCalled();
+    expect(structuredLogger.debug).not.toHaveBeenCalled();
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
@@ -326,12 +329,14 @@ describe('recordMetric', () => {
       value: fetchMock,
     });
 
-    const debugSpy = jest.spyOn(console, 'debug').mockImplementation(() => {});
-
     const details = { route: '/listings' };
     recordMetric('custom-metric', 42, details);
 
-    expect(debugSpy).toHaveBeenCalledWith('[Custom Metric] custom-metric: 42', details);
+    expect(structuredLogger.debug).toHaveBeenCalledWith('[Custom Metric] custom-metric', {
+      component: 'performance',
+      value: 42,
+      details,
+    });
     expect(fetchMock).toHaveBeenCalledWith('/api/performance/custom', {
       body: expect.stringContaining('"name":"custom-metric"'),
       keepalive: true,
@@ -349,13 +354,11 @@ describe('recordMetric', () => {
       value: fetchMock,
     });
 
-    const debugSpy = jest.spyOn(console, 'debug').mockImplementation(() => {});
-
     const circular: any = {};
     circular.self = circular;
 
     expect(() => recordMetric('circular', 99, circular)).not.toThrow();
-    expect(debugSpy).toHaveBeenCalled();
+    expect(structuredLogger.debug).toHaveBeenCalled();
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
@@ -396,11 +399,9 @@ describe('recordMetric', () => {
       value: fetchMock,
     });
 
-    const debugSpy = jest.spyOn(console, 'debug').mockImplementation(() => {});
-
     recordMetric('prod-metric', 7);
 
-    expect(debugSpy).not.toHaveBeenCalled();
+    expect(structuredLogger.debug).not.toHaveBeenCalled();
     expect(fetchMock).toHaveBeenCalled();
   });
 
