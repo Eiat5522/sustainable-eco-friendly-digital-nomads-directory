@@ -2,8 +2,11 @@
  * Tests for data.ts - Sanity data fetching functions
  */
 
+import { structuredLogger } from '@/lib/logger';
 import { client } from './client';
 import { getListingData } from './data';
+
+jest.mock('@/lib/logger');
 
 // Mock the client module
 jest.mock('./client', () => ({
@@ -71,19 +74,19 @@ describe('data.ts', () => {
     });
 
     it('should handle fetch errors gracefully', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       mockClient.fetch.mockRejectedValue(new Error('Network error'));
 
       const result = await getListingData('error-slug');
 
       expect(result).toBeNull();
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Error fetching listing data for slug:',
-        'error-slug',
-        expect.any(Error)
+      expect(structuredLogger.error).toHaveBeenCalledWith(
+        'Error fetching listing data for slug',
+        expect.any(Error),
+        {
+          component: 'sanity',
+          slug: 'error-slug',
+        }
       );
-
-      consoleErrorSpy.mockRestore();
     });
 
     it('should accept usePreview parameter', async () => {
