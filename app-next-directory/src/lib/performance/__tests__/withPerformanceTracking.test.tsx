@@ -1,6 +1,8 @@
 import { afterEach, beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { cleanup, render, waitFor } from '@testing-library/react';
 
+jest.mock('@/lib/logger');
+
 let withPerformanceTracking: typeof import('../withPerformanceTracking').withPerformanceTracking;
 
 beforeAll(async () => {
@@ -41,6 +43,7 @@ describe('withPerformanceTracking', () => {
 
   beforeEach(() => {
     process.env = { ...originalEnv };
+    jest.clearAllMocks();
   });
 
   afterEach(() => {
@@ -109,22 +112,24 @@ describe('withPerformanceTracking', () => {
     const fetchMock = jest.fn(() => Promise.resolve(undefined));
     global.fetch = fetchMock as unknown as typeof fetch;
     const nowMock = setPerformanceSequence([100, 160.5]);
-    const debugSpy = jest.spyOn(console, 'debug').mockImplementation(() => undefined);
     const Wrapped = withPerformanceTracking('Debuggable', BaseComponent);
 
     render(<Wrapped label="dev" />);
 
+    const mockLogger = jest.requireMock<typeof import('@/lib/logger')>('@/lib/logger');
     await waitFor(() => {
-      expect(debugSpy).toHaveBeenCalledWith('[Component Render] Debuggable: 60.50ms');
+      expect(mockLogger.structuredLogger.debug).toHaveBeenCalledWith('[Component Render] Debuggable', {
+        component: 'performance',
+        durationMs: 60.5,
+      });
     });
-    const [, secondCall] = debugSpy.mock.calls;
-    expect(secondCall?.[0]).toContain('component-render-Debuggable');
-    expect(secondCall?.[1]).toEqual(expect.objectContaining({ page: getWindowPathname() }));
+    expect(mockLogger.structuredLogger.debug).toHaveBeenCalledWith(
+      '[Custom Metric] component-render-Debuggable',
+      expect.objectContaining({ component: 'performance' })
+    );
     const body = fetchMock.mock.calls[0][1]?.body as string;
     expect(JSON.parse(body)).toMatchObject({ value: 61 });
     expect(nowMock.mock.calls.length).toBeGreaterThanOrEqual(2);
-
-    debugSpy.mockRestore();
   });
 
   it('falls back to Date.now when the Performance API is unavailable', async () => {
@@ -187,23 +192,21 @@ describe('withPerformanceTracking', () => {
     const fetchMock = jest.fn(() => Promise.resolve(undefined));
     global.fetch = fetchMock as unknown as typeof fetch;
     const nowMock = setPerformanceSequence([5, 8.2]);
-    const debugSpy = jest.spyOn(console, 'debug').mockImplementation(() => undefined);
     const Wrapped = withPerformanceTracking('Silent', BaseComponent);
 
     render(<Wrapped label="prod" />);
 
+    const mockLogger = jest.requireMock<typeof import('@/lib/logger')>('@/lib/logger');
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledTimes(1);
     });
 
-    expect(debugSpy).not.toHaveBeenCalled();
+    expect(mockLogger.structuredLogger.debug).not.toHaveBeenCalled();
     const body = fetchMock.mock.calls[0][1]?.body as string;
     expect(JSON.parse(body)).toMatchObject({
       name: 'component-render-Silent',
       value: 3,
     });
     expect(nowMock.mock.calls.length).toBeGreaterThanOrEqual(2);
-
-    debugSpy.mockRestore();
   });
 });

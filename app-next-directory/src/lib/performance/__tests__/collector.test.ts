@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
+jest.mock('@/lib/logger');
+
 import {
   dependencies,
   initPerformanceMonitoring,

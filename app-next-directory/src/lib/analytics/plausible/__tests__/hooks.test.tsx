@@ -1,6 +1,9 @@
 import { renderHook } from '@testing-library/react';
+import { structuredLogger } from '@/lib/logger';
 import { ANALYTICS_EVENTS } from '../config';
 import { usePlausibleAnalytics } from '../hooks';
+
+jest.mock('@/lib/logger');
 
 describe('usePlausibleAnalytics', () => {
   const originalEnv = process.env.NODE_ENV;
@@ -12,7 +15,6 @@ describe('usePlausibleAnalytics', () => {
 
   it('logs events in development mode', () => {
     process.env.NODE_ENV = 'development';
-    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
 
     const { result } = renderHook(() => usePlausibleAnalytics());
 
@@ -22,25 +24,20 @@ describe('usePlausibleAnalytics', () => {
     result.current.trackReviewSubmission('listing-1');
     result.current.trackFilterApplication({ price: 'budget' });
 
-    expect(logSpy).toHaveBeenCalledWith('Analytics Event:', 'listing', {
-      listingId: '1',
-      action: 'view',
+    expect(structuredLogger.debug).toHaveBeenCalledWith('Analytics Event (noop)', {
+      component: 'analytics',
+      args: ['listing', '[object Object]'],
     });
-    expect(logSpy).toHaveBeenCalledTimes(5);
-
-    logSpy.mockRestore();
+    expect(structuredLogger.debug).toHaveBeenCalledTimes(5);
   });
 
   it('is silent outside of development', () => {
     process.env.NODE_ENV = 'production';
-    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
 
     const { result } = renderHook(() => usePlausibleAnalytics());
     result.current.trackSearchEvent({ query: 'wifi', resultsCount: 1 });
 
-    expect(logSpy).not.toHaveBeenCalled();
-
-    logSpy.mockRestore();
+    expect(structuredLogger.debug).not.toHaveBeenCalled();
   });
 
   it('exposes event constants for consumers', () => {

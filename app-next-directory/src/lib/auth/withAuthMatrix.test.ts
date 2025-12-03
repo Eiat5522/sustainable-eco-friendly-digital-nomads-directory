@@ -1,16 +1,8 @@
 import { jest } from '@jest/globals';
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
-import { structuredLogger } from '@/lib/logger';
 
-jest.mock('@/lib/logger', () => ({
-  structuredLogger: {
-    warn: jest.fn(),
-    error: jest.fn(),
-    info: jest.fn(),
-    debug: jest.fn(),
-  },
-}));
+jest.mock('@/lib/logger');
 
 // Mock dependencies
 const mockGetToken = getToken as jest.MockedFunction<typeof getToken>;
@@ -513,7 +505,7 @@ describe('withAuth (legacy)', () => {
   });
 
   it('logs deprecation warning', async () => {
-    const loggerWarn = structuredLogger.warn as jest.Mock;
+    const loggerWarn = jest.requireMock<typeof import("@/lib/logger")>("@/lib/logger").structuredLogger.warn as jest.Mock;
     mockGetToken.mockResolvedValue(null);
 
     const request = new NextRequest('http://localhost:3000/test');

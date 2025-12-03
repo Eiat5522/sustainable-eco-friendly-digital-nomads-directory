@@ -3,6 +3,9 @@
 import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { structuredLogger } from '@/lib/logger';
+
+jest.mock('@/lib/logger');
 
 const mockListings = [
   {
@@ -171,20 +174,20 @@ describe('TestSearchPage', () => {
   });
 
   it('should handle fetch error gracefully', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     global.fetch = jest.fn().mockRejectedValue(new Error('Fetch failed'));
 
     const TestSearchPage = require('../page').default;
     render(<TestSearchPage />);
 
     await waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
+      expect(structuredLogger.error).toHaveBeenCalledWith(
         'Failed to load test listings',
-        expect.any(Error)
+        expect.any(Error),
+        {
+          component: 'test-search',
+        }
       );
     });
-
-    consoleErrorSpy.mockRestore();
   });
 
   it('should handle non-ok response', async () => {
