@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { structuredLogger } from '@/lib/logger';
 
 export default function MswInit() {
   useEffect(() => {
@@ -13,9 +14,14 @@ export default function MswInit() {
       const { worker } = await import('../mocks/browser');
       try {
         await worker.start({ onUnhandledRequest: 'bypass' });
-        console.log('[MSW] Browser worker started for Playwright tests');
+        structuredLogger.info('[MSW] Browser worker started for Playwright tests', {
+          component: 'msw',
+        });
       } catch (e) {
-        console.warn('[MSW] Failed to start worker:', e);
+        structuredLogger.warn('[MSW] Failed to start worker', {
+          component: 'msw',
+          err: e instanceof Error ? e.message : undefined,
+        });
       }
     })();
   }, []);

@@ -4,6 +4,7 @@ import 'leaflet/dist/leaflet.css';
 import { MapPin } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { structuredLogger } from '@/lib/logger';
 
 interface InteractiveMapProps {
   readonly location?: Readonly<{ lat: number; lng: number }>;
@@ -139,17 +140,17 @@ export function InteractiveMap({ location, address, name, className }: Interacti
 
         map.whenReady(() => {
           if (!isMounted) return;
-          requestAnimationFrame(() => {
-            map.invalidateSize();
-          });
-        });
-      } catch (error) {
-        console.error('Failed to load map:', error);
-        if (isMounted) {
-          setTileLoadFailed(true);
-        }
-      }
-    };
+      requestAnimationFrame(() => {
+        map.invalidateSize();
+      });
+    });
+  } catch (error) {
+    structuredLogger.error('Failed to load map', error, { component: 'interactive-map' });
+    if (isMounted) {
+      setTileLoadFailed(true);
+    }
+  }
+};
 
     setTileLoadFailed(false);
     initMap();

@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 
 import type { UpdateUserProfileInput } from '@/lib/auth/serverAuth';
+import { structuredLogger } from '@/lib/logger';
 
 const MAX_NAME_LENGTH = 120;
 
@@ -202,7 +203,7 @@ async function handleProfileMutation(request: NextRequest): Promise<NextResponse
       error: null,
     });
   } catch (error) {
-    console.error('Profile update error:', error);
+    structuredLogger.error('Profile update error', error, { component: 'auth' });
     return json(
       {
         success: false,

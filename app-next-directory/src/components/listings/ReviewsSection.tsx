@@ -8,6 +8,7 @@ import { NeoButton } from '@/components/ui/neo-button';
 import { NeoCard, NeoCardContent, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
 import { StarRating } from '@/components/ui/StarRating';
 import { Separator } from '@/components/ui/separator';
+import { structuredLogger } from '@/lib/logger';
 import { Textarea } from '@/components/ui/textarea';
 import { jsonPostOptions } from '@/lib/http/request';
 import { getCurrentHref } from '@/utils/navigation';
@@ -242,7 +243,7 @@ export function ReviewsSection({
           return;
       }
     } catch (err) {
-      console.error('Failed to submit review:', err);
+      structuredLogger.error('Failed to submit review', err, { component: 'reviews' });
       setError('Failed to submit review. Please try again.');
     } finally {
       setIsSubmitting(false);

@@ -303,7 +303,7 @@ declare global {
 
 // Apply console filters globally by default to suppress noisy test errors
 // Set JEST_CONSOLE_NO_FILTER=1 to disable filtering for debugging
-// 
+//
 // NOTE: We do NOT wrap console methods globally because it interferes with jest.spyOn
 // Instead, tests should use the withDefaultConsoleFilters helper if they need filtering
 if (process.env.JEST_CONSOLE_NO_FILTER !== '1') {
@@ -312,9 +312,11 @@ if (process.env.JEST_CONSOLE_NO_FILTER !== '1') {
   const originalConsoleLog = console.log;
 
   // Store originals for test access - tests can spy on these
-  (console as Console & { originalConsoleError?: typeof console.error }).originalConsoleError = originalConsoleError;
-  (console as Console & { originalConsoleWarn?: typeof console.warn }).originalConsoleWarn = originalConsoleWarn;
-  
+  (console as Console & { originalConsoleError?: typeof console.error }).originalConsoleError =
+    originalConsoleError;
+  (console as Console & { originalConsoleWarn?: typeof console.warn }).originalConsoleWarn =
+    originalConsoleWarn;
+
   // Don't wrap console globally - let tests spy on the real methods
   // Tests that need filtering can use withDefaultConsoleFilters()
 }

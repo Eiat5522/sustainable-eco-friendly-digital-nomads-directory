@@ -176,7 +176,7 @@ const createPrettyStream = () => {
   if (!isDevelopment || !isServer) {
     return undefined;
   }
-  
+
   try {
     // Dynamically import pino-pretty only when needed (development + server-side)
     // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -193,10 +193,7 @@ const createPrettyStream = () => {
   }
 };
 
-const logger: pino.Logger = pino(
-  loggerConfig,
-  createPrettyStream()
-);
+const logger: pino.Logger = pino(loggerConfig, createPrettyStream());
 
 // Enhanced logging interface with context support
 // Helper function to sanitize error objects

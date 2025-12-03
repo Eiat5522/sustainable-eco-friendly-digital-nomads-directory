@@ -7,6 +7,7 @@
 
 import { processMetricForAlert } from '@/lib/performance/alert-service';
 import { PERFORMANCE_BUDGETS } from '@/lib/performance/performance-budgets';
+import { structuredLogger } from '@/lib/logger';
 
 interface MetricData {
   name: string;
@@ -93,7 +94,9 @@ export async function POST(request: Request) {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    console.error('[Performance API] Error processing metrics:', error);
+    structuredLogger.error('[Performance API] Error processing metrics', error, {
+      component: 'performance',
+    });
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },

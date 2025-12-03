@@ -1,6 +1,7 @@
 // Consolidated MongoDB client for the app
 // Combines the richer TS implementation and test mock shapes from previous JS/TS duplicates.
 import { MongoClient, type MongoClientOptions } from 'mongodb';
+import { structuredLogger } from '@/lib/logger';
 
 type MockCollection = {
   createIndexes?: (...args: unknown[]) => Promise<unknown>;
@@ -76,7 +77,10 @@ if (shouldMockMongo) {
         .then(clientInstance => clientInstance)
         .catch(error => {
           const message = error instanceof Error ? error.message : String(error);
-          console.error('MongoDB connection failed:', message);
+          structuredLogger.error('MongoDB connection failed', error, {
+            component: 'mongodb',
+            message,
+          });
           globalWithMongo._mongoClientPromise = undefined;
           throw error;
         });
@@ -89,7 +93,10 @@ if (shouldMockMongo) {
       .then(clientInstance => clientInstance)
       .catch(error => {
         const message = error instanceof Error ? error.message : String(error);
-        console.error('MongoDB connection failed:', message);
+        structuredLogger.error('MongoDB connection failed', error, {
+          component: 'mongodb',
+          message,
+        });
         throw error;
       });
   }

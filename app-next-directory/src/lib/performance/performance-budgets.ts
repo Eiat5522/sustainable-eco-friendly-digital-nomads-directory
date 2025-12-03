@@ -1,3 +1,5 @@
+import { structuredLogger } from '@/lib/logger';
+
 export type Budget = { target: number; acceptable: number; critical: number };
 
 type BudgetCategory = Record<string, Budget>;
@@ -80,7 +82,9 @@ export function evaluatePerformanceMetric(
 ): 'good' | 'needs-improvement' | 'poor' | 'unknown' {
   const budget = getBudget(category, metric);
   if (!budget) {
-    console.warn(`Unknown performance metric: ${category}.${metric}`);
+    structuredLogger.warn(`Unknown performance metric: ${category}.${metric}`, {
+      component: 'performance',
+    });
     return 'unknown';
   }
 
@@ -98,7 +102,9 @@ export function evaluatePerformanceMetric(
 export function getMetricThresholds(category: string, metric: string) {
   const budget = getBudget(category, metric);
   if (!budget) {
-    console.warn(`Unknown performance metric: ${category}.${metric}`);
+    structuredLogger.warn(`Unknown performance metric: ${category}.${metric}`, {
+      component: 'performance',
+    });
     return null;
   }
   return budget;

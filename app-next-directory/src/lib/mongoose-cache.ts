@@ -1,3 +1,4 @@
+import { structuredLogger } from '@/lib/logger';
 import { getRedisClient } from './redis';
 
 const CACHE_TTL_SECONDS = 60 * 60; // 1 hour
@@ -26,7 +27,9 @@ export async function withMongooseCache<T>(
       return cachedData as T;
     }
   } catch (error) {
-    console.warn('[mongoose-cache] Failed to read from Redis cache', error);
+    structuredLogger.warn('[mongoose-cache] Failed to read from Redis cache', error, {
+      component: 'mongoose-cache',
+    });
   }
 
   const data = await queryFn();
@@ -34,7 +37,9 @@ export async function withMongooseCache<T>(
   try {
     await client.set(key, JSON.stringify(data), { ex: ttl });
   } catch (error) {
-    console.warn('[mongoose-cache] Failed to write to Redis cache', error);
+    structuredLogger.warn('[mongoose-cache] Failed to write to Redis cache', error, {
+      component: 'mongoose-cache',
+    });
   }
 
   return data;

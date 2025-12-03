@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { structuredLogger } from '@/lib/logger';
 import { activateExperiment } from './experiments';
 import type { ExperimentVariant } from './types';
 
@@ -12,7 +13,10 @@ export function useExperiment(experimentId: string) {
         const experimentVariant = activateExperiment(experimentId);
         setVariant(experimentVariant);
       } catch (error) {
-        console.error('Failed to load experiment:', error);
+        structuredLogger.error('Failed to load experiment', error, {
+          component: 'analytics',
+          experimentId,
+        });
       } finally {
         setIsLoading(false);
       }

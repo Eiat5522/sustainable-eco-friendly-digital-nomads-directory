@@ -1,3 +1,5 @@
+import { structuredLogger } from '@/lib/logger';
+
 export type WebVitalsMetric = {
   id: string;
   name: string;
@@ -15,7 +17,10 @@ export const WebVitalsReporter = (metric: WebVitalsMetric) => {
   if (process.env.NODE_ENV === 'development') {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id: _id, entries: _entries, ...logMetric } = metricPayload;
-    console.log('Web Vitals:', logMetric);
+    structuredLogger.debug('Web Vitals metric received', {
+      component: 'performance',
+      metric: logMetric,
+    });
   }
 
   const url = '/api/performance/web-vitals';
@@ -47,11 +52,10 @@ export function measureFunctionTime<T>(fn: () => T, _name = 'Function'): T {
   const end = typeof performance !== 'undefined' ? performance.now() : Date.now();
   const _executionTime = end - start;
   if (process.env.NODE_ENV === 'development') {
-    const formatted =
-      typeof _executionTime.toFixed === 'function'
-        ? _executionTime.toFixed(2)
-        : `${_executionTime}`;
-    console.debug(`[${_name}] Execution time: ${formatted}ms`);
+    structuredLogger.debug(`[${_name}] Execution time`, {
+      component: 'performance',
+      durationMs: typeof _executionTime === 'number' ? Number(_executionTime.toFixed(2)) : undefined,
+    });
   }
   return result;
 }
@@ -65,7 +69,11 @@ export const recordMetric = (
   // placeholder for sampling logic (disabled by default)
   if (Math.random() > 1) return;
   if (process.env.NODE_ENV === 'development') {
-    console.debug(`[Custom Metric] ${name}: ${value}`, details);
+    structuredLogger.debug(`[Custom Metric] ${name}`, {
+      component: 'performance',
+      value,
+      details,
+    });
   }
   try {
     const body = JSON.stringify({ name, value, details, timestamp: Date.now() });
@@ -73,7 +81,10 @@ export const recordMetric = (
       fetch('/api/performance/custom', { method: 'POST', body, keepalive: true }).catch(() => {});
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {
-      console.debug('[Custom Metric] Failed to record metric:', error);
+      structuredLogger.debug('[Custom Metric] Failed to record metric', {
+        component: 'performance',
+        error: error instanceof Error ? error.message : String(error),
+      });
     }
   }
 };

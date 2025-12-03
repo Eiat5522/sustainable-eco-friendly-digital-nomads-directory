@@ -1,4 +1,5 @@
 import { Redis } from '@upstash/redis';
+import { structuredLogger } from '@/lib/logger';
 
 export type RedisLike = Pick<Redis, 'get' | 'set' | 'del' | 'incr' | 'expire' | 'ping'> &
   Record<string, unknown>;
@@ -19,7 +20,7 @@ const notifyListeners = () => {
     try {
       listener(currentClient);
     } catch (error) {
-      console.warn('[redis] listener threw error', error);
+      structuredLogger.warn('[redis] listener threw error', error, { component: 'redis' });
     }
   }
 };

@@ -8,6 +8,8 @@
  * @date May 18, 2025
  */
 
+import { structuredLogger } from '@/lib/logger';
+
 export const PERFORMANCE_BUDGETS = {
   // Core Web Vitals budgets
   webVitals: {
@@ -140,7 +142,13 @@ export async function sendAlert(alert: PerformanceAlert) {
   // Console logging (development & production)
   if (ALERT_CHANNELS.console.enabled) {
     const severity = alert.severity.toUpperCase();
-    console.log(`[Performance ${severity}] ${alert.metric}: ${alert.value} (threshold: ${alert.threshold})`);
+    structuredLogger.info('[Performance Alert]', {
+      component: 'performance',
+      severity,
+      metric: alert.metric,
+      value: alert.value,
+      threshold: alert.threshold,
+    });
   }
 
   // Slack alerts (if configured)
@@ -164,7 +172,9 @@ export async function sendAlert(alert: PerformanceAlert) {
         }),
       });
     } catch (error) {
-      console.error('Failed to send Slack alert:', error);
+      structuredLogger.error('Failed to send Slack alert', error, {
+        component: 'performance',
+      });
     }
   }
 

@@ -3,6 +3,7 @@ import type { Redis } from '@upstash/redis';
 import mongoose from 'mongoose';
 
 import dbConnect from '@/lib/dbConnect';
+import { structuredLogger } from '@/lib/logger';
 import { getRedisClient, onRedisClientChange } from '@/lib/redis';
 import LoginAttempt, { type LoginAttemptReason } from '@/models/LoginAttempt';
 
@@ -193,7 +194,9 @@ export const buildRateLimiter = (redis: Redis | undefined) => {
         }
       }
     } catch (error) {
-      console.warn('[auth] Failed to initialize login rate limiter', error);
+      structuredLogger.warn('[auth] Failed to initialize login rate limiter', error, {
+        component: 'auth-rate-limit',
+      });
       loginRateLimiter = undefined;
       if (isTestEnvironment) {
         lastRateLimiterConfigForTests = undefined;
@@ -206,7 +209,11 @@ let initialRedis: Redis | undefined;
 try {
   initialRedis = getRedisClient();
 } catch (error) {
-  console.warn('[auth] Failed to obtain Redis client during initialization', error);
+  structuredLogger.warn(
+    '[auth] Failed to obtain Redis client during initialization',
+    error,
+    { component: 'auth-rate-limit' }
+  );
   initialRedis = undefined;
 }
 
@@ -219,7 +226,9 @@ if (typeof onRedisClientChange === 'function') {
       const normalized = normalizeRedisClient(newClient);
       buildRateLimiter(normalized);
     } catch (error) {
-      console.warn('[auth] Failed to rebuild login rate limiter', error);
+      structuredLogger.warn('[auth] Failed to rebuild login rate limiter', error, {
+        component: 'auth-rate-limit',
+      });
     }
   });
 }
@@ -230,7 +239,11 @@ export async function enforceLoginRateLimit(identifier: string): Promise<LoginRa
     try {
       await loginRateLimiterPromise;
     } catch (error) {
-      console.warn('[auth] Login ratelimiter initialisation error; allowing attempt', error);
+      structuredLogger.warn(
+        '[auth] Login ratelimiter initialisation error; allowing attempt',
+        error,
+        { component: 'auth-rate-limit' }
+      );
     }
   }
 
@@ -253,7 +266,9 @@ export async function enforceLoginRateLimit(identifier: string): Promise<LoginRa
       reset: result.reset,
     };
   } catch (error) {
-    console.warn('[auth] Login ratelimiter error; allowing attempt', error);
+    structuredLogger.warn('[auth] Login ratelimiter error; allowing attempt', error, {
+      component: 'auth-rate-limit',
+    });
     return { success: true } as const;
   }
 }
@@ -273,7 +288,10 @@ export async function recordLoginAttempt(params: {
   // and block disposable domains before writing audit artifacts.
   const rawEmail = params?.email;
   if (typeof rawEmail !== 'string') {
-    console.warn('[auth] Skipping login attempt record due to invalid email', { email: rawEmail });
+    structuredLogger.warn('[auth] Skipping login attempt record due to invalid email', {
+      component: 'auth-rate-limit',
+      email: rawEmail,
+    });
     return;
   }
 
@@ -281,7 +299,10 @@ export async function recordLoginAttempt(params: {
   const trimmedEmail = rawEmail.trim();
 
   if (!validator.isEmail(trimmedEmail)) {
-    console.warn('[auth] Skipping login attempt record due to invalid email', { email: rawEmail });
+    structuredLogger.warn('[auth] Skipping login attempt record due to invalid email', {
+      component: 'auth-rate-limit',
+      email: rawEmail,
+    });
     return;
   }
 
@@ -290,7 +311,10 @@ export async function recordLoginAttempt(params: {
   try {
     await dbConnect();
   } catch (error) {
-    console.warn('[auth] Failed to record login attempt', error);
+    structuredLogger.warn('[auth] Failed to record login attempt', error, {
+      component: 'auth-rate-limit',
+      email: normalizedEmail,
+    });
     return;
   }
 
@@ -307,16 +331,25 @@ export async function recordLoginAttempt(params: {
     await collection.insertOne({ ...document });
     return;
   } catch (collectionError) {
-    console.warn('[auth] Failed to record login attempt', collectionError);
+    structuredLogger.warn('[auth] Failed to record login attempt', collectionError, {
+      component: 'auth-rate-limit',
+      email: normalizedEmail,
+    });
     try {
       await LoginAttempt.create(document);
       return;
     } catch (modelError) {
       // Both failed - log model error as it may have more details
       if (modelError) {
-        console.warn('[auth] Failed to record login attempt', modelError);
+        structuredLogger.warn('[auth] Failed to record login attempt', modelError, {
+          component: 'auth-rate-limit',
+          email: normalizedEmail,
+        });
       } else {
-        console.warn('[auth] Failed to record login attempt', collectionError);
+        structuredLogger.warn('[auth] Failed to record login attempt', collectionError, {
+          component: 'auth-rate-limit',
+          email: normalizedEmail,
+        });
       }
     }
   }

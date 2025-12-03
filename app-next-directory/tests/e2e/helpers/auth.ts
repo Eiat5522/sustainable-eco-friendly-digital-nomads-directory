@@ -53,7 +53,9 @@ export async function loginAs(page: Page, email: string, password: string) {
   const filledEmail = await fillFirst(emailSelectors, email);
   const filledPassword = await fillFirst(passwordSelectors, password);
 
-  const roleSubmit = page.getByRole('button', { name: /log in|sign in|sign in with email|continue/i });
+  const roleSubmit = page.getByRole('button', {
+    name: /log in|sign in|sign in with email|continue/i,
+  });
   const submitFallback = page.locator('button[type="submit"], button[data-test="submit"]');
   let submitLocator = submitFallback;
   try {

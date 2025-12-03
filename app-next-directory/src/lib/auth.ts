@@ -11,6 +11,7 @@ import { isAdminEmail } from '@/lib/auth/config';
 import { enforceLoginRateLimit, recordLoginAttempt } from '@/lib/auth/rateLimit';
 import { authenticateUser, getUserById } from '@/lib/auth/serverAuth';
 import dbConnect from '@/lib/dbConnect';
+import { structuredLogger } from '@/lib/logger';
 import User, { type IUser } from '@/models/User';
 import type { UserRole } from '@/types/auth';
 
@@ -139,7 +140,9 @@ const callbacks = {
         }
       }
     } catch (error) {
-      console.warn('[auth] signIn verification sync failed', error);
+      structuredLogger.warn('[auth] signIn verification sync failed', error, {
+        component: 'auth',
+      });
     }
     return true;
   },
@@ -168,7 +171,10 @@ const callbacks = {
       userId: t.id,
       currentRole: t.role ?? null,
     }).catch(error => {
-      console.error('[auth] failed to queue admin allowlist promotion flow', error);
+      structuredLogger.error('[auth] failed to queue admin allowlist promotion flow', error, {
+        component: 'auth',
+        email,
+      });
     });
     return t as JWT | null;
   },

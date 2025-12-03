@@ -5,13 +5,17 @@
  * @date May 18, 2025
  */
 
+import { structuredLogger } from '@/lib/logger';
 import type { ListingEvent, MapEvent, SearchEvent } from './config';
 
 export function usePlausibleAnalytics() {
   const noop = (..._args: unknown[]) => {
     // No-op function for development
     if (process.env.NODE_ENV === 'development') {
-      console.log('Analytics Event:', ..._args);
+      structuredLogger.debug('Analytics Event (noop)', {
+        component: 'analytics',
+        args: _args,
+      });
     }
   };
 

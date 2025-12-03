@@ -8,6 +8,7 @@
  * @date May 18, 2025
  */
 
+import { structuredLogger } from '@/lib/logger';
 import { type PerformanceAlert, shouldAlert } from './budgets';
 
 type PlausibleClient = (event: string, options?: { props?: Record<string, unknown> }) => void;
@@ -76,7 +77,9 @@ export function reportPerformanceEvent(event: PerformanceEvent) {
 
   if (!plausible) {
     if (!win) return;
-    console.warn('[Performance] Plausible Analytics not initialized');
+    structuredLogger.warn('[Performance] Plausible Analytics not initialized', {
+      component: 'performance',
+    });
     return;
   }
 

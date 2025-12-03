@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { structuredLogger } from '@/lib/logger';
 
 type RawEcoTag =
   | string
@@ -130,7 +131,9 @@ export default function TestSearchPage() {
           setListings(mapListings(data.listings));
         }
       } catch (error) {
-        console.error('Failed to load test listings', error);
+        structuredLogger.error('Failed to load test listings', error, {
+          component: 'test-search',
+        });
       }
     };
 

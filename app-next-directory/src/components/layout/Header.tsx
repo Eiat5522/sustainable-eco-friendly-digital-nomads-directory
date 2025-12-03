@@ -7,6 +7,7 @@ import Link from 'next/link';
 import type { Session } from 'next-auth';
 import { SessionContext, signOut } from 'next-auth/react';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { structuredLogger } from '@/lib/logger';
 
 type SessionStatus = 'loading' | 'authenticated' | 'unauthenticated';
 
@@ -17,7 +18,10 @@ function useSafeSession(): { session: Session | null; status: SessionStatus } {
   useEffect(() => {
     if (!context && process.env.NODE_ENV !== 'production' && !hasLoggedMissingProviderRef.current) {
       hasLoggedMissingProviderRef.current = true;
-      console.warn('[auth] Header rendered without SessionProvider; defaulting to unauthenticated state');
+      structuredLogger.warn(
+        '[auth] Header rendered without SessionProvider; defaulting to unauthenticated state',
+        { component: 'auth' }
+      );
     }
   }, [context]);
 

@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { jsonPostOptions } from '@/lib/http/request';
+import { structuredLogger } from '@/lib/logger';
 import type { CityDTO, ListingDetailDTO } from '@/types/dto';
 import { getCurrentHref, redirectTo } from '@/utils/navigation';
 import GalleryGrid from './GalleryGrid';
@@ -105,7 +106,11 @@ export function ListingDetailView({
       const res = await fetch(`/api/user/favorites/${listing.slug}`, jsonPostOptions({}));
 
       if (!res.ok) {
-        console.error('Failed to toggle favorite:', res.status, res.statusText);
+        structuredLogger.error('Failed to toggle favorite', undefined, {
+          component: 'listings',
+          status: res.status,
+          statusText: res.statusText,
+        });
         if (res.status === 401) {
           // Unauthorized - redirect to login
           const href = getCurrentHref();
@@ -121,7 +126,7 @@ export function ListingDetailView({
       const data = await res.json();
       setFavorited(Boolean(data?.favorited));
     } catch (err) {
-      console.error('Failed to toggle favorite:', err);
+      structuredLogger.error('Failed to toggle favorite', err, { component: 'listings' });
     }
   };
 

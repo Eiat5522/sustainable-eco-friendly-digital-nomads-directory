@@ -5,6 +5,7 @@ import validator from 'validator';
 import { z } from 'zod';
 import dbConnect from '@/lib/dbConnect';
 import { sendMail } from '@/lib/email';
+import { structuredLogger } from '@/lib/logger';
 import ContactSubmission from '@/models/ContactSubmission';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { rateLimit } from '@/utils/rate-limit';
@@ -198,7 +199,9 @@ export async function POST(request: NextRequest) {
           }).then(result => ({ type: 'admin', result }))
         );
       } else {
-        console.warn('No CONTACT_EMAIL configured; skipping admin notification email');
+        structuredLogger.warn('No CONTACT_EMAIL configured; skipping admin notification email', {
+          component: 'contact',
+        });
       }
 
       resendJobs.push(

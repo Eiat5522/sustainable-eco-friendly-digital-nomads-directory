@@ -7,6 +7,7 @@ import SocialAuthRow from '@/components/auth/SocialAuthRow';
 import { NeoButton } from '@/components/ui/neo-button';
 import { NeoInput } from '@/components/ui/neo-input';
 import { sanitizeCallbackUrl } from '@/lib/auth/callbackUrl';
+import { structuredLogger } from '@/lib/logger';
 
 export default function LoginForm() {
   const router = useRouter();
@@ -99,7 +100,7 @@ export default function LoginForm() {
         router.replace(callbackUrl);
       }
     } catch (err) {
-      console.error('Login error:', err);
+      structuredLogger.error('Login error', err, { component: 'auth' });
       setError('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);

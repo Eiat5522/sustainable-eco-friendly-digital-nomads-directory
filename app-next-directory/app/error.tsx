@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { NeoButton } from '@/components/ui/neo-button';
+import { structuredLogger } from '@/lib/logger';
 
 export default function RootError({
   error,
@@ -12,14 +13,10 @@ export default function RootError({
 }) {
   // Log error for diagnostics in both dev and production
   React.useEffect(() => {
-    if (process.env.NODE_ENV === 'production') {
-      console.error('App segment error caught:', {
-        digest: error.digest,
-        message: error.message,
-      });
-    } else {
-      console.error('App segment error caught:', error);
-    }
+    structuredLogger.error('App segment error caught', error, {
+      component: 'app',
+      digest: error.digest,
+    });
   }, [error]);
 
   return (

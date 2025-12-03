@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { structuredLogger } from '@/lib/logger';
 
 export default function ListingsError({
   error,
@@ -10,7 +11,7 @@ export default function ListingsError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('Dashboard error:', error);
+    structuredLogger.error('Dashboard error', error, { component: 'listings' });
   }, [error]);
 
   return (

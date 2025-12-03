@@ -1,4 +1,5 @@
 import { type MongoClient, MongoServerError } from 'mongodb';
+import { structuredLogger } from '@/lib/logger';
 import { sessionIndexes, sessionSchema } from './schemas/session';
 
 export async function initializeDatabase(client: MongoClient) {
@@ -9,7 +10,7 @@ export async function initializeDatabase(client: MongoClient) {
     await db.createCollection('sessions', sessionSchema);
   } catch (error) {
     if (!(error instanceof MongoServerError && error.code === 48)) {
-      console.error('Error initializing database:', error);
+      structuredLogger.error('Error initializing database', error, { component: 'mongodb' });
       throw error;
     }
   }
@@ -40,5 +41,7 @@ export async function initializeDatabase(client: MongoClient) {
     { key: { createdAt: 1 }, expireAfterSeconds: 900 }, // Auto-delete after 15 minutes
   ]);
 
-  console.log('Database initialization completed successfully');
+  structuredLogger.info('Database initialization completed successfully', {
+    component: 'mongodb',
+  });
 }

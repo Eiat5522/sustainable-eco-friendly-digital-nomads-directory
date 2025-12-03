@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { signIn, useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { jsonPostOptions } from '@/lib/http/request';
+import { structuredLogger } from '@/lib/logger';
 
 export const resolveCallbackUrl = (loc?: { href?: string | null }) => {
   try {
@@ -78,7 +79,11 @@ export default function CommentForm({ postId }: Readonly<{ postId: string }>): R
             }
           } catch {
             // Failed to parse JSON response - log the error with status and body
-            console.error(`Failed to submit comment: ${res.status} ${res.statusText}`, errorText);
+            structuredLogger.error(
+              `Failed to submit comment: ${res.status} ${res.statusText}`,
+              undefined,
+              { component: 'comments' }
+            );
           }
         }
 

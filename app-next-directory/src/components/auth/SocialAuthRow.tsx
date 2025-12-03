@@ -2,6 +2,7 @@
 
 import { signIn } from 'next-auth/react';
 import * as React from 'react';
+import { structuredLogger } from '@/lib/logger';
 
 type Provider = {
   id: string;
@@ -82,7 +83,7 @@ export function SocialAuthRow({ providers = PROVIDERS }: Readonly<{ providers?: 
         setAvailableProviderIds(ids);
       } catch (err) {
         if (!cancelled) {
-          console.warn('[auth] Failed to load providers', err);
+          structuredLogger.warn('[auth] Failed to load providers', err, { component: 'auth' });
           setLoadError(true);
           setAvailableProviderIds([]);
         }

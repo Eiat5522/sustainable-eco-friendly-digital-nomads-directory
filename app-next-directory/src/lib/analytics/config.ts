@@ -34,6 +34,7 @@ try {
 
 import { Analytics as VercelAnalytics } from '@vercel/analytics/react';
 import posthog from 'posthog-js';
+import { structuredLogger } from '@/lib/logger';
 
 // Load environment variables
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
@@ -121,7 +122,7 @@ export const trackPageView = async ({ title, path, referrer, search }: PageViewE
 
     // VercelAnalytics does not support .track; use only as a component in your layout.
   } catch (error) {
-    console.error(error);
+    structuredLogger.error('trackPageView failed', error, { component: 'analytics' });
   }
 };
 
@@ -132,7 +133,7 @@ export const trackEvent = async ({ name, properties }: CustomEvent) => {
 
     // VercelAnalytics does not support .track; use only as a component in your layout.
   } catch (error) {
-    console.error(error);
+    structuredLogger.error('trackEvent failed', error, { component: 'analytics', event: name });
   }
 };
 
@@ -143,7 +144,10 @@ export const identifyUser = async (userId: string, traits?: Record<string, unkno
 
     // VercelAnalytics does not support .identify; use only as a component in your layout.
   } catch (error) {
-    console.error(error);
+    structuredLogger.error('identifyUser failed', error, {
+      component: 'analytics',
+      userId,
+    });
   }
 };
 

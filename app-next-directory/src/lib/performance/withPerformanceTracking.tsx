@@ -2,6 +2,7 @@
 
 import type React from 'react';
 import { useEffect, useRef } from 'react';
+import { structuredLogger } from '@/lib/logger';
 import { recordMetric } from './web-vitals-reporter';
 
 export function withPerformanceTracking<P extends Record<string, unknown>>(
@@ -17,7 +18,10 @@ export function withPerformanceTracking<P extends Record<string, unknown>>(
       const endTime = typeof performance !== 'undefined' ? performance.now() : Date.now();
       const renderTime = endTime - startTimeRef.current;
       if (process.env.NODE_ENV === 'development') {
-        console.debug(`[Component Render] ${componentName}: ${renderTime.toFixed(2)}ms`);
+        structuredLogger.debug(`[Component Render] ${componentName}`, {
+          component: 'performance',
+          durationMs: Number(renderTime.toFixed(2)),
+        });
       }
       recordMetric(`component-render-${componentName}`, Math.round(renderTime), {
         page: typeof window !== 'undefined' ? window.location.pathname : undefined,

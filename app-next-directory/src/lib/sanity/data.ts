@@ -69,6 +69,7 @@ const LISTING_BY_SLUG_QUERY = groq`
  * @returns A GROQ query result or null if not found
  */
 import type { AppListingDetail } from '@/types/appView';
+import { structuredLogger } from '@/lib/logger';
 
 export async function getListingData(
   slug: string,
@@ -81,7 +82,10 @@ export async function getListingData(
     const { mapSanityListingToAppListingDetail } = await import('@/lib/listings');
     return mapSanityListingToAppListingDetail(listing);
   } catch (error) {
-    console.error('Error fetching listing data for slug:', slug, error);
+    structuredLogger.error('Error fetching listing data for slug', error, {
+      component: 'sanity',
+      slug,
+    });
     return null;
   }
 }

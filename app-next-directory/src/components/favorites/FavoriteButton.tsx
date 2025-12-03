@@ -5,6 +5,7 @@ import { signIn, useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { NeoButton } from '@/components/ui/neo-button';
 import { jsonDeleteOptions, jsonPostOptions } from '@/lib/http/request';
+import { structuredLogger } from '@/lib/logger';
 
 interface FavoriteButtonProps {
   // Accepts either listingId (legacy) or slug (preferred) - one is required
@@ -75,7 +76,9 @@ export function FavoriteButton({
           setIsFavoritedState(data.favorited ?? false);
         }
       } catch (error) {
-        console.error('Error checking favorite status:', error);
+        structuredLogger.error('Error checking favorite status', error, {
+          component: 'favorites',
+        });
       } finally {
         setIsCheckingStatus(false);
       }

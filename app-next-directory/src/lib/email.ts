@@ -17,7 +17,9 @@ if (!emailRegex.test(fromAddressForValidation)) {
 
 export async function sendMail(opts: { to: string; subject: string; html: string; text?: string }) {
   if (!resendApiKey) {
-    console.warn('[email] RESEND_API_KEY not set; skipping send');
+    structuredLogger.warn('[email] RESEND_API_KEY not set; skipping send', {
+      component: 'email-service',
+    });
     return { skipped: true } as const;
   }
   try {

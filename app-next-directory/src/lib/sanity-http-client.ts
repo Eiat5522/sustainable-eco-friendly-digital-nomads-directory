@@ -6,6 +6,7 @@
 
 import type { QueryParams, SanityClient } from '@sanity/client';
 import type { SanityDocument as GeneratedSanityDocument } from '@/types/sanity';
+import { structuredLogger } from '@/lib/logger';
 // Import core Sanity client types and methods
 import { createClient as sanityCreateClient } from './sanity/client';
 
@@ -108,7 +109,9 @@ export class SanityHTTPClient {
     // Warn about missing optional vars
     for (const envVar of optionalEnvVars) {
       if (!process.env[envVar]) {
-        console.warn(`Warning: Missing optional environment variable: ${envVar}`);
+        structuredLogger.warn(`Missing optional environment variable: ${envVar}`, {
+          component: 'sanity-http',
+        });
       }
     }
   }
@@ -235,9 +238,14 @@ export class SanityHTTPClient {
 
       if (this.debug) {
         if (result?._id) {
-          console.log(`✅ Created document: ${result._id}`);
+          structuredLogger.info('Sanity document created', {
+            component: 'sanity-http',
+            id: result._id,
+          });
         } else {
-          console.log('✅ Created document (no _id)');
+          structuredLogger.info('Sanity document created (no _id)', {
+            component: 'sanity-http',
+          });
         }
       }
 
@@ -287,7 +295,10 @@ export class SanityHTTPClient {
       }
 
       if (this.debug) {
-        console.log(`✅ Updated document: ${id}`);
+        structuredLogger.info('Sanity document updated', {
+          component: 'sanity-http',
+          id,
+        });
       }
       return result;
     } catch (error: unknown) {
@@ -324,7 +335,10 @@ export class SanityHTTPClient {
       }
 
       if (this.debug) {
-        console.log(`✅ Deleted document: ${id}`);
+        structuredLogger.info('Sanity document deleted', {
+          component: 'sanity-http',
+          id,
+        });
       }
 
       return result;

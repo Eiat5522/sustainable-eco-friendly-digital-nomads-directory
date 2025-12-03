@@ -8,6 +8,8 @@
  * @date May 18, 2025
  */
 
+import { structuredLogger } from '@/lib/logger';
+
 // Type definitions for web-vitals (if package is not installed)
 interface Metric {
   name: string;
@@ -207,7 +209,11 @@ function getRating(name: string, value: number): PerformanceMetric['rating'] {
  */
 function reportMetric({ name, value, rating }: PerformanceMetric) {
   if (process.env.NODE_ENV === 'development') {
-    console.log(`[Performance] ${name}: ${value} (${rating})`);
+    structuredLogger.debug(`[Performance] ${name}`, {
+      component: 'performance',
+      value,
+      rating,
+    });
   }
 
   const plausible = getPlausibleClient();
