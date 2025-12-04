@@ -9,7 +9,8 @@ const isE2E = process.env.E2E === '1';
 // Check if we're running in a Node.js environment (server-side)
 // pino-pretty with worker threads doesn't work well in Next.js server contexts
 const isServer = typeof window === 'undefined';
-const shouldMirrorStructuredLogsToConsole = isTest || process.env.LOGGER_ENABLE_CONSOLE_MIRROR === '1';
+const shouldMirrorStructuredLogsToConsole =
+  isTest || process.env.LOGGER_ENABLE_CONSOLE_MIRROR === '1';
 
 // Redact sensitive fields to prevent information leakage
 const redactPaths = [
@@ -171,30 +172,31 @@ const loggerConfig: pino.LoggerOptions = {
   },
 };
 
-// Configure pretty printing for development
-// IMPORTANT: We use pino-pretty as a direct destination stream for better Next.js compatibility
-const createPrettyStream = () => {
+// Configure pretty printing for development by using pino's transport API.
+const createPrettyTransport = (): pino.TransportSingleOptions | undefined => {
   if (!isDevelopment || !isServer) {
     return undefined;
   }
 
   try {
-    // Dynamically import pino-pretty only when needed (development + server-side)
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const pinoPretty = require('pino-pretty');
-    return pinoPretty({
-      colorize: true,
-      translateTime: 'HH:MM:ss',
-      ignore: 'pid,hostname',
-      singleLine: false,
+    return pino.transport({
+      target: 'pino-pretty',
+      options: {
+        colorize: true,
+        translateTime: 'HH:MM:ss',
+        ignore: 'pid,hostname',
+        singleLine: false,
+      },
     });
   } catch {
-    // pino-pretty not available, use default
     return undefined;
   }
 };
 
-const logger: pino.Logger = pino(loggerConfig, createPrettyStream());
+const prettyTransport = createPrettyTransport();
+const logger: pino.Logger = prettyTransport
+  ? pino(loggerConfig, prettyTransport)
+  : pino(loggerConfig);
 
 // Enhanced logging interface with context support
 // Helper function to sanitize error objects
@@ -257,7 +259,11 @@ export const structuredLogger = {
     let err: unknown | undefined;
     let context: LogContext | undefined;
 
-    if (errorOrContext && (errorOrContext instanceof Error || typeof errorOrContext === 'object') && !('component' in (errorOrContext as LogContext))) {
+    if (
+      errorOrContext &&
+      (errorOrContext instanceof Error || typeof errorOrContext === 'object') &&
+      !('component' in (errorOrContext as LogContext))
+    ) {
       err = errorOrContext;
       context = maybeContext;
     } else {
@@ -428,7 +434,11 @@ const legacyConsoleMethodMap: Record<ConsoleLevel, keyof Console> = {
 
 const isBracketPrefixedMessage = (message: string): boolean => message.trimStart().startsWith('[');
 
-const buildLegacyConsoleArgs = (message: string, error?: unknown, context?: LogContext): unknown[] => {
+const buildLegacyConsoleArgs = (
+  message: string,
+  error?: unknown,
+  context?: LogContext
+): unknown[] => {
   if (!message) {
     return [];
   }
@@ -523,8 +533,6 @@ export const redirectConsoleToStructuredLogger = () => {
 
   (Object.keys(levelMap) as Array<keyof typeof levelMap>).forEach(method => {
     const level = levelMap[method];
-    const _ignoredOriginal = console[method].bind(console);
-
     console[method] = (...args: unknown[]) => {
       const { message, error, context } = formatConsoleInvocation(level, args);
 
@@ -543,8 +551,6 @@ export const redirectConsoleToStructuredLogger = () => {
           break;
       }
 
-      // In development, we don't call original because pino-pretty handles the output
-      // This avoids duplicate console messages
     };
   });
 };

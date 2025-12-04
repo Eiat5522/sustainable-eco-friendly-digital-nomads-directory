@@ -5,9 +5,8 @@ jest.mock('@/lib/logger');
 type StructuredLogger = typeof import('@/lib/logger')['structuredLogger'];
 
 const getStructuredLoggerMock = () =>
-  jest.requireMock<typeof import('@/lib/logger')>('@/lib/logger').structuredLogger as jest.Mocked<
-    StructuredLogger
-  >;
+  jest.requireMock<typeof import('@/lib/logger')>('@/lib/logger')
+    .structuredLogger as jest.Mocked<StructuredLogger>;
 
 describe('budgets', () => {
   let originalEnv: NodeJS.ProcessEnv;
@@ -206,7 +205,9 @@ describe('budgets', () => {
 
       await sendAlert(alert);
 
-      expect(jest.requireMock<typeof import("@/lib/logger")>("@/lib/logger").structuredLogger.info).toHaveBeenCalledWith('[Performance Alert]', {
+      expect(
+        jest.requireMock<typeof import('@/lib/logger')>('@/lib/logger').structuredLogger.info
+      ).toHaveBeenCalledWith('[Performance Alert]', {
         component: 'performance',
         severity: 'WARNING',
         metric: 'CLS',
@@ -225,7 +226,9 @@ describe('budgets', () => {
 
         await sendAlert(alert);
 
-        expect(jest.requireMock<typeof import("@/lib/logger")>("@/lib/logger").structuredLogger.info).toHaveBeenCalledWith(
+        expect(
+          jest.requireMock<typeof import('@/lib/logger')>('@/lib/logger').structuredLogger.info
+        ).toHaveBeenCalledWith(
           '[Performance Alert]',
           expect.objectContaining({
             component: 'performance',

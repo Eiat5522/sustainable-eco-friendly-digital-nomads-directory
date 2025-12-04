@@ -172,9 +172,13 @@ describe('rate-limit helpers', () => {
     const result = await mod.isRateLimited('test-key', 10, 60);
 
     expect(result).toBe(false);
-    expect(warnSpy).toHaveBeenCalledWith('[rate-limit] Error checking rate limit', expect.any(Error), {
-      component: 'rate-limit',
-    });
+    expect(warnSpy).toHaveBeenCalledWith(
+      '[rate-limit] Error checking rate limit',
+      expect.any(Error),
+      {
+        component: 'rate-limit',
+      }
+    );
   });
 
   it('getRetryAfterMs returns time until reset', async () => {
@@ -209,9 +213,13 @@ describe('rate-limit helpers', () => {
     const result = await mod.getRetryAfterMs('test-key');
 
     expect(result).toBe(0);
-    expect(warnSpy).toHaveBeenCalledWith('[rate-limit] Error getting retry after', expect.any(Error), {
-      component: 'rate-limit',
-    });
+    expect(warnSpy).toHaveBeenCalledWith(
+      '[rate-limit] Error getting retry after',
+      expect.any(Error),
+      {
+        component: 'rate-limit',
+      }
+    );
   });
 
   it('wraps exports with jest.fn when Jest is available', async () => {

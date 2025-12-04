@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
-jest.mock('@/lib/logger');
-
+import { structuredLogger } from '../../logger';
+import type { Metric } from '../collector';
 import {
   dependencies,
   initPerformanceMonitoring,
@@ -10,21 +10,20 @@ import {
   PERFORMANCE_MARKS,
 } from '../collector';
 
-type MetricCallback = ((metric: Record<string, unknown>) => void) | undefined;
+type MetricCallback = Parameters<(typeof dependencies)['onCLS']>[0];
 
-const buildMetric = (overrides: Record<string, unknown>) => ({
+const buildMetric = (overrides: Partial<Metric> = {}): Metric => ({
   name: 'CLS',
   value: 0,
   rating: 'good',
   delta: 0,
-  entries: [],
+  entries: [] as PerformanceEntry[],
   id: 'metric-id',
   navigationType: 'navigate',
   ...overrides,
 });
 
 describe('performance collector', () => {
-  const originalEnv = process.env.NODE_ENV;
   const originalDependencies = { ...dependencies };
   let observerCallback:
     | ((list: { getEntries: () => Array<Record<string, unknown>> }) => void)
@@ -43,7 +42,7 @@ describe('performance collector', () => {
     dependencies.onINP = originalDependencies.onINP;
     dependencies.onLCP = originalDependencies.onLCP;
     dependencies.onTTFB = originalDependencies.onTTFB;
-    process.env.NODE_ENV = originalEnv;
+    dependencies.getNodeEnv = originalDependencies.getNodeEnv;
     jest.restoreAllMocks();
     observerCallback = undefined;
   });
@@ -91,9 +90,8 @@ describe('performance collector', () => {
     } as unknown as Record<string, any>;
     dependencies.global = dependencies.window;
 
-    process.env.NODE_ENV = 'development';
-    const loggerDebug = jest.requireMock('@/lib/logger').structuredLogger
-      .debug as jest.Mock;
+    dependencies.getNodeEnv = () => 'development';
+    const loggerDebug = jest.spyOn(structuredLogger, 'debug').mockImplementation(() => undefined);
 
     initPerformanceMonitoring();
 
@@ -202,7 +200,7 @@ describe('performance collector', () => {
       plausible,
     } as Record<string, any>;
 
-    process.env.NODE_ENV = 'production';
+    dependencies.getNodeEnv = () => 'production';
     initPerformanceMonitoring();
 
     callbacks.CLS?.(buildMetric({ name: 'CLS', value: 0.04 }));
@@ -241,7 +239,7 @@ describe('performance collector', () => {
     dependencies.window = { plausible: 'not-a-function' } as Record<string, any>;
     dependencies.global = {} as Record<string, any>;
 
-    process.env.NODE_ENV = 'production';
+    dependencies.getNodeEnv = () => 'production';
     const consoleLogSpy = jest.spyOn(console, 'log');
 
     initPerformanceMonitoring();
@@ -262,7 +260,7 @@ describe('performance collector', () => {
     dependencies.window = {} as Record<string, any>;
     dependencies.global = {} as Record<string, any>;
 
-    process.env.NODE_ENV = 'test';
+    dependencies.getNodeEnv = () => 'test';
     initPerformanceMonitoring();
 
     expect(callbacks.CLS).toBeDefined();

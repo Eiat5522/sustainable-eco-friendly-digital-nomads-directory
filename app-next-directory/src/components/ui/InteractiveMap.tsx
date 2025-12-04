@@ -3,8 +3,8 @@
 import 'leaflet/dist/leaflet.css';
 import { MapPin } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { cn } from '@/lib/utils';
 import { structuredLogger } from '@/lib/logger';
+import { cn } from '@/lib/utils';
 
 interface InteractiveMapProps {
   readonly location?: Readonly<{ lat: number; lng: number }>;
@@ -14,11 +14,22 @@ interface InteractiveMapProps {
 }
 
 // Leaflet types - using unknown for dynamic imports
-type LeafletMap = { remove: () => void; setView: (latlng: [number, number], zoom: number) => LeafletMap; invalidateSize: () => void };
+type LeafletMap = {
+  remove: () => void;
+  setView: (latlng: [number, number], zoom: number) => LeafletMap;
+  invalidateSize: () => void;
+};
 type LeafletMarker = { addTo: (map: LeafletMap) => LeafletMarker; remove: () => void };
 type LeafletModule = {
   map: (container: HTMLElement) => LeafletMap;
-  tileLayer: (url: string, options: Record<string, unknown>) => { on: (event: string, handler: () => void) => void; addTo: (map: LeafletMap) => void; off: (event: string) => void };
+  tileLayer: (
+    url: string,
+    options: Record<string, unknown>
+  ) => {
+    on: (event: string, handler: () => void) => void;
+    addTo: (map: LeafletMap) => void;
+    off: (event: string) => void;
+  };
   marker: (latlng: [number, number], options?: Record<string, unknown>) => LeafletMarker;
   divIcon: (options: Record<string, unknown>) => unknown;
 };
@@ -91,30 +102,34 @@ export function InteractiveMap({ location, address, name, className }: Interacti
           if (!isMounted) return;
           setTileLoadFailed(true);
           if (process.env.NODE_ENV !== 'production') {
-            const _ignoredDetail = (() => {
-              const errorDetail = e.error;
-              if (errorDetail && typeof errorDetail === 'object') {
+            const errorDetail = (() => {
+              const detail = e.error;
+              if (detail && typeof detail === 'object') {
                 if (
-                  'message' in errorDetail &&
-                  typeof (errorDetail as { message?: unknown }).message === 'string'
+                  'message' in detail &&
+                  typeof (detail as { message?: unknown }).message === 'string'
                 ) {
-                  return (errorDetail as { message: string }).message;
+                  return (detail as { message: string }).message;
                 }
-                if (
-                  'code' in errorDetail &&
-                  typeof (errorDetail as { code?: unknown }).code === 'string'
-                ) {
-                  return (errorDetail as { code: string }).code;
+                if ('code' in detail && typeof (detail as { code?: unknown }).code === 'string') {
+                  return (detail as { code: string }).code;
                 }
               }
-              if (typeof errorDetail === 'string') return errorDetail;
-              if (errorDetail instanceof Error) return errorDetail.message;
+              if (typeof detail === 'string') return detail;
+              if (detail instanceof Error) return detail.message;
               return undefined;
             })();
-            const _ignoredTileSrc =
+            const tileSrc =
               typeof (e.tile as HTMLImageElement | undefined)?.src === 'string'
                 ? (e.tile as HTMLImageElement).src
                 : undefined;
+            if (errorDetail || tileSrc) {
+              structuredLogger.warn('Leaflet tile load failed', {
+                component: 'interactive-map',
+                errorDetail,
+                tileSrc,
+              });
+            }
           }
         };
 
@@ -150,17 +165,17 @@ export function InteractiveMap({ location, address, name, className }: Interacti
 
         map.whenReady(() => {
           if (!isMounted) return;
-      requestAnimationFrame(() => {
-        map.invalidateSize();
-      });
-    });
-  } catch (error) {
-    structuredLogger.error('Failed to load map', error, { component: 'interactive-map' });
-    if (isMounted) {
-      setTileLoadFailed(true);
-    }
-  }
-};
+          requestAnimationFrame(() => {
+            map.invalidateSize();
+          });
+        });
+      } catch (error) {
+        structuredLogger.error('Failed to load map', error, { component: 'interactive-map' });
+        if (isMounted) {
+          setTileLoadFailed(true);
+        }
+      }
+    };
 
     setTileLoadFailed(false);
     initMap();

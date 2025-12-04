@@ -8,9 +8,9 @@ import { NeoButton } from '@/components/ui/neo-button';
 import { NeoCard, NeoCardContent, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
 import { StarRating } from '@/components/ui/StarRating';
 import { Separator } from '@/components/ui/separator';
-import { structuredLogger } from '@/lib/logger';
 import { Textarea } from '@/components/ui/textarea';
 import { jsonPostOptions } from '@/lib/http/request';
+import { structuredLogger } from '@/lib/logger';
 import { getCurrentHref } from '@/utils/navigation';
 
 interface Review {

@@ -41,8 +41,9 @@ describe('RootLayout', () => {
 
   it('should render with light theme when cookie is not set', async () => {
     // Arrange: Set up mocks for this specific test case
-    const headersModule = await /* @next-codemod-error The APIs under 'next/headers' are async now, need to be manually awaited. */
-    import('next/headers');
+    const headersModule =
+      await /* @next-codemod-error The APIs under 'next/headers' are async now, need to be manually awaited. */
+      import('next/headers');
     const mockedCookies = headersModule.cookies as jest.MockedFunction<CookiesFn>;
     const { normalizeTheme, themeClass } = await import('@/utils/theme');
 
@@ -66,8 +67,9 @@ describe('RootLayout', () => {
 
   it('should render with dark theme when cookie is set to "dark"', async () => {
     // Arrange
-    const headersModule = await /* @next-codemod-error The APIs under 'next/headers' are async now, need to be manually awaited. */
-    import('next/headers');
+    const headersModule =
+      await /* @next-codemod-error The APIs under 'next/headers' are async now, need to be manually awaited. */
+      import('next/headers');
     const mockedCookies = headersModule.cookies as jest.MockedFunction<CookiesFn>;
     const { normalizeTheme, themeClass } = await import('@/utils/theme');
 
@@ -89,8 +91,9 @@ describe('RootLayout', () => {
 
   it('should include the theme initialization script in the head', async () => {
     // Arrange
-    const headersModule = await /* @next-codemod-error The APIs under 'next/headers' are async now, need to be manually awaited. */
-    import('next/headers');
+    const headersModule =
+      await /* @next-codemod-error The APIs under 'next/headers' are async now, need to be manually awaited. */
+      import('next/headers');
     const mockedCookies = headersModule.cookies as jest.MockedFunction<CookiesFn>;
     const { normalizeTheme, themeClass, THEME_INIT_SCRIPT } = await import('@/utils/theme');
 

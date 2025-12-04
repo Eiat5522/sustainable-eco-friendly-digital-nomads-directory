@@ -2,8 +2,8 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useRouter } from 'next/navigation';
 import { signIn, useSession } from 'next-auth/react';
-import CommentForm, { resolveCallbackUrl } from '../CommentForm';
 import { structuredLogger } from '@/lib/logger';
+import CommentForm, { resolveCallbackUrl } from '../CommentForm';
 
 jest.mock('@/lib/logger', () => ({
   structuredLogger: {

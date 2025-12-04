@@ -1,19 +1,25 @@
 import { jest } from '@jest/globals';
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
+
+jest.mock('@/lib/logger');
+
 import { structuredLogger } from '@/lib/logger';
 
+type StructuredLogger = typeof import('@/lib/logger')['structuredLogger'];
+
+const getStructuredLoggerMock = () =>
+  jest.requireMock<typeof import('@/lib/logger')>('@/lib/logger')
+    .structuredLogger as jest.Mocked<StructuredLogger>;
+
 const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-const loggerWarnSpy = jest.spyOn(structuredLogger, 'warn').mockImplementation(() => undefined);
 
 afterEach(() => {
   consoleWarnSpy.mockClear();
-  loggerWarnSpy.mockClear();
 });
 
 afterAll(() => {
   consoleWarnSpy.mockRestore();
-  loggerWarnSpy.mockRestore();
 });
 
 // Mock dependencies
@@ -517,17 +523,13 @@ describe('withAuth (legacy)', () => {
   });
 
   it('logs deprecation warning', async () => {
-    const loggerWarn = loggerMock.warn;
-    loggerWarn.mockClear();
+    const warnSpy = jest.spyOn(structuredLogger, 'warn');
     mockGetToken.mockResolvedValue(null);
 
     const request = new NextRequest('http://localhost:3000/test');
     await withAuth(request);
 
-    expect(loggerWarn).toHaveBeenCalledWith(
-      expect.stringContaining('deprecated'),
-      expect.any(Object)
-    );
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('deprecated'), expect.any(Object));
   });
 
   it('redirects when no session', async () => {

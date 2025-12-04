@@ -111,7 +111,6 @@ async function dispatchAlert(alert: Alert, channel: NotificationChannel): Promis
 }
 
 async function sendEmailAlert(_alert: Alert): Promise<boolean> {
-  const _config = ALERT_DESTINATION_CONFIG[NOTIFICATION_CHANNELS.EMAIL];
   if (process.env.NODE_ENV !== 'production') {
     console.log('Would send email to', _alert);
     return true;

@@ -176,7 +176,18 @@ export class SanityImageUploader {
    * Optimize image (simplified - would use canvas/sharp in real implementation)
    */
   private async optimizeImage(file: File, options: ImageOptimizationOptions = {}): Promise<File> {
-    const _opts = { ...this.defaultOptions, ...options };
+    const mergedOptions = { ...this.defaultOptions, ...options };
+    const requiresProcessing =
+      typeof mergedOptions.maxWidth === 'number' ||
+      typeof mergedOptions.maxHeight === 'number' ||
+      typeof mergedOptions.quality === 'number' ||
+      typeof mergedOptions.format === 'string';
+
+    if (!requiresProcessing) {
+      return file;
+    }
+
+    // TODO: Implement actual optimization pipeline (canvas/sharp) using mergedOptions.
     return file;
   }
 
@@ -219,8 +230,11 @@ export class SanityImageUploader {
   private async generateBlurHash(file: File): Promise<string> {
     // Simplified blur hash generation
     // In production, use blurhash library
-    const _ignoredHash = btoa(file.name + file.size).substring(0, 16);
-    return `data:image/svg+xml;base64,${btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="100%" height="100%" fill="#f0f0f0"/></svg>`)}`;
+    const hashSeed = btoa(`${file.name}:${file.size}`).substring(0, 16);
+    const numericHash = Array.from(hashSeed).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const placeholderColor = `#${(numericHash % 0xffffff).toString(16).padStart(6, '0')}`;
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" role="img" aria-label="Blur placeholder"><rect width="100%" height="100%" fill="${placeholderColor}"/></svg>`;
+    return `data:image/svg+xml;base64,${btoa(svg)}`;
   }
 
   private getRequiredSanityConfig(): { projectId: string; dataset: string } {

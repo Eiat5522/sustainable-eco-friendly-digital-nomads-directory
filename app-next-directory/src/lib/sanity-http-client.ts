@@ -1,12 +1,6 @@
-/**
- * Advanced Sanity HTTP API Client
- * Day 1 Sprint: Complete HTTP API Client with Authentication & Error Handling
- * Date: May 24, 2025
- */
-
 import type { QueryParams, SanityClient } from '@sanity/client';
-import type { SanityDocument as GeneratedSanityDocument } from '@/types/sanity';
 import { structuredLogger } from '@/lib/logger';
+import type { SanityDocument as GeneratedSanityDocument } from '@/types/sanity';
 // Import core Sanity client types and methods
 import { createClient as sanityCreateClient } from './sanity/client';
 
@@ -144,6 +138,9 @@ export class SanityHTTPClient {
       // Catching unknown for better type safety
       // If an error is caught, authentication likely failed.
       if (this.debug) {
+        structuredLogger.warn('Sanity auth test failed', error, {
+          component: 'sanity-http-client',
+        });
       }
       return false;
     }
@@ -613,5 +610,4 @@ export const getClient = (preview = false) => {
 };
 
 export type { SanityDocumentInput };
-// Do not use export default for ESM/CJS compatibility
 // Do not use export default for ESM/CJS compatibility

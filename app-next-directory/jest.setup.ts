@@ -309,7 +309,7 @@ declare global {
 if (process.env.JEST_CONSOLE_NO_FILTER !== '1') {
   const originalConsoleError = console.error;
   const originalConsoleWarn = console.warn;
-  const _ignoredOriginalConsoleLog = console.log;
+  const ignoredOriginalConsoleLog = console.log;
 
   // Store originals for test access - tests can spy on these
   (console as Console & { originalConsoleError?: typeof console.error }).originalConsoleError =
@@ -320,8 +320,6 @@ if (process.env.JEST_CONSOLE_NO_FILTER !== '1') {
   // Don't wrap console globally - let tests spy on the real methods
   // Tests that need filtering can use withDefaultConsoleFilters()
 }
-
-
 
 import { TextDecoder, TextEncoder } from 'node:util';
 // jest.setup.ts

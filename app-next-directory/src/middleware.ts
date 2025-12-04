@@ -239,12 +239,12 @@ export function createMiddleware({
 
 // Default export for Next.js (uses real dependencies)
 // Dynamically require NextResponse for runtime compatibility
-let _ignoredNextResponseReal: unknown;
+let ignoredNextResponseReal: unknown;
 try {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  _ignoredNextResponseReal = require('next/server').NextResponse;
+  ignoredNextResponseReal = require('next/server').NextResponse;
 } catch {
-  _ignoredNextResponseReal = undefined;
+  ignoredNextResponseReal = undefined;
 }
 // Refined matcher configuration
 export const config = {

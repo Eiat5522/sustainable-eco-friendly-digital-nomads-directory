@@ -1,5 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { structuredLogger } from '@/lib/logger';
+import {
+  getClient,
+  getSanityHTTPClient,
+  SanityAPIError,
+  SanityHTTPClient,
+} from '../sanity-http-client';
 
 jest.mock('@/lib/logger');
 
@@ -11,34 +17,41 @@ const REQUIRED_ENV = {
   SANITY_API_TOKEN: 'test-api-token',
 };
 
-const mockCommit = jest.fn();
-const mockSet = jest.fn(() => ({ commit: mockCommit }));
-const mockPatch = jest.fn(() => ({ set: mockSet }));
-const mockTransactionCreate = jest.fn();
-const mockTransactionCommit = jest.fn();
+const mockCreateClient = jest.fn((config: { token?: string }) =>
+  mockCreateClient.mock.calls.length === 0 || !config.token ? mockReadClient : mockWriteClient
+) as jest.Mock<any>;
+const mockCommit = jest.fn() as jest.Mock<any>;
+const mockSet = jest.fn(() => ({ commit: mockCommit })) as jest.Mock<any>;
+const mockPatch = jest.fn(() => ({ set: mockSet })) as jest.Mock<any>;
+const mockTransactionCreate = jest.fn() as jest.Mock<any>;
+const mockTransactionCommit = jest.fn() as jest.Mock<any>;
 const mockTransaction = jest.fn(() => ({
   create: mockTransactionCreate,
   commit: mockTransactionCommit,
-}));
+})) as jest.Mock<any>;
 const mockReadClient = {
-  fetch: jest.fn(),
-  withConfig: jest.fn(),
+  fetch: jest.fn() as jest.Mock<any>,
+  withConfig: jest.fn() as jest.Mock<any>,
 };
 const mockWriteClient = {
-  create: jest.fn(),
-  delete: jest.fn(),
-  assets: { upload: jest.fn() },
+  create: jest.fn() as jest.Mock<any>,
+  delete: jest.fn() as jest.Mock<any>,
+  assets: { upload: jest.fn() as jest.Mock<any> },
   patch: mockPatch,
   transaction: mockTransaction,
 };
 
-jest.mock('../sanity/client', () => {
-  const createClient = jest.fn((config: { token?: string }) =>
-    createClient.mock.calls.length === 0 || !config.token ? mockReadClient : mockWriteClient
-  );
+jest.mock('../sanity/client', () => ({
+  createClient: mockCreateClient,
+}));
 
-  return { createClient };
-});
+const loadModule = async () => {
+  let clientModule: typeof import('../sanity-http-client');
+  await jest.isolateModulesAsync(async () => {
+    clientModule = await import('../sanity-http-client');
+  });
+  return clientModule!;
+};
 
 describe('SanityHTTPClient', () => {
   let originalEnv: NodeJS.ProcessEnv;
@@ -48,6 +61,7 @@ describe('SanityHTTPClient', () => {
     process.env = { ...originalEnv, ...REQUIRED_ENV };
 
     jest.clearAllMocks();
+    mockCreateClient.mockClear();
     mockSet.mockReturnValue({ commit: mockCommit });
     mockPatch.mockReturnValue({ set: mockSet });
     mockCommit.mockResolvedValue({ _id: 'patched-id' });
@@ -68,22 +82,12 @@ describe('SanityHTTPClient', () => {
     jest.resetModules();
   });
 
-  const loadModule = async () => {
-    let clientModule: typeof import('../sanity-http-client');
-    await jest.isolateModulesAsync(async () => {
-      clientModule = await import('../sanity-http-client');
-    });
-    return clientModule!;
-  };
-
   it('initializes read and write clients with expected configuration', async () => {
-    const mockModule = await import('../sanity/client');
     const clientModule = await loadModule();
-
     new clientModule.SanityHTTPClient();
 
-    expect(mockModule.createClient).toHaveBeenCalledTimes(2);
-    expect(mockModule.createClient).toHaveBeenNthCalledWith(
+    expect(mockCreateClient).toHaveBeenCalledTimes(2);
+    expect(mockCreateClient).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({
         projectId: REQUIRED_ENV.NEXT_PUBLIC_SANITY_PROJECT_ID,
@@ -91,7 +95,7 @@ describe('SanityHTTPClient', () => {
         useCdn: false,
       })
     );
-    expect(mockModule.createClient).toHaveBeenNthCalledWith(
+    expect(mockCreateClient).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({
         token: REQUIRED_ENV.SANITY_API_TOKEN,
@@ -109,12 +113,18 @@ describe('SanityHTTPClient', () => {
 
   it('warns about missing optional environment variables', async () => {
     delete process.env.SANITY_API_TOKEN;
-    const clientModule = await loadModule();
 
-    new clientModule.SanityHTTPClient();
-
-    expect(loggerMock.warn).toHaveBeenCalledWith('Missing optional environment variable: SANITY_API_TOKEN', {
-      component: 'sanity-http',
+    await jest.isolateModulesAsync(async () => {
+      jest.doMock('@/lib/logger');
+      const mod = await import('../sanity-http-client');
+      new mod.SanityHTTPClient();
+      const logger = jest.mocked((jest.requireMock('@/lib/logger') as any).structuredLogger);
+      expect(logger.warn).toHaveBeenCalledWith(
+        'Missing optional environment variable: SANITY_API_TOKEN',
+        {
+          component: 'sanity-http',
+        }
+      );
     });
   });
 
@@ -256,34 +266,46 @@ describe('SanityHTTPClient', () => {
 
     it('returns created document and logs in debug mode', async () => {
       process.env.SANITY_HTTP_DEBUG = '1';
-      const clientModule = await loadModule();
-      const client = new clientModule.SanityHTTPClient();
-      const doc = { _id: 'doc-1', _type: 'test' };
-      mockWriteClient.create.mockResolvedValue(doc);
 
-      const result = await client.create({ _type: 'test' });
+      await jest.isolateModulesAsync(async () => {
+        jest.doMock('@/lib/logger');
+        const mod = await import('../sanity-http-client');
+        const client = new mod.SanityHTTPClient();
+        const doc = { _id: 'doc-1', _type: 'test' };
+        mockWriteClient.create.mockResolvedValue(doc);
 
-      expect(mockWriteClient.create).toHaveBeenCalledWith({ _type: 'test' });
-      expect(result).toEqual(doc);
-      expect(loggerMock.info).toHaveBeenCalledWith('Sanity document created', {
-        component: 'sanity-http',
-        id: 'doc-1',
+        const result = await client.create({ _type: 'test' });
+
+        expect(mockWriteClient.create).toHaveBeenCalledWith({ _type: 'test' });
+        expect(result).toEqual(doc);
+        const logger = jest.mocked((jest.requireMock('@/lib/logger') as any).structuredLogger);
+        expect(logger.info).toHaveBeenCalledWith('Sanity document created', {
+          component: 'sanity-http',
+          id: 'doc-1',
+        });
       });
+
       delete process.env.SANITY_HTTP_DEBUG;
     });
 
     it('logs an alternate message when a document is created without an id', async () => {
       process.env.SANITY_HTTP_DEBUG = '1';
-      const clientModule = await loadModule();
-      const client = new clientModule.SanityHTTPClient();
-      mockWriteClient.create.mockResolvedValue({ _type: 'test', title: 'no-id' });
 
-      const result = await client.create({ _type: 'test' });
+      await jest.isolateModulesAsync(async () => {
+        jest.doMock('@/lib/logger');
+        const mod = await import('../sanity-http-client');
+        const client = new mod.SanityHTTPClient();
+        mockWriteClient.create.mockResolvedValue({ _type: 'test', title: 'no-id' });
 
-      expect(result).toEqual({ _type: 'test', title: 'no-id' });
-      expect(loggerMock.info).toHaveBeenCalledWith('Sanity document created (no _id)', {
-        component: 'sanity-http',
+        const result = await client.create({ _type: 'test' });
+
+        expect(result).toEqual({ _type: 'test', title: 'no-id' });
+        const logger = jest.mocked((jest.requireMock('@/lib/logger') as any).structuredLogger);
+        expect(logger.info).toHaveBeenCalledWith('Sanity document created (no _id)', {
+          component: 'sanity-http',
+        });
       });
+
       delete process.env.SANITY_HTTP_DEBUG;
     });
 
@@ -338,16 +360,22 @@ describe('SanityHTTPClient', () => {
 
     it('logs debug information when SANITY_HTTP_DEBUG is enabled', async () => {
       process.env.SANITY_HTTP_DEBUG = '1';
-      const clientModule = await loadModule();
-      const client = new clientModule.SanityHTTPClient();
-      mockCommit.mockResolvedValue({ _id: 'doc-2', _type: 'test' });
 
-      await client.update('doc-2', { title: 'debug' });
+      await jest.isolateModulesAsync(async () => {
+        jest.doMock('@/lib/logger');
+        const mod = await import('../sanity-http-client');
+        const client = new mod.SanityHTTPClient();
+        mockCommit.mockResolvedValue({ _id: 'doc-2', _type: 'test' });
 
-      expect(loggerMock.info).toHaveBeenCalledWith('Sanity document updated', {
-        component: 'sanity-http',
-        id: 'doc-2',
+        await client.update('doc-2', { title: 'debug' });
+
+        const logger = jest.mocked((jest.requireMock('@/lib/logger') as any).structuredLogger);
+        expect(logger.info).toHaveBeenCalledWith('Sanity document updated', {
+          component: 'sanity-http',
+          id: 'doc-2',
+        });
       });
+
       delete process.env.SANITY_HTTP_DEBUG;
     });
 
@@ -421,16 +449,22 @@ describe('SanityHTTPClient', () => {
 
     it('logs debug information when deleting documents', async () => {
       process.env.SANITY_HTTP_DEBUG = '1';
-      const clientModule = await loadModule();
-      const client = new clientModule.SanityHTTPClient();
-      mockWriteClient.delete.mockResolvedValue({ success: true });
 
-      await client.delete('doc-3');
+      await jest.isolateModulesAsync(async () => {
+        jest.doMock('@/lib/logger');
+        const mod = await import('../sanity-http-client');
+        const client = new mod.SanityHTTPClient();
+        mockWriteClient.delete.mockResolvedValue({ success: true } as any);
 
-      expect(loggerMock.info).toHaveBeenCalledWith('Sanity document deleted', {
-        component: 'sanity-http',
-        id: 'doc-3',
+        await client.delete('doc-3');
+
+        const logger = jest.mocked((jest.requireMock('@/lib/logger') as any).structuredLogger);
+        expect(logger.info).toHaveBeenCalledWith('Sanity document deleted', {
+          component: 'sanity-http',
+          id: 'doc-3',
+        });
       });
+
       delete process.env.SANITY_HTTP_DEBUG;
     });
 

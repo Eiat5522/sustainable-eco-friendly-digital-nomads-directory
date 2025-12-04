@@ -9,7 +9,7 @@ import { structuredLogger } from '@/lib/logger';
 import type { ListingEvent, MapEvent, SearchEvent } from './config';
 
 export function usePlausibleAnalytics() {
-    const noop = (..._args: unknown[]) => {
+  const noop = (..._args: unknown[]) => {
     // No-op function for development
     if (process.env.NODE_ENV === 'development') {
       structuredLogger.debug('Analytics Event (noop)', {

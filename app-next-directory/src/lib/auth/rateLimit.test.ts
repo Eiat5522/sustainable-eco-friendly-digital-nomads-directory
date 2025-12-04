@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { structuredLogger } from '@/lib/logger';
+import type { structuredLogger } from '@/lib/logger';
 
 jest.mock('@/lib/logger');
 

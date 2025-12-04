@@ -118,10 +118,13 @@ describe('withPerformanceTracking', () => {
 
     const mockLogger = jest.requireMock<typeof import('@/lib/logger')>('@/lib/logger');
     await waitFor(() => {
-      expect(mockLogger.structuredLogger.debug).toHaveBeenCalledWith('[Component Render] Debuggable', {
-        component: 'performance',
-        durationMs: 60.5,
-      });
+      expect(mockLogger.structuredLogger.debug).toHaveBeenCalledWith(
+        '[Component Render] Debuggable',
+        {
+          component: 'performance',
+          durationMs: 60.5,
+        }
+      );
     });
     expect(mockLogger.structuredLogger.debug).toHaveBeenCalledWith(
       '[Custom Metric] component-render-Debuggable',

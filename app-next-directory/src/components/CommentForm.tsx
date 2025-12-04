@@ -89,7 +89,7 @@ export default function CommentForm({ postId }: Readonly<{ postId: string }>): R
 
         setError(resolvedMessage ?? 'Failed to submit comment');
       }
-    } catch (err) {
+    } catch (_error) {
       setError('Failed to submit comment. Please try again.');
     } finally {
       setIsSubmitting(false);

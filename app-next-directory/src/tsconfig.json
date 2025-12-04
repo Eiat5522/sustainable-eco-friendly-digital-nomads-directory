@@ -2,7 +2,14 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "types": ["jest", "node"],
-    "noEmit": true
+    "noEmit": true,
+    "baseUrl": "..",
+    "paths": {
+      "@/*": ["src/*", "app/*"],
+      "@mocks/*": ["__mocks__/*"],
+      "@sanity/sanity.types": ["sanity.types"],
+      "@tests/*": ["tests/*"]
+    }
   },
   "include": [
     "**/*.test.ts",

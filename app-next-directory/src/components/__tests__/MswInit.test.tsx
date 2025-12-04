@@ -1,6 +1,6 @@
 import { render, waitFor } from '@testing-library/react';
-import MswInit from '../MswInit';
 import { structuredLogger } from '@/lib/logger';
+import MswInit from '../MswInit';
 
 jest.mock('@/lib/logger', () => ({
   structuredLogger: {

@@ -133,11 +133,9 @@ export default async function BlogPostPage(props: Readonly<{ params: { slug: str
   );
 }
 
-export async function generateMetadata(
-  props: {
-    params: Promise<{ slug: string }>;
-  }
-): Promise<Metadata> {
+export async function generateMetadata(props: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
   const params = await props.params;
   const base = await getBaseUrl();
   const { slug } = await Promise.resolve(params as unknown as { slug: string });

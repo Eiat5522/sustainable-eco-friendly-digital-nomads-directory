@@ -1,7 +1,6 @@
 import { describe, expect, it, jest } from '@jest/globals';
-
-import { createDashboardHandler } from '../../../app/api/user/dashboard/route-helpers';
 import { _createAnalyticsHandler } from '../../../app/api/user/analytics/route';
+import { createDashboardHandler } from '../../../app/api/user/dashboard/route-helpers';
 
 const parseJson = async (response: Response) => ({
   status: response.status,

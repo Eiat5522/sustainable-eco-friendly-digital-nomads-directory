@@ -5,9 +5,9 @@
  * @date May 19, 2025
  */
 
+import { structuredLogger } from '@/lib/logger';
 import { processMetricForAlert } from '@/lib/performance/alert-service';
 import { PERFORMANCE_BUDGETS } from '@/lib/performance/performance-budgets';
-import { structuredLogger } from '@/lib/logger';
 
 interface MetricData {
   name: string;

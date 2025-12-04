@@ -63,9 +63,12 @@ describe('NextAuth Route Handler', () => {
 
       await GET(request);
 
-      expect(getMockLogger().structuredLogger.info).toHaveBeenCalledWith('[auth route] incoming GET', {
-        path: '/api/auth/signin',
-      });
+      expect(getMockLogger().structuredLogger.info).toHaveBeenCalledWith(
+        '[auth route] incoming GET',
+        {
+          path: '/api/auth/signin',
+        }
+      );
     });
 
     it('handles errors during URL parsing gracefully', async () => {
@@ -138,9 +141,12 @@ describe('NextAuth Route Handler', () => {
 
       await POST(request);
 
-      expect(getMockLogger().structuredLogger.info).toHaveBeenCalledWith('[auth route] incoming POST', {
-        path: '/api/auth/signin',
-      });
+      expect(getMockLogger().structuredLogger.info).toHaveBeenCalledWith(
+        '[auth route] incoming POST',
+        {
+          path: '/api/auth/signin',
+        }
+      );
     });
 
     it('handles errors during URL parsing in POST', async () => {
@@ -206,7 +212,9 @@ describe('NextAuth Route Handler', () => {
     it('logs module load on import', () => {
       // The module load message is logged when the module is imported
       // This happens before the tests run
-      expect(getMockLogger().structuredLogger.info).toHaveBeenCalledWith('[auth route] module loaded');
+      expect(getMockLogger().structuredLogger.info).toHaveBeenCalledWith(
+        '[auth route] module loaded'
+      );
     });
 
     it('logs incoming requests', async () => {

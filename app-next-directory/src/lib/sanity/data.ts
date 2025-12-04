@@ -62,6 +62,7 @@ const LISTING_BY_SLUG_QUERY = groq`
   }
 `;
 
+import { structuredLogger } from '@/lib/logger';
 /**
  * Fetch a single listing from Sanity by its slug.
  * @param slug - The slug (string) of the listing
@@ -69,7 +70,6 @@ const LISTING_BY_SLUG_QUERY = groq`
  * @returns A GROQ query result or null if not found
  */
 import type { AppListingDetail } from '@/types/appView';
-import { structuredLogger } from '@/lib/logger';
 
 export async function getListingData(
   slug: string,

@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
+import { structuredLogger } from '@/lib/logger';
 import {
   ACCESS_CONTROL_MATRIX,
   hasFeaturePermission,
@@ -8,7 +9,6 @@ import {
   ROLE_HIERARCHY,
   type UserRole,
 } from '../../types/auth';
-import { structuredLogger } from '@/lib/logger';
 
 /**
  * Advanced authentication middleware using the audit-compliant access control matrix

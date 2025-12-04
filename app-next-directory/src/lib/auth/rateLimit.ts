@@ -209,11 +209,9 @@ let initialRedis: Redis | undefined;
 try {
   initialRedis = getRedisClient();
 } catch (error) {
-  structuredLogger.warn(
-    '[auth] Failed to obtain Redis client during initialization',
-    error,
-    { component: 'auth-rate-limit' }
-  );
+  structuredLogger.warn('[auth] Failed to obtain Redis client during initialization', error, {
+    component: 'auth-rate-limit',
+  });
   initialRedis = undefined;
 }
 

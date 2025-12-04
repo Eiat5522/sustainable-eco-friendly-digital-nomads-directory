@@ -55,7 +55,8 @@ export function measureFunctionTime<T>(fn: () => T, _name = 'Function'): T {
   if (process.env.NODE_ENV === 'development') {
     structuredLogger.debug(`[${_name}] Execution time`, {
       component: 'performance',
-      durationMs: typeof _executionTime === 'number' ? Number(_executionTime.toFixed(2)) : undefined,
+      durationMs:
+        typeof _executionTime === 'number' ? Number(_executionTime.toFixed(2)) : undefined,
     });
   }
   return result;

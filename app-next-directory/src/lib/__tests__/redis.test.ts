@@ -103,9 +103,13 @@ describe('redis module', () => {
     expect(listener).toHaveBeenLastCalledWith(clientA);
     // Get the mock from the mocked module
     const mockLogger = jest.requireMock<typeof import('@/lib/logger')>('@/lib/logger');
-    expect(mockLogger.structuredLogger.warn).toHaveBeenCalledWith('[redis] listener threw error', expect.any(Error), {
-      component: 'redis',
-    });
+    expect(mockLogger.structuredLogger.warn).toHaveBeenCalledWith(
+      '[redis] listener threw error',
+      expect.any(Error),
+      {
+        component: 'redis',
+      }
+    );
 
     unsubscribe();
 
@@ -259,9 +263,13 @@ describe('redis helpers', () => {
     setRedisClient({ id: 3 } as any);
 
     const mockLogger = jest.requireMock<typeof import('@/lib/logger')>('@/lib/logger');
-    expect(mockLogger.structuredLogger.warn).toHaveBeenCalledWith('[redis] listener threw error', error, {
-      component: 'redis',
-    });
+    expect(mockLogger.structuredLogger.warn).toHaveBeenCalledWith(
+      '[redis] listener threw error',
+      error,
+      {
+        component: 'redis',
+      }
+    );
 
     unsubscribe();
   });

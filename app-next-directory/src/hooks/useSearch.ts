@@ -79,8 +79,9 @@ export function useSearch({
         if (!res.ok) {
           // Try to read error body for debugging
           try {
-            const _txt = await res.text();
-            if (process.env.NODE_ENV !== 'production') {
+            const ignoredResponseBody = await res.text();
+            if (process.env.NODE_ENV !== 'production' && ignoredResponseBody) {
+              console.warn('[useSearch] search error response', ignoredResponseBody);
             }
           } catch (_parseError) {}
           throw new Error('Search request failed');

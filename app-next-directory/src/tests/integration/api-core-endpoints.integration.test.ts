@@ -1,13 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
-
+import { ApiResponseHandler } from '@/utils/api-response';
+import * as citiesRoute from '../../../app/api/cities/route';
 import { createListingsHandlers } from '../../../app/api/listings/route';
+import { POST as performancePost } from '../../../app/api/performance/web-vitals/route';
+import * as reviewsAnalyticsRoute from '../../../app/api/reviews/analytics/route';
 import * as searchRoute from '../../../app/api/search/route';
 import * as searchSuggestionsRoute from '../../../app/api/search/suggestions/route';
-import * as citiesRoute from '../../../app/api/cities/route';
-import * as reviewsAnalyticsRoute from '../../../app/api/reviews/analytics/route';
 import { POST as sessionPost } from '../../../app/api/session/route';
-import { POST as performancePost } from '../../../app/api/performance/web-vitals/route';
-import { ApiResponseHandler } from '@/utils/api-response';
 
 jest.mock('@/lib/performance/alert-service', () => ({
   processMetricForAlert: jest.fn().mockResolvedValue(undefined),

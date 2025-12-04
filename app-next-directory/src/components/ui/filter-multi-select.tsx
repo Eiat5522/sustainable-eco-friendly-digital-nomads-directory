@@ -37,7 +37,6 @@ export function FilterMultiSelect({
 
   const buttonLabel = selected.length > 0 ? `${label} (${selected.length})` : label;
   const TriggerIcon = triggerIcon;
-  const _ignoredSelectedSet = React.useMemo(() => new Set(selected), [selected]);
 
   return (
     <DropdownMenu.Root>

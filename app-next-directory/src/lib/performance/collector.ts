@@ -11,7 +11,7 @@
 import { structuredLogger } from '@/lib/logger';
 
 // Type definitions for web-vitals (if package is not installed)
-interface Metric {
+export interface Metric {
   name: string;
   value: number;
   rating: 'good' | 'needs-improvement' | 'poor';
@@ -149,6 +149,7 @@ interface CollectorDependencies {
   onINP: (callback: ReportCallback) => void;
   onLCP: (callback: ReportCallback) => void;
   onTTFB: (callback: ReportCallback) => void;
+  getNodeEnv?: () => string | undefined;
 }
 
 export const dependencies: CollectorDependencies = {
@@ -163,6 +164,20 @@ export const dependencies: CollectorDependencies = {
   onINP,
   onLCP,
   onTTFB,
+  getNodeEnv: () => {
+    if (typeof process === 'undefined') return undefined;
+    return process.env?.NODE_ENV;
+  },
+};
+
+const getCurrentNodeEnv = (): string | undefined => {
+  try {
+    return dependencies.getNodeEnv?.();
+  } catch {
+    // ignore custom dependency errors and fall back to process.env
+  }
+  if (typeof process === 'undefined') return undefined;
+  return process.env?.NODE_ENV;
 };
 
 // Performance metric thresholds based on Core Web Vitals
@@ -208,7 +223,7 @@ function getRating(name: string, value: number): PerformanceMetric['rating'] {
  * Reports performance metric to Plausible Analytics
  */
 function reportMetric({ name, value, rating }: PerformanceMetric) {
-  if (process.env.NODE_ENV === 'development') {
+  if (getCurrentNodeEnv() === 'development') {
     structuredLogger.debug(`[Performance] ${name}`, {
       component: 'performance',
       value,
