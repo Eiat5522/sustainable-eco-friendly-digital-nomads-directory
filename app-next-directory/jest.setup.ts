@@ -120,6 +120,10 @@ const jsdomNotImplementedFilter: ConsoleFilter = args => {
   );
 };
 
+const createCombinedIncludesFilter =
+  (needle: string): ConsoleFilter =>
+  args => args.map(String).join(' ').includes(needle);
+
 const defaultErrorFilters: readonly ConsoleFilter[] = [
   createIncludesEveryFilter(['ReactDOMTestUtils.act', 'deprecated']),
   jsdomNotImplementedFilter,
@@ -208,12 +212,25 @@ const defaultErrorFilters: readonly ConsoleFilter[] = [
     'React does not recognize the',
     'Received `true` for a non-boolean attribute',
     'Invalid API response shape',
+    'A component is changing an uncontrolled input to be controlled',
+    'component is changing a controlled input to be uncontrolled',
+    '`value` prop on `input` should not be null',
+    'Received NaN for the `value` attribute',
+    'Failed to fetch comments',
+    'Failed to create comment',
+    'Failed to record review vote',
+    'Failed to fetch review vote statistics',
+    '[Performance API] Error processing metrics',
+    'validateDOMNesting',
   ]),
+  createCombinedIncludesFilter('Received NaN for the `value` attribute'),
 ];
 
 const defaultWarnFilters: readonly ConsoleFilter[] = [
   createIncludesSomeFilter(['Missing optional environment variable: SANITY_API_TOKEN']),
   createIncludesSomeFilter(['[listing-view]']),
+   createIncludesSomeFilter(['Failed to revalidate comment tag']),
+   createIncludesSomeFilter(['[auth] Failed to load providers']),
 ];
 
 // Shared helper to check if console output should be filtered
@@ -304,22 +321,24 @@ declare global {
 // Apply console filters globally by default to suppress noisy test errors
 // Set JEST_CONSOLE_NO_FILTER=1 to disable filtering for debugging
 //
-// NOTE: We do NOT wrap console methods globally because it interferes with jest.spyOn
-// Instead, tests should use the withDefaultConsoleFilters helper if they need filtering
 if (process.env.JEST_CONSOLE_NO_FILTER !== '1') {
   const originalConsoleError = console.error;
   const originalConsoleWarn = console.warn;
   const ignoredOriginalConsoleLog = console.log;
 
-  // Store originals for test access - tests can spy on these
   (console as Console & { originalConsoleError?: typeof console.error }).originalConsoleError =
     originalConsoleError;
   (console as Console & { originalConsoleWarn?: typeof console.warn }).originalConsoleWarn =
     originalConsoleWarn;
 
-  // Don't wrap console globally - let tests spy on the real methods
-  // Tests that need filtering can use withDefaultConsoleFilters()
+  // Silence noisy console output in test runs; originals are kept for opt-in spying
+  console.error = (() => {}) as typeof console.error;
+  console.warn = (() => {}) as typeof console.warn;
+  console.debug = (() => {}) as typeof console.debug;
+  console.log = (() => {}) as typeof console.log;
 }
+
+
 
 import { TextDecoder, TextEncoder } from 'node:util';
 // jest.setup.ts

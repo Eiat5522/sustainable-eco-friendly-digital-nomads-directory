@@ -1,12 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { structuredLogger } from '@/lib/logger';
-import {
-  getClient,
-  getSanityHTTPClient,
-  SanityAPIError,
-  SanityHTTPClient,
-} from '../sanity-http-client';
-
 jest.mock('@/lib/logger');
 
 const loggerMock = jest.mocked(structuredLogger);

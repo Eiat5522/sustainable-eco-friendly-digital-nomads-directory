@@ -239,3 +239,4 @@ unit_tests_results.txt
 app-next-directory/reports/**
 playwright-report-app-next.zip
 !test-output-full.log
+!unit_test_result.txt

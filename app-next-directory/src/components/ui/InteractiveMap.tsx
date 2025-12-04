@@ -13,25 +13,32 @@ interface InteractiveMapProps {
   readonly className?: string;
 }
 
-// Leaflet types - using unknown for dynamic imports
+type LeafletEvent = { tile?: HTMLImageElement; error?: unknown };
 type LeafletMap = {
   remove: () => void;
   setView: (latlng: [number, number], zoom: number) => LeafletMap;
   invalidateSize: () => void;
+  whenReady: (fn: (event?: LeafletEvent) => void) => void;
 };
-type LeafletMarker = { addTo: (map: LeafletMap) => LeafletMarker; remove: () => void };
+type LeafletPopup = { setContent: (content: HTMLElement) => void };
+type LeafletMarker = {
+  addTo: (map: LeafletMap) => LeafletMarker;
+  bindPopup: (content: HTMLElement) => LeafletMarker;
+  getPopup?: () => LeafletPopup | undefined;
+  remove: () => void;
+};
+type LeafletDivIcon = { options?: unknown };
+type LeafletTileLayer = {
+  on: (event: string, handler: (event: LeafletEvent) => void) => LeafletTileLayer;
+  off: (event: string, handler: (event: LeafletEvent) => void) => LeafletTileLayer;
+  addTo: (map: LeafletMap) => void;
+  remove: () => void;
+};
 type LeafletModule = {
   map: (container: HTMLElement) => LeafletMap;
-  tileLayer: (
-    url: string,
-    options: Record<string, unknown>
-  ) => {
-    on: (event: string, handler: () => void) => void;
-    addTo: (map: LeafletMap) => void;
-    off: (event: string) => void;
-  };
+  tileLayer: (url: string, options: Record<string, unknown>) => LeafletTileLayer;
   marker: (latlng: [number, number], options?: Record<string, unknown>) => LeafletMarker;
-  divIcon: (options: Record<string, unknown>) => unknown;
+  divIcon: (options: Record<string, unknown>) => LeafletDivIcon;
 };
 
 export function InteractiveMap({ location, address, name, className }: InteractiveMapProps) {
@@ -39,10 +46,11 @@ export function InteractiveMap({ location, address, name, className }: Interacti
   const mapInstanceRef = useRef<LeafletMap | null>(null);
   const LRef = useRef<LeafletModule | null>(null);
   const markerRef = useRef<LeafletMarker | null>(null);
+  const tileLayerRef = useRef<LeafletTileLayer | null>(null);
   const [tileLoadFailed, setTileLoadFailed] = useState(false);
 
   const createCustomMarkerIcon = useCallback(
-    (leaflet: LeafletModule) =>
+    (leaflet: LeafletModule): LeafletDivIcon =>
       leaflet.divIcon({
         html: `<div class="w-8 h-8 bg-neo-primary rounded-full flex items-center justify-center text-white shadow-lg">
                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -62,20 +70,22 @@ export function InteractiveMap({ location, address, name, className }: Interacti
     }
 
     let tileLayer: ReturnType<LeafletModule['tileLayer']> | null = null;
-    let handleTileLoad: (() => void) | null = null;
-    let handleTileError: ((e: { error?: unknown; tile?: HTMLImageElement }) => void) | null = null;
+    let handleTileLoad: ((event: LeafletEvent) => void) | null = null;
+    let handleTileError: ((event: LeafletEvent) => void) | null = null;
     let isMounted = true;
 
     const initMap = async () => {
       try {
         if (!LRef.current) {
-          const mod = await import('leaflet');
-          LRef.current = mod;
+          const mod = (await import('leaflet')) as unknown;
+          const leafletMod =
+            (mod as { default?: LeafletModule }).default ?? (mod as LeafletModule);
+          LRef.current = leafletMod;
         }
 
         const Leaflet = LRef.current;
         const container = mapRef.current;
-        if (!container || !isMounted) {
+        if (!Leaflet || !container || !isMounted) {
           return;
         }
 
@@ -90,7 +100,7 @@ export function InteractiveMap({ location, address, name, className }: Interacti
         const tileUrl =
           process.env.NEXT_PUBLIC_TILE_URL ?? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
-        handleTileLoad = () => {
+        handleTileLoad = (_event: LeafletEvent) => {
           if (!isMounted) return;
           setTileLoadFailed(false);
           requestAnimationFrame(() => {
@@ -98,7 +108,7 @@ export function InteractiveMap({ location, address, name, className }: Interacti
           });
         };
 
-        handleTileError = (e: { error?: unknown; tile?: HTMLImageElement }) => {
+        handleTileError = (e: LeafletEvent) => {
           if (!isMounted) return;
           setTileLoadFailed(true);
           if (process.env.NODE_ENV !== 'production') {
@@ -145,6 +155,7 @@ export function InteractiveMap({ location, address, name, className }: Interacti
         tileLayer.on('load', handleTileLoad);
         tileLayer.on('tileerror', handleTileError);
         tileLayer.addTo(map);
+        tileLayerRef.current = tileLayer;
 
         const popupContent = document.createElement('div');
         const titleEl = document.createElement('strong');
@@ -182,15 +193,15 @@ export function InteractiveMap({ location, address, name, className }: Interacti
 
     return () => {
       isMounted = false;
-      if (tileLayer) {
+      if (tileLayerRef.current) {
         if (handleTileLoad) {
-          tileLayer.off('load', handleTileLoad);
+          tileLayerRef.current.off('load', handleTileLoad);
         }
         if (handleTileError) {
-          tileLayer.off('tileerror', handleTileError);
+          tileLayerRef.current.off('tileerror', handleTileError);
         }
-        tileLayer.remove();
-        tileLayer = null;
+        tileLayerRef.current.remove();
+        tileLayerRef.current = null;
       }
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { structuredLogger } from '@/lib/logger';
 import type { SearchFilters, SortOption } from '@/types/search';
 
 interface SearchResult {
@@ -81,7 +82,10 @@ export function useSearch({
           try {
             const ignoredResponseBody = await res.text();
             if (process.env.NODE_ENV !== 'production' && ignoredResponseBody) {
-              console.warn('[useSearch] search error response', ignoredResponseBody);
+              structuredLogger.warn('[useSearch] search error response', {
+                component: 'search',
+                response: ignoredResponseBody.slice(0, 500),
+              });
             }
           } catch (_parseError) {}
           throw new Error('Search request failed');

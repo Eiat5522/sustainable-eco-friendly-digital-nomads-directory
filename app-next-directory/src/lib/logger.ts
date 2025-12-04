@@ -173,7 +173,7 @@ const loggerConfig: pino.LoggerOptions = {
 };
 
 // Configure pretty printing for development by using pino's transport API.
-const createPrettyTransport = (): pino.TransportSingleOptions | undefined => {
+const createPrettyTransport = (): pino.DestinationStream | undefined => {
   if (!isDevelopment || !isServer) {
     return undefined;
   }
@@ -187,7 +187,7 @@ const createPrettyTransport = (): pino.TransportSingleOptions | undefined => {
         ignore: 'pid,hostname',
         singleLine: false,
       },
-    });
+    }) as unknown as pino.DestinationStream;
   } catch {
     return undefined;
   }

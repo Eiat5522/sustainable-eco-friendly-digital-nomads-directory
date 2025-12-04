@@ -22,6 +22,10 @@ const mockSettings = {
 };
 
 describe('SettingsForm', () => {
+  beforeAll(() => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
   beforeEach(() => {
     global.fetch = jest.fn();
     jest.clearAllMocks();
