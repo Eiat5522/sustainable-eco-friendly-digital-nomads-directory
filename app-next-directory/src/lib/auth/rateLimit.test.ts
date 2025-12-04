@@ -1,6 +1,12 @@
 import { jest } from '@jest/globals';
+import { structuredLogger } from '@/lib/logger';
 
 jest.mock('@/lib/logger');
+
+const getStructuredLoggerMock = () =>
+  jest.requireMock<typeof import('@/lib/logger')>('@/lib/logger').structuredLogger as jest.Mocked<
+    typeof structuredLogger
+  >;
 
 type SetupOptions = {
   initialRedis?: Record<string, unknown> | undefined;
@@ -465,33 +471,27 @@ describe('auth rateLimit utilities', () => {
 
       const redisClient = { evalsha: jest.fn() } as unknown as Record<string, unknown>;
       const { module: withLimiter, mocks } = await setupModule({ initialRedis: redisClient });
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-
       mocks.limit.mockRejectedValue(new Error('boom'));
       const fallback = await withLimiter.enforceLoginRateLimit('user@example.com');
       expect(fallback).toEqual({ success: true });
-      expect(consoleSpy).toHaveBeenCalledWith(
+      expect(getStructuredLoggerMock().warn).toHaveBeenCalledWith(
         '[auth] Login ratelimiter error; allowing attempt',
-        expect.any(Error)
+        expect.any(Error),
+        { component: 'auth-rate-limit' }
       );
-
-      consoleSpy.mockRestore();
     });
 
     it('warns when redis client cannot be obtained during initialization', async () => {
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
       await setupModule({ initialRedisError: new Error('redis down') });
-      expect(warnSpy).toHaveBeenCalledWith(
+      expect(getStructuredLoggerMock().warn).toHaveBeenCalledWith(
         '[auth] Failed to obtain Redis client during initialization',
-        expect.any(Error)
+        expect.any(Error),
+        { component: 'auth-rate-limit' }
       );
-      warnSpy.mockRestore();
     });
 
     it('warns when redis change handler encounters normalization errors', async () => {
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
       const { redisChangeHandler } = await setupModule({ initialRedis: undefined });
-      warnSpy.mockClear();
 
       const problematicClient: Record<string, unknown> = {};
       Object.defineProperty(problematicClient, 'evalSha', {
@@ -502,11 +502,11 @@ describe('auth rateLimit utilities', () => {
 
       redisChangeHandler?.(problematicClient);
 
-      expect(warnSpy).toHaveBeenCalledWith(
+      expect(getStructuredLoggerMock().warn).toHaveBeenCalledWith(
         '[auth] Failed to rebuild login rate limiter',
-        expect.any(Error)
+        expect.any(Error),
+        { component: 'auth-rate-limit' }
       );
-      warnSpy.mockRestore();
     });
 
     it('ignores redis change notifications when the client is missing', async () => {
@@ -542,7 +542,7 @@ describe('auth rateLimit utilities', () => {
 
       expect(result).toEqual({ success: true });
       expect(rateLimitModule.__getLastRateLimiterConfigForTests()).toBeUndefined();
-      expect(jest.requireMock<typeof import("@/lib/logger")>("@/lib/logger").structuredLogger.warn).toHaveBeenCalledWith(
+      expect(getStructuredLoggerMock().warn).toHaveBeenCalledWith(
         '[auth] Failed to initialize login rate limiter',
         ctorError,
         { component: 'auth-rate-limit' }
@@ -561,10 +561,14 @@ describe('auth rateLimit utilities', () => {
         ratelimitExportFactory: () => ({ __esModule: true, Ratelimit: failingCtor }),
       });
 
+      const rejectingPromise = Promise.reject(ctorError);
+      rejectingPromise.catch(() => undefined);
+      rateLimitModule.__setLoginRateLimiterPromiseForTests(rejectingPromise);
+
       const result = await rateLimitModule.enforceLoginRateLimit('user@example.com');
 
       expect(result).toEqual({ success: true });
-      expect(jest.requireMock<typeof import("@/lib/logger")>("@/lib/logger").structuredLogger.warn).toHaveBeenCalledWith(
+      expect(getStructuredLoggerMock().warn).toHaveBeenCalledWith(
         '[auth] Login ratelimiter initialisation error; allowing attempt',
         ctorError,
         { component: 'auth-rate-limit' }
@@ -599,7 +603,7 @@ describe('auth rateLimit utilities', () => {
         await rateLimitModule.recordLoginAttempt({ ...baseParams, email: 'not-an-email' });
 
         expect(mocks.dbConnect).not.toHaveBeenCalled();
-        expect(jest.requireMock<typeof import("@/lib/logger")>("@/lib/logger").structuredLogger.warn).toHaveBeenCalledWith(
+        expect(getStructuredLoggerMock().warn).toHaveBeenCalledWith(
           '[auth] Skipping login attempt record due to invalid email',
           {
             component: 'auth-rate-limit',
@@ -617,7 +621,7 @@ describe('auth rateLimit utilities', () => {
         });
 
         expect(mocks.dbConnect).not.toHaveBeenCalled();
-        expect(jest.requireMock<typeof import("@/lib/logger")>("@/lib/logger").structuredLogger.warn).toHaveBeenCalledWith(
+        expect(getStructuredLoggerMock().warn).toHaveBeenCalledWith(
           '[auth] Skipping login attempt record due to invalid email',
           {
             component: 'auth-rate-limit',
@@ -642,7 +646,6 @@ describe('auth rateLimit utilities', () => {
       it('logs attempts using collection insert and falls back to model create on failure', async () => {
         const { module: rateLimitModule, mocks } = await loadRecorder();
         const insertError = new Error('insert failed');
-        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
         mocks.collection.mockReturnValueOnce({ insertOne: mocks.insertOne });
         mocks.collection.mockReturnValueOnce({
@@ -654,12 +657,18 @@ describe('auth rateLimit utilities', () => {
         expect(mocks.insertOne).toHaveBeenCalledWith(
           expect.objectContaining({ email: 'example@test.dev', ip: '127.0.0.1' })
         );
+        expect(getStructuredLoggerMock().warn).not.toHaveBeenCalled();
 
         await rateLimitModule.recordLoginAttempt(baseParams);
-        expect(warnSpy).toHaveBeenCalledWith('[auth] Failed to record login attempt', insertError);
+        expect(getStructuredLoggerMock().warn).toHaveBeenCalledWith(
+          '[auth] Failed to record login attempt',
+          insertError,
+          {
+            component: 'auth-rate-limit',
+            email: 'example@test.dev',
+          }
+        );
         expect(mocks.loginAttemptCreate).toHaveBeenCalled();
-
-        warnSpy.mockRestore();
       });
 
       it('records login attempts with null ip addresses when undefined', async () => {
@@ -674,7 +683,6 @@ describe('auth rateLimit utilities', () => {
         const { module: rateLimitModule, mocks } = await loadRecorder();
         const insertError = new Error('insert failed');
         const modelError = new Error('model failed');
-        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
         mocks.collection.mockReturnValueOnce({
           insertOne: jest.fn().mockRejectedValue(insertError),
@@ -683,27 +691,46 @@ describe('auth rateLimit utilities', () => {
 
         await rateLimitModule.recordLoginAttempt(baseParams);
 
-        expect(warnSpy).toHaveBeenCalledWith('[auth] Failed to record login attempt', modelError);
-
-        warnSpy.mockRestore();
+        expect(getStructuredLoggerMock().warn).toHaveBeenNthCalledWith(
+          1,
+          '[auth] Failed to record login attempt',
+          insertError,
+          {
+            component: 'auth-rate-limit',
+            email: 'example@test.dev',
+          }
+        );
+        expect(getStructuredLoggerMock().warn).toHaveBeenNthCalledWith(
+          2,
+          '[auth] Failed to record login attempt',
+          modelError,
+          {
+            component: 'auth-rate-limit',
+            email: 'example@test.dev',
+          }
+        );
       });
 
       it('handles database connection failures gracefully', async () => {
         const { module: rateLimitModule, mocks } = await loadRecorder();
         const error = new Error('connection failed');
         mocks.dbConnect.mockRejectedValue(error);
-        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
         await rateLimitModule.recordLoginAttempt(baseParams);
 
-        expect(warnSpy).toHaveBeenCalledWith('[auth] Failed to record login attempt', error);
-        warnSpy.mockRestore();
+        expect(getStructuredLoggerMock().warn).toHaveBeenCalledWith(
+          '[auth] Failed to record login attempt',
+          error,
+          {
+            component: 'auth-rate-limit',
+            email: 'example@test.dev',
+          }
+        );
       });
 
       it('logs collection errors when the model rejection lacks details', async () => {
         const { module: rateLimitModule, mocks } = await loadRecorder();
         const insertError = new Error('insert failed');
-        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
         mocks.collection.mockReturnValueOnce({
           insertOne: jest.fn().mockRejectedValue(insertError),
@@ -712,9 +739,24 @@ describe('auth rateLimit utilities', () => {
 
         await rateLimitModule.recordLoginAttempt(baseParams);
 
-        expect(warnSpy).toHaveBeenCalledWith('[auth] Failed to record login attempt', insertError);
-
-        warnSpy.mockRestore();
+        expect(getStructuredLoggerMock().warn).toHaveBeenNthCalledWith(
+          1,
+          '[auth] Failed to record login attempt',
+          insertError,
+          {
+            component: 'auth-rate-limit',
+            email: 'example@test.dev',
+          }
+        );
+        expect(getStructuredLoggerMock().warn).toHaveBeenNthCalledWith(
+          2,
+          '[auth] Failed to record login attempt',
+          insertError,
+          {
+            component: 'auth-rate-limit',
+            email: 'example@test.dev',
+          }
+        );
       });
     });
   });

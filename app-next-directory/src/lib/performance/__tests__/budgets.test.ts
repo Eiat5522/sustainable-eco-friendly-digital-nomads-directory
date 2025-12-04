@@ -2,6 +2,13 @@ import { type AlertSeverity, PERFORMANCE_BUDGETS, type PerformanceAlert } from '
 
 jest.mock('@/lib/logger');
 
+type StructuredLogger = typeof import('@/lib/logger')['structuredLogger'];
+
+const getStructuredLoggerMock = () =>
+  jest.requireMock<typeof import('@/lib/logger')>('@/lib/logger').structuredLogger as jest.Mocked<
+    StructuredLogger
+  >;
+
 describe('budgets', () => {
   let originalEnv: NodeJS.ProcessEnv;
   let mockFetch: jest.Mock;
@@ -275,7 +282,11 @@ describe('budgets', () => {
       const alert = createAlert('error');
 
       await expect(sendAlertFn(alert)).resolves.not.toThrow();
-      expect(console.error).toHaveBeenCalledWith('Failed to send Slack alert:', expect.any(Error));
+      expect(getStructuredLoggerMock().error).toHaveBeenCalledWith(
+        'Failed to send Slack alert',
+        expect.any(Error),
+        { component: 'performance' }
+      );
     });
 
     it('should format slack message correctly', async () => {
@@ -304,7 +315,7 @@ describe('budgets', () => {
         await expect(sendAlert(alert)).resolves.not.toThrow();
       }
 
-      expect(console.log).toHaveBeenCalledTimes(3);
+      expect(getStructuredLoggerMock().info).toHaveBeenCalledTimes(3);
     });
   });
 

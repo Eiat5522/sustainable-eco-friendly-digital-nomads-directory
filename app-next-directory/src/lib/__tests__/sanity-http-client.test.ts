@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { structuredLogger } from '@/lib/logger';
 
 jest.mock('@/lib/logger');
+
+const loggerMock = jest.mocked(structuredLogger);
 
 const REQUIRED_ENV = {
   NEXT_PUBLIC_SANITY_PROJECT_ID: 'test-project-id',
@@ -110,10 +113,9 @@ describe('SanityHTTPClient', () => {
 
     new clientModule.SanityHTTPClient();
 
-    expect(jest.requireMock<typeof import("@/lib/logger")>("@/lib/logger").structuredLogger.warn).toHaveBeenCalledWith(
-      'Missing optional environment variable: SANITY_API_TOKEN',
-      { component: 'sanity-http' }
-    );
+    expect(loggerMock.warn).toHaveBeenCalledWith('Missing optional environment variable: SANITY_API_TOKEN', {
+      component: 'sanity-http',
+    });
   });
 
   describe('query', () => {
@@ -263,7 +265,7 @@ describe('SanityHTTPClient', () => {
 
       expect(mockWriteClient.create).toHaveBeenCalledWith({ _type: 'test' });
       expect(result).toEqual(doc);
-      expect(jest.requireMock<typeof import("@/lib/logger")>("@/lib/logger").structuredLogger.info).toHaveBeenCalledWith('Sanity document created', {
+      expect(loggerMock.info).toHaveBeenCalledWith('Sanity document created', {
         component: 'sanity-http',
         id: 'doc-1',
       });
@@ -279,7 +281,7 @@ describe('SanityHTTPClient', () => {
       const result = await client.create({ _type: 'test' });
 
       expect(result).toEqual({ _type: 'test', title: 'no-id' });
-      expect(jest.requireMock<typeof import("@/lib/logger")>("@/lib/logger").structuredLogger.info).toHaveBeenCalledWith('Sanity document created (no _id)', {
+      expect(loggerMock.info).toHaveBeenCalledWith('Sanity document created (no _id)', {
         component: 'sanity-http',
       });
       delete process.env.SANITY_HTTP_DEBUG;
@@ -342,7 +344,7 @@ describe('SanityHTTPClient', () => {
 
       await client.update('doc-2', { title: 'debug' });
 
-      expect(jest.requireMock<typeof import("@/lib/logger")>("@/lib/logger").structuredLogger.info).toHaveBeenCalledWith('Sanity document updated', {
+      expect(loggerMock.info).toHaveBeenCalledWith('Sanity document updated', {
         component: 'sanity-http',
         id: 'doc-2',
       });
@@ -425,7 +427,7 @@ describe('SanityHTTPClient', () => {
 
       await client.delete('doc-3');
 
-      expect(jest.requireMock<typeof import("@/lib/logger")>("@/lib/logger").structuredLogger.info).toHaveBeenCalledWith('Sanity document deleted', {
+      expect(loggerMock.info).toHaveBeenCalledWith('Sanity document deleted', {
         component: 'sanity-http',
         id: 'doc-3',
       });
