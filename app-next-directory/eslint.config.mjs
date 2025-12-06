@@ -1,17 +1,19 @@
 import nextCoreWebVitals from "eslint-config-next/core-web-vitals.js";
 import nextTypescript from "eslint-config-next/typescript.js";
+
+// Some package versions export a single config object instead of an
+// array of configs. Normalize to arrays so spreads below are safe.
+const _nextCoreWebVitals = Array.isArray(nextCoreWebVitals)
+  ? nextCoreWebVitals
+  : [nextCoreWebVitals];
+const _nextTypescript = Array.isArray(nextTypescript) ? nextTypescript : [nextTypescript];
 import { fileURLToPath } from 'node:url';
 import requireReactFcTypeParametersRule from './eslint/rules/require-react-fc-type-parameters.js';
 
 // Robust import with CJS fallback for @eslint/eslintrc
-let eslintrc;
-try {
-  eslintrc = await import('@eslint/eslintrc');
-} catch (_err) {
-  eslintrc = await import('@eslint/eslintrc/dist/eslintrc.cjs');
-}
-
-const { FlatCompat } = eslintrc;
+// Note: older templates attempted to dynamically import '@eslint/eslintrc'.
+// This project imports the necessary Next.js flat configs directly below
+// and does not require `FlatCompat` at runtime.
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
@@ -42,7 +44,7 @@ const eslintConfig = [{
       rootDir: __dirname,
     },
   },
-}, ...nextCoreWebVitals, ...nextTypescript, {
+}, ..._nextCoreWebVitals, ..._nextTypescript, {
   plugins: {
     'local-react-strictness': {
       rules: {
