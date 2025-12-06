@@ -15,9 +15,9 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  // `eslint` config is now managed via the project ESLint config (eslint.config.mjs)
+  // Remove this entry for Next.js 16 compatibility.
+  turbopack: {},
   env: {
     // Prefer per-environment env var; dev-only fallback.
     NEXT_PUBLIC_API_URL:

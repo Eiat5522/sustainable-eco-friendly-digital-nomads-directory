@@ -16,9 +16,8 @@ const withAnalyzer = withBundleAnalyzer({ enabled: isAnalyze });
 const nextConfig: NextConfig = {
   productionBrowserSourceMaps: process.env.ENABLE_SOURCE_MAPS === 'true',
   reactStrictMode: true,
-  eslint: {
-    ignoreDuringBuilds: process.env.NODE_ENV === 'development',
-  },
+  // `eslint` is now configured via `eslint.config.mjs`. Remove Next.js `eslint` option.
+  turbopack: {},
   typescript: {
     ignoreBuildErrors: process.env.NODE_ENV === 'development',
   },
