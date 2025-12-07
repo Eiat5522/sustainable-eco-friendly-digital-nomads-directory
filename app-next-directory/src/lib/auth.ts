@@ -259,7 +259,7 @@ export async function auth(
     // is for consistency with other helpers and to document that callers
     // are in request context. We don't pass it to _originalAuth.
     // If additional args are provided (for other use cases), pass them through.
-    return await _originalAuth(...args);
+    return (await _originalAuth(...args)) as Session | null;
   } catch (error) {
     try {
       const msg = error instanceof Error ? error.message : String(error);
