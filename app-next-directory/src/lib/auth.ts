@@ -211,14 +211,29 @@ export const authOptions: NextAuthConfig = {
   callbacks,
 };
 
+// Short-circuit NextAuth initialization during builds when requested. This
+// helps prerender runs avoid host verification and network calls. Set
+// `DISABLE_NEXTAUTH_DURING_BUILD=1` in the build env to enable the stub.
 const nextAuthInstance = (() => {
+  if (process.env.DISABLE_NEXTAUTH_DURING_BUILD === '1') {
+    structuredLogger.info('[auth] DISABLE_NEXTAUTH_DURING_BUILD enabled, using stub');
+    return {
+      handlers: { GET: async () => new Response(''), POST: async () => new Response('') },
+      auth: async () => null,
+    } as any;
+  }
+
   try {
     const inst = NextAuth(authOptions);
     return inst;
   } catch (err) {
-    structuredLogger.warn('[auth] NextAuth initialization failed (build/prerender), using stub instance', err, {
-      component: 'auth',
-    });
+    structuredLogger.warn(
+      '[auth] NextAuth initialization failed (build/prerender), using stub instance',
+      err,
+      {
+        component: 'auth',
+      }
+    );
     // Provide a minimal stub that mirrors the shape used elsewhere: handlers and
     // an `auth` helper that returns null during build-time so callers can handle
     // unauthenticated flows instead of crashing.
@@ -247,6 +262,9 @@ export async function auth(
   headersParam?: { get(name: string): string | null | undefined } | null,
   ...args: any[]
 ) {
+  // Honor explicit build-time opt-out for NextAuth. Returning `null` allows
+  // callers to detect unauthenticated state during prerender without failing.
+  if (process.env.DISABLE_NEXTAUTH_DURING_BUILD === '1') return null;
   try {
     // Pass through the headers param as the first argument to the original
     // auth helper. The underlying implementation may ignore extra args, but
@@ -257,9 +275,13 @@ export async function auth(
     try {
       const msg = error instanceof Error ? error.message : String(error);
       if (msg.includes('headers()') || msg.includes('During prerendering')) {
-        structuredLogger.warn('[auth] headers() unavailable during prerender, returning null', error, {
-          component: 'auth',
-        });
+        structuredLogger.warn(
+          '[auth] headers() unavailable during prerender, returning null',
+          error,
+          {
+            component: 'auth',
+          }
+        );
         return null;
       }
     } catch (inner) {

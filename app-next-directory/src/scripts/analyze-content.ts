@@ -42,7 +42,8 @@ async function analyzeContent(): Promise<ContentAnalysisResult> {
   const sanityClient = client;
 
   // Fetch all listings with their content
-  const listings = (await sanityClient.fetch<any[] | null>(`
+  const listings =
+    (await sanityClient.fetch<any[] | null>(`
     *[_type == "listing"]{
       _id,
       name,

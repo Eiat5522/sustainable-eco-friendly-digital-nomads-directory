@@ -1,10 +1,13 @@
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
 import { VenueListingManagement } from '../components/VenueListingManagement';
 
 export default async function VenueListingsPage() {
-  let _h = null as null | ReturnType<typeof headers> | { get(name: string): string | null | undefined };
+  let _h = null as
+    | null
+    | ReturnType<typeof headers>
+    | { get(name: string): string | null | undefined };
   try {
     _h = headers();
   } catch {
@@ -30,4 +33,3 @@ export default async function VenueListingsPage() {
     </div>
   );
 }
-

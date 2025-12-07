@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
 import type { UserRole } from '@/types/auth';
 import { UserManagementTable } from './UserManagementTable';
 

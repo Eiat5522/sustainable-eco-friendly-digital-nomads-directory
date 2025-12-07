@@ -1,5 +1,5 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 // ESM does not provide __dirname; derive it from import.meta.url
 const __filename = fileURLToPath(import.meta.url);
@@ -39,6 +39,9 @@ const nextConfig = {
     'typescript',
     'webpack',
   ],
+  experimental: {
+    turbopackFileSystemCacheForDev: true,
+  },
   reactStrictMode: false,
   typescript: {
     ignoreBuildErrors: true,
@@ -101,7 +104,7 @@ const nextConfig = {
       // Provide lightweight shims to silence module resolution warnings.
       'prettier/standalone': './src/shims/prettier-standalone-shim',
       'prettier/plugins/html': './src/shims/prettier-plugins-html-shim',
-    }
+    },
   },
 };
 const withRedirects = {

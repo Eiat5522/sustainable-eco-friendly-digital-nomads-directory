@@ -31,19 +31,23 @@ type UploadTestControl = {
   skipOptimization?: boolean;
 };
 
-const _testControl: UploadTestControl | undefined = (isTestEnv || enableDevTestHook)
-  ? {
-      authOverride: enableDevTestHook
-        ? (async () => ({ user: { id: 'dev-user', role: 'venueOwner' } } as unknown as Session))
-        : undefined,
-      uploadOverride: enableDevTestHook
-        ? (async (_assetType: 'image' | 'file', _uploadFile: File) => ({ _id: 'dev-asset', url: '/_assets/dev.png' }))
-        : undefined,
-      formDataOverride: undefined,
-      optimizeOverride: undefined,
-      skipOptimization: false,
-    }
-  : undefined;
+const _testControl: UploadTestControl | undefined =
+  isTestEnv || enableDevTestHook
+    ? {
+        authOverride: enableDevTestHook
+          ? async () => ({ user: { id: 'dev-user', role: 'venueOwner' } }) as unknown as Session
+          : undefined,
+        uploadOverride: enableDevTestHook
+          ? async (_assetType: 'image' | 'file', _uploadFile: File) => ({
+              _id: 'dev-asset',
+              url: '/_assets/dev.png',
+            })
+          : undefined,
+        formDataOverride: undefined,
+        optimizeOverride: undefined,
+        skipOptimization: false,
+      }
+    : undefined;
 
 // Expose test control for tests and for local dev when explicitly enabled.
 if (isTestEnv || enableDevTestHook) {

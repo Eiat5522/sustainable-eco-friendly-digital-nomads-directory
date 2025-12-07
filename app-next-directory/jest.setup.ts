@@ -122,7 +122,8 @@ const jsdomNotImplementedFilter: ConsoleFilter = args => {
 
 const createCombinedIncludesFilter =
   (needle: string): ConsoleFilter =>
-  args => args.map(String).join(' ').includes(needle);
+  args =>
+    args.map(String).join(' ').includes(needle);
 
 const defaultErrorFilters: readonly ConsoleFilter[] = [
   createIncludesEveryFilter(['ReactDOMTestUtils.act', 'deprecated']),
@@ -229,8 +230,8 @@ const defaultErrorFilters: readonly ConsoleFilter[] = [
 const defaultWarnFilters: readonly ConsoleFilter[] = [
   createIncludesSomeFilter(['Missing optional environment variable: SANITY_API_TOKEN']),
   createIncludesSomeFilter(['[listing-view]']),
-   createIncludesSomeFilter(['Failed to revalidate comment tag']),
-   createIncludesSomeFilter(['[auth] Failed to load providers']),
+  createIncludesSomeFilter(['Failed to revalidate comment tag']),
+  createIncludesSomeFilter(['[auth] Failed to load providers']),
 ];
 
 // Shared helper to check if console output should be filtered
@@ -337,8 +338,6 @@ if (process.env.JEST_CONSOLE_NO_FILTER !== '1') {
   console.debug = (() => {}) as typeof console.debug;
   console.log = (() => {}) as typeof console.log;
 }
-
-
 
 import { TextDecoder, TextEncoder } from 'node:util';
 // jest.setup.ts

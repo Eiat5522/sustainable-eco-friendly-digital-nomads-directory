@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
 import type { UserRole } from '@/types/auth';
 import { ListingsManagementTable } from './ListingsManagementTable';
 
@@ -29,7 +29,10 @@ function ensureAdmin(
 }
 
 export default async function AdminListingsPage() {
-  let _h = null as null | ReturnType<typeof headers> | { get(name: string): string | null | undefined };
+  let _h = null as
+    | null
+    | ReturnType<typeof headers>
+    | { get(name: string): string | null | undefined };
   try {
     _h = headers();
   } catch {

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import {
   type AdminAnalyticsSnapshot,
@@ -7,7 +8,6 @@ import {
   fetchAdminAnalytics,
 } from '@/lib/admin/analytics';
 import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
 import { RequestTimeoutError } from '@/lib/http/request';
 import { structuredLogger } from '@/lib/logger';
 import type { UserRole } from '@/types/auth';
@@ -212,7 +212,10 @@ function ensureAdminRole(role: UserRole | undefined): role is 'admin' | 'superAd
 }
 
 export default async function AdminDashboardPage() {
-  let _h = null as null | ReturnType<typeof headers> | { get(name: string): string | null | undefined };
+  let _h = null as
+    | null
+    | ReturnType<typeof headers>
+    | { get(name: string): string | null | undefined };
   try {
     _h = headers();
   } catch {

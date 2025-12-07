@@ -2,12 +2,10 @@ import { PortableText } from '@portabletext/react';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { groq } from 'next-sanity';
 import { blogPortableTextComponents } from '@/components/blog/portableTextComponents';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
 import { getBaseUrl } from '@/lib/absolute-url';
-import { client } from '@/lib/sanity/client';
 
 // Subtle SVG gradient placeholder for hero image when missing
 function placeholderDataUri(width = 1200, height = 630) {
@@ -19,7 +17,6 @@ import type { PortableTextBlock } from '@portabletext/types';
 import CommentForm from '@/components/CommentForm';
 import CommentList from '@/components/CommentList';
 import { getPostCached } from './data';
-
 
 // minimal response type
 type Comment = { _id: string; content: string; user?: { name?: string } | null };
