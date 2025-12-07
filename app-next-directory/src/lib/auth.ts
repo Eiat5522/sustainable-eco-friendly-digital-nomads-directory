@@ -217,9 +217,13 @@ const nextAuthInstance = (() => {
     const inst = NextAuth(authOptions);
     return inst;
   } catch (err) {
-    structuredLogger.warn('[auth] NextAuth initialization failed (build/prerender), using stub instance', err, {
-      component: 'auth',
-    });
+    structuredLogger.warn(
+      '[auth] NextAuth initialization failed (build/prerender), using stub instance',
+      err,
+      {
+        component: 'auth',
+      }
+    );
     // Provide a minimal stub that mirrors the shape used elsewhere: handlers and
     // an `auth` helper that returns null during build-time so callers can handle
     // unauthenticated flows instead of crashing.
@@ -260,9 +264,13 @@ export async function auth(
     try {
       const msg = error instanceof Error ? error.message : String(error);
       if (msg.includes('headers()') || msg.includes('During prerendering')) {
-        structuredLogger.warn('[auth] headers() unavailable during prerender, returning null', error, {
-          component: 'auth',
-        });
+        structuredLogger.warn(
+          '[auth] headers() unavailable during prerender, returning null',
+          error,
+          {
+            component: 'auth',
+          }
+        );
         return null;
       }
     } catch (inner) {

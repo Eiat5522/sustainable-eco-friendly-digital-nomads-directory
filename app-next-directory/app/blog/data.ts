@@ -1,4 +1,4 @@
-"use cache";
+'use cache';
 // Cached server helper for the blog index page. Export only async functions
 // from a `use cache` module to be Turbopack-friendly.
 

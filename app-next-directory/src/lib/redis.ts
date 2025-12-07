@@ -63,7 +63,9 @@ export const createRedisClient = (): Redis | undefined => {
   try {
     return new Redis({ url: redisUrl, token: redisToken });
   } catch (error) {
-    structuredLogger.warn('[redis] failed to create client', error as Error, { component: 'redis' });
+    structuredLogger.warn('[redis] failed to create client', error as Error, {
+      component: 'redis',
+    });
     return undefined;
   }
 };

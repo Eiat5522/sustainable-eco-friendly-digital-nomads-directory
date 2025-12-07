@@ -18,9 +18,12 @@ type LoginPageProps = Readonly<{
 
 export default async function LoginPage(props: LoginPageProps) {
   const searchParams = await props.searchParams;
-  
+
   // FORTEST: Wrap headers() in try-catch for compatibility with prerender
-  let _h = null as null | Awaited<ReturnType<typeof headers>> | { get(name: string): string | null | undefined };
+  let _h = null as
+    | null
+    | Awaited<ReturnType<typeof headers>>
+    | { get(name: string): string | null | undefined };
   try {
     _h = await headers();
   } catch {

@@ -95,7 +95,10 @@ interface SanityClientLike {
 }
 
 const stubClient: SanityClientLike = {
-  fetch: async <T = unknown>(_query: string, _params?: Record<string, unknown>): Promise<T | null> => {
+  fetch: async <T = unknown>(
+    _query: string,
+    _params?: Record<string, unknown>
+  ): Promise<T | null> => {
     return null;
   },
   getDocument: async <T = unknown>(_id: string): Promise<T | null> => null,
@@ -113,7 +116,9 @@ const stubClient: SanityClientLike = {
   delete: async (_id: string) => undefined,
 };
 
-export const client: SanityClientLike = DISABLE_SANITY ? stubClient : ((_client as unknown) as SanityClientLike);
+export const client: SanityClientLike = DISABLE_SANITY
+  ? stubClient
+  : (_client as unknown as SanityClientLike);
 
 type ImageUrlBuilderModule = typeof SanityImageUrl & {
   default?: typeof SanityImageUrl;

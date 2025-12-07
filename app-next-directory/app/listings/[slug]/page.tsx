@@ -385,15 +385,18 @@ export default async function ListingPage({ params }: Props) {
   }
 
   const { auth } = await import('@/lib/auth');
-  
+
   // FORTEST: Wrap headers() in try-catch for compatibility with prerender
-  let _h = null as null | Awaited<ReturnType<typeof headers>> | { get(name: string): string | null | undefined };
+  let _h = null as
+    | null
+    | Awaited<ReturnType<typeof headers>>
+    | { get(name: string): string | null | undefined };
   try {
     _h = await headers();
   } catch {
     _h = null;
   }
-  
+
   const sessionPromise = auth(_h);
   const listing = await fetchListingBySlug(slug);
   if (!listing) notFound();

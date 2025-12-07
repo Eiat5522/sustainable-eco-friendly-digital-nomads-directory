@@ -307,8 +307,8 @@ export async function getUserDashboardData(
   const listingIds = listingInfos.map(listing => listing.id);
   const monthKeys = buckets.map(bucket => bucket.key);
 
-  const [reviews, favorites, analytics, monthlyViewMetrics, lifetimeViewTotals] = (await Promise.all(
-    [
+  const [reviews, favorites, analytics, monthlyViewMetrics, lifetimeViewTotals] =
+    (await Promise.all([
       client.fetch<ReviewDoc[]>(
         `*[_type == "review" && listing._ref in $listingIds]{
         "listingId": listing._ref,
@@ -334,8 +334,13 @@ export async function getUserDashboardData(
       ),
       getMonthlyViewCounts(listingIds, monthKeys),
       getLifetimeViewCounts(listingIds),
-    ]
-  )) as [ReviewDoc[] | null, FavoriteDoc[] | null, AnalyticsDoc[] | null, Map<string, Map<string, number>>, Map<string, number>];
+    ])) as [
+      ReviewDoc[] | null,
+      FavoriteDoc[] | null,
+      AnalyticsDoc[] | null,
+      Map<string, Map<string, number>>,
+      Map<string, number>,
+    ];
 
   const safeReviews: ReviewDoc[] = reviews ?? [];
   const safeFavorites: FavoriteDoc[] = favorites ?? [];

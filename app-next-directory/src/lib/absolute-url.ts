@@ -6,14 +6,12 @@ import type { HeadersLike } from '@/types/request';
 /**
  * Resolve the absolute base URL for server-side fetches.
  * Falls back to env when request headers are unavailable.
- * 
+ *
  * @param headersParam - Optional headers object from request context.
  *   Pass `await headers()` from server components to avoid implicit
  *   headers() calls in cached scopes.
  */
-export async function getBaseUrl(
-  headersParam?: HeadersLike | null
-): Promise<string> {
+export async function getBaseUrl(headersParam?: HeadersLike | null): Promise<string> {
   try {
     const h = headersParam ?? (await headers());
     const first = (v?: string | null) => v?.split(',')[0]?.trim() ?? null;
