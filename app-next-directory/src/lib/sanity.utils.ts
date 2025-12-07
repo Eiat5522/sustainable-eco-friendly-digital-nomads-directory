@@ -1,22 +1,68 @@
 import { createClient } from 'next-sanity';
 
-export const client = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
-  apiVersion: '2025-05-15',
-  useCdn: process.env.NODE_ENV === 'production',
+// FORTEST: Lazy initialization to prevent module-scope errors during build
+const disableSanity = process.env.DISABLE_SANITY_DURING_BUILD === '1' || process.env.DISABLE_SANITY_DURING_BUILD === 'true';
+
+let _client: ReturnType<typeof createClient> | null = null;
+let _previewClient: ReturnType<typeof createClient> | null = null;
+
+function createStubClient() {
+  return {
+    fetch: async () => null,
+  } as unknown as ReturnType<typeof createClient>;
+}
+
+function initClient() {
+  if (_client) return _client;
+  
+  if (disableSanity) {
+    _client = createStubClient();
+    return _client;
+  }
+  
+  _client = createClient({
+    projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+    dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
+    apiVersion: '2025-05-15',
+    useCdn: process.env.NODE_ENV === 'production',
+  });
+  
+  return _client;
+}
+
+function initPreviewClient() {
+  if (_previewClient) return _previewClient;
+  
+  if (disableSanity) {
+    _previewClient = createStubClient();
+    return _previewClient;
+  }
+  
+  _previewClient = createClient({
+    projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+    dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
+    apiVersion: '2025-05-15',
+    useCdn: false,
+    perspective: 'previewDrafts',
+  });
+  
+  return _previewClient;
+}
+
+export const client = new Proxy({} as ReturnType<typeof createClient>, {
+  get(_target, prop) {
+    return Reflect.get(initClient(), prop);
+  },
 });
 
-export const previewClient = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
-  apiVersion: '2025-05-15',
-  useCdn: false,
-  perspective: 'previewDrafts',
+export const previewClient = new Proxy({} as ReturnType<typeof createClient>, {
+  get(_target, prop) {
+    return Reflect.get(initPreviewClient(), prop);
+  },
 });
 
 export function getClient(preview = false) {
-  return preview ? previewClient : client;
+  return preview ? initPreviewClient() : initClient();
 }
 
 export function validatePreviewToken(token: string | null): boolean {

@@ -72,17 +72,31 @@ export class SanityHTTPClient {
     const disableSanity = process.env.DISABLE_SANITY_DURING_BUILD === '1' || process.env.DISABLE_SANITY_DURING_BUILD === 'true';
     
     if (disableSanity) {
-      // Create stub clients that won't make network calls
+      // Create stub config and clients that won't make network calls
       this.config = {
         projectId: 'disabled',
         dataset: 'disabled',
         apiVersion: '2025-05-24',
         useCdn: false,
       };
-      // Import the stub client from our client.ts
-      const { client: stubClient } = require('./sanity/client');
-      this.client = stubClient as SanityClient;
-      this.writeClient = stubClient as SanityClient;
+      
+      // Create stub client inline to avoid importing the module
+      const stubClient: SanityClient = {
+        fetch: async () => null,
+        getDocument: async () => null,
+        create: async (doc: any) => doc,
+        patch: () => ({
+          set: () => ({ commit: async () => ({}) }),
+          setIfMissing: () => ({ commit: async () => ({}) }),
+        }),
+        transaction: () => ({
+          create: () => {},
+          commit: async () => ({}),
+        }),
+      } as unknown as SanityClient;
+      
+      this.client = stubClient;
+      this.writeClient = stubClient;
       return;
     }
     
@@ -610,6 +624,17 @@ export const sanityHTTPClient: SanityHTTPClient = new Proxy({} as SanityHTTPClie
 
 // Export client getter functions for backward compatibility
 export const getClient = (preview = false) => {
+  // FORTEST: Respect DISABLE_SANITY_DURING_BUILD flag
+  const disableSanity = process.env.DISABLE_SANITY_DURING_BUILD === '1' || process.env.DISABLE_SANITY_DURING_BUILD === 'true';
+  
+  if (disableSanity) {
+    // Return stub client
+    return {
+      fetch: async () => null,
+      getDocument: async () => null,
+    } as unknown as SanityClient;
+  }
+  
   if (preview) {
     // This creates a new client instance specifically for previewing drafts.
     // It uses the public project ID and dataset, but explicitly sets perspective to 'previewDrafts'
