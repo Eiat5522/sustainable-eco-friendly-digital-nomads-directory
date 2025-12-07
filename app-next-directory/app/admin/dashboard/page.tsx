@@ -212,6 +212,7 @@ function ensureAdminRole(role: UserRole | undefined): role is 'admin' | 'superAd
 }
 
 export default async function AdminDashboardPage() {
+  // Access headers() early to establish request context before Date.now() fallback
   let _h = null as null | ReturnType<typeof headers> | { get(name: string): string | null | undefined };
   try {
     _h = headers();

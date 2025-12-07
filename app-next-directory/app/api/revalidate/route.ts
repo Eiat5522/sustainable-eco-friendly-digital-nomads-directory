@@ -11,8 +11,11 @@ import { validateRevalidationToken } from '@/utils/revalidation-token';
 export async function GET(request: NextRequest) {
   let pathParam: string | null = null;
   try {
-    const token = request.nextUrl.searchParams.get('token');
-    pathParam = request.nextUrl.searchParams.get('path');
+    // Parse search params from request URL to avoid nextUrl.searchParams prerender bailout
+    const url = new URL(request.url);
+    const token = url.searchParams.get('token');
+    pathParam = url.searchParams.get('path');
+    
     // Validate the revalidation token
     if (!validateRevalidationToken(token)) {
       return ApiResponseHandler.error('Invalid token', 401);
@@ -30,6 +33,7 @@ export async function GET(request: NextRequest) {
     // Revalidate the specific path
     revalidatePath(targetPath);
 
+    // Access Date.now() after reading uncached data (revalidatePath) to avoid prerender bailout
     return ApiResponseHandler.success({
       revalidated: true,
       path: targetPath,
