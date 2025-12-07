@@ -44,7 +44,7 @@ const sanitizeUser = (user: unknown) => {
   };
 };
 
-async function ensureAuthenticated() {
+async function ensureAuthenticated(request: NextRequest) {
   const { auth } = await import('@/lib/auth');
   const session = await auth(request.headers);
   if (!session?.user?.id) {
@@ -161,7 +161,7 @@ async function handleProfileMutation(request: NextRequest): Promise<NextResponse
     return serviceUnavailable();
   }
 
-  const authResult = await ensureAuthenticated();
+  const authResult = await ensureAuthenticated(request);
   if ('error' in authResult && authResult.error) {
     return authResult.error;
   }

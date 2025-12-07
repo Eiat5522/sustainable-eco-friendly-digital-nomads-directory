@@ -10,7 +10,7 @@ async function resolveParams(params: { id: string } | Promise<{ id: string }>) {
   return await Promise.resolve(params);
 }
 
-export async function GET(_request: Request, context: RouteContext) {
+export async function GET(request: Request, context: RouteContext) {
   const { params } = context;
   const resolvedParams = await resolveParams(params);
   const session = await auth(request.headers);
@@ -145,7 +145,7 @@ export async function PUT(request: Request, context: RouteContext) {
   }
 }
 
-export async function DELETE(_request: Request, context: RouteContext) {
+export async function DELETE(request: Request, context: RouteContext) {
   const { params } = context;
   const resolvedParams = await resolveParams(params);
   const session = await auth(request.headers);
