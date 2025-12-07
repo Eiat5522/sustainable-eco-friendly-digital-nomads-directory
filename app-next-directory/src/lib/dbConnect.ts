@@ -1,7 +1,8 @@
 import mongoose, { type Mongoose } from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI;
-const skipDbConnect = process.env.SKIP_DB_CONNECT === '1';
+// FORTEST: Support both SKIP_DB_CONNECT and DISABLE_MONGODB_DURING_BUILD for build-time safety
+const skipDbConnect = process.env.SKIP_DB_CONNECT === '1' || process.env.DISABLE_MONGODB_DURING_BUILD === '1' || process.env.DISABLE_MONGODB_DURING_BUILD === 'true';
 const isJestEnvironment = Boolean(process.env?.JEST_WORKER_ID);
 const shouldUseRealMongoDuringTests =
   isJestEnvironment && process.env.JEST_USE_REAL_MONGOOSE === '1';
@@ -9,8 +10,11 @@ const shouldUseRealMongoDuringTests =
 const shouldRequireMongoUri =
   !skipDbConnect && (!isJestEnvironment || shouldUseRealMongoDuringTests);
 
-if (shouldRequireMongoUri && !MONGODB_URI) {
-  throw new Error('MONGODB_URI environment variable is required');
+// FORTEST: Move error throw into function call to prevent module-scope exceptions during build
+function validateMongoUri() {
+  if (shouldRequireMongoUri && !MONGODB_URI) {
+    throw new Error('MONGODB_URI environment variable is required');
+  }
 }
 
 interface MongooseCache {
@@ -28,6 +32,9 @@ if (!cached) {
 }
 
 async function connectWithCaching(): Promise<Mongoose> {
+  // FORTEST: Validate URI only when actually connecting, not at module scope
+  validateMongoUri();
+  
   if (cached.conn) {
     return cached.conn;
   }

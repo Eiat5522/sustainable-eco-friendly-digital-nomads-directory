@@ -4,13 +4,35 @@ import bcrypt from 'bcryptjs';
 import { createClient } from 'next-sanity';
 import { structuredLogger } from '@/lib/logger';
 
-const client = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
-  apiVersion: 'v2023-06-01',
-  token: process.env.SANITY_API_TOKEN,
-  useCdn: false,
-});
+// FORTEST: Lazy initialization to prevent module-scope errors during build
+const disableSanity = process.env.DISABLE_SANITY_DURING_BUILD === '1' || process.env.DISABLE_SANITY_DURING_BUILD === 'true';
+
+let _client: ReturnType<typeof createClient> | null = null;
+
+function getClient() {
+  if (_client) return _client;
+  
+  if (disableSanity) {
+    // Return stub client when disabled
+    return {
+      fetch: async () => null,
+      create: async (doc: any) => doc,
+      patch: () => ({
+        set: () => ({ commit: async () => ({}) }),
+      }),
+    } as unknown as ReturnType<typeof createClient>;
+  }
+  
+  _client = createClient({
+    projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+    dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
+    apiVersion: 'v2023-06-01',
+    token: process.env.SANITY_API_TOKEN,
+    useCdn: false,
+  });
+  
+  return _client;
+}
 
 /**
  * Find a user in Sanity by email
@@ -20,7 +42,7 @@ export async function findSanityUserByEmail(email: string) {
 
   try {
     const query = `*[_type == "user" && email == $email][0]`;
-    return await client.fetch(query, { email });
+    return await getClient().fetch(query, { email });
   } catch (err) {
     structuredLogger.error('Error finding Sanity user by email', err, {
       email: email, // Will be redacted by logger
@@ -38,7 +60,7 @@ export async function findSanityUserById(id: string) {
   if (!id) return null;
 
   try {
-    return await client.fetch(`*[_type == "user" && _id == $id][0]`, { id });
+    return await getClient().fetch(`*[_type == "user" && _id == $id][0]`, { id });
   } catch (err) {
     structuredLogger.error('Error finding Sanity user by ID', err, {
       userId: id,
@@ -76,7 +98,7 @@ export async function createSanityUser({
   }
 
   try {
-    const newUser = await client.create({
+    const newUser = await getClient().create({
       _type: 'user',
       name,
       email,
@@ -119,7 +141,7 @@ export async function updateSanityUserWithAuthDetails(
   if (!userId) return null;
 
   try {
-    const patch = client.patch(userId);
+    const patch = getClient().patch(userId);
 
     if (updates.name) {
       patch.set({ name: updates.name });
@@ -199,7 +221,7 @@ export async function updateUserRole(userId: string, newRole: string) {
 
   try {
     // Update in Sanity
-    await client.patch(userId).set({ role: newRole }).commit();
+    await getClient().patch(userId).set({ role: newRole }).commit();
 
     // If using MongoDB directly with the adapter, you'd need to update there too
     // This depends on your authentication setup

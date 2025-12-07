@@ -48,8 +48,9 @@ if (!resolvedCreateClient) {
  */
 export const createClient = resolvedCreateClient;
 
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'projectId';
-const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'dataset';
+// FORTEST: Use placeholder values when env vars are missing and DISABLE_SANITY is true
+const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'placeholder-project-id';
+const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'placeholder-dataset';
 const token =
   process.env.SANITY_API_READ_TOKEN || process.env.SANITY_API_TOKEN || process.env.SANITY_TOKEN;
 
