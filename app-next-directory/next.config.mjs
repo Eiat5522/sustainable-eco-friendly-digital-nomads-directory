@@ -8,7 +8,7 @@ if (
 }
 
 const nextConfig = {
-  transpilePackages: ['framer-motion'],
+  transpilePackages: ['framer-motion', "sustainable-nomads" ],
   // Avoid publicly exposing source maps in production. Use hidden client maps instead.
   productionBrowserSourceMaps: false,
   reactStrictMode: false,
@@ -17,7 +17,7 @@ const nextConfig = {
   },
   // `eslint` config is now managed via the project ESLint config (eslint.config.mjs)
   // Remove this entry for Next.js 16 compatibility.
-  turbopack: {},
+turbopack: {},
   env: {
     // Prefer per-environment env var; dev-only fallback.
     NEXT_PUBLIC_API_URL:
@@ -40,49 +40,14 @@ const nextConfig = {
       },
     ],
   },
-  webpack: (config, { dev, isServer }) => {
-    // Use hidden source maps only for client prod builds
-    if (!dev && !isServer) {
-      config.devtool = 'hidden-source-map';
-    }
-
-    // Fix Framer Motion compatibility with Next.js 15 App Router
-    // Scope to its files in node_modules to avoid overmatching.
-    config.module.rules.push({
-      test: /\.m?js$/,
-      include: /[\\/]node_modules[\\/](framer-motion)[\\/]/,
-      resolve: { fullySpecified: false },
-    });
-    // Exclude SVGs from the existing asset loader
-    const fileLoaderRule = config.module.rules.find(
-      rule =>
-        typeof rule === 'object' &&
-        rule &&
-        'test' in rule &&
-        rule.test instanceof RegExp &&
-        rule.test.test?.('.svg')
-    );
-    if (fileLoaderRule && typeof fileLoaderRule === 'object') {
-      fileLoaderRule.exclude = /\.svg$/i;
-    }
-
-    // Add SVGR for React components and asset/resource for `?url`
-    config.module.rules.push(
-      {
-        test: /\.svg$/i,
-        issuer: /\.[jt]sx?$/,
-        resourceQuery: { not: [/url/] },
-        use: ['@svgr/webpack'],
-      },
-      {
-        test: /\.svg$/i,
-        resourceQuery: /url/,
-        type: 'asset/resource',
-      }
-    );
-
-    return config;
-  },
+  // NOTE: Custom webpack configuration removed to enable Turbopack.
+  // Turbopack does not support webpack loaders or custom webpack transforms.
+  // If you need the previous behavior (SVGR, framer-motion fixes, hidden-source-map),
+  // consider:
+  // - Replacing inline SVG imports with `.svg?url` or a small wrapper component.
+  // - Using `turbopack.resolveAlias` for simple aliasing.
+  // - Moving runtime-only behavior into server-only modules.
+  // Re-add turbopack-specific config below as needed.
 };
 const withRedirects = {
   ...nextConfig,

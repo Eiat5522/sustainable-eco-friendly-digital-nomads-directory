@@ -1,14 +1,20 @@
 import pino from 'pino';
 
 // Environment check for safe logging configuration
-const isProduction = process.env.NODE_ENV === 'production';
-const isDevelopment = process.env.NODE_ENV === 'development';
-const isTest = process.env.NODE_ENV === 'test';
-const isE2E = process.env.E2E === '1';
+// Guard access to `process` so this module can be imported in Edge or client contexts
+const _env: NodeJS.ProcessEnv =
+  typeof process !== 'undefined' && typeof process.env !== 'undefined'
+    ? process.env
+    : (typeof globalThis !== 'undefined' ? (globalThis as any).__env ?? {} : {});
+
+const isProduction = _env.NODE_ENV === 'production';
+const isDevelopment = _env.NODE_ENV === 'development';
+const isTest = _env.NODE_ENV === 'test';
+const isE2E = _env.E2E === '1';
 
 // Check if we're running in a Node.js environment (server-side)
 // pino-pretty with worker threads doesn't work well in Next.js server contexts
-const isServer = typeof window === 'undefined';
+const isServer = typeof window === 'undefined' && typeof process !== 'undefined';
 const shouldMirrorStructuredLogsToConsole =
   isTest || process.env.LOGGER_ENABLE_CONSOLE_MIRROR === '1';
 
@@ -165,10 +171,11 @@ const loggerConfig: pino.LoggerOptions = {
 
   // Base fields for all logs
   base: {
-    pid: process.pid,
-    hostname: process.env.HOSTNAME || 'unknown',
+    // Only read runtime process information when running in Node.js
+    pid: typeof process !== 'undefined' && typeof process.pid !== 'undefined' ? process.pid : undefined,
+    hostname: _env.HOSTNAME || 'unknown',
     service: 'sustainable-nomads-directory',
-    version: process.env.npm_package_version || '0.1.0',
+    version: _env.npm_package_version || '0.1.0',
   },
 };
 
