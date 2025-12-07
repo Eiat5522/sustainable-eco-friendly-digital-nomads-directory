@@ -26,7 +26,7 @@ export async function GET(request: Request) {
     // During prerender, draftMode() may not be available
     return new Response('Preview mode unavailable during build', { status: 503 });
   }
-  
+
   // Redirect to the path from the fetched post
   // We don't redirect to searchParams.slug as that might lead to open redirect vulnerabilities
   const redirectPath = `/${type === 'listing' ? 'listings' : type}/${slug}`;
