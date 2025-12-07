@@ -101,7 +101,7 @@ const nextConfig = {
       // Provide lightweight shims to silence module resolution warnings.
       'prettier/standalone': './src/shims/prettier-standalone-shim',
       'prettier/plugins/html': './src/shims/prettier-plugins-html-shim',
-    }
+    },
   },
 };
 const withRedirects = {

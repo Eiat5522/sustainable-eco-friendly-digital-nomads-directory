@@ -296,4 +296,7 @@ async function noopGetToken(): Promise<null> {
   return null;
 }
 
-export const proxy = createMiddleware({ getToken: noopGetToken, NextResponse: NextResponseFactory });
+export const proxy = createMiddleware({
+  getToken: noopGetToken,
+  NextResponse: NextResponseFactory,
+});

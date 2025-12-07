@@ -1,6 +1,6 @@
 import 'server-only';
 import type { Model } from 'mongoose';
-import NextAuth, { type NextAuthConfig } from 'next-auth';
+import NextAuth, { type NextAuthConfig, type Session } from 'next-auth';
 import type { JWT } from 'next-auth/jwt';
 import Credentials from 'next-auth/providers/credentials';
 import Google from 'next-auth/providers/google';
@@ -14,6 +14,7 @@ import dbConnect from '@/lib/dbConnect';
 import { structuredLogger } from '@/lib/logger';
 import User, { type IUser } from '@/models/User';
 import type { UserRole } from '@/types/auth';
+import type { HeadersLike } from '@/types/request';
 
 // Central NextAuth configuration used by route handlers and auth() helper
 // Build providers conditionally to avoid requiring unused env vars
@@ -216,9 +217,13 @@ const nextAuthInstance = (() => {
     const inst = NextAuth(authOptions);
     return inst;
   } catch (err) {
-    structuredLogger.warn('[auth] NextAuth initialization failed (build/prerender), using stub instance', err, {
-      component: 'auth',
-    });
+    structuredLogger.warn(
+      '[auth] NextAuth initialization failed (build/prerender), using stub instance',
+      err,
+      {
+        component: 'auth',
+      }
+    );
     // Provide a minimal stub that mirrors the shape used elsewhere: handlers and
     // an `auth` helper that returns null during build-time so callers can handle
     // unauthenticated flows instead of crashing.
@@ -240,26 +245,32 @@ export const {
 // prerender process.
 const _originalAuth = (nextAuthInstance as any).auth as (...args: any[]) => Promise<unknown>;
 
-// Accept an optional headers-like parameter so callers that have a request
-// context can pass the `headers()` object in, avoiding implicit calls to
-// `headers()` inside downstream helpers during cached contexts.
+// Accept an optional headers-like parameter for API consistency with other
+// helpers, but auth() itself doesn't use it - it accesses headers internally.
+// The headersParam is primarily documentation that the caller is in a request
+// context and has headers available for other request-scoped helpers.
 export async function auth(
-  headersParam?: { get(name: string): string | null | undefined } | null,
+  headersParam?: HeadersLike | null,
   ...args: any[]
-) {
+): Promise<Session | null> {
   try {
-    // Pass through the headers param as the first argument to the original
-    // auth helper. The underlying implementation may ignore extra args, but
-    // many callers will be able to provide a headers object to avoid runtime
-    // calls to `headers()` inside cached helpers.
-    return await _originalAuth(headersParam, ...args);
+    // Note: NextAuth's auth() doesn't accept headers as a parameter.
+    // It internally calls headers() when needed. The headersParam above
+    // is for consistency with other helpers and to document that callers
+    // are in request context. We don't pass it to _originalAuth.
+    // If additional args are provided (for other use cases), pass them through.
+    return (await _originalAuth(...args)) as Session | null;
   } catch (error) {
     try {
       const msg = error instanceof Error ? error.message : String(error);
       if (msg.includes('headers()') || msg.includes('During prerendering')) {
-        structuredLogger.warn('[auth] headers() unavailable during prerender, returning null', error, {
-          component: 'auth',
-        });
+        structuredLogger.warn(
+          '[auth] headers() unavailable during prerender, returning null',
+          error,
+          {
+            component: 'auth',
+          }
+        );
         return null;
       }
     } catch (inner) {

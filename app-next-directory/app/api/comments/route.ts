@@ -160,7 +160,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const session = await auth();
+  const session = await auth(request.headers);
   const user = session?.user as
     | { id?: string; role?: UserRole; name?: string | null; email?: string | null }
     | undefined;

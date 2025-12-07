@@ -5,7 +5,9 @@ import pino from 'pino';
 const _env: NodeJS.ProcessEnv =
   typeof process !== 'undefined' && typeof process.env !== 'undefined'
     ? process.env
-    : (typeof globalThis !== 'undefined' ? (globalThis as any).__env ?? {} : {});
+    : typeof globalThis !== 'undefined'
+      ? ((globalThis as any).__env ?? {})
+      : {};
 
 const isProduction = _env.NODE_ENV === 'production';
 const isDevelopment = _env.NODE_ENV === 'development';
@@ -172,7 +174,10 @@ const loggerConfig: pino.LoggerOptions = {
   // Base fields for all logs
   base: {
     // Only read runtime process information when running in Node.js
-    pid: typeof process !== 'undefined' && typeof process.pid !== 'undefined' ? process.pid : undefined,
+    pid:
+      typeof process !== 'undefined' && typeof process.pid !== 'undefined'
+        ? process.pid
+        : undefined,
     hostname: _env.HOSTNAME || 'unknown',
     service: 'sustainable-nomads-directory',
     version: _env.npm_package_version || '0.1.0',
@@ -557,7 +562,6 @@ export const redirectConsoleToStructuredLogger = () => {
           structuredLogger.error(message, error, context);
           break;
       }
-
     };
   });
 };
