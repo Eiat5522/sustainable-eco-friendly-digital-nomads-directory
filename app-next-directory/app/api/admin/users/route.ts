@@ -30,7 +30,17 @@ function ensureSuperAdmin(sessionUser: SessionUser): boolean {
 
 export async function GET(request: NextRequest, _context: RouteContext) {
   try {
-    const session = await auth();
+    // FORTEST: guard for prerender - catch auth failures during prerender
+    let session;
+    try {
+      session = await auth();
+    } catch (authError) {
+      structuredLogger.warn('[api/admin/users] auth() unavailable during prerender', authError);
+      return NextResponse.json(
+        { error: 'Service temporarily unavailable during build' },
+        { status: 503 }
+      );
+    }
     const sessionUser = session?.user as SessionUser;
 
     if (!ensureAdmin(sessionUser)) {
@@ -141,7 +151,17 @@ export async function GET(request: NextRequest, _context: RouteContext) {
 export async function PATCH(request: NextRequest, _context: RouteContext) {
   let userIdValue: string | undefined;
   try {
-    const session = await auth();
+    // FORTEST: guard for prerender - catch auth failures during prerender
+    let session;
+    try {
+      session = await auth();
+    } catch (authError) {
+      structuredLogger.warn('[api/admin/users] auth() unavailable during prerender', authError);
+      return NextResponse.json(
+        { error: 'Service temporarily unavailable during build' },
+        { status: 503 }
+      );
+    }
     const sessionUser = session?.user as SessionUser;
 
     if (!ensureAdmin(sessionUser)) {
@@ -244,7 +264,17 @@ export async function PATCH(request: NextRequest, _context: RouteContext) {
 export async function DELETE(request: NextRequest, _context: RouteContext) {
   let userIdValue: string | undefined;
   try {
-    const session = await auth();
+    // FORTEST: guard for prerender - catch auth failures during prerender
+    let session;
+    try {
+      session = await auth();
+    } catch (authError) {
+      structuredLogger.warn('[api/admin/users] auth() unavailable during prerender', authError);
+      return NextResponse.json(
+        { error: 'Service temporarily unavailable during build' },
+        { status: 503 }
+      );
+    }
     const sessionUser = session?.user as SessionUser;
 
     if (!ensureSuperAdmin(sessionUser)) {

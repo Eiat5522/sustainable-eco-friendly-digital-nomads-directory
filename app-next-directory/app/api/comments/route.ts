@@ -160,7 +160,15 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const session = await auth();
+  // FORTEST: guard for prerender - catch auth failures during prerender
+  let session;
+  try {
+    session = await auth();
+  } catch (authError) {
+    structuredLogger.warn('[api/comments] auth() unavailable during prerender', authError);
+    return errorResponse('Service temporarily unavailable during build', 503);
+  }
+  
   const user = session?.user as
     | { id?: string; role?: UserRole; name?: string | null; email?: string | null }
     | undefined;

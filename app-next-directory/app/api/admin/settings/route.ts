@@ -28,7 +28,17 @@ function ensureAdmin(sessionUser: SessionUser): boolean {
  */
 export async function GET(_request: NextRequest, _context: RouteContext) {
   try {
-    const session = await auth();
+    // FORTEST: guard for prerender - catch auth failures during prerender
+    let session;
+    try {
+      session = await auth();
+    } catch (authError) {
+      structuredLogger.warn('[api/admin/settings] auth() unavailable during prerender', authError);
+      return NextResponse.json<AdminSettingsError>(
+        { error: 'Service temporarily unavailable during build' },
+        { status: 503 }
+      );
+    }
     const sessionUser = session?.user as SessionUser;
 
     if (!ensureAdmin(sessionUser)) {
@@ -71,7 +81,17 @@ export async function GET(_request: NextRequest, _context: RouteContext) {
  */
 export async function POST(request: NextRequest, _context: RouteContext) {
   try {
-    const session = await auth();
+    // FORTEST: guard for prerender - catch auth failures during prerender
+    let session;
+    try {
+      session = await auth();
+    } catch (authError) {
+      structuredLogger.warn('[api/admin/settings] auth() unavailable during prerender', authError);
+      return NextResponse.json<AdminSettingsError>(
+        { error: 'Service temporarily unavailable during build' },
+        { status: 503 }
+      );
+    }
     const sessionUser = session?.user as SessionUser;
 
     if (!ensureAdmin(sessionUser)) {

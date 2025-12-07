@@ -121,7 +121,14 @@ const reviewInputSchema = z
   .passthrough();
 
 export async function POST(request: NextRequest) {
-  const session = await auth();
+  // FORTEST: guard for prerender - catch auth failures during prerender
+  let session;
+  try {
+    session = await auth();
+  } catch (authError) {
+    structuredLogger.warn('[api/reviews] auth() unavailable during prerender', authError);
+    return ApiResponseHandler.error('Service temporarily unavailable during build', 503);
+  }
 
   const user = session?.user as
     | { id?: string; role?: UserRole; email?: string | null; name?: string | null }

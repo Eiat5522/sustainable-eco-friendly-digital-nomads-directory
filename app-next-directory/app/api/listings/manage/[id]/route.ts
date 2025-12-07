@@ -13,7 +13,18 @@ async function resolveParams(params: { id: string } | Promise<{ id: string }>) {
 export async function GET(_request: Request, context: RouteContext) {
   const { params } = context;
   const resolvedParams = await resolveParams(params);
-  const session = await auth();
+  
+  // FORTEST: guard for prerender - catch auth failures during prerender
+  let session;
+  try {
+    session = await auth();
+  } catch (authError) {
+    structuredLogger.warn('[api/listings/manage/id] auth() unavailable during prerender', authError);
+    return NextResponse.json(
+      { error: 'Service temporarily unavailable during build' },
+      { status: 503 }
+    );
+  }
   const sessionUser = session?.user as { id?: string; role?: string } | undefined;
 
   if (sessionUser?.role !== 'venueOwner' || !sessionUser.id) {
@@ -43,7 +54,18 @@ export async function GET(_request: Request, context: RouteContext) {
 export async function PUT(request: Request, context: RouteContext) {
   const { params } = context;
   const resolvedParams = await resolveParams(params);
-  const session = await auth();
+  
+  // FORTEST: guard for prerender - catch auth failures during prerender
+  let session;
+  try {
+    session = await auth();
+  } catch (authError) {
+    structuredLogger.warn('[api/listings/manage/id] auth() unavailable during prerender', authError);
+    return NextResponse.json(
+      { error: 'Service temporarily unavailable during build' },
+      { status: 503 }
+    );
+  }
   const sessionUser = session?.user as { id?: string; role?: string } | undefined;
 
   if (sessionUser?.role !== 'venueOwner' || !sessionUser.id) {
@@ -148,7 +170,18 @@ export async function PUT(request: Request, context: RouteContext) {
 export async function DELETE(_request: Request, context: RouteContext) {
   const { params } = context;
   const resolvedParams = await resolveParams(params);
-  const session = await auth();
+  
+  // FORTEST: guard for prerender - catch auth failures during prerender
+  let session;
+  try {
+    session = await auth();
+  } catch (authError) {
+    structuredLogger.warn('[api/listings/manage/id] auth() unavailable during prerender', authError);
+    return NextResponse.json(
+      { error: 'Service temporarily unavailable during build' },
+      { status: 503 }
+    );
+  }
   const sessionUser = session?.user as { id?: string; role?: string } | undefined;
 
   if (sessionUser?.role !== 'venueOwner' || !sessionUser.id) {
