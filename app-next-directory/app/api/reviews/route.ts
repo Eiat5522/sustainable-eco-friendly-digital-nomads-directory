@@ -121,7 +121,7 @@ const reviewInputSchema = z
   .passthrough();
 
 export async function POST(request: NextRequest) {
-  const session = await auth();
+  const session = await auth(request.headers);
 
   const user = session?.user as
     | { id?: string; role?: UserRole; email?: string | null; name?: string | null }

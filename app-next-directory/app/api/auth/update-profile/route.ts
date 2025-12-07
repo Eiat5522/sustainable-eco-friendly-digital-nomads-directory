@@ -46,7 +46,7 @@ const sanitizeUser = (user: unknown) => {
 
 async function ensureAuthenticated() {
   const { auth } = await import('@/lib/auth');
-  const session = await auth();
+  const session = await auth(request.headers);
   if (!session?.user?.id) {
     return {
       error: json(

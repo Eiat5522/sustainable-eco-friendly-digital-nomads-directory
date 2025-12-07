@@ -24,9 +24,9 @@ function ensureAdmin(sessionUser: SessionUser): boolean {
   return role === 'admin' || role === 'superAdmin';
 }
 
-export async function GET(_request: NextRequest, _context: RouteContext) {
+export async function GET(request: NextRequest, _context: RouteContext) {
   try {
-    const session = await auth();
+    const session = await auth(request.headers);
     const sessionUser = session?.user as SessionUser;
 
     if (!ensureAdmin(sessionUser)) {

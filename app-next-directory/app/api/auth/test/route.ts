@@ -3,7 +3,7 @@ import { auth } from '@/lib/auth';
 
 export async function GET(_request: NextRequest) {
   try {
-    const session = await auth();
+    const session = await auth(request.headers);
 
     const securityHeaders = {
       'X-Frame-Options': 'DENY',

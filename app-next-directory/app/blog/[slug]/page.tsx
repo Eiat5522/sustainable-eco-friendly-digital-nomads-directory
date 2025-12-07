@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { groq } from 'next-sanity';
+import { headers } from 'next/headers';
 import { blogPortableTextComponents } from '@/components/blog/portableTextComponents';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
@@ -100,7 +101,16 @@ export async function generateMetadata(props: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const params = await props.params;
-  const base = await getBaseUrl();
+  
+  // FORTEST: Wrap headers() in try-catch for compatibility with prerender
+  let _h = null as null | Awaited<ReturnType<typeof headers>> | { get(name: string): string | null | undefined };
+  try {
+    _h = await headers();
+  } catch {
+    _h = null;
+  }
+  
+  const base = await getBaseUrl(_h);
   const { slug } = await Promise.resolve(params as unknown as { slug: string });
   const url = new URL(`/api/blog/${encodeURIComponent(slug)}`, base);
   try {

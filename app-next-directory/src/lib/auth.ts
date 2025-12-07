@@ -14,6 +14,7 @@ import dbConnect from '@/lib/dbConnect';
 import { structuredLogger } from '@/lib/logger';
 import User, { type IUser } from '@/models/User';
 import type { UserRole } from '@/types/auth';
+import type { HeadersLike } from '@/types/request';
 
 // Central NextAuth configuration used by route handlers and auth() helper
 // Build providers conditionally to avoid requiring unused env vars
@@ -244,7 +245,7 @@ const _originalAuth = (nextAuthInstance as any).auth as (...args: any[]) => Prom
 // context can pass the `headers()` object in, avoiding implicit calls to
 // `headers()` inside downstream helpers during cached contexts.
 export async function auth(
-  headersParam?: { get(name: string): string | null | undefined } | null,
+  headersParam?: HeadersLike | null,
   ...args: any[]
 ) {
   try {

@@ -4,9 +4,10 @@ import { headers } from 'next/headers';
 import { VenueListingManagement } from '../components/VenueListingManagement';
 
 export default async function VenueListingsPage() {
-  let _h = null as null | ReturnType<typeof headers> | { get(name: string): string | null | undefined };
+  // FORTEST: Wrap headers() in try-catch for compatibility with prerender
+  let _h = null as null | Awaited<ReturnType<typeof headers>> | { get(name: string): string | null | undefined };
   try {
-    _h = headers();
+    _h = await headers();
   } catch {
     _h = null;
   }
