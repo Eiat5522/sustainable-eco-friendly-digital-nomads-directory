@@ -18,70 +18,8 @@ function placeholderDataUri(width = 1200, height = 630) {
 import type { PortableTextBlock } from '@portabletext/types';
 import CommentForm from '@/components/CommentForm';
 import CommentList from '@/components/CommentList';
+import { getPostCached } from './data';
 
-async function getPost(slug: string): Promise<PostResponse> {
-  const url = new URL(`/api/blog/${encodeURIComponent(slug)}`, await getBaseUrl());
-  const res = await fetch(url.toString(), { next: { revalidate: 60, tags: [`post:${slug}`] } });
-  if (res.status === 404) {
-    notFound();
-  }
-  if (!res.ok) {
-    throw new Error(`Failed to fetch post: ${res.status} ${res.statusText}`);
-  }
-  const ct = res.headers.get('content-type') || '';
-  if (!ct.includes('application/json')) {
-    throw new Error(`Unexpected content-type: ${ct}`);
-  }
-  const json = await res.json();
-  // Prefer DTO-wrapped API shape
-  if (json && typeof json === 'object' && 'success' in json) {
-    const data = (json as { data?: { post?: PostResponse['post'] } }).data;
-    const post = data?.post;
-    if (!post?.id) {
-      notFound();
-    }
-    const comments = await client.fetch(
-      groq`*[_type == "comment" && post->slug.current == $slug && approved == true] | order(createdAt asc){ _id, content, user->{ name } }`,
-      { slug }
-    );
-    return { post, comments } as PostResponse;
-  }
-  // Fallback to legacy src API shape
-  if (json && typeof json === 'object' && 'post' in json && 'comments' in json) {
-    return json as PostResponse;
-  }
-  // Minimal fallback
-  type Json = Record<string, unknown>;
-  const data = (json ?? {}) as Json;
-  const id =
-    typeof (data as { id?: unknown }).id === 'string' && (data as { id: string }).id.trim()
-      ? (data as { id: string }).id
-      : typeof (data as { _id?: unknown })._id === 'string' && (data as { _id: string })._id.trim()
-        ? (data as { _id: string })._id
-        : '';
-  const title =
-    typeof (data as { title?: unknown }).title === 'string'
-      ? (data as { title: string }).title
-      : '';
-  const body = Array.isArray((data as { body?: unknown }).body)
-    ? (data as { body: PortableTextBlock[] }).body
-    : [];
-  const imageUrl =
-    typeof (data as { imageUrl?: unknown }).imageUrl === 'string'
-      ? (data as { imageUrl: string }).imageUrl
-      : ((data as { primaryImage?: { asset?: { url?: string } } })?.primaryImage?.asset?.url ??
-        null);
-  const post: PostDTO = { id, title, body, imageUrl };
-  if (!post.id) {
-    notFound();
-  }
-  const comments = await client.fetch(
-    groq`*[_type == "comment" && post->slug.current == $slug && approved == true]
-      | order(createdAt asc){ _id, content, user->{ name } }`,
-    { slug }
-  );
-  return { post, comments } as PostResponse;
-}
 
 // minimal response type
 type Comment = { _id: string; content: string; user?: { name?: string } | null };
@@ -92,7 +30,32 @@ export default async function BlogPostPage(props: Readonly<{ params: { slug: str
   const params = await props.params;
   // Support Next 14 (sync) and Next 15 (async) params
   const { slug } = await Promise.resolve(params as unknown as { slug: string });
-  const { post, comments } = await getPost(slug);
+  let post: PostDTO;
+  let comments: Comment[];
+  try {
+    const res = await getPostCached(slug);
+    // API may return wrapped DTO or legacy shape
+    if (res && typeof res === 'object' && 'success' in res) {
+      const data = (res as any).data;
+      post = data?.post;
+      comments = data?.comments ?? (res as any).comments ?? [];
+    } else if (res && typeof res === 'object' && 'post' in res && 'comments' in res) {
+      post = (res as any).post;
+      comments = (res as any).comments;
+    } else {
+      // Fallback shape
+      post = (res as any).post ?? (res as any);
+      comments = (res as any).comments ?? [];
+    }
+    if (!post || !post.id) {
+      notFound();
+    }
+  } catch (err: any) {
+    if (err && (err.status === 404 || /POST_NOT_FOUND/.test(String(err.message ?? '')))) {
+      notFound();
+    }
+    throw err;
+  }
 
   const heroUrl: string | null = post.imageUrl ?? null;
   const usingPlaceholder = !heroUrl;

@@ -21,6 +21,7 @@ type OptimizeFn = (
 ) => Promise<OptimizationResult>;
 
 const isTestEnv = process.env.NODE_ENV === 'test';
+const enableDevTestHook = process.env.ENABLE_UPLOAD_TEST_HOOK === '1';
 
 type UploadTestControl = {
   authOverride?: AuthFn;
@@ -30,17 +31,22 @@ type UploadTestControl = {
   skipOptimization?: boolean;
 };
 
-const _testControl: UploadTestControl | undefined = isTestEnv
+const _testControl: UploadTestControl | undefined = (isTestEnv || enableDevTestHook)
   ? {
-      authOverride: undefined,
-      uploadOverride: undefined,
+      authOverride: enableDevTestHook
+        ? (async () => ({ user: { id: 'dev-user', role: 'venueOwner' } } as unknown as Session))
+        : undefined,
+      uploadOverride: enableDevTestHook
+        ? (async (_assetType: 'image' | 'file', _uploadFile: File) => ({ _id: 'dev-asset', url: '/_assets/dev.png' }))
+        : undefined,
       formDataOverride: undefined,
       optimizeOverride: undefined,
       skipOptimization: false,
     }
   : undefined;
 
-if (process.env.NODE_ENV === 'test') {
+// Expose test control for tests and for local dev when explicitly enabled.
+if (isTestEnv || enableDevTestHook) {
   (module.exports as Record<string, unknown>)._testControl = _testControl;
 }
 

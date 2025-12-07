@@ -1,3 +1,11 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// ESM does not provide __dirname; derive it from import.meta.url
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const turbopackRoot = path.join(__dirname, '..', '..');
+
 // Enforce the var on Vercel Preview/Production
 if (
   process.env.VERCEL &&
@@ -8,16 +16,35 @@ if (
 }
 
 const nextConfig = {
-  transpilePackages: ['framer-motion', "sustainable-nomads" ],
+  // Transpile shared workspace or ESM packages that ship untranspiled code.
+  // Add any other local workspace packages here (e.g. shared UI packages).
+  transpilePackages: ['framer-motion', 'sustainable-nomads', 'sanity'],
   // Avoid publicly exposing source maps in production. Use hidden client maps instead.
   productionBrowserSourceMaps: false,
+  // Opt out known native/binary or heavy tooling packages from Server Components bundling.
+  // These packages can cause Turbopack/Server Components bundling problems and are safer
+  // to resolve via Node's native `require` at runtime.
+  serverExternalPackages: [
+    'pino',
+    'pino-pretty',
+    'thread-stream',
+    '@swc/core',
+    'autoprefixer',
+    'postcss',
+    'mongodb',
+    'mongoose',
+    'bcrypt',
+    'playwright',
+    'prettier',
+    'typescript',
+    'webpack',
+  ],
   reactStrictMode: false,
   typescript: {
     ignoreBuildErrors: true,
   },
   // `eslint` config is now managed via the project ESLint config (eslint.config.mjs)
   // Remove this entry for Next.js 16 compatibility.
-turbopack: {},
   env: {
     // Prefer per-environment env var; dev-only fallback.
     NEXT_PUBLIC_API_URL:
@@ -48,6 +75,34 @@ turbopack: {},
   // - Using `turbopack.resolveAlias` for simple aliasing.
   // - Moving runtime-only behavior into server-only modules.
   // Re-add turbopack-specific config below as needed.
+  // Map known packages that ship test files to lightweight shims to avoid
+  // bundling test artifacts (thread-stream includes test files that pull
+  // in `tap`/`why-is-node-running`). Use Turbopack's resolve alias and
+  // serverExternalPackages to keep these packages external on the server
+  // and to rewrite problematic imports during the build.
+  // Enable Cache Components per Next.js 16 migration guide. We migrated many
+  // route segment exports to comments and added migration TODOs; enable the
+  // feature now and run a build to capture remaining issues.
+  cacheComponents: true,
+
+  turbopack: {
+    // Point Turbopack at the monorepo root so it can resolve symlinked
+    // workspace packages outside the app folder. Adjust if your monorepo
+    // layout differs.
+    root: turbopackRoot,
+    resolveAlias: {
+      // Redirect `thread-stream` (and test subpath) to small shims so the
+      // bundler doesn't try to include package test files (which pull in
+      // dev-only deps like `tap`).
+      'thread-stream': './src/shims/thread-stream-shim',
+      'thread-stream/test': './src/shims/empty-thread-stream',
+      // Prettier subpath shims: some libraries (e.g. @react-email/render)
+      // request Prettier subpaths that aren't shipped in some environments.
+      // Provide lightweight shims to silence module resolution warnings.
+      'prettier/standalone': './src/shims/prettier-standalone-shim',
+      'prettier/plugins/html': './src/shims/prettier-plugins-html-shim',
+    }
+  },
 };
 const withRedirects = {
   ...nextConfig,

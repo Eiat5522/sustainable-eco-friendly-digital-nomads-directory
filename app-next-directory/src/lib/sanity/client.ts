@@ -61,17 +61,59 @@ const clientConfig = {
   ...(token ? { token, ignoreBrowserTokenWarning: true } : {}),
 };
 
-/**
- * Configured Sanity client instance.
- *
- * Connects to the Sanity project specified by environment variables:
- * - NEXT_PUBLIC_SANITY_PROJECT_ID
- * - NEXT_PUBLIC_SANITY_DATASET
- * - SANITY_API_READ_TOKEN (optional, for accessing draft/private content)
- *
- * Configured with `useCdn: false` to ensure fresh data for server-side logic.
- */
-export const client = createClient(clientConfig);
+// Allow short-circuiting Sanity network calls during build/prerender.
+const DISABLE_SANITY =
+  process.env.DISABLE_SANITY_DURING_BUILD === '1' ||
+  process.env.DISABLE_SANITY_DURING_BUILD === 'true';
+
+let _client: ReturnType<typeof createClient> | null = null;
+if (!DISABLE_SANITY) {
+  _client = createClient(clientConfig);
+}
+
+// Minimal typed interface for the Sanity client surface that this codebase uses.
+type FetchFn = <T = unknown>(query: string, params?: Record<string, unknown>) => Promise<T | null>;
+
+type ChainablePatch = {
+  set: (patch: any) => ChainablePatch;
+  setIfMissing: (patch: any) => ChainablePatch;
+  append: (path: string, items: any[]) => ChainablePatch;
+  commit: <T = any>(opts?: any) => Promise<T>;
+};
+
+interface SanityClientLike {
+  fetch: FetchFn;
+  getDocument: <T = unknown>(id: string) => Promise<T | null>;
+  createIfNotExists: <T = unknown>(doc: T) => Promise<T>;
+  patch: (id: string) => ChainablePatch;
+  transaction: () => {
+    patch: (id: string, cb?: (patch: any) => any) => void;
+    commit: <T = any>(opts?: any) => Promise<T>;
+  };
+  delete?: (id: string) => Promise<void>;
+  [key: string]: any;
+}
+
+const stubClient: SanityClientLike = {
+  fetch: async <T = unknown>(_query: string, _params?: Record<string, unknown>): Promise<T | null> => {
+    return null;
+  },
+  getDocument: async <T = unknown>(_id: string): Promise<T | null> => null,
+  createIfNotExists: async <T = unknown>(doc: T): Promise<T> => doc,
+  patch: (_id: string) => ({
+    set: (_: any) => stubClient.patch(_id),
+    setIfMissing: (_: any) => stubClient.patch(_id),
+    append: (_path: string, _items: any[]) => stubClient.patch(_id),
+    commit: async <T = any>() => null as unknown as T,
+  }),
+  transaction: () => ({
+    patch: (_id: string, _cb?: (patch: any) => any) => undefined,
+    commit: async <T = any>(_opts?: any) => null as unknown as T,
+  }),
+  delete: async (_id: string) => undefined,
+};
+
+export const client: SanityClientLike = DISABLE_SANITY ? stubClient : ((_client as unknown) as SanityClientLike);
 
 type ImageUrlBuilderModule = typeof SanityImageUrl & {
   default?: typeof SanityImageUrl;
@@ -87,31 +129,29 @@ const imageUrlBuilderFactory = imageUrlModule.default ?? imageUrlModule;
  *
  * @see {@link urlFor} for a more convenient wrapper function
  */
-export const builder = imageUrlBuilderFactory(client);
+// Provide safe fallbacks for the image builder when Sanity is disabled.
+let builder: any;
+let urlFor: (source: SanityImageSource) => any;
+if (DISABLE_SANITY) {
+  builder = {
+    image: () => ({
+      width: () => ({ height: () => ({ format: () => ({ quality: () => ({ url: () => '' }) }) }) }),
+      height: () => ({ width: () => ({ format: () => ({ quality: () => ({ url: () => '' }) }) }) }),
+      url: () => '',
+    }),
+  };
 
-/**
- * Creates an image URL builder for a Sanity image source.
- *
- * Supports the centralized image model and provides a fluent API for transforming images.
- *
- * @param source - Sanity image reference (asset reference, image object, or asset ID)
- * @returns Image URL builder with methods like .width(), .height(), .format(), .url()
- *
- * @example
- * ```typescript
- * // Build a responsive image URL
- * const imageUrl = urlFor(listing.primaryImage)
- *   .width(800)
- *   .height(600)
- *   .format('webp')
- *   .quality(80)
- *   .url();
- *
- * // Simple usage
- * const thumbnail = urlFor(image).width(200).url();
- * ```
- */
-export const urlFor = (source: SanityImageSource) => builder.image(source);
+  urlFor = (_source: SanityImageSource) => ({
+    width: () => ({ height: () => ({ url: () => '' }) }),
+    height: () => ({ width: () => ({ url: () => '' }) }),
+    url: () => '',
+  });
+} else {
+  builder = imageUrlBuilderFactory(client as any);
+  urlFor = (source: SanityImageSource) => builder.image(source);
+}
+
+export { builder, urlFor };
 
 /**
  * Default export for broader compatibility.

@@ -136,7 +136,7 @@ export async function getUserDashboardData(
       createdAt?: string;
     };
 
-    const [favorites, userReviews] = await Promise.all([
+    const [favorites, userReviews] = (await Promise.all([
       client.fetch<RawFavoriteDoc[]>(
         `*[_type == "userFavorite" && user._ref == $userId] | order(coalesce(createdAt, _createdAt) desc)[0...100]{
           _id,
@@ -157,9 +157,12 @@ export async function getUserDashboardData(
         }`,
         { userId: id }
       ),
-    ]);
+    ])) as [RawFavoriteDoc[] | null, RawUserReviewDoc[] | null];
 
-    const normalizedFavorites: FavoriteSummary[] = favorites
+    const safeFavorites: RawFavoriteDoc[] = favorites ?? [];
+    const safeUserReviews: RawUserReviewDoc[] = userReviews ?? [];
+
+    const normalizedFavorites: FavoriteSummary[] = safeFavorites
       .filter((fav): fav is Required<RawFavoriteDoc> & { listing: { _id: string } } =>
         Boolean(fav?.listing?._id)
       )
@@ -180,7 +183,7 @@ export async function getUserDashboardData(
         },
       }));
 
-    const normalizedReviews: UserReviewDoc[] = userReviews
+    const normalizedReviews: UserReviewDoc[] = safeUserReviews
       .filter((review): review is Required<RawUserReviewDoc> => typeof review?.rating === 'number')
       .map(review => ({
         rating: review.rating ?? 0,
@@ -304,7 +307,7 @@ export async function getUserDashboardData(
   const listingIds = listingInfos.map(listing => listing.id);
   const monthKeys = buckets.map(bucket => bucket.key);
 
-  const [reviews, favorites, analytics, monthlyViewMetrics, lifetimeViewTotals] = await Promise.all(
+  const [reviews, favorites, analytics, monthlyViewMetrics, lifetimeViewTotals] = (await Promise.all(
     [
       client.fetch<ReviewDoc[]>(
         `*[_type == "review" && listing._ref in $listingIds]{
@@ -332,17 +335,21 @@ export async function getUserDashboardData(
       getMonthlyViewCounts(listingIds, monthKeys),
       getLifetimeViewCounts(listingIds),
     ]
-  );
+  )) as [ReviewDoc[] | null, FavoriteDoc[] | null, AnalyticsDoc[] | null, Map<string, Map<string, number>>, Map<string, number>];
 
-  const reviewsSince = reviews.filter(review => new Date(review.createdAt) >= rangeStart);
-  const favoritesSince = favorites.filter(fav => new Date(fav.createdAt) >= rangeStart);
+  const safeReviews: ReviewDoc[] = reviews ?? [];
+  const safeFavorites: FavoriteDoc[] = favorites ?? [];
+  const safeAnalytics: AnalyticsDoc[] = analytics ?? [];
+
+  const reviewsSince = safeReviews.filter(review => new Date(review.createdAt) >= rangeStart);
+  const favoritesSince = safeFavorites.filter(fav => new Date(fav.createdAt) >= rangeStart);
 
   const reviewsByListing = groupByListing(reviewsSince);
   const favoritesByListing = groupByListing(favoritesSince);
-  const allReviewsByListing = groupByListing(reviews);
-  const allFavoritesByListing = groupByListing(favorites);
+  const allReviewsByListing = groupByListing(safeReviews);
+  const allFavoritesByListing = groupByListing(safeFavorites);
   const analyticsByListing = new Map<string, AnalyticsDoc>();
-  analytics.forEach(doc => {
+  safeAnalytics.forEach(doc => {
     analyticsByListing.set(doc.listingId, doc);
   });
 

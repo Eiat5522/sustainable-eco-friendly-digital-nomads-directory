@@ -212,14 +212,62 @@ export const authOptions: NextAuthConfig = {
 };
 
 const nextAuthInstance = (() => {
-  const inst = NextAuth(authOptions);
-  return inst;
+  try {
+    const inst = NextAuth(authOptions);
+    return inst;
+  } catch (err) {
+    structuredLogger.warn('[auth] NextAuth initialization failed (build/prerender), using stub instance', err, {
+      component: 'auth',
+    });
+    // Provide a minimal stub that mirrors the shape used elsewhere: handlers and
+    // an `auth` helper that returns null during build-time so callers can handle
+    // unauthenticated flows instead of crashing.
+    return {
+      handlers: { GET: async () => new Response(''), POST: async () => new Response('') },
+      auth: async () => null,
+    } as any;
+  }
 })();
 
 export const {
   handlers: { GET, POST },
-  auth,
 } = nextAuthInstance;
+
+// Wrap the original `auth` export to guard against `headers()` rejections
+// that can occur during prerendering. If `headers()` rejects (which the
+// Next.js runtime surfaces as an Error during prerender), return `null`
+// so callers can handle unauthenticated flows instead of crashing the
+// prerender process.
+const _originalAuth = (nextAuthInstance as any).auth as (...args: any[]) => Promise<unknown>;
+
+// Accept an optional headers-like parameter so callers that have a request
+// context can pass the `headers()` object in, avoiding implicit calls to
+// `headers()` inside downstream helpers during cached contexts.
+export async function auth(
+  headersParam?: { get(name: string): string | null | undefined } | null,
+  ...args: any[]
+) {
+  try {
+    // Pass through the headers param as the first argument to the original
+    // auth helper. The underlying implementation may ignore extra args, but
+    // many callers will be able to provide a headers object to avoid runtime
+    // calls to `headers()` inside cached helpers.
+    return await _originalAuth(headersParam, ...args);
+  } catch (error) {
+    try {
+      const msg = error instanceof Error ? error.message : String(error);
+      if (msg.includes('headers()') || msg.includes('During prerendering')) {
+        structuredLogger.warn('[auth] headers() unavailable during prerender, returning null', error, {
+          component: 'auth',
+        });
+        return null;
+      }
+    } catch (inner) {
+      // Fall through to rethrow the original error below if we can't inspect it.
+    }
+    throw error;
+  }
+}
 
 // Export getToken for middleware and tests
 export { getToken } from 'next-auth/jwt';

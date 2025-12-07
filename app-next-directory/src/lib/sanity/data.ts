@@ -76,10 +76,14 @@ export async function getListingData(
   _usePreview = false
 ): Promise<AppListingDetail | null> {
   try {
-    const listing = await client.fetch(LISTING_BY_SLUG_QUERY, { slug });
+    const listing = await client.fetch<unknown | null>(LISTING_BY_SLUG_QUERY, { slug });
     // Map the raw listing to the DTO
     if (!listing) return null;
-    const { mapSanityListingToAppListingDetail } = await import('@/lib/listings');
+    const { isSanityListing, mapSanityListingToAppListingDetail } = await import('@/lib/listings');
+    if (!isSanityListing(listing)) {
+      structuredLogger.warn('Sanity returned an unexpected listing shape', { component: 'sanity' });
+      return null;
+    }
     return mapSanityListingToAppListingDetail(listing);
   } catch (error) {
     structuredLogger.error('Error fetching listing data for slug', error, {

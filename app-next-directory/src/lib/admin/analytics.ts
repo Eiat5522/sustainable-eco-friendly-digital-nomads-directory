@@ -249,8 +249,7 @@ export async function performModerationAction({
   }
 
   const timestamp = new Date().toISOString();
-  const patch = client
-    .patch(moderationId)
+  const patch = client.patch!(moderationId)
     .set(status ? { status, lastActionAt: timestamp } : { lastActionAt: timestamp })
     .setIfMissing(createEmptyModerationHistory())
     .append('moderationHistory', [createModerationHistoryEntry(action, actorId, notes, timestamp)]);
@@ -326,10 +325,10 @@ const commitBatch = async (
   totalBatches: number,
   operation: BulkOperationType
 ): Promise<BulkBatchResult> => {
-  const transaction = client.transaction();
+  const transaction = client.transaction!();
 
   for (const id of batchIds) {
-    transaction.patch(id, patch => patch.set(patchFactory(timestamp)));
+    transaction.patch(id, (patch: any) => patch.set(patchFactory(timestamp)));
   }
 
   const batchStart = now();

@@ -37,6 +37,12 @@ function initializeRedis() {
     return redis;
   }
 
+  // Allow disabling Upstash during build/static prerender to avoid dynamic server usage.
+  if (process.env.DISABLE_UPSTASH_DURING_BUILD === '1') {
+    redis = null;
+    return redis;
+  }
+
   const UPSTASH_REDIS_REST_URL = process.env.UPSTASH_REDIS_REST_URL;
   const UPSTASH_REDIS_REST_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 

@@ -17,8 +17,8 @@ if (process.env.NODE_ENV === 'test') {
   (module.exports as Record<string, unknown>)._testControl = _testControl;
 }
 
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
+// MIGRATED: Removed route-segment exports (`dynamic`, `runtime`) to be compatible
+// with `nextConfig.cacheComponents`. This endpoint remains runtime-only.
 export async function GET() {
   try {
     // Test the connection

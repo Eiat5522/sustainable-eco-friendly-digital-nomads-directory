@@ -132,11 +132,11 @@ export async function searchListings(
   } [${start}...${start + limit}]`;
 
   // Execute query
-  const results = await sanityClient.fetch<SearchResult[]>(groqQuery, params);
+  const results = (await sanityClient.fetch<SearchResult[] | null>(groqQuery, params)) ?? [];
 
   // Get total count
   const countQuery = groqQuery.replace(/\{[^}]*\} \[\d+\.\.\.\d+\]$/, '').replace('*[', 'count(*[');
-  const total = await sanityClient.fetch<number>(countQuery, params);
+  const total = (await sanityClient.fetch<number | null>(countQuery, params)) ?? 0;
 
   return {
     results,
@@ -167,7 +167,7 @@ export async function getSearchSuggestions(
     "keywords": searchMetadata.keywords[]->name
   }`;
 
-  const results = await sanityClient.fetch<SuggestionDocument[]>(groqQuery, { searchTerm: query });
+  const results = (await sanityClient.fetch<SuggestionDocument[] | null>(groqQuery, { searchTerm: query })) ?? [];
 
   // Extract and flatten unique suggestions
   const suggestions = new Set<string>();
@@ -219,5 +219,5 @@ export async function getSimilarListings(
     }
   }.similar`;
 
-  return sanityClient.fetch<SimilarListingResult[]>(query, { listingId });
+  return (await sanityClient.fetch<SimilarListingResult[] | null>(query, { listingId })) ?? [];
 }

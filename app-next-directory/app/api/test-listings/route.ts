@@ -21,7 +21,8 @@ if (process.env.NODE_ENV === 'test') {
   (module.exports as Record<string, unknown>)._testControl = _testControl;
 }
 
-export const dynamic = 'force-static';
+// MIGRATED: Removed `export const dynamic` to be compatible with `nextConfig.cacheComponents`.
+// This endpoint is intended for local/test use only.
 
 export async function GET(): Promise<Response> {
   const nodeEnvOverride = _testControl?.nodeEnvOverride;

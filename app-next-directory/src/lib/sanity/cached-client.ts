@@ -35,7 +35,7 @@ async function fetchAndCache<T>(
 
   const fetchPromise = (async () => {
     try {
-      const data = await client.fetch<T>(query, params);
+      const data = (await client.fetch<T | null>(query, params)) as T;
 
       if (redis) {
         try {

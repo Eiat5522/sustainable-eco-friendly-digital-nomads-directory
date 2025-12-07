@@ -1,10 +1,18 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
 import type { UserRole } from '@/types/auth';
 import { ListingsManagementTable } from './ListingsManagementTable';
 
-export const dynamic = 'force-dynamic';
+// MIGRATED: Removed `export const dynamic = 'force-dynamic'` to be compatible
+// with `cacheComponents`. This route is dynamic-by-default under Cache Components.
+// TODO: If this page should be cached, add `"use cache"` in the appropriate
+// component and document a `cacheLife()` profile.
+
+// Short-term: this page should avoid exporting `dynamic` because
+// `next.config.cacheComponents` is enabled. Use request-scoped helpers or
+// dynamic child components instead of exporting route-level `dynamic`.
 
 export const metadata: Metadata = {
   title: 'Listing Management - Admin Dashboard',
@@ -21,7 +29,14 @@ function ensureAdmin(
 }
 
 export default async function AdminListingsPage() {
-  const session = await auth();
+  let _h = null as null | ReturnType<typeof headers> | { get(name: string): string | null | undefined };
+  try {
+    _h = headers();
+  } catch {
+    _h = null;
+  }
+
+  const session = await auth(_h);
   const sessionUser = session?.user as SessionUser;
 
   if (!ensureAdmin(sessionUser)) {

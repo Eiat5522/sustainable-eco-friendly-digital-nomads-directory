@@ -55,5 +55,4 @@ export async function POST(request: NextRequest) {
 }
 
 // Add rate limiting to prevent abuse
-export const runtime = 'edge';
-export const maxDuration = 5; // 5 seconds max duration
+// MIGRATED: Removed `export const runtime` and `maxDuration` (incompatible with cacheComponents).

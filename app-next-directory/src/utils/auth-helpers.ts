@@ -3,13 +3,13 @@ import { auth } from '@/lib/auth';
 import { ApiResponseHandler } from './api-response';
 
 export async function requireAuth(): Promise<Session> {
-  const session = await auth();
+  const session = (await auth()) as Session | null;
 
   if (!session) {
     throw new Error('UNAUTHORIZED');
   }
 
-  return session;
+  return session as Session;
 }
 
 export async function requireRole(allowedRoles: string[]): Promise<Session> {

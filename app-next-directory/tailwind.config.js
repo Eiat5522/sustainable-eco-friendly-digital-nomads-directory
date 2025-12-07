@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   darkMode: ['class'],
   content: [
     './app/**/*.{js,ts,jsx,tsx,mdx}',
@@ -114,10 +114,25 @@ module.exports = {
       }),
     },
   },
-  plugins: [
-    require('tailwindcss-animate'),
-    require('@tailwindcss/forms')({ strategy: 'class' }),
-    require('@tailwindcss/typography'),
-    require('@tailwindcss/line-clamp'),
-  ],
+  plugins: (() => {
+    const plugins = [];
+    try {
+      plugins.push(require('tailwindcss-animate'));
+    } catch (_) {
+      // ignore missing optional plugin during build
+    }
+    try {
+      const forms = require('@tailwindcss/forms');
+      plugins.push(forms({ strategy: 'class' }));
+    } catch (_) {}
+    try {
+      const typography = require('@tailwindcss/typography');
+      plugins.push(typography);
+    } catch (_) {}
+    try {
+      const lineClamp = require('@tailwindcss/line-clamp');
+      plugins.push(lineClamp);
+    } catch (_) {}
+    return plugins;
+  })(),
 };

@@ -4,7 +4,14 @@ import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 import { SettingsForm } from './SettingsForm';
 
-export const dynamic = 'force-dynamic';
+// MIGRATED: Removed `export const dynamic = 'force-dynamic'` to be compatible
+// with `cacheComponents`. This route is dynamic-by-default under Cache Components.
+// TODO: If this page should be cached, add `"use cache"` in the appropriate
+// component and document a `cacheLife()` profile.
+
+// Short-term: this page touches request-scoped data and admin-only content.
+// It does not export `dynamic` to remain compatible with global cache
+// components. Convert any uncached work into request-scoped components.
 
 export const metadata: Metadata = {
   title: 'Settings - Admin Dashboard',

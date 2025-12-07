@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic';
+// MIGRATED: Removed `export const dynamic` (incompatible with cacheComponents).
 
 import { type NextRequest, NextResponse } from 'next/server';
 

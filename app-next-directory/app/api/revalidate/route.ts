@@ -4,9 +4,9 @@ import { structuredLogger } from '@/lib/logger';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { validateRevalidationToken } from '@/utils/revalidation-token';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-export const runtime = 'nodejs';
+// MIGRATED: Removed route-segment exports (`dynamic`, `revalidate`, `runtime`) to be
+// compatible with `nextConfig.cacheComponents`. Use `use cache` / `cacheLife()`
+// or server-only handlers for dynamic behaviors where needed.
 
 export async function GET(request: NextRequest) {
   let pathParam: string | null = null;

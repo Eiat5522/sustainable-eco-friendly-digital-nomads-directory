@@ -20,7 +20,7 @@ function placeholderDataUri(width = 800, height = 450) {
 import type { Metadata } from 'next';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
-import { getBaseUrl } from '@/lib/absolute-url';
+import { getPostsCached } from './data';
 
 type Post = {
   id: string;
@@ -46,54 +46,7 @@ type BlogApiResponse = {
   filters: { tag: string | null; search: string | null };
 };
 
-async function getPosts(params: {
-  page?: string;
-  limit?: string;
-  tag?: string;
-  search?: string;
-}): Promise<BlogApiResponse> {
-  const base = await getBaseUrl();
-  const url = new URL('/api/blog', base);
-  if (params.page) url.searchParams.set('page', params.page);
-  if (params.limit) url.searchParams.set('limit', params.limit);
-  if (params.tag) url.searchParams.set('tag', params.tag);
-  if (params.search) url.searchParams.set('search', params.search);
-
-  const res = await fetch(url.toString(), { next: { revalidate: 60 } });
-  if (!res.ok) {
-    throw new Error(`Failed to fetch posts: ${res.status} ${res.statusText}`);
-  }
-  const json: unknown = await res.json();
-  // Prefer richer handler { success, data }
-  if (json && typeof json === 'object' && 'success' in json) {
-    const { success, data } = json as { success?: boolean; data?: BlogApiResponse };
-    if (!success || !data || !Array.isArray(data.posts)) {
-      throw new Error('Blog API responded with success=false or missing/invalid data');
-    }
-    return data;
-  }
-  // Fallback to legacy array-only response
-  if (Array.isArray((json as { posts?: unknown })?.posts)) {
-    // Support backwards-compat top-level posts field
-    const posts = (json as { posts: Post[] }).posts;
-    const pagination = {
-      page: 1,
-      limit: posts.length,
-      totalCount: posts.length,
-      totalPages: 1,
-      hasNextPage: false,
-      hasPrevPage: false,
-      nextPage: null,
-      prevPage: null,
-    };
-    return {
-      posts,
-      pagination,
-      filters: { tag: params.tag ?? null, search: params.search ?? null },
-    };
-  }
-  throw new Error('Invalid posts payload');
-}
+// Use cached server helper to avoid uncached fetches during prerender
 
 export const metadata: Metadata = {
   title: "The Nomad's Chronicle – Blog",
@@ -109,7 +62,7 @@ export default async function BlogPage(
   // Support Next 14 (sync) and Next 15 (async) searchParams
   const sp = await Promise.resolve((searchParams ?? {}) as Record<string, string>);
   const { page, limit, tag, search } = sp;
-  const { posts, pagination } = await getPosts({ page, limit, tag, search });
+  const { posts, pagination } = await getPostsCached({ page, limit, tag, search });
 
   const uniqueTags = Array.from(
     new Set(

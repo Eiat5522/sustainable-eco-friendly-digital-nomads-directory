@@ -7,12 +7,22 @@ import {
   fetchAdminAnalytics,
 } from '@/lib/admin/analytics';
 import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
 import { RequestTimeoutError } from '@/lib/http/request';
 import { structuredLogger } from '@/lib/logger';
 import type { UserRole } from '@/types/auth';
 import { ModerationActions } from './ModerationActions';
 
-export const dynamic = 'force-dynamic';
+// MIGRATED: Removed `export const dynamic = 'force-dynamic'` to be compatible
+// with `cacheComponents`. This route is dynamic-by-default under Cache Components.
+// TODO: If this page should be cached, add `"use cache"` in the appropriate
+// component and document a `cacheLife()` profile.
+
+// Short-term: force this page to run as dynamic during the migration so the
+// prerender step doesn't attempt to access request-scoped data or uncached
+// resources. This file no longer exports `dynamic` to be compatible with
+// `next.config.cacheComponents`. If this route must be dynamic, handle that
+// via request-scoped components or runtime-only handlers.
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard',
@@ -202,7 +212,14 @@ function ensureAdminRole(role: UserRole | undefined): role is 'admin' | 'superAd
 }
 
 export default async function AdminDashboardPage() {
-  const session = await auth();
+  let _h = null as null | ReturnType<typeof headers> | { get(name: string): string | null | undefined };
+  try {
+    _h = headers();
+  } catch {
+    _h = null;
+  }
+
+  const session = await auth(_h);
   const sessionUser = session?.user as { id?: string; role?: UserRole } | undefined;
 
   if (!ensureAdminRole(sessionUser?.role)) {

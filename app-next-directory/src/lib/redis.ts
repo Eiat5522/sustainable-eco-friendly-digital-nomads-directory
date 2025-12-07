@@ -42,6 +42,12 @@ const getRedisCredentials = () => {
 let missingCredentialsLogged = false;
 
 export const createRedisClient = (): Redis | undefined => {
+  // Allow opting-out of Upstash during static builds or when a maintainer needs it disabled.
+  // This prevents network fetches during static prerendering which can mark pages as dynamic.
+  if (process.env.DISABLE_UPSTASH_DURING_BUILD === '1') {
+    return undefined;
+  }
+
   const credentials = getRedisCredentials();
 
   if (!credentials) {
@@ -53,7 +59,13 @@ export const createRedisClient = (): Redis | undefined => {
   }
 
   const { redisUrl, redisToken } = credentials;
-  return new Redis({ url: redisUrl, token: redisToken });
+
+  try {
+    return new Redis({ url: redisUrl, token: redisToken });
+  } catch (error) {
+    structuredLogger.warn('[redis] failed to create client', error as Error, { component: 'redis' });
+    return undefined;
+  }
 };
 
 const setClient = (client: Redis | undefined) => {

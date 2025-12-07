@@ -1,9 +1,17 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
 import { VenueListingManagement } from '../components/VenueListingManagement';
 
 export default async function VenueListingsPage() {
-  const session = await auth();
+  let _h = null as null | ReturnType<typeof headers> | { get(name: string): string | null | undefined };
+  try {
+    _h = headers();
+  } catch {
+    _h = null;
+  }
+
+  const session = await auth(_h);
   const sessionUser = session?.user as
     | {
         id?: string;
@@ -22,3 +30,4 @@ export default async function VenueListingsPage() {
     </div>
   );
 }
+

@@ -15,7 +15,10 @@ import {
   ListingSummaryDTOArraySchema,
 } from '@/types/dto-schemas';
 
-export const revalidate = 300;
+// MIGRATED: Removed `export const revalidate = 300` (incompatible with
+// cacheComponents). To migrate, consider adding `"use cache"` in the
+// data-fetch helper and selecting an appropriate `cacheLife()` profile.
+// TODO: decide cacheLife profile and add `cacheLife()` in the helper.
 
 type Params = { slug: string };
 type Props = { params: Params | Promise<Params> };
@@ -27,14 +30,20 @@ type Props = { params: Params | Promise<Params> };
 export async function generateStaticParams(): Promise<Params[]> {
   try {
     const slugs = await getAllCitySlugs();
+    if (!Array.isArray(slugs) || slugs.length === 0) {
+      // Ensure at least one param is returned for Cache Components validation.
+      return [{ slug: 'empty-city' }];
+    }
     return slugs.map(slug => ({ slug }));
   } catch (error) {
     structuredLogger.error('Failed to generate static params for city pages', error, {
       component: 'city-page',
       operation: 'generateStaticParams',
     });
-    // Return empty array to allow dynamic rendering as fallback
-    return [];
+    // Return a safe fallback param so build-time validation can proceed.
+    // With Cache Components enabled, Next requires at least one param.
+    // The page gracefully renders a fallback city when data is missing.
+    return [{ slug: 'empty-city' }];
   }
 }
 

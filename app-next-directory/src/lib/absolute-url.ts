@@ -6,9 +6,11 @@ import { headers } from 'next/headers';
  * Resolve the absolute base URL for server-side fetches.
  * Falls back to env when request headers are unavailable.
  */
-export async function getBaseUrl(): Promise<string> {
+export async function getBaseUrl(
+  hParam?: { get(name: string): string | null | undefined } | null
+): Promise<string> {
   try {
-    const h = await headers();
+    const h = hParam ?? (await headers());
     const first = (v?: string | null) => v?.split(',')[0]?.trim() ?? null;
     const isSafeHost = (host: string) => /^[a-z0-9.-]+(?::\d+)?$/i.test(host);
     const proto = first(h.get('x-forwarded-proto')) ?? 'http';
