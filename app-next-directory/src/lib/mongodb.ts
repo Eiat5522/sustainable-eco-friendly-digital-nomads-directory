@@ -113,23 +113,8 @@ function getClientPromise(): Promise<MongoClient> {
   return clientPromise;
 }
 
-// FORTEST: Export a getter function instead of calling getClientPromise() at module scope
-// This prevents initialization during build when DISABLE_MONGODB_DURING_BUILD is set
-const clientPromiseGetter = {
-  then: <TResult1 = MongoClient, TResult2 = never>(
-    onfulfilled?: ((value: MongoClient) => TResult1 | PromiseLike<TResult1>) | null,
-    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null
-  ): Promise<TResult1 | TResult2> => {
-    return getClientPromise().then(onfulfilled, onrejected);
-  },
-  catch: <TResult = never>(
-    onrejected?: ((reason: unknown) => TResult | PromiseLike<TResult>) | null
-  ): Promise<MongoClient | TResult> => {
-    return getClientPromise().catch(onrejected);
-  },
-  finally: (onfinally?: (() => void) | null): Promise<MongoClient> => {
-    return getClientPromise().finally(onfinally);
-  },
-} as Promise<MongoClient>;
-
-export default clientPromiseGetter;
+// FORTEST: Export a proper Promise that delegates to getClientPromise()
+// This ensures full Promise compatibility including Symbol.toStringTag
+export default new Promise<MongoClient>((resolve, reject) => {
+  getClientPromise().then(resolve, reject);
+});

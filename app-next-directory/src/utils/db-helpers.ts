@@ -88,11 +88,13 @@ const allowRealMongoInTests =
   process.env.ALLOW_REAL_MONGO_IN_TESTS === 'true' ||
   process.env.ALLOW_MONGO_IN_TESTS === 'true';
 
-// FORTEST: Also mock when DISABLE_MONGODB_DURING_BUILD is set
-const disableMongoDuringBuild = process.env.DISABLE_MONGODB_DURING_BUILD === '1' || process.env.DISABLE_MONGODB_DURING_BUILD === 'true';
+// FORTEST: Shared constant for MongoDB disable flag
+const isMongoDisabledDuringBuild = 
+  process.env.DISABLE_MONGODB_DURING_BUILD === '1' || 
+  process.env.DISABLE_MONGODB_DURING_BUILD === 'true';
 
 const shouldUseMockDb =
-  disableMongoDuringBuild ||
+  isMongoDisabledDuringBuild ||
   (!allowRealMongoInTests &&
   (
     process.env.NODE_ENV === 'test' ||
@@ -105,8 +107,7 @@ let clientPromise: Promise<MongoClient> | undefined;
 
 function initializeClientPromise(): Promise<MongoClient> | undefined {
   // FORTEST: Respect DISABLE_MONGODB_DURING_BUILD to prevent module-scope errors
-  const disableMongoDuringBuild = process.env.DISABLE_MONGODB_DURING_BUILD === '1' || process.env.DISABLE_MONGODB_DURING_BUILD === 'true';
-  if (disableMongoDuringBuild) {
+  if (isMongoDisabledDuringBuild) {
     return undefined;
   }
 
