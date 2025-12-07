@@ -18,7 +18,17 @@ function ensureAdmin(sessionUser: { role?: UserRole } | undefined): string | nul
 
 export async function GET(_request: NextRequest, _context: RouteContext) {
   try {
-    const session = await auth();
+    // FORTEST: guard for prerender - catch auth failures during prerender
+    let session;
+    try {
+      session = await auth();
+    } catch (authError) {
+      structuredLogger.warn('[api/admin/analytics] auth() unavailable during prerender', authError);
+      return NextResponse.json(
+        { error: 'Service temporarily unavailable during build' },
+        { status: 503 }
+      );
+    }
     const sessionUser = session?.user as { role?: UserRole } | undefined;
 
     if (!ensureAdmin(sessionUser)) {

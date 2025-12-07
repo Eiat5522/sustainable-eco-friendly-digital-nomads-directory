@@ -54,7 +54,17 @@ export async function GET() {
     _testControl?.clientFetchOverride ??
     ((query: string, params?: Record<string, unknown>) => client.fetch(query, params));
 
-  const session = await authFn();
+  // FORTEST: guard for prerender - catch auth failures during prerender
+  let session;
+  try {
+    session = await authFn();
+  } catch (authError) {
+    structuredLogger.warn('[user-favorites] auth() unavailable during prerender', authError);
+    return NextResponse.json(
+      { error: 'Service temporarily unavailable during build' },
+      { status: 503 }
+    );
+  }
 
   // session may be untyped in tests; cast to unknown before accessing .user
   const user = (
@@ -152,7 +162,17 @@ export async function POST(request: NextRequest) {
     _testControl?.clientCreateOrReplaceOverride ??
     ((doc: CreateOrReplaceDocument) => client.createOrReplace(doc));
 
-  const session = await authFn();
+  // FORTEST: guard for prerender - catch auth failures during prerender
+  let session;
+  try {
+    session = await authFn();
+  } catch (authError) {
+    structuredLogger.warn('[user-favorites] auth() unavailable during prerender', authError);
+    return NextResponse.json(
+      { error: 'Service temporarily unavailable during build' },
+      { status: 503 }
+    );
+  }
 
   const user = (
     session as {
@@ -226,7 +246,17 @@ export async function DELETE(request: NextRequest) {
     ((query: string, params?: Record<string, unknown>) => client.fetch(query, params));
   const deleteFn = _testControl?.clientDeleteOverride ?? ((id: string) => client.delete(id));
 
-  const session = await authFn();
+  // FORTEST: guard for prerender - catch auth failures during prerender
+  let session;
+  try {
+    session = await authFn();
+  } catch (authError) {
+    structuredLogger.warn('[user-favorites] auth() unavailable during prerender', authError);
+    return NextResponse.json(
+      { error: 'Service temporarily unavailable during build' },
+      { status: 503 }
+    );
+  }
 
   const user = (
     session as {

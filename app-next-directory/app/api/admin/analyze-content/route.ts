@@ -15,7 +15,17 @@ function ensureAdmin(sessionUser: SessionUser) {
 
 export async function GET(request: NextRequest, _context: RouteContext) {
   try {
-    const session = await auth();
+    // FORTEST: guard for prerender - catch auth failures during prerender
+    let session;
+    try {
+      session = await auth();
+    } catch (authError) {
+      structuredLogger.warn('[api/admin/analyze-content] auth() unavailable during prerender', authError);
+      return NextResponse.json(
+        { error: 'Service temporarily unavailable during build' },
+        { status: 503 }
+      );
+    }
     const sessionUser = session?.user as SessionUser;
 
     if (!ensureAdmin(sessionUser)) {
@@ -61,7 +71,17 @@ type AnalyzeRequestBody = {
 
 export async function POST(request: NextRequest, _context: RouteContext) {
   try {
-    const session = await auth();
+    // FORTEST: guard for prerender - catch auth failures during prerender
+    let session;
+    try {
+      session = await auth();
+    } catch (authError) {
+      structuredLogger.warn('[api/admin/analyze-content] auth() unavailable during prerender', authError);
+      return NextResponse.json(
+        { error: 'Service temporarily unavailable during build' },
+        { status: 503 }
+      );
+    }
     const sessionUser = session?.user as SessionUser;
 
     if (!ensureAdmin(sessionUser)) {

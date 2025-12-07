@@ -26,7 +26,18 @@ function ensureAdmin(sessionUser: SessionUser): boolean {
 
 export async function GET(_request: NextRequest, _context: RouteContext) {
   try {
-    const session = await auth();
+    // FORTEST: guard for prerender - catch auth failures during prerender
+    let session;
+    try {
+      session = await auth();
+    } catch (authError) {
+      structuredLogger.warn('[api/admin/listings/stats] auth() unavailable during prerender', authError);
+      // Return 503 during prerender when auth is unavailable
+      return NextResponse.json(
+        { error: 'Service temporarily unavailable during build' },
+        { status: 503 }
+      );
+    }
     const sessionUser = session?.user as SessionUser;
 
     if (!ensureAdmin(sessionUser)) {
@@ -70,8 +81,10 @@ export async function GET(_request: NextRequest, _context: RouteContext) {
     const listingsByType: Record<string, number> = {};
     const seenTypes = new Set<string>();
 
-    for (const item of typesCounts) {
-      if (item.type && !seenTypes.has(item.type)) {
+    // FORTEST: guard for prerender - ensure typesCounts is an array
+    const safeTypesCounts = Array.isArray(typesCounts) ? typesCounts : [];
+    for (const item of safeTypesCounts) {
+      if (item && item.type && !seenTypes.has(item.type)) {
         seenTypes.add(item.type);
         listingsByType[item.type] = item.count ?? 0;
       }

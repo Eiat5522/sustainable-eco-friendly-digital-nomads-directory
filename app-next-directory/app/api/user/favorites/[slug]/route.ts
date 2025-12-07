@@ -11,7 +11,20 @@ interface RouteContext {
 
 // Add/Remove a specific listing from favorites
 export async function POST(request: NextRequest, { params }: RouteContext) {
-  const session = await auth();
+  // FORTEST: guard for prerender - catch auth failures during prerender
+  let session;
+  try {
+    session = await auth();
+  } catch (authError) {
+    structuredLogger.warn('[user-favorites/slug] auth() unavailable during prerender', authError, {
+      ...getRequestContext(request),
+      component: 'api/user/favorites/[slug]',
+    });
+    return NextResponse.json(
+      { error: 'Service temporarily unavailable during build' },
+      { status: 503 }
+    );
+  }
 
   const user = session?.user as
     | { id?: string; role?: UserRole; email?: string | null; name?: string | null }
@@ -84,7 +97,21 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
 }
 
 export async function DELETE(request: NextRequest, { params }: RouteContext) {
-  const session = await auth();
+  // FORTEST: guard for prerender - catch auth failures during prerender
+  let session;
+  try {
+    session = await auth();
+  } catch (authError) {
+    structuredLogger.warn('[user-favorites/slug] auth() unavailable during prerender', authError, {
+      ...getRequestContext(request),
+      component: 'api/user/favorites/[slug]',
+    });
+    return NextResponse.json(
+      { error: 'Service temporarily unavailable during build' },
+      { status: 503 }
+    );
+  }
+
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }

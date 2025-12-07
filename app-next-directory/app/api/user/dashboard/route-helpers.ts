@@ -23,7 +23,23 @@ type DashboardDependencies = {
 export function createDashboardHandler({ authFn, fetchDashboard, logger }: DashboardDependencies) {
   return async function GET(request: NextRequest) {
     try {
-      const session = await authFn();
+      // FORTEST: guard for prerender - catch auth failures during prerender
+      let session;
+      try {
+        session = await authFn();
+      } catch (authError) {
+        if (logger?.error) {
+          logger.error('[user-dashboard] auth() unavailable during prerender', authError, {
+            route: '/api/user/dashboard',
+          });
+        }
+        // Return 503 during prerender when auth is unavailable
+        return NextResponse.json(
+          { error: 'Service temporarily unavailable during build' },
+          { status: 503 }
+        );
+      }
+
       const sessionUser = session?.user as
         | {
             id?: string;

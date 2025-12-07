@@ -27,7 +27,24 @@ type AnalyticsDependencies = {
 export function _createAnalyticsHandler({ authFn, fetchDashboard, logger }: AnalyticsDependencies) {
   return async function GET(request: NextRequest) {
     try {
-      const session = await authFn();
+      // FORTEST: guard for prerender - catch auth failures during prerender
+      let session;
+      try {
+        session = await authFn();
+      } catch (authError) {
+        const logMessage = '[user-analytics] auth() unavailable during prerender';
+        if (logger?.error) {
+          logger.error(logMessage, authError, { route: '/api/user/analytics' });
+        } else {
+          structuredLogger.error(logMessage, authError, { route: '/api/user/analytics' });
+        }
+        // Return 503 during prerender when auth is unavailable
+        return NextResponse.json(
+          { error: 'Service temporarily unavailable during build' },
+          { status: 503 }
+        );
+      }
+
       const sessionUser = session?.user as
         | {
             id?: string;

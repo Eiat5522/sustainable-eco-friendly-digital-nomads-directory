@@ -154,7 +154,17 @@ if (process.env.NODE_ENV === 'test') {
 
 export async function GET() {
   const authFn = _testControl?.authOverride ?? auth;
-  const session = await authFn();
+  // FORTEST: guard for prerender - catch auth failures during prerender
+  let session;
+  try {
+    session = await authFn();
+  } catch (authError) {
+    structuredLogger.warn('[user-reviews] auth() unavailable during prerender', authError);
+    return NextResponse.json(
+      { error: 'Service temporarily unavailable during build' },
+      { status: 503 }
+    );
+  }
   // session may be untyped in tests; cast to any to access user
   const user = (session as { user?: SessionUser })?.user;
   const userId = user?.id ?? null;

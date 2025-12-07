@@ -17,7 +17,20 @@ export function _createProfileHandlers({
   return {
     async GET(request: Request) {
       try {
-        const session = await authFn();
+        // FORTEST: guard for prerender - catch auth failures during prerender
+        let session;
+        try {
+          session = await authFn();
+        } catch (authError) {
+          structuredLogger.warn('[user-profile] auth() unavailable during prerender', authError, {
+            ...getRequestContext(request),
+            component: 'api/user/profile',
+          });
+          return NextResponse.json(
+            { error: 'Service temporarily unavailable during build' },
+            { status: 503 }
+          );
+        }
 
         if (!session?.user?.id) {
           return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
@@ -50,7 +63,20 @@ export function _createProfileHandlers({
 
     async PUT(request: Request) {
       try {
-        const session = await authFn();
+        // FORTEST: guard for prerender - catch auth failures during prerender
+        let session;
+        try {
+          session = await authFn();
+        } catch (authError) {
+          structuredLogger.warn('[user-profile] auth() unavailable during prerender', authError, {
+            ...getRequestContext(request),
+            component: 'api/user/profile',
+          });
+          return NextResponse.json(
+            { error: 'Service temporarily unavailable during build' },
+            { status: 503 }
+          );
+        }
 
         if (!session?.user?.id) {
           return NextResponse.json({ error: 'Authentication required' }, { status: 401 });

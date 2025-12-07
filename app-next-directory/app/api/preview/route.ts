@@ -18,8 +18,15 @@ export async function GET(request: Request) {
     return new Response('No slug in the request', { status: 400 });
   }
 
-  // Enable Draft Mode by setting the cookie
-  (await draftMode()).enable();
+  // FORTEST: guard for prerender - draftMode() may fail during prerender
+  try {
+    // Enable Draft Mode by setting the cookie
+    (await draftMode()).enable();
+  } catch (error) {
+    // During prerender, draftMode() may not be available
+    return new Response('Preview mode unavailable during build', { status: 503 });
+  }
+  
   // Redirect to the path from the fetched post
   // We don't redirect to searchParams.slug as that might lead to open redirect vulnerabilities
   const redirectPath = `/${type === 'listing' ? 'listings' : type}/${slug}`;

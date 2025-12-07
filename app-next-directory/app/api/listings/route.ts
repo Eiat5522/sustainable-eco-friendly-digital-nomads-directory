@@ -241,7 +241,8 @@ export function createListingsHandlers(overrides: Partial<ListingsDependencies> 
         : await fetchListingsData(page, limit);
 
       // Handle collection unavailable error
-      if ('error' in result && result.error) {
+      // FORTEST: guard for prerender - ensure result is object before using 'in'
+      if (result && typeof result === 'object' && 'error' in result && result.error) {
         return ResponseBuilder.error(result.error, 500);
       }
 

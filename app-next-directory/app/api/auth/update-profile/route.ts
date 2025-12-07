@@ -162,17 +162,30 @@ async function handleProfileMutation(request: NextRequest): Promise<NextResponse
   }
 
   const authResult = await ensureAuthenticated();
-  if ('error' in authResult && authResult.error) {
+  // FORTEST: guard for prerender - ensure authResult is object before using 'in'
+  if (authResult && typeof authResult === 'object' && 'error' in authResult && authResult.error) {
     return authResult.error;
   }
 
   const payloadResult = await parsePayload(request);
-  if ('error' in payloadResult && payloadResult.error) {
+  // FORTEST: guard for prerender - ensure payloadResult is object before using 'in'
+  if (
+    payloadResult &&
+    typeof payloadResult === 'object' &&
+    'error' in payloadResult &&
+    payloadResult.error
+  ) {
     return payloadResult.error;
   }
 
   const validationResult = validatePayload(payloadResult.body as Record<string, unknown>);
-  if ('error' in validationResult && validationResult.error) {
+  // FORTEST: guard for prerender - ensure validationResult is object before using 'in'
+  if (
+    validationResult &&
+    typeof validationResult === 'object' &&
+    'error' in validationResult &&
+    validationResult.error
+  ) {
     return validationResult.error;
   }
 
