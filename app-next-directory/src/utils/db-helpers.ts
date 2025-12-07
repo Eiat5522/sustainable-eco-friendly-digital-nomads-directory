@@ -88,18 +88,29 @@ const allowRealMongoInTests =
   process.env.ALLOW_REAL_MONGO_IN_TESTS === 'true' ||
   process.env.ALLOW_MONGO_IN_TESTS === 'true';
 
+// FORTEST: Shared constant for MongoDB disable flag
+const isMongoDisabledDuringBuild = 
+  process.env.DISABLE_MONGODB_DURING_BUILD === '1' || 
+  process.env.DISABLE_MONGODB_DURING_BUILD === 'true';
+
 const shouldUseMockDb =
-  !allowRealMongoInTests &&
+  isMongoDisabledDuringBuild ||
+  (!allowRealMongoInTests &&
   (
     process.env.NODE_ENV === 'test' ||
     process.env.JEST_WORKER_ID !== undefined ||
     process.env.MOCK_MONGODB === 'true' ||
     process.env.E2E === '1'
-  );
+  ));
 
 let clientPromise: Promise<MongoClient> | undefined;
 
 function initializeClientPromise(): Promise<MongoClient> | undefined {
+  // FORTEST: Respect DISABLE_MONGODB_DURING_BUILD to prevent module-scope errors
+  if (isMongoDisabledDuringBuild) {
+    return undefined;
+  }
+
   const uri = process.env.MONGODB_URI;
   if (!uri) {
     const envFile = process.env.NODE_ENV === 'development' ? '.env.development' : '.env.local';
@@ -472,10 +483,9 @@ if (shouldUseMockDb) {
   if (!globalWithMongo.__TEST_MONGO_DB__) {
     globalWithMongo.__TEST_MONGO_DB__ = createMockDb();
   }
-} else {
-  initializeClientPromise();
-  // MongoDB client must only be initialized server-side
 }
+// FORTEST: Remove module-scope initialization - moved to lazy init in getDatabase()
+// This prevents errors during build when DISABLE_MONGODB_DURING_BUILD is set
 
 export async function getDatabase(): Promise<Db | MockDb> {
   if (shouldUseMockDb) {
