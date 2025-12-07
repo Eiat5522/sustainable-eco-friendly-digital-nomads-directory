@@ -68,6 +68,24 @@ export class SanityHTTPClient {
   private readonly debug = process.env.SANITY_HTTP_DEBUG === '1';
 
   constructor() {
+    // FORTEST: Skip validation and client creation when DISABLE_SANITY_DURING_BUILD is set
+    const disableSanity = process.env.DISABLE_SANITY_DURING_BUILD === '1' || process.env.DISABLE_SANITY_DURING_BUILD === 'true';
+    
+    if (disableSanity) {
+      // Create stub clients that won't make network calls
+      this.config = {
+        projectId: 'disabled',
+        dataset: 'disabled',
+        apiVersion: '2025-05-24',
+        useCdn: false,
+      };
+      // Import the stub client from our client.ts
+      const { client: stubClient } = require('./sanity/client');
+      this.client = stubClient as SanityClient;
+      this.writeClient = stubClient as SanityClient;
+      return;
+    }
+    
     // Validate environment variables
     this.validateEnvironment();
 

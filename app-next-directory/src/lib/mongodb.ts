@@ -19,34 +19,43 @@ type MockDb = {
   collection: (name?: string) => MockCollection;
 };
 
-let clientPromise: Promise<MongoClient>;
+// FORTEST: Lazy initialization to prevent module-scope network calls during build
+let clientPromise: Promise<MongoClient> | null = null;
 
 const shouldMockMongo = process.env.NODE_ENV === 'test' || process.env.E2E === '1';
+const disableMongoDuringBuild = process.env.DISABLE_MONGODB_DURING_BUILD === '1' || process.env.DISABLE_MONGODB_DURING_BUILD === 'true';
 
-if (shouldMockMongo) {
-  // Create a mock collection that tests can override
-  // Use simple async functions that can be replaced by jest.fn() in tests
-  const mockCollectionInstance: MockCollection = {
-    createIndexes: async () => ({}),
-    createIndex: async () => ({}),
-    findOne: async () => null,
-    insertOne: async () => ({ insertedId: 'mock' }),
-    updateOne: async () => ({ matchedCount: 0, modifiedCount: 0 }),
-    deleteOne: async () => ({ deletedCount: 0 }),
-    findOneAndUpdate: async () => ({ value: null }),
-    deleteMany: async () => ({ deletedCount: 0 }),
-  };
+function getClientPromise(): Promise<MongoClient> {
+  if (clientPromise) {
+    return clientPromise;
+  }
 
-  const mockClient = {
-    db: () => ({
-      createCollection: async () => ({}),
-      collection: () => mockCollectionInstance,
-    }),
-    _mockCollection: mockCollectionInstance, // Expose for testing
-  } as { db: () => MockDb; _mockCollection?: MockCollection };
+  if (shouldMockMongo || disableMongoDuringBuild) {
+    // Create a mock collection that tests can override
+    // Use simple async functions that can be replaced by jest.fn() in tests
+    const mockCollectionInstance: MockCollection = {
+      createIndexes: async () => ({}),
+      createIndex: async () => ({}),
+      findOne: async () => null,
+      insertOne: async () => ({ insertedId: 'mock' }),
+      updateOne: async () => ({ matchedCount: 0, modifiedCount: 0 }),
+      deleteOne: async () => ({ deletedCount: 0 }),
+      findOneAndUpdate: async () => ({ value: null }),
+      deleteMany: async () => ({ deletedCount: 0 }),
+    };
 
-  clientPromise = Promise.resolve(mockClient as unknown as MongoClient);
-} else {
+    const mockClient = {
+      db: () => ({
+        createCollection: async () => ({}),
+        collection: () => mockCollectionInstance,
+      }),
+      _mockCollection: mockCollectionInstance, // Expose for testing
+    } as { db: () => MockDb; _mockCollection?: MockCollection };
+
+    clientPromise = Promise.resolve(mockClient as unknown as MongoClient);
+    return clientPromise;
+  }
+
   if (!process.env.MONGODB_URI) {
     const envFile = process.env.NODE_ENV === 'development' ? '.env.development' : '.env.local';
     throw new Error(`Please add your MongoDB URI to ${envFile}`);
@@ -100,6 +109,27 @@ if (shouldMockMongo) {
         throw error;
       });
   }
+
+  return clientPromise;
 }
 
-export default clientPromise;
+// FORTEST: Export a getter function instead of calling getClientPromise() at module scope
+// This prevents initialization during build when DISABLE_MONGODB_DURING_BUILD is set
+const clientPromiseGetter = {
+  then: <TResult1 = MongoClient, TResult2 = never>(
+    onfulfilled?: ((value: MongoClient) => TResult1 | PromiseLike<TResult1>) | null,
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null
+  ): Promise<TResult1 | TResult2> => {
+    return getClientPromise().then(onfulfilled, onrejected);
+  },
+  catch: <TResult = never>(
+    onrejected?: ((reason: unknown) => TResult | PromiseLike<TResult>) | null
+  ): Promise<MongoClient | TResult> => {
+    return getClientPromise().catch(onrejected);
+  },
+  finally: (onfinally?: (() => void) | null): Promise<MongoClient> => {
+    return getClientPromise().finally(onfinally);
+  },
+} as Promise<MongoClient>;
+
+export default clientPromiseGetter;
