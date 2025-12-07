@@ -1,0 +1,167 @@
+## Product Requirements Document (PRD)
+
+**Feature Area:** Blog Management (Sanity-Backed)
+**Project:** Sustainable Digital Nomads Directory
+The Sustainable Digital Nomads Directory is your go-to hub for eco-minded remote workers in Thailand—featuring hand-curated listings of carbon-neutral coworking spaces, green-certified accommodations, farm-to-table cafés, and community-driven events. With intuitive search filters, in-depth city guides, and verified user reviews, it makes finding and booking the perfect sustainable spot effortless. Whether you’re planning a month-long stay in Chiang Mai or a beachfront retreat on Koh Phangan, our platform helps you live, work, and connect responsibly—so you can explore Thailand while minimizing your footprint.
+---
+
+### 1. Purpose & Scope
+
+
+Enable a lightweight, SEO-focused blog within our directory to drive organic traffic, surface sustainability content, and support community engagement. The blog will be powered by Sanity Studio and integrated into the Next.js frontend.
+
+---
+
+### 2. Goals & Success Metrics
+
+* **Organic Traffic:** +25% monthly blog referrals by Month 3
+* **Engagement:** ≥2 minutes average time on blog pages
+* **Content Velocity:** Publish ≥4 articles/month
+* **SEO Visibility:** Target top-5 ranking for 10 priority keywords
+* **Lead Gen:** ≥5% newsletter-signup conversion on blog posts
+
+---
+
+### 3. Stakeholders
+
+* **Product Owner:** Itthiphum “Eiat” Lenavat
+* **Content Team:** Writers & Editors
+* **Engineering:** Frontend & Backend
+* **Marketing:** SEO & Social
+* **Design:** UI/UX
+
+---
+
+### 4. User Personas
+
+1. **Digital Nomad Researcher**
+
+   * Wants reliable how-tos & city guides
+   * Values readability, clear visuals, and actionable tips
+2. **Business Owner (Listing Partner)**
+
+   * Reads case studies & best-practice articles
+   * Interested in advertising opportunities
+3. **Casual Visitor**
+
+   * Enjoys travel tips, inspiration, and community stories
+   * May sign up for newsletter
+
+---
+
+### 5. Feature Breakdown by Tier
+
+| Sub-Feature                                   | Tier         | Notes                                                      |
+| --------------------------------------------- | ------------ | ---------------------------------------------------------- |
+| Portable Text editor (with preview)           | Nochoice     | Sanity’s built-in; enable live front-end preview.          |
+| Auto-save drafts                              | Nochoice     | Default in Studio; no extra setup.                         |
+| SEO meta fields (title, description, OG tags) | Mustinclude  | Custom fields in schema; consumed by Next.js page meta.    |
+| Featured-post toggle                          | Mustinclude  | Boolean in schema; fuels “Editor’s Picks” widgets.         |
+| Category & tag taxonomy                       | Mustinclude  | References & string arrays in schema; supports filtering.  |
+| Image/media upload & resizing                 | Mustinclude  | Sanity asset pipeline; front-end requests optimized sizes. |
+| Preview post before publishing                | Mustinclude  | Install `@sanity/preview` plugin for WYSIWYG preview mode. |
+| Post scheduling (future publish dates)        | Nicetohave   | Use `sanity-plugin-scheduled` or manual publish.           |
+| WYSIWYG toolbar controls                      | Nicetohave   | Extend Portable Text marks (e.g., callouts, code blocks).  |
+| Comments moderation on posts                  | Couldinclude | Integrate Disqus or similar via front-end embed.           |
+| RSS feed auto-generation                      | Couldinclude | Build a GROQ export script or serverless RSS endpoint.     |
+| Analytics integration (views, shares)         | Couldinclude | Track with Google Analytics or Segment events.             |
+
+---
+
+### 6. Functional Requirements
+
+1. **Content Creation**
+
+   * Editors can create, edit, and delete posts in Sanity Studio.
+   * Preview pane shows exactly how content will render on Next.js.
+2. **Metadata Management**
+
+   * Each post includes: title, slug, publish date, meta title, meta description, OG image.
+   * Featured flag toggles inclusion in homepage & category carousels.
+3. **Categorization & Tagging**
+
+   * Posts must belong to ≥1 category; tags optional.
+   * Front-end pages pull category/tag filters dynamically.
+4. **Media Handling**
+
+   * Upload images and assets via Sanity’s asset pipeline.
+   * Support required image fields: cover image, in-content images.
+5. **Publishing Controls**
+
+   * Draft vs. published states.
+   * (NicetoHave) Schedule future publish date.
+
+---
+
+### 7. Non-Functional Requirements
+
+* **Performance:**
+
+  * Blog pages must load within 2 s on 4G.
+  * Image sizes optimized via SANITY CDN.
+* **Security:**
+
+  * Sanity API keys scoped to read-only on production.
+  * Studio access locked behind corporate SSO.
+* **Reliability:**
+
+  * 99.9% uptime for blog endpoint.
+  * Deploy preview staging environment.
+* **Accessibility:**
+
+  * All blog templates pass WCAG 2.1 AA (headings, alt tags, color contrast).
+
+---
+
+### 8. User Flows
+
+1. **Editor Creates a Post**
+
+   * Login → New “Blog Post” → Enter Portable Text → Upload images → Toggle “Featured”? → Save draft → Preview → Publish
+2. **Reader Views Blog**
+
+   * Homepage → Click “Blog” → Browse posts → Filter by category/tag → Read article → (CTA) Subscribe or share
+
+---
+
+### 9. Wireframes & Prompts
+
+* Use the existing **Blog Landing** and **Blog Post** wireframes.
+* Hand off prompts to the Buddy:
+
+  ```txt
+  Buddy, implement Blog landing and post pages:
+  - Pull posts via GROQ: title, coverImage, excerpt, slug, publishDate.
+  - Landing: featured article at top + grid of latest posts; include category/tag filters.
+  - Post: render Portable Text with custom marks (quotes, code, callouts); include share buttons.
+  - Consume SEO meta fields for page <head> and JSON-LD Article schema.
+  - Use shadcn/ui Card, Button, and Typography components.
+  - Ensure mobile-first, accessible layout.
+  ```
+
+---
+
+### 10. Timeline & Milestones
+
+| Milestone                         | ETA    |
+| --------------------------------- | ------ |
+| Schema & Studio Setup             | Week 1 |
+| Preview Plugin & Meta Integration | Week 2 |
+| Front-end Landing Page            | Week 3 |
+| Front-end Post Page               | Week 4 |
+| SEO QA & Accessibility Audit      | Week 5 |
+| Soft Launch & Analytics Setup     | Week 6 |
+
+---
+
+### 11. Success Criteria
+
+* **Content Volume:** At least 4 posts published by Week 6.
+* **Technical Readiness:** No critical bugs; blog pages pass Lighthouse performance & accessibility.
+* **Traffic & Engagement:** ≥500 unique blog visits in first month post-launch.
+* **Conversion:** ≥3% newsletter sign-ups from blog posts.
+
+---
+
+*This PRD ensures clarity across editorial, design, and engineering teams—aligning Sanity capabilities with MVP priorities and a clear roadmap to launch.*
+*Last Updated: 24 May 2025*

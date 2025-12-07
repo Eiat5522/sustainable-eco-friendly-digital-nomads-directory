@@ -1,0 +1,228 @@
+name: Documentation CI
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - '**/*.md'
+      - 'docs/**'
+      - '.github/workflows/docs-ci.yml'
+  push:
+    branches: [main, develop]
+    paths:
+      - '**/*.md'
+      - 'docs/**'
+      - '.github/workflows/docs-ci.yml'
+
+jobs:
+  markdown-lint:
+    name: Markdown Linting
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install markdownlint-cli
+        run: npm install -g markdownlint-cli
+
+      - name: Create markdownlint config
+        run: |
+          cat > .markdownlint.json << EOF
+          {
+            "default": true,
+            "MD013": false,
+            "MD033": false,
+            "MD041": false,
+            "MD034": false,
+            "MD036": false
+          }
+          EOF
+
+      - name: Lint Markdown files
+        run: markdownlint "**/*.md" --ignore node_modules --ignore .git
+
+  link-checker:
+    name: Link Checking
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install markdown-link-check
+        run: npm install -g markdown-link-check
+
+      - name: Create link check config
+        run: |
+          cat > .markdown-link-check.json << EOF
+          {
+            "ignorePatterns": [
+              {
+                "pattern": "^http://localhost"
+              },
+              {
+                "pattern": "^https://localhost"
+              },
+              {
+                "pattern": "^mailto:"
+              }
+            ],
+            "retryOn429": true,
+            "retryCount": 5,
+            "fallbackRetryDelay": "30s",
+            "aliveStatusCodes": [200, 206, 302]
+          }
+          EOF
+
+      - name: Check links in documentation
+        run: |
+          find . -name "*.md" -not -path "./node_modules/*" -not -path "./.git/*" | \
+          xargs -I {} markdown-link-check {} --config .markdown-link-check.json
+
+  documentation-structure:
+    name: Documentation Structure Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Validate required documentation files
+        run: |
+          echo "Checking required documentation files..."
+          
+          # Required files
+          required_files=(
+            "README.md"
+            "docs/ONBOARDING.md"
+            "docs/ENVIRONMENT.md"
+            ".env.example"
+            "CONTRIBUTING.md"
+            "LICENSE"
+          )
+          
+          missing_files=()
+          
+          for file in "${required_files[@]}"; do
+            if [[ ! -f "$file" ]]; then
+              missing_files+=("$file")
+            else
+              echo "✅ Found: $file"
+            fi
+          done
+          
+          if [[ ${#missing_files[@]} -gt 0 ]]; then
+            echo "❌ Missing required files:"
+            printf '%s\n' "${missing_files[@]}"
+            exit 1
+          else
+            echo "✅ All required documentation files found"
+          fi
+
+      - name: Validate documentation links
+        run: |
+          echo "Checking internal documentation links..."
+          
+          # Check if main docs reference each other correctly
+          if grep -q "ONBOARDING.md" README.md; then
+            echo "✅ README links to ONBOARDING.md"
+          else
+            echo "❌ README should link to ONBOARDING.md"
+            exit 1
+          fi
+          
+          if grep -q "ENVIRONMENT.md" README.md || grep -q "ENVIRONMENT.md" docs/ONBOARDING.md; then
+            echo "✅ ENVIRONMENT.md is referenced"
+          else
+            echo "❌ ENVIRONMENT.md should be referenced in main docs"
+            exit 1
+          fi
+          
+          echo "✅ Documentation cross-references validated"
+
+  spelling-check:
+    name: Spelling Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install cspell
+        run: npm install -g cspell
+
+      - name: Create spell check config
+        run: |
+          cat > .cspell.json << EOF
+          {
+            "version": "0.2",
+            "language": "en",
+            "words": [
+              "monorepo",
+              "Sanity",
+              "MongoDB",
+              "NextAuth",
+              "pwsh",
+              "Eiat",
+              "nomads",
+              "eco",
+              "leaflet",
+              "tailwind",
+              "vercel",
+              "github",
+              "oauth",
+              "smtp",
+              "bcryptjs",
+              "playwright",
+              "markdownlint",
+              "eslint",
+              "pwsh",
+              "powershell",
+              "atlas",
+              "dotenv",
+              "env",
+              "localhost",
+              "subdirectory",
+              "workspace",
+              "workspaces",
+              "MONGODB",
+              "NEXTAUTH",
+              "SANITY",
+              "typeof",
+              "readonly",
+              "onboarding",
+              "signup",
+              "signin",
+              "config",
+              "configs",
+              "deps",
+              "dev",
+              "prod",
+              "admin"
+            ],
+            "flagWords": [],
+            "ignorePaths": [
+              "node_modules/**",
+              ".git/**",
+              "package-lock.json",
+              ".env.example",
+              "*.log"
+            ]
+          }
+          EOF
+
+      - name: Run spell check
+        run: cspell "**/*.md" --config .cspell.json

@@ -1,0 +1,4 @@
+city,address_string,id,digital_nomad_features,name,description_short,coordinates,category
+Bangkok,"123 Test St, Bangkok",test-space-1-bangkok-bkk-cw,"[""coffee"", ""fast_wifi"", ""meeting_rooms""]",Test Space 1,Test coworking space 1,"{""longitude"": 100.4935089, ""latitude"": 13.7524938}",coworking
+Bangkok,"123 Test St, Bangkok",test-space-2-bangkok-bkk-cw,"[""quiet_zones"", ""meeting_rooms""]",Test Space 2,Test coworking space 2,"{""latitude"": 13.7524938, ""longitude"": 100.4935089}",coworking
+Chiang Mai,"456 Test St, Chiang Mai",test-space-3-chiang-mai-cnx-cf,"[""fast_wifi""]",Test Space 3,A new test space in Chiang Mai,"{""latitude"": 18.7861, ""longitude"": 98.9847}",cafe
