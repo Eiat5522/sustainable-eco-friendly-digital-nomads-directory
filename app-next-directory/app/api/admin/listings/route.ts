@@ -60,6 +60,7 @@ function ensureAdmin(sessionUser: SessionUser): boolean {
 
 export async function GET(request: NextRequest, _context: RouteContext) {
   try {
+<<<<<<< HEAD
     // FORTEST: guard for prerender - catch auth failures during prerender
     let session;
     try {
@@ -71,6 +72,9 @@ export async function GET(request: NextRequest, _context: RouteContext) {
         { status: 503 }
       );
     }
+=======
+    const session = await auth(request.headers);
+>>>>>>> 698eec36 (feat(prerender): parameterize helpers to avoid implicit headers() calls in cached scopes (#363))
     const sessionUser = session?.user as SessionUser;
 
     if (!ensureAdmin(sessionUser)) {
@@ -170,6 +174,7 @@ export async function GET(request: NextRequest, _context: RouteContext) {
 export async function PATCH(request: NextRequest, _context: RouteContext) {
   let listingIdValue: string | undefined;
   try {
+<<<<<<< HEAD
     // FORTEST: guard for prerender - catch auth failures during prerender
     let session;
     try {
@@ -181,6 +186,9 @@ export async function PATCH(request: NextRequest, _context: RouteContext) {
         { status: 503 }
       );
     }
+=======
+    const session = await auth(request.headers);
+>>>>>>> 698eec36 (feat(prerender): parameterize helpers to avoid implicit headers() calls in cached scopes (#363))
     const sessionUser = session?.user as SessionUser;
 
     if (!ensureAdmin(sessionUser)) {
@@ -254,6 +262,7 @@ export async function PATCH(request: NextRequest, _context: RouteContext) {
 export async function DELETE(request: NextRequest, _context: RouteContext) {
   let listingIdValue: string | undefined;
   try {
+<<<<<<< HEAD
     // FORTEST: guard for prerender - catch auth failures during prerender
     let session;
     try {
@@ -265,6 +274,9 @@ export async function DELETE(request: NextRequest, _context: RouteContext) {
         { status: 503 }
       );
     }
+=======
+    const session = await auth(request.headers);
+>>>>>>> 698eec36 (feat(prerender): parameterize helpers to avoid implicit headers() calls in cached scopes (#363))
     const sessionUser = session?.user as SessionUser;
 
     if (!ensureAdmin(sessionUser)) {

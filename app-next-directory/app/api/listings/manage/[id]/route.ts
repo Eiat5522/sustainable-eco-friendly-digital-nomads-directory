@@ -10,9 +10,10 @@ async function resolveParams(params: { id: string } | Promise<{ id: string }>) {
   return await Promise.resolve(params);
 }
 
-export async function GET(_request: Request, context: RouteContext) {
+export async function GET(request: Request, context: RouteContext) {
   const { params } = context;
   const resolvedParams = await resolveParams(params);
+<<<<<<< HEAD
 
   // FORTEST: guard for prerender - catch auth failures during prerender
   let session;
@@ -25,6 +26,9 @@ export async function GET(_request: Request, context: RouteContext) {
       { status: 503 }
     );
   }
+=======
+  const session = await auth(request.headers);
+>>>>>>> 698eec36 (feat(prerender): parameterize helpers to avoid implicit headers() calls in cached scopes (#363))
   const sessionUser = session?.user as { id?: string; role?: string } | undefined;
 
   if (sessionUser?.role !== 'venueOwner' || !sessionUser.id) {
@@ -54,6 +58,7 @@ export async function GET(_request: Request, context: RouteContext) {
 export async function PUT(request: Request, context: RouteContext) {
   const { params } = context;
   const resolvedParams = await resolveParams(params);
+<<<<<<< HEAD
 
   // FORTEST: guard for prerender - catch auth failures during prerender
   let session;
@@ -66,6 +71,9 @@ export async function PUT(request: Request, context: RouteContext) {
       { status: 503 }
     );
   }
+=======
+  const session = await auth(request.headers);
+>>>>>>> 698eec36 (feat(prerender): parameterize helpers to avoid implicit headers() calls in cached scopes (#363))
   const sessionUser = session?.user as { id?: string; role?: string } | undefined;
 
   if (sessionUser?.role !== 'venueOwner' || !sessionUser.id) {
@@ -167,9 +175,10 @@ export async function PUT(request: Request, context: RouteContext) {
   }
 }
 
-export async function DELETE(_request: Request, context: RouteContext) {
+export async function DELETE(request: Request, context: RouteContext) {
   const { params } = context;
   const resolvedParams = await resolveParams(params);
+<<<<<<< HEAD
 
   // FORTEST: guard for prerender - catch auth failures during prerender
   let session;
@@ -182,6 +191,9 @@ export async function DELETE(_request: Request, context: RouteContext) {
       { status: 503 }
     );
   }
+=======
+  const session = await auth(request.headers);
+>>>>>>> 698eec36 (feat(prerender): parameterize helpers to avoid implicit headers() calls in cached scopes (#363))
   const sessionUser = session?.user as { id?: string; role?: string } | undefined;
 
   if (sessionUser?.role !== 'venueOwner' || !sessionUser.id) {

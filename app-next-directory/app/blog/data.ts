@@ -3,15 +3,17 @@
 // from a `use cache` module to be Turbopack-friendly.
 
 import { getBaseUrl } from '@/lib/absolute-url';
+import type { HeadersLike } from '@/types/request';
 
 export async function getPostsCached(params: {
   page?: string;
   limit?: string;
   tag?: string;
   search?: string;
+  headersParam?: HeadersLike | null; // FORTEST: Accept headers to avoid implicit headers() in cache
 }) {
   const CACHE_LIFE_SECONDS = 60;
-  const base = await getBaseUrl();
+  const base = await getBaseUrl(params.headersParam);
   const url = new URL('/api/blog', base);
   if (params.page) url.searchParams.set('page', params.page);
   if (params.limit) url.searchParams.set('limit', params.limit);

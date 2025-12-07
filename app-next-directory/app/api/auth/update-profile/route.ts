@@ -44,9 +44,9 @@ const sanitizeUser = (user: unknown) => {
   };
 };
 
-async function ensureAuthenticated() {
+async function ensureAuthenticated(request: NextRequest) {
   const { auth } = await import('@/lib/auth');
-  const session = await auth();
+  const session = await auth(request.headers);
   if (!session?.user?.id) {
     return {
       error: json(
@@ -161,9 +161,14 @@ async function handleProfileMutation(request: NextRequest): Promise<NextResponse
     return serviceUnavailable();
   }
 
+<<<<<<< HEAD
   const authResult = await ensureAuthenticated();
   // FORTEST: guard for prerender - ensure authResult is object before using 'in'
   if (authResult && typeof authResult === 'object' && 'error' in authResult && authResult.error) {
+=======
+  const authResult = await ensureAuthenticated(request);
+  if ('error' in authResult && authResult.error) {
+>>>>>>> 698eec36 (feat(prerender): parameterize helpers to avoid implicit headers() calls in cached scopes (#363))
     return authResult.error;
   }
 

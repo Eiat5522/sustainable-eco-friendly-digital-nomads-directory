@@ -11,6 +11,7 @@ interface RouteContext {
 
 // Add/Remove a specific listing from favorites
 export async function POST(request: NextRequest, { params }: RouteContext) {
+<<<<<<< HEAD
   // FORTEST: guard for prerender - catch auth failures during prerender
   let session;
   try {
@@ -25,6 +26,9 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
       { status: 503 }
     );
   }
+=======
+  const session = await auth(request.headers);
+>>>>>>> 698eec36 (feat(prerender): parameterize helpers to avoid implicit headers() calls in cached scopes (#363))
 
   const user = session?.user as
     | { id?: string; role?: UserRole; email?: string | null; name?: string | null }
@@ -97,6 +101,7 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
 }
 
 export async function DELETE(request: NextRequest, { params }: RouteContext) {
+<<<<<<< HEAD
   // FORTEST: guard for prerender - catch auth failures during prerender
   let session;
   try {
@@ -112,6 +117,9 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
     );
   }
 
+=======
+  const session = await auth(request.headers);
+>>>>>>> 698eec36 (feat(prerender): parameterize helpers to avoid implicit headers() calls in cached scopes (#363))
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -136,7 +144,7 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
 
 // Check if a listing is favorited by the user
 export async function GET(request: NextRequest, { params }: RouteContext) {
-  const session = await auth();
+  const session = await auth(request.headers);
 
   const user = session?.user as
     | { id?: string; email?: string | null; name?: string | null; role?: UserRole | null }

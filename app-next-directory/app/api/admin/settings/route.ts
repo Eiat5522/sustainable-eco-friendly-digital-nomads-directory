@@ -26,8 +26,9 @@ function ensureAdmin(sessionUser: SessionUser): boolean {
  * Retrieves the current admin settings from the database
  * Returns default settings if none exist
  */
-export async function GET(_request: NextRequest, _context: RouteContext) {
+export async function GET(request: NextRequest, _context: RouteContext) {
   try {
+<<<<<<< HEAD
     // FORTEST: guard for prerender - catch auth failures during prerender
     let session;
     try {
@@ -39,6 +40,9 @@ export async function GET(_request: NextRequest, _context: RouteContext) {
         { status: 503 }
       );
     }
+=======
+    const session = await auth(request.headers);
+>>>>>>> 698eec36 (feat(prerender): parameterize helpers to avoid implicit headers() calls in cached scopes (#363))
     const sessionUser = session?.user as SessionUser;
 
     if (!ensureAdmin(sessionUser)) {
@@ -81,6 +85,7 @@ export async function GET(_request: NextRequest, _context: RouteContext) {
  */
 export async function POST(request: NextRequest, _context: RouteContext) {
   try {
+<<<<<<< HEAD
     // FORTEST: guard for prerender - catch auth failures during prerender
     let session;
     try {
@@ -92,6 +97,9 @@ export async function POST(request: NextRequest, _context: RouteContext) {
         { status: 503 }
       );
     }
+=======
+    const session = await auth(request.headers);
+>>>>>>> 698eec36 (feat(prerender): parameterize helpers to avoid implicit headers() calls in cached scopes (#363))
     const sessionUser = session?.user as SessionUser;
 
     if (!ensureAdmin(sessionUser)) {

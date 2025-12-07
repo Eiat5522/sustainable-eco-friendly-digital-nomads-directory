@@ -121,6 +121,7 @@ const reviewInputSchema = z
   .passthrough();
 
 export async function POST(request: NextRequest) {
+<<<<<<< HEAD
   // FORTEST: guard for prerender - catch auth failures during prerender
   let session;
   try {
@@ -129,6 +130,9 @@ export async function POST(request: NextRequest) {
     structuredLogger.warn('[api/reviews] auth() unavailable during prerender', authError);
     return ApiResponseHandler.error('Service temporarily unavailable during build', 503);
   }
+=======
+  const session = await auth(request.headers);
+>>>>>>> 698eec36 (feat(prerender): parameterize helpers to avoid implicit headers() calls in cached scopes (#363))
 
   const user = session?.user as
     | { id?: string; role?: UserRole; email?: string | null; name?: string | null }

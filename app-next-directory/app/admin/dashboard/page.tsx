@@ -212,12 +212,19 @@ function ensureAdminRole(role: UserRole | undefined): role is 'admin' | 'superAd
 }
 
 export default async function AdminDashboardPage() {
+<<<<<<< HEAD
   let _h = null as
     | null
     | ReturnType<typeof headers>
+=======
+  // FORTEST: Wrap headers() in try-catch for compatibility with prerender
+  let _h = null as
+    | null
+    | Awaited<ReturnType<typeof headers>>
+>>>>>>> 698eec36 (feat(prerender): parameterize helpers to avoid implicit headers() calls in cached scopes (#363))
     | { get(name: string): string | null | undefined };
   try {
-    _h = headers();
+    _h = await headers();
   } catch {
     _h = null;
   }
