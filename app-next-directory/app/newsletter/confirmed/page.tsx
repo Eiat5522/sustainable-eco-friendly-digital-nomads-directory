@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
 import { NeoButton } from '@/components/ui/neo-button';
@@ -54,9 +55,13 @@ function Content() {
 export default function NewsletterConfirmedPage() {
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Suspense fallback={<div>Loading header...</div>}>
+        <Header />
+      </Suspense>
       <Content />
-      <Footer />
+      <Suspense fallback={<div>Loading footer...</div>}>
+        <Footer />
+      </Suspense>
     </div>
   );
 }

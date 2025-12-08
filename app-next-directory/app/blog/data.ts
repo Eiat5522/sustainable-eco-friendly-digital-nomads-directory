@@ -10,10 +10,9 @@ export async function getPostsCached(params: {
   limit?: string;
   tag?: string;
   search?: string;
-  headersParam?: HeadersLike | null; // FORTEST: Accept headers to avoid implicit headers() in cache
 }) {
   const CACHE_LIFE_SECONDS = 60;
-  const base = await getBaseUrl(params.headersParam);
+  const base = await getBaseUrl();
   const url = new URL('/api/blog', base);
   if (params.page) url.searchParams.set('page', params.page);
   if (params.limit) url.searchParams.set('limit', params.limit);
@@ -26,11 +25,12 @@ export async function getPostsCached(params: {
   }
   const json: unknown = await res.json();
   if (json && typeof json === 'object' && 'success' in json) {
-    const { data } = json as { data?: any };
+    const { data } = json as { data?: { posts: any[]; pagination: any; uniqueTags: string[] } };
     if (!data || !Array.isArray(data.posts)) {
       throw new Error('Blog API responded with missing/invalid data');
     }
-    return data;
+    const { posts, pagination, uniqueTags } = data;
+    return { posts, pagination, uniqueTags };
   }
   if (Array.isArray((json as { posts?: unknown })?.posts)) {
     const posts = (json as { posts: any[] }).posts;

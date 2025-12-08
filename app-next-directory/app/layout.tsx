@@ -15,9 +15,9 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const rawTheme = (await cookies()).get('theme')?.value;
-  const theme = normalizeTheme(rawTheme);
-  const htmlThemeClass = themeClass(theme);
+const DEFAULT_THEME = 'system'; // Or 'light', 'dark'
+const theme = normalizeTheme(DEFAULT_THEME);
+const htmlThemeClass = themeClass(theme);
 
   return (
     <html lang="en" className={htmlThemeClass} suppressHydrationWarning>

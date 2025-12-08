@@ -13,16 +13,6 @@ import { structuredLogger } from '@/lib/logger';
 import type { UserRole } from '@/types/auth';
 import { ModerationActions } from './ModerationActions';
 
-// MIGRATED: Removed `export const dynamic = 'force-dynamic'` to be compatible
-// with `cacheComponents`. This route is dynamic-by-default under Cache Components.
-// TODO: If this page should be cached, add `"use cache"` in the appropriate
-// component and document a `cacheLife()` profile.
-
-// Short-term: force this page to run as dynamic during the migration so the
-// prerender step doesn't attempt to access request-scoped data or uncached
-// resources. This file no longer exports `dynamic` to be compatible with
-// `next.config.cacheComponents`. If this route must be dynamic, handle that
-// via request-scoped components or runtime-only handlers.
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard',

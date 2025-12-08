@@ -1,5 +1,3 @@
-// MIGRATED: Removed `export const dynamic` to be compatible with Cache Components.
-
 import { type NextRequest, NextResponse } from 'next/server';
 
 import logger from '@/lib/logger';

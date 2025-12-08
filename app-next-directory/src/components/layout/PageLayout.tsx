@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import type React from 'react';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
@@ -23,13 +24,17 @@ export function PageLayout({ children, className = '' }: PageLayoutProps) {
       {/* Skip Links - Styled to blend with white header, visible only on focus */}
       <SkipLink href="#main-content">Skip to main content</SkipLink>
 
-      <Header />
+      <Suspense fallback={<div>Loading header...</div>}>
+        <Header />
+      </Suspense>
 
       <main id="main-content" tabIndex={-1}>
         {children}
       </main>
 
-      <Footer />
+      <Suspense fallback={<div>Loading footer...</div>}>
+        <Footer />
+      </Suspense>
     </div>
   );
 }

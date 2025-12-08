@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { PortableText } from '@portabletext/react';
 import type { Metadata } from 'next';
 import Image from 'next/image';
@@ -23,36 +24,37 @@ import { getPostCached } from './data';
 
 // minimal response type
 type Comment = { _id: string; content: string; user?: { name?: string } | null };
-type PostDTO = { id: string; title: string; body: PortableTextBlock[]; imageUrl?: string | null };
+type PostDTO = { id: string; title: string; body: PortableTextBlock[]; imageUrl?: string | null; excerpt?: string | null };
 type PostResponse = { post: PostDTO; comments: Comment[] };
 
 export default async function BlogPostPage(props: Readonly<{ params: { slug: string } }>) {
-  const params = await props.params;
-  // Support Next 14 (sync) and Next 15 (async) params
-  const { slug } = await Promise.resolve(params as unknown as { slug: string });
+  const { slug } = props.params;
+
   let post: PostDTO;
   let comments: Comment[];
   try {
-    const res = await getPostCached(slug);
+    const res = await getPostCached(slug); // <--- Data fetching happens here
     // API may return wrapped DTO or legacy shape
     if (res && typeof res === 'object' && 'success' in res) {
-      const data = (res as any).data;
+      const data = res.data as { post: PostDTO; comments: Comment[] }; // Specify type
       post = data?.post;
-      comments = data?.comments ?? (res as any).comments ?? [];
+      comments = data?.comments ?? [];
     } else if (res && typeof res === 'object' && 'post' in res && 'comments' in res) {
-      post = (res as any).post;
-      comments = (res as any).comments;
+      post = res.post as PostDTO; // Specify type
+      comments = res.comments as Comment[]; // Specify type
     } else {
       // Fallback shape
-      post = (res as any).post ?? (res as any);
-      comments = (res as any).comments ?? [];
+      post = res as PostDTO; // Specify type
+      comments = [];
     }
     if (!post || !post.id) {
       notFound();
     }
-  } catch (err: any) {
-    if (err && (err.status === 404 || /POST_NOT_FOUND/.test(String(err.message ?? '')))) {
-      notFound();
+  } catch (err: unknown) { // Use unknown for catch error type
+    if (err instanceof Error) {
+      if ((err as any).status === 404 || /POST_NOT_FOUND/.test(String(err.message ?? ''))) {
+        notFound();
+      }
     }
     throw err;
   }
@@ -64,105 +66,74 @@ export default async function BlogPostPage(props: Readonly<{ params: { slug: str
 
   return (
     <>
-      <Header />
-      <main className="container mx-auto px-4 py-8">
-        <article className="prose lg:prose-xl max-w-none">
-          <h1 className="text-5xl font-extrabold text-center mb-6 text-gray-900">{post.title}</h1>
-          <div className="relative w-full h-64 md:h-96 mb-8 border-4 border-black rounded-lg overflow-hidden">
+      <Suspense fallback={<div>Loading header...</div>}>
+        <Header />
+      </Suspense>
+      <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+        <h1 className="text-4xl font-extrabold text-center my-8 text-gray-900">
+          {post.title}
+        </h1>
+        {heroUrl && (
+          <div className="relative w-full h-96 mb-8 rounded-lg overflow-hidden shadow-xl">
             <Image
               src={src}
               alt={alt}
               aria-hidden={usingPlaceholder}
               fill
               className="object-cover"
-              sizes="100vw"
-              placeholder={usingPlaceholder ? 'empty' : 'blur'}
-              blurDataURL={usingPlaceholder ? undefined : placeholderDataUri(1200, 630)}
-              priority={!usingPlaceholder}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              priority
             />
           </div>
-          <div className="bg-white border-4 border-black rounded-lg shadow-lg p-8">
-            <PortableText value={post.body} components={blogPortableTextComponents} />
-          </div>
+        )}
+        <article className="prose lg:prose-xl mx-auto">
+          <PortableText value={post.body} components={blogPortableTextComponents} />
         </article>
-        <div className="mt-16">
-          <h2 className="text-4xl font-bold mb-8 text-gray-800">Comments</h2>
-          <CommentList comments={comments} />
+        <section className="mt-12 max-w-2xl mx-auto">
+          <h2 className="text-3xl font-bold mb-6 text-gray-800">Comments</h2>
           <CommentForm postId={post.id} />
-        </div>
-      </main>
-      <Footer />
+          <CommentList comments={comments} />
+        </section>
+      </div>
+      <Suspense fallback={<div>Loading footer...</div>}>
+        <Footer />
+      </Suspense>
     </>
   );
 }
 
-export async function generateMetadata(props: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
-  const params = await props.params;
-
-  // FORTEST: Wrap headers() in try-catch for compatibility with prerender
-  let _h = null as
-    | null
-    | Awaited<ReturnType<typeof headers>>
-    | { get(name: string): string | null | undefined };
+export async function generateMetadata(
+  { params }: { params: { slug: string } }
+): Promise<Metadata> {
+  let post: PostDTO;
   try {
-    _h = await headers();
-  } catch {
-    _h = null;
-  }
-
-  const base = await getBaseUrl(_h);
-  const { slug } = await Promise.resolve(params as unknown as { slug: string });
-  const url = new URL(`/api/blog/${encodeURIComponent(slug)}`, base);
-  try {
-    const res = await fetch(url.toString(), { next: { revalidate: 300 } });
-    if (res.status === 404) return { title: 'Post not found' };
-    if (!res.ok) return { title: 'Blog' };
-    const json = await res.json();
-    let title: string | undefined;
-    let description: string | undefined;
-    let imageUrl: string | undefined;
-
-    if (json && typeof json === 'object' && 'success' in json) {
-      const data = (
-        json as { data?: { post?: { title?: string; excerpt?: string; imageUrl?: string } } }
-      ).data;
-      const post = data?.post;
-      title = post?.title;
-      description = post?.excerpt ?? undefined;
-      imageUrl = post?.imageUrl ?? undefined;
-    } else if (json && typeof json === 'object' && 'post' in json) {
-      const post = (json as { post: { title?: string; excerpt?: string; imageUrl?: string } }).post;
-      title = post?.title;
-      description = post?.excerpt ?? undefined;
-      imageUrl = post?.imageUrl ?? undefined;
+    const res = await getPostCached(params.slug);
+    if (res && typeof res === 'object' && 'success' in res) {
+      const data = res.data as { post: PostDTO; comments: Comment[] };
+      post = data?.post;
+    } else if (res && typeof res === 'object' && 'post' in res) {
+      post = res.post as PostDTO;
+    } else {
+      post = res as PostDTO;
     }
-
-    const absoluteImage = imageUrl?.startsWith('http')
-      ? imageUrl
-      : imageUrl
-        ? new URL(imageUrl, base).toString()
-        : undefined;
-
-    return {
-      title: title || 'Blog',
-      description: description || undefined,
-      openGraph: {
-        title: title || 'Blog',
-        description: description || undefined,
-        type: 'article',
-        url: new URL(`/blog/${slug}`, base).toString(),
-        images: absoluteImage ? [{ url: absoluteImage }] : undefined,
-      },
-      twitter: {
-        card: absoluteImage ? 'summary_large_image' : 'summary',
-        title: title || 'Blog',
-        description: description || undefined,
-        images: absoluteImage ? [absoluteImage] : undefined,
-      },
-    };
-  } catch {
-    return { title: 'Blog' };
+    if (!post || !post.id) {
+      return {
+        title: 'Blog Post Not Found',
+        description: 'The requested blog post could not be found.',
+      };
+    }
+  } catch (err: unknown) {
+    if (err instanceof Error && ((err as any).status === 404 || /POST_NOT_FOUND/.test(String(err.message ?? '')))) {
+      return {
+        title: 'Blog Post Not Found',
+        description: 'The requested blog post could not be found.',
+      };
+    }
+    throw err;
   }
+
+  return {
+    title: post.title,
+    description: post.excerpt,
+  };
 }

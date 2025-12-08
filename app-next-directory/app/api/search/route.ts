@@ -11,9 +11,6 @@ import {
   sanitizeStringArray,
 } from '@/utils/sanitize';
 
-// Enable route segment caching for 10 minutes
-// MIGRATED: Removed `export const revalidate` to be compatible with Cache Components.
-
 // Type for search request body
 type SearchRequestBody = {
   query?: string;

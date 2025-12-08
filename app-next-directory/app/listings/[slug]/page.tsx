@@ -1,8 +1,3 @@
-// MIGRATED: Removed `export const revalidate = 300` (incompatible with
-// cacheComponents). To migrate, consider adding `"use cache"` in the
-// data-fetch helper and selecting an appropriate `cacheLife()` profile.
-// TODO: decide cacheLife profile and add `cacheLife()` in the helper.
-
 import type { Collection, Filter } from 'mongodb';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';

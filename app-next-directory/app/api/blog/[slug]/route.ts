@@ -1,3 +1,5 @@
+'use cache';
+
 import type { NextRequest } from 'next/server';
 import { groq } from 'next-sanity';
 import { transformToBlogDetailDTO } from '@/lib/dto-transformer';
@@ -240,30 +242,38 @@ const postQuery = groq`
 `;
 
 // GET endpoint for fetching a single blog post
-export async function GET(_request: NextRequest, props: { params: Promise<{ slug: string }> }) {
-  const params = await props.params;
+export async function GET(props: { params: { slug: string } }) {
+  const { slug } = props.params;
   try {
-    const { slug } = await params;
+    structuredLogger.debug('GET /api/blog/[slug] called', { slug });
 
     if (!slug) {
+      structuredLogger.warn('GET /api/blog/[slug] - slug is missing', { slug });
       return ApiResponseHandler.error('Blog post slug is required', 400);
     }
 
     // Fetch the blog post
+    structuredLogger.debug('Fetching post from Sanity', { slug, query: postQuery });
     const fetchFn =
       _testControl?.sanityFetchOverride ??
       ((query: string, params?: Record<string, unknown>) => sanityClient.fetch(query, params));
     const post = (await fetchFn(postQuery, { slug })) as RawSanityBlogPost | null;
+    structuredLogger.debug('Received response from Sanity', { slug, post: post ? 'found' : 'not found' });
 
     if (!isSanityBlogPost(post)) {
       if (!post) {
+        structuredLogger.info('Blog post not found', { slug });
         return ApiResponseHandler.notFound('Blog post');
       }
+      structuredLogger.warn('Invalid Sanity blog post format received', { slug, post });
       return ApiResponseHandler.notFound('Blog post');
     }
 
+    structuredLogger.debug('Transforming post to DTO', { slug });
     const transform = _testControl?.transformOverride ?? transformToBlogDetailDTO;
     const dto = transform(post);
+    structuredLogger.debug('Post transformed to DTO', { slug, dto });
+
     // Ensure related posts in DTO format if present
     const response = {
       post: dto,
@@ -277,6 +287,7 @@ export async function GET(_request: NextRequest, props: { params: Promise<{ slug
     };
 
     // Return a single canonical payload shape
+    structuredLogger.info('Successfully fetched and transformed blog post', { slug });
     return ApiResponseHandler.success(response);
   } catch (error) {
     if (error instanceof Error) {
@@ -311,10 +322,9 @@ async function trackViewCount(postId: string): Promise<number> {
 }
 
 // PUT endpoint for updating view count (optional)
-export async function PUT(request: NextRequest, props: { params: Promise<{ slug: string }> }) {
-  const params = await props.params;
+export async function PUT(request: NextRequest, props: { params: { slug: string } }) {
+  const { slug } = props.params;
   try {
-    const { slug } = await params;
     const body = await request.json();
 
     if (body.action === 'increment_view') {

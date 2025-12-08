@@ -4,12 +4,6 @@ import { DEFAULT_CATEGORIES } from '@/lib/constants/categories';
 import { structuredLogger } from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
 import { ApiResponseHandler } from '@/utils/api-response';
-
-// MIGRATED: Removed `export const revalidate = 86400` (incompatible with
-// cacheComponents). To migrate, consider adding `"use cache"` to the cached
-// data helper and using `cacheLife('days')` or a similar profile. TODO: decide
-// cacheLife profile and add `cacheLife()` in the helper.
-
 export async function GET() {
   try {
     const categories: string[] = await cacheHelpers.categories(async () => {

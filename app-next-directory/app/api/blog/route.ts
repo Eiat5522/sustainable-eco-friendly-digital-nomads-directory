@@ -37,6 +37,10 @@ const postsQuery = groq`
 
 const countQuery = groq`count(*[_type == "blogPost" && defined(slug)])`;
 
+const allTagsQuery = groq`
+  *[_type == "blogPost" && defined(tags)][].tags[]
+`;
+
 const escapeForGroq = (value: string) => value.replace(/"/g, '\\"');
 
 export async function GET(request: NextRequest) {
@@ -93,10 +97,12 @@ export async function GET(request: NextRequest) {
     if (tag) params.tag = tag;
     if (search) params.search = search;
 
-    const [postsRaw, totalCount] = await Promise.all([
+    const [postsRaw, totalCount, allTagsRaw] = await Promise.all([
       sanityClient.fetch(finalQuery, params as QueryParams),
       sanityClient.fetch(finalCountQuery, params as QueryParams),
+      sanityClient.fetch(allTagsQuery, params as QueryParams),
     ]);
+    const uniqueTags = Array.from(new Set(allTagsRaw.flat())).sort();
 
     const posts = Array.isArray(postsRaw)
       ? postsRaw.map(post => transformToBlogSummaryDTO(post as RawBlogPost))
@@ -123,6 +129,7 @@ export async function GET(request: NextRequest) {
         tag: tag ?? null,
         search: search ?? null,
       },
+      uniqueTags,
     });
   } catch (error) {
     if (error instanceof Error) {

@@ -254,8 +254,3 @@ export async function POST(request: Request) {
     return errorResponse('Internal Server Error', 500);
   }
 }
-
-// MIGRATED: Removed `export const dynamic = 'force-dynamic'` to be compatible
-// with Cache Components. This route is dynamic-by-default under Cache Components.
-// TODO: If any specific caching is desired for parts of this API, extract a
-// helper with `"use cache"` and a `cacheLife()` profile.
