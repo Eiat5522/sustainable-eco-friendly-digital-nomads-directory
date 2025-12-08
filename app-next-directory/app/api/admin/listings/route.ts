@@ -60,7 +60,21 @@ function ensureAdmin(sessionUser: SessionUser): boolean {
 
 export async function GET(request: NextRequest, _context: RouteContext) {
   try {
-    const session = await auth(request.headers);
+    // FORTEST: guard for prerender - handle headers() unavailability
+    let session: Awaited<ReturnType<typeof auth>> | null = null;
+    try {
+      session = await auth(request?.headers);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      if (msg.includes('headers()') || msg.includes('During prerendering')) {
+        structuredLogger.warn('[api/admin/listings] headers() unavailable during prerender', error, {
+          route: '/api/admin/listings',
+        });
+        return new Response(null, { status: 204 });
+      }
+      throw error;
+    }
+    
     const sessionUser = session?.user as SessionUser;
 
     if (!ensureAdmin(sessionUser)) {

@@ -54,7 +54,20 @@ export async function GET() {
     _testControl?.clientFetchOverride ??
     ((query: string, params?: Record<string, unknown>) => client.fetch(query, params));
 
-  const session = await authFn();
+  // FORTEST: guard for prerender - handle headers() unavailability
+  let session: Awaited<ReturnType<typeof authFn>> | null = null;
+  try {
+    session = await authFn();
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    if (msg.includes('headers()') || msg.includes('During prerendering')) {
+      structuredLogger.warn('[user-favorites] headers() unavailable during prerender', error, {
+        route: '/api/user/favorites',
+      });
+      return new Response(null, { status: 204 });
+    }
+    throw error;
+  }
 
   // session may be untyped in tests; cast to unknown before accessing .user
   const user = (

@@ -154,7 +154,22 @@ if (process.env.NODE_ENV === 'test') {
 
 export async function GET() {
   const authFn = _testControl?.authOverride ?? auth;
-  const session = await authFn();
+  
+  // FORTEST: guard for prerender - handle headers() unavailability
+  let session: Awaited<ReturnType<typeof authFn>> | null = null;
+  try {
+    session = await authFn();
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    if (msg.includes('headers()') || msg.includes('During prerendering')) {
+      structuredLogger.warn('[user-reviews] headers() unavailable during prerender', error, {
+        route: '/api/user/reviews',
+      });
+      return new Response(null, { status: 204 });
+    }
+    throw error;
+  }
+  
   // session may be untyped in tests; cast to any to access user
   const user = (session as { user?: SessionUser })?.user;
   const userId = user?.id ?? null;

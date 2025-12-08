@@ -145,15 +145,17 @@ export async function GET() {
 
     const listings = await client.fetch<FeaturedListing[]>(FEATURED_LISTINGS_QUERY);
 
+    // FORTEST: guard for prerender - ensure listings is an array
+    const safeListings = Array.isArray(listings) ? listings : [];
     const queryEndTime = performance.now();
     structuredLogger.info('Featured listings query completed', {
       component: 'api/featured-listings',
       durationMs: Number((queryEndTime - queryStartTime).toFixed(2)),
-      listingCount: listings.length,
+      listingCount: safeListings.length,
     });
 
     // Transform to FeaturedListingDTO shape expected by the frontend
-    const dtoListings = (listings ?? []).map(listing => {
+    const dtoListings = safeListings.map(listing => {
       const amenityNames = Array.isArray(listing.amenities)
         ? listing.amenities
             .map(amenity => (amenity && typeof amenity.name === 'string' ? amenity.name : null))
