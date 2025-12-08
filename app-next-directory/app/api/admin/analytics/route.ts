@@ -16,9 +16,10 @@ function ensureAdmin(sessionUser: { role?: UserRole } | undefined): string | nul
   return null;
 }
 
-export async function GET(_request: NextRequest, _context: RouteContext) {
+export async function GET(request: NextRequest, _context: RouteContext) {
   try {
-    const session = await auth();
+    // Pass request headers to auth() to avoid implicit headers() calls
+    const session = await auth(request.headers);
     const sessionUser = session?.user as { role?: UserRole } | undefined;
 
     if (!ensureAdmin(sessionUser)) {

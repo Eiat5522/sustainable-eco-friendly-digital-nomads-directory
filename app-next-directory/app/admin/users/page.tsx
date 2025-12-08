@@ -25,7 +25,18 @@ function ensureAdmin(
 }
 
 export default async function AdminUsersPage() {
-  const session = await auth(headers());
+  // FORTEST: Wrap headers() in try-catch for compatibility with prerender
+  let _h = null as
+    | null
+    | Awaited<ReturnType<typeof headers>>
+    | { get(name: string): string | null | undefined };
+  try {
+    _h = await headers();
+  } catch {
+    _h = null;
+  }
+
+  const session = await auth(_h);
   const sessionUser = session?.user as SessionUser;
 
   if (!ensureAdmin(sessionUser)) {

@@ -11,7 +11,7 @@ interface RouteContext {
 
 // Add/Remove a specific listing from favorites
 export async function POST(request: NextRequest, { params }: RouteContext) {
-  const session = await auth();
+  const session = await auth(request.headers);
 
   const user = session?.user as
     | { id?: string; role?: UserRole; email?: string | null; name?: string | null }
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
 }
 
 export async function DELETE(request: NextRequest, { params }: RouteContext) {
-  const session = await auth();
+  const session = await auth(request.headers);
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -109,7 +109,7 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
 
 // Check if a listing is favorited by the user
 export async function GET(request: NextRequest, { params }: RouteContext) {
-  const session = await auth();
+  const session = await auth(request.headers);
 
   const user = session?.user as
     | { id?: string; email?: string | null; name?: string | null; role?: UserRole | null }

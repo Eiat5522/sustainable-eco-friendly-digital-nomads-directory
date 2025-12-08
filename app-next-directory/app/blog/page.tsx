@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { headers } from 'next/headers';
 
 // Images come preprocessed via DTOs (see API). No builder needed here.
 
@@ -59,10 +60,23 @@ export default async function BlogPage(
   }>
 ) {
   const searchParams = await props.searchParams;
+  
+  // FORTEST: Wrap headers() in try-catch for compatibility with prerender
+  let _h =
+    null as
+      | null
+      | Awaited<ReturnType<typeof headers>>
+      | { get(name: string): string | null | undefined };
+  try {
+    _h = await headers();
+  } catch {
+    _h = null;
+  }
+  
   // Support Next 14 (sync) and Next 15 (async) searchParams
   const sp = await Promise.resolve((searchParams ?? {}) as Record<string, string>);
   const { page, limit, tag, search } = sp;
-  const { posts, pagination } = await getPostsCached({ page, limit, tag, search });
+  const { posts, pagination } = await getPostsCached({ page, limit, tag, search, headersParam: _h });
 
   const uniqueTags = Array.from(
     new Set(

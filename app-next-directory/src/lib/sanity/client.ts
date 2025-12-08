@@ -48,8 +48,9 @@ if (!resolvedCreateClient) {
  */
 export const createClient = resolvedCreateClient;
 
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'projectId';
-const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'dataset';
+// FORTEST: Use placeholder values when env vars are missing and DISABLE_SANITY is true
+const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'placeholder-project-id';
+const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'placeholder-dataset';
 const token =
   process.env.SANITY_API_READ_TOKEN || process.env.SANITY_API_TOKEN || process.env.SANITY_TOKEN;
 
@@ -95,7 +96,10 @@ interface SanityClientLike {
 }
 
 const stubClient: SanityClientLike = {
-  fetch: async <T = unknown>(_query: string, _params?: Record<string, unknown>): Promise<T | null> => {
+  fetch: async <T = unknown>(
+    _query: string,
+    _params?: Record<string, unknown>
+  ): Promise<T | null> => {
     return null;
   },
   getDocument: async <T = unknown>(_id: string): Promise<T | null> => null,
@@ -113,7 +117,9 @@ const stubClient: SanityClientLike = {
   delete: async (_id: string) => undefined,
 };
 
-export const client: SanityClientLike = DISABLE_SANITY ? stubClient : ((_client as unknown) as SanityClientLike);
+export const client: SanityClientLike = DISABLE_SANITY
+  ? stubClient
+  : (_client as unknown as SanityClientLike);
 
 type ImageUrlBuilderModule = typeof SanityImageUrl & {
   default?: typeof SanityImageUrl;

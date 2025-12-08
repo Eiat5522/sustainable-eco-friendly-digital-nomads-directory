@@ -1,4 +1,4 @@
-"use cache";
+'use cache';
 // Server helper to provide cached post data for Next.js 16 migration.
 // Only async functions are exported from a `use cache` module to satisfy
 // Turbopack / Next.js v16 constraints.

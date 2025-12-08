@@ -78,8 +78,7 @@ export function InteractiveMap({ location, address, name, className }: Interacti
       try {
         if (!LRef.current) {
           const mod = (await import('leaflet')) as unknown;
-          const leafletMod =
-            (mod as { default?: LeafletModule }).default ?? (mod as LeafletModule);
+          const leafletMod = (mod as { default?: LeafletModule }).default ?? (mod as LeafletModule);
           LRef.current = leafletMod;
         }
 

@@ -23,7 +23,7 @@ function ensureAdmin(sessionUser: SessionUser) {
 
 export async function GET(request: NextRequest, _context: RouteContext) {
   try {
-    const session = await auth();
+    const session = await auth(request.headers);
     const sessionUser = session?.user as SessionUser;
 
     if (!ensureAdmin(sessionUser)) {
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest, _context: RouteContext) {
 
 export async function POST(request: NextRequest, _context: RouteContext) {
   try {
-    const session = await auth();
+    const session = await auth(request.headers);
     const sessionUser = session?.user as SessionUser;
 
     if (!ensureAdmin(sessionUser)) {
