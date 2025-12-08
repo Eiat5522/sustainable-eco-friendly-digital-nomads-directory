@@ -13,7 +13,22 @@ async function resolveParams(params: { id: string } | Promise<{ id: string }>) {
 export async function GET(request: Request, context: RouteContext) {
   const { params } = context;
   const resolvedParams = await resolveParams(params);
-  const session = await auth(request.headers);
+  
+  // FORTEST: guard for prerender - handle headers() unavailability
+  let session: Awaited<ReturnType<typeof auth>> | null = null;
+  try {
+    session = await auth(request?.headers);
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    if (msg.includes('headers()') || msg.includes('During prerendering')) {
+      structuredLogger.warn('[listings/manage] headers() unavailable during prerender', error, {
+        route: '/api/listings/manage',
+      });
+      return new Response(null, { status: 204 });
+    }
+    throw error;
+  }
+  
   const sessionUser = session?.user as { id?: string; role?: string } | undefined;
 
   if (sessionUser?.role !== 'venueOwner' || !sessionUser.id) {
@@ -43,7 +58,22 @@ export async function GET(request: Request, context: RouteContext) {
 export async function PUT(request: Request, context: RouteContext) {
   const { params } = context;
   const resolvedParams = await resolveParams(params);
-  const session = await auth(request.headers);
+  
+  // FORTEST: guard for prerender - handle headers() unavailability
+  let session: Awaited<ReturnType<typeof auth>> | null = null;
+  try {
+    session = await auth(request?.headers);
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    if (msg.includes('headers()') || msg.includes('During prerendering')) {
+      structuredLogger.warn('[listings/manage] headers() unavailable during prerender', error, {
+        route: '/api/listings/manage',
+      });
+      return new Response(null, { status: 204 });
+    }
+    throw error;
+  }
+  
   const sessionUser = session?.user as { id?: string; role?: string } | undefined;
 
   if (sessionUser?.role !== 'venueOwner' || !sessionUser.id) {
