@@ -24,7 +24,9 @@ if (process.env.NODE_ENV === 'test') {
 
 export async function POST(request: NextRequest) {
   try {
-    const token = request.nextUrl.searchParams.get('token');
+    // Parse search params from request URL to avoid nextUrl.searchParams prerender bailout
+    const url = new URL(request.url);
+    const token = url.searchParams.get('token');
 
     // Validate the revalidation token
     if (!validateRevalidationToken(token)) {
@@ -40,6 +42,7 @@ export async function POST(request: NextRequest) {
       revalidate(route);
     }
 
+    // Access Date.now() after reading uncached data (revalidatePath) to avoid prerender bailout
     return ApiResponseHandler.success({
       revalidated: true,
       routes: routesToRevalidate,

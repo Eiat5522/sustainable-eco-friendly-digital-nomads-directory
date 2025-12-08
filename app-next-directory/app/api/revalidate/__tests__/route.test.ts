@@ -57,6 +57,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
       mockValidateRevalidationToken.mockReturnValue(true);
 
       const request = {
+        url: 'http://localhost:3000/api/revalidate?token=test-secret-token&path=/listings/eco-workspace',
         nextUrl: {
           searchParams: {
             get: jest.fn((param: string) => {
@@ -84,6 +85,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
       mockValidateRevalidationToken.mockReturnValue(true);
 
       const request = {
+        url: 'http://localhost:3000/api/revalidate?token=test-secret-token&path=listings/eco-workspace',
         nextUrl: {
           searchParams: {
             get: jest.fn((param: string) => {
@@ -107,6 +109,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
       mockValidateRevalidationToken.mockReturnValue(true);
 
       const request = {
+        url: 'http://localhost:3000/api/revalidate?token=test-secret-token&path=/',
         nextUrl: {
           searchParams: {
             get: jest.fn((param: string) => {
@@ -130,6 +133,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
       mockValidateRevalidationToken.mockReturnValue(true);
 
       const request = {
+        url: 'http://localhost:3000/api/revalidate?token=test-secret-token&path=/cities/amsterdam/listings',
         nextUrl: {
           searchParams: {
             get: jest.fn((param: string) => {
@@ -153,6 +157,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
       mockValidateRevalidationToken.mockReturnValue(true);
 
       const request = {
+        url: 'http://localhost:3000/api/revalidate?token=test-secret-token&path=/blog/sustainable-eco-travel',
         nextUrl: {
           searchParams: {
             get: jest.fn((param: string) => {
@@ -177,6 +182,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
       mockValidateRevalidationToken.mockReturnValue(false);
 
       const request = {
+        url: 'http://localhost:3000/api/revalidate?token=invalid-token&path=/listings',
         nextUrl: {
           searchParams: {
             get: jest.fn((param: string) => {
@@ -202,6 +208,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
       mockValidateRevalidationToken.mockReturnValue(false);
 
       const request = {
+        url: 'http://localhost:3000/api/revalidate?path=/listings',
         nextUrl: {
           searchParams: {
             get: jest.fn((param: string) => {
@@ -225,6 +232,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
       mockValidateRevalidationToken.mockReturnValue(false);
 
       const request = {
+        url: 'http://localhost:3000/api/revalidate?token=&path=/listings',
         nextUrl: {
           searchParams: {
             get: jest.fn((param: string) => {
@@ -248,6 +256,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
       mockValidateRevalidationToken.mockReturnValue(false);
 
       const request = {
+        url: 'http://localhost:3000/api/revalidate?token=TEST-SECRET-TOKEN&path=/listings',
         nextUrl: {
           searchParams: {
             get: jest.fn((param: string) => {
@@ -273,6 +282,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
       mockValidateRevalidationToken.mockReturnValue(true);
 
       const request = {
+        url: 'http://localhost:3000/api/revalidate?token=test-secret-token',
         nextUrl: {
           searchParams: {
             get: jest.fn((param: string) => {
@@ -296,6 +306,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
       mockValidateRevalidationToken.mockReturnValue(true);
 
       const request = {
+        url: 'http://localhost:3000/api/revalidate?token=test-secret-token&path=https://example.com/listings',
         nextUrl: {
           searchParams: {
             get: jest.fn((param: string) => {
@@ -319,6 +330,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
       mockValidateRevalidationToken.mockReturnValue(true);
 
       const request = {
+        url: 'http://localhost:3000/api/revalidate?token=test-secret-token&path=/listings/../admin',
         nextUrl: {
           searchParams: {
             get: jest.fn((param: string) => {
@@ -342,6 +354,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
       mockValidateRevalidationToken.mockReturnValue(true);
 
       const request = {
+        url: 'http://localhost:3000/api/revalidate?token=test-secret-token&path=',
         nextUrl: {
           searchParams: {
             get: jest.fn((param: string) => {
@@ -369,6 +382,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
       });
 
       const request = {
+        url: 'http://localhost:3000/api/revalidate?token=test-secret-token&path=/listings',
         nextUrl: {
           searchParams: {
             get: jest.fn((param: string) => {
@@ -396,6 +410,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
       });
 
       const request = {
+        url: 'http://localhost:3000/api/revalidate?token=test-secret-token&path=/test',
         nextUrl: {
           searchParams: {
             get: jest.fn((param: string) => {
@@ -419,6 +434,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
       mockValidateRevalidationToken.mockReturnValue(true);
 
       const request = {
+        url: 'http://localhost:3000/api/revalidate?token=test-secret-token&path=/listings',
         nextUrl: {
           searchParams: {
             get: jest.fn((param: string) => {
@@ -439,6 +455,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
       mockValidateRevalidationToken.mockReturnValue(true);
 
       const request = {
+        url: 'http://localhost:3000/api/revalidate?token=test-secret-token&path=/listings',
         nextUrl: {
           searchParams: {
             get: jest.fn((param: string) => {
@@ -466,6 +483,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
       const beforeTime = Date.now();
 
       const request = {
+        url: 'http://localhost:3000/api/revalidate?token=test-secret-token&path=/listings',
         nextUrl: {
           searchParams: {
             get: jest.fn((param: string) => {
@@ -495,6 +513,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
 
       for (const path of paths) {
         const request = {
+          url: `http://localhost:3000/api/revalidate?token=test-secret-token&path=${path}`,
           nextUrl: {
             searchParams: {
               get: jest.fn((param: string) => {
