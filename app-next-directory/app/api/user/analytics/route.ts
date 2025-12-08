@@ -27,7 +27,27 @@ type AnalyticsDependencies = {
 export function _createAnalyticsHandler({ authFn, fetchDashboard, logger }: AnalyticsDependencies) {
   return async function GET(request: NextRequest) {
     try {
-      const session = await authFn();
+      // FORTEST: guard for prerender - handle headers() unavailability
+      let session: Awaited<ReturnType<typeof authFn>> | null = null;
+      try {
+        session = await authFn();
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes('headers()') || msg.includes('During prerendering')) {
+          if (logger?.error) {
+            logger.error('[user-analytics] headers() unavailable during prerender', error, {
+              route: '/api/user/analytics',
+            });
+          } else {
+            structuredLogger.warn('[user-analytics] headers() unavailable during prerender', error, {
+              route: '/api/user/analytics',
+            });
+          }
+          return new Response(null, { status: 204 });
+        }
+        throw error;
+      }
+      
       const sessionUser = session?.user as
         | {
             id?: string;

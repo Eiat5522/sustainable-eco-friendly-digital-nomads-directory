@@ -17,7 +17,20 @@ export function _createProfileHandlers({
   return {
     async GET(request: Request) {
       try {
-        const session = await authFn();
+        // FORTEST: guard for prerender - handle headers() unavailability
+        let session: Awaited<ReturnType<typeof authFn>> | null = null;
+        try {
+          session = await authFn();
+        } catch (error) {
+          const msg = error instanceof Error ? error.message : String(error);
+          if (msg.includes('headers()') || msg.includes('During prerendering')) {
+            structuredLogger.warn('[user-profile] headers() unavailable during prerender', error, {
+              route: '/api/user/profile',
+            });
+            return new Response(null, { status: 204 });
+          }
+          throw error;
+        }
 
         if (!session?.user?.id) {
           return NextResponse.json({ error: 'Authentication required' }, { status: 401 });

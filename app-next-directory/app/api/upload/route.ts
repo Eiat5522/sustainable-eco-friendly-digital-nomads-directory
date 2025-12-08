@@ -56,7 +56,22 @@ if (isTestEnv || enableDevTestHook) {
 
 export async function POST(request: Request) {
   const authFn = _testControl?.authOverride ?? auth;
-  const session = await authFn();
+  
+  // FORTEST: guard for prerender - handle headers() unavailability
+  let session: Awaited<ReturnType<typeof authFn>> | null = null;
+  try {
+    session = await authFn();
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    if (msg.includes('headers()') || msg.includes('During prerendering')) {
+      structuredLogger.warn('[upload] headers() unavailable during prerender', error, {
+        route: '/api/upload',
+      });
+      return new Response(null, { status: 204 });
+    }
+    throw error;
+  }
+  
   // session.user can be a loose object in tests; cast to unknown to avoid typing issues
   const sessionUser = (session as { user?: { id?: string; role?: string } })?.user;
 
