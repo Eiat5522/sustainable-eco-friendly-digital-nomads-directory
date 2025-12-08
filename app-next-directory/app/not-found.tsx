@@ -1,13 +1,23 @@
 import Link from 'next/link';
+import { NeoButton } from '@/components/ui/neo-button';
+import { NeoCard, NeoCardContent, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
 
 export default function NotFound() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-4xl font-bold mb-4">404 - Page Not Found</h1>
-      <p className="text-lg mb-6">Sorry, we couldn&apos;t find the page you&apos;re looking for.</p>
-      <Link href="/" className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-        Go back home
-      </Link>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-neo-surface p-4">
+      <NeoCard className="max-w-md w-full text-center">
+        <NeoCardHeader>
+          <NeoCardTitle className="text-4xl mb-2">404 - Page Not Found</NeoCardTitle>
+        </NeoCardHeader>
+        <NeoCardContent>
+          <p className="body-lg text-neo-text-secondary mb-6">
+            Sorry, we couldn&apos;t find the page you&apos;re looking for.
+          </p>
+          <NeoButton asChild variant="primary" size="lg">
+            <Link href="/">Go back home</Link>
+          </NeoButton>
+        </NeoCardContent>
+      </NeoCard>
     </div>
   );
 }

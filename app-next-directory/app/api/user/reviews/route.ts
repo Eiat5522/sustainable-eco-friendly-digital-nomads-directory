@@ -154,7 +154,7 @@ if (process.env.NODE_ENV === 'test') {
 
 export async function GET() {
   const authFn = _testControl?.authOverride ?? auth;
-  
+
   // FORTEST: guard for prerender - handle headers() unavailability
   let session: Awaited<ReturnType<typeof authFn>> | null = null;
   try {
@@ -169,7 +169,7 @@ export async function GET() {
     }
     throw error;
   }
-  
+
   // session may be untyped in tests; cast to any to access user
   const user = (session as { user?: SessionUser })?.user;
   const userId = user?.id ?? null;

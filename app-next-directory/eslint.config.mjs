@@ -7,6 +7,7 @@ const _nextCoreWebVitals = Array.isArray(nextCoreWebVitals)
   ? nextCoreWebVitals
   : [nextCoreWebVitals];
 const _nextTypescript = Array.isArray(nextTypescript) ? nextTypescript : [nextTypescript];
+
 import { fileURLToPath } from 'node:url';
 import requireReactFcTypeParametersRule from './eslint/rules/require-react-fc-type-parameters.js';
 

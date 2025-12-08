@@ -14,7 +14,7 @@ export async function getPostCached(slug: string) {
   });
 
   if (res.status === 404) {
-    const err: any = new Error('POST_NOT_FOUND');
+    const err = new Error('POST_NOT_FOUND') as Error & { status: number };
     err.status = 404;
     throw err;
   }
@@ -23,5 +23,5 @@ export async function getPostCached(slug: string) {
   }
 
   const json = await res.json();
-  return json as any;
+  return json as unknown;
 }

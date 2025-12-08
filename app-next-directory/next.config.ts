@@ -14,6 +14,7 @@ const isAnalyze = /^(1|true|yes)$/i.test(process.env.ANALYZE ?? '');
 const withAnalyzer = withBundleAnalyzer({ enabled: isAnalyze });
 
 const nextConfig: NextConfig = {
+  cacheComponents: true, // For Next.js 16.x-canary.x
   productionBrowserSourceMaps: process.env.ENABLE_SOURCE_MAPS === 'true',
   reactStrictMode: true,
   // `eslint` is now configured via `eslint.config.mjs`. Remove Next.js `eslint` option.

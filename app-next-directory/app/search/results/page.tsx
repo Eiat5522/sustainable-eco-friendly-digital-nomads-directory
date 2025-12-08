@@ -10,8 +10,6 @@ import { buildSearchHref, MAX_PARAM_VALUE_LENGTH } from './shared';
 
 type ResultsPageProps = { searchParams: SearchParamRecord | Promise<SearchParamRecord> };
 
-
-
 export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   const resolvedSearchParams = (await searchParams) ?? {};
   const basePath = '/search/results';

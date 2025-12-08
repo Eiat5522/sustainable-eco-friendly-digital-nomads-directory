@@ -1,6 +1,6 @@
+import { headers } from 'next/headers';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { headers } from 'next/headers';
 import SocialAuthRow from '@/components/auth/SocialAuthRow';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
@@ -22,7 +22,7 @@ export default async function LoginPage(props: LoginPageProps) {
   // FORTEST: Wrap headers() in try-catch for compatibility with prerender
   let _h = null as
     | null
-    | Awaited<ReturnType<typeof headers>>
+    | Awaited<Awaited<ReturnType<typeof headers>>>
     | { get(name: string): string | null | undefined };
   try {
     _h = await headers();

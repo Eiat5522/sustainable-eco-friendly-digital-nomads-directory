@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const url = new URL(request.url);
     const token = url.searchParams.get('token');
     pathParam = url.searchParams.get('path');
-    
+
     // Validate the revalidation token
     if (!validateRevalidationToken(token)) {
       return ApiResponseHandler.error('Invalid token', 401);

@@ -2,11 +2,11 @@ import pino from 'pino';
 
 // Environment check for safe logging configuration
 // Guard access to `process` so this module can be imported in Edge or client contexts
-const _env: NodeJS.ProcessEnv =
+const _env: NodeJS.ProcessEnv | Record<string, unknown> =
   typeof process !== 'undefined' && typeof process.env !== 'undefined'
     ? process.env
     : typeof globalThis !== 'undefined'
-      ? ((globalThis as any).__env ?? {})
+      ? ((globalThis as { __env?: Record<string, unknown> }).__env ?? {})
       : {};
 
 const isProduction = _env.NODE_ENV === 'production';

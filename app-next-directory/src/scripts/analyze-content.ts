@@ -24,6 +24,18 @@ interface ContentAnalysisResult {
   }[];
 }
 
+interface ListingData {
+  _id: string;
+  name: string;
+  shortDescription?: string;
+  longDescription?: string;
+  primary_image_url?: string;
+  eco_features?: unknown[];
+  amenities?: unknown[];
+  category?: string;
+  city?: string;
+}
+
 const MINIMUM_DESCRIPTION_WORDS = 50;
 const DUPLICATE_SIMILARITY_THRESHOLD = 0.8;
 const REQUIRED_METADATA_FIELDS = [
@@ -43,7 +55,7 @@ async function analyzeContent(): Promise<ContentAnalysisResult> {
 
   // Fetch all listings with their content
   const listings =
-    (await sanityClient.fetch<any[] | null>(`
+    (await sanityClient.fetch<ListingData[] | null>(`
     *[_type == "listing"]{
       _id,
       name,
@@ -64,41 +76,34 @@ async function analyzeContent(): Promise<ContentAnalysisResult> {
   };
 
   // Check each listing
-  listings.forEach(
-    (listing: {
-      _id: string;
-      name: string;
-      shortDescription?: string;
-      longDescription?: string;
-      [key: string]: unknown;
-    }) => {
-      // Check for thin content
-      const description = `${listing.shortDescription || ''} ${listing.longDescription || ''}`;
-      const wordCount = description.split(/\s+/).length;
+  listings.forEach((listing: ListingData) => {
+    // Check for thin content
+    const description = `${listing.shortDescription || ''} ${listing.longDescription || ''}`;
+    const wordCount = description.split(/\s+/).length;
 
-      if (wordCount < MINIMUM_DESCRIPTION_WORDS) {
-        result.thinContent.push({
-          listingId: listing._id,
-          listingName: listing.name,
-          wordCount,
-          reason: `Description contains only ${wordCount} words (minimum: ${MINIMUM_DESCRIPTION_WORDS})`,
-        });
-      }
-
-      // Check for missing metadata
-      const missingFields = REQUIRED_METADATA_FIELDS.filter(
-        field => !listing[field] || (Array.isArray(listing[field]) && listing[field].length === 0)
-      );
-
-      if (missingFields.length > 0) {
-        result.missingMetadata.push({
-          listingId: listing._id,
-          listingName: listing.name,
-          missingFields,
-        });
-      }
+    if (wordCount < MINIMUM_DESCRIPTION_WORDS) {
+      result.thinContent.push({
+        listingId: listing._id,
+        listingName: listing.name,
+        wordCount,
+        reason: `Description contains only ${wordCount} words (minimum: ${MINIMUM_DESCRIPTION_WORDS})`,
+      });
     }
-  );
+
+    // Check for missing metadata
+    const missingFields = REQUIRED_METADATA_FIELDS.filter(field => {
+      const value = listing[field as keyof ListingData];
+      return !value || (Array.isArray(value) && value.length === 0);
+    });
+
+    if (missingFields.length > 0) {
+      result.missingMetadata.push({
+        listingId: listing._id,
+        listingName: listing.name,
+        missingFields,
+      });
+    }
+  });
 
   // Check for duplicate content
   for (let i = 0; i < listings.length; i++) {

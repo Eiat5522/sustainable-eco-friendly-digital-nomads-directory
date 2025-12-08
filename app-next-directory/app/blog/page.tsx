@@ -1,7 +1,4 @@
 import { Suspense } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { headers } from 'next/headers';
 
 // Images come preprocessed via DTOs (see API). No builder needed here.
 
@@ -60,7 +57,7 @@ export default async function BlogPage(
     searchParams?: { page?: string; limit?: string; tag?: string; search?: string };
   }>
 ) {
-  const { page = '1', limit = '10', tag = '', search = '' } = props.searchParams || {};
+  const { page = '1', limit = '10', tag = '', search = '' } = (await props.searchParams) || {};
   const searchParamsForPosts = { page, limit, tag, search };
 
   return (

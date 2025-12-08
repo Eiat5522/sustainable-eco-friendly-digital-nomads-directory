@@ -1,5 +1,4 @@
 import './globals.css';
-import { cookies } from 'next/headers';
 import type React from 'react';
 
 import { rootLayoutMetadata } from './layout.metadata';
@@ -15,9 +14,9 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-const DEFAULT_THEME = 'system'; // Or 'light', 'dark'
-const theme = normalizeTheme(DEFAULT_THEME);
-const htmlThemeClass = themeClass(theme);
+  const DEFAULT_THEME = 'system'; // Or 'light', 'dark'
+  const theme = normalizeTheme(DEFAULT_THEME);
+  const htmlThemeClass = themeClass(theme);
 
   return (
     <html lang="en" className={htmlThemeClass} suppressHydrationWarning>

@@ -1,9 +1,9 @@
 import type { Collection, Filter } from 'mongodb';
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { groq } from 'next-sanity';
 import { cache } from 'react';
-import { headers } from 'next/headers';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
 import { ListingDetailView } from '@/components/listings/ListingDetailView';
@@ -384,7 +384,7 @@ export default async function ListingPage({ params }: Props) {
   // FORTEST: Wrap headers() in try-catch for compatibility with prerender
   let _h = null as
     | null
-    | Awaited<ReturnType<typeof headers>>
+    | Awaited<Awaited<ReturnType<typeof headers>>>
     | { get(name: string): string | null | undefined };
   try {
     _h = await headers();

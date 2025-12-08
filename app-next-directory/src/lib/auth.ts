@@ -230,7 +230,7 @@ const nextAuthInstance = (() => {
     return {
       handlers: { GET: async () => new Response(''), POST: async () => new Response('') },
       auth: async () => null,
-    } as any;
+    } as unknown as typeof import('next-auth');
   }
 })();
 
@@ -243,15 +243,15 @@ export const {
 // Next.js runtime surfaces as an Error during prerender), return `null`
 // so callers can handle unauthenticated flows instead of crashing the
 // prerender process.
-const _originalAuth = (nextAuthInstance as any).auth as (...args: any[]) => Promise<unknown>;
+const _originalAuth = (nextAuthInstance as { auth: (...args: unknown[]) => Promise<unknown> }).auth;
 
 // Accept an optional headers-like parameter for API consistency with other
 // helpers, but auth() itself doesn't use it - it accesses headers internally.
 // The headersParam is primarily documentation that the caller is in a request
 // context and has headers available for other request-scoped helpers.
 export async function auth(
-  headersParam?: HeadersLike | null,
-  ...args: any[]
+  _headersParam?: HeadersLike | null,
+  ...args: unknown[]
 ): Promise<Session | null> {
   try {
     // Note: NextAuth's auth() doesn't accept headers as a parameter.

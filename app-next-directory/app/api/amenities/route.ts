@@ -1,16 +1,24 @@
 import { NextResponse } from 'next/server';
 import { cacheHelpers } from '@/lib/cache-strategy';
-import { client } from '@/lib/sanity';
+import { getClient } from '@/lib/sanity';
+
 export async function GET() {
   try {
+    const sanityClient = getClient();
     const amenities = await cacheHelpers.amenities(async () => {
-      return await client.fetch(`*[_type == "amenity"] | order(name asc) {
+      return await sanityClient.fetch(`*[_type == "amenity"] | order(name asc) {
         _id,
         name
       }`);
     });
     return NextResponse.json({ amenities });
-  } catch (_error) {
-    return NextResponse.json({ error: 'Failed to fetch amenities' }, { status: 500 });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error: 'Failed to fetch amenities',
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 }
+    );
   }
 }

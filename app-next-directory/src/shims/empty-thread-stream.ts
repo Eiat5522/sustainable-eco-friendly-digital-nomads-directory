@@ -4,8 +4,8 @@ export function interceptTestApis(): () => void {
   return () => {};
 }
 
-export function wrapRequestHandler<T extends (...args: any[]) => any>(handler: T) {
-  return (req: any, fn: any) => handler(req, fn);
+export function wrapRequestHandler<T extends (...args: unknown[]) => unknown>(handler: T) {
+  return (req: unknown, fn: unknown) => handler(req, fn);
 }
 
 export default {} as Record<string, unknown>;

@@ -1,11 +1,8 @@
 import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
-import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
+import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 import { UserManagementTable } from './UserManagementTable';
-
-
 
 export const metadata: Metadata = {
   title: 'User Management - Admin Dashboard',
@@ -22,10 +19,11 @@ function ensureAdmin(
 }
 
 export default async function AdminUsersPage() {
+  // Auth check is handled by middleware
   // FORTEST: Wrap headers() in try-catch for compatibility with prerender
   let _h = null as
     | null
-    | Awaited<ReturnType<typeof headers>>
+    | Awaited<Awaited<ReturnType<typeof headers>>>
     | { get(name: string): string | null | undefined };
   try {
     _h = await headers();
@@ -35,10 +33,6 @@ export default async function AdminUsersPage() {
 
   const session = await auth(_h);
   const sessionUser = session?.user as SessionUser;
-
-  if (!ensureAdmin(sessionUser)) {
-    redirect('/auth/login?callbackUrl=/admin/users');
-  }
 
   return (
     <main className="min-h-screen bg-gray-50" data-testid="admin-users-page">

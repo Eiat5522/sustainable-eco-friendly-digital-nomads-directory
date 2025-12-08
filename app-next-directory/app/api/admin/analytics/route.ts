@@ -25,14 +25,18 @@ export async function GET(request: NextRequest, _context: RouteContext) {
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
       if (msg.includes('headers()') || msg.includes('During prerendering')) {
-        structuredLogger.warn('[api/admin/analytics] headers() unavailable during prerender', error, {
-          route: '/api/admin/analytics',
-        });
+        structuredLogger.warn(
+          '[api/admin/analytics] headers() unavailable during prerender',
+          error,
+          {
+            route: '/api/admin/analytics',
+          }
+        );
         return new Response(null, { status: 204 });
       }
       throw error;
     }
-    
+
     const sessionUser = session?.user as { role?: UserRole } | undefined;
 
     if (!ensureAdmin(sessionUser)) {

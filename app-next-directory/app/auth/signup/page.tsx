@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
 import { getBaseUrl } from '@/lib/absolute-url';
 import { auth } from '@/lib/auth';
 import { sanitizeCallbackUrl } from '@/lib/auth/callbackUrl';
@@ -17,7 +17,7 @@ export default async function SignupPage(props: SignupPageProps) {
   // FORTEST: Wrap headers() in try-catch for compatibility with prerender
   let _h = null as
     | null
-    | Awaited<ReturnType<typeof headers>>
+    | Awaited<Awaited<ReturnType<typeof headers>>>
     | { get(name: string): string | null | undefined };
   try {
     _h = await headers();

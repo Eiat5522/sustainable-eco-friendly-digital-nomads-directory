@@ -5,24 +5,26 @@ import { createClient } from 'next-sanity';
 import { structuredLogger } from '@/lib/logger';
 
 // FORTEST: Lazy initialization to prevent module-scope errors during build
-const disableSanity = process.env.DISABLE_SANITY_DURING_BUILD === '1' || process.env.DISABLE_SANITY_DURING_BUILD === 'true';
+const disableSanity =
+  process.env.DISABLE_SANITY_DURING_BUILD === '1' ||
+  process.env.DISABLE_SANITY_DURING_BUILD === 'true';
 
 let _client: ReturnType<typeof createClient> | null = null;
 
 function getClient() {
   if (_client) return _client;
-  
+
   if (disableSanity) {
     // Return stub client when disabled
     return {
       fetch: async () => null,
-      create: async (doc: any) => doc,
+      create: async (doc: unknown) => doc,
       patch: () => ({
         set: () => ({ commit: async () => ({}) }),
       }),
     } as unknown as ReturnType<typeof createClient>;
   }
-  
+
   _client = createClient({
     projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
     dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
@@ -30,7 +32,7 @@ function getClient() {
     token: process.env.SANITY_API_TOKEN,
     useCdn: false,
   });
-  
+
   return _client;
 }
 

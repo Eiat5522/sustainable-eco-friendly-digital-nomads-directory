@@ -1,6 +1,5 @@
 // app-next-directory/src/lib/absolute-url.ts
 import 'server-only';
-import { headers } from 'next/headers';
 import type { HeadersLike } from '@/types/request';
 
 /**
@@ -18,7 +17,9 @@ export async function getBaseUrl(headersParam?: HeadersLike | null): Promise<str
     const isSafeHost = (host: string) => /^[a-z0-9.-]+(?::\d+)?$/i.test(host);
     const proto = first(headersParam.get('x-forwarded-proto')) ?? 'http';
     const xfHost = first(headersParam.get('x-forwarded-host'));
-    const host = process.env.VERCEL ? (xfHost ?? headersParam.get('host')) : headersParam.get('host');
+    const host = process.env.VERCEL
+      ? (xfHost ?? headersParam.get('host'))
+      : headersParam.get('host');
     if (host && isSafeHost(host)) return `${proto}://${host}`;
   }
 

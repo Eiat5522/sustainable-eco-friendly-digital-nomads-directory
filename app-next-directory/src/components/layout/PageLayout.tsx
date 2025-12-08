@@ -1,7 +1,7 @@
 'use client';
 
-import { Suspense } from 'react';
 import type React from 'react';
+import { Suspense } from 'react';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
 import { SkipLink } from '@/components/ui/skip-link';

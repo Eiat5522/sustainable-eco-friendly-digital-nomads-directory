@@ -1,5 +1,3 @@
-'use cache';
-
 import type { NextRequest } from 'next/server';
 import { groq } from 'next-sanity';
 import { transformToBlogDetailDTO } from '@/lib/dto-transformer';
@@ -242,8 +240,8 @@ const postQuery = groq`
 `;
 
 // GET endpoint for fetching a single blog post
-export async function GET(props: { params: { slug: string } }) {
-  const { slug } = props.params;
+export async function GET(_request: NextRequest, props: { params: Promise<{ slug: string }> }) {
+  const { slug } = await props.params;
   try {
     structuredLogger.debug('GET /api/blog/[slug] called', { slug });
 
@@ -258,7 +256,10 @@ export async function GET(props: { params: { slug: string } }) {
       _testControl?.sanityFetchOverride ??
       ((query: string, params?: Record<string, unknown>) => sanityClient.fetch(query, params));
     const post = (await fetchFn(postQuery, { slug })) as RawSanityBlogPost | null;
-    structuredLogger.debug('Received response from Sanity', { slug, post: post ? 'found' : 'not found' });
+    structuredLogger.debug('Received response from Sanity', {
+      slug,
+      post: post ? 'found' : 'not found',
+    });
 
     if (!isSanityBlogPost(post)) {
       if (!post) {
@@ -322,8 +323,8 @@ async function trackViewCount(postId: string): Promise<number> {
 }
 
 // PUT endpoint for updating view count (optional)
-export async function PUT(request: NextRequest, props: { params: { slug: string } }) {
-  const { slug } = props.params;
+export async function PUT(request: NextRequest, props: { params: Promise<{ slug: string }> }) {
+  const { slug } = await props.params;
   try {
     const body = await request.json();
 

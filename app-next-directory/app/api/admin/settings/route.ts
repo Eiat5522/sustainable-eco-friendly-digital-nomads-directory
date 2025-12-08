@@ -35,14 +35,18 @@ export async function GET(request: NextRequest, _context: RouteContext) {
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
       if (msg.includes('headers()') || msg.includes('During prerendering')) {
-        structuredLogger.warn('[api/admin/settings] headers() unavailable during prerender', error, {
-          route: '/api/admin/settings',
-        });
+        structuredLogger.warn(
+          '[api/admin/settings] headers() unavailable during prerender',
+          error,
+          {
+            route: '/api/admin/settings',
+          }
+        );
         return new Response(null, { status: 204 });
       }
       throw error;
     }
-    
+
     const sessionUser = session?.user as SessionUser;
 
     if (!ensureAdmin(sessionUser)) {

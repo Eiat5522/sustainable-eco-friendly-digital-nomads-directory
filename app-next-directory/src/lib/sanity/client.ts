@@ -76,10 +76,10 @@ if (!DISABLE_SANITY) {
 type FetchFn = <T = unknown>(query: string, params?: Record<string, unknown>) => Promise<T | null>;
 
 type ChainablePatch = {
-  set: (patch: any) => ChainablePatch;
-  setIfMissing: (patch: any) => ChainablePatch;
-  append: (path: string, items: any[]) => ChainablePatch;
-  commit: <T = any>(opts?: any) => Promise<T>;
+  set: (patch: unknown) => ChainablePatch;
+  setIfMissing: (patch: unknown) => ChainablePatch;
+  append: (path: string, items: unknown[]) => ChainablePatch;
+  commit: <T = unknown>(opts?: Record<string, unknown>) => Promise<T>;
 };
 
 interface SanityClientLike {
@@ -88,11 +88,11 @@ interface SanityClientLike {
   createIfNotExists: <T = unknown>(doc: T) => Promise<T>;
   patch: (id: string) => ChainablePatch;
   transaction: () => {
-    patch: (id: string, cb?: (patch: any) => any) => void;
-    commit: <T = any>(opts?: any) => Promise<T>;
+    patch: (id: string, cb?: (patch: { set: (value: unknown) => unknown }) => unknown) => void;
+    commit: <T = unknown>(opts?: Record<string, unknown>) => Promise<T>;
   };
   delete?: (id: string) => Promise<void>;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 const stubClient: SanityClientLike = {
@@ -105,14 +105,14 @@ const stubClient: SanityClientLike = {
   getDocument: async <T = unknown>(_id: string): Promise<T | null> => null,
   createIfNotExists: async <T = unknown>(doc: T): Promise<T> => doc,
   patch: (_id: string) => ({
-    set: (_: any) => stubClient.patch(_id),
-    setIfMissing: (_: any) => stubClient.patch(_id),
-    append: (_path: string, _items: any[]) => stubClient.patch(_id),
-    commit: async <T = any>() => null as unknown as T,
+    set: (_: unknown) => stubClient.patch(_id),
+    setIfMissing: (_: unknown) => stubClient.patch(_id),
+    append: (_path: string, _items: unknown[]) => stubClient.patch(_id),
+    commit: async <T = unknown>() => null as unknown as T,
   }),
   transaction: () => ({
-    patch: (_id: string, _cb?: (patch: any) => any) => undefined,
-    commit: async <T = any>(_opts?: any) => null as unknown as T,
+    patch: (_id: string, _cb?: (patch: { set: (value: unknown) => unknown }) => unknown) => undefined,
+    commit: async <T = unknown>(_opts?: Record<string, unknown>) => null as unknown as T,
   }),
   delete: async (_id: string) => undefined,
 };
@@ -136,24 +136,32 @@ const imageUrlBuilderFactory = imageUrlModule.default ?? imageUrlModule;
  * @see {@link urlFor} for a more convenient wrapper function
  */
 // Provide safe fallbacks for the image builder when Sanity is disabled.
-let builder: any;
-let urlFor: (source: SanityImageSource) => any;
+
+type ImageUrlBuilder = {
+  image: (source: SanityImageSource) => ImageUrlBuilder;
+  width: (width: number) => ImageUrlBuilder;
+  height: (height: number) => ImageUrlBuilder;
+  format: (format: string) => ImageUrlBuilder;
+  quality: (quality: number) => ImageUrlBuilder;
+  url: () => string;
+};
+
+let builder: ImageUrlBuilder;
+let urlFor: (source: SanityImageSource) => ImageUrlBuilder;
+
 if (DISABLE_SANITY) {
   builder = {
-    image: () => ({
-      width: () => ({ height: () => ({ format: () => ({ quality: () => ({ url: () => '' }) }) }) }),
-      height: () => ({ width: () => ({ format: () => ({ quality: () => ({ url: () => '' }) }) }) }),
-      url: () => '',
-    }),
+    image: () => builder,
+    width: () => builder,
+    height: () => builder,
+    format: () => builder,
+    quality: () => builder,
+    url: () => '',
   };
 
-  urlFor = (_source: SanityImageSource) => ({
-    width: () => ({ height: () => ({ url: () => '' }) }),
-    height: () => ({ width: () => ({ url: () => '' }) }),
-    url: () => '',
-  });
+  urlFor = (_source: SanityImageSource) => builder;
 } else {
-  builder = imageUrlBuilderFactory(client as any);
+  builder = imageUrlBuilderFactory(client as unknown as Parameters<typeof imageUrlBuilderFactory>[0]);
   urlFor = (source: SanityImageSource) => builder.image(source);
 }
 

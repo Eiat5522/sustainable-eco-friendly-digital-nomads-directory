@@ -328,7 +328,7 @@ const commitBatch = async (
   const transaction = client.transaction!();
 
   for (const id of batchIds) {
-    transaction.patch(id, (patch: any) => patch.set(patchFactory(timestamp)));
+    transaction.patch(id, (patch: { set: (value: unknown) => unknown }) => patch.set(patchFactory(timestamp)));
   }
 
   const batchStart = now();

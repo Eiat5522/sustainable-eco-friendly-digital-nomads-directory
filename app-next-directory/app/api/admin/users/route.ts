@@ -44,7 +44,7 @@ export async function GET(request: NextRequest, _context: RouteContext) {
       }
       throw error;
     }
-    
+
     const sessionUser = session?.user as SessionUser;
 
     if (!ensureAdmin(sessionUser)) {

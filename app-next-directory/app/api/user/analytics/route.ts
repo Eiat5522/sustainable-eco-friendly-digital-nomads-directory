@@ -37,15 +37,19 @@ export function _createAnalyticsHandler({ authFn, fetchDashboard, logger }: Anal
               route: '/api/user/analytics',
             });
           } else {
-            structuredLogger.warn('[user-analytics] headers() unavailable during prerender', error, {
-              route: '/api/user/analytics',
-            });
+            structuredLogger.warn(
+              '[user-analytics] headers() unavailable during prerender',
+              error,
+              {
+                route: '/api/user/analytics',
+              }
+            );
           }
           return new Response(null, { status: 204 });
         }
         throw error;
       }
-      
+
       const sessionUser = session?.user as
         | {
             id?: string;

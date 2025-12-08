@@ -98,7 +98,7 @@ async function ensureSanityUserInternal({
  */
 export async function unfavoriteListing(userId: string, listingId: string): Promise<void> {
   try {
-    const favorite = await client.fetch<any | null>(
+    const favorite = await client.fetch<{ _id: string } | null>(
       `*[_type == "userFavorite" && user._ref == $userId && listing._ref == $listingId][0]`,
       { userId, listingId }
     );

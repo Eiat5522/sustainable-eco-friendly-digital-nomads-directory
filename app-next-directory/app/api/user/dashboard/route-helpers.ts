@@ -35,15 +35,19 @@ export function createDashboardHandler({ authFn, fetchDashboard, logger }: Dashb
               route: '/api/user/dashboard',
             });
           } else {
-            structuredLogger.warn('[user-dashboard] headers() unavailable during prerender', error, {
-              route: '/api/user/dashboard',
-            });
+            structuredLogger.warn(
+              '[user-dashboard] headers() unavailable during prerender',
+              error,
+              {
+                route: '/api/user/dashboard',
+              }
+            );
           }
           return new Response(null, { status: 204 });
         }
         throw error;
       }
-      
+
       const sessionUser = session?.user as
         | {
             id?: string;

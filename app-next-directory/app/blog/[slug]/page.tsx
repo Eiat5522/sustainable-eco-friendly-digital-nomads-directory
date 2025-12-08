@@ -1,15 +1,11 @@
-import { Suspense } from 'react';
 import { PortableText } from '@portabletext/react';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { groq } from 'next-sanity';
-import { headers } from 'next/headers';
+import { Suspense } from 'react';
 import { blogPortableTextComponents } from '@/components/blog/portableTextComponents';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
-import { getBaseUrl } from '@/lib/absolute-url';
-import { client } from '@/lib/sanity/client';
 
 // Subtle SVG gradient placeholder for hero image when missing
 function placeholderDataUri(width = 1200, height = 630) {
@@ -24,11 +20,18 @@ import { getPostCached } from './data';
 
 // minimal response type
 type Comment = { _id: string; content: string; user?: { name?: string } | null };
-type PostDTO = { id: string; title: string; body: PortableTextBlock[]; imageUrl?: string | null; excerpt?: string | null };
+type PostDTO = {
+  id: string;
+  title: string;
+  body: PortableTextBlock[];
+  imageUrl?: string | null;
+  excerpt?: string | null;
+};
 type PostResponse = { post: PostDTO; comments: Comment[] };
 
-export default async function BlogPostPage(props: Readonly<{ params: { slug: string } }>) {
-  const { slug } = props.params;
+export default async function BlogPostPage(props: Readonly<{ params: Promise<{ slug: string }> }>) {
+  const resolvedParams = await props.params;
+  const { slug } = resolvedParams;
 
   let post: PostDTO;
   let comments: Comment[];
@@ -50,9 +53,11 @@ export default async function BlogPostPage(props: Readonly<{ params: { slug: str
     if (!post || !post.id) {
       notFound();
     }
-  } catch (err: unknown) { // Use unknown for catch error type
+  } catch (err: unknown) {
+    // Use unknown for catch error type
     if (err instanceof Error) {
-      if ((err as any).status === 404 || /POST_NOT_FOUND/.test(String(err.message ?? ''))) {
+      const errorWithStatus = err as Error & { status?: number };
+      if (errorWithStatus.status === 404 || /POST_NOT_FOUND/.test(String(err.message ?? ''))) {
         notFound();
       }
     }
@@ -69,32 +74,32 @@ export default async function BlogPostPage(props: Readonly<{ params: { slug: str
       <Suspense fallback={<div>Loading header...</div>}>
         <Header />
       </Suspense>
-      <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-        <h1 className="text-4xl font-extrabold text-center my-8 text-gray-900">
-          {post.title}
-        </h1>
-        {heroUrl && (
-          <div className="relative w-full h-96 mb-8 rounded-lg overflow-hidden shadow-xl">
-            <Image
-              src={src}
-              alt={alt}
-              aria-hidden={usingPlaceholder}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              priority
-            />
-          </div>
-        )}
-        <article className="prose lg:prose-xl mx-auto">
-          <PortableText value={post.body} components={blogPortableTextComponents} />
-        </article>
-        <section className="mt-12 max-w-2xl mx-auto">
-          <h2 className="text-3xl font-bold mb-6 text-gray-800">Comments</h2>
-          <CommentForm postId={post.id} />
-          <CommentList comments={comments} />
-        </section>
-      </div>
+      <Suspense fallback={<div>Loading blog post...</div>}>
+        <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+          <h1 className="text-4xl font-extrabold text-center my-8 text-gray-900">{post.title}</h1>
+          {heroUrl && (
+            <div className="relative w-full h-96 mb-8 rounded-lg overflow-hidden shadow-xl">
+              <Image
+                src={src}
+                alt={alt}
+                aria-hidden={usingPlaceholder}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                priority
+              />
+            </div>
+          )}
+          <article className="prose lg:prose-xl mx-auto">
+            <PortableText value={post.body} components={blogPortableTextComponents} />
+          </article>
+          <section className="mt-12 max-w-2xl mx-auto">
+            <h2 className="text-3xl font-bold mb-6 text-gray-800">Comments</h2>
+            <CommentForm postId={post.id} />
+            <CommentList comments={comments} />
+          </section>
+        </div>
+      </Suspense>
       <Suspense fallback={<div>Loading footer...</div>}>
         <Footer />
       </Suspense>
@@ -102,12 +107,14 @@ export default async function BlogPostPage(props: Readonly<{ params: { slug: str
   );
 }
 
-export async function generateMetadata(
-  { params }: { params: { slug: string } }
-): Promise<Metadata> {
+export async function generateMetadata(props: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const resolvedParams = await props.params;
+  const { slug } = resolvedParams;
   let post: PostDTO;
   try {
-    const res = await getPostCached(params.slug);
+    const res = await getPostCached(slug);
     if (res && typeof res === 'object' && 'success' in res) {
       const data = res.data as { post: PostDTO; comments: Comment[] };
       post = data?.post;
@@ -123,11 +130,14 @@ export async function generateMetadata(
       };
     }
   } catch (err: unknown) {
-    if (err instanceof Error && ((err as any).status === 404 || /POST_NOT_FOUND/.test(String(err.message ?? '')))) {
-      return {
-        title: 'Blog Post Not Found',
-        description: 'The requested blog post could not be found.',
-      };
+    if (err instanceof Error) {
+      const errorWithStatus = err as Error & { status?: number };
+      if (errorWithStatus.status === 404 || /POST_NOT_FOUND/.test(String(err.message ?? ''))) {
+        return {
+          title: 'Blog Post Not Found',
+          description: 'The requested blog post could not be found.',
+        };
+      }
     }
     throw err;
   }

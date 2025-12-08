@@ -1,7 +1,9 @@
 import { createClient } from 'next-sanity';
 
 // FORTEST: Lazy initialization to prevent module-scope errors during build
-const disableSanity = process.env.DISABLE_SANITY_DURING_BUILD === '1' || process.env.DISABLE_SANITY_DURING_BUILD === 'true';
+const disableSanity =
+  process.env.DISABLE_SANITY_DURING_BUILD === '1' ||
+  process.env.DISABLE_SANITY_DURING_BUILD === 'true';
 
 let _client: ReturnType<typeof createClient> | null = null;
 let _previewClient: ReturnType<typeof createClient> | null = null;
@@ -14,30 +16,30 @@ function createStubClient() {
 
 function initClient() {
   if (_client) return _client;
-  
+
   if (disableSanity) {
     _client = createStubClient();
     return _client;
   }
-  
+
   _client = createClient({
     projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
     dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
     apiVersion: '2025-05-15',
     useCdn: process.env.NODE_ENV === 'production',
   });
-  
+
   return _client;
 }
 
 function initPreviewClient() {
   if (_previewClient) return _previewClient;
-  
+
   if (disableSanity) {
     _previewClient = createStubClient();
     return _previewClient;
   }
-  
+
   _previewClient = createClient({
     projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
     dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
@@ -45,7 +47,7 @@ function initPreviewClient() {
     useCdn: false,
     perspective: 'previewDrafts',
   });
-  
+
   return _previewClient;
 }
 

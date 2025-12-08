@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { structuredLogger } from '@/lib/logger';
+
 jest.mock('@/lib/logger');
 
 const loggerMock = jest.mocked(structuredLogger);

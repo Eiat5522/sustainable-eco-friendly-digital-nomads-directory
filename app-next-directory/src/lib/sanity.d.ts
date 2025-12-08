@@ -10,4 +10,6 @@ declare module '@/lib/sanity' {
       upload: (type: 'image' | 'file', file: unknown) => Promise<unknown>;
     };
   };
+
+  export function getClient(usePreview?: boolean): typeof client;
 }

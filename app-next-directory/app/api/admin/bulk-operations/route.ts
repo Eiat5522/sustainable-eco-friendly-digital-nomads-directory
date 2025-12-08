@@ -28,14 +28,18 @@ export async function GET(request: NextRequest, _context: RouteContext) {
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
       if (msg.includes('headers()') || msg.includes('During prerendering')) {
-        structuredLogger.warn('[api/admin/bulk-operations] headers() unavailable during prerender', error, {
-          route: '/api/admin/bulk-operations',
-        });
+        structuredLogger.warn(
+          '[api/admin/bulk-operations] headers() unavailable during prerender',
+          error,
+          {
+            route: '/api/admin/bulk-operations',
+          }
+        );
         return new Response(null, { status: 204 });
       }
       throw error;
     }
-    
+
     const sessionUser = session?.user as SessionUser;
 
     if (!ensureAdmin(sessionUser)) {

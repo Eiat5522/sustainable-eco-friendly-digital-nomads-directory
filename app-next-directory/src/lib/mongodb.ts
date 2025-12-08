@@ -23,7 +23,9 @@ type MockDb = {
 let clientPromise: Promise<MongoClient> | null = null;
 
 const shouldMockMongo = process.env.NODE_ENV === 'test' || process.env.E2E === '1';
-const disableMongoDuringBuild = process.env.DISABLE_MONGODB_DURING_BUILD === '1' || process.env.DISABLE_MONGODB_DURING_BUILD === 'true';
+const disableMongoDuringBuild =
+  process.env.DISABLE_MONGODB_DURING_BUILD === '1' ||
+  process.env.DISABLE_MONGODB_DURING_BUILD === 'true';
 
 function getClientPromise(): Promise<MongoClient> {
   if (clientPromise) {

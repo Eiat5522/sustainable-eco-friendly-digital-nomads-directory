@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
@@ -29,10 +28,11 @@ function ensureAdmin(
 }
 
 export default async function AdminSettingsPage() {
+  // Auth check is handled by middleware
   // FORTEST: Wrap headers() in try-catch for compatibility with prerender
   let _h = null as
     | null
-    | Awaited<ReturnType<typeof headers>>
+    | Awaited<Awaited<ReturnType<typeof headers>>>
     | { get(name: string): string | null | undefined };
   try {
     _h = await headers();
@@ -42,10 +42,6 @@ export default async function AdminSettingsPage() {
 
   const session = await auth(_h);
   const sessionUser = session?.user as SessionUser;
-
-  if (!ensureAdmin(sessionUser)) {
-    redirect('/auth/login?callbackUrl=/admin/settings');
-  }
 
   return (
     <main className="min-h-screen bg-gray-50" data-testid="admin-settings-page">

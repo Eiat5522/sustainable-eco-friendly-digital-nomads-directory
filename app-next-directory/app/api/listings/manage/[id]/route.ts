@@ -13,7 +13,7 @@ async function resolveParams(params: { id: string } | Promise<{ id: string }>) {
 export async function GET(request: Request, context: RouteContext) {
   const { params } = context;
   const resolvedParams = await resolveParams(params);
-  
+
   // FORTEST: guard for prerender - handle headers() unavailability
   let session: Awaited<ReturnType<typeof auth>> | null = null;
   try {
@@ -28,7 +28,7 @@ export async function GET(request: Request, context: RouteContext) {
     }
     throw error;
   }
-  
+
   const sessionUser = session?.user as { id?: string; role?: string } | undefined;
 
   if (sessionUser?.role !== 'venueOwner' || !sessionUser.id) {
@@ -58,7 +58,7 @@ export async function GET(request: Request, context: RouteContext) {
 export async function PUT(request: Request, context: RouteContext) {
   const { params } = context;
   const resolvedParams = await resolveParams(params);
-  
+
   // FORTEST: guard for prerender - handle headers() unavailability
   let session: Awaited<ReturnType<typeof auth>> | null = null;
   try {
@@ -73,7 +73,7 @@ export async function PUT(request: Request, context: RouteContext) {
     }
     throw error;
   }
-  
+
   const sessionUser = session?.user as { id?: string; role?: string } | undefined;
 
   if (sessionUser?.role !== 'venueOwner' || !sessionUser.id) {

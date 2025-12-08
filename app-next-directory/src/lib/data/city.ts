@@ -1,3 +1,5 @@
+'use cache';
+
 import { groq } from 'next-sanity';
 import {
   getE2ECityDetail,

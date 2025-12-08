@@ -56,7 +56,7 @@ if (isTestEnv || enableDevTestHook) {
 
 export async function POST(request: Request) {
   const authFn = _testControl?.authOverride ?? auth;
-  
+
   // FORTEST: guard for prerender - handle headers() unavailability
   let session: Awaited<ReturnType<typeof authFn>> | null = null;
   try {
@@ -71,7 +71,7 @@ export async function POST(request: Request) {
     }
     throw error;
   }
-  
+
   // session.user can be a loose object in tests; cast to unknown to avoid typing issues
   const sessionUser = (session as { user?: { id?: string; role?: string } })?.user;
 
