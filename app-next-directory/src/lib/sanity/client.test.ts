@@ -89,7 +89,7 @@ describe('Sanity client module', () => {
       process.env = originalEnv;
     });
 
-    it('should fallback to dummy values when env vars are missing', () => {
+    it('should fallback to placeholder values when env vars are missing', () => {
       const originalEnv = process.env;
       process.env = {
         ...originalEnv,
@@ -102,8 +102,8 @@ describe('Sanity client module', () => {
       const clientModule = require('./client'); // Fixed import path
 
       expect(createClient).toHaveBeenCalledWith({
-        projectId: 'projectId',
-        dataset: 'dataset',
+        projectId: 'placeholder-project-id',
+        dataset: 'placeholder-dataset',
         apiVersion: '2024-01-01',
         useCdn: false,
       });
@@ -479,7 +479,7 @@ describe('Sanity client module', () => {
 
       expect(createClient).toHaveBeenCalledWith({
         projectId: 'partial-project',
-        dataset: 'dataset', // Falls back to dummy
+        dataset: 'placeholder-dataset', // Falls back to placeholder
         apiVersion: '2024-01-01',
         useCdn: false,
         token: 'partial-token',

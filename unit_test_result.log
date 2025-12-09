@@ -1,0 +1,1031 @@
+
+> sustainable-eco-friendly-digital-nomads-directory-root@0.1.3 test:unit /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory
+> pnpm --filter app-next-directory test:unit --runInBand --detectOpenHandles
+
+
+> app-next-directory@0.1.0 test:unit /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory
+> cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --runInBand --passWithNoTests --runInBand --detectOpenHandles
+
+PASS src/lib/__tests__/sanity-http-client.test.ts
+PASS app/api/contact/route.test.ts
+PASS src/lib/auth/rateLimit.test.ts
+PASS src/components/listings/__tests__/ListingDetailsCard.test.tsx
+PASS src/components/favorites/__tests__/FavoriteButton.test.tsx
+PASS src/components/listings/__tests__/ListingGrid.test.tsx
+PASS app/dashboard/components/__tests__/VenueListingForm.test.tsx
+PASS src/lib/auth/serverAuth.test.ts
+PASS src/components/auth/__tests__/SocialAuthRow.test.tsx
+PASS src/components/listings/__tests__/RelatedListings.test.tsx
+PASS src/components/layout/__tests__/Header.test.tsx
+PASS src/components/search/__tests__/FiltersSidebar.test.tsx
+PASS src/tests/helpers/test-data.test.ts
+PASS src/components/listings/__tests__/ReviewsSection.test.tsx
+PASS app/admin/listings/__tests__/ListingsManagementTable.test.tsx
+PASS app/api/admin/users/__tests__/route.test.ts
+PASS app/api/listings/manage/[id]/__tests__/route.test.ts
+PASS src/lib/auth/withAuthMatrix.test.ts
+PASS src/lib/admin/__tests__/analytics.test.ts
+PASS src/components/search/__tests__/SearchForm.unit.test.tsx
+PASS app/api/revalidate/__tests__/route.test.ts
+PASS app/api/search/__tests__/route.test.ts
+FAIL app/api/blog/[slug]/route.test.ts
+  ● Blog [slug] API › GET /api/blog/[slug] › Successful Requests › should return blog post by slug
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 500
+
+      120 |         const data = await response.json();
+      121 |
+    > 122 |         expect(response.status).toBe(200);
+          |                                 ^
+      123 |         expect(data.success).toBe(true);
+      124 |         expect(data.data.post.title).toBe('Sustainable Living Guide');
+      125 |         expect(data.data.post.slug).toBe('sustainable-living-guide');
+
+      at Object.toBe (app/api/blog/[slug]/route.test.ts:122:33)
+
+  ● Blog [slug] API › GET /api/blog/[slug] › Successful Requests › should include related posts in response
+
+    TypeError: Cannot read properties of undefined (reading 'relatedPosts')
+
+      159 |
+      160 |         /* End of new strong-typed test file */
+    > 161 |         expect(data.data.relatedPosts).toBeDefined();
+          |                          ^
+      162 |         expect(Array.isArray(data.data.relatedPosts)).toBe(true);
+      163 |       });
+      164 |
+
+      at Object.relatedPosts (app/api/blog/[slug]/route.test.ts:161:26)
+
+  ● Blog [slug] API › GET /api/blog/[slug] › Successful Requests › should normalize optional fields when transformer omits them
+
+    TypeError: Cannot read properties of undefined (reading 'relatedPosts')
+
+      189 |         const data = await response.json();
+      190 |
+    > 191 |         expect(data.data.relatedPosts).toEqual([]);
+          |                          ^
+      192 |         expect(data.data.meta.readingTime).toBeNull();
+      193 |         expect(data.data.meta.publishedDate).toBeNull();
+      194 |         expect(data.data.meta.wordCount).toBe(0);
+
+      at Object.relatedPosts (app/api/blog/[slug]/route.test.ts:191:26)
+
+  ● Blog [slug] API › GET /api/blog/[slug] › Successful Requests › should use correct GROQ query with slug parameter
+
+    TypeError: Cannot read properties of undefined (reading '0')
+
+      203 |         await GET(request, { params });
+      204 |
+    > 205 |         const query = fetchMock.mock.calls[0][0];
+          |                                              ^
+      206 |         const queryParams = fetchMock.mock.calls[0][1];
+      207 |
+      208 |         expect(query).toContain('_type == "blogPost"');
+
+      at Object.<anonymous> (app/api/blog/[slug]/route.test.ts:205:46)
+
+  ● Blog [slug] API › GET /api/blog/[slug] › Error Handling › should return 404 when blog post not found
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 404
+    Received: 500
+
+      221 |         const data = await response.json();
+      222 |
+    > 223 |         expect(response.status).toBe(404);
+          |                                 ^
+      224 |         expect(data.success).toBe(false);
+      225 |         expect(data.error).toContain('Blog post');
+      226 |       });
+
+      at Object.toBe (app/api/blog/[slug]/route.test.ts:223:33)
+
+  ● Blog [slug] API › GET /api/blog/[slug] › Error Handling › should return 400 when slug is missing
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 500
+
+      232 |         const data = await response.json();
+      233 |
+    > 234 |         expect(response.status).toBe(400);
+          |                                 ^
+      235 |         expect(data.success).toBe(false);
+      236 |         expect(data.error).toBe('Blog post slug is required');
+      237 |         expect(fetchMock).not.toHaveBeenCalled();
+
+      at Object.toBe (app/api/blog/[slug]/route.test.ts:234:33)
+
+  ● Blog [slug] API › GET /api/blog/[slug] › Error Handling › should return 503 on CMS connection failure
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 503
+    Received: 500
+
+      259 |         const data = await response.json();
+      260 |
+    > 261 |         expect(response.status).toBe(503);
+          |                                 ^
+      262 |         expect(data.error).toBe('Failed to connect to CMS. Please try again later.');
+      263 |       });
+      264 |
+
+      at Object.toBe (app/api/blog/[slug]/route.test.ts:261:33)
+
+  ● Blog [slug] API › GET /api/blog/[slug] › Error Handling › should return 400 on invalid slug parameter
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 500
+
+      271 |         const data = await response.json();
+      272 |
+    > 273 |         expect(response.status).toBe(400);
+          |                                 ^
+      274 |         expect(data.error).toBe('Invalid blog post slug');
+      275 |       });
+      276 |     });
+
+      at Object.toBe (app/api/blog/[slug]/route.test.ts:273:33)
+
+PASS src/utils/__tests__/rate-limit.test.ts
+PASS app/admin/users/__tests__/UserManagementTable.test.tsx
+PASS src/lib/__tests__/geocode.test.ts
+PASS src/lib/sanity/client.test.ts
+PASS src/lib/auth/userService.test.ts
+PASS src/mocks/__tests__/handlers.test.ts
+PASS src/lib/sanity/user.test.ts
+PASS src/components/listings/__tests__/ListingDetailView.test.tsx
+PASS app/api/reviews/analytics/route.test.ts
+FAIL app/api/reviews/route.test.ts
+  ● API /api/reviews POST › rejects unauthenticated requests
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      187 |
+      188 |   it('rejects unauthenticated requests', async () => {
+    > 189 |     (auth as jest.Mock).mockResolvedValueOnce(null);
+          |                         ^
+      190 |
+      191 |     const res = await POST(
+      192 |       new Request('http://localhost/api/reviews', {
+
+      at Object.mockResolvedValueOnce (app/api/reviews/route.test.ts:189:25)
+
+  ● API /api/reviews POST › rejects users without review permissions
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      206 |
+      207 |   it('rejects users without review permissions', async () => {
+    > 208 |     (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'unidentifiedUser' } });
+          |                         ^
+      209 |
+      210 |     const res = await POST(
+      211 |       new Request('http://localhost/api/reviews', {
+
+      at Object.mockResolvedValueOnce (app/api/reviews/route.test.ts:208:25)
+
+  ● API /api/reviews POST › validates incoming payload and enforces rating constraints
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      226 |
+      227 |   it('validates incoming payload and enforces rating constraints', async () => {
+    > 228 |     (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
+          |                         ^
+      229 |
+      230 |     const res = await POST(
+      231 |       new Request('http://localhost/api/reviews', {
+
+      at Object.mockResolvedValueOnce (app/api/reviews/route.test.ts:228:25)
+
+  ● API /api/reviews POST › validates incoming payload and enforces minimum comment length
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      246 |
+      247 |   it('validates incoming payload and enforces minimum comment length', async () => {
+    > 248 |     (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
+          |                         ^
+      249 |
+      250 |     const res = await POST(
+      251 |       new Request('http://localhost/api/reviews', {
+
+      at Object.mockResolvedValueOnce (app/api/reviews/route.test.ts:248:25)
+
+  ● API /api/reviews POST › returns conflict when a user already reviewed the listing
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      262 |
+      263 |   it('returns conflict when a user already reviewed the listing', async () => {
+    > 264 |     (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
+          |                         ^
+      265 |     (client.getDocument as jest.Mock).mockResolvedValueOnce({
+      266 |       _id: 'listing-1',
+      267 |       slug: { current: 'listing-slug' },
+
+      at Object.mockResolvedValueOnce (app/api/reviews/route.test.ts:264:25)
+
+  ● API /api/reviews POST › returns 422 when the request body cannot be parsed
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      288 |
+      289 |   it('returns 422 when the request body cannot be parsed', async () => {
+    > 290 |     (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
+          |                         ^
+      291 |
+      292 |     const failingRequest = {
+      293 |       json: jest.fn().mockRejectedValue(new Error('boom')),
+
+      at Object.mockResolvedValueOnce (app/api/reviews/route.test.ts:290:25)
+
+  ● API /api/reviews POST › requires valid listing and user references
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      306 |
+      307 |   it('requires valid listing and user references', async () => {
+    > 308 |     (auth as jest.Mock).mockResolvedValueOnce({
+          |                         ^
+      309 |       user: { id: 'user-1', role: 'user', email: 'user@example.com' },
+      310 |     });
+      311 |     (client.getDocument as jest.Mock).mockResolvedValueOnce(null);
+
+      at Object.mockResolvedValueOnce (app/api/reviews/route.test.ts:308:25)
+
+  ● API /api/reviews POST › creates a pending review, trims comment, and revalidates the listing page
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      330 |
+      331 |   it('creates a pending review, trims comment, and revalidates the listing page', async () => {
+    > 332 |     (auth as jest.Mock).mockResolvedValueOnce({
+          |                         ^
+      333 |       user: { id: 'user-1', role: 'user', name: 'Reviewer', email: 'user@example.com' },
+      334 |     });
+      335 |     (client.getDocument as jest.Mock).mockResolvedValueOnce({
+
+      at Object.mockResolvedValueOnce (app/api/reviews/route.test.ts:332:25)
+
+  ● API /api/reviews POST › includes optional eco and nomad ratings when supplied
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      380 |
+      381 |   it('includes optional eco and nomad ratings when supplied', async () => {
+    > 382 |     (auth as jest.Mock).mockResolvedValueOnce({
+          |                         ^
+      383 |       user: { id: 'user-2', role: 'user', name: 'Eco Fan', email: 'eco@example.com' },
+      384 |     });
+      385 |     (client.getDocument as jest.Mock).mockResolvedValueOnce({
+
+      at Object.mockResolvedValueOnce (app/api/reviews/route.test.ts:382:25)
+
+  ● API /api/reviews POST › logs and returns 500 when creation fails unexpectedly
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      412 |
+      413 |   it('logs and returns 500 when creation fails unexpectedly', async () => {
+    > 414 |     (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
+          |                         ^
+      415 |     (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'listing-1' });
+      416 |     (ensureSanityUser as jest.Mock).mockResolvedValueOnce({ _id: 'sanity-user-1' });
+      417 |     (client.create as jest.Mock).mockRejectedValueOnce(new Error('Sanity failure'));
+
+      at Object.mockResolvedValueOnce (app/api/reviews/route.test.ts:414:25)
+
+PASS src/types/__tests__/dto-schemas.test.ts
+PASS app/api/reviews/[reviewId]/vote/route.test.ts
+PASS app/api/auth/register/route.test.ts
+PASS src/components/ui/__tests__/select.test.tsx
+FAIL src/lib/__tests__/auth.test.ts
+  ● auth module › initialises NextAuth with the constructed configuration
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: [Function mockConstructor]
+    Received: [Function auth]
+
+      399 |     expect(GET).toBe(mockNextAuthInstance.handlers.GET);
+      400 |     expect(POST).toBe(mockNextAuthInstance.handlers.POST);
+    > 401 |     expect(auth).toBe(mockNextAuthInstance.auth);
+          |                  ^
+      402 |   });
+      403 |
+      404 |   it('includes Google provider when credentials are configured', async () => {
+
+      at Object.toBe (src/lib/__tests__/auth.test.ts:401:18)
+
+PASS app/admin/settings/__tests__/SettingsForm.test.tsx
+FAIL app/api/comments/route.test.ts
+  ● API /api/comments › POST › rejects unauthorized users
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      118 |   describe('POST', () => {
+      119 |     it('rejects unauthorized users', async () => {
+    > 120 |       (auth as jest.Mock).mockResolvedValueOnce(null);
+          |                           ^
+      121 |       const req = new Request('http://localhost/api/comments', {
+      122 |         method: 'POST',
+      123 |         body: JSON.stringify({ content: 'Hi', postId: 'p1' }),
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:120:27)
+
+  ● API /api/comments › POST › rejects users without comment permissions
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      130 |
+      131 |     it('rejects users without comment permissions', async () => {
+    > 132 |       (auth as jest.Mock).mockResolvedValueOnce({
+          |                           ^
+      133 |         user: { id: 'user1', role: 'unidentifiedUser', name: 'User' },
+      134 |       });
+      135 |       const req = new Request('http://localhost/api/comments', {
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:132:27)
+
+  ● API /api/comments › POST › returns fallback error response when NextResponse.json is unavailable
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      147 |
+      148 |     it('returns fallback error response when NextResponse.json is unavailable', async () => {
+    > 149 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+          |                           ^
+      150 |       const originalJson = (NextResponse as any).json;
+      151 |       (NextResponse as any).json = undefined;
+      152 |
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:149:27)
+
+  ● API /api/comments › POST › rejects sessions without a user id
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      161 |
+      162 |     it('rejects sessions without a user id', async () => {
+    > 163 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { role: 'user', name: 'Nameless' } });
+          |                           ^
+      164 |
+      165 |       const res = await POST(
+      166 |         new Request('http://localhost/api/comments', {
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:163:27)
+
+  ● API /api/comments › POST › creates a comment and revalidates tag
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      176 |
+      177 |     it('creates a comment and revalidates tag', async () => {
+    > 178 |       (auth as jest.Mock).mockResolvedValueOnce({
+          |                           ^
+      179 |         user: { id: 'user1', role: 'user', name: 'User', email: 'u@example.com' },
+      180 |       });
+      181 |       mockEnsureSanityUser.mockResolvedValueOnce({ _id: 'sanityUser1', _type: 'user' });
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:178:27)
+
+  ● API /api/comments › POST › creates a comment without revalidating when the post has no slug
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      206 |
+      207 |     it('creates a comment without revalidating when the post has no slug', async () => {
+    > 208 |       (auth as jest.Mock).mockResolvedValueOnce({
+          |                           ^
+      209 |         user: { id: 'user1', role: 'user', name: 'User' },
+      210 |       });
+      211 |       (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'p1' });
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:208:27)
+
+  ● API /api/comments › POST › still succeeds when revalidateTag encounters an error
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      223 |
+      224 |     it('still succeeds when revalidateTag encounters an error', async () => {
+    > 225 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+          |                           ^
+      226 |       (client.getDocument as jest.Mock).mockResolvedValueOnce({
+      227 |         _id: 'p1',
+      228 |         slug: { current: 'sluggy' },
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:225:27)
+
+  ● API /api/comments › POST › returns validation error when fields are missing or invalid
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      241 |
+      242 |     it('returns validation error when fields are missing or invalid', async () => {
+    > 243 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+          |                           ^
+      244 |
+      245 |       const res = await POST(
+      246 |         new Request('http://localhost/api/comments', {
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:243:27)
+
+  ● API /api/comments › POST › rejects requests without a json body parser
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      256 |
+      257 |     it('rejects requests without a json body parser', async () => {
+    > 258 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+          |                           ^
+      259 |
+      260 |       const res = await POST({ method: 'POST' } as any);
+      261 |       expect(res.status).toBe(422);
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:258:27)
+
+  ● API /api/comments › POST › handles failures to parse the body gracefully
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      264 |
+      265 |     it('handles failures to parse the body gracefully', async () => {
+    > 266 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+          |                           ^
+      267 |
+      268 |       const failingRequest = {
+      269 |         json: jest.fn().mockRejectedValue(new Error('nope')),
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:266:27)
+
+  ● API /api/comments › POST › trims content and rejects empty comments
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      276 |
+      277 |     it('trims content and rejects empty comments', async () => {
+    > 278 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+          |                           ^
+      279 |
+      280 |       const res = await POST(
+      281 |         new Request('http://localhost/api/comments', {
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:278:27)
+
+  ● API /api/comments › POST › requires comment content to be a string
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      291 |
+      292 |     it('requires comment content to be a string', async () => {
+    > 293 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+          |                           ^
+      294 |
+      295 |       const res = await POST(
+      296 |         new Request('http://localhost/api/comments', {
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:293:27)
+
+  ● API /api/comments › POST › returns 400 when the referenced post cannot be found
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      305 |
+      306 |     it('returns 400 when the referenced post cannot be found', async () => {
+    > 307 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+          |                           ^
+      308 |       (client.getDocument as jest.Mock).mockResolvedValueOnce(null);
+      309 |
+      310 |       const res = await POST(
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:307:27)
+
+  ● API /api/comments › POST › returns 500 when comment creation throws an unexpected error
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      321 |
+      322 |     it('returns 500 when comment creation throws an unexpected error', async () => {
+    > 323 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+          |                           ^
+      324 |       (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'p1' });
+      325 |       (client.create as jest.Mock).mockRejectedValueOnce(new Error('Sanity failure'));
+      326 |
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:323:27)
+
+  ● API /api/comments › POST › returns 500 when ensureSanityUser throws an unexpected error
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      338 |
+      339 |     it('returns 500 when ensureSanityUser throws an unexpected error', async () => {
+    > 340 |       (auth as jest.Mock).mockResolvedValueOnce({
+          |                           ^
+      341 |         user: { id: 'user1', role: 'user', name: 'User', email: 'u@example.com' },
+      342 |       });
+      343 |       mockEnsureSanityUser.mockRejectedValueOnce(new Error('Sanity user failure'));
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:340:27)
+
+  ● API /api/comments › POST › still creates a comment if user has no email
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      356 |
+      357 |     it('still creates a comment if user has no email', async () => {
+    > 358 |       (auth as jest.Mock).mockResolvedValueOnce({
+          |                           ^
+      359 |         user: { id: 'user1', role: 'user', name: 'User' },
+      360 |       });
+      361 |       mockEnsureSanityUser.mockResolvedValueOnce({ _id: 'sanityUser1', _type: 'user' });
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:358:27)
+
+PASS src/components/search/__tests__/DigitalNomadSearchFilter.test.tsx
+PASS src/types/__tests__/dto.test.ts
+PASS app/api/performance/web-vitals/__tests__/route.test.ts
+PASS app/__tests__/listings-slug-page.test.tsx
+PASS src/types/__tests__/moderation.test.ts
+PASS src/mocks/__tests__/handlers-server.test.ts
+PASS src/models/__tests__/EmailVerificationToken.test.ts
+PASS src/types/__tests__/search.test.ts
+PASS app/test/search/__tests__/page.test.tsx
+PASS src/types/__tests__/appView.test.ts
+PASS src/types/__tests__/api.test.ts
+PASS src/components/__tests__/CommentForm.test.tsx
+PASS src/models/__tests__/ContactSubmission.test.ts
+PASS app/api/newsletter/subscribe/route.test.ts
+PASS src/types/__tests__/query-types.test.ts
+PASS src/lib/performance/__tests__/budgets.test.ts
+PASS app/api/admin/settings/__tests__/route.test.ts
+PASS src/types/__tests__/sanity-compatible-json.test.ts
+PASS src/types/__tests__/listings.test.ts
+PASS src/types/__tests__/moderator.test.ts
+PASS app/api/user/favorites/__tests__/route.test.ts
+PASS src/lib/sanity/queries.test.ts
+PASS app/api/user/favorites/[slug]/__tests__/route.test.ts
+PASS app/api/auth/verify/__tests__/route.test.ts
+PASS src/components/listings/__tests__/HeroSection.test.tsx
+PASS app/api/city/[slug]/__tests__/route.test.ts
+PASS src/lib/data/__tests__/city.test.ts
+PASS src/types/__tests__/components.test.ts
+PASS src/lib/performance/__tests__/web-vitals-reporter.test.ts
+PASS src/components/search/__tests__/DigitalNomadSearch.test.tsx (5.597 s)
+PASS src/components/ui/__tests__/InteractiveMap.test.tsx
+PASS app/api/listings/route.test.ts
+PASS src/lib/__tests__/cache-strategy.test.ts
+PASS src/lib/__tests__/dto-transformer.test.ts
+FAIL src/utils/__tests__/db-helpers.test.ts
+  ● initializeClientPromise validation › instructs to use .env.development when NODE_ENV is development
+
+    expect(received).toThrow(expected)
+
+    Expected substring: "MongoDB URI is missing. Please set the MONGODB_URI environment variable in .env.development."
+
+    Received function did not throw
+
+      309 |     delete process.env.MONGODB_URI;
+      310 |
+    > 311 |     expect(() => require('../db-helpers')).toThrow(
+          |                                            ^
+      312 |       'MongoDB URI is missing. Please set the MONGODB_URI environment variable in .env.development.'
+      313 |     );
+      314 |   });
+
+      at Object.toThrow (src/utils/__tests__/db-helpers.test.ts:311:44)
+
+  ● initializeClientPromise validation › instructs to use .env.local when NODE_ENV is not development
+
+    expect(received).toThrow(expected)
+
+    Expected substring: "MongoDB URI is missing. Please set the MONGODB_URI environment variable in .env.local."
+
+    Received function did not throw
+
+      318 |     delete process.env.MONGODB_URI;
+      319 |
+    > 320 |     expect(() => require('../db-helpers')).toThrow(
+          |                                            ^
+      321 |       'MongoDB URI is missing. Please set the MONGODB_URI environment variable in .env.local.'
+      322 |     );
+      323 |   });
+
+      at Object.toThrow (src/utils/__tests__/db-helpers.test.ts:320:44)
+
+PASS app/api/listings/city/[id]/__tests__/route.test.ts
+PASS app/api/newsletter/confirm/__tests__/route.test.ts
+PASS app/__tests__/profile-page.test.tsx
+PASS app/api/preview/__tests__/route.test.ts
+FAIL app/__tests__/blog-slug-page.test.tsx
+  ● BlogPostPage › renders post content, placeholder hero, and comments from DTO response
+
+    expect(element).toHaveTextContent()
+
+    Expected element to have text content:
+      comments:1
+    Received:
+      comments:0
+
+       97 |     expect(screen.getByText('Sustainable Journey')).toBeInTheDocument();
+       98 |     expect(screen.getByTestId('portable-text')).toBeInTheDocument();
+    >  99 |     expect(screen.getByTestId('comment-list')).toHaveTextContent('comments:1');
+          |                                                ^
+      100 |     expect(screen.getByTestId('comment-form')).toHaveTextContent('form-for-post-123');
+      101 |
+      102 |     const hero = screen.getByRole('presentation', { hidden: true });
+
+      at Object.toHaveTextContent (app/__tests__/blog-slug-page.test.tsx:99:48)
+
+  ● BlogPostPage › handles minimal fallback payloads lacking DTO wrappers
+
+    NEXT_NOT_FOUND
+
+      3 |
+      4 | const notFoundMock = jest.fn(() => {
+    > 5 |   const error = new Error('NEXT_NOT_FOUND') as Error & { digest?: string };
+        |                 ^
+      6 |   error.digest = 'NEXT_NOT_FOUND';
+      7 |   throw error;
+      8 | });
+
+      at app/__tests__/blog-slug-page.test.tsx:5:17
+      at Object.BlogPostPage (app/blog/[slug]/page.tsx:54:15)
+      at Object.<anonymous> (app/__tests__/blog-slug-page.test.tsx:180:23)
+
+  ● BlogPostPage.generateMetadata › returns metadata derived from DTO response with relative image
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 14
+    + Received  +  2
+
+    - ObjectContaining {
+    -   "description": "Meta description",
+    -   "openGraph": ObjectContaining {
+    -     "images": Array [
+      Object {
+    -         "url": "https://example.com/images/meta.jpg",
+    -       },
+    -     ],
+    -   },
+    -   "title": "Meta Post",
+    -   "twitter": ObjectContaining {
+    -     "images": Array [
+    -       "https://example.com/images/meta.jpg",
+    -     ],
+    -   },
+    +   "description": "The requested blog post could not be found.",
+    +   "title": "Blog Post Not Found",
+      }
+
+      245 |
+      246 |     const metadata = await pageModule.generateMetadata({ params: { slug: 'meta-post' } });
+    > 247 |     expect(metadata).toEqual(
+          |                      ^
+      248 |       expect.objectContaining({
+      249 |         title: 'Meta Post',
+      250 |         description: 'Meta description',
+
+      at Object.toEqual (app/__tests__/blog-slug-page.test.tsx:247:22)
+
+  ● BlogPostPage.generateMetadata › returns not found metadata when API returns 404
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 2
+
+      Object {
+    -   "title": "Post not found",
+    +   "description": "The requested blog post could not be found.",
+    +   "title": "Blog Post Not Found",
+      }
+
+      278 |
+      279 |     const metadata = await pageModule.generateMetadata({ params: { slug: 'missing-post' } });
+    > 280 |     expect(metadata).toEqual({ title: 'Post not found' });
+          |                      ^
+      281 |   });
+      282 |
+      283 |   it('falls back to generic metadata when the fetch fails', async () => {
+
+      at Object.toEqual (app/__tests__/blog-slug-page.test.tsx:280:22)
+
+  ● BlogPostPage.generateMetadata › falls back to generic metadata when the fetch fails
+
+    network failure
+
+      292 |     getBaseUrl.mockResolvedValue('https://example.com');
+      293 |
+    > 294 |     global.fetch = jest.fn().mockRejectedValue(new Error('network failure'));
+          |                                                ^
+      295 |
+      296 |     const metadata = await pageModule.generateMetadata({ params: { slug: 'meta-error' } });
+      297 |     expect(metadata).toEqual({ title: 'Blog' });
+
+      at Object.<anonymous> (app/__tests__/blog-slug-page.test.tsx:294:48)
+
+  ● BlogPostPage.generateMetadata › returns summary card metadata when image and excerpt are missing
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 10
+    + Received  +  3
+
+    - ObjectContaining {
+    -   "description": undefined,
+    -   "openGraph": ObjectContaining {
+    -     "images": undefined,
+    -   },
+    -   "title": "Meta Fallback",
+    -   "twitter": ObjectContaining {
+    -     "card": "summary",
+    -     "images": undefined,
+    -   },
+    + Object {
+    +   "description": "The requested blog post could not be found.",
+    +   "title": "Blog Post Not Found",
+      }
+
+      321 |     const metadata = await pageModule.generateMetadata({ params: { slug: 'meta-fallback' } });
+      322 |
+    > 323 |     expect(metadata).toEqual(
+          |                      ^
+      324 |       expect.objectContaining({
+      325 |         title: 'Meta Fallback',
+      326 |         description: undefined,
+
+      at Object.toEqual (app/__tests__/blog-slug-page.test.tsx:323:22)
+
+PASS src/middleware/__tests__/cache.test.ts
+PASS src/types/__tests__/filters.test.ts
+PASS app/api/reviews/listing/[slug]/route.test.ts
+PASS src/lib/viewCountPersistence.test.ts
+PASS src/lib/performance/__tests__/plausible.test.ts
+PASS app/api/preview/exit/__tests__/route.test.ts
+PASS app/search/results/helpers.test.ts
+PASS src/lib/__tests__/redis.test.ts
+PASS src/lib/auth/clientAuth.test.tsx
+PASS src/utils/__tests__/sanitize.test.ts
+FAIL app/search/results/page.test.tsx
+  ● Search results page module › exposes the dynamic route setting
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "force-dynamic"
+    Received: undefined
+
+      56 |
+      57 |   it('exposes the dynamic route setting', () => {
+    > 58 |     expect(dynamic).toBe('force-dynamic');
+         |                     ^
+      59 |   });
+      60 |
+      61 |   it('renders listings when the backend returns results', async () => {
+
+      at Object.toBe (app/search/results/page.test.tsx:58:21)
+
+PASS src/hooks/__tests__/useFilters.test.ts
+PASS src/types/__tests__/listing.test.ts
+PASS app/listings/[slug]/__tests__/page.test.tsx
+PASS src/types/__tests__/ui.test.ts
+PASS src/lib/dashboard/__tests__/user-dashboard.test.ts
+PASS src/models/__tests__/LoginAttempt.test.ts
+PASS app/api/user/reviews/__tests__/route.test.ts
+PASS app/api/auth/update-profile/route.test.ts
+PASS src/lib/__tests__/logger.test.ts
+PASS src/utils/__tests__/auth-helpers.test.ts
+FAIL src/middleware/__tests__/main-middleware.test.ts
+  ● createMiddleware › bypasses Next.js internals without adding security headers
+
+    TypeError: createMiddlewareFn is not a function
+
+      142 |   it('bypasses Next.js internals without adding security headers', async () => {
+      143 |     const getToken = jest.fn().mockResolvedValue(null);
+    > 144 |     const middleware = createMiddlewareFn({
+          |                        ^
+      145 |       getToken,
+      146 |       NextResponse: { next: nextMock, redirect: redirectMock, json: jsonMock },
+      147 |     });
+
+      at Object.createMiddlewareFn (src/middleware/__tests__/main-middleware.test.ts:144:24)
+
+  ● createMiddleware › redirects authenticated users away from auth pages with security headers
+
+    TypeError: createMiddlewareFn is not a function
+
+      154 |   it('redirects authenticated users away from auth pages with security headers', async () => {
+      155 |     const getToken = jest.fn().mockResolvedValue({ role: 'user' });
+    > 156 |     const middleware = createMiddlewareFn({
+          |                        ^
+      157 |       getToken,
+      158 |       NextResponse: { next: nextMock, redirect: redirectMock, json: jsonMock },
+      159 |     });
+
+      at Object.createMiddlewareFn (src/middleware/__tests__/main-middleware.test.ts:156:24)
+
+  ● createMiddleware › redirects unauthenticated users on protected routes to signin with callback
+
+    TypeError: createMiddlewareFn is not a function
+
+      170 |   it('redirects unauthenticated users on protected routes to signin with callback', async () => {
+      171 |     const getToken = jest.fn().mockResolvedValue(null);
+    > 172 |     const middleware = createMiddlewareFn({
+          |                        ^
+      173 |       getToken,
+      174 |       NextResponse: { next: nextMock, redirect: redirectMock, json: jsonMock },
+      175 |     });
+
+      at Object.createMiddlewareFn (src/middleware/__tests__/main-middleware.test.ts:172:24)
+
+  ● createMiddleware › denies API access when authenticated user lacks permissions
+
+    TypeError: createMiddlewareFn is not a function
+
+      184 |   it('denies API access when authenticated user lacks permissions', async () => {
+      185 |     const getToken = jest.fn().mockResolvedValue({ role: 'user' });
+    > 186 |     const middleware = createMiddlewareFn({
+          |                        ^
+      187 |       getToken,
+      188 |       NextResponse: { next: nextMock, redirect: redirectMock, json: jsonMock },
+      189 |     });
+
+      at Object.createMiddlewareFn (src/middleware/__tests__/main-middleware.test.ts:186:24)
+
+  ● createMiddleware › allows authorized admin access to protected pages
+
+    TypeError: createMiddlewareFn is not a function
+
+      197 |   it('allows authorized admin access to protected pages', async () => {
+      198 |     const getToken = jest.fn().mockResolvedValue({ role: 'admin' });
+    > 199 |     const middleware = createMiddlewareFn({
+          |                        ^
+      200 |       getToken,
+      201 |       NextResponse: { next: nextMock, redirect: redirectMock, json: jsonMock },
+      202 |     });
+
+      at Object.createMiddlewareFn (src/middleware/__tests__/main-middleware.test.ts:199:24)
+
+  ● createMiddleware › returns authentication required for protected API routes
+
+    TypeError: createMiddlewareFn is not a function
+
+      209 |   it('returns authentication required for protected API routes', async () => {
+      210 |     const getToken = jest.fn().mockResolvedValue(null);
+    > 211 |     const middleware = createMiddlewareFn({
+          |                        ^
+      212 |       getToken,
+      213 |       NextResponse: { next: nextMock, redirect: redirectMock, json: jsonMock },
+      214 |     });
+
+      at Object.createMiddlewareFn (src/middleware/__tests__/main-middleware.test.ts:211:24)
+
+  ● createMiddleware › logs errors and falls back to allowing the request with security headers
+
+    TypeError: createMiddlewareFn is not a function
+
+      223 |     const error = new Error('boom');
+      224 |     const getToken = jest.fn().mockRejectedValue(error);
+    > 225 |     const middleware = createMiddlewareFn({
+          |                        ^
+      226 |       getToken,
+      227 |       NextResponse: { next: nextMock, redirect: redirectMock, json: jsonMock },
+      228 |     });
+
+      at Object.createMiddlewareFn (src/middleware/__tests__/main-middleware.test.ts:225:24)
+
+  ● createMiddleware › redirects authenticated users without page access to home with error flag
+
+    TypeError: createMiddlewareFn is not a function
+
+      238 |   it('redirects authenticated users without page access to home with error flag', async () => {
+      239 |     const getToken = jest.fn().mockResolvedValue({ role: 'user' });
+    > 240 |     const middleware = createMiddlewareFn({
+          |                        ^
+      241 |       getToken,
+      242 |       NextResponse: { next: nextMock, redirect: redirectMock, json: jsonMock },
+      243 |     });
+
+      at Object.createMiddlewareFn (src/middleware/__tests__/main-middleware.test.ts:240:24)
+
+PASS src/lib/performance/__tests__/collector.test.ts
+PASS app/api/user/analytics/route.test.ts
+PASS app/__tests__/cities-slug-page.test.tsx
+PASS src/lib/highlight.test.tsx
+PASS app/api/cities/[slug]/__tests__/route.test.ts
+PASS app/contact-us/__tests__/page.test.tsx
+PASS app/api/auth/reset-password/__tests__/route.test.ts
+PASS app/api/listings/[slug]/route.test.ts
+PASS src/tests/mocks/factories.test.ts
+PASS src/components/ui/__tests__/skip-link.test.tsx
+PASS app/api/admin/listings/__tests__/route.test.ts
+PASS src/utils/__tests__/priceRange.test.ts
+PASS app/api/mock-env/__tests__/route.test.ts
+PASS src/components/city/__tests__/CityDetailView.test.tsx
+PASS src/lib/__tests__/rate-limit.test.ts
+PASS src/lib/performance/__tests__/withPerformanceTracking.test.tsx
+PASS src/lib/auth/withAuth.test.tsx
+PASS app/api/featured-listings/route.test.ts
+PASS app/api/admin/moderation/__tests__/route.test.ts
+PASS src/models/__tests__/AnalyticsEvent.test.ts
+PASS src/types/__tests__/enums.test.ts
+PASS src/tests/helpers/assertions.test.ts
+PASS src/lib/__tests__/adapters.test.ts
+PASS app/dashboard/components/__tests__/VenueListingManagement.test.tsx
+PASS app/auth/login/__tests__/LoginForm.test.tsx
+PASS src/components/__tests__/AnimatedNumber.test.tsx
+PASS app/api/auth/[...nextauth]/__tests__/route.test.ts
+PASS src/lib/__tests__/listing-views.test.ts
+PASS app/api/auth/request-password-reset/__tests__/route.test.ts
+PASS src/utils/__tests__/revalidation-token.test.ts
+PASS src/components/profile/__tests__/ProfileEditForm.test.tsx
+FAIL app/cities/[slug]/page.test.tsx
+  ● generateStaticParams › should return an empty array if fetching slugs fails
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 5
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "slug": "empty-city",
+    +   },
+    + ]
+
+      205 |     const result = await generateStaticParams();
+      206 |
+    > 207 |     expect(result).toEqual([]);
+          |                    ^
+      208 |     expect(structuredLogger.error).toHaveBeenCalledWith(
+      209 |       'Failed to generate static params for city pages',
+      210 |       expect.any(Error),
+
+      at Object.toEqual (app/cities/[slug]/page.test.tsx:207:20)
+
+  ● generateStaticParams › should return an empty array if getAllCitySlugs returns empty array
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 5
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "slug": "empty-city",
+    +   },
+    + ]
+
+      221 |     const result = await generateStaticParams();
+      222 |
+    > 223 |     expect(result).toEqual([]);
+          |                    ^
+      224 |   });
+      225 | });
+      226 |
+
+      at Object.toEqual (app/cities/[slug]/page.test.tsx:223:20)
+
+PASS src/lib/__tests__/newsletterTokens.test.ts
+PASS src/lib/__tests__/sanity-batch-processor.test.ts
+PASS src/lib/performance/__tests__/alert-service.test.ts
+PASS app/api/upload/__tests__/route.test.ts
+PASS src/utils/__tests__/tag-styles.test.ts
+PASS src/components/listings/__tests__/NoListingsFound.test.tsx
+PASS src/components/ui/__tests__/StarRating.test.tsx
+/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/src/lib/mongodb.ts:61
+        throw new Error(`Please add your MongoDB URI to ${envFile}`);
+              ^
+
+Error: Please add your MongoDB URI to .env.local
+    at getClientPromise (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/src/lib/mongodb.ts:61:15)
+    at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/src/lib/mongodb.ts:103:5
+    at new Promise (<anonymous>)
+    at Object.<anonymous> (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/src/lib/mongodb.ts:102:18)
+    at Runtime._execModule (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/jest-runtime@29.7.0/node_modules/jest-runtime/build/index.js:1439:24)
+    at Runtime._loadModule (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/jest-runtime@29.7.0/node_modules/jest-runtime/build/index.js:1022:12)
+    at Runtime.requireModule (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/jest-runtime@29.7.0/node_modules/jest-runtime/build/index.js:882:12)
+    at Runtime.requireModuleOrMock (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/jest-runtime@29.7.0/node_modules/jest-runtime/build/index.js:1048:21)
+    at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/src/lib/__tests__/mongodb.test.ts:63:18
+    at Object.<anonymous> (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/src/lib/__tests__/mongodb.test.ts:63:5)
+
+Node.js v22.21.0
+/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  app-next-directory@0.1.0 test:unit: `cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --runInBand --passWithNoTests --runInBand --detectOpenHandles`
+Exit status 1
+ ELIFECYCLE  Command failed with exit code 1.

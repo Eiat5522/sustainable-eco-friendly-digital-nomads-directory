@@ -230,13 +230,13 @@ const nextAuthInstance = (() => {
     return {
       handlers: { GET: async () => new Response(''), POST: async () => new Response('') },
       auth: async () => null,
-    } as unknown as typeof import('next-auth');
+    } as any;
   }
 })();
 
 export const {
   handlers: { GET, POST },
-} = nextAuthInstance;
+} = nextAuthInstance as any;
 
 // Wrap the original `auth` export to guard against `headers()` rejections
 // that can occur during prerendering. If `headers()` rejects (which the

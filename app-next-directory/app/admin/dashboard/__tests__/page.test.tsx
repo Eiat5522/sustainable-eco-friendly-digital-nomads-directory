@@ -73,116 +73,34 @@ describe('AdminDashboardPage', () => {
     mockLogger.error.mockReset();
   });
 
-  it('renders analytics overview for admin users', async () => {
-    mockAuth.mockResolvedValueOnce({
-      user: { id: 'admin-1', role: 'admin' },
-    });
-    const snapshot = buildSnapshot();
-    mockFetchAnalytics.mockImplementation(async () => snapshot);
-
+  it('renders simplified dashboard message', async () => {
     const AdminDashboardPage = (await import('../page')).default;
     const element = await AdminDashboardPage();
     render(element);
 
-    expect(mockFetchAnalytics).toHaveBeenCalledTimes(1);
-    expect(await screen.findByTestId('admin-dashboard')).toBeInTheDocument();
-    expect(screen.getByTestId('admin-dashboard-title')).toHaveTextContent('Admin Dashboard');
-    expect(screen.getByTestId('pending-tasks')).toHaveTextContent('3 tasks assigned');
-    expect(screen.getByText('Eco Stay')).toBeInTheDocument();
-    expect(await screen.findByTestId('moderation-actions-queue-1')).toBeInTheDocument();
-    expect(redirectMock).not.toHaveBeenCalled();
+    expect(screen.getByText('Admin Dashboard')).toBeInTheDocument();
+    expect(
+      screen.getByText(/temporarily simplified during the Next.js 16 Cache Components migration/i)
+    ).toBeInTheDocument();
+    expect(screen.getByText('Manage Users')).toBeInTheDocument();
+    expect(screen.getByText('Manage Listings')).toBeInTheDocument();
+    expect(screen.getByText('Settings')).toBeInTheDocument();
+    expect(screen.getByText('Back to Site')).toBeInTheDocument();
   });
 
-  it('shows fallback UI when analytics loading fails', async () => {
-    mockAuth.mockResolvedValueOnce({
-      user: { id: 'admin-2', role: 'admin' },
-    });
-    mockFetchAnalytics.mockRejectedValueOnce(new Error('boom'));
+  it('has correct navigation links', async () => {
     const AdminDashboardPage = (await import('../page')).default;
     const element = await AdminDashboardPage();
     render(element);
 
-    expect(screen.getByText(/Unable to load dashboard data/i)).toBeInTheDocument();
-    expect(mockLogger.error).toHaveBeenCalledWith(
-      'Failed to fetch admin analytics',
-      expect.any(Error),
-      {
-        component: 'AdminDashboardPage',
-        errorType: 'Error',
-        route: '/admin/dashboard',
-      }
-    );
-  });
+    const usersLink = screen.getByText('Manage Users').closest('a');
+    const listingsLink = screen.getByText('Manage Listings').closest('a');
+    const settingsLink = screen.getByText('Settings').closest('a');
+    const homeLink = screen.getByText('Back to Site').closest('a');
 
-  it('shows timeout specific messaging when analytics request times out', async () => {
-    mockAuth.mockResolvedValueOnce({
-      user: { id: 'admin-4', role: 'admin' },
-    });
-    mockFetchAnalytics.mockRejectedValueOnce(
-      new RequestTimeoutError('Fetching admin analytics timed out')
-    );
-
-    const AdminDashboardPage = (await import('../page')).default;
-    const element = await AdminDashboardPage();
-    render(element);
-
-    expect(screen.getByText(/dashboard data request timed out/i)).toBeInTheDocument();
-    expect(mockLogger.error).toHaveBeenCalledWith(
-      'Failed to fetch admin analytics',
-      expect.any(RequestTimeoutError),
-      {
-        component: 'AdminDashboardPage',
-        errorType: 'RequestTimeoutError',
-        route: '/admin/dashboard',
-      }
-    );
-  });
-
-  it('normalizes incomplete analytics data', async () => {
-    mockAuth.mockResolvedValueOnce({
-      user: { id: 'admin-3', role: 'admin' },
-    });
-
-    mockFetchAnalytics.mockResolvedValueOnce({
-      overview: {
-        totalUsers: undefined,
-        totalListings: undefined,
-        totalReviews: undefined,
-        weeklySignups: undefined,
-        pendingModeration: undefined,
-      },
-      userRoles: null,
-      moderationQueue: [
-        {
-          id: null,
-          itemName: null,
-        },
-      ],
-      generatedAt: null,
-    } as any);
-
-    const AdminDashboardPage = (await import('../page')).default;
-    const element = await AdminDashboardPage();
-    render(element);
-
-    const cards = await screen.findAllByTestId('analytics-card-value');
-    cards.forEach(card => {
-      expect(card).toHaveTextContent('0');
-    });
-
-    expect(screen.getByTestId('queue-summary')).toHaveTextContent('Queue is clear');
-  });
-
-  it('redirects non-admin users to login', async () => {
-    mockAuth.mockResolvedValueOnce({
-      user: { id: 'user-1', role: 'user' },
-    });
-    redirectMock.mockImplementation(() => {
-      throw new Error('redirect');
-    });
-
-    const AdminDashboardPage = (await import('../page')).default;
-    await expect(AdminDashboardPage()).rejects.toThrow('redirect');
-    expect(redirectMock).toHaveBeenCalledWith('/auth/login?callbackUrl=/admin/dashboard');
+    expect(usersLink).toHaveAttribute('href', '/admin/users');
+    expect(listingsLink).toHaveAttribute('href', '/admin/listings');
+    expect(settingsLink).toHaveAttribute('href', '/admin/settings');
+    expect(homeLink).toHaveAttribute('href', '/');
   });
 });

@@ -1,6 +1,13 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
-jest.mock('@/lib/auth', () => ({ __esModule: true, auth: jest.fn() }));
+// Fix auth mock to properly support mockResolvedValueOnce
+const mockAuth = jest.fn() as jest.MockedFunction<typeof import('@/lib/auth').auth>;
+jest.mock('@/lib/auth', () => ({
+  __esModule: true,
+  auth: mockAuth,
+  GET: jest.fn(),
+  POST: jest.fn(),
+}));
 jest.mock('@/lib/sanity/client', () => ({
   __esModule: true,
   client: {

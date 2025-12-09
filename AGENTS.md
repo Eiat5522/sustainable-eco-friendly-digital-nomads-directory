@@ -14,7 +14,7 @@
 - `pnpm test:unit`, `pnpm test:integration`, `pnpm test:e2e`, `pnpm test:coverage` — Jest and Playwright batteries, plus coverage reporting.
 
 ## Coding Style & Naming Conventions
-- TypeScript is mandatory; honor the strict configs in each workspace `tsconfig.json`.
+- TypeScript is mandatory; honor the strict configs in each workspace `tsconfig.json`. Usage of `any` type is strictly forbidden, this will cause production build and CI pipeline to fail.
 - Prettier (`app-next-directory/.prettierrc`) enforces 2-space indentation, single quotes, trailing commas, and 100-character lines.
 - Keep components and pages in PascalCase files, hooks in camelCase prefixed with `use`, and shared utilities in `src/lib/` or `src/utils/`.
 - Align imports with the `@/` alias targeting `app-next-directory/src/`; run `pnpm lint` before pushing.

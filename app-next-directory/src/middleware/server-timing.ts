@@ -1,6 +1,9 @@
 /**
  * Server Timing Middleware (TypeScript)
  * Adds Server-Timing headers to Next.js responses. Exported `middleware` conforms to Next.js middleware API.
+ *
+ * NOTE: Do not import NextRequest/NextResponse from 'next/server' in utility files for Next.js 14+ middleware compatibility.
+ * Use compatible types or 'any' for request/response if needed, or define a minimal interface.
  */
 
 export interface TimingMetric {
@@ -43,22 +46,37 @@ export default class ServerTiming {
   }
 }
 
-import { type NextRequest, NextResponse } from 'next/server';
+// Compatible types for Next.js 14+ middleware
+type NextRequestLike = {
+  nextUrl: { pathname: string };
+  headers: Headers;
+};
 
-export const serverTimingMiddleware = (_request: NextRequest) => {
+type NextResponseLike = {
+  headers: Headers;
+  next: () => NextResponseLike;
+};
+
+// ServerTiming middleware using compatible types
+export const serverTimingMiddleware = (_request: NextRequestLike) => {
   const timing = new ServerTiming();
   timing.start('total');
 
   // Do nothing synchronous here — middleware is typically sync; to keep compatibility we measure lightweight
   timing.end('total', 'Total server processing time');
 
-  const res = NextResponse.next();
-  res.headers.set('Server-Timing', timing.getHeaderValue());
+  // Create response-like object compatible with Next.js middleware
+  const response = {
+    headers: new Headers(),
+    next: () => response,
+  };
+
+  response.headers.set('Server-Timing', timing.getHeaderValue());
 
   if (process.env.NODE_ENV === 'development') {
   }
 
-  return res;
+  return response;
 };
 
 export const config = {

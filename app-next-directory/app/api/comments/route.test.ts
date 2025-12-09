@@ -12,7 +12,12 @@ jest.mock('next/server', () => ({
   },
 }));
 
-jest.mock('@/lib/auth', () => ({ auth: jest.fn() }));
+// Fix auth mock to properly support mockResolvedValueOnce
+jest.mock('@/lib/auth', () => ({
+  auth: jest.fn(),
+  GET: jest.fn(),
+  POST: jest.fn(),
+}));
 jest.mock('@/lib/sanity/client', () => ({
   client: {
     fetch: jest.fn(),

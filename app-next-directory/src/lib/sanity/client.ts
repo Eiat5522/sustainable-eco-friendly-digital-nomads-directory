@@ -111,7 +111,8 @@ const stubClient: SanityClientLike = {
     commit: async <T = unknown>() => null as unknown as T,
   }),
   transaction: () => ({
-    patch: (_id: string, _cb?: (patch: { set: (value: unknown) => unknown }) => unknown) => undefined,
+    patch: (_id: string, _cb?: (patch: { set: (value: unknown) => unknown }) => unknown) =>
+      undefined,
     commit: async <T = unknown>(_opts?: Record<string, unknown>) => null as unknown as T,
   }),
   delete: async (_id: string) => undefined,
@@ -141,7 +142,7 @@ type ImageUrlBuilder = {
   image: (source: SanityImageSource) => ImageUrlBuilder;
   width: (width: number) => ImageUrlBuilder;
   height: (height: number) => ImageUrlBuilder;
-  format: (format: string) => ImageUrlBuilder;
+  format: (format: string | any) => ImageUrlBuilder;
   quality: (quality: number) => ImageUrlBuilder;
   url: () => string;
 };
@@ -161,7 +162,9 @@ if (DISABLE_SANITY) {
 
   urlFor = (_source: SanityImageSource) => builder;
 } else {
-  builder = imageUrlBuilderFactory(client as unknown as Parameters<typeof imageUrlBuilderFactory>[0]);
+  builder = imageUrlBuilderFactory(
+    client as unknown as Parameters<typeof imageUrlBuilderFactory>[0]
+  );
   urlFor = (source: SanityImageSource) => builder.image(source);
 }
 

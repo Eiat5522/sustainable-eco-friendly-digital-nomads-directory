@@ -58,21 +58,20 @@ sustainable-eco-friendly-digital-nomads-directory/
 
 ---
 
-## 🚦 Project Status (Q1 2025)
+## 🚦 Project Status (December 9, 2025)
 
-- **Core platform stable**: The Next.js frontend, Sanity Studio, and shared DTO layer are fully integrated and operating against the latest schema set.
-- **Documentation unified**: All root-level guides now live under [`docs/`](docs/), including the changelog, contribution workflow, and troubleshooting playbooks.
-- **Testing automation active**: Linting, type-checking, Jest unit coverage, and Playwright regression suites execute cleanly across workspaces.
-- **Content workflows ready**: Sanity content types, data migrations, and preview integrations are validated and prepared for production content seeding.
-- **Deployment pipeline verified**: Vercel deployment scripts, environment promotion steps, and monitoring hooks are documented and in use.
+- **Next.js 16 migration in progress**: The monorepo is running on the feature branch that enables cache components, async route data, and the simplified Turbopack-friendly `next.config` as documented in `app-next-directory/docs/Upgrade Nextjs v.16/`. The new middleware/runtime helpers and migration guides keep production workloads aligned with the latest Next.js platform.
+- **Documentation consolidated**: The root documentation hub (`docs/`, `docs/REFERENCE/`, and workspace-specific guides) is fully merged, last refreshed in December 2024, and continues to drive onboarding, testing, and deployment knowledge.
+- **Testing automation adapting**: Jest, Playwright, and auxiliary tooling are being updated for the asynchronous params/searchParams requirements introduced in Next.js 16; existing suites cover auth, analytics, and search flows while new helper docs outline the updated mocking strategies.
+- **Content workflows live**: Sanity schemas, migration scripts, and preview integrations remain validated, with content authors able to stage eco-friendly listings and traveler stories through the documented CMS workflow.
+- **Deployment readiness**: Vercel builds, GitHub Actions, and monitoring hooks remain active while the team validates Next.js 16 production builds and prepares the pilot environment for the refreshed frontend.
 
 ---
 
 ## 🔜 Next Steps
-
-- Launch curated pilot content set and publish beta marketing page.
-- Implement analytics dashboards for sustainability metrics and traveler engagement.
-- Continue performance profiling and accessibility audits ahead of public launch.
+- Finish the Next.js 16 upgrade by locking in Cache Component behaviors, finalizing the middleware/runtime helpers, and removing legacy Webpack flags so production builds run without forced FailFast errors.
+- Stabilize the Jest + Playwright suites for the new async route data model, refresh snapshots where required, and regenerate any mocks/fixtures that now expose Promise-based params.
+- Prepare the curated pilot content release by syncing Sanity drafts, verifying preview links, and publishing the refreshed marketing page once the Next.js 16 build is green.
 
 ---
 

@@ -770,6 +770,9 @@ jest.mock('@/lib/email', () => {
 // Some module resolution/interop paths may produce non-mock functions; this
 // guarantees tests can call `.mockReturnValue` / `.mockResolvedValue` safely.
 (() => {
+  // Load the actual module synchronously to avoid teardown issues
+  const actual = jest.requireActual('@/lib/auth/config') as Record<string, unknown>;
+  
   import('@/lib/auth/config')
     .then(ac => {
       // Coerce both named and default exports to jest.fn compatible functions
@@ -782,8 +785,6 @@ jest.mock('@/lib/email', () => {
           obj[key] = jest.fn(fallback);
         }
       };
-
-      const actual = jest.requireActual('@/lib/auth/config') as Record<string, unknown>;
 
       ensureMock(ac, 'isEmailVerificationRequired', (...args: unknown[]) =>
         (actual.isEmailVerificationRequired as (...fnArgs: unknown[]) => unknown)(...args)

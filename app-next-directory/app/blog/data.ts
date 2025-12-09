@@ -23,7 +23,9 @@ export async function getPostsCached(params: {
   }
   const json: unknown = await res.json();
   if (json && typeof json === 'object' && 'success' in json) {
-    const response = json as { data?: { posts: unknown[]; pagination: unknown; uniqueTags: string[] } };
+    const response = json as {
+      data?: { posts: unknown[]; pagination: unknown; uniqueTags: string[] };
+    };
     const { data } = response;
     if (!data || !Array.isArray(data.posts)) {
       throw new Error('Blog API responded with missing/invalid data');

@@ -121,10 +121,10 @@ async function analyzeContent(): Promise<ContentAnalysisResult> {
 
       if (similarity > DUPLICATE_SIMILARITY_THRESHOLD) {
         result.duplicateContent.push({
-          listing1Id: listing1._id,
-          listing1Name: listing1.name,
-          listing2Id: listing2._id,
-          listing2Name: listing2.name,
+          listing1Id: listing1._id!,
+          listing1Name: listing1.name!,
+          listing2Id: listing2._id!,
+          listing2Name: listing2.name!,
           similarity,
         });
       }

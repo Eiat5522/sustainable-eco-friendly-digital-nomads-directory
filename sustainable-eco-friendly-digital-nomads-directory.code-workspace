@@ -43,6 +43,7 @@
         "connectionTimeout": 30
       }
     ],
-    "terminal.integrated.defaultProfile.linux": "bash"
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "chatgpt.runCodexInWindowsSubsystemForLinux": true
   }
 }

@@ -42,7 +42,7 @@ jest.mock('./server', () => ({
 
 describe('Search results page module', () => {
   let ResultsPage: typeof import('./page')['default'];
-  let dynamic: typeof import('./page')['dynamic'];
+  let dynamic: typeof import('./page')['dynamic'] | undefined;
 
   beforeAll(async () => {
     const mod = await import('./page');
@@ -55,7 +55,9 @@ describe('Search results page module', () => {
   });
 
   it('exposes the dynamic route setting', () => {
-    expect(dynamic).toBe('force-dynamic');
+    // In Next.js 16 with Cache Components, dynamic exports are no longer needed
+    // as all pages are dynamic by default
+    expect(dynamic).toBeUndefined();
   });
 
   it('renders listings when the backend returns results', async () => {

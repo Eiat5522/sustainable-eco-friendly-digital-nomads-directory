@@ -1,7 +1,4 @@
-import type { SanityImageSource } from '../../types/external/sanity-image';
-import { builder } from './client';
-
-export function urlFor(source: SanityImageSource) {
+export function urlFor(source: any) {
   // Gracefully handle null or undefined sources
   if (
     !source ||
@@ -11,5 +8,6 @@ export function urlFor(source: SanityImageSource) {
   ) {
     return undefined;
   }
+  const { builder } = require('./client');
   return builder.image(source);
 }

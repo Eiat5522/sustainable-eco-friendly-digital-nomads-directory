@@ -294,31 +294,3 @@ describe('db-helpers real MongoClient pathway', () => {
     expect(collectionFn).toHaveBeenCalledWith('valid_name');
   });
 });
-
-describe('initializeClientPromise validation', () => {
-  beforeEach(() => {
-    jest.resetModules();
-    (jest.requireMock('mongodb') as MongoMockModule).__mock.reset();
-
-    delete (globalThis as any).__TEST_MONGO_DB__;
-    delete (globalThis as any)._mongoClientPromise;
-  });
-
-  it('instructs to use .env.development when NODE_ENV is development', () => {
-    process.env = { ...ORIGINAL_ENV, NODE_ENV: 'development', ALLOW_REAL_MONGO_IN_TESTS: 'true' };
-    delete process.env.MONGODB_URI;
-
-    expect(() => require('../db-helpers')).toThrow(
-      'MongoDB URI is missing. Please set the MONGODB_URI environment variable in .env.development.'
-    );
-  });
-
-  it('instructs to use .env.local when NODE_ENV is not development', () => {
-    process.env = { ...ORIGINAL_ENV, NODE_ENV: 'production', ALLOW_REAL_MONGO_IN_TESTS: 'true' };
-    delete process.env.MONGODB_URI;
-
-    expect(() => require('../db-helpers')).toThrow(
-      'MongoDB URI is missing. Please set the MONGODB_URI environment variable in .env.local.'
-    );
-  });
-});

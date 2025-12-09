@@ -103,7 +103,7 @@ jest.mock('@/types/auth', () => ({
   ACCESS_CONTROL_MATRIX: matrix,
 }));
 
-let createMiddlewareFn: typeof import('../../middleware').createMiddleware;
+let createMiddleware: typeof import('../index').createMiddleware;
 
 const buildRequest = (pathname: string) => {
   const url = new URL(`https://example.com${pathname}`);
@@ -123,8 +123,8 @@ const getHeader = (response: MockResponse, name: string) => response.headers.sto
 
 beforeAll(async () => {
   process.env.NEXTAUTH_SECRET = 'test-secret';
-  const mod = await import('../../middleware');
-  createMiddlewareFn = mod.createMiddleware;
+  const mod = await import('../index');
+  createMiddleware = mod.createMiddleware;
 });
 
 beforeEach(() => {
@@ -141,7 +141,7 @@ beforeEach(() => {
 describe('createMiddleware', () => {
   it('bypasses Next.js internals without adding security headers', async () => {
     const getToken = jest.fn().mockResolvedValue(null);
-    const middleware = createMiddlewareFn({
+    const middleware = createMiddleware({
       getToken,
       NextResponse: { next: nextMock, redirect: redirectMock, json: jsonMock },
     });
@@ -153,7 +153,7 @@ describe('createMiddleware', () => {
 
   it('redirects authenticated users away from auth pages with security headers', async () => {
     const getToken = jest.fn().mockResolvedValue({ role: 'user' });
-    const middleware = createMiddlewareFn({
+    const middleware = createMiddleware({
       getToken,
       NextResponse: { next: nextMock, redirect: redirectMock, json: jsonMock },
     });
@@ -169,7 +169,7 @@ describe('createMiddleware', () => {
 
   it('redirects unauthenticated users on protected routes to signin with callback', async () => {
     const getToken = jest.fn().mockResolvedValue(null);
-    const middleware = createMiddlewareFn({
+    const middleware = createMiddleware({
       getToken,
       NextResponse: { next: nextMock, redirect: redirectMock, json: jsonMock },
     });
@@ -183,7 +183,7 @@ describe('createMiddleware', () => {
 
   it('denies API access when authenticated user lacks permissions', async () => {
     const getToken = jest.fn().mockResolvedValue({ role: 'user' });
-    const middleware = createMiddlewareFn({
+    const middleware = createMiddleware({
       getToken,
       NextResponse: { next: nextMock, redirect: redirectMock, json: jsonMock },
     });
@@ -196,7 +196,7 @@ describe('createMiddleware', () => {
 
   it('allows authorized admin access to protected pages', async () => {
     const getToken = jest.fn().mockResolvedValue({ role: 'admin' });
-    const middleware = createMiddlewareFn({
+    const middleware = createMiddleware({
       getToken,
       NextResponse: { next: nextMock, redirect: redirectMock, json: jsonMock },
     });
@@ -208,7 +208,7 @@ describe('createMiddleware', () => {
 
   it('returns authentication required for protected API routes', async () => {
     const getToken = jest.fn().mockResolvedValue(null);
-    const middleware = createMiddlewareFn({
+    const middleware = createMiddleware({
       getToken,
       NextResponse: { next: nextMock, redirect: redirectMock, json: jsonMock },
     });
@@ -222,7 +222,7 @@ describe('createMiddleware', () => {
   it('logs errors and falls back to allowing the request with security headers', async () => {
     const error = new Error('boom');
     const getToken = jest.fn().mockRejectedValue(error);
-    const middleware = createMiddlewareFn({
+    const middleware = createMiddleware({
       getToken,
       NextResponse: { next: nextMock, redirect: redirectMock, json: jsonMock },
     });
@@ -230,6 +230,7 @@ describe('createMiddleware', () => {
 
     expect(middlewareErrorMock).toHaveBeenCalledWith('main-middleware', error, {
       traceId: 'trace-id',
+      pathname: '/somewhere',
     });
     expect(nextMock).toHaveBeenCalledTimes(1);
     expect(getHeader(response, 'X-Frame-Options')).toBe('DENY');
@@ -237,7 +238,7 @@ describe('createMiddleware', () => {
 
   it('redirects authenticated users without page access to home with error flag', async () => {
     const getToken = jest.fn().mockResolvedValue({ role: 'user' });
-    const middleware = createMiddlewareFn({
+    const middleware = createMiddleware({
       getToken,
       NextResponse: { next: nextMock, redirect: redirectMock, json: jsonMock },
     });

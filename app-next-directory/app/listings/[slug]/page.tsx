@@ -20,6 +20,8 @@ import type { CityDTO, ListingDetailDTO } from '@/types/dto';
 import type { SanityListing } from '@/types/sanity.types';
 import { getCollection } from '@/utils/db-helpers';
 
+export const revalidate = 3600;
+
 type Props = { params: Promise<{ slug: string }> };
 
 type ListingFixture = {

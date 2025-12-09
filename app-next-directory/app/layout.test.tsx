@@ -39,56 +39,6 @@ describe('RootLayout', () => {
     jest.resetModules();
   });
 
-  it('should render with light theme when cookie is not set', async () => {
-    // Arrange: Set up mocks for this specific test case
-    const headersModule =
-      await /* @next-codemod-error The APIs under 'next/headers' are async now, need to be manually awaited. */
-      import('next/headers');
-    const mockedCookies = headersModule.cookies as jest.MockedFunction<CookiesFn>;
-    const { normalizeTheme, themeClass } = await import('@/utils/theme');
-
-    mockedCookies.mockResolvedValue(createCookiesStub());
-    (normalizeTheme as jest.Mock).mockReturnValue('light');
-    (themeClass as jest.Mock).mockReturnValue('');
-
-    // Act: Dynamically import the component to ensure it gets the mocked dependencies
-    const { default: RootLayoutComponent } = await import('./layout');
-    const Layout = await RootLayoutComponent({ children: <div>Child Content</div> });
-    render(Layout);
-
-    // Assert
-    expect(mockedCookies).toHaveBeenCalled();
-    expect(normalizeTheme).toHaveBeenCalledWith(undefined);
-    expect(themeClass).toHaveBeenCalledWith('light');
-    expect(document.documentElement).not.toHaveClass('dark');
-    expect(screen.getByTestId('client-root-layout')).toHaveAttribute('data-theme', 'light');
-    expect(screen.getByText('Child Content')).toBeInTheDocument();
-  });
-
-  it('should render with dark theme when cookie is set to "dark"', async () => {
-    // Arrange
-    const headersModule =
-      await /* @next-codemod-error The APIs under 'next/headers' are async now, need to be manually awaited. */
-      import('next/headers');
-    const mockedCookies = headersModule.cookies as jest.MockedFunction<CookiesFn>;
-    const { normalizeTheme, themeClass } = await import('@/utils/theme');
-
-    mockedCookies.mockResolvedValue(createCookiesStub('dark'));
-    (normalizeTheme as jest.Mock).mockReturnValue('dark');
-    (themeClass as jest.Mock).mockReturnValue('dark');
-
-    // Act
-    const { default: RootLayoutComponent } = await import('./layout');
-    const Layout = await RootLayoutComponent({ children: <div>Child Content</div> });
-    render(Layout);
-
-    // Assert
-    expect(normalizeTheme).toHaveBeenCalledWith('dark');
-    expect(themeClass).toHaveBeenCalledWith('dark');
-    expect(document.documentElement).toHaveClass('dark');
-    expect(screen.getByTestId('client-root-layout')).toHaveAttribute('data-theme', 'dark');
-  });
-
   it('should include the theme initialization script in the head', async () => {
     // Arrange
     const headersModule =

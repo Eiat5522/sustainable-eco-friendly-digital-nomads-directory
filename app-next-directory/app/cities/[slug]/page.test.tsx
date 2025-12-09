@@ -199,12 +199,13 @@ describe('generateStaticParams', () => {
     expect(getAllCitySlugs).toHaveBeenCalledTimes(1);
   });
 
-  it('should return an empty array if fetching slugs fails', async () => {
+  it('should return a fallback param if fetching slugs fails', async () => {
     (getAllCitySlugs as jest.Mock).mockRejectedValue(new Error('Fetch error'));
 
     const result = await generateStaticParams();
 
-    expect(result).toEqual([]);
+    // With Cache Components in Next.js 16, generateStaticParams must return at least one param
+    expect(result).toEqual([{ slug: 'empty-city' }]);
     expect(structuredLogger.error).toHaveBeenCalledWith(
       'Failed to generate static params for city pages',
       expect.any(Error),
@@ -215,11 +216,12 @@ describe('generateStaticParams', () => {
     );
   });
 
-  it('should return an empty array if getAllCitySlugs returns empty array', async () => {
+  it('should return a fallback param if getAllCitySlugs returns empty array', async () => {
     (getAllCitySlugs as jest.Mock).mockResolvedValue([]);
 
     const result = await generateStaticParams();
 
-    expect(result).toEqual([]);
+    // With Cache Components in Next.js 16, generateStaticParams must return at least one param
+    expect(result).toEqual([{ slug: 'empty-city' }]);
   });
 });

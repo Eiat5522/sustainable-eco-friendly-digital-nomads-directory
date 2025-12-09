@@ -17,6 +17,14 @@ jest.mock('@/lib/logger', () => ({
     info: jest.fn(),
     warn: jest.fn(),
     error: jest.fn(),
+    debug: jest.fn(),
+    performance: jest.fn(),
+  },
+  structuredLogger: {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
     performance: jest.fn(),
   },
 }));
@@ -118,6 +126,12 @@ describe('Blog [slug] API', () => {
         const params = Promise.resolve({ slug: 'sustainable-living-guide' });
         const response = await GET(request as any, { params });
         const data = await response.json();
+
+        // Debug: log response if not 200
+        if (response.status !== 200) {
+          console.log('Response status:', response.status);
+          console.log('Response data:', data);
+        }
 
         expect(response.status).toBe(200);
         expect(data.success).toBe(true);

@@ -52,7 +52,8 @@ describe('Sanity Library', () => {
 
   describe('Initialization', () => {
     it('should create the standard client with production config (useCdn: true)', () => {
-      expect(mockCreateClient).toHaveBeenCalledWith(
+      expect(mockCreateClient).toHaveBeenNthCalledWith(
+        1,
         expect.objectContaining({
           projectId: 'test-project-id',
           dataset: 'test-dataset',
@@ -63,7 +64,8 @@ describe('Sanity Library', () => {
     });
 
     it('should create the preview client with preview config (useCdn: false)', () => {
-      expect(mockCreateClient).toHaveBeenCalledWith(
+      expect(mockCreateClient).toHaveBeenNthCalledWith(
+        2,
         expect.objectContaining({
           projectId: 'test-project-id',
           dataset: 'test-dataset',

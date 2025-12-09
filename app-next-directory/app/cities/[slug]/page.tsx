@@ -1,3 +1,4 @@
+import { cacheLife } from 'next/cache';
 import { CityDetailView } from '@/components/city/CityDetailView';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
@@ -14,11 +15,6 @@ import {
   CityDTOSchema,
   ListingSummaryDTOArraySchema,
 } from '@/types/dto-schemas';
-
-// MIGRATED: Removed `export const revalidate = 300` (incompatible with
-// cacheComponents). To migrate, consider adding `"use cache"` in the
-// data-fetch helper and selecting an appropriate `cacheLife()` profile.
-// TODO: decide cacheLife profile and add `cacheLife()` in the helper.
 
 type Params = { slug: string };
 type Props = { params: Params | Promise<Params> };
