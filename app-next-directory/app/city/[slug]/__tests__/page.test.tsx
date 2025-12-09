@@ -20,15 +20,15 @@ beforeEach(() => {
 });
 
 describe('LegacyCityAlias page', () => {
-  it('permanently redirects to the updated city route', () => {
-    LegacyCityAlias({ params: { slug: 'barcelona' } });
+  it('permanently redirects to the updated city route', async () => {
+    await LegacyCityAlias({ params: Promise.resolve({ slug: 'barcelona' }) });
 
     expect(permanentRedirectMock).toHaveBeenCalledTimes(1);
     expect(permanentRedirectMock).toHaveBeenCalledWith('/cities/barcelona');
   });
 
-  it('encodes complex slugs before redirecting', () => {
-    LegacyCityAlias({ params: { slug: 'São Paulo' } });
+  it('encodes complex slugs before redirecting', async () => {
+    await LegacyCityAlias({ params: Promise.resolve({ slug: 'São Paulo' }) });
 
     expect(permanentRedirectMock).toHaveBeenCalledWith('/cities/S%C3%A3o%20Paulo');
   });

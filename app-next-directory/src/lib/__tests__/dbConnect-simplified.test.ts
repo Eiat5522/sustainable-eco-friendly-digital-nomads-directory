@@ -131,12 +131,17 @@ describe('dbConnect helper', () => {
     });
   });
 
-  it('throws during module evaluation when MONGODB_URI is missing', async () => {
+  it('throws when calling dbConnect with missing MONGODB_URI in non-Jest mode', async () => {
     delete process.env.MONGODB_URI;
+    delete process.env.JEST_WORKER_ID;
+    delete process.env.SKIP_DB_CONNECT;
+    delete process.env.JEST_USE_REAL_MONGOOSE;
     jest.resetModules();
     resetGlobalMongoose();
 
-    await expect(import('../dbConnect')).rejects.toThrow(
+    const { default: dbConnect } = await import('../dbConnect');
+    // In non-Jest mode, dbConnect becomes connectWithCaching which validates on call
+    await expect(dbConnect()).rejects.toThrow(
       'MONGODB_URI environment variable is required'
     );
   });

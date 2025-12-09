@@ -1,12 +1,11 @@
 // jest/setEnvVars.js
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import dotenv from 'dotenv';
+// Use CommonJS for reliable loading in Jest's setupFiles phase
+const path = require('node:path');
+const dotenv = require('dotenv');
 
-const moduleFilename = fileURLToPath(import.meta.url);
-const moduleDirname = path.dirname(moduleFilename);
+// Load test environment variables from .env.test
+dotenv.config({ path: path.resolve(__dirname, '../.env.test') });
 
-dotenv.config({ path: path.resolve(moduleDirname, '../.env.test') });
 // Force test env to ensure unit tests use mocks instead of real services
 process.env.NODE_ENV = 'test';
 

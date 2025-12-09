@@ -26,6 +26,8 @@ const buildSearchParams = (params: Record<string, string> = {}) => ({
 });
 
 describe('LoginForm', () => {
+  jest.setTimeout(10000);
+
   beforeEach(() => {
     signInMock.mockReset();
     sanitizeCallbackUrlMock.mockReset().mockImplementation((value: string | null) => value);

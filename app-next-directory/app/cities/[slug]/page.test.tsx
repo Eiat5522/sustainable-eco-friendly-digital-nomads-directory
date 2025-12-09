@@ -106,7 +106,7 @@ describe('CityPage', () => {
     (getCityDetailBySlug as jest.Mock).mockResolvedValue(mockCity);
     (getListingsByCityId as jest.Mock).mockResolvedValue(mockListings);
 
-    const Page = await CityPage({ params: { slug: 'test-city' } });
+    const Page = await CityPage({ params: Promise.resolve({ slug: 'test-city' }) });
     render(Page);
 
     expect(screen.getByTestId('city-name')).toHaveTextContent('Test City');
@@ -119,7 +119,7 @@ describe('CityPage', () => {
     (getCityDetailBySlug as jest.Mock).mockResolvedValue(mockCity);
     (getListingsByCityId as jest.Mock).mockResolvedValue([]);
 
-    const Page = await CityPage({ params: { slug: 'test-city' } });
+    const Page = await CityPage({ params: Promise.resolve({ slug: 'test-city' }) });
     render(Page);
 
     expect(screen.getByTestId('city-name')).toHaveTextContent('Test City');
@@ -132,7 +132,7 @@ describe('CityPage', () => {
     (getCityBySlug as jest.Mock).mockResolvedValue(null);
     (getListingsByCityId as jest.Mock).mockResolvedValue([]);
 
-    const Page = await CityPage({ params: { slug: 'test-city' } });
+    const Page = await CityPage({ params: Promise.resolve({ slug: 'test-city' }) });
     render(Page);
 
     expect(screen.getByTestId('city-name')).toHaveTextContent('Test City');
@@ -144,7 +144,7 @@ describe('CityPage', () => {
   it('should log an error and render a fallback city when city data fetching fails', async () => {
     (getCityDetailBySlug as jest.Mock).mockRejectedValue(new Error('Fetch error'));
 
-    const Page = await CityPage({ params: { slug: 'test-city' } });
+    const Page = await CityPage({ params: Promise.resolve({ slug: 'test-city' }) });
     render(Page);
 
     expect(structuredLogger.error).toHaveBeenCalledWith(
@@ -167,7 +167,7 @@ describe('CityPage', () => {
     (getCityDetailBySlug as jest.Mock).mockResolvedValue(mockCity);
     (getListingsByCityId as jest.Mock).mockResolvedValue([{ id: 1, name: 'Invalid Listing' }]);
 
-    const Page = await CityPage({ params: { slug: 'test-city' } });
+    const Page = await CityPage({ params: Promise.resolve({ slug: 'test-city' }) });
     render(Page);
 
     expect(structuredLogger.error).toHaveBeenCalledWith(

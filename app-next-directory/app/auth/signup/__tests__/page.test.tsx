@@ -43,7 +43,7 @@ describe('SignupPage (server)', () => {
 
     const SignupPage = (await import('../page')).default;
 
-    await expect(SignupPage({ searchParams: { callbackUrl: '/dashboard' } })).rejects.toThrow(
+    await expect(SignupPage({ searchParams: Promise.resolve({ callbackUrl: '/dashboard' }) })).rejects.toThrow(
       'redirect'
     );
 
@@ -62,7 +62,7 @@ describe('SignupPage (server)', () => {
 
     const SignupPage = (await import('../page')).default;
 
-    await expect(SignupPage({ searchParams: { callbackUrl: '/account' } })).rejects.toThrow(
+    await expect(SignupPage({ searchParams: Promise.resolve({ callbackUrl: '/account' }) })).rejects.toThrow(
       'redirect'
     );
 
