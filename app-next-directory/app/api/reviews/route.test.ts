@@ -20,7 +20,12 @@ jest.mock('@/utils/db-helpers', () => ({ __esModule: true, getCollection: jest.f
 jest.mock('next/cache', () => ({ __esModule: true, revalidateTag: jest.fn() }));
 jest.mock('@/lib/logger', () => ({
   __esModule: true,
-  structuredLogger: { apiError: jest.fn() },
+  structuredLogger: { 
+    apiError: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    info: jest.fn(),
+  },
   getRequestContext: jest.fn().mockReturnValue({}),
 }));
 jest.mock('mongodb', () => ({
@@ -44,10 +49,19 @@ import { revalidateTag } from 'next/cache';
 import { structuredLogger } from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
 import { ensureSanityUser } from '@/lib/sanity/user';
-import { GET, POST } from './route';
 
 // Get the mocked auth function after the mock is set up
 const { auth } = jest.requireMock('@/lib/auth') as { auth: jest.Mock };
+
+// Import route handlers - these will use the mocked versions
+let GET: typeof import('./route').GET;
+let POST: typeof import('./route').POST;
+
+beforeAll(async () => {
+  const routeModule = await import('./route');
+  GET = routeModule.GET;
+  POST = routeModule.POST;
+});
 
 describe('API /api/reviews GET', () => {
   beforeEach(() => {
