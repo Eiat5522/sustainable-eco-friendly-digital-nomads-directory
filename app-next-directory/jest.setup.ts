@@ -339,7 +339,6 @@ if (process.env.JEST_CONSOLE_NO_FILTER !== '1') {
   console.log = (() => {}) as typeof console.log;
 }
 
-import { TextDecoder, TextEncoder } from 'node:util';
 // jest.setup.ts
 import { jest } from '@jest/globals';
 import '@testing-library/jest-dom';
@@ -399,36 +398,6 @@ if (process.env.JEST_RUN_INTEGRATION === '1' && process.env.JEST_USE_REAL_MONGOO
     }
     g.__GLOBAL_MONGO_SERVER__ = undefined;
   });
-}
-
-// Ensure basic globals are available before any mocks that depend on them
-// Use `Record<string, unknown>` cast here to avoid TypeScript complaining about differences
-// between Node's util TextEncoder and the DOM/global TextEncoder types.
-// This is acceptable for test setup polyfills.
-if (!(global as Record<string, unknown>).TextEncoder)
-  (global as Record<string, unknown>).TextEncoder = TextEncoder;
-if (!(global as Record<string, unknown>).TextDecoder)
-  (global as Record<string, unknown>).TextDecoder = TextDecoder;
-
-// Polyfill WHATWG Request/Response/Headers for Next.js 15 - MUST be imported early for MSW Response.clone support
-import 'whatwg-fetch';
-
-// Only attempt a node-fetch fallback if WHATWG classes are missing (e.g., non-jsdom env)
-if (
-  process.env.JEST_RUN_INTEGRATION !== '1' &&
-  ((global as Record<string, unknown>).Request == null ||
-    (global as Record<string, unknown>).Response == null ||
-    (global as Record<string, unknown>).Headers == null)
-) {
-  import('node-fetch')
-    .then(nodeFetch => {
-      global.Request = global.Request || nodeFetch.Request;
-      global.Response = global.Response || nodeFetch.Response;
-      global.Headers = global.Headers || nodeFetch.Headers;
-    })
-    .catch(() => {
-      // If node-fetch is not available or is ESM-only under CJS jest runtime, skip silently
-    });
 }
 
 // MSW setup for tests that rely on HTTP mocks
@@ -499,158 +468,6 @@ if (!(global as Record<string, unknown>).window) {
   (global as { window: { plausible?: unknown } }).window.plausible = jest.fn();
 }
 
-// Mock next/navigation globally for all tests using jest.fn
-jest.mock('next/navigation', () => ({
-  __esModule: true,
-  useRouter: jest.fn(() => ({
-    push: jest.fn(),
-    replace: jest.fn(),
-    prefetch: jest.fn(),
-    back: jest.fn(),
-    forward: jest.fn(),
-    refresh: jest.fn(),
-  })),
-  useSearchParams: jest.fn(() => new URLSearchParams()),
-  usePathname: jest.fn(() => '/'),
-  useParams: jest.fn(() => ({})),
-  notFound: jest.fn(() => {
-    throw new Error('NEXT_NOT_FOUND');
-  }),
-  redirect: jest.fn(() => {
-    throw new Error('NEXT_REDIRECT');
-  }),
-}));
-
-// Mock next/server globally for all tests
-jest.mock('next/server', () => {
-  const createHeaders = (init?: HeadersInit) => {
-    const HeadersCtor = (globalThis as unknown as { Headers: typeof Headers }).Headers;
-    if (typeof HeadersCtor === 'function') {
-      return new HeadersCtor(init ?? {});
-    }
-
-    const map = new Map<string, string>();
-    if (init) {
-      if (Array.isArray(init)) {
-        for (const [key, value] of init) map.set(key, String(value));
-      } else if (init instanceof Map) {
-        for (const [key, value] of init.entries()) map.set(key, String(value));
-      } else if (typeof init === 'object') {
-        for (const key of Object.keys(init))
-          map.set(key, String((init as Record<string, unknown>)[key]));
-      }
-    }
-
-    return {
-      get: (key: string) => map.get(key) ?? null,
-      set: (key: string, value: string) => {
-        map.set(key, value);
-        return undefined;
-      },
-      has: (key: string) => map.has(key),
-      delete: (key: string) => map.delete(key),
-      entries: () => map.entries(),
-      [Symbol.iterator]: map[Symbol.iterator].bind(map),
-    } as unknown as Headers;
-  };
-
-  class MockNextResponse {
-    public status: number;
-    public headers: Headers;
-    public ok: boolean;
-    #body: unknown;
-
-    constructor(body?: unknown, init?: { status?: number; headers?: HeadersInit }) {
-      this.#body = body;
-      this.status = init?.status ?? 200;
-      this.headers = createHeaders(init?.headers);
-      this.ok = this.status >= 200 && this.status < 300;
-    }
-
-    static next(): MockNextResponse {
-      return new MockNextResponse(null);
-    }
-
-    static redirect(url: string | URL, status = 307): MockNextResponse {
-      const target = typeof url === 'string' ? url : url.toString();
-      return new MockNextResponse(null, {
-        status,
-        headers: { Location: target },
-      });
-    }
-
-    static json(
-      data: unknown,
-      init: { status?: number; headers?: HeadersInit } = {}
-    ): MockNextResponse {
-      const headers = createHeaders({
-        'Content-Type': 'application/json',
-        ...(init.headers ?? {}),
-      });
-      return new MockNextResponse(data, { status: init.status, headers });
-    }
-
-    async json() {
-      if (typeof this.#body === 'string') {
-        try {
-          return JSON.parse(this.#body);
-        } catch (_error) {
-          return this.#body;
-        }
-      }
-      return this.#body;
-    }
-
-    async text() {
-      if (typeof this.#body === 'string') {
-        return this.#body;
-      }
-      try {
-        return JSON.stringify(this.#body);
-      } catch {
-        return String(this.#body);
-      }
-    }
-  }
-
-  class MockNextRequest {
-    public nextUrl: URL;
-    public url: string;
-    public method: string;
-    public headers: Headers;
-    #json: unknown;
-
-    constructor(
-      input: string | { url: string; method?: string; headers?: HeadersInit; json?: unknown }
-    ) {
-      if (typeof input === 'string') {
-        this.url = input;
-        this.method = 'GET';
-        this.headers = createHeaders();
-        this.#json = undefined;
-      } else {
-        this.url = input.url;
-        this.method = input.method ?? 'GET';
-        this.headers = createHeaders(input.headers);
-        this.#json = input.json;
-      }
-      this.nextUrl = new URL(
-        this.url,
-        this.url.startsWith('http') ? undefined : 'http://localhost'
-      );
-    }
-
-    async json() {
-      return this.#json ?? {};
-    }
-  }
-
-  return {
-    __esModule: true,
-    NextResponse: MockNextResponse,
-    NextRequest: MockNextRequest,
-  };
-});
 
 // NOTE: don't globally mock '@/lib/redis' here — tests that validate the
 // attach/detach helpers need to import the real module so they can assert

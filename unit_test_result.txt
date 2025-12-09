@@ -1,566 +1,371 @@
+Summary of all failing tests
+ FAIL  app/api/reviews/route.test.ts
+  ● API /api/reviews POST › rejects unauthenticated requests
 
-> sustainable-eco-friendly-digital-nomads-directory-root@0.1.3 test:unit /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory
-> pnpm --filter app-next-directory test:unit --runInBand --detectOpenHandles
-
-
-> app-next-directory@0.1.0 test:unit /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory
-> cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --runInBand --passWithNoTests --runInBand --detectOpenHandles
-
-FAIL app/admin/dashboard/__tests__/page.test.tsx (6.021 s)
-  ● AdminDashboardPage › renders analytics overview for admin users
-
-    expect(jest.fn()).toHaveBeenCalledTimes(expected)
-
-    Expected number of calls: 1
-    Received number of calls: 0
-
-      85 |     render(element);
-      86 |
-    > 87 |     expect(mockFetchAnalytics).toHaveBeenCalledTimes(1);
-         |                                ^
-      88 |     expect(await screen.findByTestId('admin-dashboard')).toBeInTheDocument();
-      89 |     expect(screen.getByTestId('admin-dashboard-title')).toHaveTextContent('Admin Dashboard');
-      90 |     expect(screen.getByTestId('pending-tasks')).toHaveTextContent('3 tasks assigned');
-
-      at Object.toHaveBeenCalledTimes (app/admin/dashboard/__tests__/page.test.tsx:87:32)
-
-  ● AdminDashboardPage › shows fallback UI when analytics loading fails
-
-    TestingLibraryElementError: Unable to find an element with the text: /Unable to load dashboard data/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
-
-    Ignored nodes: comments, script, style
-    [36m<body>[39m
-      [36m<div>[39m
-        [36m<div[39m
-          [33mclass[39m=[32m"min-h-screen flex items-center justify-center bg-gray-100"[39m
-        [36m>[39m
-          [36m<div[39m
-            [33mclass[39m=[32m"p-8 bg-white shadow-md rounded-lg text-center max-w-2xl"[39m
-          [36m>[39m
-            [36m<h1[39m
-              [33mclass[39m=[32m"text-2xl font-semibold text-gray-800 mb-4"[39m
-            [36m>[39m
-              [0mAdmin Dashboard[0m
-            [36m</h1>[39m
-            [36m<p[39m
-              [33mclass[39m=[32m"text-gray-600 mb-4"[39m
-            [36m>[39m
-              [0mThe admin dashboard is temporarily simplified during the Next.js 16 Cache Components migration.[0m
-            [36m</p>[39m
-            [36m<p[39m
-              [33mclass[39m=[32m"text-sm text-gray-500"[39m
-            [36m>[39m
-              [0mAdmin functionality is accessible. Full dashboard analytics will be restored in a future update.[0m
-            [36m</p>[39m
-            [36m<div[39m
-              [33mclass[39m=[32m"mt-6 grid grid-cols-2 gap-4"[39m
-            [36m>[39m
-              [36m<a[39m
-                [33mclass[39m=[32m"px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"[39m
-                [33mhref[39m=[32m"/admin/users"[39m
-              [36m>[39m
-                [0mManage Users[0m
-              [36m</a>[39m
-              [36m<a[39m
-                [33mclass[39m=[32m"px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"[39m
-                [33mhref[39m=[32m"/admin/listings"[39m
-              [36m>[39m
-                [0mManage Listings[0m
-              [36m</a>[39m
-              [36m<a[39m
-                [33mclass[39m=[32m"px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition"[39m
-                [33mhref[39m=[32m"/admin/settings"[39m
-              [36m>[39m
-                [0mSettings[0m
-              [36m</a>[39m
-              [36m<a[39m
-                [33mclass[39m=[32m"px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition"[39m
-                [33mhref[39m=[32m"/"[39m
-              [36m>[39m
-                [0mBack to Site[0m
-              [36m</a>[39m
-            [36m</div>[39m
-          [36m</div>[39m
-        [36m</div>[39m
-      [36m</div>[39m
-    [36m</body>[39m
-
-      103 |     render(element);
-      104 |
-    > 105 |     expect(screen.getByText(/Unable to load dashboard data/i)).toBeInTheDocument();
-          |                   ^
-      106 |     expect(mockLogger.error).toHaveBeenCalledWith(
-      107 |       'Failed to fetch admin analytics',
-      108 |       expect.any(Error),
-
-      at Object.getElementError (../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:37:19)
-      at ../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
-      at ../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
-      at ../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
-      at Object.getByText (app/admin/dashboard/__tests__/page.test.tsx:105:19)
-
-  ● AdminDashboardPage › shows timeout specific messaging when analytics request times out
-
-    TestingLibraryElementError: Unable to find an element with the text: /dashboard data request timed out/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
-
-    Ignored nodes: comments, script, style
-    [36m<body>[39m
-      [36m<div>[39m
-        [36m<div[39m
-          [33mclass[39m=[32m"min-h-screen flex items-center justify-center bg-gray-100"[39m
-        [36m>[39m
-          [36m<div[39m
-            [33mclass[39m=[32m"p-8 bg-white shadow-md rounded-lg text-center max-w-2xl"[39m
-          [36m>[39m
-            [36m<h1[39m
-              [33mclass[39m=[32m"text-2xl font-semibold text-gray-800 mb-4"[39m
-            [36m>[39m
-              [0mAdmin Dashboard[0m
-            [36m</h1>[39m
-            [36m<p[39m
-              [33mclass[39m=[32m"text-gray-600 mb-4"[39m
-            [36m>[39m
-              [0mThe admin dashboard is temporarily simplified during the Next.js 16 Cache Components migration.[0m
-            [36m</p>[39m
-            [36m<p[39m
-              [33mclass[39m=[32m"text-sm text-gray-500"[39m
-            [36m>[39m
-              [0mAdmin functionality is accessible. Full dashboard analytics will be restored in a future update.[0m
-            [36m</p>[39m
-            [36m<div[39m
-              [33mclass[39m=[32m"mt-6 grid grid-cols-2 gap-4"[39m
-            [36m>[39m
-              [36m<a[39m
-                [33mclass[39m=[32m"px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"[39m
-                [33mhref[39m=[32m"/admin/users"[39m
-              [36m>[39m
-                [0mManage Users[0m
-              [36m</a>[39m
-              [36m<a[39m
-                [33mclass[39m=[32m"px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"[39m
-                [33mhref[39m=[32m"/admin/listings"[39m
-              [36m>[39m
-                [0mManage Listings[0m
-              [36m</a>[39m
-              [36m<a[39m
-                [33mclass[39m=[32m"px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition"[39m
-                [33mhref[39m=[32m"/admin/settings"[39m
-              [36m>[39m
-                [0mSettings[0m
-              [36m</a>[39m
-              [36m<a[39m
-                [33mclass[39m=[32m"px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition"[39m
-                [33mhref[39m=[32m"/"[39m
-              [36m>[39m
-                [0mBack to Site[0m
-              [36m</a>[39m
-            [36m</div>[39m
-          [36m</div>[39m
-        [36m</div>[39m
-      [36m</div>[39m
-    [36m</body>[39m
-
-      127 |     render(element);
-      128 |
-    > 129 |     expect(screen.getByText(/dashboard data request timed out/i)).toBeInTheDocument();
-          |                   ^
-      130 |     expect(mockLogger.error).toHaveBeenCalledWith(
-      131 |       'Failed to fetch admin analytics',
-      132 |       expect.any(RequestTimeoutError),
-
-      at Object.getElementError (../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:37:19)
-      at ../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
-      at ../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
-      at ../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
-      at Object.getByText (app/admin/dashboard/__tests__/page.test.tsx:129:19)
-
-  ● AdminDashboardPage › normalizes incomplete analytics data
-
-    Unable to find an element by: [data-testid="analytics-card-value"]
-
-    Ignored nodes: comments, script, style
-    [36m<body>[39m
-      [36m<div>[39m
-        [36m<div[39m
-          [33mclass[39m=[32m"min-h-screen flex items-center justify-center bg-gray-100"[39m
-        [36m>[39m
-          [36m<div[39m
-            [33mclass[39m=[32m"p-8 bg-white shadow-md rounded-lg text-center max-w-2xl"[39m
-          [36m>[39m
-            [36m<h1[39m
-              [33mclass[39m=[32m"text-2xl font-semibold text-gray-800 mb-4"[39m
-            [36m>[39m
-              [0mAdmin Dashboard[0m
-            [36m</h1>[39m
-            [36m<p[39m
-              [33mclass[39m=[32m"text-gray-600 mb-4"[39m
-            [36m>[39m
-              [0mThe admin dashboard is temporarily simplified during the Next.js 16 Cache Components migration.[0m
-            [36m</p>[39m
-            [36m<p[39m
-              [33mclass[39m=[32m"text-sm text-gray-500"[39m
-            [36m>[39m
-              [0mAdmin functionality is accessible. Full dashboard analytics will be restored in a future update.[0m
-            [36m</p>[39m
-            [36m<div[39m
-              [33mclass[39m=[32m"mt-6 grid grid-cols-2 gap-4"[39m
-            [36m>[39m
-              [36m<a[39m
-                [33mclass[39m=[32m"px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"[39m
-                [33mhref[39m=[32m"/admin/users"[39m
-              [36m>[39m
-                [0mManage Users[0m
-              [36m</a>[39m
-              [36m<a[39m
-                [33mclass[39m=[32m"px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"[39m
-                [33mhref[39m=[32m"/admin/listings"[39m
-              [36m>[39m
-                [0mManage Listings[0m
-              [36m</a>[39m
-              [36m<a[39m
-                [33mclass[39m=[32m"px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition"[39m
-                [33mhref[39m=[32m"/admin/settings"[39m
-              [36m>[39m
-                [0mSettings[0m
-              [36m</a>[39m
-              [36m<a[39m
-                [33mclass[39m=[32m"px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition"[39m
-                [33mhref[39m=[32m"/"[39m
-              [36m>[39m
-                [0mBack to Site[0m
-              [36m</a>[39m
-            [36m</div>[39m
-          [36m</div>[39m
-        [36m</div>[39m
-      [36m</div>[39m
-    [36m</body>[39m
-
-      166 |     render(element);
-      167 |
-    > 168 |     const cards = await screen.findAllByTestId('analytics-card-value');
-          |                                ^
-      169 |     cards.forEach(card => {
-      170 |       expect(card).toHaveTextContent('0');
-      171 |     });
-
-      at waitForWrapper (../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/wait-for.js:163:27)
-      at ../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
-      at Object.findAllByTestId (app/admin/dashboard/__tests__/page.test.tsx:168:32)
-
-  ● AdminDashboardPage › redirects non-admin users to login
-
-    expect(received).rejects.toThrow()
-
-    Matcher error: received value must be a promise or a function returning a promise
-
-    Received has type:  object
-    Received has value: {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {}, "type": [Function AdminDashboardClient]}
-
-      183 |
-      184 |     const AdminDashboardPage = (await import('../page')).default;
-    > 185 |     await expect(AdminDashboardPage()).rejects.toThrow('redirect');
-          |                                                ^
-      186 |     expect(redirectMock).toHaveBeenCalledWith('/auth/login?callbackUrl=/admin/dashboard');
-      187 |   });
-      188 | });
-
-      at Object.toThrow (../node_modules/.pnpm/expect@29.7.0/node_modules/expect/build/index.js:204:13)
-      at Object.toThrow (app/admin/dashboard/__tests__/page.test.tsx:185:48)
-
-FAIL app/__tests__/page.test.tsx
-  ● HomePage › renders all sections in correct order
-
-    expect(received).toEqual(expected) // deep equality
-
-    - Expected  - 1
-    + Received  + 1
-
-      Array [
-        "page-layout",
-        "hero-section",
-    -   "featured-listings",
-        "city-carousel",
-    +   "featured-listings",
-      ]
-
-      52 |     const testIds = Array.from(sections).map(el => el.getAttribute('data-testid'));
-      53 |
-    > 54 |     expect(testIds).toEqual(['page-layout', 'hero-section', 'featured-listings', 'city-carousel']);
-         |                     ^
-      55 |   });
-      56 | });
-      57 |
-
-      at Object.toEqual (app/__tests__/page.test.tsx:54:21)
-
-FAIL app/admin/users/__tests__/page.test.tsx
-  ● Admin users page › redirects when the viewer is not an admin
-
-    expect(received).rejects.toThrow()
-
-    Received promise resolved instead of rejected
-    Resolved to value: {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [{"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [{"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": "User Management", "className": "text-3xl font-bold text-gray-900", "data-testid": "admin-users-title"}, "type": "h1"}, {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": "Manage user accounts, roles, and permissions.", "className": "mt-2 text-gray-600"}, "type": "p"}], "className": "mb-8"}, "type": "div"}, {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"currentUserId": "user-99", "currentUserRole": "user"}, "type": [Function UserManagementTable]}, "className": "bg-white shadow-sm rounded-lg border border-gray-200"}, "type": "div"}], "className": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"}, "type": "div"}, "className": "min-h-screen bg-gray-50", "data-testid": "admin-users-page"}, "type": "main"}
-
-      58 |     const AdminUsersPage = (await import('../page')).default;
-      59 |
-    > 60 |     await expect(AdminUsersPage()).rejects.toThrow('redirect');
-         |           ^
-      61 |     expect(redirectMock).toHaveBeenCalledWith('/auth/login?callbackUrl=/admin/users');
-      62 |   });
-      63 | });
-
-      at expect (../node_modules/.pnpm/expect@29.7.0/node_modules/expect/build/index.js:113:15)
-      at Object.expect (app/admin/users/__tests__/page.test.tsx:60:11)
-
-FAIL app/layout.test.tsx
-  ● RootLayout › should render with light theme when cookie is not set
-
-    expect(jest.fn()).toHaveBeenCalled()
-
-    Expected number of calls: >= 1
-    Received number of calls:    0
-
-      58 |
-      59 |     // Assert
-    > 60 |     expect(mockedCookies).toHaveBeenCalled();
-         |                           ^
-      61 |     expect(normalizeTheme).toHaveBeenCalledWith(undefined);
-      62 |     expect(themeClass).toHaveBeenCalledWith('light');
-      63 |     expect(document.documentElement).not.toHaveClass('dark');
-
-      at Object.toHaveBeenCalled (app/layout.test.tsx:60:27)
-
-  ● RootLayout › should render with dark theme when cookie is set to "dark"
-
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-    Expected: "dark"
-    Received: "system"
-
-    Number of calls: 1
-
-      84 |
-      85 |     // Assert
-    > 86 |     expect(normalizeTheme).toHaveBeenCalledWith('dark');
-         |                            ^
-      87 |     expect(themeClass).toHaveBeenCalledWith('dark');
-      88 |     expect(document.documentElement).toHaveClass('dark');
-      89 |     expect(screen.getByTestId('client-root-layout')).toHaveAttribute('data-theme', 'dark');
-
-      at Object.toHaveBeenCalledWith (app/layout.test.tsx:86:28)
-
-FAIL app/admin/__tests__/layout.test.tsx
-  ● Admin layout › renders navigation for admin and super admin users
-
-    TestingLibraryElementError: Found multiple elements with the text: Admin Panel
-
-    Here are the matching elements:
-
-    Ignored nodes: comments, script, style
-    [36m<span[39m
-      [33mclass[39m=[32m"text-xl font-bold text-gray-900"[39m
-    [36m>[39m
-      [0mAdmin Panel[0m
-    [36m</span>[39m
-
-    Ignored nodes: comments, script, style
-    [36m<span[39m
-      [33mclass[39m=[32m"text-sm text-gray-600"[39m
-    [36m>[39m
-      [0mAdmin Panel[0m
-    [36m</span>[39m
-
-    (If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
-
-    Ignored nodes: comments, script, style
-    [36m<body>[39m
-      [36m<div>[39m
-        [36m<div[39m
-          [33mclass[39m=[32m"min-h-screen bg-gray-50"[39m
-        [36m>[39m
-          [36m<nav[39m
-            [33mclass[39m=[32m"bg-white shadow-sm border-b border-gray-200"[39m
-          [36m>[39m
-            [36m<div[39m
-              [33mclass[39m=[32m"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"[39m
-            [36m>[39m
-              [36m<div[39m
-                [33mclass[39m=[32m"flex justify-between h-16"[39m
-              [36m>[39m
-                [36m<div[39m
-                  [33mclass[39m=[32m"flex items-center"[39m
-                [36m>[39m
-                  [36m<a[39m
-                    [33mclass[39m=[32m"flex-shrink-0 flex items-center"[39m
-                    [33mhref[39m=[32m"/admin/dashboard"[39m
-                  [36m>[39m
-                    [36m<span[39m
-                      [33mclass[39m=[32m"text-xl font-bold text-gray-900"[39m
-                    [36m>[39m
-                      [0mAdmin Panel[0m
-                    [36m</span>[39m
-                  [36m</a>[39m
-                  [36m<div[39m
-                    [33mclass[39m=[32m"hidden md:ml-8 md:flex md:space-x-8"[39m
-                  [36m>[39m
-                    [36m<a[39m
-                      [33mclass[39m=[32m"text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"[39m
-                      [33mhref[39m=[32m"/admin/dashboard"[39m
-                    [36m>[39m
-                      [36m<span[39m
-                        [33mclass[39m=[32m"mr-2"[39m
-                      [36m>[39m
-                        [0m📊[0m
-                      [36m</span>[39m
-                      [0mDashboard[0m
-                    [36m</a>[39m
-                    [36m<a[39m
-                      [33mclass[39m=[32m"text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"[39m
-                      [33mhref[39m=[32m"/admin/users"[39m
-                    [36m>[39m
-                      [36m<span[39m
-                        [33mclass[39m=[32m"mr-2"[39m
-                      [36m>[39m
-                        [0m👥[0m
-                      [36m</span>[39m
-                      [0mUsers[0m
-                    [36m</a>[39m
-                    [36m<a[39m
-                      [33mclass[39m=[32m"text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"[39m
-                      [33mhref[39m=[32m"/admin/listings"[39m
-                    [36m>[39m
-                      [36m<span[39m
-                        [33mclass[39m=[32m"mr-2"[39m
-                      [36m>[39m
-                        [0m📝[0m
-                      [36m</span>[39m
-                      [0mListings[0m
-                    [36m</a>[39m
-                    [36m<a[39m
-                      [33mclass[39m=[32m"text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"[39m
-                      [33mhref[39m=[32m"/listings"[39m
-                    [36m>[39m
-                      [36m<span[39m
-                        [33mclass[39m=[32m"mr-2"[39m
-                      [36m>[39m
-                        [0m🏠[0m
-                      [36m</span>[39m
-                      [0mBack to Site[0m
-                    [36m</a>[39m
-                  [36m</div>[39m
-                [36m</div>[39m
-                [36m<div[39m
-                  [33mclass[39m=[32m"flex items-center"[39m
-                [36m>[39m
-                  [36m<span[39m
-                    [33mclass[39m=[32m"text-sm text-gray-600"[39m
-                  [36m>[39m
-                    [0mAdmin Panel[0m
-                  [36m</span>[39m
-                [36m</div>[39m
-              [36m</div>[39m
-            [36m</div>[39m
-          [36m</nav>[39m
-          [36m<div[39m
-            [33mdata-testid[39m=[32m"layout-child"[39m
-          [36m>[39m
-            [0mChild[0m
-          [36m</div>[39m
-        [36m</div>[39m
-      [36m</div>[39m
-    [36m</body>[39m
-
-      27 |     render(tree);
-      28 |
-    > 29 |     expect(screen.getByText('Admin Panel')).toBeInTheDocument();
-         |                   ^
-      30 |     expect(screen.getByRole('link', { name: /dashboard/i })).toHaveAttribute(
-      31 |       'href',
-      32 |       '/admin/dashboard'
-
-      at Object.getElementError (../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:37:19)
-      at getElementError (../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:20:35)
-      at getMultipleElementsFoundError (../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:23:10)
-      at ../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:55:13
-      at ../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
-      at Object.getByText (app/admin/__tests__/layout.test.tsx:29:19)
-
-  ● Admin layout › redirects non-admin users to the login page
-
-    expect(received).rejects.toThrow()
-
-    Matcher error: received value must be a promise or a function returning a promise
-
-    Received has type:  object
-    Received has value: {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [{"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [[Object], [Object]], "className": "flex justify-between h-16"}, "type": "div"}, "className": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"}, "type": "div"}, "className": "bg-white shadow-sm border-b border-gray-200"}, "type": "nav"}, {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {}, "type": "div"}], "className": "min-h-screen bg-gray-50"}, "type": "div"}
-
-      46 |     const AdminLayout = (await import('../layout')).default;
-      47 |
-    > 48 |     await expect(AdminLayout({ children: <div /> })).rejects.toThrow('redirect');
-         |                                                              ^
-      49 |     expect(redirectMock).toHaveBeenCalledWith('/auth/login');
-      50 |   });
-      51 | });
-
-      at Object.toThrow (../node_modules/.pnpm/expect@29.7.0/node_modules/expect/build/index.js:204:13)
-      at Object.toThrow (app/admin/__tests__/layout.test.tsx:48:62)
-
-FAIL app/search/page.test.tsx
-  ● SearchPage › exposes a force-dynamic rendering hint
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: "force-dynamic"
-    Received: undefined
-
-      65 |
-      66 |   it('exposes a force-dynamic rendering hint', () => {
-    > 67 |     expect(dynamicExport).toBe('force-dynamic');
-         |                           ^
-      68 |   });
-      69 |
-      70 |   it('renders search results using backend data and forwards params to filters', async () => {
-
-      at Object.toBe (app/search/page.test.tsx:67:27)
-
-FAIL src/utils/__tests__/db-helpers.test.ts
-  ● initializeClientPromise validation › instructs to use .env.development when NODE_ENV is development
-
-    expect(received).toThrow(expected)
-
-    Expected substring: "MongoDB URI is missing. Please set the MONGODB_URI environment variable in .env.development."
-
-    Received function did not throw
-
-      313 |         require('../db-helpers');
-      314 |       });
-    > 315 |     }).toThrow(
-          |        ^
-      316 |       'MongoDB URI is missing. Please set the MONGODB_URI environment variable in .env.development.'
-      317 |     );
-      318 |   });
-
-      at Object.toThrow (src/utils/__tests__/db-helpers.test.ts:315:8)
-
-  ● initializeClientPromise validation › instructs to use .env.local when NODE_ENV is not development
-
-    expect(received).toThrow(expected)
-
-    Expected substring: "MongoDB URI is missing. Please set the MONGODB_URI environment variable in .env.local."
-
-    Received function did not throw
-
-      326 |         require('../db-helpers');
-      327 |       });
-    > 328 |     }).toThrow(
-          |        ^
-      329 |       'MongoDB URI is missing. Please set the MONGODB_URI environment variable in .env.local.'
-      330 |     );
-      331 |   });
-
-      at Object.toThrow (src/utils/__tests__/db-helpers.test.ts:328:8)
-
-FAIL app/__tests__/blog-slug-page.test.tsx
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      194 |
+      195 |   it('rejects unauthenticated requests', async () => {
+    > 196 |     (auth as jest.Mock).mockResolvedValueOnce(null);
+          |                         ^
+      197 |
+      198 |     const res = await POST(
+      199 |       new Request('http://localhost/api/reviews', {
+
+      at Object.mockResolvedValueOnce (app/api/reviews/route.test.ts:196:25)
+
+  ● API /api/reviews POST › rejects users without review permissions
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      213 |
+      214 |   it('rejects users without review permissions', async () => {
+    > 215 |     (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'unidentifiedUser' } });
+          |                         ^
+      216 |
+      217 |     const res = await POST(
+      218 |       new Request('http://localhost/api/reviews', {
+
+      at Object.mockResolvedValueOnce (app/api/reviews/route.test.ts:215:25)
+
+  ● API /api/reviews POST › validates incoming payload and enforces rating constraints
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      233 |
+      234 |   it('validates incoming payload and enforces rating constraints', async () => {
+    > 235 |     (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
+          |                         ^
+      236 |
+      237 |     const res = await POST(
+      238 |       new Request('http://localhost/api/reviews', {
+
+      at Object.mockResolvedValueOnce (app/api/reviews/route.test.ts:235:25)
+
+  ● API /api/reviews POST › validates incoming payload and enforces minimum comment length
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      253 |
+      254 |   it('validates incoming payload and enforces minimum comment length', async () => {
+    > 255 |     (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
+          |                         ^
+      256 |
+      257 |     const res = await POST(
+      258 |       new Request('http://localhost/api/reviews', {
+
+      at Object.mockResolvedValueOnce (app/api/reviews/route.test.ts:255:25)
+
+  ● API /api/reviews POST › returns conflict when a user already reviewed the listing
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      269 |
+      270 |   it('returns conflict when a user already reviewed the listing', async () => {
+    > 271 |     (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
+          |                         ^
+      272 |     (client.getDocument as jest.Mock).mockResolvedValueOnce({
+      273 |       _id: 'listing-1',
+      274 |       slug: { current: 'listing-slug' },
+
+      at Object.mockResolvedValueOnce (app/api/reviews/route.test.ts:271:25)
+
+  ● API /api/reviews POST › returns 422 when the request body cannot be parsed
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      295 |
+      296 |   it('returns 422 when the request body cannot be parsed', async () => {
+    > 297 |     (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
+          |                         ^
+      298 |
+      299 |     const failingRequest = {
+      300 |       json: jest.fn().mockRejectedValue(new Error('boom')),
+
+      at Object.mockResolvedValueOnce (app/api/reviews/route.test.ts:297:25)
+
+  ● API /api/reviews POST › requires valid listing and user references
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      313 |
+      314 |   it('requires valid listing and user references', async () => {
+    > 315 |     (auth as jest.Mock).mockResolvedValueOnce({
+          |                         ^
+      316 |       user: { id: 'user-1', role: 'user', email: 'user@example.com' },
+      317 |     });
+      318 |     (client.getDocument as jest.Mock).mockResolvedValueOnce(null);
+
+      at Object.mockResolvedValueOnce (app/api/reviews/route.test.ts:315:25)
+
+  ● API /api/reviews POST › creates a pending review, trims comment, and revalidates the listing page
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      337 |
+      338 |   it('creates a pending review, trims comment, and revalidates the listing page', async () => {
+    > 339 |     (auth as jest.Mock).mockResolvedValueOnce({
+          |                         ^
+      340 |       user: { id: 'user-1', role: 'user', name: 'Reviewer', email: 'user@example.com' },
+      341 |     });
+      342 |     (client.getDocument as jest.Mock).mockResolvedValueOnce({
+
+      at Object.mockResolvedValueOnce (app/api/reviews/route.test.ts:339:25)
+
+  ● API /api/reviews POST › includes optional eco and nomad ratings when supplied
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      387 |
+      388 |   it('includes optional eco and nomad ratings when supplied', async () => {
+    > 389 |     (auth as jest.Mock).mockResolvedValueOnce({
+          |                         ^
+      390 |       user: { id: 'user-2', role: 'user', name: 'Eco Fan', email: 'eco@example.com' },
+      391 |     });
+      392 |     (client.getDocument as jest.Mock).mockResolvedValueOnce({
+
+      at Object.mockResolvedValueOnce (app/api/reviews/route.test.ts:389:25)
+
+  ● API /api/reviews POST › logs and returns 500 when creation fails unexpectedly
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      419 |
+      420 |   it('logs and returns 500 when creation fails unexpectedly', async () => {
+    > 421 |     (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
+          |                         ^
+      422 |     (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'listing-1' });
+      423 |     (ensureSanityUser as jest.Mock).mockResolvedValueOnce({ _id: 'sanity-user-1' });
+      424 |     (client.create as jest.Mock).mockRejectedValueOnce(new Error('Sanity failure'));
+
+      at Object.mockResolvedValueOnce (app/api/reviews/route.test.ts:421:25)
+
+ FAIL  app/api/comments/route.test.ts
+  ● API /api/comments › POST › rejects unauthorized users
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      123 |   describe('POST', () => {
+      124 |     it('rejects unauthorized users', async () => {
+    > 125 |       (auth as jest.Mock).mockResolvedValueOnce(null);
+          |                           ^
+      126 |       const req = new Request('http://localhost/api/comments', {
+      127 |         method: 'POST',
+      128 |         body: JSON.stringify({ content: 'Hi', postId: 'p1' }),
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:125:27)
+
+  ● API /api/comments › POST › rejects users without comment permissions
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      135 |
+      136 |     it('rejects users without comment permissions', async () => {
+    > 137 |       (auth as jest.Mock).mockResolvedValueOnce({
+          |                           ^
+      138 |         user: { id: 'user1', role: 'unidentifiedUser', name: 'User' },
+      139 |       });
+      140 |       const req = new Request('http://localhost/api/comments', {
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:137:27)
+
+  ● API /api/comments › POST › returns fallback error response when NextResponse.json is unavailable
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      152 |
+      153 |     it('returns fallback error response when NextResponse.json is unavailable', async () => {
+    > 154 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+          |                           ^
+      155 |       const originalJson = (NextResponse as any).json;
+      156 |       (NextResponse as any).json = undefined;
+      157 |
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:154:27)
+
+  ● API /api/comments › POST › rejects sessions without a user id
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      166 |
+      167 |     it('rejects sessions without a user id', async () => {
+    > 168 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { role: 'user', name: 'Nameless' } });
+          |                           ^
+      169 |
+      170 |       const res = await POST(
+      171 |         new Request('http://localhost/api/comments', {
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:168:27)
+
+  ● API /api/comments › POST › creates a comment and revalidates tag
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      181 |
+      182 |     it('creates a comment and revalidates tag', async () => {
+    > 183 |       (auth as jest.Mock).mockResolvedValueOnce({
+          |                           ^
+      184 |         user: { id: 'user1', role: 'user', name: 'User', email: 'u@example.com' },
+      185 |       });
+      186 |       mockEnsureSanityUser.mockResolvedValueOnce({ _id: 'sanityUser1', _type: 'user' });
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:183:27)
+
+  ● API /api/comments › POST › creates a comment without revalidating when the post has no slug
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      211 |
+      212 |     it('creates a comment without revalidating when the post has no slug', async () => {
+    > 213 |       (auth as jest.Mock).mockResolvedValueOnce({
+          |                           ^
+      214 |         user: { id: 'user1', role: 'user', name: 'User' },
+      215 |       });
+      216 |       (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'p1' });
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:213:27)
+
+  ● API /api/comments › POST › still succeeds when revalidateTag encounters an error
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      228 |
+      229 |     it('still succeeds when revalidateTag encounters an error', async () => {
+    > 230 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+          |                           ^
+      231 |       (client.getDocument as jest.Mock).mockResolvedValueOnce({
+      232 |         _id: 'p1',
+      233 |         slug: { current: 'sluggy' },
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:230:27)
+
+  ● API /api/comments › POST › returns validation error when fields are missing or invalid
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      246 |
+      247 |     it('returns validation error when fields are missing or invalid', async () => {
+    > 248 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+          |                           ^
+      249 |
+      250 |       const res = await POST(
+      251 |         new Request('http://localhost/api/comments', {
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:248:27)
+
+  ● API /api/comments › POST › rejects requests without a json body parser
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      261 |
+      262 |     it('rejects requests without a json body parser', async () => {
+    > 263 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+          |                           ^
+      264 |
+      265 |       const res = await POST({ method: 'POST' } as any);
+      266 |       expect(res.status).toBe(422);
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:263:27)
+
+  ● API /api/comments › POST › handles failures to parse the body gracefully
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      269 |
+      270 |     it('handles failures to parse the body gracefully', async () => {
+    > 271 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+          |                           ^
+      272 |
+      273 |       const failingRequest = {
+      274 |         json: jest.fn().mockRejectedValue(new Error('nope')),
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:271:27)
+
+  ● API /api/comments › POST › trims content and rejects empty comments
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      281 |
+      282 |     it('trims content and rejects empty comments', async () => {
+    > 283 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+          |                           ^
+      284 |
+      285 |       const res = await POST(
+      286 |         new Request('http://localhost/api/comments', {
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:283:27)
+
+  ● API /api/comments › POST › requires comment content to be a string
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      296 |
+      297 |     it('requires comment content to be a string', async () => {
+    > 298 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+          |                           ^
+      299 |
+      300 |       const res = await POST(
+      301 |         new Request('http://localhost/api/comments', {
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:298:27)
+
+  ● API /api/comments › POST › returns 400 when the referenced post cannot be found
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      310 |
+      311 |     it('returns 400 when the referenced post cannot be found', async () => {
+    > 312 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+          |                           ^
+      313 |       (client.getDocument as jest.Mock).mockResolvedValueOnce(null);
+      314 |
+      315 |       const res = await POST(
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:312:27)
+
+  ● API /api/comments › POST › returns 500 when comment creation throws an unexpected error
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      326 |
+      327 |     it('returns 500 when comment creation throws an unexpected error', async () => {
+    > 328 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+          |                           ^
+      329 |       (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'p1' });
+      330 |       (client.create as jest.Mock).mockRejectedValueOnce(new Error('Sanity failure'));
+      331 |
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:328:27)
+
+  ● API /api/comments › POST › returns 500 when ensureSanityUser throws an unexpected error
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      343 |
+      344 |     it('returns 500 when ensureSanityUser throws an unexpected error', async () => {
+    > 345 |       (auth as jest.Mock).mockResolvedValueOnce({
+          |                           ^
+      346 |         user: { id: 'user1', role: 'user', name: 'User', email: 'u@example.com' },
+      347 |       });
+      348 |       mockEnsureSanityUser.mockRejectedValueOnce(new Error('Sanity user failure'));
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:345:27)
+
+  ● API /api/comments › POST › still creates a comment if user has no email
+
+    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+
+      361 |
+      362 |     it('still creates a comment if user has no email', async () => {
+    > 363 |       (auth as jest.Mock).mockResolvedValueOnce({
+          |                           ^
+      364 |         user: { id: 'user1', role: 'user', name: 'User' },
+      365 |       });
+      366 |       mockEnsureSanityUser.mockResolvedValueOnce({ _id: 'sanityUser1', _type: 'user' });
+
+      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:363:27)
+
+ FAIL  app/__tests__/blog-slug-page.test.tsx (6.779 s)
   ● BlogPostPage › renders post content, placeholder hero, and comments from DTO response
 
     expect(element).toHaveTextContent()
@@ -623,7 +428,7 @@ FAIL app/__tests__/blog-slug-page.test.tsx
       }
 
       245 |
-      246 |     const metadata = await pageModule.generateMetadata({ params: { slug: 'meta-post' } });
+      246 |     const metadata = await pageModule.generateMetadata({ params: Promise.resolve({ slug: 'meta-post' }) });
     > 247 |     expect(metadata).toEqual(
           |                      ^
       248 |       expect.objectContaining({
@@ -646,7 +451,7 @@ FAIL app/__tests__/blog-slug-page.test.tsx
       }
 
       278 |
-      279 |     const metadata = await pageModule.generateMetadata({ params: { slug: 'missing-post' } });
+      279 |     const metadata = await pageModule.generateMetadata({ params: Promise.resolve({ slug: 'missing-post' }) });
     > 280 |     expect(metadata).toEqual({ title: 'Post not found' });
           |                      ^
       281 |   });
@@ -664,7 +469,7 @@ FAIL app/__tests__/blog-slug-page.test.tsx
     > 294 |     global.fetch = jest.fn().mockRejectedValue(new Error('network failure'));
           |                                                ^
       295 |
-      296 |     const metadata = await pageModule.generateMetadata({ params: { slug: 'meta-error' } });
+      296 |     const metadata = await pageModule.generateMetadata({ params: Promise.resolve({ slug: 'meta-error' }) });
       297 |     expect(metadata).toEqual({ title: 'Blog' });
 
       at Object.<anonymous> (app/__tests__/blog-slug-page.test.tsx:294:48)
@@ -691,7 +496,7 @@ FAIL app/__tests__/blog-slug-page.test.tsx
     +   "title": "Blog Post Not Found",
       }
 
-      321 |     const metadata = await pageModule.generateMetadata({ params: { slug: 'meta-fallback' } });
+      321 |     const metadata = await pageModule.generateMetadata({ params: Promise.resolve({ slug: 'meta-fallback' }) });
       322 |
     > 323 |     expect(metadata).toEqual(
           |                      ^
@@ -701,141 +506,160 @@ FAIL app/__tests__/blog-slug-page.test.tsx
 
       at Object.toEqual (app/__tests__/blog-slug-page.test.tsx:323:22)
 
-FAIL app/admin/listings/__tests__/page.test.tsx
-  ● Admin listings page › redirects when the viewer is not an admin
+ FAIL  src/components/search/__tests__/DigitalNomadSearch.test.tsx (34.371 s)
+  ● DigitalNomadSearch › Edge Cases › should handle very long search queries
 
-    expect(received).rejects.toThrow()
+    thrown: "Exceeded timeout of 20000 ms for a test.
+    Use jest.setTimeout(newTimeout) to increase the timeout value, if this is a long-running test."
 
-    Received promise resolved instead of rejected
-    Resolved to value: {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [{"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [{"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": "Listing Management", "className": "text-3xl font-bold text-gray-900", "data-testid": "admin-listings-title"}, "type": "h1"}, {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": "Manage listings, approve submissions, and feature content.", "className": "mt-2 text-gray-600"}, "type": "p"}], "className": "mb-8"}, "type": "div"}, {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"currentUserId": "user-1", "currentUserRole": "user"}, "type": [Function ListingsManagementTable]}, "className": "bg-white shadow-sm rounded-lg border border-gray-200"}, "type": "div"}], "className": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"}, "type": "div"}, "className": "min-h-screen bg-gray-50", "data-testid": "admin-listings-page"}, "type": "main"}
+      293 |     });
+      294 |
+    > 295 |     it('should handle very long search queries', async () => {
+          |     ^
+      296 |       const user = userEvent.setup();
+      297 |       const longQuery = 'a'.repeat(1000);
+      298 |       render(<DigitalNomadSearch />);
 
-      58 |     const AdminListingsPage = (await import('../page')).default;
-      59 |
-    > 60 |     await expect(AdminListingsPage()).rejects.toThrow('redirect');
-         |           ^
-      61 |     expect(redirectMock).toHaveBeenCalledWith('/auth/login?callbackUrl=/admin/listings');
-      62 |   });
-      63 | });
+      at it (src/components/search/__tests__/DigitalNomadSearch.test.tsx:295:5)
+      at describe (src/components/search/__tests__/DigitalNomadSearch.test.tsx:281:3)
+      at Object.describe (src/components/search/__tests__/DigitalNomadSearch.test.tsx:47:1)
 
-      at expect (../node_modules/.pnpm/expect@29.7.0/node_modules/expect/build/index.js:113:15)
-      at Object.expect (app/admin/listings/__tests__/page.test.tsx:60:11)
-
-FAIL src/lib/__tests__/sanity.utils.test.ts
-  ● sanity utils › creates clients with expected configuration and exports helpers
-
-    expect(jest.fn()).toHaveBeenNthCalledWith(n, ...expected)
-
-    n: 1
-    Expected: {"apiVersion": "2025-05-15", "dataset": "dataset", "projectId": "proj", "useCdn": true}
-
-    Number of calls: 0
-
-      45 |     const mod = await loadModule();
-      46 |
-    > 47 |     expect(createClientMock).toHaveBeenNthCalledWith(1, {
-         |                              ^
-      48 |       projectId: 'proj',
-      49 |       dataset: 'dataset',
-      50 |       apiVersion: '2025-05-15',
-
-      at Object.toHaveBeenNthCalledWith (src/lib/__tests__/sanity.utils.test.ts:47:30)
-
-  ● sanity utils › fetches preview data using the preview client
+  ● DigitalNomadSearch › Edge Cases › should handle whitespace-only input
 
     expect(jest.fn()).toHaveBeenCalledWith(...expected)
 
-    Expected: Any<String>, {"slug": "hello", "type": "post"}
+    Expected: "/search?q=+++"
+    Received: "/search?q=aaaaa+a+a+aaaa"
 
-    Number of calls: 0
+    Number of calls: 1
 
-      82 |     const result = await mod.fetchBySlug('post', 'hello', true);
-      83 |
-    > 84 |     expect(previewClient.fetch).toHaveBeenCalledWith(expect.any(String), {
-         |                                 ^
-      85 |       type: 'post',
-      86 |       slug: 'hello',
-      87 |     });
+    Ignored nodes: comments, script, style
+    <html>
+      <head />
+      <body>
+        <div>
+          <form
+            aria-label="Search listings"
+            class="flex gap-3 w-full"
+            role="search"
+          >
+            <input
+              aria-label="Search query"
+              data-testid="neo-input"
+              name="q"
+              placeholder="Search listings..."
+              value="aaaaa a a aaaa"
+            />
+            <button
+              data-testid="neo-button"
+              data-variant="primary"
+              type="submit"
+            >
+              Search
+            </button>
+          </form>
+        </div>
+      </body>
+    </html>
 
-      at Object.toHaveBeenCalledWith (src/lib/__tests__/sanity.utils.test.ts:84:33)
+      317 |
+      318 |       await waitFor(() => {
+    > 319 |         expect(mockPush).toHaveBeenCalledWith('/search?q=+++');
+          |                          ^
+      320 |       });
+      321 |     });
+      322 |
 
-FAIL src/lib/__tests__/sanity.test.js
-  ● Sanity Library › Initialization › should create the standard client with production config (useCdn: true)
+      at toHaveBeenCalledWith (src/components/search/__tests__/DigitalNomadSearch.test.tsx:319:26)
+      at runWithExpensiveErrorDiagnosticsDisabled (../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (../node_modules/.pnpm/jsdom@20.0.3/node_modules/jsdom/lib/jsdom/browser/Window.js:520:19)
 
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+ FAIL  app/auth/login/__tests__/LoginForm.test.tsx (82.608 s)
+  ● LoginForm › validates email and password inputs before submission
 
-    Expected: ObjectContaining {"dataset": "test-dataset", "projectId": "test-project-id", "token": "test-api-token", "useCdn": true}
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Use jest.setTimeout(newTimeout) to increase the timeout value, if this is a long-running test."
 
-    Number of calls: 0
+      34 |   });
+      35 |
+    > 36 |   it('validates email and password inputs before submission', async () => {
+         |   ^
+      37 |     render(<LoginForm />);
+      38 |     const user = userEvent.setup();
+      39 |
 
-      53 |   describe('Initialization', () => {
-      54 |     it('should create the standard client with production config (useCdn: true)', () => {
-    > 55 |       expect(mockCreateClient).toHaveBeenCalledWith(
-         |                                ^
-      56 |         expect.objectContaining({
-      57 |           projectId: 'test-project-id',
-      58 |           dataset: 'test-dataset',
+      at it (app/auth/login/__tests__/LoginForm.test.tsx:36:3)
+      at Object.describe (app/auth/login/__tests__/LoginForm.test.tsx:28:1)
 
-      at Object.toHaveBeenCalledWith (src/lib/__tests__/sanity.test.js:55:32)
+  ● LoginForm › submits credentials and navigates using sanitized callback url
 
-  ● Sanity Library › Initialization › should create the preview client with preview config (useCdn: false)
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Use jest.setTimeout(newTimeout) to increase the timeout value, if this is a long-running test."
 
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+      68 |   });
+      69 |
+    > 70 |   it('submits credentials and navigates using sanitized callback url', async () => {
+         |   ^
+      71 |     useSearchParamsMock.mockReturnValue(buildSearchParams({ callbackUrl: '/dashboard' }));
+      72 |     sanitizeCallbackUrlMock.mockReturnValue('/dashboard');
+      73 |     const routerReplace = jest.fn();
 
-    Expected: ObjectContaining {"dataset": "test-dataset", "projectId": "test-project-id", "token": "test-api-token", "useCdn": false}
+      at it (app/auth/login/__tests__/LoginForm.test.tsx:70:3)
+      at Object.describe (app/auth/login/__tests__/LoginForm.test.tsx:28:1)
 
-    Number of calls: 0
+  ● LoginForm › falls back to window location when sanitized callback is unsafe
 
-      64 |
-      65 |     it('should create the preview client with preview config (useCdn: false)', () => {
-    > 66 |       expect(mockCreateClient).toHaveBeenCalledWith(
-         |                                ^
-      67 |         expect.objectContaining({
-      68 |           projectId: 'test-project-id',
-      69 |           dataset: 'test-dataset',
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Use jest.setTimeout(newTimeout) to increase the timeout value, if this is a long-running test."
 
-      at Object.toHaveBeenCalledWith (src/lib/__tests__/sanity.test.js:66:32)
+       99 |   });
+      100 |
+    > 101 |   it('falls back to window location when sanitized callback is unsafe', async () => {
+          |   ^
+      102 |     const routerReplace = jest.fn();
+      103 |     useRouterMock.mockReturnValue({ replace: routerReplace });
+      104 |
 
-  ● Sanity Library › Initialization › should initialize the image URL builder with the standard client
+      at it (app/auth/login/__tests__/LoginForm.test.tsx:101:3)
+      at Object.describe (app/auth/login/__tests__/LoginForm.test.tsx:28:1)
 
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+  ● LoginForm › uses the callbackUrl fallback when signIn resolves without a url
 
-    Expected: {"id": "standard"}
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Use jest.setTimeout(newTimeout) to increase the timeout value, if this is a long-running test."
 
-    Number of calls: 0
+      137 |   });
+      138 |
+    > 139 |   it('uses the callbackUrl fallback when signIn resolves without a url', async () => {
+          |   ^
+      140 |     useSearchParamsMock.mockReturnValue(buildSearchParams({ callbackUrl: '/dashboard' }));
+      141 |     const routerReplace = jest.fn();
+      142 |     useRouterMock.mockReturnValue({ replace: routerReplace });
 
-      75 |
-      76 |     it('should initialize the image URL builder with the standard client', () => {
-    > 77 |       expect(mockImageUrlBuilder).toHaveBeenCalledWith(standardClientInstance);
-         |                                   ^
-      78 |     });
-      79 |
-      80 |     it('should export the correct client instances returned by the mock', () => {
+      at it (app/auth/login/__tests__/LoginForm.test.tsx:139:3)
+      at Object.describe (app/auth/login/__tests__/LoginForm.test.tsx:28:1)
 
-      at Object.toHaveBeenCalledWith (src/lib/__tests__/sanity.test.js:77:35)
+ FAIL  src/components/ui/__tests__/StarRating.test.tsx (34.672 s)
+  ● StarRating › Interactive Rating › handles multiple clicks correctly
 
-  ● Sanity Library › Initialization › should export the correct client instances returned by the mock
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Use jest.setTimeout(newTimeout) to increase the timeout value, if this is a long-running test."
 
-    expect(received).toBe(expected) // Object.is equality
+      118 |     });
+      119 |
+    > 120 |     it('handles multiple clicks correctly', async () => {
+          |     ^
+      121 |       const onRatingChange = jest.fn();
+      122 |       render(<StarRating rating={2} interactive={true} onRatingChange={onRatingChange} />);
+      123 |
 
-    - Expected  - 3
-    + Received  + 1
+      at it (src/components/ui/__tests__/StarRating.test.tsx:120:5)
+      at describe (src/components/ui/__tests__/StarRating.test.tsx:59:3)
+      at Object.describe (src/components/ui/__tests__/StarRating.test.tsx:5:1)
 
-    - Object {
-    -   "id": "standard",
-    - }
-    + Object {}
-
-      79 |
-      80 |     it('should export the correct client instances returned by the mock', () => {
-    > 81 |       expect(client).toBe(standardClientInstance);
-         |                      ^
-      82 |       expect(previewClient).toBe(previewClientInstance);
-      83 |     });
-      84 |   });
-
-      at Object.toBe (src/lib/__tests__/sanity.test.js:81:22)
-
-FAIL src/lib/__tests__/dbConnect-simplified.test.ts
+ FAIL  src/lib/__tests__/dbConnect-simplified.test.ts
   ● dbConnect helper › throws during module evaluation when MONGODB_URI is missing
 
     expect(received).rejects.toThrow()
@@ -854,29 +678,81 @@ FAIL src/lib/__tests__/dbConnect-simplified.test.ts
       at expect (../node_modules/.pnpm/expect@29.7.0/node_modules/expect/build/index.js:113:15)
       at Object.<anonymous> (src/lib/__tests__/dbConnect-simplified.test.ts:139:17)
 
-FAIL app/__tests__/blog-page.test.tsx
+ FAIL  src/lib/sanity/data.test.ts
+  ● data.ts › getListingData › should fetch and map listing data by slug
+
+    expect(received).toEqual(expected) // deep equality
+
+    Expected: {"_id": "listing-123", "city": {"_id": "city-456", "country": "Test Country", "name": "Test City", "slug": "test-city"}, "mapped": true, "name": "Test Listing", "priceRange": "$$", "slug": "test-listing", "type": "coworking", "website": "https://test.com"}
+    Received: null
+
+      56 |         { slug: 'test-listing' }
+      57 |       );
+    > 58 |       expect(result).toEqual({
+         |                      ^
+      59 |         ...mockListing,
+      60 |         mapped: true,
+      61 |       });
+
+      at Object.toEqual (src/lib/sanity/data.test.ts:58:22)
+
+  ● data.ts › getListingData › should handle listings with complete data structure
+
+    expect(received).toEqual(expected) // deep equality
+
+    Expected: {"_id": "listing-full", "accommodationDetails": {}, "activitiesDetails": {}, "address": "123 Test St", "amenities": [], "cafeDetails": {}, "category": "hotel", "city": {"_id": "city-full", "country": "Full Country", "name": "Full City", "slug": "full-city"}, "contactEmail": "test@test.com", "contactPhone": "+1234567890", "coworkingDetails": {}, "digitalNomadFeatures": [], "ecoFocusTags": [{"_id": "tag-1", "name": "Eco-Friendly"}], "galleryImages": [{"asset": {"_ref": "image-ref-2"}}], "location": {"alt": 0, "lat": 0, "lng": 0}, "longDescription": "Long desc", "mapped": true, "moderation": {"featured": true, "status": "published", "verificationStatus": "verified"}, "name": "Full Listing", "priceRange": "$$$", "primaryImage": {"asset": {"_ref": "image-ref"}}, "restaurantDetails": {}, "reviews": [], "shortDescription": "Short desc", "slug": "full-listing", "type": "accommodation", "website": "https://full-listing.com"}
+    Received: null
+
+      143 |       const result = await getListingData('full-listing');
+      144 |
+    > 145 |       expect(result).toEqual({
+          |                      ^
+      146 |         ...mockListing,
+      147 |         mapped: true,
+      148 |       });
+
+      at Object.toEqual (src/lib/sanity/data.test.ts:145:22)
+
+  ● data.ts › getListingData › should handle listings with minimal data
+
+    expect(received).toEqual(expected) // deep equality
+
+    Expected: {"_id": "listing-minimal", "mapped": true, "name": "Minimal Listing", "slug": "minimal-listing"}
+    Received: null
+
+      160 |       const result = await getListingData('minimal-listing');
+      161 |
+    > 162 |       expect(result).toEqual({
+          |                      ^
+      163 |         ...mockListing,
+      164 |         mapped: true,
+      165 |       });
+
+      at Object.toEqual (src/lib/sanity/data.test.ts:162:22)
+
+ FAIL  app/__tests__/blog-page.test.tsx
   ● BlogPage › renders posts, filters, and pagination from DTO-wrapped API response
 
     TestingLibraryElementError: Unable to find an element with the text: The Nomad's Chronicle. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
 
     Ignored nodes: comments, script, style
-    [36m<body>[39m
-      [36m<div>[39m
-        [36m<div[39m
-          [33mdata-testid[39m=[32m"header"[39m
-        [36m>[39m
-          [0mHeader[0m
-        [36m</div>[39m
-        [36m<div>[39m
-          [0mLoading blog posts...[0m
-        [36m</div>[39m
-        [36m<div[39m
-          [33mdata-testid[39m=[32m"footer"[39m
-        [36m>[39m
-          [0mFooter[0m
-        [36m</div>[39m
-      [36m</div>[39m
-    [36m</body>[39m
+    <body>
+      <div>
+        <div
+          data-testid="header"
+        >
+          Header
+        </div>
+        <div>
+          Loading blog posts...
+        </div>
+        <div
+          data-testid="footer"
+        >
+          Footer
+        </div>
+      </div>
+    </body>
 
       81 |
       82 |     expect(screen.getByTestId('header')).toBeInTheDocument();
@@ -897,23 +773,23 @@ FAIL app/__tests__/blog-page.test.tsx
     TestingLibraryElementError: Unable to find an element with the text: Legacy Payload Story. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
 
     Ignored nodes: comments, script, style
-    [36m<body>[39m
-      [36m<div>[39m
-        [36m<div[39m
-          [33mdata-testid[39m=[32m"header"[39m
-        [36m>[39m
-          [0mHeader[0m
-        [36m</div>[39m
-        [36m<div>[39m
-          [0mLoading blog posts...[0m
-        [36m</div>[39m
-        [36m<div[39m
-          [33mdata-testid[39m=[32m"footer"[39m
-        [36m>[39m
-          [0mFooter[0m
-        [36m</div>[39m
-      [36m</div>[39m
-    [36m</body>[39m
+    <body>
+      <div>
+        <div
+          data-testid="header"
+        >
+          Header
+        </div>
+        <div>
+          Loading blog posts...
+        </div>
+        <div
+          data-testid="footer"
+        >
+          Footer
+        </div>
+      </div>
+    </body>
 
       137 |     render(element);
       138 |
@@ -947,7 +823,181 @@ FAIL app/__tests__/blog-page.test.tsx
       at expect (../node_modules/.pnpm/expect@29.7.0/node_modules/expect/build/index.js:113:15)
       at Object.expect (app/__tests__/blog-page.test.tsx:162:11)
 
-FAIL app/admin/settings/__tests__/page.test.tsx
+ FAIL  src/lib/__tests__/mongodb.test.ts
+  ● Test suite failed to run
+
+    Jest worker encountered 4 child process exceptions, exceeding retry limit
+
+      at ChildProcessWorker.initialize (../node_modules/.pnpm/jest-worker@29.7.0/node_modules/jest-worker/build/workers/ChildProcessWorker.js:181:21)
+
+ FAIL  app/search/page.test.tsx
+  ● SearchPage › exposes a force-dynamic rendering hint
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "force-dynamic"
+    Received: undefined
+
+      65 |
+      66 |   it('exposes a force-dynamic rendering hint', () => {
+    > 67 |     expect(dynamicExport).toBe('force-dynamic');
+         |                           ^
+      68 |   });
+      69 |
+      70 |   it('renders search results using backend data and forwards params to filters', async () => {
+
+      at Object.toBe (app/search/page.test.tsx:67:27)
+
+ FAIL  src/lib/__tests__/absolute-url.test.ts
+  ● absolute-url › getBaseUrl › should fall back to localhost:3000 when no env vars are set
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "http://localhost:3000"
+    Received: "https://example.com"
+
+      91 |
+      92 |       const result = await getBaseUrl();
+    > 93 |       expect(result).toBe('http://localhost:3000');
+         |                      ^
+      94 |     });
+      95 |
+      96 |     it('should handle invalid URL in environment variables', async () => {
+
+      at Object.toBe (src/lib/__tests__/absolute-url.test.ts:93:22)
+
+  ● absolute-url › getBaseUrl › should handle invalid URL in environment variables
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "http://localhost:3000"
+    Received: "https://example.com"
+
+      100 |
+      101 |       const result = await getBaseUrl();
+    > 102 |       expect(result).toBe('http://localhost:3000');
+          |                      ^
+      103 |     });
+      104 |
+      105 |     it('should trim whitespace from environment URL', async () => {
+
+      at Object.toBe (src/lib/__tests__/absolute-url.test.ts:102:22)
+
+ FAIL  src/lib/__tests__/sanity.test.js
+  ● Sanity Library › Initialization › should create the standard client with production config (useCdn: true)
+
+    expect(jest.fn()).toHaveBeenNthCalledWith(n, ...expected)
+
+    n: 1
+    Expected: ObjectContaining {"dataset": "test-dataset", "projectId": "test-project-id", "token": "test-api-token", "useCdn": true}
+
+    Number of calls: 0
+
+      53 |   describe('Initialization', () => {
+      54 |     it('should create the standard client with production config (useCdn: true)', () => {
+    > 55 |       expect(mockCreateClient).toHaveBeenNthCalledWith(
+         |                                ^
+      56 |         1,
+      57 |         expect.objectContaining({
+      58 |           projectId: 'test-project-id',
+
+      at Object.toHaveBeenNthCalledWith (src/lib/__tests__/sanity.test.js:55:32)
+
+  ● Sanity Library › Initialization › should create the preview client with preview config (useCdn: false)
+
+    expect(jest.fn()).toHaveBeenNthCalledWith(n, ...expected)
+
+    n: 2
+    Expected: ObjectContaining {"dataset": "test-dataset", "projectId": "test-project-id", "token": "test-api-token", "useCdn": false}
+
+    Number of calls: 0
+
+      65 |
+      66 |     it('should create the preview client with preview config (useCdn: false)', () => {
+    > 67 |       expect(mockCreateClient).toHaveBeenNthCalledWith(
+         |                                ^
+      68 |         2,
+      69 |         expect.objectContaining({
+      70 |           projectId: 'test-project-id',
+
+      at Object.toHaveBeenNthCalledWith (src/lib/__tests__/sanity.test.js:67:32)
+
+  ● Sanity Library › Initialization › should initialize the image URL builder with the standard client
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: {"id": "standard"}
+
+    Number of calls: 0
+
+      77 |
+      78 |     it('should initialize the image URL builder with the standard client', () => {
+    > 79 |       expect(mockImageUrlBuilder).toHaveBeenCalledWith(standardClientInstance);
+         |                                   ^
+      80 |     });
+      81 |
+      82 |     it('should export the correct client instances returned by the mock', () => {
+
+      at Object.toHaveBeenCalledWith (src/lib/__tests__/sanity.test.js:79:35)
+
+  ● Sanity Library › Initialization › should export the correct client instances returned by the mock
+
+    expect(received).toBe(expected) // Object.is equality
+
+    - Expected  - 3
+    + Received  + 1
+
+    - Object {
+    -   "id": "standard",
+    - }
+    + Object {}
+
+      81 |
+      82 |     it('should export the correct client instances returned by the mock', () => {
+    > 83 |       expect(client).toBe(standardClientInstance);
+         |                      ^
+      84 |       expect(previewClient).toBe(previewClientInstance);
+      85 |     });
+      86 |   });
+
+      at Object.toBe (src/lib/__tests__/sanity.test.js:83:22)
+
+ FAIL  app/api/blog/route.test.ts
+  ● Blog API - GET /api/blog › returns paginated blog posts
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 500
+
+      44 |     const data = await response.json();
+      45 |
+    > 46 |     expect(response.status).toBe(200);
+         |                             ^
+      47 |     expect(data.data.posts.length).toBe(2);
+      48 |     expect(data.data.pagination.totalCount).toBe(2);
+      49 |     expect(data.data.pagination.page).toBe(1);
+
+      at Object.toBe (app/api/blog/route.test.ts:46:29)
+
+  ● Blog API - GET /api/blog › returns an empty array when no posts exist
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 500
+
+      59 |     const data = await response.json();
+      60 |
+    > 61 |     expect(response.status).toBe(200);
+         |                             ^
+      62 |     expect(data.data.posts).toEqual([]);
+      63 |     expect(data.data.pagination.totalCount).toBe(0);
+      64 |   });
+
+      at Object.toBe (app/api/blog/route.test.ts:61:29)
+
+ FAIL  app/admin/settings/__tests__/page.test.tsx
   ● AdminSettingsPage › should redirect non-admin users to login
 
     expect(jest.fn()).toHaveBeenCalledWith(...expected)
@@ -1020,656 +1070,272 @@ FAIL app/admin/settings/__tests__/page.test.tsx
 
       at Object.toHaveBeenCalledWith (app/admin/settings/__tests__/page.test.tsx:86:26)
 
-FAIL src/lib/__tests__/absolute-url.test.ts
-  ● absolute-url › getBaseUrl › should fall back to localhost:3000 when no env vars are set
+ FAIL  src/lib/__tests__/sanity.utils.test.ts
+  ● sanity utils › creates clients with expected configuration and exports helpers
 
-    expect(received).toBe(expected) // Object.is equality
+    expect(jest.fn()).toHaveBeenNthCalledWith(n, ...expected)
 
-    Expected: "http://localhost:3000"
-    Received: "https://example.com"
-
-      91 |
-      92 |       const result = await getBaseUrl();
-    > 93 |       expect(result).toBe('http://localhost:3000');
-         |                      ^
-      94 |     });
-      95 |
-      96 |     it('should handle invalid URL in environment variables', async () => {
-
-      at Object.toBe (src/lib/__tests__/absolute-url.test.ts:93:22)
-
-  ● absolute-url › getBaseUrl › should handle invalid URL in environment variables
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: "http://localhost:3000"
-    Received: "https://example.com"
-
-      100 |
-      101 |       const result = await getBaseUrl();
-    > 102 |       expect(result).toBe('http://localhost:3000');
-          |                      ^
-      103 |     });
-      104 |
-      105 |     it('should trim whitespace from environment URL', async () => {
-
-      at Object.toBe (src/lib/__tests__/absolute-url.test.ts:102:22)
-
-FAIL app/api/blog/route.test.ts
-  ● Blog API - GET /api/blog › returns paginated blog posts
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 200
-    Received: 500
-
-      44 |     const data = await response.json();
-      45 |
-    > 46 |     expect(response.status).toBe(200);
-         |                             ^
-      47 |     expect(data.data.posts.length).toBe(2);
-      48 |     expect(data.data.pagination.totalCount).toBe(2);
-      49 |     expect(data.data.pagination.page).toBe(1);
-
-      at Object.toBe (app/api/blog/route.test.ts:46:29)
-
-  ● Blog API - GET /api/blog › returns an empty array when no posts exist
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 200
-    Received: 500
-
-      59 |     const data = await response.json();
-      60 |
-    > 61 |     expect(response.status).toBe(200);
-         |                             ^
-      62 |     expect(data.data.posts).toEqual([]);
-      63 |     expect(data.data.pagination.totalCount).toBe(0);
-      64 |   });
-
-      at Object.toBe (app/api/blog/route.test.ts:61:29)
-
-FAIL src/lib/sanity/data.test.ts
-  ● data.ts › getListingData › should fetch and map listing data by slug
-
-    expect(received).toEqual(expected) // deep equality
-
-    Expected: {"_id": "listing-123", "city": {"_id": "city-456", "country": "Test Country", "name": "Test City", "slug": "test-city"}, "mapped": true, "name": "Test Listing", "priceRange": "$$", "slug": "test-listing", "type": "coworking", "website": "https://test.com"}
-    Received: null
-
-      56 |         { slug: 'test-listing' }
-      57 |       );
-    > 58 |       expect(result).toEqual({
-         |                      ^
-      59 |         ...mockListing,
-      60 |         mapped: true,
-      61 |       });
-
-      at Object.toEqual (src/lib/sanity/data.test.ts:58:22)
-
-  ● data.ts › getListingData › should handle listings with complete data structure
-
-    expect(received).toEqual(expected) // deep equality
-
-    Expected: {"_id": "listing-full", "accommodationDetails": {}, "activitiesDetails": {}, "address": "123 Test St", "amenities": [], "cafeDetails": {}, "category": "hotel", "city": {"_id": "city-full", "country": "Full Country", "name": "Full City", "slug": "full-city"}, "contactEmail": "test@test.com", "contactPhone": "+1234567890", "coworkingDetails": {}, "digitalNomadFeatures": [], "ecoFocusTags": [{"_id": "tag-1", "name": "Eco-Friendly"}], "galleryImages": [{"asset": {"_ref": "image-ref-2"}}], "location": {"alt": 0, "lat": 0, "lng": 0}, "longDescription": "Long desc", "mapped": true, "moderation": {"featured": true, "status": "published", "verificationStatus": "verified"}, "name": "Full Listing", "priceRange": "$$$", "primaryImage": {"asset": {"_ref": "image-ref"}}, "restaurantDetails": {}, "reviews": [], "shortDescription": "Short desc", "slug": "full-listing", "type": "accommodation", "website": "https://full-listing.com"}
-    Received: null
-
-      143 |       const result = await getListingData('full-listing');
-      144 |
-    > 145 |       expect(result).toEqual({
-          |                      ^
-      146 |         ...mockListing,
-      147 |         mapped: true,
-      148 |       });
-
-      at Object.toEqual (src/lib/sanity/data.test.ts:145:22)
-
-  ● data.ts › getListingData › should handle listings with minimal data
-
-    expect(received).toEqual(expected) // deep equality
-
-    Expected: {"_id": "listing-minimal", "mapped": true, "name": "Minimal Listing", "slug": "minimal-listing"}
-    Received: null
-
-      160 |       const result = await getListingData('minimal-listing');
-      161 |
-    > 162 |       expect(result).toEqual({
-          |                      ^
-      163 |         ...mockListing,
-      164 |         mapped: true,
-      165 |       });
-
-      at Object.toEqual (src/lib/sanity/data.test.ts:162:22)
-
-FAIL app/city/[slug]/__tests__/page.test.tsx
-  ● LegacyCityAlias page › permanently redirects to the updated city route
-
-    expect(jest.fn()).toHaveBeenCalledTimes(expected)
-
-    Expected number of calls: 1
-    Received number of calls: 0
-
-      24 |     LegacyCityAlias({ params: { slug: 'barcelona' } });
-      25 |
-    > 26 |     expect(permanentRedirectMock).toHaveBeenCalledTimes(1);
-         |                                   ^
-      27 |     expect(permanentRedirectMock).toHaveBeenCalledWith('/cities/barcelona');
-      28 |   });
-      29 |
-
-      at Object.toHaveBeenCalledTimes (app/city/[slug]/__tests__/page.test.tsx:26:35)
-
-  ● LegacyCityAlias page › encodes complex slugs before redirecting
-
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-    Expected: "/cities/S%C3%A3o%20Paulo"
+    n: 1
+    Expected: {"apiVersion": "2025-05-15", "dataset": "dataset", "projectId": "proj", "useCdn": true}
 
     Number of calls: 0
 
-      31 |     LegacyCityAlias({ params: { slug: 'São Paulo' } });
-      32 |
-    > 33 |     expect(permanentRedirectMock).toHaveBeenCalledWith('/cities/S%C3%A3o%20Paulo');
-         |                                   ^
-      34 |   });
-      35 | });
-      36 |
+      45 |     const mod = await loadModule();
+      46 |
+    > 47 |     expect(createClientMock).toHaveBeenNthCalledWith(1, {
+         |                              ^
+      48 |       projectId: 'proj',
+      49 |       dataset: 'dataset',
+      50 |       apiVersion: '2025-05-15',
 
-      at Object.toHaveBeenCalledWith (app/city/[slug]/__tests__/page.test.tsx:33:35)
+      at Object.toHaveBeenNthCalledWith (src/lib/__tests__/sanity.utils.test.ts:47:30)
 
-PASS src/types/type-tests/strict-component-type-tests.test.ts (11.193 s)
-PASS app/auth/login/__tests__/LoginForm.test.tsx
-PASS src/components/layout/__tests__/Footer.test.tsx
-PASS src/components/search/__tests__/SearchForm.unit.test.tsx
-PASS src/components/layout/__tests__/Header.test.tsx
-PASS app/api/auth/[...nextauth]/__tests__/route.test.ts
-PASS src/components/listings/__tests__/ListingDetailsCard.test.tsx (5.003 s)
-PASS src/lib/__tests__/listing-views.test.ts
-PASS app/admin/settings/__tests__/SettingsForm.test.tsx
-PASS app/dashboard/components/__tests__/VenueListingForm.test.tsx
-PASS src/components/search/__tests__/DigitalNomadSearch.test.tsx (5.877 s)
-PASS app/api/search/__tests__/route.test.ts
-PASS src/components/listings/__tests__/ListingGrid.test.tsx
-PASS src/mocks/__tests__/handlers-server.test.ts
-PASS src/components/favorites/__tests__/FavoriteButton.test.tsx
-PASS app/test/search/__tests__/page.test.tsx
-PASS src/middleware/__tests__/server-timing.test.ts
-PASS src/components/__tests__/CommentForm.test.tsx
-PASS src/components/ui/__tests__/StarRating.test.tsx
-PASS app/api/contact/route.test.ts
-PASS src/lib/__tests__/sanity-http-client.test.ts
-PASS src/tests/sanity-generated-types.test.ts
-PASS app/api/admin/stats/__tests__/route.test.ts
-PASS app/api/user/favorites/__tests__/route.test.ts
-PASS app/api/reviews/[reviewId]/vote/route.test.ts
-PASS src/types/__tests__/dto-schemas.test.ts
-PASS app/admin/listings/__tests__/ListingsManagementTable.test.tsx
-PASS src/middleware/__tests__/main-middleware.test.ts
-PASS app/api/auth/register/route.test.ts
-PASS src/lib/__tests__/api.test.ts
-PASS src/lib/auth/serverAuth.test.ts
-PASS app/auth/signup/__tests__/SignupPageContent.test.tsx
-PASS src/lib/analytics/__tests__/analytics-manager.test.ts
-PASS app/__tests__/dashboard-listings-page.test.tsx
-PASS src/lib/performance/__tests__/monitoring-config.test.ts
-PASS app/admin/users/__tests__/UserManagementTable.test.tsx
-PASS app/api/revalidate/__tests__/route.test.ts
-PASS app/api/user/profile/route.test.ts
-PASS app/api/admin/analyze-content/__tests__/route.test.ts
-PASS app/test/listing-detail/page.test.tsx
-PASS app/api/featured-listings/route.msw.test.ts
-PASS src/components/listings/__tests__/RelatedListings.test.tsx
-PASS app/__tests__/listings-slug-page.test.tsx
-PASS src/components/listings/__tests__/ListingDetailView.test.tsx
-PASS src/types/__tests__/auth.test.ts
-PASS src/components/ui/__tests__/neo-badge.test.tsx
-PASS src/components/search/__tests__/DigitalNomadSearchFilter.test.tsx
-PASS src/types/__tests__/moderator.test.ts
-PASS src/utils/__tests__/rate-limit.test.ts
-PASS src/types/__tests__/listings.test.ts
-PASS app/__tests__/page.featuredvenues.test.tsx
-PASS src/components/ui/__tests__/filter-multi-select.test.tsx
-PASS app/api/user/favorites/[slug]/__tests__/route.test.ts
-PASS app/search/__tests__/page.test.tsx
-PASS src/components/sections/__tests__/AboutSection.test.tsx
-PASS app/api/revalidate-all/__tests__/route.repair.test.ts
-PASS app/api/newsletter/subscribe/route.test.ts
-PASS src/lib/auth/clientAuth.test.tsx
-PASS src/components/blog/__tests__/portableTextComponents.test.tsx
-PASS src/components/ui/__tests__/SectionHeader.test.tsx
-PASS src/components/ui/__tests__/select.test.tsx
-PASS src/components/search/__tests__/FiltersSidebar.test.tsx
-PASS app/api/revalidate-all/__tests__/route.clean.test.ts
-PASS src/lib/sanity/queries.test.ts
-PASS app/search/results/page.test.tsx
-PASS src/components/sections/__tests__/TestimonialsSection.test.tsx
-PASS src/components/sections/__tests__/HeroSection.test.tsx
-PASS src/types/__tests__/sort.test.ts
-PASS src/components/ui/__tests__/VenueCard.test.tsx
-PASS src/lib/__tests__/auth.test.ts
-PASS src/models/__tests__/ContactSubmission.test.ts
-PASS app/__tests__/page.listingdetail.test.tsx
-PASS app/dashboard/listings/new/__tests__/page.test.tsx
-PASS src/lib/analytics/plausible/__tests__/hooks.test.tsx
-PASS app/api/cities/[slug]/__tests__/route.msw.test.ts
-PASS src/components/search/__tests__/SearchBox.test.tsx
-PASS src/mocks/__tests__/handlers.test.ts
-PASS src/lib/auth/config.test.ts
-PASS app/city/[slug]/__tests__/error.test.tsx
-PASS src/lib/sanity/user.test.ts
-PASS src/lib/auth/userService.test.ts
-PASS src/components/auth/__tests__/SocialAuthRow.test.tsx
-PASS app/api/exit-preview/route.test.ts
-PASS src/components/listings/__tests__/ReviewsSection.test.tsx
-PASS src/components/sections/__tests__/FeaturedListings.test.tsx
-PASS app/api/reviews/analytics/route.test.ts
-PASS src/components/sections/__tests__/CityCarousel.test.tsx
-PASS app/api/upload/__tests__/route.test.ts
-PASS src/components/ui/__tests__/scroll-down-arrow.test.tsx
-PASS src/utils/__tests__/sanitize.test.ts
-PASS src/components/sections/__tests__/CategoryFilters.test.tsx
-PASS app/api/preview/exit/__tests__/route.test.ts
-PASS app/search/results/helpers.test.ts
-PASS src/lib/analytics/__tests__/useExperiment.test.tsx
-PASS src/types/__tests__/dto.test.ts
-PASS app/dashboard/listings/edit/[id]/__tests__/page.test.tsx
-PASS src/components/listings/__tests__/NoListingsFound.test.tsx
-PASS app/api/test-listings/__tests__/route.test.ts
-PASS src/lib/__tests__/image-optimizer.test.ts
-PASS src/components/ui/__tests__/InteractiveMap.test.tsx
-PASS src/lib/sanity/client.test.ts
-PASS app/api/listings/city/[id]/__tests__/route.msw.test.ts
-PASS src/lib/__tests__/geocode.test.ts
-PASS src/components/city/__tests__/CityDetailView.test.tsx
-PASS app/api/admin/moderation/__tests__/route.test.ts
-PASS app/__tests__/ClientRootLayout.test.tsx
-PASS app/__tests__/robots.test.ts
-PASS app/dashboard/components/__tests__/VenueListingManagement.test.tsx
-PASS src/lib/performance/__tests__/alert-service.test.ts
-PASS src/hooks/useClickOutside.test.tsx
-PASS app/auth/signup/__tests__/page.test.tsx
-PASS src/lib/auth/rateLimit.test.ts
-PASS src/components/ui/__tests__/checkbox.test.tsx
-PASS app/__tests__/test-gallery-page.test.tsx
-PASS app/admin/dashboard/__tests__/ModerationActions.test.tsx
-PASS src/lib/__tests__/sanity-batch-processor.test.ts
-PASS src/lib/performance/__tests__/baseline-testing.test.ts
-PASS src/types/__tests__/sanity.test.ts
-PASS app/api/listings/featured/route.test.ts
-PASS src/types/__tests__/appView.test.ts
-PASS src/types/type-tests/__tests__/strict-component-type-tests.test.tsx
-PASS src/lib/auth/withAuth.test.tsx
-PASS src/components/ui/__tests__/separator.test.tsx
-PASS app/test-reviews/page.test.tsx
-PASS src/lib/__tests__/tokens.test.ts
-PASS src/components/search/__tests__/SearchFiltersForm.test.tsx
-PASS src/mocks/__tests__/api-response.test.ts
-PASS app/newsletter/confirmed/__tests__/page.test.tsx
-PASS app/profile/__tests__/FavoriteListingsShowcase.test.tsx
-PASS src/utils/__tests__/tag-styles.test.ts
-PASS src/lib/__tests__/newsletterTokens.test.ts
-PASS src/hooks/useSearch.test.ts
-PASS src/lib/sanity/cached-client.test.ts
-PASS app/test-gallery/page.test.tsx
-PASS app/api/performance/web-vitals/__tests__/route.test.ts
-PASS app/api/revalidate-all/__tests__/route.test.ts
-PASS src/lib/__tests__/listings.test.ts
-PASS app/__tests__/profile-page.test.tsx
-PASS src/components/listings/__tests__/HeroSection.test.tsx
-PASS app/listings/[slug]/__tests__/layout.test.tsx
-PASS src/lib/mongodb/__tests__/sessionSchema.test.ts
-PASS src/models/__tests__/EmailVerificationToken.test.ts
-PASS src/components/__tests__/AnimatedNumber.test.tsx
-PASS src/lib/performance/__tests__/bundle-analyzer.test.ts
-PASS src/components/ui/__tests__/city-carousel-wave.test.tsx
-PASS src/utils/__tests__/ecoRatingCalculator.test.ts
-PASS app/api/auth/request-password-reset/__tests__/route.test.ts
-PASS src/components/ui/__tests__/label.test.tsx
-PASS app/api/sanity-test/__tests__/route.test.ts
-PASS app/api/auth/verify/__tests__/route.test.ts
-PASS src/lib/admin/__tests__/analytics.test.ts
-PASS src/components/profile/__tests__/ProfileEditForm.component.test.tsx
-PASS app/__tests__/layout-utils.test.ts
-PASS src/lib/__tests__/error-handler.test.ts
-PASS src/components/listings/__tests__/GalleryGrid.test.tsx
-PASS src/components/listings/__tests__/ListingContactInfo.test.tsx
-PASS app/api/admin/bulk-operations/__tests__/route.test.ts
-PASS src/lib/auth/adapter.test.ts
-PASS src/types/__tests__/api.test.ts
-PASS src/lib/__tests__/envLoader.test.ts
-PASS app/api/featured-listings/route.test.ts
-PASS app/api/digital-nomad-features/route.test.ts
-PASS src/models/__tests__/AnalyticsEvent.test.ts
-PASS src/lib/utils/__tests__/slug.test.ts
-PASS src/tests/fixtures/__tests__/page.test.tsx
-PASS app/contact-us/__tests__/page.test.tsx
-PASS app/profile/__tests__/error.test.tsx
-PASS src/utils/__tests__/navigation.test.ts
-PASS src/tests/helpers/test-data.test.ts
-PASS src/models/__tests__/User.test.ts
-PASS src/components/profile/__tests__/ProfileEditForm.test.tsx
-PASS src/lib/__tests__/client.test.ts
-PASS src/components/listings/__tests__/listingDetailMockData.test.ts
-PASS src/components/ui/__tests__/skip-link.test.tsx
-PASS src/types/__tests__/enums.test.ts
-PASS app/admin/__tests__/error.test.tsx
-PASS app/listings/__tests__/error.test.tsx
-PASS app/api/admin/listings/stats/__tests__/route.test.ts
-PASS src/lib/__tests__/adapters.test.ts
-PASS src/components/__tests__/MswInit.test.tsx
-PASS src/types/__tests__/search.test.ts
-PASS src/types/__tests__/moderation.test.ts
-PASS src/tests/fixtures/index.test.ts
-PASS src/tests/helpers/assertions.test.ts
-PASS app/api/search/__tests__/route.msw.test.ts
-PASS src/lib/performance/__tests__/budgets.test.ts
-PASS src/lib/auth/withAuthMatrix.test.ts
-PASS src/lib/performance/__tests__/withPerformanceTracking.test.tsx
-PASS app/api/test-mongodb/__tests__/route.test.ts
-PASS src/components/listings/__tests__/ListingCategoryDetails.test.tsx
-PASS src/components/__tests__/Providers.test.tsx
-PASS src/lib/image-utils/getImageDimensions.test.ts
-PASS src/lib/analytics/__tests__/experiments.test.ts
-PASS src/types/__tests__/query-types.test.ts
-PASS src/test-helpers/__tests__/createMongoMemoryServer.test.ts
-PASS app/listings/[slug]/__tests__/page.test.tsx
-PASS src/lib/sanity/image.test.ts
-PASS src/__tests__/instrumentation.test.ts
-PASS src/lib/auth/callbackUrl.test.ts
-PASS app/api/categories/route.test.ts
-PASS src/models/__tests__/NewsletterSubscriber.test.ts
-PASS src/lib/__tests__/mongoose-cache.test.ts
-PASS src/components/__tests__/CommentList.test.tsx
-PASS app/api/user/dashboard/route.test.ts
-PASS src/lib/performance/__tests__/alerting-thresholds.test.ts
-PASS app/api/admin/settings/__tests__/route.test.ts
-PASS src/lib/__tests__/landmark-coordinates.test.ts
-PASS src/lib/mongodb/__tests__/testDbConnector.test.ts
-PASS src/hooks/useCounter.test.ts
-PASS app/__tests__/auth-login-page.test.tsx
-PASS app/api/listings/manage/[id]/__tests__/route.test.ts
-PASS app/api/eco-tags/route.test.ts
-PASS src/components/ui/__tests__/textarea.test.tsx
-PASS app/api/admin/users/__tests__/route.test.ts
-PASS src/lib/analytics/plausible/__tests__/provider.test.tsx
-PASS app/api/events/route.test.ts
-PASS app/__tests__/error.test.tsx
-PASS src/models/__tests__/mongoose-mock.guard.test.ts
-PASS src/lib/__tests__/utils.test.ts
-PASS src/components/ui/__tests__/ImageCarousel.test.tsx
-PASS app/dashboard/__tests__/error.test.tsx
-PASS src/hooks/useAuth.test.ts
-PASS app/__tests__/dashboard-page.test.tsx
-PASS app/sitemap.test.ts
-PASS src/models/__tests__/UserAnalytics.test.ts
-PASS src/types/__tests__/city.test.ts
-PASS app/api/admin/listings/__tests__/route.test.ts
-PASS app/api/listings/city/[id]/__tests__/route.test.ts
-PASS src/lib/performance/__tests__/performance-budgets.test.ts
-PASS src/types/auth-types.test.ts
-PASS src/tests/fixtures/__tests__/index.test.ts
-PASS src/lib/http/__tests__/request-json-helpers.test.ts
-PASS src/lib/__tests__/email.test.ts
-PASS src/hooks/useFilters.test.ts
-PASS app/api/search/suggestions/__tests__/route.test.ts
-PASS app/cities/[slug]/page.test.tsx
-PASS src/lib/performance/__tests__/web-vitals-reporter.test.ts
-PASS app/api/city/[slug]/__tests__/route.test.ts
-PASS src/lib/__tests__/rate-limit.test.ts
-PASS app/__tests__/test-reviews-page.test.tsx
-PASS src/lib/data/__tests__/city.test.ts
-PASS app/api/amenities/route.test.ts
-PASS src/hooks/__tests__/useFilters.test.ts
-PASS src/types/__tests__/sanity-compatible-json.test.ts
-PASS app/api/listings/[slug]/route.test.ts
-PASS src/middleware/__tests__/cache.test.ts
-PASS app/auth/login/__tests__/page.test.tsx
-PASS src/utils/__tests__/helpers.test.ts
-PASS src/lib/auth/serverAuth-simplified.test.ts
-PASS src/utils/__tests__/revalidation-token.test.ts
-PASS src/lib/performance/__tests__/web-vitals-reporter.test.fixed.ts
-PASS app/api/newsletter/confirm/__tests__/route.test.ts
-PASS src/lib/__tests__/sanity-image-uploader.test.ts
-PASS src/hooks/useSearchListings.test.ts
-PASS src/types/__tests__/components.test.ts
-PASS src/lib/__tests__/dto-transformer.test.ts
-PASS src/lib/dashboard/__tests__/user-dashboard.test.ts
-PASS src/lib/queries/__tests__/index.test.ts
-PASS app/api/blog/[slug]/route.test.ts
-PASS src/lib/__tests__/search.test.ts
-PASS app/api/reviews/moderation/__tests__/route.test.ts
-PASS src/hooks/useAnalytics.test.ts
-PASS app/__tests__/test-listing-detail-page.test.tsx
-PASS src/components/city/__tests__/cityDetailMockData.test.ts
-PASS src/models/__tests__/UserFavorite.test.ts
-PASS src/tests/sanity-client.test.ts
-PASS app/api/user/reviews/__tests__/route.test.ts
-PASS app/__tests__/cities-slug-page.test.tsx
-PASS src/lib/analytics/__tests__/config.test.ts
-PASS src/lib/viewCountPersistence.test.ts
-PASS src/lib/performance/__tests__/plausible.test.ts
-PASS app/api/user/analytics/route.test.ts
-PASS src/types/__tests__/filters.test.ts
-PASS src/middleware/__tests__/authCallbackHandler.test.ts
-PASS src/middleware/__tests__/session.test.ts
-PASS src/__tests__/require-react-fc-type-parameters.test.ts
-PASS src/data/e2e/__tests__/discovery-fixtures.test.ts
-PASS src/lib/__tests__/cache-strategy.test.ts
-PASS app/profile/__tests__/utils.test.ts
-PASS src/lib/sanity/__tests__/env.test.ts
-PASS src/types/__tests__/ui.test.ts
-PASS app/api/cities/__tests__/route.test.ts
-PASS app/api/reviews/listing/[slug]/route.test.ts
-PASS src/models/__tests__/LoginAttempt.test.ts
-PASS app/api/admin/analytics/__tests__/route.test.ts
-PASS src/scripts/__tests__/analyze-content.test.ts
-PASS src/utils/__tests__/priceRange.test.ts
-PASS src/models/__tests__/PasswordResetToken.test.ts
-PASS src/types/__tests__/api-responses.test.ts
-PASS app/api/preview/__tests__/route.test.ts
-PASS src/utils/__tests__/api-response.test.ts
-PASS app/__tests__/sitemap.test.ts
-PASS app/api/auth/reset-password/__tests__/route.test.ts
-PASS src/lib/mongodb/__tests__/init.test.ts
-PASS src/lib/__tests__/redis.test.ts
-PASS app/api/listings/[slug]/views/__tests__/route.test.ts
-PASS src/utils/__tests__/auth-helpers.test.ts
-PASS app/api/session/__tests__/route.test.ts
-PASS app/api/auth/update-profile/route.test.ts
-PASS src/types/__tests__/listing.test.ts
-PASS src/lib/highlight.test.tsx
-PASS src/lib/__tests__/logger.test.ts
-PASS src/tests/mocks/factories.test.ts
-PASS src/lib/performance/__tests__/web-vitals-reporter.minimal.test.ts
-PASS src/lib/performance/__tests__/collector.test.ts
-PASS app/api/cities/[slug]/__tests__/route.test.ts
-PASS app/api/mock-env/__tests__/route.test.ts
-PASS src/mocks/__tests__/browser.test.ts
-PASS src/lib/analytics/plausible/__tests__/index.test.ts
-PASS src/test-helpers/__tests__/msw-server-bridge.test.ts
+  ● sanity utils › fetches preview data using the preview client
 
-ReferenceError: You are trying to `import` a file after the Jest environment has been torn down. From app/api/reviews/route.test.ts.
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
 
-      784 |       };
-      785 |
-    > 786 |       const actual = jest.requireActual('@/lib/auth/config') as Record<string, unknown>;
-          |                           ^
-      787 |
-      788 |       ensureMock(ac, 'isEmailVerificationRequired', (...args: unknown[]) =>
-      789 |         (actual.isEmailVerificationRequired as (...fnArgs: unknown[]) => unknown)(...args)
+    Expected: Any<String>, {"slug": "hello", "type": "post"}
 
-      at requireActual (jest.setup.ts:786:27)
-FAIL app/api/reviews/route.test.ts
-  ● Test suite failed to run
+    Number of calls: 0
 
-    Jest encountered an unexpected token
+      82 |     const result = await mod.fetchBySlug('post', 'hello', true);
+      83 |
+    > 84 |     expect(previewClient.fetch).toHaveBeenCalledWith(expect.any(String), {
+         |                                 ^
+      85 |       type: 'post',
+      86 |       slug: 'hello',
+      87 |     });
 
-    Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+      at Object.toHaveBeenCalledWith (src/lib/__tests__/sanity.utils.test.ts:84:33)
 
-    Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+ FAIL  app/admin/listings/__tests__/page.test.tsx
+  ● Admin listings page › redirects when the viewer is not an admin
 
-    By default "node_modules" folder is ignored by transformers.
+    expect(received).rejects.toThrow()
 
-    Here's what you can do:
-     • If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
-     • If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
-     • To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
-     • If you need a custom transformation specify a "transform" option in your config.
-     • If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+    Received promise resolved instead of rejected
+    Resolved to value: {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [{"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [{"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": "Listing Management", "className": "text-3xl font-bold text-gray-900", "data-testid": "admin-listings-title"}, "type": "h1"}, {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": "Manage listings, approve submissions, and feature content.", "className": "mt-2 text-gray-600"}, "type": "p"}], "className": "mb-8"}, "type": "div"}, {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"currentUserId": "user-1", "currentUserRole": "user"}, "type": [Function ListingsManagementTable]}, "className": "bg-white shadow-sm rounded-lg border border-gray-200"}, "type": "div"}], "className": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"}, "type": "div"}, "className": "min-h-screen bg-gray-50", "data-testid": "admin-listings-page"}, "type": "main"}
 
-    You'll find more details and examples of these config options in the docs:
-    https://jestjs.io/docs/configuration
-    For information about custom transformations, see:
-    https://jestjs.io/docs/code-transformation
+      58 |     const AdminListingsPage = (await import('../page')).default;
+      59 |
+    > 60 |     await expect(AdminListingsPage()).rejects.toThrow('redirect');
+         |           ^
+      61 |     expect(redirectMock).toHaveBeenCalledWith('/auth/login?callbackUrl=/admin/listings');
+      62 |   });
+      63 | });
 
-    Details:
+      at expect (../node_modules/.pnpm/expect@29.7.0/node_modules/expect/build/index.js:113:15)
+      at Object.expect (app/admin/listings/__tests__/page.test.tsx:60:11)
 
-    /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/__mocks__/next/cache.js:3
-    const { jest } = require('@jest/globals');
-            ^
+ FAIL  app/admin/users/__tests__/page.test.tsx
+  ● Admin users page › redirects when the viewer is not an admin
 
-    SyntaxError: Identifier 'jest' has already been declared
+    expect(received).rejects.toThrow()
 
-      4 | const mockAuth = jest.fn() as jest.MockedFunction<typeof import('@/lib/auth').auth>;
-      5 | jest.mock('@/lib/auth', () => ({
-    > 6 |   __esModule: true,
-        |                ^
-      7 |   auth: mockAuth,
-      8 |   GET: jest.fn(),
-      9 |   POST: jest.fn(),
+    Received promise resolved instead of rejected
+    Resolved to value: {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [{"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [{"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": "User Management", "className": "text-3xl font-bold text-gray-900", "data-testid": "admin-users-title"}, "type": "h1"}, {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": "Manage user accounts, roles, and permissions.", "className": "mt-2 text-gray-600"}, "type": "p"}], "className": "mb-8"}, "type": "div"}, {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"currentUserId": "user-99", "currentUserRole": "user"}, "type": [Function UserManagementTable]}, "className": "bg-white shadow-sm rounded-lg border border-gray-200"}, "type": "div"}], "className": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"}, "type": "div"}, "className": "min-h-screen bg-gray-50", "data-testid": "admin-users-page"}, "type": "main"}
 
-      at Runtime.createScriptFromCode (../node_modules/.pnpm/jest-runtime@29.7.0/node_modules/jest-runtime/build/index.js:1505:14)
-      at Object.<anonymous> (app/api/reviews/route.test.ts:6:16)
+      58 |     const AdminUsersPage = (await import('../page')).default;
+      59 |
+    > 60 |     await expect(AdminUsersPage()).rejects.toThrow('redirect');
+         |           ^
+      61 |     expect(redirectMock).toHaveBeenCalledWith('/auth/login?callbackUrl=/admin/users');
+      62 |   });
+      63 | });
+
+      at expect (../node_modules/.pnpm/expect@29.7.0/node_modules/expect/build/index.js:113:15)
+      at Object.expect (app/admin/users/__tests__/page.test.tsx:60:11)
+
+ FAIL  app/__tests__/page.test.tsx
+  ● HomePage › renders all sections in correct order
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Array [
+        "page-layout",
+        "hero-section",
+    -   "featured-listings",
+        "city-carousel",
+    +   "featured-listings",
+      ]
+
+      52 |     const testIds = Array.from(sections).map(el => el.getAttribute('data-testid'));
+      53 |
+    > 54 |     expect(testIds).toEqual(['page-layout', 'hero-section', 'featured-listings', 'city-carousel']);
+         |                     ^
+      55 |   });
+      56 | });
+      57 |
+
+      at Object.toEqual (app/__tests__/page.test.tsx:54:21)
+
+ FAIL  app/admin/__tests__/layout.test.tsx (9.668 s)
+  ● Admin layout › renders navigation for admin and super admin users
+
+    TestingLibraryElementError: Found multiple elements with the text: Admin Panel
+
+    Here are the matching elements:
+
+    Ignored nodes: comments, script, style
+    <span
+      class="text-xl font-bold text-gray-900"
+    >
+      Admin Panel
+    </span>
+
+    Ignored nodes: comments, script, style
+    <span
+      class="text-sm text-gray-600"
+    >
+      Admin Panel
+    </span>
+
+    (If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+    Ignored nodes: comments, script, style
+    <body>
+      <div>
+        <div
+          class="min-h-screen bg-gray-50"
+        >
+          <nav
+            class="bg-white shadow-sm border-b border-gray-200"
+          >
+            <div
+              class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+            >
+              <div
+                class="flex justify-between h-16"
+              >
+                <div
+                  class="flex items-center"
+                >
+                  <a
+                    class="flex-shrink-0 flex items-center"
+                    href="/admin/dashboard"
+                  >
+                    <span
+                      class="text-xl font-bold text-gray-900"
+                    >
+                      Admin Panel
+                    </span>
+                  </a>
+                  <div
+                    class="hidden md:ml-8 md:flex md:space-x-8"
+                  >
+                    <a
+                      class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                      href="/admin/dashboard"
+                    >
+                      <span
+                        class="mr-2"
+                      >
+                        ��
+                      </span>
+                      Dashboard
+                    </a>
+                    <a
+                      class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                      href="/admin/users"
+                    >
+                      <span
+                        class="mr-2"
+                      >
+                        ��
+                      </span>
+                      Users
+                    </a>
+                    <a
+                      class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                      href="/admin/listings"
+                    >
+                      <span
+                        class="mr-2"
+                      >
+                        ��
+                      </span>
+                      Listings
+                    </a>
+                    <a
+                      class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                      href="/listings"
+                    >
+                      <span
+                        class="mr-2"
+                      >
+                        ��
+                      </span>
+                      Back to Site
+                    </a>
+                  </div>
+                </div>
+                <div
+                  class="flex items-center"
+                >
+                  <span
+                    class="text-sm text-gray-600"
+                  >
+                    Admin Panel
+                  </span>
+                </div>
+              </div>
+            </div>
+          </nav>
+          <div
+            data-testid="layout-child"
+          >
+            Child
+          </div>
+        </div>
+      </div>
+    </body>
+
+      27 |     render(tree);
+      28 |
+    > 29 |     expect(screen.getByText('Admin Panel')).toBeInTheDocument();
+         |                   ^
+      30 |     expect(screen.getByRole('link', { name: /dashboard/i })).toHaveAttribute(
+      31 |       'href',
+      32 |       '/admin/dashboard'
+
+      at Object.getElementError (../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:37:19)
+      at getElementError (../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:20:35)
+      at getMultipleElementsFoundError (../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:23:10)
+      at ../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:55:13
+      at ../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.getByText (app/admin/__tests__/layout.test.tsx:29:19)
+
+  ● Admin layout › redirects non-admin users to the login page
+
+    expect(received).rejects.toThrow()
+
+    Matcher error: received value must be a promise or a function returning a promise
+
+    Received has type:  object
+    Received has value: {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [{"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [[Object], [Object]], "className": "flex justify-between h-16"}, "type": "div"}, "className": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"}, "type": "div"}, "className": "bg-white shadow-sm border-b border-gray-200"}, "type": "nav"}, {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {}, "type": "div"}], "className": "min-h-screen bg-gray-50"}, "type": "div"}
+
+      46 |     const AdminLayout = (await import('../layout')).default;
+      47 |
+    > 48 |     await expect(AdminLayout({ children: <div /> })).rejects.toThrow('redirect');
+         |                                                              ^
+      49 |     expect(redirectMock).toHaveBeenCalledWith('/auth/login');
+      50 |   });
+      51 | });
+
+      at Object.toThrow (../node_modules/.pnpm/expect@29.7.0/node_modules/expect/build/index.js:204:13)
+      at Object.toThrow (app/admin/__tests__/layout.test.tsx:48:62)
 
 
-ReferenceError: You are trying to `import` a file after the Jest environment has been torn down. From app/api/listings/route.test.ts.
+Test Suites: 20 failed, 312 passed, 332 total
+Tests:       66 failed, 4046 passed, 4112 total
+Snapshots:   0 total
+Time:        569.516 s
+Ran all test suites.
+Jest did not exit one second after the test run has completed.
 
-      784 |       };
-      785 |
-    > 786 |       const actual = jest.requireActual('@/lib/auth/config') as Record<string, unknown>;
-          |                           ^
-      787 |
-      788 |       ensureMock(ac, 'isEmailVerificationRequired', (...args: unknown[]) =>
-      789 |         (actual.isEmailVerificationRequired as (...fnArgs: unknown[]) => unknown)(...args)
+'This usually means that there are asynchronous operations that weren't stopped in your tests. Consider running Jest with `--detectOpenHandles` to troubleshoot this issue.
 
-      at requireActual (jest.setup.ts:786:27)
-FAIL app/api/listings/route.test.ts
-  ● Test suite failed to run
-
-    Jest encountered an unexpected token
-
-    Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
-
-    Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
-
-    By default "node_modules" folder is ignored by transformers.
-
-    Here's what you can do:
-     • If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
-     • If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
-     • To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
-     • If you need a custom transformation specify a "transform" option in your config.
-     • If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
-
-    You'll find more details and examples of these config options in the docs:
-    https://jestjs.io/docs/configuration
-    For information about custom transformations, see:
-    https://jestjs.io/docs/code-transformation
-
-    Details:
-
-    /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/__mocks__/next/cache.js:3
-    const { jest } = require('@jest/globals');
-            ^
-
-    SyntaxError: Identifier 'jest' has already been declared
-
-      23 |   title: string;
-      24 |   slug: string;
-    > 25 |   category: string;
-         |                ^
-      26 |   description: string;
-      27 |   location: string;
-      28 |   ecoTags: string[];
-
-      at Runtime.createScriptFromCode (../node_modules/.pnpm/jest-runtime@29.7.0/node_modules/jest-runtime/build/index.js:1505:14)
-      at Object.<anonymous> (app/api/listings/route.ts:25:16)
-      at Object.<anonymous> (app/api/listings/route.test.ts:7:16)
-
-
-ReferenceError: You are trying to `import` a file after the Jest environment has been torn down. From app/api/comments/route.test.ts.
-
-      784 |       };
-      785 |
-    > 786 |       const actual = jest.requireActual('@/lib/auth/config') as Record<string, unknown>;
-          |                           ^
-      787 |
-      788 |       ensureMock(ac, 'isEmailVerificationRequired', (...args: unknown[]) =>
-      789 |         (actual.isEmailVerificationRequired as (...fnArgs: unknown[]) => unknown)(...args)
-
-      at requireActual (jest.setup.ts:786:27)
-FAIL app/api/comments/route.test.ts
-  ● Test suite failed to run
-
-    Jest encountered an unexpected token
-
-    Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
-
-    Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
-
-    By default "node_modules" folder is ignored by transformers.
-
-    Here's what you can do:
-     • If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
-     • If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
-     • To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
-     • If you need a custom transformation specify a "transform" option in your config.
-     • If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
-
-    You'll find more details and examples of these config options in the docs:
-    https://jestjs.io/docs/configuration
-    For information about custom transformations, see:
-    https://jestjs.io/docs/code-transformation
-
-    Details:
-
-    /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/__mocks__/next/cache.js:3
-    const { jest } = require('@jest/globals');
-            ^
-
-    SyntaxError: Identifier 'jest' has already been declared
-
-      17 |   end: number;
-      18 | };
-    > 19 |
-         | ^
-      20 | function successResponse<T>(data: T, status = 200, message?: string) {
-      21 |   const payload =
-      22 |     message === undefined ? { success: true, data } : { success: true, data, message };
-
-      at Runtime.createScriptFromCode (../node_modules/.pnpm/jest-runtime@29.7.0/node_modules/jest-runtime/build/index.js:1505:14)
-      at Object.<anonymous> (app/api/comments/route.ts:19:16)
-      at Object.<anonymous> (app/api/comments/route.test.ts:9:16)
-
-/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/src/lib/mongodb.ts:61
-        throw new Error(`Please add your MongoDB URI to ${envFile}`);
-              ^
-
-Error: Please add your MongoDB URI to .env.local
-    at getClientPromise (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/src/lib/mongodb.ts:61:15)
-    at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/src/lib/mongodb.ts:103:5
-    at new Promise (<anonymous>)
-    at Object.<anonymous> (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/src/lib/mongodb.ts:102:18)
-    at Runtime._execModule (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/jest-runtime@29.7.0/node_modules/jest-runtime/build/index.js:1439:24)
-    at Runtime._loadModule (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/jest-runtime@29.7.0/node_modules/jest-runtime/build/index.js:1022:12)
-    at Runtime.requireModule (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/jest-runtime@29.7.0/node_modules/jest-runtime/build/index.js:882:12)
-    at Runtime.requireModuleOrMock (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/jest-runtime@29.7.0/node_modules/jest-runtime/build/index.js:1048:21)
-    at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/src/lib/__tests__/mongodb.test.ts:63:18
-    at Object.<anonymous> (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/src/lib/__tests__/mongodb.test.ts:63:5)
-
-Node.js v22.21.0
-/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory:
- ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  app-next-directory@0.1.0 test:unit: `cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --runInBand --passWithNoTests --runInBand --detectOpenHandles`
-Exit status 1
- ELIFECYCLE  Command failed with exit code 1.
+> Test run "all-tests:with-coverage:5" exited at 12/10/2025, 12:29:59 AM <

@@ -37,6 +37,7 @@
     "dist/types/**/*.ts",
     "global.d.ts",
     "next-env.d.ts",
+    "next.setup.ts",
     "sanity.config.ts",
     "src/**/*.d.ts",
     "src/**/*.ts",
