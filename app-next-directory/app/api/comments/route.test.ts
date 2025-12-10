@@ -13,8 +13,10 @@ jest.mock('next/server', () => ({
 }));
 
 // Fix auth mock to properly support mockResolvedValueOnce
+const mockAuth = jest.fn();
 jest.mock('@/lib/auth', () => ({
-  auth: jest.fn(),
+  __esModule: true,
+  auth: mockAuth,
   GET: jest.fn(),
   POST: jest.fn(),
 }));
@@ -122,7 +124,7 @@ describe('API /api/comments', () => {
 
   describe('POST', () => {
     it('rejects unauthorized users', async () => {
-      (auth as jest.Mock).mockResolvedValueOnce(null);
+      mockAuth.mockResolvedValueOnce(null);
       const req = new Request('http://localhost/api/comments', {
         method: 'POST',
         body: JSON.stringify({ content: 'Hi', postId: 'p1' }),
@@ -134,7 +136,7 @@ describe('API /api/comments', () => {
     });
 
     it('rejects users without comment permissions', async () => {
-      (auth as jest.Mock).mockResolvedValueOnce({
+      mockAuth.mockResolvedValueOnce({
         user: { id: 'user1', role: 'unidentifiedUser', name: 'User' },
       });
       const req = new Request('http://localhost/api/comments', {
@@ -151,7 +153,7 @@ describe('API /api/comments', () => {
     });
 
     it('returns fallback error response when NextResponse.json is unavailable', async () => {
-      (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+      mockAuth.mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
       const originalJson = (NextResponse as any).json;
       (NextResponse as any).json = undefined;
 
@@ -165,7 +167,7 @@ describe('API /api/comments', () => {
     });
 
     it('rejects sessions without a user id', async () => {
-      (auth as jest.Mock).mockResolvedValueOnce({ user: { role: 'user', name: 'Nameless' } });
+      mockAuth.mockResolvedValueOnce({ user: { role: 'user', name: 'Nameless' } });
 
       const res = await POST(
         new Request('http://localhost/api/comments', {
@@ -180,7 +182,7 @@ describe('API /api/comments', () => {
     });
 
     it('creates a comment and revalidates tag', async () => {
-      (auth as jest.Mock).mockResolvedValueOnce({
+      mockAuth.mockResolvedValueOnce({
         user: { id: 'user1', role: 'user', name: 'User', email: 'u@example.com' },
       });
       mockEnsureSanityUser.mockResolvedValueOnce({ _id: 'sanityUser1', _type: 'user' });
@@ -210,7 +212,7 @@ describe('API /api/comments', () => {
     });
 
     it('creates a comment without revalidating when the post has no slug', async () => {
-      (auth as jest.Mock).mockResolvedValueOnce({
+      mockAuth.mockResolvedValueOnce({
         user: { id: 'user1', role: 'user', name: 'User' },
       });
       (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'p1' });
@@ -227,7 +229,7 @@ describe('API /api/comments', () => {
     });
 
     it('still succeeds when revalidateTag encounters an error', async () => {
-      (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+      mockAuth.mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
       (client.getDocument as jest.Mock).mockResolvedValueOnce({
         _id: 'p1',
         slug: { current: 'sluggy' },
@@ -245,7 +247,7 @@ describe('API /api/comments', () => {
     });
 
     it('returns validation error when fields are missing or invalid', async () => {
-      (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+      mockAuth.mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
 
       const res = await POST(
         new Request('http://localhost/api/comments', {
@@ -260,7 +262,7 @@ describe('API /api/comments', () => {
     });
 
     it('rejects requests without a json body parser', async () => {
-      (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+      mockAuth.mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
 
       const res = await POST({ method: 'POST' } as any);
       expect(res.status).toBe(422);
@@ -268,7 +270,7 @@ describe('API /api/comments', () => {
     });
 
     it('handles failures to parse the body gracefully', async () => {
-      (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+      mockAuth.mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
 
       const failingRequest = {
         json: jest.fn().mockRejectedValue(new Error('nope')),
@@ -280,7 +282,7 @@ describe('API /api/comments', () => {
     });
 
     it('trims content and rejects empty comments', async () => {
-      (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+      mockAuth.mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
 
       const res = await POST(
         new Request('http://localhost/api/comments', {
@@ -295,7 +297,7 @@ describe('API /api/comments', () => {
     });
 
     it('requires comment content to be a string', async () => {
-      (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+      mockAuth.mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
 
       const res = await POST(
         new Request('http://localhost/api/comments', {
@@ -309,7 +311,7 @@ describe('API /api/comments', () => {
     });
 
     it('returns 400 when the referenced post cannot be found', async () => {
-      (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+      mockAuth.mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
       (client.getDocument as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await POST(
@@ -325,7 +327,7 @@ describe('API /api/comments', () => {
     });
 
     it('returns 500 when comment creation throws an unexpected error', async () => {
-      (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+      mockAuth.mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
       (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'p1' });
       (client.create as jest.Mock).mockRejectedValueOnce(new Error('Sanity failure'));
 
@@ -342,7 +344,7 @@ describe('API /api/comments', () => {
     });
 
     it('returns 500 when ensureSanityUser throws an unexpected error', async () => {
-      (auth as jest.Mock).mockResolvedValueOnce({
+      mockAuth.mockResolvedValueOnce({
         user: { id: 'user1', role: 'user', name: 'User', email: 'u@example.com' },
       });
       mockEnsureSanityUser.mockRejectedValueOnce(new Error('Sanity user failure'));
@@ -360,7 +362,7 @@ describe('API /api/comments', () => {
     });
 
     it('still creates a comment if user has no email', async () => {
-      (auth as jest.Mock).mockResolvedValueOnce({
+      mockAuth.mockResolvedValueOnce({
         user: { id: 'user1', role: 'user', name: 'User' },
       });
       mockEnsureSanityUser.mockResolvedValueOnce({ _id: 'sanityUser1', _type: 'user' });
