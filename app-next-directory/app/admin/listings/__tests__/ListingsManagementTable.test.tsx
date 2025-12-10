@@ -14,6 +14,7 @@ jest.mock('@/lib/error-handler', () => ({
 
 import { HttpResponse, http } from 'msw';
 import { setupServer } from 'msw/node';
+import { structuredLogger } from '@/lib/logger';
 import type {
   ListingManagementItem,
   ListingManagementResponse,
@@ -119,10 +120,10 @@ const handlers = [
     }
     if (type) {
       filteredListings = filteredListings.filter(listing => listing.type === type);
-      console.log(
-        `MSW: Filtered by type "${type}". Remaining listings:`,
-        filteredListings.map(l => l.name)
-      );
+      structuredLogger.debug(`MSW: Filtered by type "${type}"`, {
+        component: 'msw',
+        remaining: filteredListings.map(l => l.name),
+      });
     }
     if (search) {
       filteredListings = filteredListings.filter(
@@ -130,10 +131,10 @@ const handlers = [
           listing.name.toLowerCase().includes(search.toLowerCase()) ||
           listing.slug.toLowerCase().includes(search.toLowerCase())
       );
-      console.log(
-        `MSW: Filtered by search "${search}". Remaining listings:`,
-        filteredListings.map(l => l.name)
-      );
+      structuredLogger.debug(`MSW: Filtered by search "${search}"`, {
+        component: 'msw',
+        remaining: filteredListings.map(l => l.name),
+      });
     }
 
     const limit = 20;

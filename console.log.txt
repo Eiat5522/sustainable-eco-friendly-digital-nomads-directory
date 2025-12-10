@@ -1,0 +1,189 @@
+────────────────────────────────────────────╯
+✦ Here are all the instances of console.log() found in the repository:
+
+  scripts/migrate-listing-slugs.js:
+   * Line 66:     console.log(✅ Updated "${listing.name}": ${listing.slug} → ${uniqueSlug});
+   * Line 78:   console.log('🔄 Starting listing slug migration...\n');
+   * Line 82:     console.log('📋 Fetching listings with generate-uuid-for slugs...');
+   * Line 94:       console.log('✅ No listings found with generate-uuid-for slugs. Migration not needed.');
+   * Line 98:     console.log(📊 Found ${listings.length} listings to update:\n);
+   * Line 103:       console.log(   "${listing.name}" → ${baseSlug});
+   * Line 106:     console.log('\n🚀 Starting migration...\n');
+   * Line 112:       console.log([${i + 1}/${listings.length}] Processing "${listing.name}"...);
+   * Line 125:     console.log(\n📊 Migration Summary:);
+   * Line 126:     console.log(   ✅ Successfully updated: ${successful});
+   * Line 127:     console.log(   ❌ Failed: ${failed});
+   * Line 130:       console.log('\n❌ Failed updates:');
+   * Line 132:         console.log(   - ${result.error});
+   * Line 136:     console.log('\n🎉 Migration completed!');
+
+  docs/SECURITY_ACCESS_CONTROL.md:
+   * Line 412: console.log('Session:', session);
+   * Line 415: console.log('User Role:', token?.role);
+
+  docs/monorepo/DEPLOYMENT_GUIDE.md:
+   * Line 430: client.connect().then(() => console.log('Connected')).catch(console.error);
+
+  docs/reference/CODING_STANDARDS.md:
+   * Line 59:     console.log(data.name);
+
+  docs/testing/archive/TEST_FIX_SUMMARY.md:
+   * Line 39:   console.log('React 19: Installed act polyfill for testing compatibility');
+
+  docs/deployment/README.md:
+   * Line 398:   console.log([PERF] ${operation}: ${duration}ms)
+   * Line 534:   console.log('Production debug info:', data)
+
+  app-next-directory/scripts/postinstall-playwright.cjs:
+   * Line 12:   console.log('[postinstall-playwright] Skipping browser installation (CI or disabled)');
+   * Line 39:   console.log('[postinstall-playwright] Browsers appear to be cached, skipping installation');
+   * Line 40:   console.log('[postinstall-playwright] Run with FORCE_PLAYWRIGHT_INSTALL=1 to force reinstall');
+   * Line 44: console.log('[postinstall-playwright] Installing Playwright browsers...');
+   * Line 54:   console.log('[postinstall-playwright] Browser installation complete');
+
+  app-next-directory/scripts/validate-env.js:
+   * Line 13:   console.log('🔎 Environment Validation for Phase 1 Integration\n');
+   * Line 59:   console.log('🔒 Authentication Variables:');
+   * Line 63:     console.log(   ${status} ${variable.name}: ${isValid ? '✓ Configured' : '❌ Missing'});
+   * Line 66:       console.log(      Description: ${variable.description});
+   * Line 67:       console.log(      Example: ${variable.example});
+   * Line 72:   console.log('\n📊 CMS Variables:');
+   * Line 76:     console.log(   ${status} ${variable.name}: ${isValid ? '✓ Configured' : '○ Optional'});
+   * Line 94:   console.log('\n🌐 Social Sign-In Providers:');
+   * Line 98:     console.log(   ${status} ${variable.name}: ${isValid ? '✓ Configured' : '○ Optional'});
+   * Line 100:       console.log(      ${variable.description});
+   * Line 104:   console.log('\n📋 Summary:');
+   * Line 106:     console.log('🎉 All required environment variables are configured!');
+   * Line 107:     console.log('🚀 Ready to run integration tests');
+   * Line 108:     console.log('\nNext steps:');
+   * Line 109:     console.log('   1. pnpm run test:db-connection');
+   * Line 110:     console.log('   2. pnpm run test:integration');
+   * Line 111:     console.log('   3. pnpm dev (start development server)');
+   * Line 113:     console.log('⚠️Some required environment variables are missing');
+   * Line 114:     console.log('📖 Please see MONGODB_SETUP.md for configuration instructions');
+   * Line 115:     console.log('\nQuick setup:');
+   * Line 116:     console.log('   1. Copy .env.example to .env.local');
+   * Line 117:     console.log('   2. Configure MONGODB_URI with your database');
+   * Line 118:     console.log('   3. pnpm run validate:env (after filling values)');
+
+  app-next-directory/scripts/generate-test-jwt.js:
+   * Line 44:   console.log(token);
+
+  app-next-directory/scripts/ci/importValidator.ts:
+   * Line 58:     console.log('All imports validated successfully.');
+
+  app-next-directory/scripts/postinstall-msw.cjs:
+   * Line 17:     console.log([postinstall-msw] Initializing MSW: ${cmd});
+
+  app-next-directory/app/api/blog/[slug]/route.test.ts:
+   * Line 132:           console.log('Response status:', response.status);
+   * Line 133:           console.log('Response data:', data);
+
+  app-next-directory/app/admin/listings/__tests__/ListingsManagementTable.test.tsx:
+   * Line 122:       console.log("
+   * Line 133:       console.log("
+
+  app-next-directory/docs/testing/msw-guide.md:
+   * Line 357: console.log(server.listHandlers());
+
+  app-next-directory/docs/MSW_SANITY_SUMMARY.md:
+   * Line 144: console.log('[MSW] Intercepted:', request.url);
+   * Line 145: console.log('[MSW] Query:', query.substring(0, 100));
+
+  app-next-directory/docs/CACHING_STRATEGY.md:
+   * Line 314:    console.log('Hit rate:', metrics.hits / (metrics.hits + metrics.misses));
+
+  app-next-directory/.env.example.latest:
+   * Line 155: TEST_INLINE_SCRIPT_MESSAGE=console.log("This should be blocked")
+
+  app-next-directory/playwright-report/trace/uiMode.DRQ310U5.js:
+   * Line 4: console.log(F)
+   * Line 4: console.log("canvas
+     drawn:",JSON.stringify([w.left,w.top,w.right-w.left,w.bottom-w.top].map(M=>Math.floor(M*100))))
+
+  app-next-directory/playwright-report/trace/sw.bundle.js:
+   * Line 1: console.log('React 19: Installed act polyfill for testing compatibility');
+
+  app-next-directory/tests/e2e/cross-browser/compatibility.spec.ts:
+   * Line 371:       console.log(${browserName} load time: ${loadTime}ms);
+   * Line 395:         console.log(${browserName} Web Vitals:, webVitals);
+
+  app-next-directory/tests/e2e/auth.e2e.spec.ts:
+   * Line 11:     console.log('Cleaning up test users:', testEmails);
+
+  app-next-directory/tests/e2e/security/security.spec.ts:
+   * Line 116:       process.env.TEST_INLINE_SCRIPT_MESSAGE ?? 'console.log("This should be blocked")',
+
+  app-next-directory/tests/performance/load-stress.spec.ts:
+   * Line 39:         console.log('Performance Metrics:', performanceMetrics);
+
+  app-next-directory/tests/debug-auth-simple.spec.ts:
+   * Line 11:     console.log('Page URL:', page.url());
+   * Line 12:     console.log('Page title:', await page.title());
+   * Line 19:     console.log('Email input exists:', (await emailInput.count()) > 0);
+   * Line 20:     console.log('Password input exists:', (await passwordInput.count()) > 0);
+   * Line 21:     console.log('Submit button exists:', (await submitButton.count()) > 0);
+   * Line 42:     console.log('Registration response status:', response.status());
+   * Line 43:     console.log('Registration response body:', responseBody);
+   * Line 54:     console.log('Auth providers response:', content);
+
+  app-next-directory/tests/API-MOCKING.md:
+   * Line 194:     console.log('Request:', request.url());
+   * Line 198:     console.log('Response:', response.status());
+
+  app-next-directory/tests/debug/leaflet-debug.spec.ts:
+   * Line 139:   console.log('MAP INFO:', JSON.stringify(mapInfo, null, 2));
+   * Line 140:   console.log('CONSOLE MESSAGES:', JSON.stringify(consoleMessages, null, 2));
+   * Line 141:   console.log('REQUESTS (last):', JSON.stringify(requests.slice(-50), null, 2));
+
+  app-next-directory/tests/preview-performance.spec.ts:
+   * Line 72:     console.log('Normal Mode Metrics:', normalMetrics);
+   * Line 73:     console.log('Preview Mode Metrics:', previewMetrics);
+   * Line 87:       console.log(${endpoint} Response Time:, responseTime);
+   * Line 114:     console.log('Memory Usage:', {
+
+  app-next-directory/tests/jest.global-setup.js:
+   * Line 5:     console.log('Running lint and type-check before unit tests...');
+
+  app-next-directory/tests/debug-auth.spec.ts:
+   * Line 5:     console.log('Admin page fixture is working');
+   * Line 12:     console.log('Page title:', title);
+   * Line 17:     console.log('Body contains text:', bodyText ? 'Yes' : 'No');
+   * Line 24:     console.log('Venue owner page fixture is working');
+   * Line 28:     console.log('Page title:', title);
+
+  app-next-directory/tests/setup-e2e-db.mjs:
+   * Line 19:   console.log('🚀 Setting up E2E test database...');
+   * Line 27:     console.log('✅ Connected to MongoDB');
+   * Line 32:     console.log('🧹 Cleaning up existing test data...');
+   * Line 37:       console.log(  - Dropped collection: ${collection.name});
+   * Line 41:     console.log('📦 Creating collections and indexes...');
+   * Line 48:     console.log('  - Created users collection');
+   * Line 56:     console.log('  - Created sessions collection');
+   * Line 60:     console.log('  - Created listings collection');
+   * Line 63:     console.log('🌱 Seeding test data...');
+   * Line 77:     console.log('  - Created test user: e2e-test@example.com');
+   * Line 91:     console.log('  - Created admin user: e2e-admin@example.com');
+   * Line 93:     console.log('\n✨ E2E database setup complete!\n');
+   * Line 94:     console.log('Database:', DB_NAME);
+   * Line 95:     console.log('Test User:', testUser.email);
+   * Line 96:     console.log('Admin User:', adminUser.email);
+   * Line 97:     console.log('');
+   * Line 104:       console.log('✅ Closed database connection');
+
+  app-next-directory/src/lib/performance/alert-service.ts:
+   * Line 49:       console.log("
+   * Line 115:     console.log('Would send email to', _alert);
+
+  app-next-directory/src/lib/auth/withAuthMatrix.test.ts:
+   * Line 241:         // console.log('[TEST] mockHasPagePermission called with:', { role, page, action });
+   * Line 255:       // console.log('[TEST] response.status:', response.status);
+   * Line 256:       // console.log('[TEST] mockHasPagePermission.mock.calls:', mockHasPagePermission.mock.calls);
+
+  app-next-directory/src/lib/viewCountPersistence.README.md:
+   * Line 33: console.log(Post has been viewed ${newCount} times);
+   * Line 43: console.log(Post has ${count} views);
+   * Line 70: console.log(View count: ${viewCount});
+
+  app-next-directory/src/tests/sanity-client.test.ts:
+   * Line 60:         // console.log('⚠️No API token - skipping auth test');
