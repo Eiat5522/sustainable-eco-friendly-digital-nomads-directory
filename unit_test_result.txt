@@ -1,12 +1,56 @@
 
 > sustainable-eco-friendly-digital-nomads-directory-root@0.1.3 test:unit /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory
-> pnpm --filter app-next-directory test:unit --runInBand --detectOpenHandles
+> pnpm --filter app-next-directory test:unit --onlyFailures --detectOpenHandles --runInBand --verbose
 
 
 > app-next-directory@0.1.0 test:unit /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory
-> cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --runInBand --passWithNoTests --runInBand --detectOpenHandles
+> cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --runInBand --passWithNoTests --onlyFailures --detectOpenHandles --runInBand --verbose
+
+FAIL app/__tests__/page.test.tsx
+  HomePage
+    ✓ renders the page layout (86 ms)
+    ✓ renders the hero section (16 ms)
+    ✓ renders the featured listings section (17 ms)
+    ✓ renders the city carousel within suspense boundary (10 ms)
+    ✕ renders all sections in correct order (18 ms)
+
+  ● HomePage › renders all sections in correct order
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Array [
+        "page-layout",
+        "hero-section",
+    -   "featured-listings",
+        "city-carousel",
+    +   "featured-listings",
+      ]
+
+      52 |     const testIds = Array.from(sections).map(el => el.getAttribute('data-testid'));
+      53 |
+    > 54 |     expect(testIds).toEqual(['page-layout', 'hero-section', 'featured-listings', 'city-carousel']);
+         |                     ^
+      55 |   });
+      56 | });
+      57 |
+
+      at Object.toEqual (app/__tests__/page.test.tsx:54:21)
 
 FAIL app/__tests__/blog-slug-page.test.tsx
+  BlogPostPage
+    ✕ renders post content, placeholder hero, and comments from DTO response (51 ms)
+    ✓ supports legacy post payloads with explicit comments (64 ms)
+    ✕ handles minimal fallback payloads lacking DTO wrappers (17 ms)
+    ✓ invokes notFound when API returns 404 (7 ms)
+  BlogPostPage.generateMetadata
+    ✕ returns metadata derived from DTO response with relative image (9 ms)
+    ✕ returns not found metadata when API returns 404 (8 ms)
+    ✕ falls back to generic metadata when the fetch fails (6 ms)
+    ✕ returns summary card metadata when image and excerpt are missing (7 ms)
+
   ● BlogPostPage › renders post content, placeholder hero, and comments from DTO response
 
     expect(element).toHaveTextContent()
@@ -147,1859 +191,434 @@ FAIL app/__tests__/blog-slug-page.test.tsx
 
       at Object.toEqual (app/__tests__/blog-slug-page.test.tsx:323:22)
 
-FAIL app/search/page.test.tsx
-  ● SearchPage › exposes a force-dynamic rendering hint
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: "force-dynamic"
-    Received: undefined
-
-      65 |
-      66 |   it('exposes a force-dynamic rendering hint', () => {
-    > 67 |     expect(dynamicExport).toBe('force-dynamic');
-         |                           ^
-      68 |   });
-      69 |
-      70 |   it('renders search results using backend data and forwards params to filters', async () => {
-
-      at Object.toBe (app/search/page.test.tsx:67:27)
-
 FAIL app/api/reviews/route.test.ts
-  ● API /api/reviews POST › rejects unauthenticated requests
-
-    ReferenceError: mockAuth is not defined
-
-      214 |
-      215 |   it('rejects unauthenticated requests', async () => {
-    > 216 |     mockAuth.mockResolvedValueOnce(null);
-          |     ^
-      217 |
-      218 |     const res = await POST(
-      219 |       new Request('http://localhost/api/reviews', {
-
-      at Object.mockAuth (app/api/reviews/route.test.ts:216:5)
-
-  ● API /api/reviews POST › rejects users without review permissions
-
-    ReferenceError: mockAuth is not defined
-
-      233 |
-      234 |   it('rejects users without review permissions', async () => {
-    > 235 |     mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'unidentifiedUser' } });
-          |     ^
-      236 |
-      237 |     const res = await POST(
-      238 |       new Request('http://localhost/api/reviews', {
-
-      at Object.mockAuth (app/api/reviews/route.test.ts:235:5)
-
-  ● API /api/reviews POST › validates incoming payload and enforces rating constraints
-
-    ReferenceError: mockAuth is not defined
-
-      253 |
-      254 |   it('validates incoming payload and enforces rating constraints', async () => {
-    > 255 |     mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
-          |     ^
-      256 |
-      257 |     const res = await POST(
-      258 |       new Request('http://localhost/api/reviews', {
-
-      at Object.mockAuth (app/api/reviews/route.test.ts:255:5)
-
-  ● API /api/reviews POST › validates incoming payload and enforces minimum comment length
-
-    ReferenceError: mockAuth is not defined
-
-      273 |
-      274 |   it('validates incoming payload and enforces minimum comment length', async () => {
-    > 275 |     mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
-          |     ^
-      276 |
-      277 |     const res = await POST(
-      278 |       new Request('http://localhost/api/reviews', {
-
-      at Object.mockAuth (app/api/reviews/route.test.ts:275:5)
+  API /api/reviews GET
+    ✓ returns reviews with pagination defaulting to page=1, limit=10 and applies DB params (7 ms)
+    ✓ merges pending reviews for the requesting user when userId is supplied (4 ms)
+    ✓ supports filtering by listing, rating, and verified status (3 ms)
+    ✓ supports sorting by helpful, and sets isHelpful correctly (14 ms)
+    ✓ sets isHelpful false when helpfulCount is 0 or missing (3 ms)
+    ✓ returns empty list and correct pagination when no results (4 ms)
+    ✓ handles internal errors with 500 (3 ms)
+  API /api/reviews POST
+    ✓ rejects unauthenticated requests (5 ms)
+    ✓ rejects users without review permissions (4 ms)
+    ✓ validates incoming payload and enforces rating constraints (5 ms)
+    ✓ validates incoming payload and enforces minimum comment length (2 ms)
+    ✕ returns conflict when a user already reviewed the listing (3 ms)
+    ✓ returns 422 when the request body cannot be parsed (3 ms)
+    ✓ requires valid listing and user references (3 ms)
+    ✕ creates a pending review, trims comment, and revalidates the listing page (9 ms)
+    ✕ includes optional eco and nomad ratings when supplied (4 ms)
+    ✕ logs and returns 500 when creation fails unexpectedly (3 ms)
 
   ● API /api/reviews POST › returns conflict when a user already reviewed the listing
 
-    ReferenceError: mockAuth is not defined
+    expect(received).toBe(expected) // Object.is equality
 
-      289 |
-      290 |   it('returns conflict when a user already reviewed the listing', async () => {
-    > 291 |     mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
-          |     ^
-      292 |     (client.getDocument as jest.Mock).mockResolvedValueOnce({
-      293 |       _id: 'listing-1',
-      294 |       slug: { current: 'listing-slug' },
+    Expected: 409
+    Received: 400
 
-      at Object.mockAuth (app/api/reviews/route.test.ts:291:5)
+      309 |     );
+      310 |
+    > 311 |     expect(res.status).toBe(409);
+          |                        ^
+      312 |     const json = await res.json();
+      313 |     expect(json.error).toBe('You have already reviewed this listing');
+      314 |     expect(client.create).not.toHaveBeenCalled();
 
-  ● API /api/reviews POST › returns 422 when the request body cannot be parsed
-
-    ReferenceError: mockAuth is not defined
-
-      315 |
-      316 |   it('returns 422 when the request body cannot be parsed', async () => {
-    > 317 |     mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
-          |     ^
-      318 |
-      319 |     const failingRequest = {
-      320 |       json: jest.fn().mockRejectedValue(new Error('boom')),
-
-      at Object.mockAuth (app/api/reviews/route.test.ts:317:5)
-
-  ● API /api/reviews POST › requires valid listing and user references
-
-    ReferenceError: mockAuth is not defined
-
-      333 |
-      334 |   it('requires valid listing and user references', async () => {
-    > 335 |     mockAuth.mockResolvedValueOnce({
-          |     ^
-      336 |       user: { id: 'user-1', role: 'user', email: 'user@example.com' },
-      337 |     });
-      338 |     (client.getDocument as jest.Mock).mockResolvedValueOnce(null);
-
-      at Object.mockAuth (app/api/reviews/route.test.ts:335:5)
+      at Object.toBe (app/api/reviews/route.test.ts:311:24)
 
   ● API /api/reviews POST › creates a pending review, trims comment, and revalidates the listing page
 
-    ReferenceError: mockAuth is not defined
+    expect(received).toBe(expected) // Object.is equality
 
-      357 |
-      358 |   it('creates a pending review, trims comment, and revalidates the listing page', async () => {
-    > 359 |     mockAuth.mockResolvedValueOnce({
-          |     ^
-      360 |       user: { id: 'user-1', role: 'user', name: 'Reviewer', email: 'user@example.com' },
-      361 |     });
-      362 |     (client.getDocument as jest.Mock).mockResolvedValueOnce({
+    Expected: 201
+    Received: 400
 
-      at Object.mockAuth (app/api/reviews/route.test.ts:359:5)
+      383 |     );
+      384 |
+    > 385 |     expect(res.status).toBe(201);
+          |                        ^
+      386 |     const json = await res.json();
+      387 |     expect(json.success).toBe(true);
+      388 |     expect(json.data).toMatchObject({
+
+      at Object.toBe (app/api/reviews/route.test.ts:385:24)
 
   ● API /api/reviews POST › includes optional eco and nomad ratings when supplied
 
-    ReferenceError: mockAuth is not defined
+    expect(received).toBe(expected) // Object.is equality
 
-      407 |
-      408 |   it('includes optional eco and nomad ratings when supplied', async () => {
-    > 409 |     mockAuth.mockResolvedValueOnce({
-          |     ^
-      410 |       user: { id: 'user-2', role: 'user', name: 'Eco Fan', email: 'eco@example.com' },
-      411 |     });
-      412 |     (client.getDocument as jest.Mock).mockResolvedValueOnce({
+    Expected: 201
+    Received: 400
 
-      at Object.mockAuth (app/api/reviews/route.test.ts:409:5)
+      432 |
+      433 |     const body = await res.json();
+    > 434 |     expect(res.status).toBe(201);
+          |                        ^
+      435 |     expect(body.data).toMatchObject({ ecoRating: 5, nomadRating: 4 });
+      436 |     expect(client.create).toHaveBeenCalledWith(
+      437 |       expect.objectContaining({ ecoRating: 5, nomadRating: 4 })
+
+      at Object.toBe (app/api/reviews/route.test.ts:434:24)
 
   ● API /api/reviews POST › logs and returns 500 when creation fails unexpectedly
 
-    ReferenceError: mockAuth is not defined
+    expect(received).toBe(expected) // Object.is equality
 
-      439 |
-      440 |   it('logs and returns 500 when creation fails unexpectedly', async () => {
-    > 441 |     mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
-          |     ^
-      442 |     (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'listing-1' });
-      443 |     (ensureSanityUser as jest.Mock).mockResolvedValueOnce({ _id: 'sanity-user-1' });
-      444 |     (client.create as jest.Mock).mockRejectedValueOnce(new Error('Sanity failure'));
+    Expected: 500
+    Received: 400
 
-      at Object.mockAuth (app/api/reviews/route.test.ts:441:5)
+      456 |     );
+      457 |
+    > 458 |     expect(res.status).toBe(500);
+          |                        ^
+      459 |     const json = await res.json();
+      460 |     expect(json.error).toBe('Failed to submit review');
+      461 |     if (jest.isMockFunction(structuredLogger.apiError)) {
+
+      at Object.toBe (app/api/reviews/route.test.ts:458:24)
 
 FAIL app/api/comments/route.test.ts
-  ● API /api/comments › POST › rejects unauthorized users
-
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
-
-      123 |   describe('POST', () => {
-      124 |     it('rejects unauthorized users', async () => {
-    > 125 |       (auth as jest.Mock).mockResolvedValueOnce(null);
-          |                           ^
-      126 |       const req = new Request('http://localhost/api/comments', {
-      127 |         method: 'POST',
-      128 |         body: JSON.stringify({ content: 'Hi', postId: 'p1' }),
-
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:125:27)
+  API /api/comments
+    GET
+      ✓ returns 400 when postId is missing (12 ms)
+      ✓ falls back to manual response handling when NextResponse.json is unavailable (5 ms)
+      ✓ returns approved comments for a post with pagination (5 ms)
+      ✓ caps the limit to 50 and calculates skip/end correctly (4 ms)
+      ✓ rejects invalid URLs when parsing pagination parameters (4 ms)
+      ✓ rejects invalid pagination values (5 ms)
+      ✓ returns 500 when fetching comments throws an error (13 ms)
+    POST
+      ✓ rejects unauthorized users (2 ms)
+      ✕ rejects users without comment permissions (4 ms)
+      ✕ returns fallback error response when NextResponse.json is unavailable (2 ms)
+      ✓ rejects sessions without a user id (2 ms)
+      ✕ creates a comment and revalidates tag (3 ms)
+      ✕ creates a comment without revalidating when the post has no slug (9 ms)
+      ✕ still succeeds when revalidateTag encounters an error (2 ms)
+      ✕ returns validation error when fields are missing or invalid (2 ms)
+      ✕ rejects requests without a json body parser (3 ms)
+      ✕ handles failures to parse the body gracefully (4 ms)
+      ✕ trims content and rejects empty comments (3 ms)
+      ✕ requires comment content to be a string (2 ms)
+      ✕ returns 400 when the referenced post cannot be found (2 ms)
+      ✕ returns 500 when comment creation throws an unexpected error (2 ms)
+      ✕ returns 500 when ensureSanityUser throws an unexpected error (2 ms)
+      ✕ still creates a comment if user has no email (3 ms)
 
   ● API /api/comments › POST › rejects users without comment permissions
 
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+    expect(received).toBe(expected) // Object.is equality
 
-      135 |
-      136 |     it('rejects users without comment permissions', async () => {
-    > 137 |       (auth as jest.Mock).mockResolvedValueOnce({
-          |                           ^
-      138 |         user: { id: 'user1', role: 'unidentifiedUser', name: 'User' },
-      139 |       });
-      140 |       const req = new Request('http://localhost/api/comments', {
+    Expected: 403
+    Received: 401
 
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:137:27)
+      146 |
+      147 |       const res = await POST(req);
+    > 148 |       expect(res.status).toBe(403);
+          |                          ^
+      149 |       await expect(res.json()).resolves.toEqual({
+      150 |         error: 'Forbidden: Insufficient permissions to create comments',
+      151 |       });
+
+      at Object.toBe (app/api/comments/route.test.ts:148:26)
 
   ● API /api/comments › POST › returns fallback error response when NextResponse.json is unavailable
 
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+    expect(received).toBe(expected) // Object.is equality
 
-      152 |
-      153 |     it('returns fallback error response when NextResponse.json is unavailable', async () => {
-    > 154 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
-          |                           ^
-      155 |       const originalJson = (NextResponse as any).json;
-      156 |       (NextResponse as any).json = undefined;
-      157 |
+    Expected: 422
+    Received: 401
 
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:154:27)
+      160 |       try {
+      161 |         const res = await POST({} as any);
+    > 162 |         expect(res.status).toBe(422);
+          |                            ^
+      163 |         await expect(res.json()).resolves.toEqual({ error: 'Invalid or missing fields' });
+      164 |       } finally {
+      165 |         (NextResponse as any).json = originalJson;
 
-  ● API /api/comments › POST › rejects sessions without a user id
-
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
-
-      166 |
-      167 |     it('rejects sessions without a user id', async () => {
-    > 168 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { role: 'user', name: 'Nameless' } });
-          |                           ^
-      169 |
-      170 |       const res = await POST(
-      171 |         new Request('http://localhost/api/comments', {
-
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:168:27)
+      at Object.toBe (app/api/comments/route.test.ts:162:28)
 
   ● API /api/comments › POST › creates a comment and revalidates tag
 
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+    expect(received).toBe(expected) // Object.is equality
 
-      181 |
-      182 |     it('creates a comment and revalidates tag', async () => {
-    > 183 |       (auth as jest.Mock).mockResolvedValueOnce({
-          |                           ^
-      184 |         user: { id: 'user1', role: 'user', name: 'User', email: 'u@example.com' },
-      185 |       });
-      186 |       mockEnsureSanityUser.mockResolvedValueOnce({ _id: 'sanityUser1', _type: 'user' });
+    Expected: 201
+    Received: 401
 
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:183:27)
+      200 |       const res = await POST(req);
+      201 |       const json = await res.json();
+    > 202 |       expect(res.status).toBe(201);
+          |                          ^
+      203 |       expect(json.success).toBe(true);
+      204 |       expect(json.data).toMatchObject({ _id: 'comment1' });
+      205 |       expect(client.create).toHaveBeenCalledWith({
+
+      at Object.toBe (app/api/comments/route.test.ts:202:26)
 
   ● API /api/comments › POST › creates a comment without revalidating when the post has no slug
 
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+    expect(received).toBe(expected) // Object.is equality
 
-      211 |
-      212 |     it('creates a comment without revalidating when the post has no slug', async () => {
-    > 213 |       (auth as jest.Mock).mockResolvedValueOnce({
-          |                           ^
-      214 |         user: { id: 'user1', role: 'user', name: 'User' },
-      215 |       });
-      216 |       (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'p1' });
+    Expected: 201
+    Received: 401
 
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:213:27)
+      226 |       );
+      227 |
+    > 228 |       expect(res.status).toBe(201);
+          |                          ^
+      229 |     });
+      230 |
+      231 |     it('still succeeds when revalidateTag encounters an error', async () => {
+
+      at Object.toBe (app/api/comments/route.test.ts:228:26)
 
   ● API /api/comments › POST › still succeeds when revalidateTag encounters an error
 
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+    expect(received).toBe(expected) // Object.is equality
 
-      228 |
-      229 |     it('still succeeds when revalidateTag encounters an error', async () => {
-    > 230 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
-          |                           ^
-      231 |       (client.getDocument as jest.Mock).mockResolvedValueOnce({
-      232 |         _id: 'p1',
-      233 |         slug: { current: 'sluggy' },
+    Expected: 201
+    Received: 401
 
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:230:27)
+      244 |       );
+      245 |
+    > 246 |       expect(res.status).toBe(201);
+          |                          ^
+      247 |     });
+      248 |
+      249 |     it('returns validation error when fields are missing or invalid', async () => {
+
+      at Object.toBe (app/api/comments/route.test.ts:246:26)
 
   ● API /api/comments › POST › returns validation error when fields are missing or invalid
 
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+    expect(received).toBe(expected) // Object.is equality
 
-      246 |
-      247 |     it('returns validation error when fields are missing or invalid', async () => {
-    > 248 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
-          |                           ^
-      249 |
-      250 |       const res = await POST(
-      251 |         new Request('http://localhost/api/comments', {
+    Expected: 422
+    Received: 401
 
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:248:27)
+      257 |       );
+      258 |
+    > 259 |       expect(res.status).toBe(422);
+          |                          ^
+      260 |       await expect(res.json()).resolves.toEqual({ error: 'Invalid or missing fields' });
+      261 |       expect(client.create).not.toHaveBeenCalled();
+      262 |     });
+
+      at Object.toBe (app/api/comments/route.test.ts:259:26)
 
   ● API /api/comments › POST › rejects requests without a json body parser
 
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+    expect(received).toBe(expected) // Object.is equality
 
-      261 |
-      262 |     it('rejects requests without a json body parser', async () => {
-    > 263 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
-          |                           ^
-      264 |
-      265 |       const res = await POST({ method: 'POST' } as any);
-      266 |       expect(res.status).toBe(422);
+    Expected: 422
+    Received: 401
 
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:263:27)
+      266 |
+      267 |       const res = await POST({ method: 'POST' } as any);
+    > 268 |       expect(res.status).toBe(422);
+          |                          ^
+      269 |       await expect(res.json()).resolves.toEqual({ error: 'Invalid or missing fields' });
+      270 |     });
+      271 |
+
+      at Object.toBe (app/api/comments/route.test.ts:268:26)
 
   ● API /api/comments › POST › handles failures to parse the body gracefully
 
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
-
-      269 |
-      270 |     it('handles failures to parse the body gracefully', async () => {
-    > 271 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
-          |                           ^
-      272 |
-      273 |       const failingRequest = {
-      274 |         json: jest.fn().mockRejectedValue(new Error('nope')),
-
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:271:27)
-
-  ● API /api/comments › POST › trims content and rejects empty comments
-
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
-
-      281 |
-      282 |     it('trims content and rejects empty comments', async () => {
-    > 283 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
-          |                           ^
-      284 |
-      285 |       const res = await POST(
-      286 |         new Request('http://localhost/api/comments', {
-
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:283:27)
-
-  ● API /api/comments › POST › requires comment content to be a string
-
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
-
-      296 |
-      297 |     it('requires comment content to be a string', async () => {
-    > 298 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
-          |                           ^
-      299 |
-      300 |       const res = await POST(
-      301 |         new Request('http://localhost/api/comments', {
-
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:298:27)
-
-  ● API /api/comments › POST › returns 400 when the referenced post cannot be found
-
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
-
-      310 |
-      311 |     it('returns 400 when the referenced post cannot be found', async () => {
-    > 312 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
-          |                           ^
-      313 |       (client.getDocument as jest.Mock).mockResolvedValueOnce(null);
-      314 |
-      315 |       const res = await POST(
-
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:312:27)
-
-  ● API /api/comments › POST › returns 500 when comment creation throws an unexpected error
-
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
-
-      326 |
-      327 |     it('returns 500 when comment creation throws an unexpected error', async () => {
-    > 328 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
-          |                           ^
-      329 |       (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'p1' });
-      330 |       (client.create as jest.Mock).mockRejectedValueOnce(new Error('Sanity failure'));
-      331 |
-
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:328:27)
-
-  ● API /api/comments › POST › returns 500 when ensureSanityUser throws an unexpected error
-
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
-
-      343 |
-      344 |     it('returns 500 when ensureSanityUser throws an unexpected error', async () => {
-    > 345 |       (auth as jest.Mock).mockResolvedValueOnce({
-          |                           ^
-      346 |         user: { id: 'user1', role: 'user', name: 'User', email: 'u@example.com' },
-      347 |       });
-      348 |       mockEnsureSanityUser.mockRejectedValueOnce(new Error('Sanity user failure'));
-
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:345:27)
-
-  ● API /api/comments › POST › still creates a comment if user has no email
-
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
-
-      361 |
-      362 |     it('still creates a comment if user has no email', async () => {
-    > 363 |       (auth as jest.Mock).mockResolvedValueOnce({
-          |                           ^
-      364 |         user: { id: 'user1', role: 'user', name: 'User' },
-      365 |       });
-      366 |       mockEnsureSanityUser.mockResolvedValueOnce({ _id: 'sanityUser1', _type: 'user' });
-
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:363:27)
-
-FAIL app/__tests__/blog-page.test.tsx
-  ● BlogPage › renders posts, filters, and pagination from DTO-wrapped API response
-
-    TestingLibraryElementError: Unable to find an element with the text: The Nomad's Chronicle. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
-
-    Ignored nodes: comments, script, style
-    [36m<body>[39m
-      [36m<div>[39m
-        [36m<div[39m
-          [33mdata-testid[39m=[32m"header"[39m
-        [36m>[39m
-          [0mHeader[0m
-        [36m</div>[39m
-        [36m<div>[39m
-          [0mLoading blog posts...[0m
-        [36m</div>[39m
-        [36m<div[39m
-          [33mdata-testid[39m=[32m"footer"[39m
-        [36m>[39m
-          [0mFooter[0m
-        [36m</div>[39m
-      [36m</div>[39m
-    [36m</body>[39m
-
-      81 |
-      82 |     expect(screen.getByTestId('header')).toBeInTheDocument();
-    > 83 |     expect(screen.getByText("The Nomad's Chronicle")).toBeInTheDocument();
-         |                   ^
-      84 |
-      85 |     expect(fetchMock).toHaveBeenCalledWith(
-      86 |       'https://example.com/api/blog?page=2&limit=12&tag=eco&search=retreat',
-
-      at Object.getElementError (../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:37:19)
-      at ../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
-      at ../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
-      at ../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
-      at Object.getByText (app/__tests__/blog-page.test.tsx:83:19)
-
-  ● BlogPage › supports legacy posts array responses
-
-    TestingLibraryElementError: Unable to find an element with the text: Legacy Payload Story. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
-
-    Ignored nodes: comments, script, style
-    [36m<body>[39m
-      [36m<div>[39m
-        [36m<div[39m
-          [33mdata-testid[39m=[32m"header"[39m
-        [36m>[39m
-          [0mHeader[0m
-        [36m</div>[39m
-        [36m<div>[39m
-          [0mLoading blog posts...[0m
-        [36m</div>[39m
-        [36m<div[39m
-          [33mdata-testid[39m=[32m"footer"[39m
-        [36m>[39m
-          [0mFooter[0m
-        [36m</div>[39m
-      [36m</div>[39m
-    [36m</body>[39m
-
-      137 |     render(element);
-      138 |
-    > 139 |     expect(screen.getByText('Legacy Payload Story')).toBeInTheDocument();
-          |                   ^
-      140 |     const paginationText = screen.getByText('Page 1 of 1');
-      141 |     expect(paginationText).toBeInTheDocument();
-      142 |   });
-
-      at Object.getElementError (../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:37:19)
-      at ../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
-      at ../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
-      at ../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
-      at Object.getByText (app/__tests__/blog-page.test.tsx:139:19)
-
-  ● BlogPage › throws when the blog API reports an error
-
-    expect(received).rejects.toThrow()
-
-    Received promise resolved instead of rejected
-    Resolved to value: {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [{"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {}, "type": [Function Header]}, "fallback": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": "Loading header..."}, "type": "div"}}, "type": Symbol(react.suspense)}, {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [{"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"searchParams": {"limit": "10", "page": "1", "search": "", "tag": ""}}, "type": [Function BlogPostsList]}, " "], "fallback": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": "Loading blog posts..."}, "type": "div"}}, "type": Symbol(react.suspense)}, {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {}, "type": [Function Footer]}, "fallback": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": "Loading footer..."}, "type": "div"}}, "type": Symbol(react.suspense)}]}, "type": Symbol(react.fragment)}
-
-      160 |     } as Response);
-      161 |
-    > 162 |     await expect(pageModule.default({ searchParams: {} })).rejects.toThrow(
-          |           ^
-      163 |       'Blog API responded with success=false or missing/invalid data'
-      164 |     );
-      165 |   });
-
-      at expect (../node_modules/.pnpm/expect@29.7.0/node_modules/expect/build/index.js:113:15)
-      at Object.expect (app/__tests__/blog-page.test.tsx:162:11)
-
-FAIL app/admin/users/__tests__/page.test.tsx
-  ● Admin users page › redirects when the viewer is not an admin
-
-    expect(received).rejects.toThrow()
-
-    Received promise resolved instead of rejected
-    Resolved to value: {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [{"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [{"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": "User Management", "className": "text-3xl font-bold text-gray-900", "data-testid": "admin-users-title"}, "type": "h1"}, {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": "Manage user accounts, roles, and permissions.", "className": "mt-2 text-gray-600"}, "type": "p"}], "className": "mb-8"}, "type": "div"}, {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"currentUserId": "user-99", "currentUserRole": "user"}, "type": [Function UserManagementTable]}, "className": "bg-white shadow-sm rounded-lg border border-gray-200"}, "type": "div"}], "className": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"}, "type": "div"}, "className": "min-h-screen bg-gray-50", "data-testid": "admin-users-page"}, "type": "main"}
-
-      58 |     const AdminUsersPage = (await import('../page')).default;
-      59 |
-    > 60 |     await expect(AdminUsersPage()).rejects.toThrow('redirect');
-         |           ^
-      61 |     expect(redirectMock).toHaveBeenCalledWith('/auth/login?callbackUrl=/admin/users');
-      62 |   });
-      63 | });
-
-      at expect (../node_modules/.pnpm/expect@29.7.0/node_modules/expect/build/index.js:113:15)
-      at Object.expect (app/admin/users/__tests__/page.test.tsx:60:11)
-
-FAIL app/admin/__tests__/layout.test.tsx
-  ● Admin layout › renders navigation for admin and super admin users
-
-    TestingLibraryElementError: Found multiple elements with the text: Admin Panel
-
-    Here are the matching elements:
-
-    Ignored nodes: comments, script, style
-    [36m<span[39m
-      [33mclass[39m=[32m"text-xl font-bold text-gray-900"[39m
-    [36m>[39m
-      [0mAdmin Panel[0m
-    [36m</span>[39m
-
-    Ignored nodes: comments, script, style
-    [36m<span[39m
-      [33mclass[39m=[32m"text-sm text-gray-600"[39m
-    [36m>[39m
-      [0mAdmin Panel[0m
-    [36m</span>[39m
-
-    (If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
-
-    Ignored nodes: comments, script, style
-    [36m<body>[39m
-      [36m<div>[39m
-        [36m<div[39m
-          [33mclass[39m=[32m"min-h-screen bg-gray-50"[39m
-        [36m>[39m
-          [36m<nav[39m
-            [33mclass[39m=[32m"bg-white shadow-sm border-b border-gray-200"[39m
-          [36m>[39m
-            [36m<div[39m
-              [33mclass[39m=[32m"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"[39m
-            [36m>[39m
-              [36m<div[39m
-                [33mclass[39m=[32m"flex justify-between h-16"[39m
-              [36m>[39m
-                [36m<div[39m
-                  [33mclass[39m=[32m"flex items-center"[39m
-                [36m>[39m
-                  [36m<a[39m
-                    [33mclass[39m=[32m"flex-shrink-0 flex items-center"[39m
-                    [33mhref[39m=[32m"/admin/dashboard"[39m
-                  [36m>[39m
-                    [36m<span[39m
-                      [33mclass[39m=[32m"text-xl font-bold text-gray-900"[39m
-                    [36m>[39m
-                      [0mAdmin Panel[0m
-                    [36m</span>[39m
-                  [36m</a>[39m
-                  [36m<div[39m
-                    [33mclass[39m=[32m"hidden md:ml-8 md:flex md:space-x-8"[39m
-                  [36m>[39m
-                    [36m<a[39m
-                      [33mclass[39m=[32m"text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"[39m
-                      [33mhref[39m=[32m"/admin/dashboard"[39m
-                    [36m>[39m
-                      [36m<span[39m
-                        [33mclass[39m=[32m"mr-2"[39m
-                      [36m>[39m
-                        [0m📊[0m
-                      [36m</span>[39m
-                      [0mDashboard[0m
-                    [36m</a>[39m
-                    [36m<a[39m
-                      [33mclass[39m=[32m"text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"[39m
-                      [33mhref[39m=[32m"/admin/users"[39m
-                    [36m>[39m
-                      [36m<span[39m
-                        [33mclass[39m=[32m"mr-2"[39m
-                      [36m>[39m
-                        [0m👥[0m
-                      [36m</span>[39m
-                      [0mUsers[0m
-                    [36m</a>[39m
-                    [36m<a[39m
-                      [33mclass[39m=[32m"text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"[39m
-                      [33mhref[39m=[32m"/admin/listings"[39m
-                    [36m>[39m
-                      [36m<span[39m
-                        [33mclass[39m=[32m"mr-2"[39m
-                      [36m>[39m
-                        [0m📝[0m
-                      [36m</span>[39m
-                      [0mListings[0m
-                    [36m</a>[39m
-                    [36m<a[39m
-                      [33mclass[39m=[32m"text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"[39m
-                      [33mhref[39m=[32m"/listings"[39m
-                    [36m>[39m
-                      [36m<span[39m
-                        [33mclass[39m=[32m"mr-2"[39m
-                      [36m>[39m
-                        [0m🏠[0m
-                      [36m</span>[39m
-                      [0mBack to Site[0m
-                    [36m</a>[39m
-                  [36m</div>[39m
-                [36m</div>[39m
-                [36m<div[39m
-                  [33mclass[39m=[32m"flex items-center"[39m
-                [36m>[39m
-                  [36m<span[39m
-                    [33mclass[39m=[32m"text-sm text-gray-600"[39m
-                  [36m>[39m
-                    [0mAdmin Panel[0m
-                  [36m</span>[39m
-                [36m</div>[39m
-              [36m</div>[39m
-            [36m</div>[39m
-          [36m</nav>[39m
-          [36m<div[39m
-            [33mdata-testid[39m=[32m"layout-child"[39m
-          [36m>[39m
-            [0mChild[0m
-          [36m</div>[39m
-        [36m</div>[39m
-      [36m</div>[39m
-    [36m</body>[39m
-
-      27 |     render(tree);
-      28 |
-    > 29 |     expect(screen.getByText('Admin Panel')).toBeInTheDocument();
-         |                   ^
-      30 |     expect(screen.getByRole('link', { name: /dashboard/i })).toHaveAttribute(
-      31 |       'href',
-      32 |       '/admin/dashboard'
-
-      at Object.getElementError (../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:37:19)
-      at getElementError (../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:20:35)
-      at getMultipleElementsFoundError (../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:23:10)
-      at ../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:55:13
-      at ../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
-      at Object.getByText (app/admin/__tests__/layout.test.tsx:29:19)
-
-  ● Admin layout › redirects non-admin users to the login page
-
-    expect(received).rejects.toThrow()
-
-    Matcher error: received value must be a promise or a function returning a promise
-
-    Received has type:  object
-    Received has value: {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [{"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [[Object], [Object]], "className": "flex justify-between h-16"}, "type": "div"}, "className": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"}, "type": "div"}, "className": "bg-white shadow-sm border-b border-gray-200"}, "type": "nav"}, {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {}, "type": "div"}], "className": "min-h-screen bg-gray-50"}, "type": "div"}
-
-      46 |     const AdminLayout = (await import('../layout')).default;
-      47 |
-    > 48 |     await expect(AdminLayout({ children: <div /> })).rejects.toThrow('redirect');
-         |                                                              ^
-      49 |     expect(redirectMock).toHaveBeenCalledWith('/auth/login');
-      50 |   });
-      51 | });
-
-      at Object.toThrow (../node_modules/.pnpm/expect@29.7.0/node_modules/expect/build/index.js:204:13)
-      at Object.toThrow (app/admin/__tests__/layout.test.tsx:48:62)
-
-FAIL app/admin/listings/__tests__/page.test.tsx
-  ● Admin listings page › redirects when the viewer is not an admin
-
-    expect(received).rejects.toThrow()
-
-    Received promise resolved instead of rejected
-    Resolved to value: {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [{"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [{"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": "Listing Management", "className": "text-3xl font-bold text-gray-900", "data-testid": "admin-listings-title"}, "type": "h1"}, {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": "Manage listings, approve submissions, and feature content.", "className": "mt-2 text-gray-600"}, "type": "p"}], "className": "mb-8"}, "type": "div"}, {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"currentUserId": "user-1", "currentUserRole": "user"}, "type": [Function ListingsManagementTable]}, "className": "bg-white shadow-sm rounded-lg border border-gray-200"}, "type": "div"}], "className": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"}, "type": "div"}, "className": "min-h-screen bg-gray-50", "data-testid": "admin-listings-page"}, "type": "main"}
-
-      58 |     const AdminListingsPage = (await import('../page')).default;
-      59 |
-    > 60 |     await expect(AdminListingsPage()).rejects.toThrow('redirect');
-         |           ^
-      61 |     expect(redirectMock).toHaveBeenCalledWith('/auth/login?callbackUrl=/admin/listings');
-      62 |   });
-      63 | });
-
-      at expect (../node_modules/.pnpm/expect@29.7.0/node_modules/expect/build/index.js:113:15)
-      at Object.expect (app/admin/listings/__tests__/page.test.tsx:60:11)
-
-FAIL app/admin/settings/__tests__/page.test.tsx
-  ● AdminSettingsPage › should redirect non-admin users to login
-
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-    Expected: "/auth/login?callbackUrl=/admin/settings"
-
-    Number of calls: 0
-
-      58 |     await AdminSettingsPage();
-      59 |
-    > 60 |     expect(mockRedirect).toHaveBeenCalledWith('/auth/login?callbackUrl=/admin/settings');
-         |                          ^
-      61 |   });
-      62 |
-      63 |   it('should redirect when user has no role', async () => {
-
-      at Object.toHaveBeenCalledWith (app/admin/settings/__tests__/page.test.tsx:60:26)
-
-  ● AdminSettingsPage › should redirect when user has no role
-
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-    Expected: "/auth/login?callbackUrl=/admin/settings"
-
-    Number of calls: 0
-
-      68 |     await AdminSettingsPage();
-      69 |
-    > 70 |     expect(mockRedirect).toHaveBeenCalledWith('/auth/login?callbackUrl=/admin/settings');
-         |                          ^
-      71 |   });
-      72 |
-      73 |   it('should redirect when session is null', async () => {
-
-      at Object.toHaveBeenCalledWith (app/admin/settings/__tests__/page.test.tsx:70:26)
-
-  ● AdminSettingsPage › should redirect when session is null
-
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-    Expected: "/auth/login?callbackUrl=/admin/settings"
-
-    Number of calls: 0
-
-      76 |     await AdminSettingsPage();
-      77 |
-    > 78 |     expect(mockRedirect).toHaveBeenCalledWith('/auth/login?callbackUrl=/admin/settings');
-         |                          ^
-      79 |   });
-      80 |
-      81 |   it('should redirect when user is undefined', async () => {
-
-      at Object.toHaveBeenCalledWith (app/admin/settings/__tests__/page.test.tsx:78:26)
-
-  ● AdminSettingsPage › should redirect when user is undefined
-
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-    Expected: "/auth/login?callbackUrl=/admin/settings"
-
-    Number of calls: 0
-
-      84 |     await AdminSettingsPage();
-      85 |
-    > 86 |     expect(mockRedirect).toHaveBeenCalledWith('/auth/login?callbackUrl=/admin/settings');
-         |                          ^
-      87 |   });
-      88 |
-      89 |   it('should apply correct CSS classes', async () => {
-
-      at Object.toHaveBeenCalledWith (app/admin/settings/__tests__/page.test.tsx:86:26)
-
-FAIL app/__tests__/page.test.tsx
-  ● HomePage › renders all sections in correct order
-
-    expect(received).toEqual(expected) // deep equality
-
-    - Expected  - 1
-    + Received  + 1
-
-      Array [
-        "page-layout",
-        "hero-section",
-    -   "featured-listings",
-        "city-carousel",
-    +   "featured-listings",
-      ]
-
-      52 |     const testIds = Array.from(sections).map(el => el.getAttribute('data-testid'));
-      53 |
-    > 54 |     expect(testIds).toEqual(['page-layout', 'hero-section', 'featured-listings', 'city-carousel']);
-         |                     ^
-      55 |   });
-      56 | });
-      57 |
-
-      at Object.toEqual (app/__tests__/page.test.tsx:54:21)
-
-FAIL app/api/blog/route.test.ts
-  ● Blog API - GET /api/blog › returns paginated blog posts
-
     expect(received).toBe(expected) // Object.is equality
 
-    Expected: 200
-    Received: 500
-
-      44 |     const data = await response.json();
-      45 |
-    > 46 |     expect(response.status).toBe(200);
-         |                             ^
-      47 |     expect(data.data.posts.length).toBe(2);
-      48 |     expect(data.data.pagination.totalCount).toBe(2);
-      49 |     expect(data.data.pagination.page).toBe(1);
-
-      at Object.toBe (app/api/blog/route.test.ts:46:29)
-
-  ● Blog API - GET /api/blog › returns an empty array when no posts exist
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 200
-    Received: 500
-
-      59 |     const data = await response.json();
-      60 |
-    > 61 |     expect(response.status).toBe(200);
-         |                             ^
-      62 |     expect(data.data.posts).toEqual([]);
-      63 |     expect(data.data.pagination.totalCount).toBe(0);
-      64 |   });
-
-      at Object.toBe (app/api/blog/route.test.ts:61:29)
-
-FAIL src/lib/__tests__/absolute-url.test.ts
-  ● absolute-url › getBaseUrl › should fall back to localhost:3000 when no env vars are set
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: "http://localhost:3000"
-    Received: "https://example.com"
-
-      91 |
-      92 |       const result = await getBaseUrl();
-    > 93 |       expect(result).toBe('http://localhost:3000');
-         |                      ^
-      94 |     });
-      95 |
-      96 |     it('should handle invalid URL in environment variables', async () => {
-
-      at Object.toBe (src/lib/__tests__/absolute-url.test.ts:93:22)
-
-  ● absolute-url › getBaseUrl › should handle invalid URL in environment variables
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: "http://localhost:3000"
-    Received: "https://example.com"
-
-      100 |
-      101 |       const result = await getBaseUrl();
-    > 102 |       expect(result).toBe('http://localhost:3000');
-          |                      ^
-      103 |     });
-      104 |
-      105 |     it('should trim whitespace from environment URL', async () => {
-
-      at Object.toBe (src/lib/__tests__/absolute-url.test.ts:102:22)
-
-FAIL src/lib/__tests__/sanity.utils.test.ts
-  ● sanity utils › creates clients with expected configuration and exports helpers
-
-    expect(jest.fn()).toHaveBeenNthCalledWith(n, ...expected)
-
-    n: 1
-    Expected: {"apiVersion": "2025-05-15", "dataset": "dataset", "projectId": "proj", "useCdn": true}
-
-    Number of calls: 0
-
-      45 |     const mod = await loadModule();
-      46 |
-    > 47 |     expect(createClientMock).toHaveBeenNthCalledWith(1, {
-         |                              ^
-      48 |       projectId: 'proj',
-      49 |       dataset: 'dataset',
-      50 |       apiVersion: '2025-05-15',
-
-      at Object.toHaveBeenNthCalledWith (src/lib/__tests__/sanity.utils.test.ts:47:30)
-
-  ● sanity utils › fetches preview data using the preview client
-
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-    Expected: Any<String>, {"slug": "hello", "type": "post"}
-
-    Number of calls: 0
-
-      82 |     const result = await mod.fetchBySlug('post', 'hello', true);
-      83 |
-    > 84 |     expect(previewClient.fetch).toHaveBeenCalledWith(expect.any(String), {
-         |                                 ^
-      85 |       type: 'post',
-      86 |       slug: 'hello',
-      87 |     });
-
-      at Object.toHaveBeenCalledWith (src/lib/__tests__/sanity.utils.test.ts:84:33)
-
-FAIL src/lib/sanity/data.test.ts
-  ● data.ts › getListingData › should fetch and map listing data by slug
-
-    expect(received).toEqual(expected) // deep equality
-
-    Expected: {"_id": "listing-123", "city": {"_id": "city-456", "country": "Test Country", "name": "Test City", "slug": "test-city"}, "mapped": true, "name": "Test Listing", "priceRange": "$$", "slug": "test-listing", "type": "coworking", "website": "https://test.com"}
-    Received: null
-
-      56 |         { slug: 'test-listing' }
-      57 |       );
-    > 58 |       expect(result).toEqual({
-         |                      ^
-      59 |         ...mockListing,
-      60 |         mapped: true,
-      61 |       });
-
-      at Object.toEqual (src/lib/sanity/data.test.ts:58:22)
-
-  ● data.ts › getListingData › should handle listings with complete data structure
-
-    expect(received).toEqual(expected) // deep equality
-
-    Expected: {"_id": "listing-full", "accommodationDetails": {}, "activitiesDetails": {}, "address": "123 Test St", "amenities": [], "cafeDetails": {}, "category": "hotel", "city": {"_id": "city-full", "country": "Full Country", "name": "Full City", "slug": "full-city"}, "contactEmail": "test@test.com", "contactPhone": "+1234567890", "coworkingDetails": {}, "digitalNomadFeatures": [], "ecoFocusTags": [{"_id": "tag-1", "name": "Eco-Friendly"}], "galleryImages": [{"asset": {"_ref": "image-ref-2"}}], "location": {"alt": 0, "lat": 0, "lng": 0}, "longDescription": "Long desc", "mapped": true, "moderation": {"featured": true, "status": "published", "verificationStatus": "verified"}, "name": "Full Listing", "priceRange": "$$$", "primaryImage": {"asset": {"_ref": "image-ref"}}, "restaurantDetails": {}, "reviews": [], "shortDescription": "Short desc", "slug": "full-listing", "type": "accommodation", "website": "https://full-listing.com"}
-    Received: null
-
-      143 |       const result = await getListingData('full-listing');
-      144 |
-    > 145 |       expect(result).toEqual({
-          |                      ^
-      146 |         ...mockListing,
-      147 |         mapped: true,
-      148 |       });
-
-      at Object.toEqual (src/lib/sanity/data.test.ts:145:22)
-
-  ● data.ts › getListingData › should handle listings with minimal data
-
-    expect(received).toEqual(expected) // deep equality
-
-    Expected: {"_id": "listing-minimal", "mapped": true, "name": "Minimal Listing", "slug": "minimal-listing"}
-    Received: null
-
-      160 |       const result = await getListingData('minimal-listing');
-      161 |
-    > 162 |       expect(result).toEqual({
-          |                      ^
-      163 |         ...mockListing,
-      164 |         mapped: true,
-      165 |       });
-
-      at Object.toEqual (src/lib/sanity/data.test.ts:162:22)
-
-FAIL src/lib/__tests__/sanity.test.js
-  ● Sanity Library › Initialization › should create the standard client with production config (useCdn: true)
-
-    expect(jest.fn()).toHaveBeenNthCalledWith(n, ...expected)
-
-    n: 1
-    Expected: ObjectContaining {"dataset": "test-dataset", "projectId": "test-project-id", "token": "test-api-token", "useCdn": true}
-
-    Number of calls: 0
-
-      53 |   describe('Initialization', () => {
-      54 |     it('should create the standard client with production config (useCdn: true)', () => {
-    > 55 |       expect(mockCreateClient).toHaveBeenNthCalledWith(
-         |                                ^
-      56 |         1,
-      57 |         expect.objectContaining({
-      58 |           projectId: 'test-project-id',
-
-      at Object.toHaveBeenNthCalledWith (src/lib/__tests__/sanity.test.js:55:32)
-
-  ● Sanity Library › Initialization › should create the preview client with preview config (useCdn: false)
-
-    expect(jest.fn()).toHaveBeenNthCalledWith(n, ...expected)
-
-    n: 2
-    Expected: ObjectContaining {"dataset": "test-dataset", "projectId": "test-project-id", "token": "test-api-token", "useCdn": false}
-
-    Number of calls: 0
-
-      65 |
-      66 |     it('should create the preview client with preview config (useCdn: false)', () => {
-    > 67 |       expect(mockCreateClient).toHaveBeenNthCalledWith(
-         |                                ^
-      68 |         2,
-      69 |         expect.objectContaining({
-      70 |           projectId: 'test-project-id',
-
-      at Object.toHaveBeenNthCalledWith (src/lib/__tests__/sanity.test.js:67:32)
-
-  ● Sanity Library › Initialization › should initialize the image URL builder with the standard client
-
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-    Expected: {"id": "standard"}
-
-    Number of calls: 0
-
-      77 |
-      78 |     it('should initialize the image URL builder with the standard client', () => {
-    > 79 |       expect(mockImageUrlBuilder).toHaveBeenCalledWith(standardClientInstance);
-         |                                   ^
-      80 |     });
-      81 |
-      82 |     it('should export the correct client instances returned by the mock', () => {
-
-      at Object.toHaveBeenCalledWith (src/lib/__tests__/sanity.test.js:79:35)
-
-  ● Sanity Library › Initialization › should export the correct client instances returned by the mock
-
-    expect(received).toBe(expected) // Object.is equality
-
-    - Expected  - 3
-    + Received  + 1
-
-    - Object {
-    -   "id": "standard",
-    - }
-    + Object {}
-
-      81 |
-      82 |     it('should export the correct client instances returned by the mock', () => {
-    > 83 |       expect(client).toBe(standardClientInstance);
-         |                      ^
-      84 |       expect(previewClient).toBe(previewClientInstance);
-      85 |     });
-      86 |   });
-
-      at Object.toBe (src/lib/__tests__/sanity.test.js:83:22)
-
-PASS src/types/type-tests/strict-component-type-tests.test.ts (15.002 s)
-PASS src/components/search/__tests__/DigitalNomadSearch.test.tsx (10.069 s)
-PASS src/components/layout/__tests__/Header.test.tsx (5.541 s)
-PASS app/api/listings/city/[id]/__tests__/route.msw.test.ts
-PASS app/api/search/__tests__/route.test.ts
-PASS src/components/ui/__tests__/VenueCard.test.tsx
-PASS src/__tests__/instrumentation.test.ts
-PASS src/utils/__tests__/revalidation-token.test.ts
-PASS src/components/search/__tests__/SearchForm.unit.test.tsx
-PASS app/admin/settings/__tests__/SettingsForm.test.tsx
-PASS src/components/listings/__tests__/RelatedListings.test.tsx
-PASS app/dashboard/components/__tests__/VenueListingForm.test.tsx
-PASS src/components/listings/__tests__/ListingDetailsCard.test.tsx
-PASS app/admin/listings/__tests__/ListingsManagementTable.test.tsx
-PASS app/auth/login/__tests__/LoginForm.test.tsx
-PASS src/components/__tests__/CommentForm.test.tsx
-PASS src/components/ui/__tests__/SectionHeader.test.tsx
-PASS app/api/cities/[slug]/__tests__/route.msw.test.ts
-PASS src/components/layout/__tests__/Footer.test.tsx
-PASS src/lib/__tests__/api.test.ts
-PASS app/admin/users/__tests__/UserManagementTable.test.tsx
-PASS src/lib/auth/rateLimit.test.ts
-PASS app/api/listings/featured/route.test.ts
-PASS src/components/favorites/__tests__/FavoriteButton.test.tsx
-PASS app/profile/__tests__/FavoriteListingsShowcase.test.tsx
-PASS app/admin/__tests__/error.test.tsx
-PASS app/auth/signup/__tests__/SignupPageContent.test.tsx
-PASS src/components/listings/__tests__/ListingGrid.test.tsx
-PASS app/__tests__/error.test.tsx
-PASS app/test/search/__tests__/page.test.tsx
-PASS src/components/listings/__tests__/ReviewsSection.test.tsx
-PASS src/components/auth/__tests__/SocialAuthRow.test.tsx
-PASS src/types/__tests__/search.test.ts
-PASS src/lib/performance/__tests__/withPerformanceTracking.test.tsx
-PASS src/utils/__tests__/rate-limit.test.ts
-PASS src/lib/auth/withAuth.test.tsx
-PASS src/components/ui/__tests__/filter-multi-select.test.tsx
-PASS src/components/search/__tests__/FiltersSidebar.test.tsx
-PASS src/lib/auth/adapter.test.ts
-PASS app/api/upload/__tests__/route.test.ts
-PASS src/models/__tests__/LoginAttempt.test.ts
-PASS src/lib/__tests__/sanity-http-client.test.ts
-PASS src/types/__tests__/sanity-compatible-json.test.ts
-PASS app/api/newsletter/subscribe/route.test.ts
-PASS src/types/__tests__/dto.test.ts
-PASS src/components/profile/__tests__/ProfileEditForm.component.test.tsx
-PASS src/components/ui/__tests__/label.test.tsx
-PASS app/api/digital-nomad-features/route.test.ts
-PASS src/components/ui/__tests__/StarRating.test.tsx
-PASS app/auth/login/__tests__/page.test.tsx
-PASS src/mocks/__tests__/handlers-server.test.ts
-PASS src/mocks/__tests__/handlers.test.ts
-PASS app/search/results/page.test.tsx
-PASS src/lib/auth/clientAuth.test.tsx
-PASS app/api/contact/route.test.ts
-PASS src/hooks/useAuth.test.ts
-PASS app/dashboard/components/__tests__/VenueListingManagement.test.tsx
-PASS app/api/listings/manage/[id]/__tests__/route.test.ts
-PASS src/components/listings/__tests__/ListingContactInfo.test.tsx
-PASS src/components/ui/__tests__/city-carousel-wave.test.tsx
-PASS src/lib/auth/serverAuth.test.ts
-PASS src/components/listings/__tests__/GalleryGrid.test.tsx
-PASS src/components/ui/__tests__/textarea.test.tsx
-PASS src/data/e2e/__tests__/discovery-fixtures.test.ts
-PASS src/components/sections/__tests__/TestimonialsSection.test.tsx
-PASS src/components/listings/__tests__/ListingDetailView.test.tsx
-PASS src/components/listings/__tests__/HeroSection.test.tsx
-PASS app/api/cities/__tests__/route.test.ts
-PASS src/lib/__tests__/sanity-batch-processor.test.ts
-PASS app/api/admin/moderation/__tests__/route.test.ts
-PASS app/listings/__tests__/error.test.tsx
-PASS app/listings/[slug]/__tests__/layout.test.tsx
-PASS src/lib/__tests__/rate-limit.test.ts
-PASS app/admin/dashboard/__tests__/ModerationActions.test.tsx
-PASS app/newsletter/confirmed/__tests__/page.test.tsx
-PASS app/search/__tests__/page.test.tsx
-PASS src/components/ui/__tests__/skip-link.test.tsx
-PASS src/lib/__tests__/email.test.ts
-PASS app/search/results/helpers.test.ts
-PASS app/contact-us/__tests__/page.test.tsx
-PASS src/utils/__tests__/auth-helpers.test.ts
-PASS src/utils/__tests__/sanitize.test.ts
-PASS src/components/sections/__tests__/AboutSection.test.tsx
-PASS src/lib/__tests__/landmark-coordinates.test.ts
-PASS app/__tests__/listings-slug-page.test.tsx
-PASS app/api/session/__tests__/route.test.ts
-PASS app/api/admin/users/__tests__/route.test.ts
-PASS src/tests/helpers/test-data.test.ts
-PASS app/api/user/analytics/route.test.ts
-PASS src/lib/analytics/__tests__/useExperiment.test.tsx
-PASS app/api/listings/[slug]/views/__tests__/route.test.ts
-PASS src/lib/admin/__tests__/analytics.test.ts
-PASS src/components/sections/__tests__/CategoryFilters.test.tsx
-PASS app/listings/[slug]/__tests__/page.test.tsx
-PASS app/test/listing-detail/page.test.tsx
-PASS app/cities/[slug]/page.test.tsx
-PASS src/components/sections/__tests__/FeaturedListings.test.tsx
-PASS src/scripts/__tests__/analyze-content.test.ts
-PASS src/lib/__tests__/client.test.ts
-PASS src/components/sections/__tests__/CityCarousel.test.tsx
-PASS app/api/user/favorites/__tests__/route.test.ts
-PASS src/components/__tests__/Providers.test.tsx
-PASS src/components/search/__tests__/DigitalNomadSearchFilter.test.tsx
-PASS src/lib/data/__tests__/city.test.ts
-PASS app/profile/__tests__/error.test.tsx
-PASS src/components/sections/__tests__/HeroSection.test.tsx
-PASS src/components/blog/__tests__/portableTextComponents.test.tsx
-PASS src/middleware/__tests__/cache.test.ts
-PASS app/api/search/__tests__/route.msw.test.ts
-PASS src/types/type-tests/__tests__/strict-component-type-tests.test.tsx
-PASS app/dashboard/listings/new/__tests__/page.test.tsx
-PASS app/api/amenities/route.test.ts
-PASS app/__tests__/layout-utils.test.ts
-PASS src/lib/analytics/__tests__/config.test.ts
-PASS src/lib/__tests__/adapters.test.ts
-PASS app/api/auth/reset-password/__tests__/route.test.ts
-PASS src/models/__tests__/EmailVerificationToken.test.ts
-PASS src/types/__tests__/api.test.ts
-PASS app/__tests__/profile-page.test.tsx
-PASS src/lib/analytics/plausible/__tests__/hooks.test.tsx
-PASS src/components/search/__tests__/SearchFiltersForm.test.tsx
-PASS src/components/ui/__tests__/neo-badge.test.tsx
-PASS src/lib/__tests__/auth.test.ts
-PASS src/lib/auth/withAuthMatrix.test.ts
-PASS src/lib/__tests__/mongodb.test.ts
-PASS src/components/ui/__tests__/select.test.tsx
-PASS app/api/auth/verify/__tests__/route.test.ts
-PASS app/api/newsletter/confirm/__tests__/route.test.ts
-PASS src/components/search/__tests__/SearchBox.test.tsx
-PASS app/dashboard/listings/edit/[id]/__tests__/page.test.tsx
-PASS src/hooks/useSearchListings.test.ts
-PASS app/api/admin/analyze-content/__tests__/route.test.ts
-PASS app/__tests__/page.listingdetail.test.tsx
-PASS app/admin/dashboard/__tests__/page.test.tsx
-PASS src/models/__tests__/UserAnalytics.test.ts
-PASS src/components/ui/__tests__/InteractiveMap.test.tsx
-PASS src/components/__tests__/AnimatedNumber.test.tsx
-PASS src/hooks/useSearch.test.ts
-PASS app/api/revalidate/__tests__/route.test.ts
-PASS app/api/user/favorites/[slug]/__tests__/route.test.ts
-PASS app/api/listings/[slug]/route.test.ts
-PASS src/lib/sanity/client.test.ts
-PASS app/api/blog/[slug]/route.test.ts
-PASS app/__tests__/cities-slug-page.test.tsx
-PASS src/lib/__tests__/envLoader.test.ts
-PASS src/lib/sanity/user.test.ts
-PASS app/__tests__/test-listing-detail-page.test.tsx
-PASS src/middleware/__tests__/main-middleware.test.ts
-PASS src/components/ui/__tests__/ImageCarousel.test.tsx
-PASS src/hooks/useClickOutside.test.tsx
-PASS src/types/__tests__/ui.test.ts
-PASS app/sitemap.test.ts
-PASS app/api/mock-env/__tests__/route.test.ts
-PASS src/lib/performance/__tests__/plausible.test.ts
-PASS src/components/listings/__tests__/ListingCategoryDetails.test.tsx
-PASS app/api/listings/route.test.ts
-PASS app/api/performance/web-vitals/__tests__/route.test.ts
-PASS src/lib/__tests__/listing-views.test.ts
-PASS src/models/__tests__/PasswordResetToken.test.ts
-PASS src/components/city/__tests__/CityDetailView.test.tsx
-PASS src/tests/fixtures/__tests__/page.test.tsx
-PASS app/api/user/reviews/__tests__/route.test.ts
-PASS app/api/revalidate-all/__tests__/route.repair.test.ts
-PASS src/models/__tests__/AnalyticsEvent.test.ts
-PASS src/components/ui/__tests__/checkbox.test.tsx
-PASS src/types/__tests__/sanity.test.ts
-PASS src/lib/performance/__tests__/web-vitals-reporter.minimal.test.ts
-PASS app/api/auth/update-profile/route.test.ts
-PASS src/lib/utils/__tests__/slug.test.ts
-PASS app/__tests__/dashboard-listings-page.test.tsx
-PASS src/lib/mongodb/__tests__/testDbConnector.test.ts
-PASS src/components/ui/__tests__/separator.test.tsx
-PASS src/components/__tests__/MswInit.test.tsx
-PASS app/__tests__/ClientRootLayout.test.tsx
-PASS app/api/auth/[...nextauth]/__tests__/route.test.ts
-PASS src/hooks/__tests__/useFilters.test.ts
-PASS src/lib/__tests__/newsletterTokens.test.ts
-PASS app/profile/__tests__/utils.test.ts
-PASS app/__tests__/sitemap.test.ts
-PASS src/lib/analytics/plausible/__tests__/provider.test.tsx
-PASS src/tests/fixtures/index.test.ts
-PASS app/api/auth/register/route.test.ts
-PASS src/utils/__tests__/ecoRatingCalculator.test.ts
-PASS src/lib/mongodb/__tests__/init.test.ts
-PASS app/__tests__/auth-login-page.test.tsx
-PASS app/api/search/suggestions/__tests__/route.test.ts
-PASS src/types/__tests__/auth.test.ts
-PASS src/lib/__tests__/search.test.ts
-PASS app/api/featured-listings/route.test.ts
-PASS src/lib/analytics/__tests__/experiments.test.ts
-PASS src/types/__tests__/query-types.test.ts
-PASS app/city/[slug]/__tests__/error.test.tsx
-PASS src/components/listings/__tests__/listingDetailMockData.test.ts
-PASS app/api/featured-listings/route.msw.test.ts
-PASS src/lib/auth/callbackUrl.test.ts
-PASS src/types/__tests__/components.test.ts
-PASS src/middleware/__tests__/server-timing.test.ts
-PASS src/tests/sanity-generated-types.test.ts
-PASS app/api/listings/city/[id]/__tests__/route.test.ts
-PASS app/api/admin/settings/__tests__/route.test.ts
-PASS app/dashboard/__tests__/error.test.tsx
-PASS app/test-gallery/page.test.tsx
-PASS src/utils/__tests__/helpers.test.ts
-PASS src/lib/__tests__/sanity-image-uploader.test.ts
-PASS app/test-reviews/page.test.tsx
-PASS src/lib/performance/__tests__/performance-budgets.test.ts
-PASS src/lib/analytics/plausible/__tests__/index.test.ts
-PASS src/lib/__tests__/image-optimizer.test.ts
-PASS src/utils/__tests__/db-helpers.test.ts
-PASS src/lib/__tests__/geocode.test.ts
-PASS src/test-helpers/__tests__/createMongoMemoryServer.test.ts
-PASS src/lib/performance/__tests__/web-vitals-reporter.test.fixed.ts
-PASS src/components/listings/__tests__/NoListingsFound.test.tsx
-PASS src/lib/highlight.test.tsx
-PASS app/api/preview/exit/__tests__/route.test.ts
-PASS src/types/__tests__/dto-schemas.test.ts
-PASS src/lib/__tests__/dbConnect-simplified.test.ts
-PASS src/tests/sanity-client.test.ts
-PASS src/lib/performance/__tests__/baseline-testing.test.ts
-PASS src/lib/viewCountPersistence.test.ts
-PASS src/lib/__tests__/utils.test.ts
-PASS src/types/__tests__/api-responses.test.ts
-PASS app/__tests__/test-reviews-page.test.tsx
-PASS src/tests/fixtures/__tests__/index.test.ts
-PASS app/api/admin/listings/stats/__tests__/route.test.ts
-PASS src/types/__tests__/sort.test.ts
-PASS src/lib/sanity/__tests__/env.test.ts
-PASS src/models/__tests__/NewsletterSubscriber.test.ts
-PASS src/lib/performance/__tests__/bundle-analyzer.test.ts
-PASS src/hooks/useFilters.test.ts
-PASS src/lib/__tests__/error-handler.test.ts
-PASS app/__tests__/test-gallery-page.test.tsx
-PASS src/models/__tests__/ContactSubmission.test.ts
-PASS src/components/__tests__/CommentList.test.tsx
-PASS src/components/ui/__tests__/scroll-down-arrow.test.tsx
-PASS src/mocks/__tests__/browser.test.ts
-PASS src/types/__tests__/listings.test.ts
-PASS src/lib/performance/__tests__/collector.test.ts
-PASS app/api/eco-tags/route.test.ts
-PASS app/api/events/route.test.ts
-PASS src/types/__tests__/enums.test.ts
-PASS app/api/reviews/listing/[slug]/route.test.ts
-PASS src/lib/performance/__tests__/budgets.test.ts
-PASS src/models/__tests__/User.test.ts
-PASS app/api/reviews/analytics/route.test.ts
-PASS app/__tests__/page.featuredvenues.test.tsx
-PASS app/auth/signup/__tests__/page.test.tsx
-PASS app/api/auth/request-password-reset/__tests__/route.test.ts
-PASS src/models/__tests__/mongoose-mock.guard.test.ts
-PASS app/api/preview/__tests__/route.test.ts
-PASS src/types/__tests__/moderator.test.ts
-PASS src/lib/__tests__/mongoose-cache.test.ts
-PASS src/mocks/__tests__/api-response.test.ts
-PASS src/lib/sanity/queries.test.ts
-PASS src/lib/__tests__/dto-transformer.test.ts
-PASS app/api/revalidate-all/__tests__/route.clean.test.ts
-PASS src/lib/dashboard/__tests__/user-dashboard.test.ts
-PASS src/lib/auth/userService.test.ts
-PASS src/lib/analytics/__tests__/analytics-manager.test.ts
-PASS src/lib/__tests__/logger.test.ts
-PASS src/lib/queries/__tests__/index.test.ts
-PASS app/api/admin/bulk-operations/__tests__/route.test.ts
-PASS app/api/user/dashboard/route.test.ts
-PASS src/types/__tests__/city.test.ts
-PASS src/lib/performance/__tests__/alert-service.test.ts
-PASS src/lib/performance/__tests__/web-vitals-reporter.test.ts
-PASS src/utils/__tests__/priceRange.test.ts
-PASS src/test-helpers/__tests__/msw-server-bridge.test.ts
-PASS app/api/cities/[slug]/__tests__/route.test.ts
-PASS app/api/city/[slug]/__tests__/route.test.ts
-PASS app/api/admin/analytics/__tests__/route.test.ts
-PASS src/hooks/useCounter.test.ts
-PASS src/utils/__tests__/api-response.test.ts
-PASS src/tests/helpers/assertions.test.ts
-PASS src/lib/image-utils/getImageDimensions.test.ts
-PASS src/lib/__tests__/tokens.test.ts
-PASS src/lib/auth/config.test.ts
-PASS app/api/admin/stats/__tests__/route.test.ts
-PASS src/types/__tests__/listing.test.ts
-PASS src/lib/__tests__/cache-strategy.test.ts
-PASS src/lib/__tests__/redis.test.ts
-PASS src/types/__tests__/filters.test.ts
-PASS src/lib/auth/serverAuth-simplified.test.ts
-PASS src/middleware/__tests__/authCallbackHandler.test.ts
-PASS app/city/[slug]/__tests__/page.test.tsx
-PASS src/hooks/useAnalytics.test.ts
-PASS app/api/test-listings/__tests__/route.test.ts
-PASS app/api/categories/route.test.ts
-PASS app/api/reviews/[reviewId]/vote/route.test.ts
-PASS app/api/user/profile/route.test.ts
-PASS src/types/auth-types.test.ts
-PASS src/types/__tests__/moderation.test.ts
-PASS src/lib/performance/__tests__/monitoring-config.test.ts
-PASS src/models/__tests__/UserFavorite.test.ts
-PASS src/components/profile/__tests__/ProfileEditForm.test.tsx
-PASS src/types/__tests__/appView.test.ts
-PASS app/__tests__/dashboard-page.test.tsx
-PASS src/utils/__tests__/tag-styles.test.ts
-PASS src/lib/sanity/image.test.ts
-PASS src/utils/__tests__/navigation.test.ts
-PASS src/components/city/__tests__/cityDetailMockData.test.ts
-PASS src/__tests__/require-react-fc-type-parameters.test.ts
-PASS src/lib/http/__tests__/request-json-helpers.test.ts
-PASS app/api/exit-preview/route.test.ts
-PASS app/api/revalidate-all/__tests__/route.test.ts
-PASS app/api/sanity-test/__tests__/route.test.ts
-PASS src/tests/mocks/factories.test.ts
-PASS app/__tests__/robots.test.ts
-PASS src/lib/mongodb/__tests__/sessionSchema.test.ts
-PASS app/api/reviews/moderation/__tests__/route.test.ts
-PASS src/lib/performance/__tests__/alerting-thresholds.test.ts
-PASS src/middleware/__tests__/session.test.ts
-PASS app/api/admin/listings/__tests__/route.test.ts
-PASS src/lib/__tests__/listings.test.ts
-PASS src/lib/sanity/cached-client.test.ts
-PASS app/api/test-mongodb/__tests__/route.test.ts
-
-Summary of all failing tests
-FAIL app/__tests__/blog-slug-page.test.tsx
-  ● BlogPostPage › renders post content, placeholder hero, and comments from DTO response
-
-    expect(element).toHaveTextContent()
-
-    Expected element to have text content:
-      comments:1
-    Received:
-      comments:0
-
-       97 |     expect(screen.getByText('Sustainable Journey')).toBeInTheDocument();
-       98 |     expect(screen.getByTestId('portable-text')).toBeInTheDocument();
-    >  99 |     expect(screen.getByTestId('comment-list')).toHaveTextContent('comments:1');
-          |                                                ^
-      100 |     expect(screen.getByTestId('comment-form')).toHaveTextContent('form-for-post-123');
-      101 |
-      102 |     const hero = screen.getByRole('presentation', { hidden: true });
-
-      at Object.toHaveTextContent (app/__tests__/blog-slug-page.test.tsx:99:48)
-
-  ● BlogPostPage › handles minimal fallback payloads lacking DTO wrappers
-
-    NEXT_NOT_FOUND
-
-      3 |
-      4 | const notFoundMock = jest.fn(() => {
-    > 5 |   const error = new Error('NEXT_NOT_FOUND') as Error & { digest?: string };
-        |                 ^
-      6 |   error.digest = 'NEXT_NOT_FOUND';
-      7 |   throw error;
-      8 | });
-
-      at app/__tests__/blog-slug-page.test.tsx:5:17
-      at Object.BlogPostPage (app/blog/[slug]/page.tsx:54:15)
-      at Object.<anonymous> (app/__tests__/blog-slug-page.test.tsx:180:23)
-
-  ● BlogPostPage.generateMetadata › returns metadata derived from DTO response with relative image
-
-    expect(received).toEqual(expected) // deep equality
-
-    - Expected  - 14
-    + Received  +  2
-
-    - ObjectContaining {
-    -   "description": "Meta description",
-    -   "openGraph": ObjectContaining {
-    -     "images": Array [
-      Object {
-    -         "url": "https://example.com/images/meta.jpg",
-    -       },
-    -     ],
-    -   },
-    -   "title": "Meta Post",
-    -   "twitter": ObjectContaining {
-    -     "images": Array [
-    -       "https://example.com/images/meta.jpg",
-    -     ],
-    -   },
-    +   "description": "The requested blog post could not be found.",
-    +   "title": "Blog Post Not Found",
-      }
-
-      245 |
-      246 |     const metadata = await pageModule.generateMetadata({ params: Promise.resolve({ slug: 'meta-post' }) });
-    > 247 |     expect(metadata).toEqual(
-          |                      ^
-      248 |       expect.objectContaining({
-      249 |         title: 'Meta Post',
-      250 |         description: 'Meta description',
-
-      at Object.toEqual (app/__tests__/blog-slug-page.test.tsx:247:22)
-
-  ● BlogPostPage.generateMetadata › returns not found metadata when API returns 404
-
-    expect(received).toEqual(expected) // deep equality
-
-    - Expected  - 1
-    + Received  + 2
-
-      Object {
-    -   "title": "Post not found",
-    +   "description": "The requested blog post could not be found.",
-    +   "title": "Blog Post Not Found",
-      }
+    Expected: 422
+    Received: 401
 
       278 |
-      279 |     const metadata = await pageModule.generateMetadata({ params: Promise.resolve({ slug: 'missing-post' }) });
-    > 280 |     expect(metadata).toEqual({ title: 'Post not found' });
-          |                      ^
-      281 |   });
-      282 |
-      283 |   it('falls back to generic metadata when the fetch fails', async () => {
-
-      at Object.toEqual (app/__tests__/blog-slug-page.test.tsx:280:22)
-
-  ● BlogPostPage.generateMetadata › falls back to generic metadata when the fetch fails
-
-    network failure
-
-      292 |     getBaseUrl.mockResolvedValue('https://example.com');
-      293 |
-    > 294 |     global.fetch = jest.fn().mockRejectedValue(new Error('network failure'));
-          |                                                ^
-      295 |
-      296 |     const metadata = await pageModule.generateMetadata({ params: Promise.resolve({ slug: 'meta-error' }) });
-      297 |     expect(metadata).toEqual({ title: 'Blog' });
-
-      at Object.<anonymous> (app/__tests__/blog-slug-page.test.tsx:294:48)
-
-  ● BlogPostPage.generateMetadata › returns summary card metadata when image and excerpt are missing
-
-    expect(received).toEqual(expected) // deep equality
-
-    - Expected  - 10
-    + Received  +  3
-
-    - ObjectContaining {
-    -   "description": undefined,
-    -   "openGraph": ObjectContaining {
-    -     "images": undefined,
-    -   },
-    -   "title": "Meta Fallback",
-    -   "twitter": ObjectContaining {
-    -     "card": "summary",
-    -     "images": undefined,
-    -   },
-    + Object {
-    +   "description": "The requested blog post could not be found.",
-    +   "title": "Blog Post Not Found",
-      }
-
-      321 |     const metadata = await pageModule.generateMetadata({ params: Promise.resolve({ slug: 'meta-fallback' }) });
-      322 |
-    > 323 |     expect(metadata).toEqual(
-          |                      ^
-      324 |       expect.objectContaining({
-      325 |         title: 'Meta Fallback',
-      326 |         description: undefined,
-
-      at Object.toEqual (app/__tests__/blog-slug-page.test.tsx:323:22)
-
-FAIL app/search/page.test.tsx
-  ● SearchPage › exposes a force-dynamic rendering hint
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: "force-dynamic"
-    Received: undefined
-
-      65 |
-      66 |   it('exposes a force-dynamic rendering hint', () => {
-    > 67 |     expect(dynamicExport).toBe('force-dynamic');
-         |                           ^
-      68 |   });
-      69 |
-      70 |   it('renders search results using backend data and forwards params to filters', async () => {
-
-      at Object.toBe (app/search/page.test.tsx:67:27)
-
-FAIL app/api/reviews/route.test.ts
-  ● API /api/reviews POST › rejects unauthenticated requests
-
-    ReferenceError: mockAuth is not defined
-
-      214 |
-      215 |   it('rejects unauthenticated requests', async () => {
-    > 216 |     mockAuth.mockResolvedValueOnce(null);
-          |     ^
-      217 |
-      218 |     const res = await POST(
-      219 |       new Request('http://localhost/api/reviews', {
-
-      at Object.mockAuth (app/api/reviews/route.test.ts:216:5)
-
-  ● API /api/reviews POST › rejects users without review permissions
-
-    ReferenceError: mockAuth is not defined
-
-      233 |
-      234 |   it('rejects users without review permissions', async () => {
-    > 235 |     mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'unidentifiedUser' } });
-          |     ^
-      236 |
-      237 |     const res = await POST(
-      238 |       new Request('http://localhost/api/reviews', {
-
-      at Object.mockAuth (app/api/reviews/route.test.ts:235:5)
-
-  ● API /api/reviews POST › validates incoming payload and enforces rating constraints
-
-    ReferenceError: mockAuth is not defined
-
-      253 |
-      254 |   it('validates incoming payload and enforces rating constraints', async () => {
-    > 255 |     mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
-          |     ^
-      256 |
-      257 |     const res = await POST(
-      258 |       new Request('http://localhost/api/reviews', {
-
-      at Object.mockAuth (app/api/reviews/route.test.ts:255:5)
-
-  ● API /api/reviews POST › validates incoming payload and enforces minimum comment length
-
-    ReferenceError: mockAuth is not defined
-
-      273 |
-      274 |   it('validates incoming payload and enforces minimum comment length', async () => {
-    > 275 |     mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
-          |     ^
-      276 |
-      277 |     const res = await POST(
-      278 |       new Request('http://localhost/api/reviews', {
-
-      at Object.mockAuth (app/api/reviews/route.test.ts:275:5)
-
-  ● API /api/reviews POST › returns conflict when a user already reviewed the listing
-
-    ReferenceError: mockAuth is not defined
-
-      289 |
-      290 |   it('returns conflict when a user already reviewed the listing', async () => {
-    > 291 |     mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
-          |     ^
-      292 |     (client.getDocument as jest.Mock).mockResolvedValueOnce({
-      293 |       _id: 'listing-1',
-      294 |       slug: { current: 'listing-slug' },
-
-      at Object.mockAuth (app/api/reviews/route.test.ts:291:5)
-
-  ● API /api/reviews POST › returns 422 when the request body cannot be parsed
-
-    ReferenceError: mockAuth is not defined
-
-      315 |
-      316 |   it('returns 422 when the request body cannot be parsed', async () => {
-    > 317 |     mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
-          |     ^
-      318 |
-      319 |     const failingRequest = {
-      320 |       json: jest.fn().mockRejectedValue(new Error('boom')),
-
-      at Object.mockAuth (app/api/reviews/route.test.ts:317:5)
-
-  ● API /api/reviews POST › requires valid listing and user references
-
-    ReferenceError: mockAuth is not defined
-
-      333 |
-      334 |   it('requires valid listing and user references', async () => {
-    > 335 |     mockAuth.mockResolvedValueOnce({
-          |     ^
-      336 |       user: { id: 'user-1', role: 'user', email: 'user@example.com' },
-      337 |     });
-      338 |     (client.getDocument as jest.Mock).mockResolvedValueOnce(null);
-
-      at Object.mockAuth (app/api/reviews/route.test.ts:335:5)
-
-  ● API /api/reviews POST › creates a pending review, trims comment, and revalidates the listing page
-
-    ReferenceError: mockAuth is not defined
-
-      357 |
-      358 |   it('creates a pending review, trims comment, and revalidates the listing page', async () => {
-    > 359 |     mockAuth.mockResolvedValueOnce({
-          |     ^
-      360 |       user: { id: 'user-1', role: 'user', name: 'Reviewer', email: 'user@example.com' },
-      361 |     });
-      362 |     (client.getDocument as jest.Mock).mockResolvedValueOnce({
-
-      at Object.mockAuth (app/api/reviews/route.test.ts:359:5)
-
-  ● API /api/reviews POST › includes optional eco and nomad ratings when supplied
-
-    ReferenceError: mockAuth is not defined
-
-      407 |
-      408 |   it('includes optional eco and nomad ratings when supplied', async () => {
-    > 409 |     mockAuth.mockResolvedValueOnce({
-          |     ^
-      410 |       user: { id: 'user-2', role: 'user', name: 'Eco Fan', email: 'eco@example.com' },
-      411 |     });
-      412 |     (client.getDocument as jest.Mock).mockResolvedValueOnce({
-
-      at Object.mockAuth (app/api/reviews/route.test.ts:409:5)
-
-  ● API /api/reviews POST › logs and returns 500 when creation fails unexpectedly
-
-    ReferenceError: mockAuth is not defined
-
-      439 |
-      440 |   it('logs and returns 500 when creation fails unexpectedly', async () => {
-    > 441 |     mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
-          |     ^
-      442 |     (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'listing-1' });
-      443 |     (ensureSanityUser as jest.Mock).mockResolvedValueOnce({ _id: 'sanity-user-1' });
-      444 |     (client.create as jest.Mock).mockRejectedValueOnce(new Error('Sanity failure'));
-
-      at Object.mockAuth (app/api/reviews/route.test.ts:441:5)
-
-FAIL app/api/comments/route.test.ts
-  ● API /api/comments › POST › rejects unauthorized users
-
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
-
-      123 |   describe('POST', () => {
-      124 |     it('rejects unauthorized users', async () => {
-    > 125 |       (auth as jest.Mock).mockResolvedValueOnce(null);
-          |                           ^
-      126 |       const req = new Request('http://localhost/api/comments', {
-      127 |         method: 'POST',
-      128 |         body: JSON.stringify({ content: 'Hi', postId: 'p1' }),
-
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:125:27)
-
-  ● API /api/comments › POST › rejects users without comment permissions
-
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
-
-      135 |
-      136 |     it('rejects users without comment permissions', async () => {
-    > 137 |       (auth as jest.Mock).mockResolvedValueOnce({
-          |                           ^
-      138 |         user: { id: 'user1', role: 'unidentifiedUser', name: 'User' },
-      139 |       });
-      140 |       const req = new Request('http://localhost/api/comments', {
-
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:137:27)
-
-  ● API /api/comments › POST › returns fallback error response when NextResponse.json is unavailable
-
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
-
-      152 |
-      153 |     it('returns fallback error response when NextResponse.json is unavailable', async () => {
-    > 154 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
-          |                           ^
-      155 |       const originalJson = (NextResponse as any).json;
-      156 |       (NextResponse as any).json = undefined;
-      157 |
-
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:154:27)
-
-  ● API /api/comments › POST › rejects sessions without a user id
-
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
-
-      166 |
-      167 |     it('rejects sessions without a user id', async () => {
-    > 168 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { role: 'user', name: 'Nameless' } });
-          |                           ^
-      169 |
-      170 |       const res = await POST(
-      171 |         new Request('http://localhost/api/comments', {
-
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:168:27)
-
-  ● API /api/comments › POST › creates a comment and revalidates tag
-
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
-
-      181 |
-      182 |     it('creates a comment and revalidates tag', async () => {
-    > 183 |       (auth as jest.Mock).mockResolvedValueOnce({
-          |                           ^
-      184 |         user: { id: 'user1', role: 'user', name: 'User', email: 'u@example.com' },
-      185 |       });
-      186 |       mockEnsureSanityUser.mockResolvedValueOnce({ _id: 'sanityUser1', _type: 'user' });
-
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:183:27)
-
-  ● API /api/comments › POST › creates a comment without revalidating when the post has no slug
-
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
-
-      211 |
-      212 |     it('creates a comment without revalidating when the post has no slug', async () => {
-    > 213 |       (auth as jest.Mock).mockResolvedValueOnce({
-          |                           ^
-      214 |         user: { id: 'user1', role: 'user', name: 'User' },
-      215 |       });
-      216 |       (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'p1' });
-
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:213:27)
-
-  ● API /api/comments › POST › still succeeds when revalidateTag encounters an error
-
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
-
-      228 |
-      229 |     it('still succeeds when revalidateTag encounters an error', async () => {
-    > 230 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
-          |                           ^
-      231 |       (client.getDocument as jest.Mock).mockResolvedValueOnce({
-      232 |         _id: 'p1',
-      233 |         slug: { current: 'sluggy' },
-
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:230:27)
-
-  ● API /api/comments › POST › returns validation error when fields are missing or invalid
-
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
-
-      246 |
-      247 |     it('returns validation error when fields are missing or invalid', async () => {
-    > 248 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
-          |                           ^
-      249 |
-      250 |       const res = await POST(
-      251 |         new Request('http://localhost/api/comments', {
-
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:248:27)
-
-  ● API /api/comments › POST › rejects requests without a json body parser
-
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
-
-      261 |
-      262 |     it('rejects requests without a json body parser', async () => {
-    > 263 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
-          |                           ^
-      264 |
-      265 |       const res = await POST({ method: 'POST' } as any);
-      266 |       expect(res.status).toBe(422);
-
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:263:27)
-
-  ● API /api/comments › POST › handles failures to parse the body gracefully
-
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
-
-      269 |
-      270 |     it('handles failures to parse the body gracefully', async () => {
-    > 271 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
-          |                           ^
-      272 |
-      273 |       const failingRequest = {
-      274 |         json: jest.fn().mockRejectedValue(new Error('nope')),
-
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:271:27)
+      279 |       const res = await POST(failingRequest);
+    > 280 |       expect(res.status).toBe(422);
+          |                          ^
+      281 |       await expect(res.json()).resolves.toEqual({ error: 'Invalid or missing fields' });
+      282 |     });
+      283 |
+
+      at Object.toBe (app/api/comments/route.test.ts:280:26)
 
   ● API /api/comments › POST › trims content and rejects empty comments
 
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+    expect(received).toBe(expected) // Object.is equality
 
-      281 |
-      282 |     it('trims content and rejects empty comments', async () => {
-    > 283 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
-          |                           ^
-      284 |
-      285 |       const res = await POST(
-      286 |         new Request('http://localhost/api/comments', {
+    Expected: 422
+    Received: 401
 
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:283:27)
+      292 |       );
+      293 |
+    > 294 |       expect(res.status).toBe(422);
+          |                          ^
+      295 |       await expect(res.json()).resolves.toEqual({ error: 'Comment is required' });
+      296 |       expect(client.create).not.toHaveBeenCalled();
+      297 |     });
+
+      at Object.toBe (app/api/comments/route.test.ts:294:26)
 
   ● API /api/comments › POST › requires comment content to be a string
 
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+    expect(received).toBe(expected) // Object.is equality
 
-      296 |
-      297 |     it('requires comment content to be a string', async () => {
-    > 298 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
-          |                           ^
-      299 |
-      300 |       const res = await POST(
-      301 |         new Request('http://localhost/api/comments', {
+    Expected: 422
+    Received: 401
 
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:298:27)
+      307 |       );
+      308 |
+    > 309 |       expect(res.status).toBe(422);
+          |                          ^
+      310 |       await expect(res.json()).resolves.toEqual({ error: 'Comment is required' });
+      311 |     });
+      312 |
+
+      at Object.toBe (app/api/comments/route.test.ts:309:26)
 
   ● API /api/comments › POST › returns 400 when the referenced post cannot be found
 
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+    expect(received).toBe(expected) // Object.is equality
 
-      310 |
-      311 |     it('returns 400 when the referenced post cannot be found', async () => {
-    > 312 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
-          |                           ^
-      313 |       (client.getDocument as jest.Mock).mockResolvedValueOnce(null);
-      314 |
-      315 |       const res = await POST(
+    Expected: 400
+    Received: 401
 
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:312:27)
+      322 |       );
+      323 |
+    > 324 |       expect(res.status).toBe(400);
+          |                          ^
+      325 |       await expect(res.json()).resolves.toEqual({ error: 'Invalid reference(s)' });
+      326 |       expect(client.create).not.toHaveBeenCalled();
+      327 |     });
+
+      at Object.toBe (app/api/comments/route.test.ts:324:26)
 
   ● API /api/comments › POST › returns 500 when comment creation throws an unexpected error
 
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+    expect(received).toBe(expected) // Object.is equality
 
-      326 |
-      327 |     it('returns 500 when comment creation throws an unexpected error', async () => {
-    > 328 |       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
-          |                           ^
-      329 |       (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'p1' });
-      330 |       (client.create as jest.Mock).mockRejectedValueOnce(new Error('Sanity failure'));
-      331 |
+    Expected: 500
+    Received: 401
 
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:328:27)
+      339 |       );
+      340 |
+    > 341 |       expect(res.status).toBe(500);
+          |                          ^
+      342 |       await expect(res.json()).resolves.toEqual({ error: 'Internal Server Error' });
+      343 |       expect(client.create).toHaveBeenCalledTimes(1);
+      344 |     });
+
+      at Object.toBe (app/api/comments/route.test.ts:341:26)
 
   ● API /api/comments › POST › returns 500 when ensureSanityUser throws an unexpected error
 
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+    expect(received).toBe(expected) // Object.is equality
 
-      343 |
-      344 |     it('returns 500 when ensureSanityUser throws an unexpected error', async () => {
-    > 345 |       (auth as jest.Mock).mockResolvedValueOnce({
-          |                           ^
-      346 |         user: { id: 'user1', role: 'user', name: 'User', email: 'u@example.com' },
-      347 |       });
-      348 |       mockEnsureSanityUser.mockRejectedValueOnce(new Error('Sanity user failure'));
+    Expected: 500
+    Received: 401
 
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:345:27)
+      358 |       );
+      359 |
+    > 360 |       expect(res.status).toBe(500);
+          |                          ^
+      361 |       await expect(res.json()).resolves.toEqual({ error: 'Internal Server Error' });
+      362 |     });
+      363 |
+
+      at Object.toBe (app/api/comments/route.test.ts:360:26)
 
   ● API /api/comments › POST › still creates a comment if user has no email
 
-    TypeError: _auth.auth.mockResolvedValueOnce is not a function
+    expect(received).toBe(expected) // Object.is equality
 
-      361 |
-      362 |     it('still creates a comment if user has no email', async () => {
-    > 363 |       (auth as jest.Mock).mockResolvedValueOnce({
-          |                           ^
-      364 |         user: { id: 'user1', role: 'user', name: 'User' },
-      365 |       });
-      366 |       mockEnsureSanityUser.mockResolvedValueOnce({ _id: 'sanityUser1', _type: 'user' });
+    Expected: 201
+    Received: 401
 
-      at Object.mockResolvedValueOnce (app/api/comments/route.test.ts:363:27)
+      380 |       const res = await POST(req);
+      381 |       const json = await res.json();
+    > 382 |       expect(res.status).toBe(201);
+          |                          ^
+      383 |       expect(json.success).toBe(true);
+      384 |       expect(json.data).toMatchObject({ _id: 'comment1' });
+      385 |     });
+
+      at Object.toBe (app/api/comments/route.test.ts:382:26)
+
+FAIL src/lib/__tests__/sanity.utils.test.ts
+  sanity utils
+    ✕ creates clients with expected configuration and exports helpers (15 ms)
+    ✓ validates preview tokens against the configured secret (3 ms)
+    ✕ fetches preview data using the preview client (3 ms)
+    ✓ fetches cached data when not in preview mode (3 ms)
+
+  ● sanity utils › creates clients with expected configuration and exports helpers
+
+    expect(jest.fn()).toHaveBeenNthCalledWith(n, ...expected)
+
+    n: 1
+    Expected: {"apiVersion": "2025-05-15", "dataset": "dataset", "projectId": "proj", "useCdn": true}
+
+    Number of calls: 0
+
+      45 |     const mod = await loadModule();
+      46 |
+    > 47 |     expect(createClientMock).toHaveBeenNthCalledWith(1, {
+         |                              ^
+      48 |       projectId: 'proj',
+      49 |       dataset: 'dataset',
+      50 |       apiVersion: '2025-05-15',
+
+      at Object.toHaveBeenNthCalledWith (src/lib/__tests__/sanity.utils.test.ts:47:30)
+
+  ● sanity utils › fetches preview data using the preview client
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: Any<String>, {"slug": "hello", "type": "post"}
+
+    Number of calls: 0
+
+      82 |     const result = await mod.fetchBySlug('post', 'hello', true);
+      83 |
+    > 84 |     expect(previewClient.fetch).toHaveBeenCalledWith(expect.any(String), {
+         |                                 ^
+      85 |       type: 'post',
+      86 |       slug: 'hello',
+      87 |     });
+
+      at Object.toHaveBeenCalledWith (src/lib/__tests__/sanity.utils.test.ts:84:33)
+
+FAIL app/admin/listings/__tests__/page.test.tsx
+  Admin listings page
+    ✓ renders the listings management interface for admins (35 ms)
+    ✕ redirects when the viewer is not an admin (4 ms)
+
+  ● Admin listings page › redirects when the viewer is not an admin
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [{"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [{"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": "Listing Management", "className": "text-3xl font-bold text-gray-900", "data-testid": "admin-listings-title"}, "type": "h1"}, {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": "Manage listings, approve submissions, and feature content.", "className": "mt-2 text-gray-600"}, "type": "p"}], "className": "mb-8"}, "type": "div"}, {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"currentUserId": "user-1", "currentUserRole": "user"}, "type": [Function ListingsManagementTable]}, "className": "bg-white shadow-sm rounded-lg border border-gray-200"}, "type": "div"}], "className": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"}, "type": "div"}, "className": "min-h-screen bg-gray-50", "data-testid": "admin-listings-page"}, "type": "main"}
+
+      58 |     const AdminListingsPage = (await import('../page')).default;
+      59 |
+    > 60 |     await expect(AdminListingsPage()).rejects.toThrow('redirect');
+         |           ^
+      61 |     expect(redirectMock).toHaveBeenCalledWith('/auth/login?callbackUrl=/admin/listings');
+      62 |   });
+      63 | });
+
+      at expect (../node_modules/.pnpm/expect@29.7.0/node_modules/expect/build/index.js:113:15)
+      at Object.expect (app/admin/listings/__tests__/page.test.tsx:60:11)
 
 FAIL app/__tests__/blog-page.test.tsx
+  BlogPage
+    ✕ renders posts, filters, and pagination from DTO-wrapped API response (61 ms)
+    ✕ supports legacy posts array responses (23 ms)
+    ✕ throws when the blog API reports an error (12 ms)
+
   ● BlogPage › renders posts, filters, and pagination from DTO-wrapped API response
 
     TestingLibraryElementError: Unable to find an element with the text: The Nomad's Chronicle. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
@@ -2092,201 +711,16 @@ FAIL app/__tests__/blog-page.test.tsx
       at expect (../node_modules/.pnpm/expect@29.7.0/node_modules/expect/build/index.js:113:15)
       at Object.expect (app/__tests__/blog-page.test.tsx:162:11)
 
-FAIL app/admin/users/__tests__/page.test.tsx
-  ● Admin users page › redirects when the viewer is not an admin
-
-    expect(received).rejects.toThrow()
-
-    Received promise resolved instead of rejected
-    Resolved to value: {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [{"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [{"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": "User Management", "className": "text-3xl font-bold text-gray-900", "data-testid": "admin-users-title"}, "type": "h1"}, {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": "Manage user accounts, roles, and permissions.", "className": "mt-2 text-gray-600"}, "type": "p"}], "className": "mb-8"}, "type": "div"}, {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"currentUserId": "user-99", "currentUserRole": "user"}, "type": [Function UserManagementTable]}, "className": "bg-white shadow-sm rounded-lg border border-gray-200"}, "type": "div"}], "className": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"}, "type": "div"}, "className": "min-h-screen bg-gray-50", "data-testid": "admin-users-page"}, "type": "main"}
-
-      58 |     const AdminUsersPage = (await import('../page')).default;
-      59 |
-    > 60 |     await expect(AdminUsersPage()).rejects.toThrow('redirect');
-         |           ^
-      61 |     expect(redirectMock).toHaveBeenCalledWith('/auth/login?callbackUrl=/admin/users');
-      62 |   });
-      63 | });
-
-      at expect (../node_modules/.pnpm/expect@29.7.0/node_modules/expect/build/index.js:113:15)
-      at Object.expect (app/admin/users/__tests__/page.test.tsx:60:11)
-
-FAIL app/admin/__tests__/layout.test.tsx
-  ● Admin layout › renders navigation for admin and super admin users
-
-    TestingLibraryElementError: Found multiple elements with the text: Admin Panel
-
-    Here are the matching elements:
-
-    Ignored nodes: comments, script, style
-    [36m<span[39m
-      [33mclass[39m=[32m"text-xl font-bold text-gray-900"[39m
-    [36m>[39m
-      [0mAdmin Panel[0m
-    [36m</span>[39m
-
-    Ignored nodes: comments, script, style
-    [36m<span[39m
-      [33mclass[39m=[32m"text-sm text-gray-600"[39m
-    [36m>[39m
-      [0mAdmin Panel[0m
-    [36m</span>[39m
-
-    (If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
-
-    Ignored nodes: comments, script, style
-    [36m<body>[39m
-      [36m<div>[39m
-        [36m<div[39m
-          [33mclass[39m=[32m"min-h-screen bg-gray-50"[39m
-        [36m>[39m
-          [36m<nav[39m
-            [33mclass[39m=[32m"bg-white shadow-sm border-b border-gray-200"[39m
-          [36m>[39m
-            [36m<div[39m
-              [33mclass[39m=[32m"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"[39m
-            [36m>[39m
-              [36m<div[39m
-                [33mclass[39m=[32m"flex justify-between h-16"[39m
-              [36m>[39m
-                [36m<div[39m
-                  [33mclass[39m=[32m"flex items-center"[39m
-                [36m>[39m
-                  [36m<a[39m
-                    [33mclass[39m=[32m"flex-shrink-0 flex items-center"[39m
-                    [33mhref[39m=[32m"/admin/dashboard"[39m
-                  [36m>[39m
-                    [36m<span[39m
-                      [33mclass[39m=[32m"text-xl font-bold text-gray-900"[39m
-                    [36m>[39m
-                      [0mAdmin Panel[0m
-                    [36m</span>[39m
-                  [36m</a>[39m
-                  [36m<div[39m
-                    [33mclass[39m=[32m"hidden md:ml-8 md:flex md:space-x-8"[39m
-                  [36m>[39m
-                    [36m<a[39m
-                      [33mclass[39m=[32m"text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"[39m
-                      [33mhref[39m=[32m"/admin/dashboard"[39m
-                    [36m>[39m
-                      [36m<span[39m
-                        [33mclass[39m=[32m"mr-2"[39m
-                      [36m>[39m
-                        [0m��[0m
-                      [36m</span>[39m
-                      [0mDashboard[0m
-                    [36m</a>[39m
-                    [36m<a[39m
-                      [33mclass[39m=[32m"text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"[39m
-                      [33mhref[39m=[32m"/admin/users"[39m
-                    [36m>[39m
-                      [36m<span[39m
-                        [33mclass[39m=[32m"mr-2"[39m
-                      [36m>[39m
-                        [0m��[0m
-                      [36m</span>[39m
-                      [0mUsers[0m
-                    [36m</a>[39m
-                    [36m<a[39m
-                      [33mclass[39m=[32m"text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"[39m
-                      [33mhref[39m=[32m"/admin/listings"[39m
-                    [36m>[39m
-                      [36m<span[39m
-                        [33mclass[39m=[32m"mr-2"[39m
-                      [36m>[39m
-                        [0m��[0m
-                      [36m</span>[39m
-                      [0mListings[0m
-                    [36m</a>[39m
-                    [36m<a[39m
-                      [33mclass[39m=[32m"text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"[39m
-                      [33mhref[39m=[32m"/listings"[39m
-                    [36m>[39m
-                      [36m<span[39m
-                        [33mclass[39m=[32m"mr-2"[39m
-                      [36m>[39m
-                        [0m��[0m
-                      [36m</span>[39m
-                      [0mBack to Site[0m
-                    [36m</a>[39m
-                  [36m</div>[39m
-                [36m</div>[39m
-                [36m<div[39m
-                  [33mclass[39m=[32m"flex items-center"[39m
-                [36m>[39m
-                  [36m<span[39m
-                    [33mclass[39m=[32m"text-sm text-gray-600"[39m
-                  [36m>[39m
-                    [0mAdmin Panel[0m
-                  [36m</span>[39m
-                [36m</div>[39m
-              [36m</div>[39m
-            [36m</div>[39m
-          [36m</nav>[39m
-          [36m<div[39m
-            [33mdata-testid[39m=[32m"layout-child"[39m
-          [36m>[39m
-            [0mChild[0m
-          [36m</div>[39m
-        [36m</div>[39m
-      [36m</div>[39m
-    [36m</body>[39m
-
-      27 |     render(tree);
-      28 |
-    > 29 |     expect(screen.getByText('Admin Panel')).toBeInTheDocument();
-         |                   ^
-      30 |     expect(screen.getByRole('link', { name: /dashboard/i })).toHaveAttribute(
-      31 |       'href',
-      32 |       '/admin/dashboard'
-
-      at Object.getElementError (../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:37:19)
-      at getElementError (../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:20:35)
-      at getMultipleElementsFoundError (../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:23:10)
-      at ../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:55:13
-      at ../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
-      at Object.getByText (app/admin/__tests__/layout.test.tsx:29:19)
-
-  ● Admin layout › redirects non-admin users to the login page
-
-    expect(received).rejects.toThrow()
-
-    Matcher error: received value must be a promise or a function returning a promise
-
-    Received has type:  object
-    Received has value: {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [{"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [[Object], [Object]], "className": "flex justify-between h-16"}, "type": "div"}, "className": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"}, "type": "div"}, "className": "bg-white shadow-sm border-b border-gray-200"}, "type": "nav"}, {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {}, "type": "div"}], "className": "min-h-screen bg-gray-50"}, "type": "div"}
-
-      46 |     const AdminLayout = (await import('../layout')).default;
-      47 |
-    > 48 |     await expect(AdminLayout({ children: <div /> })).rejects.toThrow('redirect');
-         |                                                              ^
-      49 |     expect(redirectMock).toHaveBeenCalledWith('/auth/login');
-      50 |   });
-      51 | });
-
-      at Object.toThrow (../node_modules/.pnpm/expect@29.7.0/node_modules/expect/build/index.js:204:13)
-      at Object.toThrow (app/admin/__tests__/layout.test.tsx:48:62)
-
-FAIL app/admin/listings/__tests__/page.test.tsx
-  ● Admin listings page › redirects when the viewer is not an admin
-
-    expect(received).rejects.toThrow()
-
-    Received promise resolved instead of rejected
-    Resolved to value: {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [{"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": [{"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": "Listing Management", "className": "text-3xl font-bold text-gray-900", "data-testid": "admin-listings-title"}, "type": "h1"}, {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": "Manage listings, approve submissions, and feature content.", "className": "mt-2 text-gray-600"}, "type": "p"}], "className": "mb-8"}, "type": "div"}, {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"children": {"$$typeof": Symbol(react.transitional.element), "_owner": null, "_store": {}, "key": null, "props": {"currentUserId": "user-1", "currentUserRole": "user"}, "type": [Function ListingsManagementTable]}, "className": "bg-white shadow-sm rounded-lg border border-gray-200"}, "type": "div"}], "className": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"}, "type": "div"}, "className": "min-h-screen bg-gray-50", "data-testid": "admin-listings-page"}, "type": "main"}
-
-      58 |     const AdminListingsPage = (await import('../page')).default;
-      59 |
-    > 60 |     await expect(AdminListingsPage()).rejects.toThrow('redirect');
-         |           ^
-      61 |     expect(redirectMock).toHaveBeenCalledWith('/auth/login?callbackUrl=/admin/listings');
-      62 |   });
-      63 | });
-
-      at expect (../node_modules/.pnpm/expect@29.7.0/node_modules/expect/build/index.js:113:15)
-      at Object.expect (app/admin/listings/__tests__/page.test.tsx:60:11)
-
 FAIL app/admin/settings/__tests__/page.test.tsx
+  AdminSettingsPage
+    ✓ should render the settings page for admin users (14 ms)
+    ✓ should render the settings page for superAdmin users (6 ms)
+    ✕ should redirect non-admin users to login (3 ms)
+    ✕ should redirect when user has no role (2 ms)
+    ✕ should redirect when session is null (3 ms)
+    ✕ should redirect when user is undefined (9 ms)
+    ✓ should apply correct CSS classes (7 ms)
+
   ● AdminSettingsPage › should redirect non-admin users to login
 
     expect(jest.fn()).toHaveBeenCalledWith(...expected)
@@ -2359,68 +793,19 @@ FAIL app/admin/settings/__tests__/page.test.tsx
 
       at Object.toHaveBeenCalledWith (app/admin/settings/__tests__/page.test.tsx:86:26)
 
-FAIL app/__tests__/page.test.tsx
-  ● HomePage › renders all sections in correct order
-
-    expect(received).toEqual(expected) // deep equality
-
-    - Expected  - 1
-    + Received  + 1
-
-      Array [
-        "page-layout",
-        "hero-section",
-    -   "featured-listings",
-        "city-carousel",
-    +   "featured-listings",
-      ]
-
-      52 |     const testIds = Array.from(sections).map(el => el.getAttribute('data-testid'));
-      53 |
-    > 54 |     expect(testIds).toEqual(['page-layout', 'hero-section', 'featured-listings', 'city-carousel']);
-         |                     ^
-      55 |   });
-      56 | });
-      57 |
-
-      at Object.toEqual (app/__tests__/page.test.tsx:54:21)
-
-FAIL app/api/blog/route.test.ts
-  ● Blog API - GET /api/blog › returns paginated blog posts
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 200
-    Received: 500
-
-      44 |     const data = await response.json();
-      45 |
-    > 46 |     expect(response.status).toBe(200);
-         |                             ^
-      47 |     expect(data.data.posts.length).toBe(2);
-      48 |     expect(data.data.pagination.totalCount).toBe(2);
-      49 |     expect(data.data.pagination.page).toBe(1);
-
-      at Object.toBe (app/api/blog/route.test.ts:46:29)
-
-  ● Blog API - GET /api/blog › returns an empty array when no posts exist
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 200
-    Received: 500
-
-      59 |     const data = await response.json();
-      60 |
-    > 61 |     expect(response.status).toBe(200);
-         |                             ^
-      62 |     expect(data.data.posts).toEqual([]);
-      63 |     expect(data.data.pagination.totalCount).toBe(0);
-      64 |   });
-
-      at Object.toBe (app/api/blog/route.test.ts:61:29)
-
 FAIL src/lib/__tests__/absolute-url.test.ts
+  absolute-url
+    getBaseUrl
+      ✓ should handle hosts with port numbers from env (3 ms)
+      ✓ should reject unsafe host strings (2 ms)
+      ✓ should fall back to NEXT_PUBLIC_FRONTEND_URL when headers fail (2 ms)
+      ✓ should fall back to NEXTAUTH_URL when NEXT_PUBLIC_FRONTEND_URL is not set (2 ms)
+      ✓ should fall back to VERCEL_URL when other env vars are not set (3 ms)
+      ✕ should fall back to localhost:3000 when no env vars are set (5 ms)
+      ✕ should handle invalid URL in environment variables (12 ms)
+      ✓ should trim whitespace from environment URL (2 ms)
+      ✓ should handle missing host header and fall back to env (2 ms)
+
   ● absolute-url › getBaseUrl › should fall back to localhost:3000 when no env vars are set
 
     expect(received).toBe(expected) // Object.is equality
@@ -2455,97 +840,61 @@ FAIL src/lib/__tests__/absolute-url.test.ts
 
       at Object.toBe (src/lib/__tests__/absolute-url.test.ts:102:22)
 
-FAIL src/lib/__tests__/sanity.utils.test.ts
-  ● sanity utils › creates clients with expected configuration and exports helpers
+FAIL app/api/blog/route.test.ts
+  Blog API - GET /api/blog
+    ✕ returns paginated blog posts (9 ms)
+    ✕ returns an empty array when no posts exist (3 ms)
+    ✓ returns 500 on fetch failure (3 ms)
+    ✓ builds correct GROQ queries based on query params (9 ms)
 
-    expect(jest.fn()).toHaveBeenNthCalledWith(n, ...expected)
+  ● Blog API - GET /api/blog › returns paginated blog posts
 
-    n: 1
-    Expected: {"apiVersion": "2025-05-15", "dataset": "dataset", "projectId": "proj", "useCdn": true}
+    expect(received).toBe(expected) // Object.is equality
 
-    Number of calls: 0
+    Expected: 200
+    Received: 500
 
-      45 |     const mod = await loadModule();
-      46 |
-    > 47 |     expect(createClientMock).toHaveBeenNthCalledWith(1, {
-         |                              ^
-      48 |       projectId: 'proj',
-      49 |       dataset: 'dataset',
-      50 |       apiVersion: '2025-05-15',
+      44 |     const data = await response.json();
+      45 |
+    > 46 |     expect(response.status).toBe(200);
+         |                             ^
+      47 |     expect(data.data.posts.length).toBe(2);
+      48 |     expect(data.data.pagination.totalCount).toBe(2);
+      49 |     expect(data.data.pagination.page).toBe(1);
 
-      at Object.toHaveBeenNthCalledWith (src/lib/__tests__/sanity.utils.test.ts:47:30)
+      at Object.toBe (app/api/blog/route.test.ts:46:29)
 
-  ● sanity utils › fetches preview data using the preview client
+  ● Blog API - GET /api/blog › returns an empty array when no posts exist
 
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+    expect(received).toBe(expected) // Object.is equality
 
-    Expected: Any<String>, {"slug": "hello", "type": "post"}
+    Expected: 200
+    Received: 500
 
-    Number of calls: 0
+      59 |     const data = await response.json();
+      60 |
+    > 61 |     expect(response.status).toBe(200);
+         |                             ^
+      62 |     expect(data.data.posts).toEqual([]);
+      63 |     expect(data.data.pagination.totalCount).toBe(0);
+      64 |   });
 
-      82 |     const result = await mod.fetchBySlug('post', 'hello', true);
-      83 |
-    > 84 |     expect(previewClient.fetch).toHaveBeenCalledWith(expect.any(String), {
-         |                                 ^
-      85 |       type: 'post',
-      86 |       slug: 'hello',
-      87 |     });
-
-      at Object.toHaveBeenCalledWith (src/lib/__tests__/sanity.utils.test.ts:84:33)
-
-FAIL src/lib/sanity/data.test.ts
-  ● data.ts › getListingData › should fetch and map listing data by slug
-
-    expect(received).toEqual(expected) // deep equality
-
-    Expected: {"_id": "listing-123", "city": {"_id": "city-456", "country": "Test Country", "name": "Test City", "slug": "test-city"}, "mapped": true, "name": "Test Listing", "priceRange": "$$", "slug": "test-listing", "type": "coworking", "website": "https://test.com"}
-    Received: null
-
-      56 |         { slug: 'test-listing' }
-      57 |       );
-    > 58 |       expect(result).toEqual({
-         |                      ^
-      59 |         ...mockListing,
-      60 |         mapped: true,
-      61 |       });
-
-      at Object.toEqual (src/lib/sanity/data.test.ts:58:22)
-
-  ● data.ts › getListingData › should handle listings with complete data structure
-
-    expect(received).toEqual(expected) // deep equality
-
-    Expected: {"_id": "listing-full", "accommodationDetails": {}, "activitiesDetails": {}, "address": "123 Test St", "amenities": [], "cafeDetails": {}, "category": "hotel", "city": {"_id": "city-full", "country": "Full Country", "name": "Full City", "slug": "full-city"}, "contactEmail": "test@test.com", "contactPhone": "+1234567890", "coworkingDetails": {}, "digitalNomadFeatures": [], "ecoFocusTags": [{"_id": "tag-1", "name": "Eco-Friendly"}], "galleryImages": [{"asset": {"_ref": "image-ref-2"}}], "location": {"alt": 0, "lat": 0, "lng": 0}, "longDescription": "Long desc", "mapped": true, "moderation": {"featured": true, "status": "published", "verificationStatus": "verified"}, "name": "Full Listing", "priceRange": "$$$", "primaryImage": {"asset": {"_ref": "image-ref"}}, "restaurantDetails": {}, "reviews": [], "shortDescription": "Short desc", "slug": "full-listing", "type": "accommodation", "website": "https://full-listing.com"}
-    Received: null
-
-      143 |       const result = await getListingData('full-listing');
-      144 |
-    > 145 |       expect(result).toEqual({
-          |                      ^
-      146 |         ...mockListing,
-      147 |         mapped: true,
-      148 |       });
-
-      at Object.toEqual (src/lib/sanity/data.test.ts:145:22)
-
-  ● data.ts › getListingData › should handle listings with minimal data
-
-    expect(received).toEqual(expected) // deep equality
-
-    Expected: {"_id": "listing-minimal", "mapped": true, "name": "Minimal Listing", "slug": "minimal-listing"}
-    Received: null
-
-      160 |       const result = await getListingData('minimal-listing');
-      161 |
-    > 162 |       expect(result).toEqual({
-          |                      ^
-      163 |         ...mockListing,
-      164 |         mapped: true,
-      165 |       });
-
-      at Object.toEqual (src/lib/sanity/data.test.ts:162:22)
+      at Object.toBe (app/api/blog/route.test.ts:61:29)
 
 FAIL src/lib/__tests__/sanity.test.js
+  Sanity Library
+    Initialization
+      ✕ should create the standard client with production config (useCdn: true) (3 ms)
+      ✕ should create the preview client with preview config (useCdn: false) (2 ms)
+      ✕ should initialize the image URL builder with the standard client (13 ms)
+      ✕ should export the correct client instances returned by the mock (3 ms)
+    getClient
+      ✓ should return the preview client when usePreview is true (1 ms)
+      ✓ should return the standard client when usePreview is false (1 ms)
+      ✓ should return the standard client by default (1 ms)
+    urlFor
+      ✓ should use the configured image builder to process the source (2 ms)
+
   ● Sanity Library › Initialization › should create the standard client with production config (useCdn: true)
 
     expect(jest.fn()).toHaveBeenNthCalledWith(n, ...expected)
@@ -2624,13 +973,74 @@ FAIL src/lib/__tests__/sanity.test.js
 
       at Object.toBe (src/lib/__tests__/sanity.test.js:83:22)
 
+FAIL src/lib/sanity/data.test.ts
+  data.ts
+    getListingData
+      ✕ should fetch and map listing data by slug (5 ms)
+      ✓ should return null when listing is not found (2 ms)
+      ✓ should handle fetch errors gracefully (3 ms)
+      ✓ should accept usePreview parameter (2 ms)
+      ✕ should handle listings with complete data structure (3 ms)
+      ✕ should handle listings with minimal data (9 ms)
+      ✓ should use GROQ query with correct fields (5 ms)
 
-Test Suites: 15 failed, 316 passed, 331 total
-Tests:       58 failed, 7 skipped, 4055 passed, 4120 total
+  ● data.ts › getListingData › should fetch and map listing data by slug
+
+    expect(received).toEqual(expected) // deep equality
+
+    Expected: {"_id": "listing-123", "city": {"_id": "city-456", "country": "Test Country", "name": "Test City", "slug": "test-city"}, "mapped": true, "name": "Test Listing", "priceRange": "$$", "slug": "test-listing", "type": "coworking", "website": "https://test.com"}
+    Received: null
+
+      56 |         { slug: 'test-listing' }
+      57 |       );
+    > 58 |       expect(result).toEqual({
+         |                      ^
+      59 |         ...mockListing,
+      60 |         mapped: true,
+      61 |       });
+
+      at Object.toEqual (src/lib/sanity/data.test.ts:58:22)
+
+  ● data.ts › getListingData › should handle listings with complete data structure
+
+    expect(received).toEqual(expected) // deep equality
+
+    Expected: {"_id": "listing-full", "accommodationDetails": {}, "activitiesDetails": {}, "address": "123 Test St", "amenities": [], "cafeDetails": {}, "category": "hotel", "city": {"_id": "city-full", "country": "Full Country", "name": "Full City", "slug": "full-city"}, "contactEmail": "test@test.com", "contactPhone": "+1234567890", "coworkingDetails": {}, "digitalNomadFeatures": [], "ecoFocusTags": [{"_id": "tag-1", "name": "Eco-Friendly"}], "galleryImages": [{"asset": {"_ref": "image-ref-2"}}], "location": {"alt": 0, "lat": 0, "lng": 0}, "longDescription": "Long desc", "mapped": true, "moderation": {"featured": true, "status": "published", "verificationStatus": "verified"}, "name": "Full Listing", "priceRange": "$$$", "primaryImage": {"asset": {"_ref": "image-ref"}}, "restaurantDetails": {}, "reviews": [], "shortDescription": "Short desc", "slug": "full-listing", "type": "accommodation", "website": "https://full-listing.com"}
+    Received: null
+
+      143 |       const result = await getListingData('full-listing');
+      144 |
+    > 145 |       expect(result).toEqual({
+          |                      ^
+      146 |         ...mockListing,
+      147 |         mapped: true,
+      148 |       });
+
+      at Object.toEqual (src/lib/sanity/data.test.ts:145:22)
+
+  ● data.ts › getListingData › should handle listings with minimal data
+
+    expect(received).toEqual(expected) // deep equality
+
+    Expected: {"_id": "listing-minimal", "mapped": true, "name": "Minimal Listing", "slug": "minimal-listing"}
+    Received: null
+
+      160 |       const result = await getListingData('minimal-listing');
+      161 |
+    > 162 |       expect(result).toEqual({
+          |                      ^
+      163 |         ...mockListing,
+      164 |         mapped: true,
+      165 |       });
+
+      at Object.toEqual (src/lib/sanity/data.test.ts:162:22)
+
+Test Suites: 12 failed, 12 total
+Tests:       46 failed, 51 passed, 97 total
 Snapshots:   0 total
-Time:        232.044 s, estimated 693 s
+Time:        6.175 s, estimated 15 s
 Ran all test suites.
 /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory:
- ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  app-next-directory@0.1.0 test:unit: `cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --runInBand --passWithNoTests --runInBand --detectOpenHandles`
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  app-next-directory@0.1.0 test:unit: `cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --runInBand --passWithNoTests --onlyFailures --detectOpenHandles --runInBand --verbose`
 Exit status 1
  ELIFECYCLE  Command failed with exit code 1.
