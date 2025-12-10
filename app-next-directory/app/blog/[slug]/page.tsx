@@ -42,7 +42,7 @@ export default async function BlogPostPage(props: Readonly<{ params: Promise<{ s
     if (res && typeof res === 'object' && 'success' in res) {
       const data = (res as { success: boolean; data?: { post: PostDTO; comments?: Comment[] } })
         .data;
-      post = data?.post!;
+      post = data?.post ?? ({} as PostDTO);
       comments = data?.comments ?? [];
     } else if (res && typeof res === 'object' && 'post' in res && 'comments' in res) {
       post = res.post as PostDTO; // Specify type
@@ -151,7 +151,7 @@ export async function generateMetadata(props: {
     if (res && typeof res === 'object' && 'success' in res) {
       const data = (res as { success: boolean; data?: { post: PostDTO; comments: Comment[] } })
         .data;
-      post = data?.post!;
+      post = data?.post ?? ({} as PostDTO);
     } else if (res && typeof res === 'object' && 'post' in res) {
       post = res.post as PostDTO;
     } else {

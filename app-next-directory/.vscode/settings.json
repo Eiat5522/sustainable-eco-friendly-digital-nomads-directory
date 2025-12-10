@@ -1,7 +1,7 @@
 {
   "jest.enable": true,
   "jest.debugMode": false,
-  "jest.jestCommandLine": "pnpm test:unit --",
+  "jest.jestCommandLine": "pnpm test:unit --runInBand --detectOpenHandles --",
   "jest.rootPath": ".",
   "jest.coverageFormatter": "GutterFormatter",
   "jest.runMode": {

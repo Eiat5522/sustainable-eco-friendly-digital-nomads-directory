@@ -45,10 +45,27 @@ jest.mock('mongodb', () => ({
   },
 }));
 
-import { revalidateTag } from 'next/cache';
 import { structuredLogger } from '@/lib/logger';
-import { client } from '@/lib/sanity/client';
-import { ensureSanityUser } from '@/lib/sanity/user';
+
+const { revalidateTag } = jest.requireMock('next/cache') as {
+  revalidateTag: jest.Mock;
+};
+
+type SanityClientMock = {
+  fetch: jest.Mock;
+  getDocument: jest.Mock;
+  create: jest.Mock;
+};
+
+let client: SanityClientMock;
+let ensureSanityUser: jest.Mock;
+
+beforeEach(async () => {
+  const moduleClient = await import('@/lib/sanity/client');
+  client = moduleClient.client as SanityClientMock;
+  const moduleUser = await import('@/lib/sanity/user');
+  ensureSanityUser = moduleUser.ensureSanityUser as jest.Mock;
+});
 
 // Get the mocked auth function after the mock is set up
 const { auth } = jest.requireMock('@/lib/auth') as { auth: jest.Mock };
@@ -308,8 +325,9 @@ describe('API /api/reviews POST', () => {
       })
     );
 
-    expect(res.status).toBe(409);
     const json = await res.json();
+
+    expect(res.status).toBe(409);
     expect(json.error).toBe('You have already reviewed this listing');
     expect(client.create).not.toHaveBeenCalled();
   });
@@ -402,7 +420,7 @@ describe('API /api/reviews POST', () => {
       })
     );
     if (jest.isMockFunction(revalidateTag)) {
-      expect(revalidateTag).toHaveBeenCalledWith('listing:listing-slug');
+      expect(revalidateTag).toHaveBeenCalledWith('listing:listing-slug', 'max');
     }
   });
 

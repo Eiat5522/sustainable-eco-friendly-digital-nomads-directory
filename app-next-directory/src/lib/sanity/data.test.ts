@@ -16,12 +16,17 @@ jest.mock('./client', () => ({
 }));
 
 // Mock the listings module
-jest.mock('@/lib/listings', () => ({
-  mapSanityListingToAppListingDetail: jest.fn(listing => ({
-    ...listing,
-    mapped: true,
-  })),
-}));
+jest.mock('@/lib/listings', () => {
+  const actual = jest.requireActual('@/lib/listings');
+  return {
+    __esModule: true,
+    ...actual,
+    mapSanityListingToAppListingDetail: jest.fn(listing => ({
+      ...listing,
+      mapped: true,
+    })),
+  };
+});
 
 describe('data.ts', () => {
   const mockClient = client as jest.Mocked<typeof client>;
@@ -35,16 +40,16 @@ describe('data.ts', () => {
       const mockListing = {
         _id: 'listing-123',
         name: 'Test Listing',
-        slug: 'test-listing',
         city: {
           _id: 'city-456',
           name: 'Test City',
-          slug: 'test-city',
+          slug: { _type: 'slug', current: 'test-city' },
           country: 'Test Country',
         },
         type: 'coworking',
         priceRange: '$$',
         website: 'https://test.com',
+        slug: { _type: 'slug', current: 'test-listing' },
       };
 
       mockClient.fetch.mockResolvedValue(mockListing);
@@ -93,7 +98,7 @@ describe('data.ts', () => {
       const mockListing = {
         _id: 'listing-123',
         name: 'Preview Listing',
-        slug: 'preview-listing',
+        slug: { _type: 'slug', current: 'preview-listing' },
       };
 
       mockClient.fetch.mockResolvedValue(mockListing);
@@ -107,11 +112,11 @@ describe('data.ts', () => {
       const mockListing = {
         _id: 'listing-full',
         name: 'Full Listing',
-        slug: 'full-listing',
+        slug: { _type: 'slug', current: 'full-listing' },
         city: {
           _id: 'city-full',
           name: 'Full City',
-          slug: 'full-city',
+          slug: { _type: 'slug', current: 'full-city' },
           country: 'Full Country',
         },
         type: 'accommodation',
@@ -152,7 +157,7 @@ describe('data.ts', () => {
       const mockListing = {
         _id: 'listing-minimal',
         name: 'Minimal Listing',
-        slug: 'minimal-listing',
+        slug: { _type: 'slug', current: 'minimal-listing' },
       };
 
       mockClient.fetch.mockResolvedValue(mockListing);
@@ -166,7 +171,11 @@ describe('data.ts', () => {
     });
 
     it('should use GROQ query with correct fields', async () => {
-      mockClient.fetch.mockResolvedValue({ _id: 'test', name: 'Test', slug: 'test' });
+      mockClient.fetch.mockResolvedValue({
+        _id: 'test',
+        name: 'Test',
+        slug: { _type: 'slug', current: 'test' },
+      });
 
       await getListingData('test-slug');
 

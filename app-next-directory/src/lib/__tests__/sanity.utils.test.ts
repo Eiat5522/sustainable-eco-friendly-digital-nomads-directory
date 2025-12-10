@@ -33,9 +33,12 @@ describe('sanity utils', () => {
   });
 
   const loadModule = async () => {
-    createClientMock
-      .mockImplementationOnce(() => standardClient)
-      .mockImplementationOnce(() => previewClient);
+    createClientMock.mockImplementation((options: Record<string, unknown>) => {
+      if (options?.perspective === 'previewDrafts') {
+        return previewClient;
+      }
+      return standardClient;
+    });
 
     return import('../sanity.utils');
   };
