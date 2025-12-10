@@ -6,6 +6,7 @@ import { Suspense } from 'react';
 import { blogPortableTextComponents } from '@/components/blog/portableTextComponents';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
+import { client as sanityClient } from '@/lib/sanity/client';
 
 // Subtle SVG gradient placeholder for hero image when missing
 function placeholderDataUri(width = 1200, height = 630) {
@@ -39,19 +40,53 @@ export default async function BlogPostPage(props: Readonly<{ params: Promise<{ s
     const res = await getPostCached(slug); // <--- Data fetching happens here
     // API may return wrapped DTO or legacy shape
     if (res && typeof res === 'object' && 'success' in res) {
-      const data = res.data as { post: PostDTO; comments: Comment[] }; // Specify type
+      const data = res.data as { post: PostDTO; comments?: Comment[] }; // Specify type
       post = data?.post;
       comments = data?.comments ?? [];
     } else if (res && typeof res === 'object' && 'post' in res && 'comments' in res) {
       post = res.post as PostDTO; // Specify type
       comments = res.comments as Comment[]; // Specify type
     } else {
-      // Fallback shape
-      post = res as PostDTO; // Specify type
+      // Fallback shape - normalize to PostDTO
+      const raw = res as {
+        _id?: string;
+        id?: string;
+        title?: string;
+        body?: PortableTextBlock[];
+        imageUrl?: string | null;
+        primaryImage?: { asset?: { url?: string } };
+        excerpt?: string | null;
+      };
+      post = {
+        id: raw.id ?? raw._id ?? '',
+        title: raw.title ?? '',
+        body: raw.body ?? [],
+        imageUrl: raw.imageUrl ?? raw.primaryImage?.asset?.url ?? null,
+        excerpt: raw.excerpt ?? null,
+      };
       comments = [];
     }
-    if (!post || !post.id) {
+    if (!post || !post.title) {
       notFound();
+    }
+
+    // If no comments from API, fetch from Sanity
+    if (comments.length === 0 && post.id) {
+      try {
+        const sanityComments = await sanityClient.fetch<Comment[]>(
+          `*[_type == "comment" && post._ref == $postId] | order(_createdAt desc) {
+            _id,
+            content,
+            user->{name}
+          }`,
+          { postId: post.id }
+        );
+        comments = sanityComments ?? [];
+      } catch (err) {
+        // If Sanity fetch fails, just use empty comments
+        console.error('Failed to fetch comments from Sanity:', err);
+        comments = [];
+      }
     }
   } catch (err: unknown) {
     // Use unknown for catch error type
@@ -77,19 +112,18 @@ export default async function BlogPostPage(props: Readonly<{ params: Promise<{ s
       <Suspense fallback={<div>Loading blog post...</div>}>
         <div className="container mx-auto p-4 sm:p-6 lg:p-8">
           <h1 className="text-4xl font-extrabold text-center my-8 text-gray-900">{post.title}</h1>
-          {heroUrl && (
-            <div className="relative w-full h-96 mb-8 rounded-lg overflow-hidden shadow-xl">
-              <Image
-                src={src}
-                alt={alt}
-                aria-hidden={usingPlaceholder}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                priority
-              />
-            </div>
-          )}
+          <div className="relative w-full h-96 mb-8 rounded-lg overflow-hidden shadow-xl">
+            <Image
+              src={src}
+              alt={alt}
+              aria-hidden={usingPlaceholder}
+              role={usingPlaceholder ? 'presentation' : 'img'}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              priority
+            />
+          </div>
           <article className="prose lg:prose-xl mx-auto">
             <PortableText value={post.body} components={blogPortableTextComponents} />
           </article>
@@ -121,12 +155,27 @@ export async function generateMetadata(props: {
     } else if (res && typeof res === 'object' && 'post' in res) {
       post = res.post as PostDTO;
     } else {
-      post = res as PostDTO;
+      // Fallback shape - normalize to PostDTO
+      const raw = res as {
+        _id?: string;
+        id?: string;
+        title?: string;
+        body?: PortableTextBlock[];
+        imageUrl?: string | null;
+        primaryImage?: { asset?: { url?: string } };
+        excerpt?: string | null;
+      };
+      post = {
+        id: raw.id ?? raw._id ?? '',
+        title: raw.title ?? '',
+        body: raw.body ?? [],
+        imageUrl: raw.imageUrl ?? raw.primaryImage?.asset?.url ?? null,
+        excerpt: raw.excerpt ?? null,
+      };
     }
-    if (!post || !post.id) {
+    if (!post || !post.title) {
       return {
-        title: 'Blog Post Not Found',
-        description: 'The requested blog post could not be found.',
+        title: 'Post not found',
       };
     }
   } catch (err: unknown) {
@@ -134,16 +183,45 @@ export async function generateMetadata(props: {
       const errorWithStatus = err as Error & { status?: number };
       if (errorWithStatus.status === 404 || /POST_NOT_FOUND/.test(String(err.message ?? ''))) {
         return {
-          title: 'Blog Post Not Found',
-          description: 'The requested blog post could not be found.',
+          title: 'Post not found',
         };
       }
     }
-    throw err;
+    return {
+      title: 'Blog',
+    };
   }
 
-  return {
+  const metadata: Metadata = {
     title: post.title,
-    description: post.excerpt,
+    description: post.excerpt ?? undefined,
   };
+
+  // Add OpenGraph and Twitter metadata if image is present
+  if (post.imageUrl) {
+    const { getBaseUrl } = await import('@/lib/absolute-url');
+    const base = await getBaseUrl();
+    const absoluteImageUrl = post.imageUrl.startsWith('http')
+      ? post.imageUrl
+      : `${base}${post.imageUrl}`;
+
+    metadata.openGraph = {
+      images: [{ url: absoluteImageUrl }],
+    };
+    metadata.twitter = {
+      card: 'summary_large_image',
+      images: [absoluteImageUrl],
+    };
+  } else {
+    // No image - use summary card
+    metadata.twitter = {
+      card: 'summary',
+      images: undefined,
+    };
+    metadata.openGraph = {
+      images: undefined,
+    };
+  }
+
+  return metadata;
 }

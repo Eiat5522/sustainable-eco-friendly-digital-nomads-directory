@@ -9,8 +9,8 @@ export default function HomePage() {
   return (
     <PageLayout>
       <HeroSection />
-      <CityCarousel />
       <FeaturedListings />
+      <CityCarousel />
     </PageLayout>
   );
 }
