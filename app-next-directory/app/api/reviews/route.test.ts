@@ -52,6 +52,7 @@ import { ensureSanityUser } from '@/lib/sanity/user';
 
 // Get the mocked auth function after the mock is set up
 const { auth } = jest.requireMock('@/lib/auth') as { auth: jest.Mock };
+const mockAuth = auth as jest.Mock;
 
 // Import route handlers - these will use the mocked versions
 let GET: typeof import('./route').GET;
