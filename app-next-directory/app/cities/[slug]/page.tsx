@@ -1,4 +1,3 @@
-import { cacheLife } from 'next/cache';
 import { CityDetailView } from '@/components/city/CityDetailView';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';

@@ -213,7 +213,7 @@ describe('API /api/reviews POST', () => {
   });
 
   it('rejects unauthenticated requests', async () => {
-    (auth).mockResolvedValue(null);
+    mockAuth.mockResolvedValueOnce(null);
 
     const res = await POST(
       new Request('http://localhost/api/reviews', {
@@ -232,7 +232,7 @@ describe('API /api/reviews POST', () => {
   });
 
   it('rejects users without review permissions', async () => {
-    (auth).mockResolvedValue({ user: { id: 'user-1', role: 'unidentifiedUser' } });
+    mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'unidentifiedUser' } });
 
     const res = await POST(
       new Request('http://localhost/api/reviews', {
@@ -252,7 +252,7 @@ describe('API /api/reviews POST', () => {
   });
 
   it('validates incoming payload and enforces rating constraints', async () => {
-    (auth).mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
+    mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
 
     const res = await POST(
       new Request('http://localhost/api/reviews', {
@@ -272,7 +272,7 @@ describe('API /api/reviews POST', () => {
   });
 
   it('validates incoming payload and enforces minimum comment length', async () => {
-    (auth).mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
+    mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
 
     const res = await POST(
       new Request('http://localhost/api/reviews', {
@@ -288,7 +288,7 @@ describe('API /api/reviews POST', () => {
   });
 
   it('returns conflict when a user already reviewed the listing', async () => {
-    (auth).mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
+    mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
     (client.getDocument as jest.Mock).mockResolvedValueOnce({
       _id: 'listing-1',
       slug: { current: 'listing-slug' },
@@ -314,7 +314,7 @@ describe('API /api/reviews POST', () => {
   });
 
   it('returns 422 when the request body cannot be parsed', async () => {
-    (auth).mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
+    mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
 
     const failingRequest = {
       json: jest.fn().mockRejectedValue(new Error('boom')),
@@ -332,7 +332,7 @@ describe('API /api/reviews POST', () => {
   });
 
   it('requires valid listing and user references', async () => {
-    (auth).mockResolvedValue({
+    mockAuth.mockResolvedValueOnce({
       user: { id: 'user-1', role: 'user', email: 'user@example.com' },
     });
     (client.getDocument as jest.Mock).mockResolvedValueOnce(null);
@@ -356,7 +356,7 @@ describe('API /api/reviews POST', () => {
   });
 
   it('creates a pending review, trims comment, and revalidates the listing page', async () => {
-    (auth).mockResolvedValue({
+    mockAuth.mockResolvedValueOnce({
       user: { id: 'user-1', role: 'user', name: 'Reviewer', email: 'user@example.com' },
     });
     (client.getDocument as jest.Mock).mockResolvedValueOnce({
@@ -406,7 +406,7 @@ describe('API /api/reviews POST', () => {
   });
 
   it('includes optional eco and nomad ratings when supplied', async () => {
-    (auth).mockResolvedValue({
+    mockAuth.mockResolvedValueOnce({
       user: { id: 'user-2', role: 'user', name: 'Eco Fan', email: 'eco@example.com' },
     });
     (client.getDocument as jest.Mock).mockResolvedValueOnce({
@@ -438,7 +438,7 @@ describe('API /api/reviews POST', () => {
   });
 
   it('logs and returns 500 when creation fails unexpectedly', async () => {
-    (auth).mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
+    mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
     (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'listing-1' });
     (ensureSanityUser as jest.Mock).mockResolvedValueOnce({ _id: 'sanity-user-1' });
     (client.create as jest.Mock).mockRejectedValueOnce(new Error('Sanity failure'));

@@ -589,7 +589,7 @@ jest.mock('@/lib/email', () => {
 (() => {
   // Load the actual module synchronously to avoid teardown issues
   const actual = jest.requireActual('@/lib/auth/config') as Record<string, unknown>;
-  
+
   import('@/lib/auth/config')
     .then(ac => {
       // Coerce both named and default exports to jest.fn compatible functions

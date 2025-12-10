@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react';
-import { RequestTimeoutError } from '@/lib/http/request';
 
 jest.mock('@/lib/auth', () => ({
   auth: jest.fn(),

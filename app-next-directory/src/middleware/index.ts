@@ -24,7 +24,7 @@ type NextResponseLike = {
   };
   next: () => NextResponseLike;
   redirect: (url: URL) => NextResponseLike;
-  json: (body: any, init?: { status?: number }) => NextResponseLike;
+  json: (body: unknown, init?: { status?: number }) => NextResponseLike;
 };
 
 // Security headers to be added to all responses
@@ -35,11 +35,11 @@ const securityHeaders = {
 } as const;
 
 interface MiddlewareOptions {
-  getToken: (request: NextRequestLike) => Promise<any>;
+  getToken: (request: NextRequestLike) => Promise<unknown>;
   NextResponse: {
     next: () => NextResponseLike;
     redirect: (url: URL) => NextResponseLike;
-    json: (body: any, init?: { status?: number }) => NextResponseLike;
+    json: (body: unknown, init?: { status?: number }) => NextResponseLike;
   };
 }
 
@@ -74,54 +74,46 @@ function getRouteType(pathname: string): 'public' | 'protected' | 'admin' | 'aut
 }
 
 // Helper to check user permissions
-function hasPermission(user: Record<string, unknown> | null | undefined, routeType: string): boolean {
-  console.log('DEBUG hasPermission called with:', { user, routeType });
+function hasPermission(
+  user: Record<string, unknown> | null | undefined,
+  routeType: string
+): boolean {
   if (!user) {
-    console.log('DEBUG: No user, returning false');
     return false;
   }
 
   const role = user.role as string;
-  console.error('DEBUG: Extracted role:', role);
-  console.error('DEBUG: ACCESS_CONTROL_MATRIX keys:', Object.keys(ACCESS_CONTROL_MATRIX));
-  console.error('DEBUG: ACCESS_CONTROL_MATRIX[role]:', ACCESS_CONTROL_MATRIX[role as keyof typeof ACCESS_CONTROL_MATRIX]);
   if (!role || !ACCESS_CONTROL_MATRIX[role as keyof typeof ACCESS_CONTROL_MATRIX]) {
-    console.error('DEBUG hasPermission early return - no role or matrix. role=', role, 'has matrix entry:', !!ACCESS_CONTROL_MATRIX[role as keyof typeof ACCESS_CONTROL_MATRIX]);
     return false;
   }
 
   const matrix = ACCESS_CONTROL_MATRIX[role as keyof typeof ACCESS_CONTROL_MATRIX];
-  console.log('DEBUG: Matrix for role:', role, matrix);
-  console.log('DEBUG: Checking routeType:', routeType);
 
   switch (routeType) {
-    case 'protected':
+    case 'protected': {
       // Protected routes include dashboard, profile, listings/create, listings/edit
       // Check if user can create listings (covers /listings/create)
       const protectedResult = matrix.pages?.createListing?.canView ?? false;
-      console.log('DEBUG hasPermission protected result:', protectedResult);
       return protectedResult;
-    case 'admin':
+    }
+    case 'admin': {
       const adminResult = matrix.pages?.admin?.canView ?? false;
-      console.log('DEBUG hasPermission admin result:', adminResult);
       return adminResult;
-    case 'api':
+    }
+    case 'api': {
       // API admin routes require admin role
       const apiResult = role === 'admin';
-      console.log('DEBUG hasPermission api result:', apiResult);
       return apiResult;
+    }
     default:
-      console.log('DEBUG hasPermission default case, returning true');
       return true;
   }
 }
 
 // Main middleware function
 export function createMiddleware(options: MiddlewareOptions) {
-  console.error('DEBUG createMiddleware called');
   return async (request: NextRequestLike): Promise<NextResponseLike> => {
     const { pathname } = request.nextUrl;
-    console.log('DEBUG: Middleware called for', pathname);
 
     try {
       // Get request context for logging
@@ -129,17 +121,14 @@ export function createMiddleware(options: MiddlewareOptions) {
 
       // Bypass for Next.js internals and static files
       if (shouldBypass(pathname)) {
-        console.log('DEBUG: Bypassing', pathname);
         return options.NextResponse.next();
       }
 
       // Get route type
       const routeType = getRouteType(pathname);
-      console.log('DEBUG: Route type for', pathname, 'is', routeType);
 
       // Get user token
       const token = await options.getToken(request);
-      console.log('DEBUG: Token:', token);
 
       // Handle auth pages (redirect authenticated users away)
       if (routeType === 'auth' && token) {
@@ -170,7 +159,6 @@ export function createMiddleware(options: MiddlewareOptions) {
 
       // Handle protected routes with permission check (user is authenticated but may lack permissions)
       if (routeType === 'protected' && token && !hasPermission(token, routeType)) {
-        console.log('DEBUG: Protected route permission denied', { pathname, routeType, token });
         const homeUrl = new URL('/', request.nextUrl.origin);
         homeUrl.searchParams.set('error', 'unauthorized_access');
         const response = options.NextResponse.redirect(homeUrl);
@@ -185,9 +173,7 @@ export function createMiddleware(options: MiddlewareOptions) {
 
       // Handle admin routes (require admin role)
       if ((routeType === 'admin' || routeType === 'api') && !hasPermission(token, routeType)) {
-        console.log('DEBUG: Admin/API permission denied', { pathname, routeType, token, hasPermResult: hasPermission(token, routeType) });
         if (routeType === 'api') {
-          console.log('DEBUG: Calling NextResponse.json');
           const response = options.NextResponse.json(
             { error: 'Unauthorized' },
             { status: token ? 403 : 401 }
@@ -262,7 +248,7 @@ export default function middleware(request: NextRequestLike): Promise<NextRespon
           redirect: () => ({}) as NextResponseLike,
           json: () => ({}) as NextResponseLike,
         }),
-        json: (_body: any, _init?: { status?: number }) => ({
+        json: (_body: unknown, _init?: { status?: number }) => ({
           headers: new Headers(),
           next: () => ({}) as NextResponseLike,
           redirect: () => ({}) as NextResponseLike,

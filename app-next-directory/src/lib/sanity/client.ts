@@ -142,7 +142,7 @@ type ImageUrlBuilder = {
   image: (source: SanityImageSource) => ImageUrlBuilder;
   width: (width: number) => ImageUrlBuilder;
   height: (height: number) => ImageUrlBuilder;
-  format: (format: string | any) => ImageUrlBuilder;
+  format: (format: 'jpg' | 'pjpg' | 'png' | 'webp' | string) => ImageUrlBuilder;
   quality: (quality: number) => ImageUrlBuilder;
   url: () => string;
 };
