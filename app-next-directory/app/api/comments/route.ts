@@ -1,6 +1,5 @@
 import { revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { getRequestContext, structuredLogger } from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
 import { hasFeaturePermission, type UserRole } from '@/types/auth';
@@ -8,6 +7,19 @@ import { hasFeaturePermission, type UserRole } from '@/types/auth';
 const MAX_LIMIT = 50;
 const DEFAULT_LIMIT = 20;
 const DEFAULT_PAGE = 1;
+
+type AuthModule = typeof import('@/lib/auth');
+let cachedAuthFunction: AuthModule['auth'] | null = null;
+
+async function getAuth(
+  headers: Headers | null | undefined
+): Promise<Awaited<ReturnType<AuthModule['auth']>>> {
+  if (!cachedAuthFunction) {
+    const authModule = await import('@/lib/auth');
+    cachedAuthFunction = authModule.auth;
+  }
+  return cachedAuthFunction(headers);
+}
 
 type PaginationParams = {
   postId: string;
@@ -160,7 +172,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const session = await auth(request.headers);
+  const session = await getAuth(request.headers);
   const user = session?.user as
     | { id?: string; role?: UserRole; name?: string | null; email?: string | null }
     | undefined;

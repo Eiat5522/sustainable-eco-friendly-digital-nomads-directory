@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 import { SettingsForm } from './SettingsForm';
@@ -42,6 +43,10 @@ export default async function AdminSettingsPage() {
 
   const session = await auth(_h);
   const sessionUser = session?.user as SessionUser;
+
+  if (!ensureAdmin(sessionUser)) {
+    redirect('/auth/login?callbackUrl=/admin/settings');
+  }
 
   return (
     <main className="min-h-screen bg-gray-50" data-testid="admin-settings-page">

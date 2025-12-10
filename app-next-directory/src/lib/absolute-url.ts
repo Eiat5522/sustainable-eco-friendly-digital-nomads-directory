@@ -36,7 +36,9 @@ export async function getBaseUrl(headersParam?: HeadersLike | null): Promise<str
     }
     return url.origin;
   } catch {
-    // If envUrl is invalid or missing, default to localhost for development
-    return process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://example.com';
+    // If envUrl is invalid or missing, default to localhost in dev/test and example.com in production
+    const env = process.env.NODE_ENV;
+    const devLike = !env || env === 'development' || env === 'test';
+    return devLike ? 'http://localhost:3000' : 'https://example.com';
   }
 }
