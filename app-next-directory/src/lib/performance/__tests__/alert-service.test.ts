@@ -103,9 +103,11 @@ describe('performance alert service', () => {
       expect.stringContaining('[Performance Alert][ERROR] pageLoad.FCP: 4200'),
       expect.objectContaining({ metricName: 'FCP' })
     );
-    expect(consoleLogSpy).toHaveBeenCalledWith(
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
       expect.stringContaining('Would send email to'),
-      expect.objectContaining({ metricName: 'FCP' })
+      expect.objectContaining({
+        _alert: expect.objectContaining({ metricName: 'FCP' }),
+      })
     );
     expect(fetchMock).not.toHaveBeenCalled();
   });

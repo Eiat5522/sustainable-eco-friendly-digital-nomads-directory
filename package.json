@@ -13,6 +13,8 @@
     "exec:jest": "pnpm --filter app-next-directory exec:jest",
     "test": "pnpm --filter app-next-directory test",
     "test:unit": "pnpm --filter app-next-directory test:unit",
+    "test:unit:export": "pnpm --filter app-next-directory test:unit:export",
+    "test:unit:export:tee": "pnpm --filter app-next-directory test:unit:export:tee",
     "test:integration": "pnpm --filter app-next-directory test:integration",
     "test:e2e": "pnpm --filter app-next-directory test:e2e",
     "test:e2e:legacy": "pnpm --filter app-next-directory test:e2e:legacy",

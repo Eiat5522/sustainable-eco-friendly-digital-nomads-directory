@@ -15,5 +15,8 @@
   },
   "jest.monitorLongRun": 60000,
   "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
-  "editor.experimental.preferTreeSitter.typescript": true
+  "editor.experimental.preferTreeSitter.typescript": true,
+  "[json]": {
+    "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
+  }
 }
