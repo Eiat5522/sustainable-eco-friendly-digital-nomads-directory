@@ -111,8 +111,10 @@ async function analyzeContent(): Promise<ContentAnalysisResult> {
       const listing1 = listings[i];
       const listing2 = listings[j];
 
-      const text1 = `${listing1.shortDescription} ${listing1.longDescription}`;
-      const text2 = `${listing2.shortDescription} ${listing2.longDescription}`;
+      if (!listing1 || !listing2) continue;
+
+      const text1 = `${listing1.shortDescription ?? ''} ${listing1.longDescription ?? ''}`;
+      const text2 = `${listing2.shortDescription ?? ''} ${listing2.longDescription ?? ''}`;
 
       // Calculate normalized similarity using Levenshtein distance
       const levDistance = levenshtein.get(text1, text2);

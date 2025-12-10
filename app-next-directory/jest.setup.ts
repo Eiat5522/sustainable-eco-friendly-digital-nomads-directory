@@ -313,9 +313,9 @@ type GlobalConsoleFilterRegistry = typeof globalThis & {
 (globalThis as GlobalConsoleFilterRegistry).withDefaultConsoleFilters = withDefaultConsoleFilters;
 
 declare global {
-  // eslint-disable-next-line no-var
+   
   var withConsoleFilters: typeof withConsoleFilters;
-  // eslint-disable-next-line no-var
+   
   var withDefaultConsoleFilters: typeof withDefaultConsoleFilters;
 }
 

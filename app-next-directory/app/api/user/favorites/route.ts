@@ -13,10 +13,8 @@ type EnsureUserFn = (args: {
   role: UserRole | null;
 }) => Promise<{ _id?: string } | null>;
 type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<unknown>;
-type CreateOrReplaceDocument = Parameters<typeof client.createOrReplace>[0];
-type CreateOrReplaceFn = (
-  doc: CreateOrReplaceDocument
-) => ReturnType<typeof client.createOrReplace>;
+type CreateOrReplaceDocument = Record<string, unknown>;
+type CreateOrReplaceFn = (doc: CreateOrReplaceDocument) => Promise<unknown>;
 type DeleteFn = (id: string) => Promise<unknown>;
 type ParseBodyFn = (request: NextRequest) => Promise<unknown>;
 
@@ -163,7 +161,8 @@ export async function POST(request: NextRequest) {
     ((query: string, params?: Record<string, unknown>) => client.fetch(query, params));
   const createOrReplaceFn =
     _testControl?.clientCreateOrReplaceOverride ??
-    ((doc: CreateOrReplaceDocument) => client.createOrReplace(doc));
+    ((doc: CreateOrReplaceDocument) =>
+      (client.createOrReplace as (doc: unknown) => Promise<unknown>)(doc));
 
   const session = await authFn();
 
@@ -237,7 +236,9 @@ export async function DELETE(request: NextRequest) {
   const fetchFn =
     _testControl?.clientFetchOverride ??
     ((query: string, params?: Record<string, unknown>) => client.fetch(query, params));
-  const deleteFn = _testControl?.clientDeleteOverride ?? ((id: string) => client.delete(id));
+  const deleteFn =
+    _testControl?.clientDeleteOverride ??
+    ((id: string) => (client.delete as (id: string) => Promise<unknown>)(id));
 
   const session = await authFn();
 

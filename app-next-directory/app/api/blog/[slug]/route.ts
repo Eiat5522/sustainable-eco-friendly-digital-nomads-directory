@@ -273,7 +273,10 @@ export async function GET(_request: NextRequest, props: { params: Promise<{ slug
     structuredLogger.debug('Transforming post to DTO', { slug });
     const transform = _testControl?.transformOverride ?? transformToBlogDetailDTO;
     const dto = transform(post);
-    structuredLogger.debug('Post transformed to DTO', { slug, dto });
+    structuredLogger.debug('Post transformed to DTO', {
+      slug,
+      dto: JSON.stringify(dto),
+    });
 
     // Ensure related posts in DTO format if present
     const response = {

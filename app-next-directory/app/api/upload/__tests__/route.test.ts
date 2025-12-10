@@ -31,7 +31,7 @@ describe('/api/upload', () => {
     mockedAuth.mockReset();
     mockUpload.mockReset();
     // require after mocks
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+     
     ({ POST, _testControl: routeTestControl } = require('../route'));
     routeTestControl.formDataOverride = undefined;
     // set upload override to our mock

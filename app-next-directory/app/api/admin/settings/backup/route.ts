@@ -53,7 +53,7 @@ export async function POST(request: NextRequest, _context: RouteContext) {
       };
 
       result = await withRequestTimeout(
-        client.create<AdminSettings>(payload),
+        (client.create as (doc: AdminSettings) => Promise<AdminSettings>)(payload),
         getDefaultTimeout(),
         'Creating admin settings document timed out'
       );

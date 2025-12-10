@@ -10,6 +10,8 @@ export function urlFor(source: SanityImageSource) {
   ) {
     return undefined;
   }
+  // Dynamic require to avoid circular dependency
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { builder } = require('./client');
   return builder.image(source);
 }

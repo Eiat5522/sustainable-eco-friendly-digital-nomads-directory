@@ -213,7 +213,7 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
   useEffect(() => {
     void loadListings(1, '', null, null);
     void loadStats();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [loadListings, loadStats]);
 
   const handleSearch = (searchValue: string) => {

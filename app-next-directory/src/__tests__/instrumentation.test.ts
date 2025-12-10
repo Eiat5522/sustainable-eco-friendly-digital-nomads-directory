@@ -18,7 +18,7 @@ describe('instrumentation register', () => {
   beforeEach(() => {
     listeners = {};
     process.env.NEXT_RUNTIME = 'nodejs';
-    process.env.NODE_ENV = 'test';
+    process.env.NODE_ENV = 'development';
 
     processOnSpy = jest.spyOn(process, 'on').mockImplementation((event: any, handler: any) => {
       listeners[event as string] = handler as (...args: any[]) => void;

@@ -23,7 +23,7 @@ import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
 import { getPostsCached } from './data';
 
-type Post = {
+export type Post = {
   id: string;
   title: string;
   slug: string;

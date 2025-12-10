@@ -146,6 +146,10 @@ export async function GET(request: NextRequest, _context: RouteContext) {
       'Fetching admin listings timed out'
     );
 
+    if (!listings || totalCount === null) {
+      return NextResponse.json({ error: 'Failed to fetch listings' }, { status: 500 });
+    }
+
     const listingItems = listings.map(toListingManagementItem);
 
     const totalPages = Math.ceil(totalCount / limit);
@@ -268,7 +272,7 @@ export async function DELETE(request: NextRequest, _context: RouteContext) {
     }
 
     await withRequestTimeout(
-      client.delete(listingIdValue),
+      (client.delete as (id: string) => Promise<void>)(listingIdValue),
       getDefaultTimeout(),
       'Deleting listing timed out'
     );

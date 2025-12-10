@@ -1,22 +1,15 @@
-import nextCoreWebVitals from 'eslint-config-next/core-web-vitals.js';
-import nextTypescript from 'eslint-config-next/typescript.js';
-
-// Some package versions export a single config object instead of an
-// array of configs. Normalize to arrays so spreads below are safe.
-const _nextCoreWebVitals = Array.isArray(nextCoreWebVitals)
-  ? nextCoreWebVitals
-  : [nextCoreWebVitals];
-const _nextTypescript = Array.isArray(nextTypescript) ? nextTypescript : [nextTypescript];
-
 import { fileURLToPath } from 'node:url';
+import { FlatCompat } from '@eslint/eslintrc';
+import js from '@eslint/js';
 import requireReactFcTypeParametersRule from './eslint/rules/require-react-fc-type-parameters.js';
 
-// Robust import with CJS fallback for @eslint/eslintrc
-// Note: older templates attempted to dynamically import '@eslint/eslintrc'.
-// This project imports the necessary Next.js flat configs directly below
-// and does not require `FlatCompat` at runtime.
-
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
+
+// Use FlatCompat to convert eslint-config-next to flat config format
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+  recommendedConfig: js.configs.recommended,
+});
 
 /** @type {import('eslint').Linter.FlatConfig[]} */
 const eslintConfig = [
@@ -39,6 +32,7 @@ const eslintConfig = [
       '**/next-env.d.ts',
     ],
   },
+  ...compat.extends('next/core-web-vitals', 'next/typescript'),
   {
     // Help eslint-plugin-next resolve the project root correctly in monorepos
     settings: {
@@ -48,8 +42,6 @@ const eslintConfig = [
       },
     },
   },
-  ..._nextCoreWebVitals,
-  ..._nextTypescript,
   {
     plugins: {
       'local-react-strictness': {
@@ -144,6 +136,7 @@ const eslintConfig = [
       'quick-*.js',
       'scripts/**/*.js',
       'tailwind.config.js',
+      'jest/**/*.js',
     ],
     rules: {
       '@typescript-eslint/no-require-imports': 'off',

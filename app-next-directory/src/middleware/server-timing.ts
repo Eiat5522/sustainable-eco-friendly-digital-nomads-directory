@@ -52,6 +52,8 @@ type NextRequestLike = {
   headers: Headers;
 };
 
+// Used in function signatures
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type NextResponseLike = {
   headers: Headers;
   next: () => NextResponseLike;

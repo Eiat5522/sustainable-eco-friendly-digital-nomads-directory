@@ -117,6 +117,7 @@ function getClientPromise(): Promise<MongoClient> {
 
 // FORTEST: Export a proper Promise that delegates to getClientPromise()
 // This ensures full Promise compatibility including Symbol.toStringTag
-export default new Promise<MongoClient>((resolve, reject) => {
+const clientPromiseExport = new Promise<MongoClient>((resolve, reject) => {
   getClientPromise().then(resolve, reject);
 });
+export default clientPromiseExport;

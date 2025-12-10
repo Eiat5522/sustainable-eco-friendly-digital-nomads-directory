@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     const limit = Number.parseInt(limitParam, 10);
 
     // Fetch featured listings from Sanity
-    const listings = await getFeaturedListings();
+    const listings = (await getFeaturedListings()) as unknown[];
 
     // Return only the requested number of listings
     const limitedListings = listings.slice(0, limit);

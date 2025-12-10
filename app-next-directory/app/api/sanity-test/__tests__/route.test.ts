@@ -14,7 +14,7 @@ describe('/api/sanity-test', () => {
     jest.resetModules();
     mockedFetch.mockReset();
     // require after mocks
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+     
     ({ GET, _testControl: routeTestControl } = require('../route'));
     routeTestControl.clientFetchOverride = undefined;
     routeTestControl.nodeEnvOverride = undefined;

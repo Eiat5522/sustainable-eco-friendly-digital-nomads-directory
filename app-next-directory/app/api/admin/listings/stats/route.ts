@@ -84,6 +84,10 @@ export async function GET(request: NextRequest, _context: RouteContext) {
       'Fetching listing statistics timed out'
     );
 
+    if (!typesCounts) {
+      return NextResponse.json({ error: 'Failed to fetch statistics' }, { status: 500 });
+    }
+
     // Deduplicate and aggregate type counts
     const listingsByType: Record<string, number> = {};
     const seenTypes = new Set<string>();

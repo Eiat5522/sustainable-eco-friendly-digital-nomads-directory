@@ -68,9 +68,8 @@ describe('mongodb client module', () => {
     await expect(client.db().collection().findOne?.({})).resolves.toBeNull();
   });
 
-  it.skip('throws a helpful error when MONGODB_URI is missing outside test environments', async () => {
-    // SKIP: This test requires jest.resetModules() which causes worker crashes
-    // The actual validation is tested in integration tests
+  it('throws a helpful error when MONGODB_URI is missing outside test environments', async () => {
+    jest.resetModules();
     process.env.NODE_ENV = 'production';
     delete process.env.MONGODB_URI;
     delete process.env.E2E;
@@ -80,9 +79,8 @@ describe('mongodb client module', () => {
     await expect(mod.default).rejects.toThrow('Please add your MongoDB URI to .env.local');
   });
 
-  it.skip('points to the development env file when URI is missing locally', async () => {
-    // SKIP: This test requires jest.resetModules() which causes worker crashes
-    // The actual validation is tested in integration tests
+  it('points to the development env file when URI is missing locally', async () => {
+    jest.resetModules();
     process.env.NODE_ENV = 'development';
     delete process.env.MONGODB_URI;
     delete process.env.E2E;
@@ -92,30 +90,27 @@ describe('mongodb client module', () => {
     await expect(mod.default).rejects.toThrow('Please add your MongoDB URI to .env.development');
   });
 
-  it.skip('reuses a single connection promise in development mode', async () => {
-    // SKIP: This test requires jest.resetModules() which causes worker crashes
-    // Module caching behavior is tested in integration tests
-    mockConnect.mockResolvedValue({ connected: true });
-    mockMongoClient.mockImplementation(() => ({ connect: mockConnect }));
+    it('reuses a single connection promise in development mode', async () => {
+      mockConnect.mockResolvedValue({ connected: true });
+      mockMongoClient.mockImplementation(() => ({ connect: mockConnect }));
 
-    process.env.NODE_ENV = 'development';
-    process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
-    delete process.env.E2E;
+      process.env.NODE_ENV = 'development';
+      process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
+      delete process.env.E2E;
 
-    const first = await import('../mongodb');
-    const second = await import('../mongodb');
+      const first = await import('../mongodb');
+      const second = await import('../mongodb');
 
-    await first.default;
-    await second.default;
+      await first.default;
+      await second.default;
 
-    expect(mockMongoClient).toHaveBeenCalledTimes(1);
-    expect(mockConnect).toHaveBeenCalledTimes(1);
-    expect((global as any)._mongoClientPromise).toBeDefined();
-  });
+      expect(mockMongoClient).toHaveBeenCalledTimes(1);
+      expect(mockConnect).toHaveBeenCalledTimes(1);
+      expect((global as any)._mongoClientPromise).toBeDefined();
+    });
 
-  it.skip('logs and rethrows connection errors outside of development caching', async () => {
-    // SKIP: This test requires jest.resetModules() which causes worker crashes
-    // Error handling is tested in integration tests
+  it('logs and rethrows connection errors outside of development caching', async () => {
+    jest.resetModules();
     const error = new Error('boom');
     mockConnect.mockRejectedValue(error);
     mockMongoClient.mockImplementation(() => ({ connect: mockConnect }));
@@ -132,9 +127,8 @@ describe('mongodb client module', () => {
     });
   });
 
-  it.skip('resets cached promise when development connection fails', async () => {
-    // SKIP: This test requires jest.resetModules() which causes worker crashes
-    // Error handling is tested in integration tests
+  it('resets cached promise when development connection fails', async () => {
+    jest.resetModules();
     const error = new Error('dev-fail');
     mockConnect.mockRejectedValue(error);
     mockMongoClient.mockImplementation(() => ({ connect: mockConnect }));
@@ -152,9 +146,8 @@ describe('mongodb client module', () => {
     expect((global as any)._mongoClientPromise).toBeUndefined();
   });
 
-  it.skip('returns a connected client in production when credentials are valid', async () => {
-    // SKIP: This test requires jest.resetModules() which causes worker crashes
-    // Production connection behavior is tested in integration tests
+  it('returns a connected client in production when credentials are valid', async () => {
+    jest.resetModules();
     const clientInstance = { ready: true };
     mockConnect.mockResolvedValue(clientInstance);
     mockMongoClient.mockImplementation(() => ({ connect: mockConnect }));
@@ -171,9 +164,8 @@ describe('mongodb client module', () => {
     );
   });
 
-  it.skip('reuses an existing cached promise in development without reconnecting', async () => {
-    // SKIP: This test requires jest.resetModules() which causes worker crashes
-    // Global caching behavior is tested in integration tests
+  it('reuses an existing cached promise in development without reconnecting', async () => {
+    jest.resetModules();
     const cached = Promise.resolve({ cached: true });
     (global as any)._mongoClientPromise = cached;
 
@@ -184,7 +176,6 @@ describe('mongodb client module', () => {
     const mod = await import('../mongodb');
     expect(mockMongoClient).not.toHaveBeenCalled();
 
-    // Note: The module returns a new Promise wrapper, not the cached one directly
     const result = await mod.default;
     expect(result).toEqual({ cached: true });
   });

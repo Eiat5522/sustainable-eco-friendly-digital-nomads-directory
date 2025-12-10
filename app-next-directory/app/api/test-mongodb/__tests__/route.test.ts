@@ -14,7 +14,7 @@ beforeEach(async () => {
   process.env.NODE_ENV = 'test';
   jest.resetModules();
   // require after reset so we can set overrides on the required module's _testControl
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+   
   ({ GET, _testControl: routeTestControl } = require('../route'));
   routeTestControl.clientOverride = Promise.resolve(mockClient as any);
 });

@@ -234,18 +234,18 @@ export async function POST(request: Request) {
       return errorResponse('Invalid reference(s)', 400);
     }
 
-    const created = await client.create({
+    const created = (await (client.create as (doc: unknown) => Promise<{ _id: string }>)({
       _type: 'comment',
       post: { _type: 'reference', _ref: postId },
       user: { _type: 'reference', _ref: userRef },
       content,
       approved: false,
-    });
+    }));
 
     const slug = postDoc.slug?.current ?? undefined;
     if (slug) {
       try {
-        revalidateTag(`post:${slug}`);
+        revalidateTag(`post:${slug}`, 'max');
       } catch (error) {
         structuredLogger.warn('Failed to revalidate comment tag', {
           component: 'api/comments',

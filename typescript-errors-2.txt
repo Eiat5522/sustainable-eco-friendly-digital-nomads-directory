@@ -1,0 +1,39 @@
+app-next-directory/app/api/admin/listings/route.ts(275,7): error TS2722: Cannot invoke an object which is possibly 'undefined'.
+app-next-directory/app/api/admin/settings/backup/route.ts(56,9): error TS18046: 'client.create' is of type 'unknown'.
+app-next-directory/app/api/admin/settings/route.ts(130,30): error TS18046: 'client.create' is of type 'unknown'.
+app-next-directory/app/api/admin/users/route.ts(288,7): error TS2722: Cannot invoke an object which is possibly 'undefined'.
+app-next-directory/app/api/blog/[slug]/route.ts(276,63): error TS2322: Type 'BlogDetailDTO' is not assignable to type 'LogValue'.
+  Type 'BlogDetailDTO' is not assignable to type '{ [key: string]: LogValue; }'.
+    Index signature for type 'string' is missing in type 'BlogDetailDTO'.
+app-next-directory/app/api/comments/route.ts(237,28): error TS18046: 'client.create' is of type 'unknown'.
+app-next-directory/app/api/comments/route.ts(248,9): error TS2554: Expected 2 arguments, but got 1.
+app-next-directory/app/api/reviews/route.ts(208,30): error TS18046: 'client.create' is of type 'unknown'.
+app-next-directory/app/api/reviews/route.ts(230,14): error TS2352: Conversion of type '{ _id: string; }' to type '{ createdAt: string; }' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Property 'createdAt' is missing in type '{ _id: string; }' but required in type '{ createdAt: string; }'.
+app-next-directory/app/api/user/favorites/[slug]/route.ts(64,14): error TS2722: Cannot invoke an object which is possibly 'undefined'.
+app-next-directory/app/api/user/favorites/[slug]/route.ts(68,31): error TS18046: 'client.create' is of type 'unknown'.
+app-next-directory/app/api/user/favorites/route.ts(164,40): error TS18046: 'client.createOrReplace' is of type 'unknown'.
+app-next-directory/app/api/user/favorites/route.ts(239,60): error TS2722: Cannot invoke an object which is possibly 'undefined'.
+app-next-directory/src/lib/sanity/client.ts(169,3): error TS2322: Type 'import("/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/@sanity+image-url@1.2.0/node_modules/@sanity/image-url/lib/types/builder").ImageUrlBuilder' is not assignable to type 'ImageUrlBuilder'.
+  Types of property 'format' are incompatible.
+    Type '(format?: ImageFormat | undefined) => ImageUrlBuilder' is not assignable to type '(format: string) => ImageUrlBuilder'.
+      Types of parameters 'format' and 'format' are incompatible.
+        Type 'string' is not assignable to type 'ImageFormat | undefined'.
+app-next-directory/src/middleware/index.ts(120,41): error TS2345: Argument of type 'NextRequestLike' is not assignable to parameter of type 'RequestLike'.
+  Types of property 'headers' are incompatible.
+    Type 'Map<string, string>' is not assignable to type 'HeaderCollection | undefined'.
+      Type 'Map<string, string>' is not assignable to type 'Record<string, HeaderValue> & { get?: HeaderGetter | undefined; }'.
+        Type 'Map<string, string>' is not assignable to type 'Record<string, HeaderValue>'.
+          Index signature for type 'string' is missing in type 'Map<string, string>'.
+app-next-directory/src/middleware/index.ts(161,64): error TS2345: Argument of type '{}' is not assignable to parameter of type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type '{}'.
+app-next-directory/src/middleware/index.ts(175,76): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | null | undefined'.
+app-next-directory/src/middleware/index.ts(214,36): error TS2345: Argument of type 'NextRequestLike' is not assignable to parameter of type 'RequestLike'.
+  Types of property 'headers' are incompatible.
+    Type 'Map<string, string>' is not assignable to type 'HeaderCollection | undefined'.
+      Type 'Map<string, string>' is not assignable to type 'Record<string, HeaderValue> & { get?: HeaderGetter | undefined; }'.
+        Type 'Map<string, string>' is not assignable to type 'Record<string, HeaderValue>'.
+          Index signature for type 'string' is missing in type 'Map<string, string>'.
+app-next-directory/src/middleware/index.ts(261,41): error TS2345: Argument of type '{ getToken: (_req: NextRequestLike) => Promise<{ role: any; } | null>; NextResponse: { next: () => { headers: Headers; next: () => NextResponseLike; redirect: (_url: URL) => { headers: Headers; next: () => NextResponseLike; redirect: () => NextResponseLike; json: () => NextResponseLike; }; json: (_body: unknown, _init?: { status?: number; }) => { headers: Headers; next: () => NextResponseLike; redirect: () => NextResponseLike; json: () => NextResponseLike; }; }; }; }' is not assignable to parameter of type 'MiddlewareOptions'.
+  Types of property 'NextResponse' are incompatible.
+    Type '{ next: () => { headers: Headers; next: () => NextResponseLike; redirect: (_url: URL) => { headers: Headers; next: () => NextResponseLike; redirect: () => NextResponseLike; json: () => NextResponseLike; }; json: (_body: unknown, _init?: { status?: number | undefined; } | undefined) => { headers: Headers; next: () => NextResponseLike; redirect: () => NextResponseLike; json: () => NextResponseLike; }; }; }' is missing the following properties from type '{ next: () => NextResponseLike; redirect: (url: URL) => NextResponseLike; json: (body: unknown, init?: { status?: number | undefined; } | undefined) => NextResponseLike; }': redirect, json

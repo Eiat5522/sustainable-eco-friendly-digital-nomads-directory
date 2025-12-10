@@ -31,11 +31,8 @@ export const sanityHandlers = [
     ({ request, params }) => {
       const url = new URL(request.url);
       const query = url.searchParams.get('query') || '';
-      const { projectId, apiVersion, dataset } = params as {
-        projectId: string;
-        apiVersion: string;
-        dataset: string;
-      };
+      // params available but not currently used
+      void params;
 
       // Handle nomadFeature queries
       if (query.includes('_type == "nomadFeature"')) {
@@ -71,10 +68,14 @@ export const sanityHandlers = [
           slug: { current: listing.slug?.current },
           category: listing.category || listing.type,
           city: {
-            _id: listing.city._id || `city-${listing.city.slug?.current}`,
+            _id:
+              (listing.city as { _id?: string; name: string; slug?: { current?: string } })._id ||
+              `city-${listing.city.slug?.current}`,
             name: listing.city.name,
             slug: { current: listing.city.slug?.current },
-            country: listing.city.country || 'Thailand',
+            country:
+              (listing.city as { country?: string; name: string; slug?: { current?: string } })
+                .country || 'Thailand',
           },
           priceRange: listing.priceRange || 'medium',
           moderation: { status: 'published' },

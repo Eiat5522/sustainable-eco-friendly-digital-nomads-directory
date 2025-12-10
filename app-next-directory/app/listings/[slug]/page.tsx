@@ -222,6 +222,7 @@ async function fetchRelatedListings(cityId?: string, excludeId?: string) {
       cityId,
       excludeId,
     });
+    if (!records) return [];
     return records.map(record => {
       const priceRange = isPriceRange(record.priceRange) ? record.priceRange : 'moderate';
 

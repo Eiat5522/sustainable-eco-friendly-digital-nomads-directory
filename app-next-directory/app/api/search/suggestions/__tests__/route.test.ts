@@ -14,7 +14,7 @@ describe('/api/search/suggestions', () => {
     jest.resetModules();
     mockedGetSearchSuggestions.mockReset();
     // require route after mocks are set
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+     
     GET = require('../route').GET;
   });
 

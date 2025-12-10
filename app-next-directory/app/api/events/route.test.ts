@@ -21,7 +21,7 @@ describe('Events API - GET /api/events', () => {
   beforeEach(() => {
     jest.resetModules();
     fetchMock.mockReset();
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+     
     GET = require('./route').GET;
   });
 

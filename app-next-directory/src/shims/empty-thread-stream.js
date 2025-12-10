@@ -7,4 +7,5 @@ export function interceptTestApis() {
 export function wrapRequestHandler(handler) {
   return (req, fn) => handler(req, fn);
 }
-export default {};
+const emptyShim = {};
+export default emptyShim;

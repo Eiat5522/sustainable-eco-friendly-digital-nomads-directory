@@ -40,7 +40,10 @@ const redactPaths = [
 
 type HeaderGetter = (name: string) => string | null | undefined;
 type HeaderValue = string | string[] | undefined;
-type HeaderCollection = Headers | (Record<string, HeaderValue> & { get?: HeaderGetter });
+type HeaderCollection =
+  | Headers
+  | Map<string, string>
+  | (Record<string, HeaderValue> & { get?: HeaderGetter });
 
 interface RequestLike {
   method?: string;

@@ -35,7 +35,7 @@ describe('/api/user/favorites', () => {
     mockedEnsureSanityUser.mockReset();
 
     // require the route after mocks are registered
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+     
     ({ GET, POST, DELETE, _testControl: routeTestControl } = require('../route'));
 
     // ensure parseBody override starts undefined

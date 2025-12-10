@@ -43,6 +43,8 @@ interface MiddlewareOptions {
   };
 }
 
+// RequestContext is used by getRequestContext but not directly in this file
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface RequestContext {
   traceId: string;
 }
@@ -116,8 +118,8 @@ export function createMiddleware(options: MiddlewareOptions) {
     const { pathname } = request.nextUrl;
 
     try {
-      // Get request context for logging
-      const context = getRequestContext();
+      // Get request context for logging (used implicitly by logger)
+      getRequestContext(request);
 
       // Bypass for Next.js internals and static files
       if (shouldBypass(pathname)) {
@@ -128,7 +130,11 @@ export function createMiddleware(options: MiddlewareOptions) {
       const routeType = getRouteType(pathname);
 
       // Get user token
-      const token = await options.getToken(request);
+      const tokenResult = await options.getToken(request);
+      const token =
+        tokenResult && typeof tokenResult === 'object'
+          ? (tokenResult as Record<string, unknown>)
+          : null;
 
       // Handle auth pages (redirect authenticated users away)
       if (routeType === 'auth' && token) {
@@ -164,7 +170,7 @@ export function createMiddleware(options: MiddlewareOptions) {
         const response = options.NextResponse.redirect(homeUrl);
 
         // Add security headers
-        Object.entries(securityHeaders).forEach(([key, value]) => {
+        Object.entries(securityHeaders as Record<string, string>).forEach(([key, value]) => {
           response.headers.set(key, value);
         });
 
@@ -180,7 +186,7 @@ export function createMiddleware(options: MiddlewareOptions) {
           );
 
           // Add security headers
-          Object.entries(securityHeaders).forEach(([key, value]) => {
+          Object.entries(securityHeaders as Record<string, string>).forEach(([key, value]) => {
             response.headers.set(key, value);
           });
 
@@ -211,7 +217,7 @@ export function createMiddleware(options: MiddlewareOptions) {
     } catch (error) {
       // Log error and allow request to continue
       structuredLogger.middlewareError('main-middleware', error, {
-        traceId: getRequestContext()?.traceId,
+        traceId: getRequestContext(request)?.traceId,
         pathname,
       });
 
@@ -229,7 +235,7 @@ export function createMiddleware(options: MiddlewareOptions) {
 
 // Default middleware export for Next.js
 export default function middleware(request: NextRequestLike): Promise<NextResponseLike> {
-  const authOptions = {
+  const authOptions: MiddlewareOptions = {
     getToken: async (_req: NextRequestLike) => {
       try {
         const session = await auth();
@@ -239,22 +245,9 @@ export default function middleware(request: NextRequestLike): Promise<NextRespon
       }
     },
     NextResponse: {
-      next: () => ({
-        headers: new Headers(),
-        next: () => ({}) as NextResponseLike,
-        redirect: (_url: URL) => ({
-          headers: new Headers(),
-          next: () => ({}) as NextResponseLike,
-          redirect: () => ({}) as NextResponseLike,
-          json: () => ({}) as NextResponseLike,
-        }),
-        json: (_body: unknown, _init?: { status?: number }) => ({
-          headers: new Headers(),
-          next: () => ({}) as NextResponseLike,
-          redirect: () => ({}) as NextResponseLike,
-          json: () => ({}) as NextResponseLike,
-        }),
-      }),
+      next: () => ({}) as NextResponseLike,
+      redirect: (_url: URL) => ({}) as NextResponseLike,
+      json: (_body: unknown, _init?: { status?: number }) => ({}) as NextResponseLike,
     },
   };
 

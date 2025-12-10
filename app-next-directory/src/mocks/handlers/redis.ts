@@ -155,20 +155,12 @@ export const redisHandlers = [
    * Wildcard handler for other Redis commands
    * Upstash uses /{command}/{...args} pattern
    */
-  http.post('https://:endpoint.upstash.io/*', ({ request }) => {
-    const url = new URL(request.url);
-    const pathParts = url.pathname.split('/').filter(Boolean);
-    const command = pathParts[0]?.toUpperCase();
-
+  http.post('https://:endpoint.upstash.io/*', () => {
     // For unhandled commands, return a generic success response
     return HttpResponse.json({ result: 'OK' });
   }),
 
-  http.get('https://:endpoint.upstash.io/*', ({ request }) => {
-    const url = new URL(request.url);
-    const pathParts = url.pathname.split('/').filter(Boolean);
-    const command = pathParts[0]?.toUpperCase();
-
+  http.get('https://:endpoint.upstash.io/*', () => {
     // For unhandled GET commands, return null
     return HttpResponse.json({ result: null });
   }),

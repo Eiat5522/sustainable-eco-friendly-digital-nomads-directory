@@ -42,32 +42,35 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     }
 
     // Resolve listing by slug to get its Sanity ID
-    const listing = await client.fetch(`*[_type == "listing" && slug.current == $slug][0]{ _id }`, {
-      slug,
-    });
+    const listing = (await client.fetch(
+      `*[_type == "listing" && slug.current == $slug][0]{ _id }`,
+      {
+        slug,
+      }
+    )) as { _id: string } | null;
     if (!listing?._id) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
     }
     const listingId = listing._id;
 
     // Check if already favorited
-    const existingFavorite = await client.fetch(
+    const existingFavorite = (await client.fetch(
       `*[_type == "userFavorite" && user._ref == $userId && listing._ref == $listingId][0]`,
       { userId, listingId }
-    );
+    )) as { _id: string } | null;
 
     if (existingFavorite) {
       // Remove from favorites
-      await client.delete(existingFavorite._id);
+      await (client.delete as (id: string) => Promise<void>)(existingFavorite._id);
       return NextResponse.json({ favorited: false, message: 'Removed from favorites' });
     } else {
       // Add to favorites
-      const favorite = await client.create({
+      const favorite = (await (client.create as (doc: unknown) => Promise<{ _id: string }>)({
         _type: 'userFavorite',
         user: { _type: 'reference', _ref: sanityUser._id },
         listing: { _type: 'reference', _ref: listingId },
         createdAt: new Date().toISOString(),
-      });
+      }));
       return NextResponse.json({
         favorited: true,
         message: 'Added to favorites',
@@ -125,9 +128,12 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
 
     if (!slug) return NextResponse.json({ favorited: false });
 
-    const listing = await client.fetch(`*[_type == "listing" && slug.current == $slug][0]{ _id }`, {
-      slug,
-    });
+    const listing = (await client.fetch(
+      `*[_type == "listing" && slug.current == $slug][0]{ _id }`,
+      {
+        slug,
+      }
+    )) as { _id: string } | null;
     const listingId = listing?._id;
 
     if (!listingId) return NextResponse.json({ favorited: false });

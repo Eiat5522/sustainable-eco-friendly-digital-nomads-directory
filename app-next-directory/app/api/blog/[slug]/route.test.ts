@@ -75,7 +75,7 @@ describe('Blog [slug] API', () => {
     persistentIncrementMock.mockRejectedValue(new Error('db unavailable'));
 
     // Load the route after mocks are in place so it picks up the mocked client and transformer
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+     
     const route = require('./route');
     GET = route.GET;
     PUT = route.PUT;

@@ -116,6 +116,10 @@ export async function GET(request: NextRequest, _context: RouteContext) {
       'Fetching admin users timed out'
     );
 
+    if (!users || totalCount === null) {
+      return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 });
+    }
+
     const userList: UserListItem[] = users.map(user => ({
       id: user._id,
       name: user.name ?? null,
@@ -281,7 +285,7 @@ export async function DELETE(request: NextRequest, _context: RouteContext) {
     }
 
     await withRequestTimeout(
-      client.delete(userIdValue),
+      (client.delete as (id: string) => Promise<void>)(userIdValue),
       getDefaultTimeout(),
       'Deleting user timed out'
     );

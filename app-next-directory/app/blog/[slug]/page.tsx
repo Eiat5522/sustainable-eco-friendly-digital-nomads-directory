@@ -28,6 +28,8 @@ type PostDTO = {
   imageUrl?: string | null;
   excerpt?: string | null;
 };
+// Type for potential future use
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type PostResponse = { post: PostDTO; comments: Comment[] };
 
 export default async function BlogPostPage(props: Readonly<{ params: Promise<{ slug: string }> }>) {
@@ -83,7 +85,7 @@ export default async function BlogPostPage(props: Readonly<{ params: Promise<{ s
           { postId: post.id }
         );
         comments = sanityComments ?? [];
-      } catch (err) {
+      } catch {
         comments = [];
       }
     }

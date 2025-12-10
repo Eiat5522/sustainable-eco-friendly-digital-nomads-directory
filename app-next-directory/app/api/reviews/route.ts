@@ -205,7 +205,9 @@ export async function POST(request: NextRequest) {
       reviewDoc.nomadRating = nomadRating;
     }
 
-    const newReview = await client.create(reviewDoc);
+    const newReview = (await (client.create as (doc: unknown) => Promise<{ _id: string }>)(
+      reviewDoc
+    ));
 
     const listingSlug = (listingDoc as { slug?: { current?: string } } | null | undefined)?.slug
       ?.current;
@@ -217,18 +219,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    const reviewResult = newReview as { _id?: string; approved?: boolean; createdAt?: string };
     const responsePayload = {
-      id:
-        typeof (newReview as { _id?: unknown })?._id === 'string'
-          ? (newReview as { _id: string })._id
-          : undefined,
+      id: reviewResult._id ?? undefined,
       rating,
       comment,
-      approved: Boolean((newReview as { approved?: unknown })?.approved),
-      createdAt:
-        typeof (newReview as { createdAt?: unknown })?.createdAt === 'string'
-          ? (newReview as { createdAt: string }).createdAt
-          : now,
+      approved: Boolean(reviewResult.approved),
+      createdAt: reviewResult.createdAt ?? now,
       ...(typeof ecoRating === 'number' ? { ecoRating } : {}),
       ...(typeof nomadRating === 'number' ? { nomadRating } : {}),
     };

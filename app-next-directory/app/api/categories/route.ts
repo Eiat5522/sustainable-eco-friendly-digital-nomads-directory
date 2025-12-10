@@ -6,14 +6,14 @@ import { client } from '@/lib/sanity/client';
 import { ApiResponseHandler } from '@/utils/api-response';
 export async function GET() {
   try {
-    const categories: string[] = await cacheHelpers.categories(async () => {
+    const categories = (await cacheHelpers.categories(async () => {
       return await client.fetch(
         groq`array::unique(*[_type == "listing" && defined(category)].category)`
       );
-    });
+    })) as string[] | null;
 
     // If CMS returns nothing, fall back to default list
-    if (!Array.isArray(categories) || categories.length === 0) {
+    if (!categories || !Array.isArray(categories) || categories.length === 0) {
       const fallback = await getDefaultCategories();
       return ApiResponseHandler.success({ categories: fallback });
     }

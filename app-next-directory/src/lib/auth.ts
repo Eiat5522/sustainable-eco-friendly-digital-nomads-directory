@@ -278,7 +278,7 @@ export async function auth(
         );
         return null;
       }
-    } catch (inner) {
+    } catch {
       // Fall through to rethrow the original error below if we can't inspect it.
     }
     throw error;

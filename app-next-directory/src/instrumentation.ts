@@ -35,80 +35,71 @@ export async function register() {
       redirectConsoleToStructuredLogger();
     }
 
-    const logInTest = <T extends (...args: unknown[]) => void>(fn: T, ...args: Parameters<T>) => {
-      if (process.env.NODE_ENV === 'test') {
-        fn(...args);
-      }
-    };
+    // Avoid registering process event listeners during Jest unit tests to prevent
+    // open handle leaks that cause Jest workers to fail to exit gracefully.
+    if (process.env.NODE_ENV !== 'test') {
+      // Handle unhandled promise rejections
+      process.on('unhandledRejection', (reason: unknown) => {
+        if (reason instanceof Error) {
+          console.error('Unhandled Promise Rejection reason', reason);
+        } else {
+          console.error('Unhandled Promise Rejection', reason);
+        }
+        structuredLogger.error('Unhandled Promise Rejection', undefined, {
+          component: 'instrumentation',
+          details: {
+            event: 'unhandledRejection',
+          },
+        });
+        if (reason instanceof Error) {
+          structuredLogger.error('Unhandled Promise Rejection reason', reason, {
+            component: 'instrumentation',
+          });
 
-    // Handle unhandled promise rejections
-    process.on('unhandledRejection', (reason: unknown) => {
-      structuredLogger.error('Unhandled Promise Rejection', undefined, {
-        component: 'instrumentation',
-        details: {
-          event: 'unhandledRejection',
-        },
+          if (
+            reason.message?.includes('MongoServerSelectionError') ||
+            reason.message?.includes('Server selection timed out')
+          ) {
+            structuredLogger.warn(
+              'MongoDB connection issue detected. The server will continue running and retry on next request.',
+              {
+                component: 'instrumentation',
+              }
+            );
+          }
+        }
       });
-      logInTest(console.error, 'Unhandled Promise Rejection', reason);
 
-      if (reason instanceof Error) {
-        structuredLogger.error('Unhandled Promise Rejection reason', reason, {
+      // Handle uncaught exceptions
+      process.on('uncaughtException', (error: Error) => {
+        structuredLogger.error('Uncaught Exception', error, {
           component: 'instrumentation',
         });
-        logInTest(console.error, 'Unhandled Promise Rejection reason', reason);
-
         if (
-          reason.message?.includes('MongoServerSelectionError') ||
-          reason.message?.includes('Server selection timed out')
+          error.message?.includes('MongoServerSelectionError') ||
+          error.message?.includes('Server selection timed out')
         ) {
+          structuredLogger.warn('MongoDB connection issue detected. Continuing...', {
+            component: 'instrumentation',
+          });
+          return;
+        }
+
+        if (process.env.NODE_ENV === 'development') {
           structuredLogger.warn(
-            'MongoDB connection issue detected. The server will continue running and retry on next request.',
+            'Development mode: Server will continue running after uncaught exception',
             {
               component: 'instrumentation',
             }
           );
-          logInTest(
-            console.warn,
-            'MongoDB connection issue detected. The server will continue running and retry on next request.'
-          );
+        } else {
+          process.exit(1);
         }
-      }
-    });
-
-    // Handle uncaught exceptions
-    process.on('uncaughtException', (error: Error) => {
-      structuredLogger.error('Uncaught Exception', error, {
-        component: 'instrumentation',
       });
-      logInTest(console.error, 'Uncaught Exception:', error);
-
-      if (
-        error.message?.includes('MongoServerSelectionError') ||
-        error.message?.includes('Server selection timed out')
-      ) {
-        structuredLogger.warn('MongoDB connection issue detected. Continuing...', {
-          component: 'instrumentation',
-        });
-        logInTest(console.warn, 'MongoDB connection issue detected. Continuing...');
-        return;
-      }
-
-      if (process.env.NODE_ENV === 'development') {
-        structuredLogger.warn(
-          'Development mode: Server will continue running after uncaught exception',
-          {
-            component: 'instrumentation',
-          }
-        );
-        logInTest(console.error, 'Development mode: Server will continue running');
-      } else {
-        process.exit(1);
-      }
-    });
+    }
 
     structuredLogger.info('Server instrumentation registered: Error handlers active', {
       component: 'instrumentation',
     });
-    logInTest(console.log, 'Server instrumentation registered: Error handlers active');
   }
 }

@@ -28,9 +28,23 @@ type BlogPostsListProps = {
 // If Post type is complex, import it from its actual location.
 // Example: type Post = { id: string; title: string; slug: string; excerpt?: string | null; tags?: string[]; imageUrl?: string | null; };
 
+type PaginationType = {
+  page: number;
+  limit: number;
+  totalCount: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+  nextPage: number | null;
+  prevPage: number | null;
+};
+
 export async function BlogPostsList({ searchParams }: BlogPostsListProps) {
   const { page, limit, tag, search } = searchParams;
-  const { posts, pagination, uniqueTags } = await getPostsCached({ page, limit, tag, search });
+  const result = await getPostsCached({ page, limit, tag, search });
+  const posts = result.posts as Post[];
+  const pagination = result.pagination as PaginationType;
+  const uniqueTags = result.uniqueTags as string[];
 
   return (
     <div className="container mx-auto px-4 py-8">

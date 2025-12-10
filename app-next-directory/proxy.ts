@@ -24,7 +24,7 @@ export async function proxy(request: NextRequest) {
           new URL('/auth/login?callbackUrl=' + encodeURIComponent(path), request.url)
         );
       }
-    } catch (error) {
+    } catch {
       // If auth check fails, redirect to login
       return NextResponse.redirect(
         new URL('/auth/login?callbackUrl=' + encodeURIComponent(path), request.url)

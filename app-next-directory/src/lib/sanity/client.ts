@@ -144,6 +144,8 @@ type ImageUrlBuilder = {
   height: (height: number) => ImageUrlBuilder;
   format: (format: 'jpg' | 'pjpg' | 'png' | 'webp' | string) => ImageUrlBuilder;
   quality: (quality: number) => ImageUrlBuilder;
+  fit: (fit: 'clip' | 'crop' | 'fill' | 'fillmax' | 'max' | 'scale' | 'min') => ImageUrlBuilder;
+  auto: (auto: 'format') => ImageUrlBuilder;
   url: () => string;
 };
 
@@ -157,6 +159,8 @@ if (DISABLE_SANITY) {
     height: () => builder,
     format: () => builder,
     quality: () => builder,
+    fit: () => builder,
+    auto: () => builder,
     url: () => '',
   };
 
@@ -164,7 +168,7 @@ if (DISABLE_SANITY) {
 } else {
   builder = imageUrlBuilderFactory(
     client as unknown as Parameters<typeof imageUrlBuilderFactory>[0]
-  );
+  ) as ImageUrlBuilder;
   urlFor = (source: SanityImageSource) => builder.image(source);
 }
 

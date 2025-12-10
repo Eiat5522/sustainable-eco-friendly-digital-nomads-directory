@@ -102,7 +102,9 @@ export async function GET(request: NextRequest) {
       sanityClient.fetch(finalCountQuery, params as QueryParams),
       sanityClient.fetch(allTagsQuery, params as QueryParams),
     ]);
-    const uniqueTags = Array.from(new Set(allTagsRaw.flat())).sort();
+    const uniqueTags = Array.from(
+      new Set(Array.isArray(allTagsRaw) ? allTagsRaw.flat() : [])
+    ).sort();
 
     const posts = Array.isArray(postsRaw)
       ? postsRaw.map(post => transformToBlogSummaryDTO(post as RawBlogPost))

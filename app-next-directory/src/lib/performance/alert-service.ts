@@ -80,7 +80,11 @@ export async function processMetricForAlert(
     await Promise.all(channels.map(channel => dispatchAlert(alert, channel)));
     return alert;
   } catch (error) {
-    console.error('[Alert Service] Error dispatching alert:', error);
+    structuredLogger.error('Alert dispatch failed', error, {
+      component: 'alert-service',
+      alertId: alert.id,
+      metric: alert.metricName,
+    });
     return null;
   }
 }
@@ -89,14 +93,24 @@ async function dispatchAlert(alert: Alert, channel: NotificationChannel): Promis
   switch (channel) {
     case NOTIFICATION_CHANNELS.CONSOLE:
       if (process.env.NODE_ENV !== 'production') {
-        const logger =
-          alert.severity === ALERT_SEVERITY.ERROR || alert.severity === ALERT_SEVERITY.CRITICAL
-            ? console.error
-            : console.warn;
-        logger(
-          `[Performance Alert][${alert.severity.toUpperCase()}] ${alert.category}.${alert.metricName}: ${alert.value}`,
-          alert
-        );
+        const logMessage = `[Performance Alert][${alert.severity.toUpperCase()}] ${alert.category}.${alert.metricName}: ${alert.value}`;
+        const logContext = {
+          component: 'performance',
+          severity: alert.severity,
+          metric: `${alert.category}.${alert.metricName}`,
+          value: alert.value,
+          threshold: alert.threshold,
+          alertId: alert.id,
+          source: alert.source,
+          alertContext: JSON.stringify(alert.context),
+        };
+        if (alert.severity === ALERT_SEVERITY.INFO) {
+          structuredLogger.info(logMessage, logContext);
+        } else if (alert.severity === ALERT_SEVERITY.WARNING) {
+          structuredLogger.warn(logMessage, logContext);
+        } else {
+          structuredLogger.error(logMessage, alert, logContext);
+        }
       }
       return true;
     case NOTIFICATION_CHANNELS.EMAIL:
@@ -168,7 +182,10 @@ async function sendSlackAlert(alert: Alert): Promise<boolean> {
 
     return true;
   } catch (error) {
-    console.error('Failed to send Slack webhook:', error);
+    structuredLogger.error('Failed to send Slack webhook', error, {
+      component: 'performance',
+      alertId: alert.id,
+    });
     return false;
   }
 }
@@ -192,7 +209,10 @@ async function sendWebhookAlert(alert: Alert): Promise<boolean> {
 
     return true;
   } catch (error) {
-    console.error('Failed to send webhook alert:', error);
+    structuredLogger.error('Failed to send webhook alert', error, {
+      component: 'performance',
+      alertId: alert.id,
+    });
     return false;
   }
 }
