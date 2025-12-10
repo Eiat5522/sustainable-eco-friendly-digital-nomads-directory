@@ -1,0 +1,31 @@
+pnpm biome check --write --unsafe                                                 
+app/blog/[slug]/page.tsx:44:14 lint/suspicious/noNonNullAssertedOptionalChain ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ Forbidden non-null assertion after optional chaining.
+  
+    42 │     if (res && typeof res === 'object' && 'success' in res) {
+    43 │       const data = (res as { success: boolean; data?: { post: PostDTO; comments?: Comment[] } }).data;
+  > 44 │       post = data?.post!;
+       │              ^^^^^^^^^^^
+    45 │       comments = data?.comments ?? [];
+    46 │     } else if (res && typeof res === 'object' && 'post' in res && 'comments' in res) {
+  
+  ℹ Optional chaining already handles nullish values. Using non-null assertion defeats its purpose and may cause runtime errors.
+  
+  ℹ Consider using the nullish coalescing operator `??` or optional chaining throughout the chain instead.
+  
+
+app/blog/[slug]/page.tsx:152:14 lint/suspicious/noNonNullAssertedOptionalChain ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ Forbidden non-null assertion after optional chaining.
+  
+    150 │     if (res && typeof res === 'object' && 'success' in res) {
+    151 │       const data = (res as { success: boolean; data?: { post: PostDTO; comments: Comment[] } }).data;
+  > 152 │       post = data?.post!;
+        │              ^^^^^^^^^^^
+    153 │     } else if (res && typeof res === 'object' && 'post' in res) {
+    154 │       post = res.post as PostDTO;
+  
+  ℹ Optional chaining already handles nullish values. Using non-null assertion defeats its purpose and may cause runtime errors.
+  
+  ℹ Consider using the nullish coalescing operator `??` or optional chaining throughout the chain instead.

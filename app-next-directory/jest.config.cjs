@@ -4,17 +4,17 @@
  * Jest config for TypeScript + ESM + React 18/19 compatible unit tests
  */
 
-const nextJest = require('next/jest');  
+const nextJest = require('next/jest');
 
 const createJestConfig = nextJest({
-      // Provide the path to your Next.js app to load next.config.js and .env files in your test environment
-      dir: './',
-    });
+  // Provide the path to your Next.js app to load next.config.js and .env files in your test environment
+  dir: './',
+});
 
 const customJestConfig = {
-      setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'], // Optional setup file
-      testEnvironment: 'jsdom',
-    };
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'], // Optional setup file
+  testEnvironment: 'jsdom',
+};
 
 // Convert to CommonJS-compatible synchronous config so Node can load this file
 const path = require('node:path');

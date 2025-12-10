@@ -91,7 +91,9 @@ describe('BlogPostPage', () => {
       { _id: 'comment-1', content: 'Great read', user: { name: 'Alex' } },
     ]);
 
-    const element = await pageModule.default({ params: Promise.resolve({ slug: 'sustainable-journey' }) });
+    const element = await pageModule.default({
+      params: Promise.resolve({ slug: 'sustainable-journey' }),
+    });
     render(element);
 
     expect(screen.getByText('Sustainable Journey')).toBeInTheDocument();
@@ -177,7 +179,9 @@ describe('BlogPostPage', () => {
 
       sanityFetch.mockResolvedValue([]);
 
-      const element = await pageModule.default({ params: Promise.resolve({ slug: 'fallback-format' }) });
+      const element = await pageModule.default({
+        params: Promise.resolve({ slug: 'fallback-format' }),
+      });
       render(element);
 
       expect(screen.getByText('Fallback Format')).toBeInTheDocument();
@@ -208,9 +212,9 @@ describe('BlogPostPage', () => {
       json: async () => ({}),
     } as Response);
 
-    await expect(pageModule.default({ params: Promise.resolve({ slug: 'missing-post' }) })).rejects.toThrow(
-      'NEXT_NOT_FOUND'
-    );
+    await expect(
+      pageModule.default({ params: Promise.resolve({ slug: 'missing-post' }) })
+    ).rejects.toThrow('NEXT_NOT_FOUND');
     expect(notFoundMock).toHaveBeenCalledTimes(1);
   });
 });
@@ -243,7 +247,9 @@ describe('BlogPostPage.generateMetadata', () => {
       }),
     } as Response);
 
-    const metadata = await pageModule.generateMetadata({ params: Promise.resolve({ slug: 'meta-post' }) });
+    const metadata = await pageModule.generateMetadata({
+      params: Promise.resolve({ slug: 'meta-post' }),
+    });
     expect(metadata).toEqual(
       expect.objectContaining({
         title: 'Meta Post',
@@ -276,7 +282,9 @@ describe('BlogPostPage.generateMetadata', () => {
       json: async () => ({}),
     } as Response);
 
-    const metadata = await pageModule.generateMetadata({ params: Promise.resolve({ slug: 'missing-post' }) });
+    const metadata = await pageModule.generateMetadata({
+      params: Promise.resolve({ slug: 'missing-post' }),
+    });
     expect(metadata).toEqual({ title: 'Post not found' });
   });
 
@@ -293,7 +301,9 @@ describe('BlogPostPage.generateMetadata', () => {
 
     global.fetch = jest.fn().mockRejectedValue(new Error('network failure'));
 
-    const metadata = await pageModule.generateMetadata({ params: Promise.resolve({ slug: 'meta-error' }) });
+    const metadata = await pageModule.generateMetadata({
+      params: Promise.resolve({ slug: 'meta-error' }),
+    });
     expect(metadata).toEqual({ title: 'Blog' });
   });
 
@@ -318,7 +328,9 @@ describe('BlogPostPage.generateMetadata', () => {
       }),
     } as Response);
 
-    const metadata = await pageModule.generateMetadata({ params: Promise.resolve({ slug: 'meta-fallback' }) });
+    const metadata = await pageModule.generateMetadata({
+      params: Promise.resolve({ slug: 'meta-fallback' }),
+    });
 
     expect(metadata).toEqual(
       expect.objectContaining({

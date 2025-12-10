@@ -20,7 +20,7 @@ jest.mock('@/utils/db-helpers', () => ({ __esModule: true, getCollection: jest.f
 jest.mock('next/cache', () => ({ __esModule: true, revalidateTag: jest.fn() }));
 jest.mock('@/lib/logger', () => ({
   __esModule: true,
-  structuredLogger: { 
+  structuredLogger: {
     apiError: jest.fn(),
     error: jest.fn(),
     warn: jest.fn(),

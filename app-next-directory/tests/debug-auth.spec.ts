@@ -1,5 +1,5 @@
-import { expect, test } from './fixtures';
 import { structuredLogger } from '@/lib/logger';
+import { expect, test } from './fixtures';
 
 test.describe('Debug Authentication', () => {
   test('debug admin fixture', async ({ adminPage }) => {

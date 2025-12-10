@@ -36,7 +36,6 @@ jest.mock('@/lib/sanity/user', () => ({
 }));
 
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { client } from '@/lib/sanity/client';
 // Import after mocks to receive mocked versions
 import { GET, POST } from './route';

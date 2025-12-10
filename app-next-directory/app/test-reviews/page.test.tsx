@@ -68,7 +68,9 @@ describe('TestReviewsPage', () => {
 
   it('treats signedIn values other than true/1 as false and falls back to empty reviews when preset mismatches', async () => {
     const { default: TestReviewsPage } = await import('./page');
-    const ui = await TestReviewsPage({ searchParams: Promise.resolve({ signedIn: '0', preset: 'other' }) });
+    const ui = await TestReviewsPage({
+      searchParams: Promise.resolve({ signedIn: '0', preset: 'other' }),
+    });
     render(ui);
 
     const parsed = JSON.parse(screen.getByTestId('reviews-props').textContent ?? '{}');

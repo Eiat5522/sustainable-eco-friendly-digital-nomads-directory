@@ -43,9 +43,9 @@ describe('SignupPage (server)', () => {
 
     const SignupPage = (await import('../page')).default;
 
-    await expect(SignupPage({ searchParams: Promise.resolve({ callbackUrl: '/dashboard' }) })).rejects.toThrow(
-      'redirect'
-    );
+    await expect(
+      SignupPage({ searchParams: Promise.resolve({ callbackUrl: '/dashboard' }) })
+    ).rejects.toThrow('redirect');
 
     expect(getBaseUrlMock).toHaveBeenCalledTimes(1);
     expect(sanitizeCallbackUrlMock).toHaveBeenCalledWith('/dashboard', 'https://example.com');
@@ -62,9 +62,9 @@ describe('SignupPage (server)', () => {
 
     const SignupPage = (await import('../page')).default;
 
-    await expect(SignupPage({ searchParams: Promise.resolve({ callbackUrl: '/account' }) })).rejects.toThrow(
-      'redirect'
-    );
+    await expect(
+      SignupPage({ searchParams: Promise.resolve({ callbackUrl: '/account' }) })
+    ).rejects.toThrow('redirect');
 
     expect(sanitizeCallbackUrlMock).toHaveBeenCalledWith('/account', undefined);
     expect(redirectMock).toHaveBeenCalledWith('/fallback');

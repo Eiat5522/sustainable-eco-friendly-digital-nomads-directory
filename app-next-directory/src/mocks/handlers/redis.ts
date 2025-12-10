@@ -1,15 +1,15 @@
 /**
  * MSW Handlers for Redis/Upstash REST API
- * 
+ *
  * Intercepts HTTP requests to Upstash Redis REST API:
  * - GET/POST https://*.upstash.io/* - Redis commands via HTTP
- * 
+ *
  * Upstash Redis uses HTTP REST API with commands like:
  * - GET /get/{key}
  * - POST /set/{key}
  * - POST /incr/{key}
  * - POST /del/{key}
- * 
+ *
  * @module mocks/handlers/redis
  */
 

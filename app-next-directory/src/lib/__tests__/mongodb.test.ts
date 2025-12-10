@@ -77,9 +77,7 @@ describe('mongodb client module', () => {
 
     const importPromise = import('../mongodb');
     const mod = await importPromise;
-    await expect(mod.default).rejects.toThrow(
-      'Please add your MongoDB URI to .env.local'
-    );
+    await expect(mod.default).rejects.toThrow('Please add your MongoDB URI to .env.local');
   });
 
   it.skip('points to the development env file when URI is missing locally', async () => {
@@ -91,9 +89,7 @@ describe('mongodb client module', () => {
 
     const importPromise = import('../mongodb');
     const mod = await importPromise;
-    await expect(mod.default).rejects.toThrow(
-      'Please add your MongoDB URI to .env.development'
-    );
+    await expect(mod.default).rejects.toThrow('Please add your MongoDB URI to .env.development');
   });
 
   it.skip('reuses a single connection promise in development mode', async () => {
@@ -187,7 +183,7 @@ describe('mongodb client module', () => {
 
     const mod = await import('../mongodb');
     expect(mockMongoClient).not.toHaveBeenCalled();
-    
+
     // Note: The module returns a new Promise wrapper, not the cached one directly
     const result = await mod.default;
     expect(result).toEqual({ cached: true });

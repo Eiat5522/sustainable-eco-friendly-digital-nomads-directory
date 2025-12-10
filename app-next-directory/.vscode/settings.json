@@ -13,17 +13,7 @@
     "PATH": "/home/eiat/.nvm/versions/node/v22.19.0/bin:/home/eiat/.local/share/pnpm:/home/eiat/.local/bin:/home/eiat/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/snap/bin:/home/eiat/.fzf/bin:/usr/local/go/bin:/home/eiat/go/bin",
     "NODE_ENV": "test"
   },
-  "jest.pathToJest": "~/.nvm/versions/node/v22.19.0/bin/pnpm",
-  "jest.pathToConfig": "jest.config.cjs",
-  "jest.disabledWorkspaceFolders": [],
   "jest.monitorLongRun": 60000,
-  "terminal.integrated.defaultProfile.linux": "bash",
-  "terminal.integrated.profiles.linux": {
-    "bash": {
-      "path": "/usr/bin/bash",
-      "args": ["-l"]
-    }
-  },
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "prettier.experimentalTernaries": false
+  "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
+  "editor.experimental.preferTreeSitter.typescript": true
 }

@@ -1,11 +1,11 @@
 /**
  * MSW Handlers for Sanity CMS API
- * 
+ *
  * Intercepts HTTP requests to Sanity API endpoints:
  * - GET  https://{projectId}.api.sanity.io/v{apiVersion}/data/query/{dataset} - GROQ queries
  * - POST https://{projectId}.api.sanity.io/v{apiVersion}/data/mutate/{dataset} - Mutations
  * - GET  https://{projectId}.api.sanity.io/v{apiVersion}/data/doc/{dataset}/{docId} - Get document
- * 
+ *
  * @module mocks/handlers/sanity
  */
 

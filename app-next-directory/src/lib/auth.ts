@@ -230,13 +230,18 @@ const nextAuthInstance = (() => {
     return {
       handlers: { GET: async () => new Response(''), POST: async () => new Response('') },
       auth: async () => null,
-    } as { handlers: { GET: () => Promise<Response>; POST: () => Promise<Response> }; auth: () => Promise<null> };
+    } as {
+      handlers: { GET: () => Promise<Response>; POST: () => Promise<Response> };
+      auth: () => Promise<null>;
+    };
   }
 })();
 
 export const {
   handlers: { GET, POST },
-} = nextAuthInstance as { handlers: { GET: () => Promise<Response>; POST: () => Promise<Response> } };
+} = nextAuthInstance as {
+  handlers: { GET: () => Promise<Response>; POST: () => Promise<Response> };
+};
 
 // Wrap the original `auth` export to guard against `headers()` rejections
 // that can occur during prerendering. If `headers()` rejects (which the

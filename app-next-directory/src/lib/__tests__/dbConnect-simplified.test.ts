@@ -141,9 +141,7 @@ describe('dbConnect helper', () => {
 
     const { default: dbConnect } = await import('../dbConnect');
     // In non-Jest mode, dbConnect becomes connectWithCaching which validates on call
-    await expect(dbConnect()).rejects.toThrow(
-      'MONGODB_URI environment variable is required'
-    );
+    await expect(dbConnect()).rejects.toThrow('MONGODB_URI environment variable is required');
   });
 
   it('uses real caching logic outside of Jest environments', async () => {

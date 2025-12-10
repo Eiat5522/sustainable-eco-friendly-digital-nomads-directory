@@ -55,9 +55,9 @@ describe('LoginPage', () => {
     });
 
     const LoginPage = (await import('../page')).default;
-    await expect(LoginPage({ searchParams: Promise.resolve({ callbackUrl: '/dashboard' }) })).rejects.toThrow(
-      'redirect'
-    );
+    await expect(
+      LoginPage({ searchParams: Promise.resolve({ callbackUrl: '/dashboard' }) })
+    ).rejects.toThrow('redirect');
     expect(sanitizeCallbackUrlMock).toHaveBeenCalledWith('/dashboard', 'https://example.com');
     expect(redirectMock).toHaveBeenCalledWith('/dashboard');
   });
@@ -71,9 +71,9 @@ describe('LoginPage', () => {
     });
 
     const LoginPage = (await import('../page')).default;
-    await expect(LoginPage({ searchParams: Promise.resolve({ callbackUrl: '/dashboard' }) })).rejects.toThrow(
-      'redirect'
-    );
+    await expect(
+      LoginPage({ searchParams: Promise.resolve({ callbackUrl: '/dashboard' }) })
+    ).rejects.toThrow('redirect');
     expect(sanitizeCallbackUrlMock).toHaveBeenCalledWith('/dashboard', undefined);
     expect(redirectMock).toHaveBeenCalledWith('/fallback');
   });

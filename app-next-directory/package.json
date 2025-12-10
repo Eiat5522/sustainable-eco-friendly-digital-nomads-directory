@@ -25,6 +25,7 @@
     "test": "pnpm test:unit",
     "test:unit": "cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --runInBand --passWithNoTests",
     "test:unit:coverage": "cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --passWithNoTests --coverage",
+    "test:unit:export": "cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --runInBand --passWithNoTests --coverage 2>&1 | tee temp/unit_test_output",
     "test:integration": "cross-env JEST_USE_REAL_MONGOOSE=1 JEST_RUN_INTEGRATION=1 jest --config=jest.integration.config.cjs --runInBand --passWithNoTests",
     "test:integration:node": "pnpm test:integration",
     "test:integration:react": "pnpm test:integration",

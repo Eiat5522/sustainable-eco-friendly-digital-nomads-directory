@@ -37,7 +37,7 @@ describe('Blog API - GET /api/blog', () => {
         slug: { current: 'test-post-2' },
       },
     ];
-    fetchMock.mockResolvedValueOnce(mockPosts).mockResolvedValueOnce(2);
+    fetchMock.mockResolvedValueOnce(mockPosts).mockResolvedValueOnce(2).mockResolvedValueOnce([]);
 
     const request = new Request('http://localhost/api/blog?page=1&limit=2');
     const response = await GET(request);
@@ -47,12 +47,12 @@ describe('Blog API - GET /api/blog', () => {
     expect(data.data.posts.length).toBe(2);
     expect(data.data.pagination.totalCount).toBe(2);
     expect(data.data.pagination.page).toBe(1);
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
     expect(transformMock).toHaveBeenCalledTimes(2);
   });
 
   it('returns an empty array when no posts exist', async () => {
-    fetchMock.mockResolvedValueOnce([]).mockResolvedValueOnce(0);
+    fetchMock.mockResolvedValueOnce([]).mockResolvedValueOnce(0).mockResolvedValueOnce([]);
 
     const request = new Request('http://localhost/api/blog');
     const response = await GET(request);
@@ -75,7 +75,7 @@ describe('Blog API - GET /api/blog', () => {
   });
 
   it('builds correct GROQ queries based on query params', async () => {
-    fetchMock.mockResolvedValueOnce([]).mockResolvedValueOnce(0);
+    fetchMock.mockResolvedValueOnce([]).mockResolvedValueOnce(0).mockResolvedValueOnce([]);
 
     await GET(new Request('http://localhost/api/blog'));
     const postsQuery = fetchMock.mock.calls[0][0] as string;
@@ -87,7 +87,7 @@ describe('Blog API - GET /api/blog', () => {
 
     // tag filter
     fetchMock.mockReset();
-    fetchMock.mockResolvedValueOnce([]).mockResolvedValueOnce(0);
+    fetchMock.mockResolvedValueOnce([]).mockResolvedValueOnce(0).mockResolvedValueOnce([]);
     await GET(new Request('http://localhost/api/blog?tag=tech'));
     expect(fetchMock.mock.calls[0][0]).toContain('"tech" in tags');
 

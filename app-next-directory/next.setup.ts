@@ -157,7 +157,9 @@ class MockNextRequest {
   public method: string;
   public headers: Headers;
 
-  constructor(input: string | { url: string; method?: string; headers?: HeadersInit; json?: unknown }) {
+  constructor(
+    input: string | { url: string; method?: string; headers?: HeadersInit; json?: unknown }
+  ) {
     if (typeof input === 'string') {
       this.url = input;
       this.method = 'GET';

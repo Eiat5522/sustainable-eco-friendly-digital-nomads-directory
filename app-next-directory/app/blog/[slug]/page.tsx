@@ -40,7 +40,8 @@ export default async function BlogPostPage(props: Readonly<{ params: Promise<{ s
     const res = await getPostCached(slug); // <--- Data fetching happens here
     // API may return wrapped DTO or legacy shape
     if (res && typeof res === 'object' && 'success' in res) {
-      const data = (res as { success: boolean; data?: { post: PostDTO; comments?: Comment[] } }).data;
+      const data = (res as { success: boolean; data?: { post: PostDTO; comments?: Comment[] } })
+        .data;
       post = data?.post!;
       comments = data?.comments ?? [];
     } else if (res && typeof res === 'object' && 'post' in res && 'comments' in res) {
@@ -83,8 +84,6 @@ export default async function BlogPostPage(props: Readonly<{ params: Promise<{ s
         );
         comments = sanityComments ?? [];
       } catch (err) {
-        // If Sanity fetch fails, just use empty comments
-        console.error('Failed to fetch comments from Sanity:', err);
         comments = [];
       }
     }
@@ -150,7 +149,8 @@ export async function generateMetadata(props: {
   try {
     const res = await getPostCached(slug);
     if (res && typeof res === 'object' && 'success' in res) {
-      const data = (res as { success: boolean; data?: { post: PostDTO; comments: Comment[] } }).data;
+      const data = (res as { success: boolean; data?: { post: PostDTO; comments: Comment[] } })
+        .data;
       post = data?.post!;
     } else if (res && typeof res === 'object' && 'post' in res) {
       post = res.post as PostDTO;

@@ -1,6 +1,6 @@
 /**
  * MSW Handlers for Internal API Routes
- * 
+ *
  * Intercepts HTTP requests to Next.js API routes:
  * - /api/search - Search functionality
  * - /api/listings - Listings CRUD
@@ -9,7 +9,7 @@
  * - /api/cities - Cities
  * - /api/user/* - User-related endpoints
  * - /api/auth/* - Authentication endpoints
- * 
+ *
  * @module mocks/handlers/api
  */
 

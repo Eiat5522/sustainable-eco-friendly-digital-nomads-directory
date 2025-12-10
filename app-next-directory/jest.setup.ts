@@ -468,7 +468,6 @@ if (!(global as Record<string, unknown>).window) {
   (global as { window: { plausible?: unknown } }).window.plausible = jest.fn();
 }
 
-
 // NOTE: don't globally mock '@/lib/redis' here — tests that validate the
 // attach/detach helpers need to import the real module so they can assert
 // helpers are attached only in test environments. Use per-test mocks when
