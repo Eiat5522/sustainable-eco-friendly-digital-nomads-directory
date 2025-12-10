@@ -129,8 +129,8 @@ describe('Blog [slug] API', () => {
 
         // Debug: log response if not 200
         if (response.status !== 200) {
-          console.log('Response status:', response.status);
-          console.log('Response data:', data);
+          structuredLogger.debug('Response status:', { status: response.status });
+          structuredLogger.debug('Response data:', { data });
         }
 
         expect(response.status).toBe(200);

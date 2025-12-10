@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { expect, test } from '@playwright/test';
+import { structuredLogger } from '@/lib/logger';
 
 const URL = 'http://localhost:3000/listings/banyan-tree-phuket';
 
@@ -136,9 +137,9 @@ test('leaflet map debug', async ({ page }) => {
   fs.writeFileSync(path.join(outDir, 'leaflet-debug.json'), JSON.stringify(dump, null, 2));
 
   // Print summary to test output
-  console.log('MAP INFO:', JSON.stringify(mapInfo, null, 2));
-  console.log('CONSOLE MESSAGES:', JSON.stringify(consoleMessages, null, 2));
-  console.log('REQUESTS (last):', JSON.stringify(requests.slice(-50), null, 2));
+  structuredLogger.debug('MAP INFO:', { mapInfo });
+  structuredLogger.debug('CONSOLE MESSAGES:', { consoleMessages });
+  structuredLogger.debug('REQUESTS (last):', { requests: requests.slice(-50) });
 
   // Basic expectations to surface failures in test output
   expect(mapInfo.found).toBeTruthy();

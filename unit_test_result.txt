@@ -1,121 +1,4 @@
 Summary of all failing tests
- FAIL  src/lib/__tests__/sanity.utils.test.ts
-  ● sanity utils › creates clients with expected configuration and exports helpers
-
-    expect(jest.fn()).toHaveBeenNthCalledWith(n, ...expected)
-
-    n: 1
-    Expected: {"apiVersion": "2025-05-15", "dataset": "dataset", "projectId": "proj", "useCdn": true}
-
-    Number of calls: 0
-
-      45 |     const mod = await loadModule();
-      46 |
-    > 47 |     expect(createClientMock).toHaveBeenNthCalledWith(1, {
-         |                              ^
-      48 |       projectId: 'proj',
-      49 |       dataset: 'dataset',
-      50 |       apiVersion: '2025-05-15',
-
-      at Object.toHaveBeenNthCalledWith (src/lib/__tests__/sanity.utils.test.ts:47:30)
-
-  ● sanity utils › fetches preview data using the preview client
-
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-    Expected: Any<String>, {"slug": "hello", "type": "post"}
-
-    Number of calls: 0
-
-      82 |     const result = await mod.fetchBySlug('post', 'hello', true);
-      83 |
-    > 84 |     expect(previewClient.fetch).toHaveBeenCalledWith(expect.any(String), {
-         |                                 ^
-      85 |       type: 'post',
-      86 |       slug: 'hello',
-      87 |     });
-
-      at Object.toHaveBeenCalledWith (src/lib/__tests__/sanity.utils.test.ts:84:33)
-
- FAIL  src/lib/__tests__/sanity.test.js
-  ● Sanity Library › Initialization › should create the standard client with production config (useCdn: true)
-
-    expect(jest.fn()).toHaveBeenNthCalledWith(n, ...expected)
-
-    n: 1
-    Expected: ObjectContaining {"dataset": "test-dataset", "projectId": "test-project-id", "token": "test-api-token", "useCdn": true}
-
-    Number of calls: 0
-
-      53 |   describe('Initialization', () => {
-      54 |     it('should create the standard client with production config (useCdn: true)', () => {
-    > 55 |       expect(mockCreateClient).toHaveBeenNthCalledWith(
-         |                                ^
-      56 |         1,
-      57 |         expect.objectContaining({
-      58 |           projectId: 'test-project-id',
-
-      at Object.toHaveBeenNthCalledWith (src/lib/__tests__/sanity.test.js:55:32)
-
-  ● Sanity Library › Initialization › should create the preview client with preview config (useCdn: false)
-
-    expect(jest.fn()).toHaveBeenNthCalledWith(n, ...expected)
-
-    n: 2
-    Expected: ObjectContaining {"dataset": "test-dataset", "projectId": "test-project-id", "token": "test-api-token", "useCdn": false}
-
-    Number of calls: 0
-
-      65 |
-      66 |     it('should create the preview client with preview config (useCdn: false)', () => {
-    > 67 |       expect(mockCreateClient).toHaveBeenNthCalledWith(
-         |                                ^
-      68 |         2,
-      69 |         expect.objectContaining({
-      70 |           projectId: 'test-project-id',
-
-      at Object.toHaveBeenNthCalledWith (src/lib/__tests__/sanity.test.js:67:32)
-
-  ● Sanity Library › Initialization › should initialize the image URL builder with the standard client
-
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-    Expected: {"id": "standard"}
-
-    Number of calls: 0
-
-      77 |
-      78 |     it('should initialize the image URL builder with the standard client', () => {
-    > 79 |       expect(mockImageUrlBuilder).toHaveBeenCalledWith(standardClientInstance);
-         |                                   ^
-      80 |     });
-      81 |
-      82 |     it('should export the correct client instances returned by the mock', () => {
-
-      at Object.toHaveBeenCalledWith (src/lib/__tests__/sanity.test.js:79:35)
-
-  ● Sanity Library › Initialization › should export the correct client instances returned by the mock
-
-    expect(received).toBe(expected) // Object.is equality
-
-    - Expected  - 3
-    + Received  + 1
-
-    - Object {
-    -   "id": "standard",
-    - }
-    + Object {}
-
-      81 |
-      82 |     it('should export the correct client instances returned by the mock', () => {
-    > 83 |       expect(client).toBe(standardClientInstance);
-         |                      ^
-      84 |       expect(previewClient).toBe(previewClientInstance);
-      85 |     });
-      86 |   });
-
-      at Object.toBe (src/lib/__tests__/sanity.test.js:83:22)
-
  FAIL  app/api/blog/route.test.ts
   ● Blog API - GET /api/blog › returns paginated blog posts
 
@@ -151,57 +34,24 @@ Summary of all failing tests
 
       at Object.toBe (app/api/blog/route.test.ts:61:29)
 
- FAIL  src/lib/sanity/data.test.ts
-  ● data.ts › getListingData › should fetch and map listing data by slug
+ FAIL  src/lib/__tests__/sanity.utils.test.ts
+  ● sanity utils › fetches preview data using the preview client
 
-    expect(received).toEqual(expected) // deep equality
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
 
-    Expected: {"_id": "listing-123", "city": {"_id": "city-456", "country": "Test Country", "name": "Test City", "slug": "test-city"}, "mapped": true, "name": "Test Listing", "priceRange": "$$", "slug": "test-listing", "type": "coworking", "website": "https://test.com"}
-    Received: null
+    Expected: Any<String>, {"slug": "hello", "type": "post"}
 
-      56 |         { slug: 'test-listing' }
-      57 |       );
-    > 58 |       expect(result).toEqual({
-         |                      ^
-      59 |         ...mockListing,
-      60 |         mapped: true,
-      61 |       });
+    Number of calls: 0
 
-      at Object.toEqual (src/lib/sanity/data.test.ts:58:22)
+      92 |     const result = await mod.fetchBySlug('post', 'hello', true);
+      93 |
+    > 94 |     expect(previewClient.fetch).toHaveBeenCalledWith(expect.any(String), {
+         |                                 ^
+      95 |       type: 'post',
+      96 |       slug: 'hello',
+      97 |     });
 
-  ● data.ts › getListingData › should handle listings with complete data structure
-
-    expect(received).toEqual(expected) // deep equality
-
-    Expected: {"_id": "listing-full", "accommodationDetails": {}, "activitiesDetails": {}, "address": "123 Test St", "amenities": [], "cafeDetails": {}, "category": "hotel", "city": {"_id": "city-full", "country": "Full Country", "name": "Full City", "slug": "full-city"}, "contactEmail": "test@test.com", "contactPhone": "+1234567890", "coworkingDetails": {}, "digitalNomadFeatures": [], "ecoFocusTags": [{"_id": "tag-1", "name": "Eco-Friendly"}], "galleryImages": [{"asset": {"_ref": "image-ref-2"}}], "location": {"alt": 0, "lat": 0, "lng": 0}, "longDescription": "Long desc", "mapped": true, "moderation": {"featured": true, "status": "published", "verificationStatus": "verified"}, "name": "Full Listing", "priceRange": "$$$", "primaryImage": {"asset": {"_ref": "image-ref"}}, "restaurantDetails": {}, "reviews": [], "shortDescription": "Short desc", "slug": "full-listing", "type": "accommodation", "website": "https://full-listing.com"}
-    Received: null
-
-      143 |       const result = await getListingData('full-listing');
-      144 |
-    > 145 |       expect(result).toEqual({
-          |                      ^
-      146 |         ...mockListing,
-      147 |         mapped: true,
-      148 |       });
-
-      at Object.toEqual (src/lib/sanity/data.test.ts:145:22)
-
-  ● data.ts › getListingData › should handle listings with minimal data
-
-    expect(received).toEqual(expected) // deep equality
-
-    Expected: {"_id": "listing-minimal", "mapped": true, "name": "Minimal Listing", "slug": "minimal-listing"}
-    Received: null
-
-      160 |       const result = await getListingData('minimal-listing');
-      161 |
-    > 162 |       expect(result).toEqual({
-          |                      ^
-      163 |         ...mockListing,
-      164 |         mapped: true,
-      165 |       });
-
-      at Object.toEqual (src/lib/sanity/data.test.ts:162:22)
+      at Object.toHaveBeenCalledWith (src/lib/__tests__/sanity.utils.test.ts:94:33)
 
  FAIL  app/api/reviews/route.test.ts
   ● API /api/reviews POST › returns conflict when a user already reviewed the listing
@@ -272,12 +122,167 @@ Summary of all failing tests
 
       at Object.toBe (app/api/reviews/route.test.ts:458:24)
 
----
+ FAIL  src/lib/sanity/data.test.ts
+  ● data.ts › getListingData › should fetch and map listing data by slug
 
-Test Suites: 5 failed, 326 passed, 331 total
-Tests:       15 failed, 7 skipped, 4098 passed, 4120 total
+    expect(received).toEqual(expected) // deep equality
+
+    Expected: {"_id": "listing-123", "city": {"_id": "city-456", "country": "Test Country", "name": "Test City", "slug": "test-city"}, "mapped": true, "name": "Test Listing", "priceRange": "$$", "slug": "test-listing", "type": "coworking", "website": "https://test.com"}
+    Received: null
+
+      56 |         { slug: 'test-listing' }
+      57 |       );
+    > 58 |       expect(result).toEqual({
+         |                      ^
+      59 |         ...mockListing,
+      60 |         mapped: true,
+      61 |       });
+
+      at Object.toEqual (src/lib/sanity/data.test.ts:58:22)
+
+  ● data.ts › getListingData › should handle listings with complete data structure
+
+    expect(received).toEqual(expected) // deep equality
+
+    Expected: {"_id": "listing-full", "accommodationDetails": {}, "activitiesDetails": {}, "address": "123 Test St", "amenities": [], "cafeDetails": {}, "category": "hotel", "city": {"_id": "city-full", "country": "Full Country", "name": "Full City", "slug": "full-city"}, "contactEmail": "test@test.com", "contactPhone": "+1234567890", "coworkingDetails": {}, "digitalNomadFeatures": [], "ecoFocusTags": [{"_id": "tag-1", "name": "Eco-Friendly"}], "galleryImages": [{"asset": {"_ref": "image-ref-2"}}], "location": {"alt": 0, "lat": 0, "lng": 0}, "longDescription": "Long desc", "mapped": true, "moderation": {"featured": true, "status": "published", "verificationStatus": "verified"}, "name": "Full Listing", "priceRange": "$$$", "primaryImage": {"asset": {"_ref": "image-ref"}}, "restaurantDetails": {}, "reviews": [], "shortDescription": "Short desc", "slug": "full-listing", "type": "accommodation", "website": "https://full-listing.com"}
+    Received: null
+
+      143 |       const result = await getListingData('full-listing');
+      144 |
+    > 145 |       expect(result).toEqual({
+          |                      ^
+      146 |         ...mockListing,
+      147 |         mapped: true,
+      148 |       });
+
+      at Object.toEqual (src/lib/sanity/data.test.ts:145:22)
+
+  ● data.ts › getListingData › should handle listings with minimal data
+
+    expect(received).toEqual(expected) // deep equality
+
+    Expected: {"_id": "listing-minimal", "mapped": true, "name": "Minimal Listing", "slug": "minimal-listing"}
+    Received: null
+
+      160 |       const result = await getListingData('minimal-listing');
+      161 |
+    > 162 |       expect(result).toEqual({
+          |                      ^
+      163 |         ...mockListing,
+      164 |         mapped: true,
+      165 |       });
+
+      at Object.toEqual (src/lib/sanity/data.test.ts:162:22)
+
+ FAIL  src/components/search/__tests__/DigitalNomadSearch.test.tsx (35.338 s)
+  ● DigitalNomadSearch › Edge Cases › should handle very long search queries
+
+    thrown: "Exceeded timeout of 20000 ms for a test.
+    Use jest.setTimeout(newTimeout) to increase the timeout value, if this is a long-running test."
+
+      293 |     });
+      294 |
+    > 295 |     it('should handle very long search queries', async () => {
+          |     ^
+      296 |       const user = userEvent.setup();
+      297 |       const longQuery = 'a'.repeat(1000);
+      298 |       render(<DigitalNomadSearch />);
+
+      at it (src/components/search/__tests__/DigitalNomadSearch.test.tsx:295:5)
+      at describe (src/components/search/__tests__/DigitalNomadSearch.test.tsx:281:3)
+      at Object.describe (src/components/search/__tests__/DigitalNomadSearch.test.tsx:47:1)
+
+  ● DigitalNomadSearch › Edge Cases › should handle whitespace-only input
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "/search?q=+++"
+    Received
+           1: "/search?q=aaaaa+a+a+aaaa"
+           2: "/search?q=aaaaa+a+a+aaaa"
+
+    Number of calls: 2
+
+    Ignored nodes: comments, script, style
+    <html>
+      <head />
+      <body>
+        <div>
+          <form
+            aria-label="Search listings"
+            class="flex gap-3 w-full"
+            role="search"
+          >
+            <input
+              aria-label="Search query"
+              data-testid="neo-input"
+              name="q"
+              placeholder="Search listings..."
+              value="aaaaa a a aaaa"
+            />
+            <button
+              data-testid="neo-button"
+              data-variant="primary"
+              type="submit"
+            >
+              Search
+            </button>
+          </form>
+        </div>
+      </body>
+    </html>
+
+      317 |
+      318 |       await waitFor(() => {
+    > 319 |         expect(mockPush).toHaveBeenCalledWith('/search?q=+++');
+          |                          ^
+      320 |       });
+      321 |     });
+      322 |
+
+      at toHaveBeenCalledWith (src/components/search/__tests__/DigitalNomadSearch.test.tsx:319:26)
+      at runWithExpensiveErrorDiagnosticsDisabled (../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (../node_modules/.pnpm/jsdom@20.0.3/node_modules/jsdom/lib/jsdom/browser/Window.js:520:19)
+
+ FAIL  app/dashboard/listings/edit/[id]/__tests__/page.test.tsx (20.737 s)
+  ● EditListingPage › loads the listing details and saves updates
+
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Use jest.setTimeout(newTimeout) to increase the timeout value, if this is a long-running test."
+
+      27 |   });
+      28 |
+    > 29 |   it('loads the listing details and saves updates', async () => {
+         |   ^
+      30 |     const Page = await getPage();
+      31 |     const user = userEvent.setup();
+      32 |
+
+      at it (app/dashboard/listings/edit/[id]/__tests__/page.test.tsx:29:3)
+      at Object.describe (app/dashboard/listings/edit/[id]/__tests__/page.test.tsx:20:1)
+
+ FAIL  app/admin/settings/__tests__/SettingsForm.test.tsx (31.398 s)
+  ● SettingsForm › should reset settings when clicking reset button
+
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Use jest.setTimeout(newTimeout) to increase the timeout value, if this is a long-running test."
+
+      237 |   });
+      238 |
+    > 239 |   it('should reset settings when clicking reset button', async () => {
+          |   ^
+      240 |     (global.fetch as jest.Mock)
+      241 |       .mockResolvedValueOnce({
+      242 |         ok: true,
+
+      at it (app/admin/settings/__tests__/SettingsForm.test.tsx:239:3)
+      at Object.describe (app/admin/settings/__tests__/SettingsForm.test.tsx:24:1)
+
+
+Test Suites: 7 failed, 324 passed, 331 total
+Tests:       14 failed, 7 skipped, 4099 passed, 4120 total
 Snapshots:   0 total
-Time:        522.494 s
+Time:        526.132 s
 Ran all test suites.
-
-> Test run "all-tests:with-coverage:2" exited at 12/10/2025, 12:54:27 PM <

@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { structuredLogger } from '@/lib/logger';
 
 test.describe('Performance & Load Testing', () => {
   test.describe('Page Load Performance', () => {
@@ -36,7 +37,7 @@ test.describe('Performance & Load Testing', () => {
       });
 
       if (performanceMetrics) {
-        console.log('Performance Metrics:', performanceMetrics);
+        structuredLogger.debug('Performance Metrics:', { performanceMetrics });
       }
     });
 

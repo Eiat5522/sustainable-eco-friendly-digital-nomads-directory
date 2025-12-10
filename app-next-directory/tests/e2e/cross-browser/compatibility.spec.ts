@@ -1,4 +1,5 @@
 import { devices, expect, test } from '@playwright/test';
+import { structuredLogger } from '@/lib/logger';
 
 test.describe('Cross-Browser Compatibility Testing', () => {
   test.describe('Core Functionality Across Browsers', () => {
@@ -368,7 +369,7 @@ test.describe('Cross-Browser Compatibility Testing', () => {
       const loadTime = Date.now() - startTime;
 
       // Log performance for different browsers
-      console.log(`${browserName} load time: ${loadTime}ms`);
+      structuredLogger.debug(`${browserName} load time: ${loadTime}ms`);
 
       // All browsers should load within reasonable time
       expect(loadTime).toBeLessThan(5000);
@@ -392,7 +393,7 @@ test.describe('Cross-Browser Compatibility Testing', () => {
       });
 
       if (webVitals) {
-        console.log(`${browserName} Web Vitals:`, webVitals);
+        structuredLogger.debug(`${browserName} Web Vitals:`, { webVitals });
       }
     });
   });

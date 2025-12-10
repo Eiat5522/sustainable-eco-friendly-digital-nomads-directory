@@ -3,6 +3,7 @@
  *
  * Generates and dispatches alerts when performance metrics exceed configured thresholds.
  */
+import { structuredLogger } from '@/lib/logger';
 import {
   ALERT_DESTINATION_CONFIG,
   ALERT_SEVERITY,
@@ -46,11 +47,10 @@ export async function processMetricForAlert(
   const now = Date.now();
   if (lastAlertTime !== undefined && now - lastAlertTime < cooldownPeriod * 1000) {
     if (process.env.NODE_ENV !== 'production') {
-      console.log(
+      structuredLogger.warn(
         '[Alert Service] Suppressing alert due to cooldown:',
         `${category}.${name}`,
-        'severity:',
-        severity
+        { severity }
       );
     }
     return null;
@@ -112,7 +112,7 @@ async function dispatchAlert(alert: Alert, channel: NotificationChannel): Promis
 
 async function sendEmailAlert(_alert: Alert): Promise<boolean> {
   if (process.env.NODE_ENV !== 'production') {
-    console.log('Would send email to', _alert);
+    structuredLogger.warn('Would send email to', { _alert });
     return true;
   }
 

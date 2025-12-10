@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { structuredLogger } from '@/lib/logger';
 
 test.describe('Authentication Debug', () => {
   test('should load login page and have form elements', async ({ page }) => {
@@ -8,17 +9,17 @@ test.describe('Authentication Debug', () => {
     // Wait for page to load
     await page.waitForLoadState('networkidle');
 
-    console.log('Page URL:', page.url());
-    console.log('Page title:', await page.title());
+    structuredLogger.debug('Page URL:', { url: page.url() });
+    structuredLogger.debug('Page title:', { title: await page.title() });
 
     // Check if form elements exist
     const emailInput = page.locator('#email');
     const passwordInput = page.locator('#password');
     const submitButton = page.locator('button[type="submit"]');
 
-    console.log('Email input exists:', (await emailInput.count()) > 0);
-    console.log('Password input exists:', (await passwordInput.count()) > 0);
-    console.log('Submit button exists:', (await submitButton.count()) > 0);
+    structuredLogger.debug('Email input exists:', { exists: (await emailInput.count()) > 0 });
+    structuredLogger.debug('Password input exists:', { exists: (await passwordInput.count()) > 0 });
+    structuredLogger.debug('Submit button exists:', { exists: (await submitButton.count()) > 0 });
 
     // Take a screenshot for debugging
     await page.screenshot({ path: 'test-results/login-page-debug.png' });
@@ -39,8 +40,8 @@ test.describe('Authentication Debug', () => {
     });
 
     const responseBody = await response.json();
-    console.log('Registration response status:', response.status());
-    console.log('Registration response body:', responseBody);
+    structuredLogger.debug('Registration response status:', { status: response.status() });
+    structuredLogger.debug('Registration response body:', { body: responseBody });
 
     // Expect successful creation or user already exists
     expect([201, 409]).toContain(response.status());
@@ -51,7 +52,7 @@ test.describe('Authentication Debug', () => {
     await page.goto('/api/auth/providers');
 
     const content = await page.textContent('body');
-    console.log('Auth providers response:', content);
+    structuredLogger.debug('Auth providers response:', { content });
 
     // Should return JSON with providers
     expect(content).toBeTruthy();

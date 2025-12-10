@@ -443,7 +443,7 @@ describe('ListingsManagementTable', () => {
     } else {
       // If the button is not found, it means the mock data might have changed or the logic
       // for showing the button is different than expected.
-      console.warn(
+      structuredLogger.warn(
         'Publish button not found for Spacious Accommodation. Skipping publish action test.'
       );
     }

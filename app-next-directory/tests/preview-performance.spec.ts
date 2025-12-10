@@ -1,4 +1,5 @@
 import { expect, type Page, test } from '@playwright/test';
+import { structuredLogger } from '@/lib/logger';
 
 interface PerformanceMetrics {
   pageLoadTime: number;
@@ -69,8 +70,8 @@ test.describe('Preview Mode Performance Tests', () => {
     // Store and log results
     testMetrics.normal = normalMetrics;
     testMetrics.preview = previewMetrics;
-    console.log('Normal Mode Metrics:', normalMetrics);
-    console.log('Preview Mode Metrics:', previewMetrics);
+    structuredLogger.debug('Normal Mode Metrics:', normalMetrics);
+    structuredLogger.debug('Preview Mode Metrics:', previewMetrics);
 
     // Performance assertions
     expect(previewMetrics.pageLoadTime).toBeLessThan(normalMetrics.pageLoadTime * 1.5);
@@ -84,7 +85,7 @@ test.describe('Preview Mode Performance Tests', () => {
 
     for (const endpoint of endpoints) {
       const responseTime = await measureEndpoint(page, endpoint);
-      console.log(`${endpoint} Response Time:`, responseTime);
+      structuredLogger.debug(`${endpoint} Response Time:`, { responseTime });
       expect(responseTime).toBeLessThan(1000); // Max 1s response time
     }
   });
@@ -111,7 +112,7 @@ test.describe('Preview Mode Performance Tests', () => {
     const finalMemory = await page.evaluate(() => (performance as any).memory?.usedJSHeapSize || 0);
 
     // Log memory usage
-    console.log('Memory Usage:', {
+    structuredLogger.debug('Memory Usage:', {
       initial: initialMemory / 1024 / 1024 + 'MB',
       final: finalMemory / 1024 / 1024 + 'MB',
       difference: (finalMemory - initialMemory) / 1024 / 1024 + 'MB',

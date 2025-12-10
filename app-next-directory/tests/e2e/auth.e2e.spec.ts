@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { structuredLogger } from '@/lib/logger';
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
@@ -8,7 +9,7 @@ test.describe('Authentication System (Playwright)', () => {
   test.afterAll(async () => {
     // TODO: Implement cleanup logic here.
     // This might involve calling a backend endpoint to delete the users by email.
-    console.log('Cleaning up test users:', testEmails);
+    structuredLogger.debug('Cleaning up test users:', { testEmails });
   });
 
   test('registers a new user and redirects to login', async ({ page }) => {

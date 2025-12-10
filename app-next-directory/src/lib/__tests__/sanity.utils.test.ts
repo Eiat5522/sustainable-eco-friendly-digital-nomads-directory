@@ -43,6 +43,9 @@ describe('sanity utils', () => {
   it('creates clients with expected configuration and exports helpers', async () => {
     process.env.NODE_ENV = 'production';
     const mod = await loadModule();
+    // Trigger the client initialization explicitly to reflect lazy-loading
+    mod.getClient();
+    mod.getClient(true);
 
     expect(createClientMock).toHaveBeenNthCalledWith(1, {
       projectId: 'proj',
@@ -77,6 +80,13 @@ describe('sanity utils', () => {
 
   it('fetches preview data using the preview client', async () => {
     const mod = await loadModule();
+    mod.getClient(true); // Ensure preview client is initialized
+    // Debug: verify createClientMock calls
+    // eslint-disable-next-line no-console
+      // Debug: validate the returned preview client instance
+      // eslint-disable-next-line no-console
+      console.log('preview returned equals previewClient?', mod.getClient(true) === previewClient);
+      console.log('createClientMock calls:', createClientMock.mock.calls.length);
     previewClient.fetch.mockResolvedValueOnce({ slug: 'preview' });
 
     const result = await mod.fetchBySlug('post', 'hello', true);

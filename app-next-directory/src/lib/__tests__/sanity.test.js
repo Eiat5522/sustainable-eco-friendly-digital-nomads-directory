@@ -38,8 +38,9 @@ describe('Sanity Library', () => {
 
     // Dynamically import the module to ensure mocks and env vars are applied
     const sanityModule = await import('../sanity.js');
-    client = sanityModule.client;
-    previewClient = sanityModule.previewClient;
+    // Get actual clients using the exported helper to trigger initialization
+    client = sanityModule.getClient();
+    previewClient = sanityModule.getClient(true);
     urlFor = sanityModule.urlFor;
     getClient = sanityModule.getClient;
   });
@@ -76,6 +77,8 @@ describe('Sanity Library', () => {
     });
 
     it('should initialize the image URL builder with the standard client', () => {
+      // Access urlFor to ensure builder initialized
+      urlFor({ _type: 'image' });
       expect(mockImageUrlBuilder).toHaveBeenCalledWith(standardClientInstance);
     });
 
