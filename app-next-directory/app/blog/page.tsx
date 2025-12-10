@@ -63,7 +63,10 @@ export default async function BlogPage(
   const searchParamsForPosts = { page, limit, tag, search };
 
   // Fetch posts directly in the page component so errors propagate
-  const { posts, pagination, uniqueTags = [] } = await getPostsCached(searchParamsForPosts);
+  const result = await getPostsCached(searchParamsForPosts);
+  const posts = result.posts as Post[];
+  const pagination = result.pagination as BlogApiResponse['pagination'];
+  const uniqueTags = (result.uniqueTags ?? []) as string[];
 
   return (
     <>
