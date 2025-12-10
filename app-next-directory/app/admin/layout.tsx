@@ -1,9 +1,17 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import type React from 'react';
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  // Auth check is handled by middleware - no server-side auth needed in layout
-  // This keeps the layout simple and avoids prerendering issues
+import { auth } from '@/lib/auth';
+
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth();
+  const role = session?.user?.role;
+
+  if (role !== 'admin' && role !== 'superadmin') {
+    redirect('/auth/login');
+  }
+
   const navItems = [
     { href: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
     { href: '/admin/users', label: 'Users', icon: '👥' },
@@ -34,7 +42,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </div>
             </div>
             <div className="flex items-center">
-              <span className="text-sm text-gray-600">Admin Panel</span>
+              <span className="text-sm text-gray-600">Admin</span>
             </div>
           </div>
         </div>
