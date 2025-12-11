@@ -117,6 +117,70 @@ Solution: Treat this as a required refactoring task, not a bug. Since getServerS
 
 While these solutions address specific test failures, a properly configured environment is the best strategy for preventing them from occurring in the first place.
 
+3.5 Suspense, `use()`, and Client Components
+
+React 19’s `use()` hook can be invoked inside server or client components. When a client component consumes a promise via `use()`, it suspends until the promise resolves and relies on a parent `<Suspense>` boundary to supply a fallback. The pattern looks like:
+
+```tsx
+function FiltersPanel() {
+  const params = use(fetchFilters());
+  return <FiltersForm data={params} />;
+}
+
+export default function SearchFiltersShell() {
+  return (
+    <Suspense fallback={<div>Loading filters…</div>}>
+      <FiltersPanel />
+    </Suspense>
+  );
+}
+ ```
+
+  Tests that render any Suspense-backed shell must await the async component before calling `render`. This ensures you render concrete JSX instead of React’s `Promise` and keeps the fallback from lingering during the test run or Turbopack build.
+
+When layout or admin helper components fetch session data (e.g., `auth()`), extract the async portion into an exportable shell and test that shell directly instead of the Suspense wrapper, or expect the redirect to throw while the fallback is active.
+
+## 3.6 Avoid instrumentation listener leaks in Jest
+
+Component suites that toggle `NODE_ENV` to `production` or `development` to exercise logging behavior will re-run `register()` in the same worker, which can repeatedly install process listeners and trigger `MaxListenersExceededWarning`. Import and call the `resetInstrumentationForTests()` helper before and after those tests to remove the previously registered handlers and reset the internal flag before the next scenario runs. This keeps Jest’s worker lifecycle clean while still allowing you to assert that `"unhandledRejection"` and `"uncaughtException"` listeners are wired up.
+
+```ts
+import { register, resetInstrumentationForTests } from '@/instrumentation';
+
+beforeEach(() => {
+  resetInstrumentationForTests();
+  jest.spyOn(process, 'on').mockImplementation((event, handler) => {
+    listeners[event as string] = handler as any;
+    return process;
+  });
+});
+
+afterEach(() => {
+  resetInstrumentationForTests();
+});
+
+it('wires the uncaughtException handler', async () => {
+  await register();
+  expect(process.on).toHaveBeenCalledWith('uncaughtException', expect.any(Function));
+});
+```
+
+## 3.7 Prefer synchronous DOM events for router-driven interactions
+
+Tests that verify `useRouter` pushes (e.g., clicking “Subscribe” to annotate a contact url) can be prone to `Exceeded timeout` warnings when they rely on `userEvent` helpers that introduce extra async microtasks. Use `fireEvent.change`/`fireEvent.click` to keep the interaction synchronous and follow it with `waitFor` only for the final `router.push` assertion (the router call itself stays synchronous in our mock).
+
+```ts
+fireEvent.change(screen.getByLabelText(/email address/i), {
+  target: { value: 'eco.nomad@example.com' },
+});
+fireEvent.click(screen.getByRole('link', { name: /subscribe/i }));
+await waitFor(() =>
+  expect(pushMock).toHaveBeenCalledWith(
+    '/contact-us?type=newsletter&email=eco.nomad%40example.com'
+  )
+);
+```
+
 4.0 Foundational Test Environment Configuration
 
 A correctly configured test environment is a non-negotiable prerequisite for reliable testing in Next.js 16. Many of the pitfalls from the previous section are symptoms of a misconfigured or incomplete Jest setup. Establishing this foundation from the outset will prevent entire classes of errors.

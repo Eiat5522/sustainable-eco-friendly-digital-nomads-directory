@@ -6,6 +6,99 @@
  * particularly from MongoDB connection issues.
  */
 
+type InstrumentationEvent = 'unhandledRejection' | 'uncaughtException';
+type InstrumentationListenerMap = {
+  unhandledRejection: NodeJS.UnhandledRejectionListener | null;
+  uncaughtException: NodeJS.UncaughtExceptionListener | null;
+};
+
+const listenerRegistry: InstrumentationListenerMap = {
+  unhandledRejection: null,
+  uncaughtException: null,
+};
+
+let hasInstalledProcessHandlers = false;
+
+const attachProcessListener = <E extends InstrumentationEvent>(
+  event: E,
+  listener: E extends 'unhandledRejection'
+    ? NodeJS.UnhandledRejectionListener
+    : NodeJS.UncaughtExceptionListener
+) => {
+  if (listenerRegistry[event]) {
+    return;
+  }
+  process.on(event, listener as (...args: unknown[]) => void);
+  listenerRegistry[event] = listener as any;
+};
+
+const attachProcessHandlers = (structuredLogger: typeof import('@/lib/logger').structuredLogger) => {
+  if (hasInstalledProcessHandlers) {
+    return;
+  }
+
+  const rejectionHandler: NodeJS.UnhandledRejectionListener = (reason: unknown) => {
+    if (reason instanceof Error) {
+      console.error('Unhandled Promise Rejection reason', reason);
+    } else {
+      console.error('Unhandled Promise Rejection', reason);
+    }
+    structuredLogger.error('Unhandled Promise Rejection', undefined, {
+      component: 'instrumentation',
+      details: {
+        event: 'unhandledRejection',
+      },
+    });
+    if (reason instanceof Error) {
+      structuredLogger.error('Unhandled Promise Rejection reason', reason, {
+        component: 'instrumentation',
+      });
+
+      if (
+        reason.message?.includes('MongoServerSelectionError') ||
+        reason.message?.includes('Server selection timed out')
+      ) {
+        structuredLogger.warn(
+          'MongoDB connection issue detected. The server will continue running and retry on next request.',
+          {
+            component: 'instrumentation',
+          }
+        );
+      }
+    }
+  };
+
+  const exceptionHandler: NodeJS.UncaughtExceptionListener = (error: Error) => {
+    structuredLogger.error('Uncaught Exception', error, {
+      component: 'instrumentation',
+    });
+    if (
+      error.message?.includes('MongoServerSelectionError') ||
+      error.message?.includes('Server selection timed out')
+    ) {
+      structuredLogger.warn('MongoDB connection issue detected. Continuing...', {
+        component: 'instrumentation',
+      });
+      return;
+    }
+
+    if (process.env.NODE_ENV === 'development') {
+      structuredLogger.warn(
+        'Development mode: Server will continue running after uncaught exception',
+        {
+          component: 'instrumentation',
+        }
+      );
+    } else {
+      process.exit(1);
+    }
+  };
+
+  attachProcessListener('unhandledRejection', rejectionHandler);
+  attachProcessListener('uncaughtException', exceptionHandler);
+  hasInstalledProcessHandlers = true;
+};
+
 export async function register() {
   if (process.env.NODE_ENV === 'production') {
     const required = [
@@ -35,67 +128,9 @@ export async function register() {
       redirectConsoleToStructuredLogger();
     }
 
-    // Avoid registering process event listeners during Jest unit tests to prevent
-    // open handle leaks that cause Jest workers to fail to exit gracefully.
+    // Skip process hooks when running pure Jest tests to prevent repeated listeners.
     if (process.env.NODE_ENV !== 'test') {
-      // Handle unhandled promise rejections
-      process.on('unhandledRejection', (reason: unknown) => {
-        if (reason instanceof Error) {
-          console.error('Unhandled Promise Rejection reason', reason);
-        } else {
-          console.error('Unhandled Promise Rejection', reason);
-        }
-        structuredLogger.error('Unhandled Promise Rejection', undefined, {
-          component: 'instrumentation',
-          details: {
-            event: 'unhandledRejection',
-          },
-        });
-        if (reason instanceof Error) {
-          structuredLogger.error('Unhandled Promise Rejection reason', reason, {
-            component: 'instrumentation',
-          });
-
-          if (
-            reason.message?.includes('MongoServerSelectionError') ||
-            reason.message?.includes('Server selection timed out')
-          ) {
-            structuredLogger.warn(
-              'MongoDB connection issue detected. The server will continue running and retry on next request.',
-              {
-                component: 'instrumentation',
-              }
-            );
-          }
-        }
-      });
-
-      // Handle uncaught exceptions
-      process.on('uncaughtException', (error: Error) => {
-        structuredLogger.error('Uncaught Exception', error, {
-          component: 'instrumentation',
-        });
-        if (
-          error.message?.includes('MongoServerSelectionError') ||
-          error.message?.includes('Server selection timed out')
-        ) {
-          structuredLogger.warn('MongoDB connection issue detected. Continuing...', {
-            component: 'instrumentation',
-          });
-          return;
-        }
-
-        if (process.env.NODE_ENV === 'development') {
-          structuredLogger.warn(
-            'Development mode: Server will continue running after uncaught exception',
-            {
-              component: 'instrumentation',
-            }
-          );
-        } else {
-          process.exit(1);
-        }
-      });
+      attachProcessHandlers(structuredLogger);
     }
 
     structuredLogger.info('Server instrumentation registered: Error handlers active', {
@@ -103,3 +138,20 @@ export async function register() {
     });
   }
 }
+
+export const resetInstrumentationForTests = () => {
+  if (process.env.NODE_ENV !== 'test') {
+    return;
+  }
+
+  if (listenerRegistry.unhandledRejection) {
+    process.removeListener('unhandledRejection', listenerRegistry.unhandledRejection);
+    listenerRegistry.unhandledRejection = null;
+  }
+  if (listenerRegistry.uncaughtException) {
+    process.removeListener('uncaughtException', listenerRegistry.uncaughtException);
+    listenerRegistry.uncaughtException = null;
+  }
+
+  hasInstalledProcessHandlers = false;
+};

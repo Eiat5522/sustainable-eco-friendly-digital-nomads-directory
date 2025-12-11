@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
-import { register } from '../instrumentation';
+import { register, resetInstrumentationForTests } from '../instrumentation';
 
 type ListenerMap = Record<string, ((...args: any[]) => void) | undefined>;
 
@@ -19,6 +19,7 @@ describe('instrumentation register', () => {
     listeners = {};
     process.env.NEXT_RUNTIME = 'nodejs';
     process.env.NODE_ENV = 'development';
+    resetInstrumentationForTests();
 
     processOnSpy = jest.spyOn(process, 'on').mockImplementation((event: any, handler: any) => {
       listeners[event as string] = handler as (...args: any[]) => void;
@@ -39,6 +40,7 @@ describe('instrumentation register', () => {
     consoleLogSpy.mockRestore();
     process.env.NEXT_RUNTIME = originalNextRuntime;
     process.env.NODE_ENV = originalNodeEnv;
+    resetInstrumentationForTests();
   });
 
   it('registers rejection and exception handlers when running in the node runtime', async () => {

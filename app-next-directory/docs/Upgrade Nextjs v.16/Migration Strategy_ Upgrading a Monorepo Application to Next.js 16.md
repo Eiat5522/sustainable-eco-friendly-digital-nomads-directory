@@ -78,9 +78,38 @@ Testing Client Components with Navigation Hooks
 
 Client components using hooks like useRouter or useSearchParams will fail in a test environment because the router context is missing.
 
-1. Mock next/nauch as updating a profile.
+1. Mock next/navigation at the top of the test file. Provide the router API your component consumes (typically `push`, `replace`, `prefetch`, etc.), then assert on those mocks.
 
-Finally, to unlock the full potential of PPR and improve Core Web Vitals, wrap dynamic components in <Suspense> boundaries with appropriate skeleton UI fallbacks. This allows Next.js to serve a fast static shell while dynamic content streams in.
+2. Reset instrumentation and prefer synchronous interactions. When your tests toggle `NODE_ENV` away from `test` to exercise production-only behaviors, call `resetInstrumentationForTests()` before/after the test so the shared `process` listeners are removed and the next suite can reinitialize without `MaxListenersExceededWarning`. In the same vein, simulate router-driven clicks with `fireEvent.change`/`fireEvent.click` and just wrap the final assertion in `waitFor`; this keeps each test deterministic and avoids hitting the default 5s timeout.
+
+```ts
+import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { register, resetInstrumentationForTests } from '@/instrumentation';
+
+beforeEach(() => {
+  resetInstrumentationForTests();
+});
+
+afterEach(() => {
+  resetInstrumentationForTests();
+});
+
+it('routes newsletter subscribers to the contact form', async () => {
+  render(<Footer />);
+  fireEvent.change(screen.getByLabelText(/email/i), {
+    target: { value: 'eco.nomad@example.com' },
+  });
+  fireEvent.click(screen.getByRole('link', { name: /subscribe/i }));
+
+  await waitFor(() =>
+    expect(pushMock).toHaveBeenCalledWith(
+      '/contact-us?type=newsletter&email=eco.nomad%40example.com'
+    )
+  );
+});
+```
+
+Finally, to unlock the full potential of PPR and improve Core Web Vitals, wrap dynamic components in `<Suspense>` boundaries with appropriate skeleton UI fallbacks. This allows Next.js to serve a fast static shell while dynamic content streams in.
 
 4.4 Overhaul of Testing Strategy for Asynchronous Components
 
@@ -100,7 +129,9 @@ The first and most important step is to enable the new caching model by setting 
 
 * dynamic = "force-dynamic": Remove this line. Pages are dynamic by default in the new model.
 * revalidate = 3600: Remove this line. This is replaced by the new cacheLife API.
-* dynamic = "force-static": Remove this line and apply the 'use cache' directive with cacheLife to any data-fetching component within the route to restore static behy be masked during development but cause the production build to fail.
+* dynamic = "force-static": Remove this line and apply the 'use cache' directive with cacheLife to any data-fetching component within the route to restore static behavior.
+
+  These adjustments also apply to API routes that proxy to third-party helpers (e.g., `auth()`/NextAuth). Always forward the original `Request` object down into `authGET`/`authPOST` so parsing logs, middleware checks, and the `use()` lifecycle continue to see the request context during prerendering.
 
 4.3 Caching Architecture Overhaul for Partial Pre-Rendering (PPR)
 

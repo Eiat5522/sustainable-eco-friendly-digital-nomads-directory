@@ -25,6 +25,59 @@
 - Target meaningful coverage with `pnpm test:coverage`; accompany bug fixes with regression tests.
 - Update snapshots intentionally and document major fixture changes in PR notes.
 
+## Next.js 16 App Router Patterns
+- **Await before rendering async components.** Treat async pages/layouts as promises in tests: call them, await the result, then pass the resolved JSX into `render`. Example:
+  ```ts
+  const page = await SearchPage({ searchParams: Promise.resolve({}) });
+  render(page);
+  ```
+  This saves you from the `[object Promise]` error when React returns JSX asynchronously and keeps `findBy*` matchers reliable once Suspense resolves.
+- **Wrap server/async shells in Suspense.** When a route layer needs to suspend (e.g., fetching session data with `auth()`), isolate the Async portion so the boundary can fall back cleanly:
+  ```tsx
+  export default function AdminLayout({ children }: Props) {
+    return (
+      <Suspense fallback={<Loading />}>
+        <AdminShell>{children}</AdminShell>
+      </Suspense>
+    );
+  }
+
+  export async function AdminShell({ children }: Props) {
+    const session = await auth();
+    if (!isAdmin(session)) redirect('/auth/login');
+    return <div>{children}</div>;
+  }
+  ```
+  Tests should call `AdminShell(...)` directly and render the resolved JSX (or expect the redirect error) so Suspense isn’t left unresolved.
+- **Pass request objects through NextAuth helpers.** The new NextAuth exports expect `Request` arguments, so your API wrappers must forward them, e.g. `return authGET(request);`. This keeps logging/tests that assert on the request intact and avoids NextAuth runtime mismatches.
+- **Treat alert dispatch errors as recoverable but logged.** When any channel fails (console, Slack, webhook), log the failure and return `null`. Tests rely on both `console.error` and the returned `null`, so the service should call `structuredLogger.error` and optionally `console.error` before suppressing the alert.
+- **Keep instrumentation registration deterministic.** When tests flip `NODE_ENV` away from `test` to exercise production-only behavior, call `resetInstrumentationForTests()` before/after the run so the shared `process.on` listeners are torn down and the next test can reinitialize cleanly. The helper removes any previous handlers, clears the internal flag, and avoids `MaxListenersExceededWarning`.
+
+  ```ts
+  import { register, resetInstrumentationForTests } from '@/instrumentation';
+
+  beforeEach(() => {
+    resetInstrumentationForTests();
+    jest.spyOn(process, 'on').mockImplementation((event, handler) => {
+      listeners[event] = handler;
+      return process;
+    });
+  });
+
+  afterEach(() => {
+    resetInstrumentationForTests();
+  });
+  ```
+- **Favor synchronous DOM events for router assertions.** When a client component drives navigation (e.g., pushing `/contact-us` with query params), prefer `fireEvent.change` + `fireEvent.click` plus a `waitFor` on the mock router rather than `userEvent` sequences that can introduce extra microtasks and fake timers. This keeps tests snappy and avoids Jest timeouts while still verifying the final `router.push` arguments.
+
+  ```ts
+  fireEvent.change(screen.getByLabelText(/email address/i), {
+    target: { value: 'eco.nomad@example.com' },
+  });
+  fireEvent.click(screen.getByRole('link', { name: /subscribe/i }));
+  await waitFor(() => expect(pushMock).toHaveBeenCalledWith(expectedUrl));
+  ```
+
 ## Commit & Pull Request Guidelines
 - Branch from `develop` using `feature/<kebab-case>` or `fix/<kebab-case>` naming.
 - Commit messages follow `type: concise summary` (`feat`, `fix`, `docs`, `chore`, etc.) as described in `docs/reference/CONTRIBUTING.md`.

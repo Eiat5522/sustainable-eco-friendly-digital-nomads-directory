@@ -1,5 +1,4 @@
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { useRouter } from 'next/navigation';
 import { Footer } from '../Footer';
 
@@ -37,10 +36,10 @@ describe('Footer', () => {
 
   it('shows validation feedback when subscribing with an invalid email', async () => {
     render(<Footer />);
-    const user = userEvent.setup();
 
-    await user.type(screen.getByLabelText(/email address/i), 'not-an-email');
-    await user.click(screen.getByRole('link', { name: /subscribe/i }));
+    const emailField = screen.getByLabelText(/email address/i);
+    fireEvent.change(emailField, { target: { value: 'not-an-email' } });
+    fireEvent.click(screen.getByRole('link', { name: /subscribe/i }));
 
     expect(pushMock).not.toHaveBeenCalled();
     expect(await screen.findByRole('alert')).toHaveTextContent(
@@ -50,11 +49,10 @@ describe('Footer', () => {
 
   it('passes the email to the contact route when a valid address is provided', async () => {
     render(<Footer />);
-    const user = userEvent.setup();
 
     const emailField = screen.getByLabelText(/email address/i);
-    await user.type(emailField, 'eco.nomad@example.com');
-    await user.click(screen.getByRole('link', { name: /subscribe/i }));
+    fireEvent.change(emailField, { target: { value: 'eco.nomad@example.com' } });
+    fireEvent.click(screen.getByRole('link', { name: /subscribe/i }));
 
     expect(pushMock).toHaveBeenCalledWith(
       '/contact-us?type=newsletter&email=eco.nomad%40example.com'

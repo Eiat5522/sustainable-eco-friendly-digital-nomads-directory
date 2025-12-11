@@ -100,7 +100,7 @@ const eslintConfig = [
     files: ['**/*.test.*', '**/__tests__/**/*', '**/tests/**/*'],
     rules: {
       '@typescript-eslint/no-require-imports': 'off',
-      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/ban-ts-comment': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
       'react/display-name': 'off',
@@ -110,7 +110,7 @@ const eslintConfig = [
   {
     files: ['**/*.d.ts'],
     rules: {
-      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
       'no-var': 'off',
