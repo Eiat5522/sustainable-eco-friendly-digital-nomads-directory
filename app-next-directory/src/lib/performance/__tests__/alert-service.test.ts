@@ -168,9 +168,11 @@ describe('performance alert service', () => {
   });
 
   it('returns null when dispatching a channel throws an error', async () => {
-    consoleErrorSpy.mockImplementationOnce(() => {
-      throw new Error('logger failure');
-    });
+    process.env.NODE_ENV = 'production';
+    const slackConfig = ALERT_DESTINATION_CONFIG[NOTIFICATION_CHANNELS.SLACK];
+    slackConfig.webhook = 'https://hooks.slack.test';
+    slackConfig.channel = '#alerts';
+    fetchMock.mockRejectedValueOnce(new Error('network unavailable'));
 
     const result = await processMetricForAlert('pageLoad', 'FCP', 4200);
 

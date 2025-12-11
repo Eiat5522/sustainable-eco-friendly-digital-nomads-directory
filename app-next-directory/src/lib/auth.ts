@@ -228,10 +228,13 @@ const nextAuthInstance = (() => {
     // an `auth` helper that returns null during build-time so callers can handle
     // unauthenticated flows instead of crashing.
     return {
-      handlers: { GET: async () => new Response(''), POST: async () => new Response('') },
+      handlers: {
+        GET: async (_request?: Request) => new Response(''),
+        POST: async (_request?: Request) => new Response(''),
+      },
       auth: async () => null,
     } as {
-      handlers: { GET: () => Promise<Response>; POST: () => Promise<Response> };
+      handlers: { GET: (request: Request) => Promise<Response>; POST: (request: Request) => Promise<Response> };
       auth: () => Promise<null>;
     };
   }
@@ -240,7 +243,7 @@ const nextAuthInstance = (() => {
 export const {
   handlers: { GET, POST },
 } = nextAuthInstance as {
-  handlers: { GET: () => Promise<Response>; POST: () => Promise<Response> };
+  handlers: { GET: (request: Request) => Promise<Response>; POST: (request: Request) => Promise<Response> };
 };
 
 // Wrap the original `auth` export to guard against `headers()` rejections

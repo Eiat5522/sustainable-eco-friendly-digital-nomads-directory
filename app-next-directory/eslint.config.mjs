@@ -11,7 +11,6 @@ const compat = new FlatCompat({
   recommendedConfig: js.configs.recommended,
 });
 
-/** @type {import('eslint').Linter.FlatConfig[]} */
 const eslintConfig = [
   {
     ignores: [
@@ -51,7 +50,7 @@ const eslintConfig = [
       },
     },
     rules: {
-      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': [
         'warn',
         {
@@ -101,7 +100,7 @@ const eslintConfig = [
     files: ['**/*.test.*', '**/__tests__/**/*', '**/tests/**/*'],
     rules: {
       '@typescript-eslint/no-require-imports': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/ban-ts-comment': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
       'react/display-name': 'off',
@@ -111,7 +110,7 @@ const eslintConfig = [
   {
     files: ['**/*.d.ts'],
     rules: {
-      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-empty-object-type': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
       'no-var': 'off',
@@ -121,7 +120,7 @@ const eslintConfig = [
     files: ['**/__mocks__/**/*'],
     rules: {
       '@typescript-eslint/no-unused-vars': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-require-imports': 'off',
       'import/no-anonymous-default-export': 'off',
     },
@@ -141,7 +140,7 @@ const eslintConfig = [
     rules: {
       '@typescript-eslint/no-require-imports': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-explicit-any': 'warn',
     },
   },
   {

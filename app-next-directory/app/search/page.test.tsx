@@ -50,21 +50,21 @@ jest.mock('./results/server', () => ({
 }));
 
 let SearchPage: typeof import('./page').default;
-let dynamicExport: string;
+let dynamicExport: string | undefined;
 
-beforeAll(async () => {
-  const pageModule = await import('./page');
-  SearchPage = pageModule.default;
-  dynamicExport = pageModule.dynamic;
-});
+  beforeAll(async () => {
+    const pageModule = await import('./page');
+    SearchPage = pageModule.default;
+    dynamicExport = (pageModule as { dynamic?: string }).dynamic;
+  });
 
 describe('SearchPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('exposes a force-dynamic rendering hint', () => {
-    expect(dynamicExport).toBe('force-dynamic');
+it('no longer exports a dynamic rendering hint with cache components', () => {
+    expect(dynamicExport).toBeUndefined();
   });
 
   it('renders search results using backend data and forwards params to filters', async () => {

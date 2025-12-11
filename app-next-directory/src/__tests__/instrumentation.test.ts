@@ -123,6 +123,7 @@ describe('instrumentation register', () => {
   });
 
   it('logs the failure context and exits the process for critical production errors', async () => {
+    process.env.NODE_ENV = 'production';
     await register();
 
     const exceptionHandler = listeners.uncaughtException;

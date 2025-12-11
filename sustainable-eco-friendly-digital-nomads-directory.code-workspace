@@ -44,6 +44,7 @@
       }
     ],
     "terminal.integrated.defaultProfile.linux": "bash",
-    "chatgpt.runCodexInWindowsSubsystemForLinux": true
+    "chatgpt.runCodexInWindowsSubsystemForLinux": true,
+    "typescript.tsdk": "app-next-directory/node_modules/typescript/lib"
   }
 }

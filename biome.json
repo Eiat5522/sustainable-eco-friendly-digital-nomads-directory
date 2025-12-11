@@ -99,7 +99,7 @@
       "linter": {
         "rules": {
           "suspicious": {
-            "noExplicitAny": "off",
+            "noExplicitAny": "warn",
             "noConsole": "off"
           },
           "correctness": {

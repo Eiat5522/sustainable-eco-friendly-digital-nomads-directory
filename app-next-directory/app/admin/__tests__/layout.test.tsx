@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 
 jest.mock('@/lib/auth', () => ({
   auth: jest.fn(),
@@ -13,20 +13,27 @@ jest.mock('next/navigation', () => ({
 const mockAuth = jest.requireMock('@/lib/auth').auth as jest.Mock;
 
 describe('Admin layout', () => {
-  beforeEach(() => {
+  let AdminLayout: typeof import('../layout').default;
+  let AdminShell: typeof import('../layout').AdminShell;
+
+  beforeEach(async () => {
     jest.clearAllMocks();
+    const layoutModule = await import('../layout');
+    AdminLayout = layoutModule.default;
+    AdminShell = layoutModule.AdminShell;
   });
 
   it('renders navigation for admin and super admin users', async () => {
-    mockAuth.mockResolvedValueOnce({
+    mockAuth.mockResolvedValue({
       user: { id: 'user-1', role: 'admin' },
     });
-    const AdminLayout = (await import('../layout')).default;
 
-    const tree = await AdminLayout({ children: <div data-testid="layout-child">Child</div> });
-    render(tree);
-
-    expect(screen.getByText('Admin Panel')).toBeInTheDocument();
+    const shell = await AdminShell({ children: <div data-testid="layout-child">Child</div> });
+    await act(async () => {
+      render(shell);
+    });
+    const panel = await screen.findByText('Admin Panel', undefined, { timeout: 5000 });
+    expect(panel).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /dashboard/i })).toHaveAttribute(
       'href',
       '/admin/dashboard'
@@ -36,16 +43,14 @@ describe('Admin layout', () => {
   });
 
   it('redirects non-admin users to the login page', async () => {
-    mockAuth.mockResolvedValueOnce({
+    mockAuth.mockResolvedValue({
       user: { id: 'user-2', role: 'user' },
     });
     redirectMock.mockImplementation(() => {
       throw new Error('redirect');
     });
 
-    const AdminLayout = (await import('../layout')).default;
-
-    await expect(AdminLayout({ children: <div /> })).rejects.toThrow('redirect');
+    await expect(AdminShell({ children: <div /> })).rejects.toThrow('redirect');
     expect(redirectMock).toHaveBeenCalledWith('/auth/login');
   });
 });

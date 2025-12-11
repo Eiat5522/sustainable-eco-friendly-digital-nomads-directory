@@ -19,7 +19,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   );
 }
 
-async function AdminShell({ children }: { children: React.ReactNode }) {
+export async function AdminShell({ children }: { children: React.ReactNode }) {
   const session = await auth();
   const role = session?.user?.role;
 

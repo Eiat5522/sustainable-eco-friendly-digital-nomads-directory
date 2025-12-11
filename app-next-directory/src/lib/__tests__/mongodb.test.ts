@@ -90,25 +90,25 @@ describe('mongodb client module', () => {
     await expect(mod.default).rejects.toThrow('Please add your MongoDB URI to .env.development');
   });
 
-    it('reuses a single connection promise in development mode', async () => {
-      mockConnect.mockResolvedValue({ connected: true });
-      mockMongoClient.mockImplementation(() => ({ connect: mockConnect }));
+  it('reuses a single connection promise in development mode', async () => {
+    jest.resetModules();
+    mockConnect.mockResolvedValue({ connected: true });
+    mockMongoClient.mockImplementation(() => ({ connect: mockConnect }));
 
-      process.env.NODE_ENV = 'development';
-      process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
-      delete process.env.E2E;
+    process.env.NODE_ENV = 'development';
+    process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
+    delete process.env.E2E;
 
-      const first = await import('../mongodb');
-      const second = await import('../mongodb');
+    const first = await import('../mongodb');
+    const second = await import('../mongodb');
 
-      await first.default;
-      await second.default;
+    await first.default;
+    await second.default;
 
-      expect(mockMongoClient).toHaveBeenCalledTimes(1);
-      expect(mockConnect).toHaveBeenCalledTimes(1);
-      expect((global as any)._mongoClientPromise).toBeDefined();
-    });
-
+    expect(mockMongoClient).toHaveBeenCalledTimes(1);
+    expect(mockConnect).toHaveBeenCalledTimes(1);
+    expect((global as any)._mongoClientPromise).toBeDefined();
+  });
   it('logs and rethrows connection errors outside of development caching', async () => {
     jest.resetModules();
     const error = new Error('boom');
