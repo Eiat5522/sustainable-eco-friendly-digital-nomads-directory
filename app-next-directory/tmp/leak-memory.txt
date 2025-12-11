@@ -1,0 +1,810 @@
+Summary of all failing tests
+ FAIL  src/components/search/__tests__/DigitalNomadSearch.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  app/admin/listings/__tests__/ListingsManagementTable.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/layout/__tests__/Header.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  app/auth/login/__tests__/LoginForm.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/search/__tests__/SearchForm.unit.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/__tests__/CommentForm.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/listings/__tests__/ListingDetailsCard.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  app/admin/settings/__tests__/SettingsForm.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  app/dashboard/components/__tests__/VenueListingForm.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/auth/__tests__/SocialAuthRow.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/sections/__tests__/FeaturedListings.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  app/auth/signup/__tests__/SignupPageContent.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/listings/__tests__/RelatedListings.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/listings/__tests__/ListingGrid.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  app/test/search/__tests__/page.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/favorites/__tests__/FavoriteButton.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/layout/__tests__/Footer.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  app/admin/users/__tests__/UserManagementTable.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/listings/__tests__/ReviewsSection.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/mocks/__tests__/handlers-server.test.ts
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/ui/__tests__/filter-multi-select.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/search/__tests__/FiltersSidebar.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  app/dashboard/components/__tests__/VenueListingManagement.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  app/cities/[slug]/page.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/ui/__tests__/StarRating.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  app/contact-us/__tests__/page.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/search/__tests__/DigitalNomadSearchFilter.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/middleware/__tests__/cache.test.ts
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/profile/__tests__/ProfileEditForm.component.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/ui/__tests__/InteractiveMap.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/listings/__tests__/GalleryGrid.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/ui/__tests__/city-carousel-wave.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/sections/__tests__/AboutSection.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/ui/__tests__/ImageCarousel.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/listings/__tests__/HeroSection.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/ui/__tests__/select.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  app/search/page.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/ui/__tests__/VenueCard.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/sections/__tests__/TestimonialsSection.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/ui/__tests__/skip-link.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/__tests__/AnimatedNumber.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/ui/__tests__/label.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/utils/__tests__/rate-limit.test.ts
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  app/api/reviews/[reviewId]/vote/route.test.ts
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/search/__tests__/SearchBox.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/components/listings/__tests__/NoListingsFound.test.tsx
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+ FAIL  src/models/__tests__/mongoose-mock.guard.test.ts
+  ● Test suite failed to run
+
+    EXPERIMENTAL FEATURE!
+    Your test suite is leaking memory. Please ensure all references are cleaned.
+
+    There is a number of things that can leak memory:
+      - Async operations that have not finished (e.g. fs.readFile).
+      - Timers not properly mocked (e.g. setInterval, setTimeout).
+      - Keeping references to the global scope.
+
+      at onResult (../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:150:18)
+      at ../node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:254:19
+      at ../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:363:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (../node_modules/.pnpm/emittery@0.13.1/node_modules/emittery/index.js:361:23)
+
+
+Test Suites: 47 failed, 284 passed, 331 total
+Tests:       3200 passed, 3200 total
+Snapshots:   0 total
+Time:        283.092 s
+Ran all test suites.
+/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  app-next-directory@0.1.0 test:unit: `cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --runInBand --passWithNoTests --detectLeaks --runInBand --detectOpenHandles --coverage`
+Exit status 1
+ ELIFECYCLE  Command failed with exit code 1.
