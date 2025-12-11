@@ -1,6 +1,7 @@
 jest.mock('broadcast-channel', () => {
   type MessageEvent = { data: unknown; type: 'message' };
   type MessageListener = (event: MessageEvent) => void;
+  type BroadcastChannelWithCleanup = typeof BroadcastChannel & { __cleanup: () => void };
 
   // Store all instances to clean them up
   const instances: Set<BroadcastChannel> = new Set();
@@ -47,7 +48,7 @@ jest.mock('broadcast-channel', () => {
   }
 
   // Export cleanup function for afterEach
-  (BroadcastChannel as typeof BroadcastChannel & { __cleanup: () => void }).__cleanup = () => {
+  (BroadcastChannel as BroadcastChannelWithCleanup).__cleanup = () => {
     for (const instance of instances) {
       instance.close();
     }
@@ -379,9 +380,10 @@ afterEach(async () => {
   
   // Clean up BroadcastChannel instances
   try {
-    const { BroadcastChannel } = require('broadcast-channel');
-    if (BroadcastChannel && typeof (BroadcastChannel as { __cleanup?: () => void }).__cleanup === 'function') {
-      (BroadcastChannel as { __cleanup: () => void }).__cleanup();
+    const bcModule = await import('broadcast-channel');
+    const BC = bcModule.BroadcastChannel || bcModule.default;
+    if (BC && typeof (BC as { __cleanup?: () => void }).__cleanup === 'function') {
+      (BC as { __cleanup: () => void }).__cleanup();
     }
   } catch (e) {
     // Ignore if broadcast-channel is not loaded

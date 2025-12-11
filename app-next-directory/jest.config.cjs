@@ -139,7 +139,10 @@ module.exports = {
   // Increase test timeout to allow for proper cleanup
   testTimeout: 10000,
 
-  // Run tests in band (serial) to avoid race conditions
+  // Run tests serially to avoid race conditions and worker-related flakiness
+  // Note: This is intentional for test reliability. The test suite is fast enough
+  // that parallel execution is not necessary. If needed in the future, consider
+  // using --maxWorkers=<n> on the command line for specific runs.
   maxWorkers: 1,
 
   setupFiles: ['<rootDir>/jest/setEnvVars.js', '<rootDir>/next.setup.ts'],
