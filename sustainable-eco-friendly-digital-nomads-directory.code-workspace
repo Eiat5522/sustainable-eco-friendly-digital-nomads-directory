@@ -45,6 +45,9 @@
     ],
     "terminal.integrated.defaultProfile.linux": "bash",
     "chatgpt.runCodexInWindowsSubsystemForLinux": true,
-    "typescript.tsdk": "app-next-directory/node_modules/typescript/lib"
+    "typescript.tsdk": "app-next-directory/node_modules/typescript/lib",
+    "astGrep.configPath": "/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/sgconfig.yml",
+    "astGrep.serverPath": "/home/eiat/.nvm/versions/node/v22.21.0/bin/typescript-language-server",
+    "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
   }
 }
