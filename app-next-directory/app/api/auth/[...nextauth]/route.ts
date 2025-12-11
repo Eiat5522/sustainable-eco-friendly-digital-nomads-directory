@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     });
     structuredLogger.info('[auth route] incoming GET');
   }
-  return authGET(request);
+  return authGET();
 }
 
 export async function POST(request: Request) {
@@ -30,5 +30,5 @@ export async function POST(request: Request) {
     });
     structuredLogger.info('[auth route] incoming POST');
   }
-  return authPOST(request);
+  return authPOST();
 }

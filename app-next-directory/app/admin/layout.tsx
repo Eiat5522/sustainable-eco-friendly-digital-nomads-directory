@@ -1,10 +1,25 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
 import type React from 'react';
 
 import { auth } from '@/lib/auth';
 
-export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+const fallbackLoading = (
+  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="px-6 py-4 text-sm text-gray-500">Loading admin console…</div>
+  </div>
+);
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={fallbackLoading}>
+      <AdminShell>{children}</AdminShell>
+    </Suspense>
+  );
+}
+
+async function AdminShell({ children }: { children: React.ReactNode }) {
   const session = await auth();
   const role = session?.user?.role;
 

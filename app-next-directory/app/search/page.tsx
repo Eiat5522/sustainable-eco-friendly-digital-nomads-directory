@@ -11,9 +11,6 @@ import { buildSearchHref, MAX_PARAM_VALUE_LENGTH } from './results/shared';
 
 type SearchPageProps = { searchParams?: Promise<SearchParamRecord> };
 
-// Force dynamic rendering to satisfy downstream consumers and test expectations.
-export const dynamic = 'force-dynamic';
-
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const resolvedSearchParams = (await searchParams) ?? {};
   const basePath = '/search';

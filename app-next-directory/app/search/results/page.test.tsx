@@ -42,12 +42,12 @@ jest.mock('./server', () => ({
 
 describe('Search results page module', () => {
   let ResultsPage: typeof import('./page')['default'];
-  let dynamic: typeof import('./page')['dynamic'] | undefined;
+  let dynamic: unknown;
 
   beforeAll(async () => {
     const mod = await import('./page');
     ResultsPage = mod.default;
-    dynamic = mod.dynamic;
+    dynamic = (mod as Record<string, unknown>)['dynamic'];
   });
 
   beforeEach(() => {

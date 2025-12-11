@@ -9,11 +9,11 @@ type HeadersLike = HeadersInit | Record<string, string> | [string, string][];
 type NextResponseInit = { status?: number; headers?: HeadersInit };
 
 if (!globalThis.TextEncoder) {
-  globalThis.TextEncoder = TextEncoder;
+  globalThis.TextEncoder = TextEncoder as unknown as typeof globalThis.TextEncoder;
 }
 
 if (!globalThis.TextDecoder) {
-  globalThis.TextDecoder = TextDecoder;
+  globalThis.TextDecoder = TextDecoder as unknown as typeof globalThis.TextDecoder;
 }
 
 const needsNodeFetchFallback =
@@ -23,9 +23,15 @@ const needsNodeFetchFallback =
 if (needsNodeFetchFallback) {
   import('node-fetch')
     .then(nodeFetch => {
-      if (!globalThis.Request) globalThis.Request = nodeFetch.Request;
-      if (!globalThis.Response) globalThis.Response = nodeFetch.Response;
-      if (!globalThis.Headers) globalThis.Headers = nodeFetch.Headers;
+      if (!globalThis.Request) {
+        globalThis.Request = nodeFetch.Request as unknown as typeof Request;
+      }
+      if (!globalThis.Response) {
+        globalThis.Response = nodeFetch.Response as unknown as typeof Response;
+      }
+      if (!globalThis.Headers) {
+        globalThis.Headers = nodeFetch.Headers as unknown as typeof Headers;
+      }
     })
     .catch(() => {
       // Skip if node-fetch cannot be loaded (e.g., ESM-only under the current Jest runtime)
@@ -70,6 +76,9 @@ const createHeaders = (init?: HeadersInit): Headers => {
     },
     set(key: string, value: string) {
       map.set(key, String(value));
+    },
+    getSetCookie() {
+      return [];
     },
     forEach(callbackfn: (value: string, key: string, parent: Headers) => void, thisArg?: unknown) {
       for (const [key, value] of map.entries()) {
