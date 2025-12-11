@@ -136,6 +136,12 @@ module.exports = {
     enableGlobally: false,
   },
 
+  // Increase test timeout to allow for proper cleanup
+  testTimeout: 10000,
+
+  // Run tests in band (serial) to avoid race conditions
+  maxWorkers: 1,
+
   setupFiles: ['<rootDir>/jest/setEnvVars.js', '<rootDir>/next.setup.ts'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
 
