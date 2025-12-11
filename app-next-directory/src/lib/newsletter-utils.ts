@@ -61,11 +61,12 @@ async function memoryIncr(key: string, ttlSeconds: number): Promise<number> {
   return next;
 }
 
-// Add periodic cleanup for memory store
+// Add periodic cleanup for memory store. Avoid keeping timers alive in Jest
+// to prevent open handle / leak detections across the unit suite.
 let cleanupInterval: ReturnType<typeof setInterval> | null = null;
 
 function startMemoryCleanup() {
-  if (cleanupInterval) return;
+  if (cleanupInterval || process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID) return;
   // Periodically purge expired entries from the in-memory store
   cleanupInterval = setInterval(() => {
     const now = Date.now();
@@ -73,6 +74,7 @@ function startMemoryCleanup() {
       if (now > entry.expiresAt) memoryStore.delete(key);
     }
   }, 60_000);
+  cleanupInterval.unref?.();
 }
 
 export function _clearMemoryStore() {
