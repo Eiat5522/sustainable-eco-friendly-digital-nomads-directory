@@ -2,6 +2,9 @@ jest.mock('broadcast-channel', () => {
   type MessageEvent = { data: unknown; type: 'message' };
   type MessageListener = (event: MessageEvent) => void;
 
+  // Store all instances to clean them up
+  const instances: Set<BroadcastChannel> = new Set();
+
   class BroadcastChannel {
     public name: string;
     #listeners: Set<MessageListener> = new Set();
@@ -9,6 +12,7 @@ jest.mock('broadcast-channel', () => {
 
     constructor(name: string) {
       this.name = name;
+      instances.add(this);
     }
 
     postMessage(message: unknown): void {
@@ -37,8 +41,18 @@ jest.mock('broadcast-channel', () => {
 
     close(): void {
       this.#listeners.clear();
+      this.#onmessageHandler = null;
+      instances.delete(this);
     }
   }
+
+  // Export cleanup function for afterEach
+  (BroadcastChannel as typeof BroadcastChannel & { __cleanup: () => void }).__cleanup = () => {
+    for (const instance of instances) {
+      instance.close();
+    }
+    instances.clear();
+  };
 
   return { __esModule: true, BroadcastChannel, default: BroadcastChannel };
 });
@@ -342,10 +356,33 @@ if (process.env.JEST_CONSOLE_NO_FILTER !== '1') {
 // jest.setup.ts
 import { jest } from '@jest/globals';
 import '@testing-library/jest-dom';
+import { cleanup } from '@testing-library/react';
 import { createTestData } from './src/tests/helpers/test-data';
 
 // Provide deterministic dataset for unit tests
 (global as Record<string, unknown>).__TEST_DATA__ = createTestData();
+
+// Add automatic cleanup after each test to prevent memory leaks
+afterEach(async () => {
+  cleanup();
+  // Clear all timers to prevent memory leaks
+  jest.clearAllTimers();
+  // Clear all mocks to release references
+  jest.clearAllMocks();
+  
+  // Clean up BroadcastChannel instances
+  try {
+    const { BroadcastChannel } = require('broadcast-channel');
+    if (BroadcastChannel && typeof (BroadcastChannel as { __cleanup?: () => void }).__cleanup === 'function') {
+      (BroadcastChannel as { __cleanup: () => void }).__cleanup();
+    }
+  } catch (e) {
+    // Ignore if broadcast-channel is not loaded
+  }
+  
+  // Flush any pending promises to prevent memory leaks
+  await new Promise(resolve => setImmediate(resolve));
+});
 
 // Ensure real mongoose never loads under jsdom/unit runs.
 // The Jest config maps `mongoose` to our manual implementation, so avoid calling
@@ -428,12 +465,20 @@ if (!skipMSW) {
 
   afterEach(async () => {
     const server = await serverPromise;
-    if (server) server.resetHandlers();
+    if (server) {
+      server.resetHandlers();
+      // Ensure all pending requests are completed
+      await new Promise(resolve => setImmediate(resolve));
+    }
   });
 
   afterAll(async () => {
     const server = await serverPromise;
-    if (server) server.close();
+    if (server) {
+      server.close();
+      // Wait for server to fully close
+      await new Promise(resolve => setImmediate(resolve));
+    }
   });
 }
 

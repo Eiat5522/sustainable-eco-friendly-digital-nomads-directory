@@ -130,6 +130,12 @@ module.exports = {
     customExportConditions: ['node', 'node-addons'],
   },
 
+  // Use real timers by default to avoid memory leaks with fake timers
+  // Tests that need fake timers should call jest.useFakeTimers() explicitly
+  fakeTimers: {
+    enableGlobally: false,
+  },
+
   setupFiles: ['<rootDir>/jest/setEnvVars.js', '<rootDir>/next.setup.ts'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
 
