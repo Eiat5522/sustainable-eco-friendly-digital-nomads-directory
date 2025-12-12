@@ -1,6 +1,10 @@
 jest.mock('broadcast-channel', () => {
   type MessageEvent = { data: unknown; type: 'message' };
   type MessageListener = (event: MessageEvent) => void;
+  type BroadcastChannelWithCleanup = typeof BroadcastChannel & { __cleanup: () => void };
+
+  // Store all instances to clean them up
+  const instances: Set<BroadcastChannel> = new Set();
 
   class BroadcastChannel {
     public name: string;
@@ -9,6 +13,7 @@ jest.mock('broadcast-channel', () => {
 
     constructor(name: string) {
       this.name = name;
+      instances.add(this);
     }
 
     postMessage(message: unknown): void {
@@ -37,8 +42,18 @@ jest.mock('broadcast-channel', () => {
 
     close(): void {
       this.#listeners.clear();
+      this.#onmessageHandler = null;
+      instances.delete(this);
     }
   }
+
+  // Export cleanup function for afterEach
+  (BroadcastChannel as BroadcastChannelWithCleanup).__cleanup = () => {
+    for (const instance of instances) {
+      instance.close();
+    }
+    instances.clear();
+  };
 
   return { __esModule: true, BroadcastChannel, default: BroadcastChannel };
 });
@@ -342,10 +357,46 @@ if (process.env.JEST_CONSOLE_NO_FILTER !== '1') {
 // jest.setup.ts
 import { jest } from '@jest/globals';
 import '@testing-library/jest-dom';
+import { cleanup } from '@testing-library/react';
 import { createTestData } from './src/tests/helpers/test-data';
 
 // Provide deterministic dataset for unit tests
-(global as Record<string, unknown>).__TEST_DATA__ = createTestData();
+// Use a function instead of storing on global to avoid memory leaks
+const testDataCache = createTestData();
+Object.defineProperty(global, '__TEST_DATA__', {
+  get() {
+    return testDataCache;
+  },
+  configurable: true,
+});
+
+// Add automatic cleanup after each test to prevent memory leaks
+afterEach(async () => {
+  cleanup();
+  // Clear all timers to prevent memory leaks
+  jest.clearAllTimers();
+  // Clear all mocks to release references
+  jest.clearAllMocks();
+  
+  // Clean up BroadcastChannel instances
+  try {
+    const bcModule = await import('broadcast-channel');
+    const BC = bcModule.BroadcastChannel || bcModule.default;
+    if (BC && typeof (BC as { __cleanup?: () => void }).__cleanup === 'function') {
+      (BC as { __cleanup: () => void }).__cleanup();
+    }
+  } catch (e) {
+    // Ignore if broadcast-channel is not loaded
+  }
+  
+  // Run garbage collection if available (with --expose-gc flag)
+  if (global.gc) {
+    global.gc();
+  }
+  
+  // Flush any pending promises to prevent memory leaks
+  await new Promise(resolve => setTimeout(resolve, 0));
+});
 
 // Ensure real mongoose never loads under jsdom/unit runs.
 // The Jest config maps `mongoose` to our manual implementation, so avoid calling
@@ -404,36 +455,57 @@ if (process.env.JEST_RUN_INTEGRATION === '1' && process.env.JEST_USE_REAL_MONGOO
 // Skip MSW setup for model/database tests that use real mongoose
 const skipMSW = process.env.JEST_USE_REAL_MONGOOSE === '1';
 if (!skipMSW) {
-  const serverPromise = import('./src/mocks/server')
-    .then(({ server }) => server)
-    .catch(e => {
-      const code = (e as { code?: string })?.code;
-      const msg = (e as Error)?.message ?? '';
-      const isModuleNotFound = code === 'MODULE_NOT_FOUND' || code === 'ERR_MODULE_NOT_FOUND';
-      if (
-        isModuleNotFound &&
-        (msg.includes('__mocks__/server') || msg.includes('./__mocks__/server'))
-      ) {
-        return null;
-      }
-      throw e;
-    });
+  // Store server in a way that allows cleanup without holding references
+  let serverInstance: { listen: (opts: unknown) => void; resetHandlers: () => void; close: () => void } | null = null;
+  let serverPromise: Promise<typeof serverInstance> | null = null;
+
+  const getServer = () => {
+    if (!serverPromise) {
+      serverPromise = import('./src/mocks/server')
+        .then(({ server }) => {
+          serverInstance = server;
+          return server;
+        })
+        .catch(e => {
+          const code = (e as { code?: string })?.code;
+          const msg = (e as Error)?.message ?? '';
+          const isModuleNotFound = code === 'MODULE_NOT_FOUND' || code === 'ERR_MODULE_NOT_FOUND';
+          if (
+            isModuleNotFound &&
+            (msg.includes('__mocks__/server') || msg.includes('./__mocks__/server'))
+          ) {
+            return null;
+          }
+          throw e;
+        });
+    }
+    return serverPromise;
+  };
 
   beforeAll(async () => {
-    const server = await serverPromise;
+    const server = await getServer();
     if (server) {
       server.listen({ onUnhandledRequest: 'bypass' });
     }
   });
 
   afterEach(async () => {
-    const server = await serverPromise;
-    if (server) server.resetHandlers();
+    if (serverInstance) {
+      serverInstance.resetHandlers();
+      // Ensure all pending requests are completed
+      await new Promise(resolve => setTimeout(resolve, 0));
+    }
   });
 
   afterAll(async () => {
-    const server = await serverPromise;
-    if (server) server.close();
+    if (serverInstance) {
+      serverInstance.close();
+      // Wait for server to fully close
+      await new Promise(resolve => setTimeout(resolve, 0));
+      // Clear references
+      serverInstance = null;
+      serverPromise = null;
+    }
   });
 }
 

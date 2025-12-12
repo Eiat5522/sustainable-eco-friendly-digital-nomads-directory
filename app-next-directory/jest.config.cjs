@@ -130,6 +130,21 @@ module.exports = {
     customExportConditions: ['node', 'node-addons'],
   },
 
+  // Use real timers by default to avoid memory leaks with fake timers
+  // Tests that need fake timers should call jest.useFakeTimers() explicitly
+  fakeTimers: {
+    enableGlobally: false,
+  },
+
+  // Increase test timeout to allow for proper cleanup
+  testTimeout: 10000,
+
+  // Run tests serially to avoid race conditions and worker-related flakiness
+  // Note: This is intentional for test reliability. The test suite is fast enough
+  // that parallel execution is not necessary. If needed in the future, consider
+  // using --maxWorkers=<n> on the command line for specific runs.
+  maxWorkers: 1,
+
   setupFiles: ['<rootDir>/jest/setEnvVars.js', '<rootDir>/next.setup.ts'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
 
