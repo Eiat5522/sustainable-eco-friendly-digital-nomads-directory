@@ -1,15 +1,16 @@
-id: no-async-promise-executor
-message: Promise executor functions should not be async.
-severity: warning
-language: TypeScript
+id: find-ref-without-unref
+alias: find ref() calls that are not balanced by unref()
+language: javascript # Adjust language as needed (e.g., typescript, rust, cpp)
 rule:
   all:
-    - pattern: $A
-    - any:
-        - kind: function_expression
-        - kind: arrow_function
-    - regex: ^async
-    - inside:
-        stopBy: end
-        pattern: new Promise($A)
-note: Disallow using an async function as a Promise executor
+    # 1. Find all occurrences of the ref() function call
+    - pattern: ref()
+    # 2. Ensure that an unref() call does NOT exist in the same scope or a relevant parent scope
+    - not:
+        has:
+          # Match unref() calls
+          pattern: unref()
+          # This config is crucial. 
+          # stopBy neighbor is default, you may need to adjust the scope depending on your code's structure. 
+          # For example, to check within the same function or block.
+          stopBy: end 

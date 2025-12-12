@@ -1,0 +1,14 @@
+id: find-memory-leaks
+alias: Detect files that call `ref()` but never `unref()`
+language: TypeScript
+rule:
+  kind: program
+  has:
+    pattern: ref()
+    stopBy: end
+  not:
+    has:
+      pattern: unref()
+      stopBy: end
+message: ref() was called without any unref(), which likely keeps resources alive
+severity: error
