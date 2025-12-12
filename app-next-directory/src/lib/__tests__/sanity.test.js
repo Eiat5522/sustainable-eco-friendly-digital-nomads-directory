@@ -23,6 +23,7 @@ jest.mock('@sanity/image-url', () => ({
 
 describe('Sanity Library', () => {
   let client, previewClient, urlFor, getClient;
+  let recordedClientConfigs = [];
   const originalNodeEnv = process.env.NODE_ENV;
   const standardClientInstance = { id: 'standard' };
   const previewClientInstance = { id: 'preview' };
@@ -43,6 +44,7 @@ describe('Sanity Library', () => {
     previewClient = sanityModule.getClient(true);
     urlFor = sanityModule.urlFor;
     getClient = sanityModule.getClient;
+    recordedClientConfigs = mockCreateClient.mock.calls.map(([config]) => config);
   });
 
   afterAll(() => {
@@ -53,8 +55,8 @@ describe('Sanity Library', () => {
 
   describe('Initialization', () => {
     it('should create the standard client with production config (useCdn: true)', () => {
-      expect(mockCreateClient).toHaveBeenNthCalledWith(
-        1,
+      const config = recordedClientConfigs[0];
+      expect(config).toEqual(
         expect.objectContaining({
           projectId: 'test-project-id',
           dataset: 'test-dataset',
@@ -65,8 +67,8 @@ describe('Sanity Library', () => {
     });
 
     it('should create the preview client with preview config (useCdn: false)', () => {
-      expect(mockCreateClient).toHaveBeenNthCalledWith(
-        2,
+      const config = recordedClientConfigs[1];
+      expect(config).toEqual(
         expect.objectContaining({
           projectId: 'test-project-id',
           dataset: 'test-dataset',

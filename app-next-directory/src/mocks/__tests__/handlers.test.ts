@@ -158,8 +158,11 @@ describe('MSW Handlers', () => {
 
   describe('Test data integration', () => {
     it('should call createTestData when handlers module loads', () => {
-      // The module has already loaded, so createTestData should have been called
-      expect(createTestData).toHaveBeenCalled();
+      jest.isolateModules(() => {
+        const { createTestData: isolatedCreateTestData } = require('@/tests/helpers/test-data');
+        require('../handlers');
+        expect(isolatedCreateTestData).toHaveBeenCalled();
+      });
     });
 
     it('should have access to listings data', () => {
@@ -457,7 +460,11 @@ describe('MSW Handlers', () => {
 
   describe('Mock data structure', () => {
     it('should use createTestData function', () => {
-      expect(createTestData).toHaveBeenCalled();
+      jest.isolateModules(() => {
+        const { createTestData: isolatedCreateTestData } = require('@/tests/helpers/test-data');
+        require('../handlers');
+        expect(isolatedCreateTestData).toHaveBeenCalled();
+      });
     });
 
     it('should import required helper functions', () => {
