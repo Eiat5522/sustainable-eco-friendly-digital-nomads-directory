@@ -89,7 +89,7 @@ export async function withAuthMatrix(
 
     if (!hasPermission) {
       // Create redirect URL with return path
-      const url = new URL('/auth/signin', request.url);
+      const url = new URL('/login', request.url);
       url.searchParams.set('callbackUrl', encodeURI(pathname));
       url.searchParams.set('error', 'Authentication required');
 
@@ -231,7 +231,7 @@ export async function withMinimumRole(
     }
   } else {
     if (!token && requiredRole !== 'unidentifiedUser') {
-      const url = new URL('/auth/signin', request.url);
+      const url = new URL('/login', request.url);
       url.searchParams.set('callbackUrl', encodeURI(request.nextUrl.pathname));
       return NextResponse.redirect(url);
     }
@@ -284,7 +284,7 @@ export async function withAuth(
   });
 
   if (!token) {
-    const url = new URL('/auth/signin', request.url);
+    const url = new URL('/login', request.url);
     url.searchParams.set('callbackUrl', encodeURI(request.nextUrl.pathname));
     return NextResponse.redirect(url);
   }

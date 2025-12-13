@@ -13,14 +13,14 @@ export default async function DashboardPage() {
 
   // Redirect if not authenticated
   if (!session?.user?.id) {
-    redirect('/auth/signin?callbackUrl=/dashboard');
+    redirect('/login?callbackUrl=/dashboard');
   }
 
   // Get full user data from database using server function
   const user = await getUserById(session.user.id);
 
   if (!user) {
-    redirect('/auth/signin?error=user_not_found');
+    redirect('/login?error=user_not_found');
   }
 
   return (

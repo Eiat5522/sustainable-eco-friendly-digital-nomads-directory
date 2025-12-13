@@ -10,7 +10,7 @@ export const authOptions: AuthOptions = {
   },
   providers: [], // Add providers as needed (e.g., Google, GitHub)
   pages: {
-    signIn: '/auth/signin',
+    signIn: '/login',
     error: '/auth/error',
   },
   callbacks: {

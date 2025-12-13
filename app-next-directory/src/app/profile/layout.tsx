@@ -17,7 +17,7 @@ export default async function ProfileLayout({
 
   // Redirect if not authenticated
   if (!session) {
-    redirect('/auth/signin?callbackUrl=/profile');
+    redirect('/login?callbackUrl=/profile');
   }
 
   return (

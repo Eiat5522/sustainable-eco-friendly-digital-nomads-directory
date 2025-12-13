@@ -62,7 +62,7 @@ function AuthErrorPage() {
           </p>
         </div>
         <div className="mt-8 flex flex-col space-y-4">
-          <Link href="/auth/signin" className="text-green-600 hover:text-green-500 font-medium flex items-center justify-center space-x-2">
+          <Link href="/login" className="text-green-600 hover:text-green-500 font-medium flex items-center justify-center space-x-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-5 w-5"

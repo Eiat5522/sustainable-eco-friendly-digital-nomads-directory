@@ -71,7 +71,7 @@ export default function SignUpForm() {
       
       // Redirect to sign-in page after a delay
       setTimeout(() => {
-        router.push('/auth/signin');
+        router.push('/login');
       }, 2500);
     } catch (error) {
       console.error('Registration error:', error);

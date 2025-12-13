@@ -25,7 +25,7 @@ export default function AuthStatus() {
     return (
       <div className="flex items-center space-x-4">
         <Link 
-          href="/auth/signin" 
+          href="/login" 
           className="text-sm font-medium text-green-700 hover:text-green-800"
         >
           Sign in

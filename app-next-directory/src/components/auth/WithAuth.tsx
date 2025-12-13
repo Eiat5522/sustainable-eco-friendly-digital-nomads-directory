@@ -27,7 +27,7 @@ export default function WithAuth({
   }
 
   if (!session) {
-    router.push("/auth/signin");
+    router.push("/login");
     return fallback;
   }
 

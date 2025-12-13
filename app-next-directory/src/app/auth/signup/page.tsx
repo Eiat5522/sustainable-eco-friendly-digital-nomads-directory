@@ -22,7 +22,7 @@ function SignUpPage() {
         <div className="mt-6 text-center text-sm">
           <p className="text-gray-600">
             Already have an account?{' '}
-            <a href="/auth/signin" className="text-green-600 hover:text-green-500 font-medium">
+            <a href="/login" className="text-green-600 hover:text-green-500 font-medium">
               Sign in
             </a>
           </p>

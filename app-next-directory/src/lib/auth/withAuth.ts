@@ -17,7 +17,7 @@ export async function withAuth(
   // If no token and trying to access protected route
   if (!token) {
     // Create redirect URL with return path
-    const url = new URL('/auth/signin', request.url);
+    const url = new URL('/login', request.url);
     url.searchParams.set('callbackUrl', encodeURI(pathname));
     
     return NextResponse.redirect(url);

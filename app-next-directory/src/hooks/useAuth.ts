@@ -14,7 +14,7 @@ export function useRequireAuth(requiredRoles?: UserRole[]) {
     if (status === "loading") return;
 
     if (!session) {
-      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(pathname)}`);
+      router.push(`/login?callbackUrl=${encodeURIComponent(pathname)}`);
       return;
     }
 

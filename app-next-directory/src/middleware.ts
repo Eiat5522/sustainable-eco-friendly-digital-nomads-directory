@@ -43,7 +43,7 @@ export async function middleware(request: NextRequest) {
     }
 
     // Auth pages handling
-    const authPages = ['/auth/signin', '/auth/signup', '/auth/error'];
+    const authPages = ['/auth/signin', '/auth/signup', '/auth/error', '/login', '/register'];
     const isAuthPage = authPages.some(p => pathname.startsWith(p));
 
     if (isAuthPage && isAuthenticated) {
@@ -56,7 +56,7 @@ export async function middleware(request: NextRequest) {
 
     if (isProtectedRoute) {
       if (!isAuthenticated) {
-        const signInUrl = new URL('/auth/signin', request.url);
+        const signInUrl = new URL('/login', request.url);
         signInUrl.searchParams.set('callbackUrl', pathname);
         return NextResponse.redirect(signInUrl);
       }
