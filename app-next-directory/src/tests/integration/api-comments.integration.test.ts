@@ -1,36 +1,38 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
+const mockRevalidateTag = jest.fn();
 jest.mock('next/cache', () => ({
   __esModule: true,
-  revalidateTag: jest.fn(),
+  revalidateTag: mockRevalidateTag,
 }));
 
+const mockAuth = jest.fn();
 jest.mock('@/lib/auth', () => ({
-  auth: jest.fn(),
+  __esModule: true,
+  auth: mockAuth,
+  GET: jest.fn(),
+  POST: jest.fn(),
 }));
 
-jest.mock('@/lib/sanity/client', () => ({
-  client: {
-    fetch: jest.fn(),
-    create: jest.fn(),
-    getDocument: jest.fn(),
-  },
+// Mock Redis to prevent caching in integration tests
+jest.mock('@/lib/redis', () => ({
+  __esModule: true,
+  getRedisClient: jest.fn(() => undefined),
 }));
 
-import { auth } from '@/lib/auth';
-import { client } from '@/lib/sanity/client';
-import { ensureSanityUser } from '@/lib/sanity/user';
+const mockEnsureSanityUser = jest.fn();
+jest.mock('@/lib/sanity/user', () => ({
+  __esModule: true,
+  ensureSanityUser: mockEnsureSanityUser,
+}));
+
 import { GET, POST } from '../../../app/api/comments/route';
+import { client } from '@/lib/sanity/client';
 
-const mockAuth = auth as jest.MockedFunction<typeof auth>;
-const mockEnsureSanityUser = ensureSanityUser as unknown as {
-  mockReset?: () => void;
-  mockImplementation?: (fn: typeof ensureSanityUser) => void;
-  mockResolvedValueOnce?: (value: unknown) => typeof ensureSanityUser;
-};
-const mockClientFetch = client.fetch as jest.Mock;
-const mockClientCreate = client.create as jest.Mock;
-const mockClientGetDocument = client.getDocument as jest.Mock;
+// Get the actual mock instances created by the __mocks__/@sanity/client.ts mock
+const mockClientFetch = client.fetch as jest.MockedFunction<typeof client.fetch>;
+const mockClientCreate = client.create as jest.MockedFunction<(doc: unknown) => Promise<{ _id: string }>>;
+const mockClientGetDocument = client.getDocument as jest.MockedFunction<typeof client.getDocument>;
 const parseJson = async (response: Response) => ({
   status: response.status,
   body: await response.json(),
@@ -48,11 +50,10 @@ describe('API /api/comments integration', () => {
   };
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
 
     mockAuth.mockResolvedValue(session);
-    mockEnsureSanityUser.mockReset?.();
-    mockEnsureSanityUser.mockImplementation?.((async () => ({ _id: 'sanity-user-eco-1' })) as any);
+    mockEnsureSanityUser.mockResolvedValue({ _id: 'sanity-user-eco-1' });
     mockClientGetDocument.mockImplementation(async (id: string) => {
       if (id === postId) {
         return { _id: postId, slug: { current: 'sustainable-living' } };
@@ -63,7 +64,6 @@ describe('API /api/comments integration', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
-    mockEnsureSanityUser.mockReset?.();
   });
 
   it('returns populated comments for a blog post when approved entries exist', async () => {
@@ -140,8 +140,7 @@ describe('API /api/comments integration', () => {
       data: createdComment,
     });
 
-    const ensureCalls = (mockEnsureSanityUser as any)?.mock?.calls ?? [];
-    expect(ensureCalls[0]).toEqual({
+    expect(mockEnsureSanityUser).toHaveBeenCalledWith({
       id: 'user-eco-1',
       name: 'Taylor Traveler',
       email: 'taylor@example.com',

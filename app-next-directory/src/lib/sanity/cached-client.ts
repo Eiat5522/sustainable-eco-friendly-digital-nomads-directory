@@ -17,9 +17,9 @@ async function fetchAndCache<T>(
 
   if (redis) {
     try {
-      const cachedData = await redis.get<string>(key);
+      const cachedData = await redis.get<T>(key);
       if (cachedData) {
-        return JSON.parse(cachedData);
+        return cachedData;
       }
     } catch (error) {
       structuredLogger.warn('Cache read failed, falling through to fetch', error, {

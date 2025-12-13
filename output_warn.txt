@@ -1,41 +1,7 @@
-app-next-directory/src/instrumentation.ts:64:          structuredLogger.warn(
-app-next-directory/src/instrumentation.ts:89:        structuredLogger.warn('MongoDB connection issue detected. Continuing...', {
-app-next-directory/src/instrumentation.ts:97:        structuredLogger.warn(
-app-next-directory/src/lib/redis.ts:23:      structuredLogger.warn('[redis] listener threw error', error, { component: 'redis' });
-app-next-directory/src/lib/auth.ts:143:      structuredLogger.warn('[auth] signIn verification sync failed', error, {
-app-next-directory/src/lib/__tests__/logger.test.ts:314:      expect(typeof structuredLogger.warn).toBe('function');
-app-next-directory/src/lib/__tests__/sanity-http-client.test.ts:121:    expect(structuredLogger.warn).toHaveBeenCalledWith(
-app-next-directory/src/lib/sanity-http-client.ts:112:        structuredLogger.warn(`Missing optional environment variable: ${envVar}`, {
-app-next-directory/src/lib/email.ts:20:    structuredLogger.warn('[email] RESEND_API_KEY not set; skipping send', {
-app-next-directory/src/lib/logger.ts:444:          structuredLogger.warn(message, context);
-app-next-directory/src/lib/performance/performance-budgets.ts:85:    structuredLogger.warn(`Unknown performance metric: ${category}.${metric}`, {
-app-next-directory/src/lib/performance/performance-budgets.ts:105:    structuredLogger.warn(`Unknown performance metric: ${category}.${metric}`, {
-app-next-directory/src/lib/rate-limit.ts:32:    structuredLogger.warn('[rate-limit] Failed to initialize rate limiters', error, {
-app-next-directory/src/lib/rate-limit.ts:68:    structuredLogger.warn('[rate-limit] Error checking rate limit', error, {
-app-next-directory/src/lib/rate-limit.ts:89:    structuredLogger.warn('[rate-limit] Error getting retry after', error, {
-app-next-directory/src/lib/rate-limit.ts:122:    structuredLogger.warn('Jest not available for mocking in rate-limit module', {
-app-next-directory/src/lib/performance/plausible-integration.ts:80:    structuredLogger.warn('[Performance] Plausible Analytics not initialized', {
-app-next-directory/src/components/layout/Header.tsx:21:      structuredLogger.warn(
-app-next-directory/src/components/__tests__/MswInit.test.tsx:86:    expect(structuredLogger.warn).toHaveBeenCalledWith('[MSW] Failed to start worker', {
-app-next-directory/src/components/MswInit.tsx:21:        structuredLogger.warn('[MSW] Failed to start worker', {
-app-next-directory/src/lib/sanity/cached-client.ts:25:      structuredLogger.warn('Cache read failed, falling through to fetch', error, {
-app-next-directory/src/lib/sanity/cached-client.ts:44:          structuredLogger.warn('Cache write failed, continuing without Redis', error, {
-app-next-directory/src/lib/auth/withAuthMatrix.ts:287:  structuredLogger.warn(
-app-next-directory/src/lib/mongoose-cache.ts:30:    structuredLogger.warn('[mongoose-cache] Failed to read from Redis cache', error, {
-app-next-directory/src/lib/mongoose-cache.ts:40:    structuredLogger.warn('[mongoose-cache] Failed to write to Redis cache', error, {
-app-next-directory/src/lib/auth/withAuthMatrix.test.ts:516:    const loggerWarn = structuredLogger.warn as jest.Mock;
-app-next-directory/src/lib/auth/rateLimit.ts:197:      structuredLogger.warn('[auth] Failed to initialize login rate limiter', error, {
-app-next-directory/src/lib/auth/rateLimit.ts:212:  structuredLogger.warn(
-app-next-directory/src/lib/auth/rateLimit.ts:229:      structuredLogger.warn('[auth] Failed to rebuild login rate limiter', error, {
-app-next-directory/src/lib/auth/rateLimit.ts:242:      structuredLogger.warn(
-app-next-directory/src/lib/auth/rateLimit.ts:269:    structuredLogger.warn('[auth] Login ratelimiter error; allowing attempt', error, {
-app-next-directory/src/lib/auth/rateLimit.ts:291:    structuredLogger.warn('[auth] Skipping login attempt record due to invalid email', {
-app-next-directory/src/lib/auth/rateLimit.ts:302:    structuredLogger.warn('[auth] Skipping login attempt record due to invalid email', {
-app-next-directory/src/lib/auth/rateLimit.ts:314:    structuredLogger.warn('[auth] Failed to record login attempt', error, {
-app-next-directory/src/lib/auth/rateLimit.ts:334:    structuredLogger.warn('[auth] Failed to record login attempt', collectionError, {
-app-next-directory/src/lib/auth/rateLimit.ts:344:        structuredLogger.warn('[auth] Failed to record login attempt', modelError, {
-app-next-directory/src/lib/auth/rateLimit.ts:349:        structuredLogger.warn('[auth] Failed to record login attempt', collectionError, {
-app-next-directory/src/lib/cache-strategy.ts:120:                structuredLogger.warn('Background revalidation failed', {
-app-next-directory/src/lib/cache-strategy.ts:133:      structuredLogger.warn('Cache read failed, falling through to query', {
-app-next-directory/src/lib/cache-strategy.ts:180:    structuredLogger.warn('Cache write failed', {
-app-next-directory/src/components/auth/SocialAuthRow.tsx:86:          structuredLogger.warn('[auth] Failed to load providers', err, { component: 'auth' });
+[1;34md[33mr[31mw[32mx[0m[33mr[1;90m-[0m[32mx[33mr[1;90m-[0m[32mx[0m [1;90m-[0m [1;33meiat[0m [34m13 Dec 17:01[0m [34m [1m.links[0m
+[1;34md[33mr[31mw[32mx[0m[33mr[1;90m-[0m[32mx[33mr[1;90m-[0m[32mx[0m [1;90m-[0m [1;33meiat[0m [34m 2 Dec 11:18[0m [34m [1mchromium-1194[0m
+[1;34md[33mr[31mw[32mx[0m[33mr[1;90m-[0m[32mx[33mr[1;90m-[0m[32mx[0m [1;90m-[0m [1;33meiat[0m [34m 2 Dec 11:18[0m [34m [1mchromium_headless_shell-1194[0m
+[1;34md[33mr[31mw[32mx[0m[33mr[1;90m-[0m[32mx[33mr[1;90m-[0m[32mx[0m [1;90m-[0m [1;33meiat[0m [34m24 Nov 02:26[0m [34m [1mffmpeg-1011[0m
+[1;34md[33mr[31mw[32mx[0m[33mr[1;90m-[0m[32mx[33mr[1;90m-[0m[32mx[0m [1;90m-[0m [1;33meiat[0m [34m 8 Dec 23:51[0m [34m [1mmcp-chrome[0m
+[1;34md[33mr[31mw[32mx[0m[33mr[1;90m-[0m[32mx[33mr[1;90m-[0m[32mx[0m [1;90m-[0m [1;33meiat[0m [34m25 Nov 17:03[0m [34m [1mmcp-webkit[0m
+[1;34md[33mr[31mw[32mx[0m[33mr[1;90m-[0m[32mx[33mr[1;90m-[0m[32mx[0m [1;90m-[0m [1;33meiat[0m [34m13 Dec 17:03[0m [34m [1mwebkit-2215[0m

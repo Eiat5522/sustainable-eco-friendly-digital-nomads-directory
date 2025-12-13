@@ -8,10 +8,10 @@ applyTo: "**"
 **.github/copilot-instructions.md @Eiat**
 
 ################################################################
-##################  VS Code Terminal Usage  ####################  
+############  VS Code Integrated Terminal Usage  ###############  
 ################################################################
 
-# 😱 Caution
+## 😱 Caution - apply to Copilot running in VS Code with the integrated terminal. **This does not apply to Copilot CLI**
 
 There is a known bug in the current version of Copilot. Copilot will freeze when running long running commands resulting in a fail command using the integrated teminal in VS Code. Follow the guide below to see the instructions.
 

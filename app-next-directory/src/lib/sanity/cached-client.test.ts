@@ -21,7 +21,7 @@ describe('cachedClient', () => {
 
   it('returns cached data when available in redis', async () => {
     const cachedValue = { id: '123', title: 'Cached result' };
-    const getMock = jest.fn().mockResolvedValue(JSON.stringify(cachedValue));
+    const getMock = jest.fn().mockResolvedValue(cachedValue);
     getRedisClientMock.mockReturnValue({ get: getMock, set: jest.fn() });
 
     const result = await cachedClient.fetch('mock-query', { foo: 'bar' });

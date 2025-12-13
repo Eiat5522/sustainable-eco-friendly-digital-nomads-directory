@@ -1,6 +1,9 @@
 import { beforeAll } from '@jest/globals';
 import { createTestData, getTestUser } from '@/tests/helpers/test-data';
 
+// Suppress Mongoose Jest warnings for integration tests
+process.env.SUPPRESS_JEST_WARNINGS = 'true';
+
 const ensureEnv = (key: string, value: string | undefined) => {
   if (!value || process.env[key]) return;
   process.env[key] = value;

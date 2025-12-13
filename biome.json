@@ -89,17 +89,17 @@
         "noFocusedTests": "off"
       },
       "security": {
-        "noDangerouslySetInnerHtml": "off"
+        "noDangerouslySetInnerHtml": "warn"
       }
     }
   },
   "overrides": [
     {
-      "includes": ["**/*.test.*", "**/__tests__/**/*", "**/tests/**/*", "**/__mocks__/**/*"],
+      "includes": ["**/*.test.*", "**/__tests__/**/*", "**/tests/**/*"],
       "linter": {
         "rules": {
           "suspicious": {
-            "noExplicitAny": "warn",
+            "noExplicitAny": "off",
             "noConsole": "off"
           },
           "correctness": {
@@ -109,6 +109,22 @@
         }
       }
     },
+    {
+      "includes": ["**/__mocks__/**/*"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off",
+            "noConsole": "off"
+          },
+          "correctness": {
+            "noUnusedVariables": "off",
+            "noUnusedFunctionParameters": "off"
+          }
+        }
+      }
+    },
+
     {
       "includes": ["**/*.d.ts"],
       "linter": {
@@ -172,7 +188,7 @@
         }
       },
       "linter": {
-        "enabled": false
+        "enabled": true
       }
     }
   ]

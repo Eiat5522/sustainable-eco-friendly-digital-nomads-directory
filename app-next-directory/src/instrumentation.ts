@@ -19,21 +19,27 @@ const listenerRegistry: InstrumentationListenerMap = {
 
 let hasInstalledProcessHandlers = false;
 
+const nodeProcess =
+  typeof globalThis === 'undefined'
+    ? undefined
+    : (globalThis as { process?: NodeJS.Process }).process;
+
 const attachProcessListener = <E extends InstrumentationEvent>(
   event: E,
   listener: E extends 'unhandledRejection'
     ? NodeJS.UnhandledRejectionListener
     : NodeJS.UncaughtExceptionListener
 ) => {
-  if (listenerRegistry[event]) {
+  if (!nodeProcess || listenerRegistry[event]) {
     return;
   }
-  process.on(event, listener as (...args: unknown[]) => void);
+
+  nodeProcess.on(event, listener as (...args: unknown[]) => void);
   listenerRegistry[event] = listener as any;
 };
 
 const attachProcessHandlers = (structuredLogger: typeof import('@/lib/logger').structuredLogger) => {
-  if (hasInstalledProcessHandlers) {
+  if (!nodeProcess || hasInstalledProcessHandlers) {
     return;
   }
 
@@ -82,7 +88,8 @@ const attachProcessHandlers = (structuredLogger: typeof import('@/lib/logger').s
       return;
     }
 
-    if (process.env.NODE_ENV === 'development') {
+    const nodeEnv = nodeProcess?.env?.NODE_ENV;
+    if (nodeEnv === 'development') {
       structuredLogger.warn(
         'Development mode: Server will continue running after uncaught exception',
         {
@@ -90,7 +97,7 @@ const attachProcessHandlers = (structuredLogger: typeof import('@/lib/logger').s
         }
       );
     } else {
-      process.exit(1);
+      nodeProcess?.exit(1);
     }
   };
 
@@ -100,7 +107,9 @@ const attachProcessHandlers = (structuredLogger: typeof import('@/lib/logger').s
 };
 
 export async function register() {
-  if (process.env.NODE_ENV === 'production') {
+  const env = nodeProcess?.env;
+
+  if (env && env.NODE_ENV === 'production') {
     const required = [
       'NEXTAUTH_SECRET',
       'MONGODB_URI',
@@ -109,7 +118,7 @@ export async function register() {
       'NEXT_PUBLIC_SANITY_PROJECT_ID',
     ];
 
-    const missing = required.filter(key => !process.env[key]);
+    const missing = required.filter(key => !env[key]);
 
     if (missing.length > 0) {
       throw new Error(
@@ -119,17 +128,17 @@ export async function register() {
     }
   }
 
-  if (process.env.NEXT_RUNTIME === 'nodejs') {
+  if (env && env.NEXT_RUNTIME === 'nodejs') {
     const { redirectConsoleToStructuredLogger, structuredLogger } = await import('@/lib/logger');
 
     // Avoid reassigning global console during Jest unit tests so that
     // `jest.spyOn(console, ...)` remains attached to the real console methods.
-    if (process.env.NODE_ENV !== 'test') {
+    if (env.NODE_ENV !== 'test') {
       redirectConsoleToStructuredLogger();
     }
 
     // Skip process hooks when running pure Jest tests to prevent repeated listeners.
-    if (process.env.NODE_ENV !== 'test') {
+    if (env.NODE_ENV !== 'test') {
       attachProcessHandlers(structuredLogger);
     }
 
@@ -140,16 +149,21 @@ export async function register() {
 }
 
 export const resetInstrumentationForTests = () => {
-  if (process.env.NODE_ENV !== 'test') {
+  if (!nodeProcess) {
+    return;
+  }
+
+  const env = nodeProcess.env;
+  if (env.NODE_ENV !== 'test') {
     return;
   }
 
   if (listenerRegistry.unhandledRejection) {
-    process.removeListener('unhandledRejection', listenerRegistry.unhandledRejection);
+    nodeProcess.removeListener('unhandledRejection', listenerRegistry.unhandledRejection);
     listenerRegistry.unhandledRejection = null;
   }
   if (listenerRegistry.uncaughtException) {
-    process.removeListener('uncaughtException', listenerRegistry.uncaughtException);
+    nodeProcess.removeListener('uncaughtException', listenerRegistry.uncaughtException);
     listenerRegistry.uncaughtException = null;
   }
 

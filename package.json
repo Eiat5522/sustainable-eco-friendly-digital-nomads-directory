@@ -13,6 +13,8 @@
     "exec:jest": "pnpm --filter app-next-directory exec:jest",
     "test": "pnpm --filter app-next-directory test",
     "test:unit": "pnpm --filter app-next-directory test:unit",
+    "test:unit:fast": "pnpm --filter app-next-directory test:unit:fast",
+    "test:unit:debug-leaks": "pnpm --filter app-next-directory test:unit:debug-leaks",
     "test:unit:export": "pnpm --filter app-next-directory test:unit:export",
     "test:unit:export:tee": "pnpm --filter app-next-directory test:unit:export:tee",
     "test:integration": "pnpm --filter app-next-directory test:integration",

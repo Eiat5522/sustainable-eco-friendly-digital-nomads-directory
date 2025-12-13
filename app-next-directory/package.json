@@ -24,6 +24,8 @@
     "exec:jest": "jest",
     "test": "pnpm test:unit",
     "test:unit": "cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --runInBand --passWithNoTests",
+    "test:unit:fast": "cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --passWithNoTests --maxWorkers=50%",
+    "test:unit:debug-leaks": "cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --runInBand --passWithNoTests --detectOpenHandles --logHeapUsage --silent --noStackTrace",
     "test:unit:coverage": "cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --passWithNoTests --coverage",
     "test:unit:export": "cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --runInBand --passWithNoTests --coverage --json --outputFile=tmp/unit_test_output.json",
     "test:unit:export:tee": "cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --runInBand --passWithNoTests --coverage 2>&1 | tee tmp/unit_test_output.txt",
