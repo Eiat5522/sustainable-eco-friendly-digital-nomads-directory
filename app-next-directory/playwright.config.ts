@@ -65,7 +65,7 @@ export default defineConfig({
   ],
   webServer: isLocal
     ? {
-        command: 'pnpm start',
+        command: 'E2E=1 pnpm start',
         url: serverWaitURL.toString(),
         timeout: 60_000,
         reuseExistingServer: !process.env.CI,
