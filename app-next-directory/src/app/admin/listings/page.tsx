@@ -87,106 +87,40 @@ export default function ListingsPage() {
     try {
       setLoading(true);
 
-      // TODO: Replace with actual API calls
-      const mockStats: ListingStats = {
-        totalListings: 156,
-        publishedListings: 142,
-        pendingListings: 8,
-        flaggedListings: 3,
-        averageRating: 4.2,
-        totalViews: 15420,
-      };
+      const response = await fetch('/api/admin/listings');
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch listings');
+      }
 
-      const mockListings: Listing[] = [
-        {
-          id: '1',
-          title: 'Eco-Friendly Co-working Space in Bali',
-          type: 'coworking',
-          status: 'published',
-          location: {
-            city: 'Ubud',
-            country: 'Indonesia',
-          },
-          rating: 4.8,
-          reviewCount: 24,
-          views: 342,
-          createdAt: '2024-11-15T10:30:00Z',
-          updatedAt: '2024-12-18T14:20:00Z',
-          author: {
-            id: 'user1',
-            name: 'John Doe',
-            email: 'john@example.com',
-          },
-          sustainabilityScore: 92,
-          features: ['Solar Power', 'Recycling Program', 'Local Materials'],
-          price: {
-            amount: 25,
-            currency: 'USD',
-            period: 'day',
-          },
-        },
-        {
-          id: '2',
-          title: 'Solar-Powered Accommodation in Costa Rica',
-          type: 'accommodation',
-          status: 'flagged',
-          location: {
-            city: 'San José',
-            country: 'Costa Rica',
-          },
-          rating: 3.2,
-          reviewCount: 8,
-          views: 89,
-          createdAt: '2024-12-10T15:45:00Z',
-          updatedAt: '2024-12-19T09:30:00Z',
-          author: {
-            id: 'user2',
-            name: 'Jane Smith',
-            email: 'jane@example.com',
-          },
-          sustainabilityScore: 78,
-          features: ['Solar Power', 'Rainwater Harvesting'],
-          price: {
-            amount: 85,
-            currency: 'USD',
-            period: 'night',
-          },
-        },
-        {
-          id: '3',
-          title: 'Sustainable Farm-to-Table Restaurant',
-          type: 'restaurant',
-          status: 'pending',
-          location: {
-            city: 'Lisbon',
-            country: 'Portugal',
-          },
-          rating: 4.5,
-          reviewCount: 15,
-          views: 123,
-          createdAt: '2024-12-18T09:15:00Z',
-          updatedAt: '2024-12-19T11:00:00Z',
-          author: {
-            id: 'user3',
-            name: 'Alice Johnson',
-            email: 'alice@example.com',
-          },
-          sustainabilityScore: 88,
-          features: ['Organic Ingredients', 'Zero Waste', 'Local Sourcing'],
-        },
-      ];
-
-      setListingStats(mockStats);
-      setListings(mockListings);
+      const data = await response.json();
+      
+      if (data.success) {
+        setListingStats(data.data.stats);
+        setListings(data.data.listings);
+      } else {
+        throw new Error(data.message || 'Failed to fetch listings');
+      }
     } catch (error) {
       console.error('Error fetching listings:', error);
+      // Set empty state on error
+      setListingStats({
+        totalListings: 0,
+        publishedListings: 0,
+        pendingListings: 0,
+        flaggedListings: 0,
+        averageRating: 0,
+        totalViews: 0,
+      });
+      setListings([]);
     } finally {
       setLoading(false);
     }
   };
 
   const filteredListings = listings.filter(listing => {
-    const matchesSearch = listing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch = searchTerm === '' || 
+                         listing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          listing.location.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          listing.location.country.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = typeFilter === 'all' || listing.type === typeFilter;
@@ -235,8 +169,34 @@ export default function ListingsPage() {
   };
 
   const handleListingAction = async (listingId: string, action: 'publish' | 'flag' | 'reject' | 'delete' | 'edit') => {
-    // TODO: Implement actual listing management actions
-    console.log(`${action} listing ${listingId}`);
+    if (action === 'edit') {
+      // Navigate to edit page
+      window.location.href = `/admin/listings/${listingId}`;
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/admin/listings/actions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ listingId, action }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Refresh listings after successful action
+        await fetchListings();
+      } else {
+        console.error(`Failed to ${action} listing:`, data.message);
+        alert(`Failed to ${action} listing: ${data.message}`);
+      }
+    } catch (error) {
+      console.error(`Error ${action}ing listing:`, error);
+      alert(`Error ${action}ing listing. Please try again.`);
+    }
   };
 
   if (loading) {
