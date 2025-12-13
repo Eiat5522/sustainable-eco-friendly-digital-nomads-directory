@@ -22,6 +22,7 @@ export default async function RootLayout({
     <html lang="en" className={htmlThemeClass} suppressHydrationWarning>
       <head>
         {/* SSR-safe, no-FOUC theme init: sets `dark` before hydration */}
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: Static theme script is safe */}
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body className={BODY_FONT_CLASS}>

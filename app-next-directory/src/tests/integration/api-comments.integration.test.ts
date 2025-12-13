@@ -6,7 +6,7 @@ jest.mock('next/cache', () => ({
   revalidateTag: mockRevalidateTag,
 }));
 
-const mockAuth = jest.fn();
+const mockAuth: jest.Mock<() => Promise<any>> = jest.fn() as any;
 jest.mock('@/lib/auth', () => ({
   __esModule: true,
   auth: mockAuth,
@@ -20,19 +20,19 @@ jest.mock('@/lib/redis', () => ({
   getRedisClient: jest.fn(() => undefined),
 }));
 
-const mockEnsureSanityUser = jest.fn();
+const mockEnsureSanityUser: jest.Mock<(user: any) => Promise<any>> = jest.fn() as any;
 jest.mock('@/lib/sanity/user', () => ({
   __esModule: true,
   ensureSanityUser: mockEnsureSanityUser,
 }));
 
 import { GET, POST } from '../../../app/api/comments/route';
-import { client } from '@/lib/sanity/client';
+import { client } from '../../lib/sanity/client';
 
 // Get the actual mock instances created by the __mocks__/@sanity/client.ts mock
 const mockClientFetch = client.fetch as jest.MockedFunction<typeof client.fetch>;
-const mockClientCreate = client.create as jest.MockedFunction<(doc: unknown) => Promise<{ _id: string }>>;
-const mockClientGetDocument = client.getDocument as jest.MockedFunction<typeof client.getDocument>;
+const mockClientCreate = client.create as jest.MockedFunction<any>;
+const mockClientGetDocument = client.getDocument as jest.MockedFunction<any>;
 const parseJson = async (response: Response) => ({
   status: response.status,
   body: await response.json(),

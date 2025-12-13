@@ -35,7 +35,7 @@ const attachProcessListener = <E extends InstrumentationEvent>(
   }
 
   nodeProcess.on(event, listener as (...args: unknown[]) => void);
-  listenerRegistry[event] = listener as any;
+  listenerRegistry[event] = listener as InstrumentationListenerMap[E];
 };
 
 const attachProcessHandlers = (structuredLogger: typeof import('@/lib/logger').structuredLogger) => {
@@ -109,7 +109,8 @@ const attachProcessHandlers = (structuredLogger: typeof import('@/lib/logger').s
 export async function register() {
   const env = nodeProcess?.env;
 
-  if (env && env.NODE_ENV === 'production') {
+  // Skip strict validation in e2e test environment
+  if (env && env.NODE_ENV === 'production' && env.E2E !== '1') {
     const required = [
       'NEXTAUTH_SECRET',
       'MONGODB_URI',
