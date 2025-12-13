@@ -51,6 +51,19 @@ export interface AuthResult {
   token?: string;
 }
 
+// MongoDB document interface
+interface MongoUser {
+  _id: ObjectId | string;
+  name: string;
+  email: string;
+  password?: string;
+  role: UserRole;
+  image?: string;
+  emailVerified?: Date | null;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
 /**
  * Auth Data Access Layer
  * Provides methods for user authentication and management
@@ -132,7 +145,7 @@ export class AuthDAL {
         name: userData.name,
         email: userData.email.toLowerCase(),
         password: hashedPassword,
-        role: userData.role || ('user' as UserRole),
+        role: userData.role ?? 'user' as UserRole,
         image: userData.image || null,
         emailVerified: null,
         createdAt: new Date(),
@@ -193,14 +206,14 @@ export class AuthDAL {
     try {
       const collection = await this.getCollection();
 
-      const update: any = {
+      const update: Partial<UpdateUserInput> & { updatedAt: Date } = {
         ...updateData,
         updatedAt: new Date(),
       };
 
       // Remove undefined values
       Object.keys(update).forEach(key => 
-        update[key] === undefined && delete update[key]
+        update[key as keyof typeof update] === undefined && delete update[key as keyof typeof update]
       );
 
       const result = await collection.findOneAndUpdate(
@@ -278,7 +291,7 @@ export class AuthDAL {
     try {
       const collection = await this.getCollection();
 
-      const query: any = {};
+      const query: { role?: UserRole } = {};
       if (options?.role) {
         query.role = options.role;
       }
@@ -373,7 +386,7 @@ export class AuthDAL {
    * Normalize user data from MongoDB document
    * Removes sensitive data and standardizes format
    */
-  private normalizeUser(user: any): UserData {
+  private normalizeUser(user: MongoUser): UserData {
     const { password, ...userWithoutPassword } = user;
     
     return {
