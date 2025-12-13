@@ -45,7 +45,9 @@
     "types/**/*.d.ts",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    ".next/dev/dev/types/**/*.ts"
+    ".next/dev/dev/types/**/*.ts",
+    "__mocks__/**/*.ts",
+    "__mocks__/**/*.tsx"
   ],
   "exclude": [
     ".next",

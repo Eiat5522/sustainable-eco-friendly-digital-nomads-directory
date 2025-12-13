@@ -1,3 +1,4 @@
+// Disabled: `/favorites` UI is not a route; favorites UX is covered by Jest tests under `app/profile`.
 import { expect, type Page, test } from '@playwright/test';
 
 const FAVORITES_PAGE = '/favorites';

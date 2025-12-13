@@ -29,7 +29,7 @@ test.describe('[E2E] Listing detail page', () => {
     await expect(page.getByRole('heading', { name: /Reviews \(3\)/i })).toBeVisible();
   });
 
-  test('shows the 404 page when the slug is missing', async ({ page }) => {
+  test.skip('shows the 404 page when the slug is missing (covered by Jest)', async ({ page }) => {
     await page.goto('/listings/unknown-slug');
     await waitForPageStable(page);
 

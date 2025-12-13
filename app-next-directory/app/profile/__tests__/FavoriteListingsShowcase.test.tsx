@@ -60,6 +60,10 @@ describe('FavoriteListingsShowcase', () => {
     fireEvent.click(toggleButton);
     expect(toggleButton).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByText(/Why we love it/i)).toBeVisible();
+    expect(screen.getByRole('link', { name: /view listing/i })).toHaveAttribute(
+      'href',
+      '/listings/eco-workspace'
+    );
 
     fireEvent.click(toggleButton);
     expect(toggleButton).toHaveAttribute('aria-expanded', 'false');

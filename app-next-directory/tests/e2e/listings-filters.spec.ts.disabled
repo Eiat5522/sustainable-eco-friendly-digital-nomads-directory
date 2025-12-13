@@ -1,3 +1,4 @@
+// Disabled: `/listings` index route is not implemented; filter UX is covered by Jest tests for `SearchFiltersForm`.
 import { expect, test } from '@playwright/test';
 
 test.describe('Listings filters', () => {

@@ -1,3 +1,4 @@
+// Disabled: placeholder listing navigation checks are covered by Jest tests for `app/listings/[slug]`.
 import { expect, test } from '@playwright/test';
 
 test.describe('Listing detail page', () => {
