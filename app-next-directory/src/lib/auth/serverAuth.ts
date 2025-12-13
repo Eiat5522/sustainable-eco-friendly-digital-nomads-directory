@@ -4,12 +4,12 @@
  * - API routes (without Edge Runtime)
  * - Server Components
  * - Server Actions
+ * 
+ * This module now uses the AuthDAL for data access, providing better separation of concerns.
  */
 
 import { UserRole } from '@/types/auth';
-import bcrypt from 'bcryptjs';
-import User from '../../models/User';
-import dbConnect from '../dbConnect';
+import { authDAL, CreateUserInput, UserData } from '../dal/auth.dal';
 
 export interface AuthenticatedUser {
   id: string;
@@ -30,29 +30,13 @@ export async function authenticateUser(
   password: string
 ): Promise<AuthenticatedUser | null> {
   try {
-    await dbConnect();
-
-    // Find user in MongoDB using Mongoose model
-    const user = await User.findOne({ email }).select('+password');
-
-    if (!user || !user.password) {
+    const user = await authDAL.authenticateUser(email, password);
+    
+    if (!user) {
       return null;
     }
 
-    // Verify password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      return null;
-    }
-
-    return {
-      id: user._id.toString(),
-      name: user.name,
-      email: user.email,
-      image: user.image,
-      role: user.role as UserRole,
-    };
+    return mapToAuthenticatedUser(user);
   } catch (error) {
     console.error('Authentication error:', error);
     return null;
@@ -71,33 +55,16 @@ export async function createUserAccount(userData: {
   image?: string;
 }): Promise<AuthenticatedUser | null> {
   try {
-    await dbConnect();
-
-    // Check if user already exists
-    const existingUser = await User.findOne({ email: userData.email });
-    if (existingUser) {
-      throw new Error('User already exists');
-    }
-
-    // Hash password
-    const hashedPassword = await bcrypt.hash(userData.password, 12);
-
-    // Create user
-    const user = await User.create({
+    const input: CreateUserInput = {
       name: userData.name,
       email: userData.email,
-      password: hashedPassword,
+      password: userData.password,
       image: userData.image,
-      role: 'user' as UserRole,
-    });
-
-    return {
-      id: user._id.toString(),
-      name: user.name,
-      email: user.email,
-      image: user.image,
-      role: user.role as UserRole,
+      role: 'user',
     };
+
+    const user = await authDAL.createUser(input);
+    return mapToAuthenticatedUser(user);
   } catch (error) {
     console.error('User creation error:', error);
     return null;
@@ -111,20 +78,13 @@ export async function createUserAccount(userData: {
  */
 export async function getUserById(userId: string): Promise<AuthenticatedUser | null> {
   try {
-    await dbConnect();
-
-    const user = await User.findById(userId);
+    const user = await authDAL.findUserById(userId);
+    
     if (!user) {
       return null;
     }
 
-    return {
-      id: user._id.toString(),
-      name: user.name,
-      email: user.email,
-      image: user.image,
-      role: user.role as UserRole,
-    };
+    return mapToAuthenticatedUser(user);
   } catch (error) {
     console.error('Get user error:', error);
     return null;
@@ -142,17 +102,22 @@ export async function updateUserRole(
   newRole: UserRole
 ): Promise<boolean> {
   try {
-    await dbConnect();
-
-    const result = await User.findByIdAndUpdate(
-      userId,
-      { role: newRole },
-      { new: true }
-    );
-
-    return !!result;
+    return await authDAL.updateUserRole(userId, newRole);
   } catch (error) {
     console.error('Update user role error:', error);
     return false;
   }
+}
+
+/**
+ * Helper function to map UserData to AuthenticatedUser
+ */
+function mapToAuthenticatedUser(user: UserData): AuthenticatedUser {
+  return {
+    id: user.id || user._id?.toString() || '',
+    name: user.name,
+    email: user.email,
+    image: user.image,
+    role: user.role,
+  };
 }
