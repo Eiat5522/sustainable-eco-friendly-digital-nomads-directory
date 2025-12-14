@@ -191,10 +191,10 @@ test.describe('Security Testing', () => {
 
         // Should not cause database errors - check if error message exists first
         const errorMessage = page.locator('[data-testid="error-message"]');
-        const errorExists = await errorMessage.isVisible().catch(() => false);
+        const errorCount = await errorMessage.count();
         
-        if (errorExists) {
-          const errorText = await errorMessage.textContent();
+        if (errorCount > 0) {
+          const errorText = await errorMessage.textContent() || '';
           // If there's an error, it should not expose database details
           expect(errorText).not.toMatch(/database|sql|mysql|postgres/i);
         }
