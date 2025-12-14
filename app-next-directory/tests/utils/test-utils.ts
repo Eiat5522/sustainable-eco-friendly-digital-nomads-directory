@@ -62,7 +62,7 @@ async function applySession(page: Page, role: Role) {
 }
 
 async function loginViaForm(page: Page, email: string, password: string, redirectPattern: RegExp) {
-  await page.goto('/auth/signin');
+  await page.goto('/auth/login');
   await page.fill('input[name="email"]', email);
   await page.fill('input[name="password"]', password);
   const submit = page.locator('button[type="submit"]');

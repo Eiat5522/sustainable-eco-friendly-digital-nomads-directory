@@ -189,10 +189,15 @@ test.describe('Security Testing', () => {
       for (const payload of sqlInjectionPayloads) {
         await page.goto(`${TEST_CONFIG.urls.search}?q=${encodeURIComponent(payload)}`);
 
-        // Should not cause database errors
-        await expect(page.locator('[data-testid="error-message"]')).not.toContainText(
-          /database|sql|mysql|postgres/i
-        );
+        // Should not cause database errors - check if error message exists first
+        const errorMessage = page.locator('[data-testid="error-message"]');
+        const errorExists = await errorMessage.isVisible().catch(() => false);
+        
+        if (errorExists) {
+          const errorText = await errorMessage.textContent();
+          // If there's an error, it should not expose database details
+          expect(errorText).not.toMatch(/database|sql|mysql|postgres/i);
+        }
 
         // Should handle gracefully with no results or sanitized search
         const hasResults = await page.locator('[data-testid="search-results"]').isVisible();
@@ -255,6 +260,13 @@ test.describe('Security Testing', () => {
     });
 
     test('file upload security', async ({ page }) => {
+      // Login first since create listing page requires authentication
+      await loginAs(
+        page,
+        TEST_CONFIG.credentials.userEmail,
+        TEST_CONFIG.credentials.userPassword
+      );
+      
       await page.goto(TEST_CONFIG.urls.createListing);
 
       // Test malicious file types
