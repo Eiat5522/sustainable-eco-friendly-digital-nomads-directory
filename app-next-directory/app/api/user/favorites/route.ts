@@ -172,7 +172,7 @@ export async function POST(request: NextRequest) {
     }
   )?.user;
   const userId: string | undefined = user?.id;
-  const userRole: UserRole = user?.role || 'unidentifiedUser';
+  const userRole: UserRole = user?.role || ('user' as UserRole);
 
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

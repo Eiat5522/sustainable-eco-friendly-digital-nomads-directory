@@ -17,7 +17,7 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     | { id?: string; role?: UserRole; email?: string | null; name?: string | null }
     | undefined;
   const userId: string | undefined = user?.id;
-  const userRole: UserRole = user?.role || 'unidentifiedUser';
+  const userRole: UserRole = user?.role || ('user' as UserRole);
 
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

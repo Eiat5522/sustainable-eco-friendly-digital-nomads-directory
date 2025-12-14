@@ -177,7 +177,7 @@ export async function POST(request: Request) {
     | { id?: string; role?: UserRole; name?: string | null; email?: string | null }
     | undefined;
   const userId = user?.id;
-  const role = user?.role ?? 'unidentifiedUser';
+  const role = user?.role ?? ('user' as UserRole);
 
   if (!userId) {
     return errorResponse('Unauthorized', 401);

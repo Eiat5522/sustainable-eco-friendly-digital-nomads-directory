@@ -49,7 +49,7 @@ export function AuthProvider({
   const { data: session, status } = useSession();
 
   const user: AppUser = session?.user ?? null;
-  const userRole: UserRole = user?.role ?? 'unidentifiedUser';
+  const userRole: UserRole = user?.role ?? ('user' as UserRole);
 
   const contextValue: AuthContextType = {
     isAuthenticated: !!session,
