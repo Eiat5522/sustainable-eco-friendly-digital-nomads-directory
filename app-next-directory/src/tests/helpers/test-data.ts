@@ -337,16 +337,6 @@ const users: TestUser[] = [
     image: 'https://images.test/users/riley.png',
   },
   {
-    id: 'user-erin-editor',
-    name: 'Erin Editor',
-    email: 'editor@example.com',
-    role: 'editor',
-    plan: 'free',
-    password: 'password123',
-    sessionToken: 'session-token-editor',
-    image: 'https://images.test/users/erin.png',
-  },
-  {
     id: 'user-vera-venue',
     name: 'Vera VenueOwner',
     email: 'venue@example.com',
@@ -365,6 +355,16 @@ const users: TestUser[] = [
     password: 'password123',
     sessionToken: 'session-token-admin',
     image: 'https://images.test/users/ada.png',
+  },
+  {
+    id: 'user-sam-superadmin',
+    name: 'Sam SuperAdmin',
+    email: 'superadmin@example.com',
+    role: 'superAdmin',
+    plan: 'premium',
+    password: 'password123',
+    sessionToken: 'session-token-superadmin',
+    image: 'https://images.test/users/sam.png',
   },
 ];
 
@@ -419,14 +419,14 @@ const reviews: AppReview[] = [
   {
     id: 'review-lisbon-1',
     listingId: 'listing-lisbon-earth-stay',
-    userId: 'user-erin-editor',
+    userId: 'user-sam-superadmin',
     rating: 5,
     comment:
       'The solar powered coliving suites and rooftop harvest dinners made this a dream remote work stay.',
     createdAt: '2024-05-22T17:12:00.000Z',
     user: {
-      name: 'Erin Editor',
-      image: 'https://images.test/users/erin.png',
+      name: 'Sam SuperAdmin',
+      image: 'https://images.test/users/sam.png',
     },
   },
 ];
