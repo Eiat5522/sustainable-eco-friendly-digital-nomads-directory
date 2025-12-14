@@ -6,7 +6,10 @@ test.describe('Cross-Browser Compatibility Testing', () => {
     test('search functionality works', async ({ page }) => {
       await page.goto('/');
 
-      const searchBox = page.getByRole('searchbox', { name: /search venues/i });
+      const searchBox = page
+        .getByRole('searchbox', { name: /search venues/i })
+        .or(page.locator('#hero-search'));
+
       await expect(searchBox).toBeVisible();
       await searchBox.fill('coworking');
 
@@ -32,8 +35,12 @@ test.describe('Cross-Browser Compatibility Testing', () => {
 
       await page.getByTestId('contact-name').fill('Test User');
       await page.getByTestId('contact-email').fill('test@example.com');
-      await page.getByTestId('contact-subject').fill('Interested in sustainable stays');
-      await page.getByTestId('contact-message').fill('Test message about sustainable travel.');
+      await page
+        .getByTestId('contact-subject')
+        .fill('Interested in sustainable stays');
+      await page
+        .getByTestId('contact-message')
+        .fill('Test message about sustainable travel.');
 
       const responsePromise = page.waitForResponse('**/api/contact');
       await page.getByTestId('contact-submit').click();
