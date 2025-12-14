@@ -21,7 +21,7 @@ export function withAuth<P extends object>(
   Component: ComponentType<P>,
   options: WithAuthOptions = {}
 ): ComponentType<P> {
-  const { requiredRole, redirectTo = '/login', requireAuth = true } = options;
+  const { requiredRole, redirectTo = '/auth/login', requireAuth = true } = options;
 
   function AuthenticatedComponent(props: P) {
     const { data: session, status } = useSession();

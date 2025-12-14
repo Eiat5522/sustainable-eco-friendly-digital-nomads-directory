@@ -1,5 +1,3 @@
-// <reference types="webpack" />
-
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import withBundleAnalyzer from '@next/bundle-analyzer';
@@ -7,8 +5,6 @@ import type { NextConfig } from 'next';
 
 const APP_DIR =
   typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
-
-import type { Configuration } from 'webpack';
 
 const isAnalyze = /^(1|true|yes)$/i.test(process.env.ANALYZE ?? '');
 const withAnalyzer = withBundleAnalyzer({ enabled: isAnalyze });
@@ -54,7 +50,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  webpack(config: Configuration) {
+  // Webpack config for non-Turbopack builds only
+  // Note: For SVG imports, use next-image or inline SVG components instead
+  // This is only applied when not using Turbopack
+  webpack(config, { webpack }) {
     // Ensure @ alias resolves to this app's src directory
     config.resolve = config.resolve || {};
     config.resolve.alias = {
@@ -62,11 +61,15 @@ const nextConfig: NextConfig = {
       '@': path.resolve(APP_DIR, 'src'),
     };
 
-    config.module.rules.push({
-      test: /\.svg$/i,
-      issuer: /\.[jt]sx?$/,
-      use: ['@svgr/webpack'],
-    });
+    // SVG handling - only for webpack builds
+    // For Turbopack, SVGs should be imported as React components or use next/image
+    if (!config.name || config.name !== 'server') {
+      config.module.rules.push({
+        test: /\.svg$/i,
+        issuer: /\.[jt]sx?$/,
+        use: ['@svgr/webpack'],
+      });
+    }
 
     return config;
   },
