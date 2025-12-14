@@ -17,8 +17,13 @@ import isEmail from 'validator/lib/isEmail';
  */
 
 // Role definitions - single source of truth
-export const ROLE_VALUES = ['user', 'editor', 'venueOwner', 'admin', 'superAdmin'] as const;
+// Canonical roles aligned with auth requirements
+export const ROLE_VALUES = ['user', 'venueOwner', 'admin', 'superAdmin'] as const;
 export type Role = (typeof ROLE_VALUES)[number];
+
+// Status definitions for user accounts
+export const STATUS_VALUES = ['active', 'suspended', 'pending'] as const;
+export type UserStatus = (typeof STATUS_VALUES)[number];
 
 // Bcrypt configuration
 export const BCRYPT_COST = parseInt(process.env.BCRYPT_COST || '12', 10);
@@ -30,6 +35,7 @@ export interface IUser extends Document {
   // Hashed password for credentials-based auth (excluded by default)
   password?: string;
   role: Role;
+  status: UserStatus;
   emailVerified?: Date | null;
   image?: string;
   createdAt: Date;
@@ -65,6 +71,11 @@ const UserSchema: Schema<IUser> = new Schema(
       type: String,
       enum: ROLE_VALUES,
       default: 'user',
+    },
+    status: {
+      type: String,
+      enum: STATUS_VALUES,
+      default: 'active',
     },
     emailVerified: {
       type: Date,

@@ -34,8 +34,8 @@ export async function withAuthMatrix(
     secret: process.env.NEXTAUTH_SECRET,
   });
 
-  // Determine user role - default to unidentifiedUser if no token
-  const userRole: UserRole = (token?.role as UserRole) || 'unidentifiedUser';
+  // Determine user role - default to user if no token (guest users)
+  const userRole: UserRole = (token?.role as UserRole) || ('user' as UserRole);
 
   // For API routes, return JSON responses
   if (isApiRoute) {
@@ -86,7 +86,7 @@ export async function withAuthMatrix(
 
   // If no token and accessing protected routes
   if (!token && page && action) {
-    const hasPermission = hasPagePermissionFn('unidentifiedUser', page, action);
+    const hasPermission = hasPagePermissionFn(('user' as UserRole), page, action);
 
     if (!hasPermission) {
       // Create redirect URL with return path
@@ -162,7 +162,7 @@ export async function withAuthApiFeature(
     );
   }
 
-  const userRole: UserRole = (token?.role as UserRole) || 'unidentifiedUser';
+  const userRole: UserRole = (token?.role as UserRole) || ('user' as UserRole);
   const hasPermission = hasFeaturePermissionFn(userRole, feature);
 
   // Handle ownership-based permissions
@@ -218,7 +218,7 @@ export async function withMinimumRole(
     secret: process.env.NEXTAUTH_SECRET,
   });
 
-  const userRole: UserRole = (token?.role as UserRole) || 'unidentifiedUser';
+  const userRole: UserRole = (token?.role as UserRole) || ('user' as UserRole);
   const hasMinimumRole = ROLE_HIERARCHY[userRole] >= ROLE_HIERARCHY[requiredRole];
 
   if (isApiRoute) {
@@ -241,7 +241,7 @@ export async function withMinimumRole(
       );
     }
   } else {
-    if (!token && requiredRole !== 'unidentifiedUser') {
+    if (!token && requiredRole !== ('user' as UserRole)) {
       const url = new URL('/auth/signin', request.url);
       url.searchParams.set('callbackUrl', encodeURI(request.nextUrl.pathname));
       return NextResponse.redirect(url);

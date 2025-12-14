@@ -21,14 +21,14 @@ export function withAuth<P extends object>(
   Component: ComponentType<P>,
   options: WithAuthOptions = {}
 ): ComponentType<P> {
-  const { requiredRole, redirectTo = '/login', requireAuth = true } = options;
+  const { requiredRole, redirectTo = '/auth/login', requireAuth = true } = options;
 
   function AuthenticatedComponent(props: P) {
     const { data: session, status } = useSession();
     const router = useRouter();
 
     const user = session?.user;
-    const userRole = (user as { role?: UserRole })?.role || 'unidentifiedUser';
+    const userRole = (user as { role?: UserRole })?.role || ('user' as UserRole);
 
     useEffect(() => {
       if (status === 'loading') return; // Still loading

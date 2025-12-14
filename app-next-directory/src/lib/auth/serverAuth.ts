@@ -11,6 +11,14 @@ import dbConnect from '@/lib/dbConnect';
 import User from '@/models/User';
 import type { UserRole } from '@/types/auth';
 import { isEmailVerificationRequired } from './config';
+// Import DAL functions
+import {
+  getUserById as dalGetUserById,
+  authenticateUserCredentials,
+  createUser,
+  type AuthUser,
+} from './dal';
+import { withMongooseCache } from '../mongoose-cache';
 
 // Memoized database connection function
 const connectToDatabase = async () => {
@@ -43,6 +51,7 @@ export interface AuthenticatedUser {
 
 /**
  * Authenticate user with email and password
+ * @deprecated Use authenticateUserCredentials from dal.ts instead
  * @param email User email
  * @param password Plain text password
  * @returns Authenticated user or null
@@ -51,57 +60,20 @@ export async function authenticateUser(
   email: string,
   password: string
 ): Promise<AuthenticatedUser | null> {
-  try {
-    await connectToDatabase();
-
-    const requireVerification = isEmailVerificationRequired();
-
-    const query: FilterQuery<UserDoc> = {
-      email: email.trim().toLowerCase(),
-    };
-
-    if (requireVerification) {
-      query.emailVerified = {
-        $exists: true,
-        $ne: null,
-        $type: 'date',
-      } as FilterQuery<UserDoc>['emailVerified'];
-    }
-
-    // Find user in MongoDB using Mongoose model
-    const user = await UserModel.findOne(query)
-      .select('_id name email image role +password +emailVerified')
-      .lean<SelectedAuthDoc>();
-
-    if (!user || !user.password) {
-      return null;
-    }
-    // Defense in depth: verify again post-fetch when required
-    if (requireVerification && !user.emailVerified) {
-      return null;
-    }
-
-    // Verify password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      return null;
-    }
-
-    return {
-      id: user._id.toString(),
-      name: user.name,
-      email: user.email,
-      image: user.image,
-      role: user.role as UserRole,
-    };
-  } catch (_error) {
-    return null;
-  }
+  const user = await authenticateUserCredentials(email, password);
+  if (!user) return null;
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    image: user.image,
+    role: user.role,
+  };
 }
 
 /**
  * Create a new user account
+ * @deprecated Use createUser from dal.ts instead
  * @param userData User registration data
  * @returns Created user or null
  */
@@ -111,40 +83,16 @@ export async function createUserAccount(userData: {
   password: string;
   image?: string;
 }): Promise<AuthenticatedUser | null> {
-  try {
-    await connectToDatabase();
-
-    // Check if user already exists
-    const exists = await UserModel.exists({ email: userData.email.trim().toLowerCase() });
-    if (exists) {
-      throw new Error('User already exists');
-    }
-
-    // Hash password
-    const hashedPassword = await bcrypt.hash(userData.password, 12);
-
-    // Create user
-    const user = await UserModel.create({
-      name: userData.name,
-      email: userData.email.trim().toLowerCase(),
-      password: hashedPassword,
-      image: userData.image,
-      role: 'user' as UserRole,
-    });
-
-    return {
-      id: user._id.toString(),
-      name: user.name,
-      email: user.email,
-      image: user.image,
-      role: user.role as UserRole,
-    };
-  } catch (_error) {
-    return null;
-  }
+  const user = await createUser(userData);
+  if (!user) return null;
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    image: user.image,
+    role: user.role,
+  };
 }
-
-import { withMongooseCache } from '../mongoose-cache';
 
 /**
  * Get user by ID
@@ -153,28 +101,15 @@ import { withMongooseCache } from '../mongoose-cache';
  */
 export async function getUserById(userId: string): Promise<AuthenticatedUser | null> {
   const fetchUser = async (): Promise<AuthenticatedUser | null> => {
-    try {
-      await connectToDatabase();
-
-      if (!isValidObjectId(userId)) {
-        return null;
-      }
-
-      const user = await UserModel.findById(userId).select('_id name email image role').lean();
-      if (!user) {
-        return null;
-      }
-
-      return {
-        id: user._id.toString(),
-        name: user.name,
-        email: user.email,
-        image: user.image,
-        role: user.role as UserRole,
-      };
-    } catch (_error) {
-      return null;
-    }
+    const user = await dalGetUserById(userId);
+    if (!user) return null;
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      image: user.image,
+      role: user.role,
+    };
   };
 
   if (process.env.NODE_ENV === 'test') {

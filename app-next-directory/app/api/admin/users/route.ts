@@ -1,8 +1,14 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { getDefaultTimeout, withRequestTimeout } from '@/lib/http/request';
+import {
+  getUserById,
+  updateUserRole,
+  updateUserStatus,
+  type AuthUser,
+} from '@/lib/auth/dal';
+import dbConnect from '@/lib/dbConnect';
 import { structuredLogger } from '@/lib/logger';
-import { client } from '@/lib/sanity/client';
+import User, { type IUser } from '@/models/User';
 import type { UserRole } from '@/types/auth';
 
 type RouteContext = { params: Promise<Record<string, never>> };
@@ -16,8 +22,11 @@ type UserListItem = {
   role: UserRole;
   createdAt: string;
   lastActiveAt: string | null;
-  status: 'active' | 'inactive';
+  status: 'active' | 'suspended' | 'pending';
 };
+
+// Valid roles for filtering and assignment
+const VALID_ROLES: UserRole[] = ['user', 'venueOwner', 'admin', 'superAdmin'];
 
 function ensureAdmin(sessionUser: SessionUser): boolean {
   const role = sessionUser?.role;
@@ -62,72 +71,42 @@ export async function GET(request: NextRequest, _context: RouteContext) {
 
     const offset = (page - 1) * limit;
 
-    // Build search query
-    let searchCondition = '';
+    await dbConnect();
+
+    // Build MongoDB query
+    const query: Record<string, unknown> = {};
+    
     if (search) {
-      searchCondition = `&& (name match "*${search}*" || email match "*${search}*")`;
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+      ];
     }
 
-    let roleCondition = '';
-    if (
-      roleFilter &&
-      [
-        'admin',
-        'user',
-        'editor',
-        'venueOwner',
-        'superAdmin',
-        'moderator',
-        'contentEditor',
-        'unidentifiedUser',
-      ].includes(roleFilter)
-    ) {
-      roleCondition = `&& role == "${roleFilter}"`;
+    if (roleFilter && VALID_ROLES.includes(roleFilter)) {
+      query.role = roleFilter;
     }
 
-    const query = `*[_type == "user" ${searchCondition} ${roleCondition}] | order(_createdAt desc) [${offset}...${offset + limit}] {
-      _id,
-      name,
-      email,
-      role,
-      _createdAt,
-      lastActiveAt,
-      "status": coalesce(status, "active")
-    }`;
-
-    const countQuery = `count(*[_type == "user" ${searchCondition} ${roleCondition}])`;
-
-    const [users, totalCount] = await withRequestTimeout(
-      Promise.all([
-        client.fetch<
-          Array<{
-            _id: string;
-            name?: string | null;
-            email?: string | null;
-            role?: UserRole;
-            _createdAt?: string;
-            lastActiveAt?: string | null;
-            status?: 'active' | 'inactive';
-          }>
-        >(query),
-        client.fetch<number>(countQuery),
-      ]),
-      getDefaultTimeout(),
-      'Fetching admin users timed out'
-    );
-
-    if (!users || totalCount === null) {
-      return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 });
-    }
+    // Fetch users from MongoDB
+    const UserModel = User as unknown as import('mongoose').Model<IUser>;
+    const [users, totalCount] = await Promise.all([
+      UserModel.find(query)
+        .select('_id name email role status createdAt updatedAt')
+        .sort({ createdAt: -1 })
+        .skip(offset)
+        .limit(limit)
+        .lean(),
+      UserModel.countDocuments(query),
+    ]);
 
     const userList: UserListItem[] = users.map(user => ({
-      id: user._id,
+      id: user._id.toString(),
       name: user.name ?? null,
       email: user.email ?? null,
       role: user.role ?? 'user',
-      createdAt: user._createdAt ?? new Date().toISOString(),
-      lastActiveAt: user.lastActiveAt ?? null,
-      status: user.status ?? 'active',
+      createdAt: user.createdAt?.toISOString() ?? new Date().toISOString(),
+      lastActiveAt: user.updatedAt?.toISOString() ?? null,
+      status: (user.status as 'active' | 'suspended' | 'pending') ?? 'active',
     }));
 
     const totalPages = Math.ceil(totalCount / limit);
@@ -170,47 +149,36 @@ export async function PATCH(request: NextRequest, _context: RouteContext) {
     const userId = body?.userId;
     userIdValue = typeof userId === 'string' ? userId : undefined;
     const newRole = body?.role as UserRole | undefined;
-    const newStatus = body?.status as 'active' | 'inactive' | undefined;
+    const newStatus = body?.status as 'active' | 'suspended' | 'pending' | undefined;
     const action = typeof body?.action === 'string' ? body.action : undefined;
 
     if (!userIdValue) {
       return NextResponse.json({ error: 'userId is required' }, { status: 400 });
     }
 
-    // Only superAdmin can change roles
-    if (newRole && !ensureSuperAdmin(sessionUser)) {
+    // Only admin can change roles (per requirement: Allow users with role `admin` to assign the `superAdmin` role)
+    if (newRole && !ensureAdmin(sessionUser)) {
       return NextResponse.json(
         {
-          error: 'SuperAdmin access required for role changes',
+          error: 'Admin access required for role changes',
         },
         { status: 403 }
       );
     }
 
-    if (
-      newRole &&
-      ![
-        'admin',
-        'user',
-        'editor',
-        'venueOwner',
-        'superAdmin',
-        'moderator',
-        'contentEditor',
-        'unidentifiedUser',
-      ].includes(newRole)
-    ) {
+    // Validate role
+    if (newRole && !VALID_ROLES.includes(newRole)) {
       return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
     }
 
-    if (newStatus && !['active', 'inactive'].includes(newStatus)) {
+    if (newStatus && !['active', 'suspended', 'pending'].includes(newStatus)) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
     }
 
-    let derivedStatus: 'active' | 'inactive' | undefined = newStatus;
+    let derivedStatus: 'active' | 'suspended' | 'pending' | undefined = newStatus;
     if (action) {
       if (action === 'suspend') {
-        derivedStatus = 'inactive';
+        derivedStatus = 'suspended';
       } else if (action === 'activate') {
         derivedStatus = 'active';
       } else {
@@ -233,22 +201,34 @@ export async function PATCH(request: NextRequest, _context: RouteContext) {
       );
     }
 
-    const updateData: Record<string, unknown> = {};
-    if (newRole) updateData.role = newRole;
-    if (derivedStatus) updateData.status = derivedStatus;
-    updateData.updatedAt = new Date().toISOString();
-    updateData.updatedBy = sessionUser?.id;
+    await dbConnect();
 
-    await withRequestTimeout(
-      client.patch(userIdValue).set(updateData).commit(),
-      getDefaultTimeout(),
-      'Updating user timed out'
-    );
+    // Update role if provided
+    if (newRole) {
+      const roleUpdated = await updateUserRole(userIdValue, newRole);
+      if (!roleUpdated) {
+        return NextResponse.json({ error: 'Failed to update role' }, { status: 500 });
+      }
+    }
+
+    // Update status if provided
+    if (derivedStatus) {
+      const statusUpdated = await updateUserStatus(userIdValue, derivedStatus);
+      if (!statusUpdated) {
+        return NextResponse.json({ error: 'Failed to update status' }, { status: 500 });
+      }
+    }
+
+    const updates: Record<string, unknown> = {};
+    if (newRole) updates.role = newRole;
+    if (derivedStatus) updates.status = derivedStatus;
+    updates.updatedAt = new Date().toISOString();
+    updates.updatedBy = sessionUser?.id;
 
     return NextResponse.json({
       message: 'User updated successfully',
       userId: userIdValue,
-      updates: updateData,
+      updates,
     });
   } catch (error) {
     structuredLogger.error('Admin users PATCH error', error, {
@@ -284,11 +264,15 @@ export async function DELETE(request: NextRequest, _context: RouteContext) {
       return NextResponse.json({ error: 'You cannot delete your own account' }, { status: 400 });
     }
 
-    await withRequestTimeout(
-      (client.delete as (id: string) => Promise<void>)(userIdValue),
-      getDefaultTimeout(),
-      'Deleting user timed out'
-    );
+    await dbConnect();
+
+    // Delete user from MongoDB
+    const UserModel = User as unknown as import('mongoose').Model<IUser>;
+    const result = await UserModel.deleteOne({ _id: userIdValue });
+
+    if (result.deletedCount === 0) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
 
     return NextResponse.json({
       message: 'User deleted successfully',

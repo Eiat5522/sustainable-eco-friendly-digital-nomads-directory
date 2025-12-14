@@ -6,8 +6,8 @@ import { type PlaywrightRole, resolveTestUser } from './config/test-users';
 export type TestFixtures = {
   authenticatedPage: Page;
   adminPage: Page;
+  superAdminPage: Page;
   venueOwnerPage: Page;
-  editorPage: Page;
 };
 
 const ensureStorageDirectory = (filePath?: string) => {
@@ -19,7 +19,7 @@ const ensureStorageDirectory = (filePath?: string) => {
 };
 
 const performLogin = async (page: Page, email: string, password: string) => {
-  await page.goto('/login');
+  await page.goto('/auth/login');
 
   const loginForm = page.locator('form');
   const hasLoginForm = (await loginForm.count()) > 0;
@@ -76,16 +76,16 @@ export const test = base.extend<TestFixtures>({
       await context.close();
     }
   },
-  venueOwnerPage: async ({ browser }, use) => {
-    const { context, page } = await createAuthenticatedContext(browser, 'venueOwner');
+  superAdminPage: async ({ browser }, use) => {
+    const { context, page } = await createAuthenticatedContext(browser, 'superAdmin');
     try {
       await use(page);
     } finally {
       await context.close();
     }
   },
-  editorPage: async ({ browser }, use) => {
-    const { context, page } = await createAuthenticatedContext(browser, 'editor');
+  venueOwnerPage: async ({ browser }, use) => {
+    const { context, page } = await createAuthenticatedContext(browser, 'venueOwner');
     try {
       await use(page);
     } finally {

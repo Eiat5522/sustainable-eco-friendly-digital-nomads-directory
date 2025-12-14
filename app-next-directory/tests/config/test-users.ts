@@ -1,7 +1,7 @@
 import type { TestUser } from '@/tests/helpers/test-data';
 import { getCredentialsForRole, TEST_USERS } from './test-data';
 
-export type PlaywrightRole = 'customer' | 'venueOwner' | 'editor' | 'admin';
+export type PlaywrightRole = 'customer' | 'venueOwner' | 'admin' | 'superAdmin';
 
 export interface PlaywrightTestUser {
   role: PlaywrightRole;
@@ -16,15 +16,15 @@ export interface PlaywrightTestUser {
 const ROLE_MAP: Record<PlaywrightRole, TestUser['role']> = {
   customer: 'user',
   venueOwner: 'venueOwner',
-  editor: 'editor',
   admin: 'admin',
+  superAdmin: 'superAdmin',
 };
 
 const DEFAULT_DESCRIPTIONS: Record<PlaywrightRole, string> = {
   customer: 'Standard explorer profile used for guest browsing flows.',
   venueOwner: 'Business owner with access to listing management tools.',
-  editor: 'Content editor with publishing permissions.',
   admin: 'Administrator with elevated management privileges.',
+  superAdmin: 'Super administrator with full system access.',
 };
 
 const STORAGE_ROOT = 'tests/.auth';

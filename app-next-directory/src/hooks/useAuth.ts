@@ -18,7 +18,7 @@ export function useAuth() {
   const { data: session, status } = useSession();
 
   const user = session?.user;
-  const userRole = (user as { role?: UserRole })?.role || 'unidentifiedUser';
+  const userRole = (user as { role?: UserRole })?.role || ('user' as UserRole);
 
   return {
     // Authentication state

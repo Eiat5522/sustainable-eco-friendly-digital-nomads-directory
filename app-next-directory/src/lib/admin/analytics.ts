@@ -35,12 +35,8 @@ const ROLE_QUERIES = [
     role: 'user',
     query: 'count(*[_type == "user" && (role == "user" || !defined(role))])',
   },
-  { role: 'moderator', query: 'count(*[_type == "user" && role == "moderator"])' },
-  { role: 'editor', query: 'count(*[_type == "user" && role == "editor"])' },
   { role: 'venueOwner', query: 'count(*[_type == "user" && role == "venueOwner"])' },
   { role: 'superAdmin', query: 'count(*[_type == "user" && role == "superAdmin"])' },
-  { role: 'contentEditor', query: 'count(*[_type == "user" && role == "contentEditor"])' },
-  { role: 'unidentifiedUser', query: 'count(*[_type == "user" && role == "unidentifiedUser"])' },
 ] as const;
 
 type RoleKey = (typeof ROLE_QUERIES)[number]['role'];
