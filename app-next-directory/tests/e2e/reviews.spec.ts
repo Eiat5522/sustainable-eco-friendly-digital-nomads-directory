@@ -1,5 +1,16 @@
 import { expect, test } from '@playwright/test';
 
+/**
+ * ReviewsSection E2E Tests
+ * 
+ * Note: Many deterministic navigation and API response cases have been migrated to Jest/RTL
+ * for faster, more reliable testing. See:
+ * - src/components/listings/__tests__/ReviewsSection.navigation.test.tsx
+ * 
+ * This E2E suite now focuses on true end-to-end user interaction scenarios that require
+ * a browser environment.
+ */
+
 test.describe('ReviewsSection E2E Tests', () => {
   // Test using the home page initially to see if we can create a simple test page
   const testPageUrl = '/';
