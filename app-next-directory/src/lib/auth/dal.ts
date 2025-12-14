@@ -287,7 +287,7 @@ export async function createUser(userData: {
 
     return {
       id: user._id.toString(),
-      name: user.name,
+      name: user.name ?? userData.name,
       email: user.email,
       image: user.image,
       role: user.role,

@@ -75,6 +75,10 @@ export default defineConfig({
           PORT: String(resolvedPort),
           E2E: '1',
           NEXT_PUBLIC_E2E: '1',
+          // NextAuth v5 requires trusting the host when running behind test proxies/localhost
+          AUTH_TRUST_HOST: 'true',
+          // Enable dev/test-only pages while still running a production build
+          ENABLE_TEST_PAGES: 'true',
           // Use isolated test credentials
           NEXT_PUBLIC_SANITY_PROJECT_ID: 'test-project-id',
           NEXT_PUBLIC_SANITY_DATASET: 'test',

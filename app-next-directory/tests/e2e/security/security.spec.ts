@@ -32,7 +32,7 @@ const TEST_CONFIG = {
   urls: {
     home: process.env.TEST_HOME_URL ?? '/',
     adminDashboard: process.env.TEST_ADMIN_DASHBOARD_URL ?? '/admin/dashboard',
-    signin: process.env.TEST_SIGNIN_URL ?? '/auth/signin',
+    signin: process.env.TEST_SIGNIN_URL ?? '/auth/login',
     signup: process.env.TEST_SIGNUP_URL ?? '/auth/signup',
     dashboard: process.env.TEST_DASHBOARD_URL ?? '/dashboard',
     createListing: process.env.TEST_CREATE_LISTING_URL ?? '/dashboard/create-listing',
@@ -150,11 +150,8 @@ test.describe('Security Testing', () => {
       await page.fill('input[name="password"]', TEST_CONFIG.credentials.userPassword);
       await page.click('button[type="submit"]');
 
-      // Simulate session expiry by manipulating session storage
-      await page.evaluate(sessionTokenKey => {
-        localStorage.removeItem(sessionTokenKey);
-        sessionStorage.clear();
-      }, TEST_CONFIG.content.sessionTokenKey);
+      // Simulate session expiry by clearing cookies (NextAuth uses cookies for session)
+      await page.context().clearCookies();
 
       // Try to access protected resource
       await page.goto(TEST_CONFIG.urls.dashboard);
