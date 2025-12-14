@@ -20,7 +20,7 @@ interface PageLayoutProps {
  */
 export function PageLayout({ children, className = '' }: PageLayoutProps) {
   return (
-    <div className={`min-h-screen bg-background ${className}`}>
+    <div className={`min-h-screen bg-background overflow-x-hidden ${className}`}>
       {/* Skip Links - Styled to blend with white header, visible only on focus */}
       <SkipLink href="#main-content">Skip to main content</SkipLink>
 

@@ -40,6 +40,7 @@ export function Header(): React.JSX.Element {
   const shortName = session?.user?.name?.split(' ')[0] ?? session?.user?.name ?? '';
   const accountLabel = isAuthenticated ? `Signed in as ${displayName}` : 'Sign in';
   const [signingOut, setSigningOut] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const userImage = typeof session?.user?.image === 'string' ? session.user.image : null;
   const accountInitials = (() => {
     const source = session?.user?.name ?? session?.user?.email ?? '';
@@ -66,7 +67,7 @@ export function Header(): React.JSX.Element {
   }, [signingOut]);
 
   return (
-    <header className="w-full bg-background border-b-4 border-neo-border">
+    <header className="w-full bg-background border-b-4 border-neo-border" role="banner">
       <div className="container mx-auto px-4 py-4">
         <div className="relative flex items-center justify-between">
           {/* Left: Logo + Mobile Menu */}
@@ -88,6 +89,10 @@ export function Header(): React.JSX.Element {
               type="button"
               aria-label="Open navigation menu"
               className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-md border border-neo-border hover:bg-neo-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
+              aria-expanded={isMobileMenuOpen}
+              aria-controls="mobile-nav"
+              data-testid="mobile-menu-toggle"
+              onClick={() => setIsMobileMenuOpen(prev => !prev)}
             >
               <Menu size={20} aria-hidden="true" focusable="false" />
             </button>
@@ -223,6 +228,48 @@ export function Header(): React.JSX.Element {
           </div>
         </div>
       </div>
+
+      {/* Mobile navigation drawer */}
+      {isMobileMenuOpen && (
+        <div
+          id="mobile-nav"
+          data-testid="mobile-menu"
+          className="md:hidden border-t border-neo-border bg-background shadow-lg"
+          role="navigation"
+          aria-label="Mobile navigation"
+        >
+          <div className="container mx-auto px-4 py-4 space-y-3">
+            <Link
+              href="/"
+              className="block text-base font-semibold text-neo-text-primary hover:text-neo-primary"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Home
+            </Link>
+            <Link
+              href="/search"
+              className="block text-base font-semibold text-neo-text-primary hover:text-neo-primary"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Search
+            </Link>
+            <Link
+              href="/blog"
+              className="block text-base font-semibold text-neo-text-primary hover:text-neo-primary"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Blog
+            </Link>
+            <Link
+              href="/contact-us"
+              className="block text-base font-semibold text-neo-text-primary hover:text-neo-primary"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Contact Us
+            </Link>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
