@@ -68,8 +68,14 @@ export async function loginAs(page: Page, email: string, password: string) {
   await submitLocator.waitFor({ state: 'visible', timeout: 5000 }).catch(() => undefined);
 
   try {
+    // After successful login, the app redirects to the callbackUrl or home page (/)
+    // We wait for the URL to change away from login/signin routes
     await Promise.all([
-      page.waitForURL(/\/(dashboard|account|home)(\/)?(?=$|[?#])/, { timeout: 10000 }),
+      page.waitForURL(url => {
+        const pathname = new URL(url).pathname;
+        // Consider login successful if we're no longer on a login/signin page
+        return !pathname.includes('/login') && !pathname.includes('/signin');
+      }, { timeout: 10000 }),
       submitLocator.click(),
     ]);
   } catch (error) {
