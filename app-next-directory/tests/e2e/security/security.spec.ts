@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 import { getOptionalTestEnvVar, getRequiredTestEnvVar } from '../../helpers/env';
+import { loginAs } from '../helpers/auth';
 
 const parseNumber = (value: string | undefined, fallback: number) => {
   const parsed = Number(value);
@@ -127,16 +128,17 @@ test.describe('Security Testing', () => {
       // Try to access admin page without authentication
       await page.goto(TEST_CONFIG.urls.adminDashboard);
 
-      // Should redirect to login
-      await expect(page).toHaveURL(createUrlPattern(TEST_CONFIG.urls.signin));
+      // Should redirect to login (either /auth/login or /auth/signin)
+      await expect(page).toHaveURL(/\/auth\/(login|signin)/);
     });
 
     test('prevents privilege escalation', async ({ page }) => {
-      // Login as regular user
-      await page.goto(TEST_CONFIG.urls.signin);
-      await page.fill('input[name="email"]', TEST_CONFIG.credentials.userEmail);
-      await page.fill('input[name="password"]', TEST_CONFIG.credentials.userPassword);
-      await page.click('button[type="submit"]');
+      // Login as regular user using the auth helper
+      await loginAs(
+        page,
+        TEST_CONFIG.credentials.userEmail,
+        TEST_CONFIG.credentials.userPassword
+      );
 
       // Try to access admin API endpoints
       const response = await page.request.get(TEST_CONFIG.urls.api.adminUsers);
@@ -144,11 +146,12 @@ test.describe('Security Testing', () => {
     });
 
     test('session timeout security', async ({ page }) => {
-      // Login
-      await page.goto(TEST_CONFIG.urls.signin);
-      await page.fill('input[name="email"]', TEST_CONFIG.credentials.userEmail);
-      await page.fill('input[name="password"]', TEST_CONFIG.credentials.userPassword);
-      await page.click('button[type="submit"]');
+      // Login using the auth helper
+      await loginAs(
+        page,
+        TEST_CONFIG.credentials.userEmail,
+        TEST_CONFIG.credentials.userPassword
+      );
 
       // Simulate session expiry by clearing cookies (NextAuth uses cookies for session)
       await page.context().clearCookies();
@@ -156,8 +159,8 @@ test.describe('Security Testing', () => {
       // Try to access protected resource
       await page.goto(TEST_CONFIG.urls.dashboard);
 
-      // Should be redirected to login
-      await expect(page).toHaveURL(createUrlPattern(TEST_CONFIG.urls.signin));
+      // Should be redirected to login (either /auth/login or /auth/signin)
+      await expect(page).toHaveURL(/\/auth\/(login|signin)/);
     });
 
     test('password security requirements', async ({ page }) => {
@@ -186,10 +189,15 @@ test.describe('Security Testing', () => {
       for (const payload of sqlInjectionPayloads) {
         await page.goto(`${TEST_CONFIG.urls.search}?q=${encodeURIComponent(payload)}`);
 
-        // Should not cause database errors
-        await expect(page.locator('[data-testid="error-message"]')).not.toContainText(
-          /database|sql|mysql|postgres/i
-        );
+        // Should not cause database errors - check if error message exists first
+        const errorMessage = page.locator('[data-testid="error-message"]');
+        const errorCount = await errorMessage.count();
+        
+        if (errorCount > 0) {
+          const errorText = await errorMessage.textContent() || '';
+          // If there's an error, it should not expose database details
+          expect(errorText).not.toMatch(/database|sql|mysql|postgres/i);
+        }
 
         // Should handle gracefully with no results or sanitized search
         const hasResults = await page.locator('[data-testid="search-results"]').isVisible();
@@ -226,11 +234,12 @@ test.describe('Security Testing', () => {
     });
 
     test('prevents CSRF attacks', async ({ page, context }) => {
-      // Login and get session
-      await page.goto(TEST_CONFIG.urls.signin);
-      await page.fill('input[name="email"]', TEST_CONFIG.credentials.userEmail);
-      await page.fill('input[name="password"]', TEST_CONFIG.credentials.userPassword);
-      await page.click('button[type="submit"]');
+      // Login and get session using the auth helper
+      await loginAs(
+        page,
+        TEST_CONFIG.credentials.userEmail,
+        TEST_CONFIG.credentials.userPassword
+      );
 
       // Get CSRF token
       const csrfToken = await page.evaluate(() => {
@@ -251,6 +260,13 @@ test.describe('Security Testing', () => {
     });
 
     test('file upload security', async ({ page }) => {
+      // Login first since create listing page requires authentication
+      await loginAs(
+        page,
+        TEST_CONFIG.credentials.userEmail,
+        TEST_CONFIG.credentials.userPassword
+      );
+      
       await page.goto(TEST_CONFIG.urls.createListing);
 
       // Test malicious file types

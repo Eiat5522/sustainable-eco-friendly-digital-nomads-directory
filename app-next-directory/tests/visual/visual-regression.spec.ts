@@ -43,7 +43,7 @@ test.describe('Visual Regression Testing', () => {
 
     test('dashboard page visual consistency', async ({ page }) => {
       // Login first
-      await page.goto('/auth/signin');
+      await page.goto('/auth/login');
       await page.fill('input[name="email"]', process.env.TEST_USER_EMAIL!);
       await page.fill('input[name="password"]', process.env.TEST_USER_PASSWORD!);
       await page.click('button[type="submit"]');
