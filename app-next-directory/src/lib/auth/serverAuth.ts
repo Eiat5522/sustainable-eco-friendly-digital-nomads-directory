@@ -18,6 +18,7 @@ import {
   createUser,
   type AuthUser,
 } from './dal';
+import { withMongooseCache } from '../mongoose-cache';
 
 // Memoized database connection function
 const connectToDatabase = async () => {
@@ -92,8 +93,6 @@ export async function createUserAccount(userData: {
     role: user.role,
   };
 }
-
-import { withMongooseCache } from '../mongoose-cache';
 
 /**
  * Get user by ID
