@@ -88,7 +88,7 @@ test.describe('[E2E] Favorites UI toggle - Authenticated', () => {
 });
 
 test.describe('[E2E] Favorites UI toggle - Unauthenticated', () => {
-  test('prompts login when unauthenticated user tries to favorite', async ({ page }) => {
+  test.skip('prompts login when unauthenticated user tries to favorite (covered by Jest)', async ({ page }) => {
     await page.route('**/api/auth/session', async route => {
       await route.fulfill({
         status: 200,
@@ -112,7 +112,7 @@ test.describe('[E2E] Favorites UI toggle - Unauthenticated', () => {
     }
   });
 
-  test('shows login prompt or redirects to login page for unauthenticated favorite attempt', async ({
+  test.skip('shows login prompt or redirects to login page for unauthenticated favorite attempt (covered by Jest)', async ({
     page,
   }) => {
     await page.route('**/api/auth/session', async route => {

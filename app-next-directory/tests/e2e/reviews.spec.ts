@@ -33,7 +33,7 @@ test.describe('ReviewsSection E2E Tests', () => {
 
 test.describe('ReviewsSection E2E Tests', () => {
   test.describe('Non-authenticated user: Sign-in prompt and callback URL', () => {
-    test('should show sign-in prompt with correct callbackUrl', async ({ page }) => {
+    test.skip('should show sign-in prompt with correct callbackUrl (covered by Jest)', async ({ page }) => {
       // Mock unauthenticated session
       await page.route('**/api/auth/session', async route => {
         await route.fulfill({
@@ -85,7 +85,7 @@ test.describe('ReviewsSection E2E Tests', () => {
       expect(href).toContain(encodeURIComponent(page.url()));
     });
 
-    test('should navigate to login with callbackUrl when Sign In clicked', async ({ page }) => {
+    test.skip('should navigate to login with callbackUrl when Sign In clicked (covered by Jest)', async ({ page }) => {
       // Mock auth login page
       await page.route('**/auth/login*', async route => {
         await route.fulfill({
@@ -121,7 +121,7 @@ test.describe('ReviewsSection E2E Tests', () => {
   });
 
   test.describe('Signed-in user: Review submission flows', () => {
-    test('should redirect to login on 401 response with callbackUrl', async ({ page }) => {
+    test.skip('should redirect to login on 401 response with callbackUrl (covered by Jest)', async ({ page }) => {
       let reviewSubmissionAttempted = false;
 
       // Mock authenticated session initially
@@ -214,7 +214,7 @@ test.describe('ReviewsSection E2E Tests', () => {
       expect(reviewSubmissionAttempted).toBe(true);
     });
 
-    test('should show success message on 200 response', async ({ page }) => {
+    test.skip('should show success message on 200 response (covered by Jest)', async ({ page }) => {
       // Mock authenticated session
       await page.route('**/api/auth/session', async route => {
         await route.fulfill({
