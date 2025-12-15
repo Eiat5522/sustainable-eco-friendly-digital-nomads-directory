@@ -1,4 +1,7 @@
 import { beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import type { NextRequest } from 'next/server';
+import type { Session } from 'next-auth';
+import type { UserRole } from '@/types/auth';
 
 jest.mock('@/lib/auth', () => ({
   __esModule: true,
@@ -49,6 +52,19 @@ const mockPatch = clientMockModule.__mock.patchMock;
 const mockSet = clientMockModule.__mock.setMock;
 const mockCommit = clientMockModule.__mock.commitMock;
 
+// Helper type for mock session
+type MockSession = Session & {
+  user: {
+    role?: UserRole;
+  };
+};
+
+// Helper type for mock request
+interface MockRequest extends Partial<NextRequest> {
+  url?: string;
+  json?: () => Promise<unknown>;
+}
+
 beforeAll(async () => {
   ({ GET, POST } = await import('../route'));
   ({ POST: BACKUP_POST } = await import('../backup/route'));
@@ -68,9 +84,9 @@ describe('/api/admin/settings', () => {
 
   describe('GET', () => {
     it('requires admin access', async () => {
-      mockAuth.mockResolvedValue({ user: { role: 'user' } } as any);
+      mockAuth.mockResolvedValue({ user: { role: 'user' } } as MockSession);
 
-      const request = { url: 'https://example.com/api/admin/settings' } as any;
+      const request = { url: 'https://example.com/api/admin/settings' } as MockRequest as NextRequest;
       const response = await GET(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -80,7 +96,7 @@ describe('/api/admin/settings', () => {
     });
 
     it('returns existing settings when they exist', async () => {
-      mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+      mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
 
       const mockSettings = {
         _id: 'settings-1',
@@ -103,7 +119,7 @@ describe('/api/admin/settings', () => {
 
       mockFetch.mockResolvedValue(mockSettings);
 
-      const request = { url: 'https://example.com/api/admin/settings' } as any;
+      const request = { url: 'https://example.com/api/admin/settings' } as MockRequest as NextRequest;
       const response = await GET(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -113,10 +129,10 @@ describe('/api/admin/settings', () => {
     });
 
     it('returns default settings when none exist', async () => {
-      mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+      mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
       mockFetch.mockResolvedValue(null);
 
-      const request = { url: 'https://example.com/api/admin/settings' } as any;
+      const request = { url: 'https://example.com/api/admin/settings' } as MockRequest as NextRequest;
       const response = await GET(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -128,10 +144,10 @@ describe('/api/admin/settings', () => {
     });
 
     it('handles errors gracefully', async () => {
-      mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+      mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
       mockFetch.mockRejectedValue(new Error('Database error'));
 
-      const request = { url: 'https://example.com/api/admin/settings' } as any;
+      const request = { url: 'https://example.com/api/admin/settings' } as MockRequest as NextRequest;
       const response = await GET(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -143,12 +159,12 @@ describe('/api/admin/settings', () => {
 
   describe('POST', () => {
     it('requires admin access', async () => {
-      mockAuth.mockResolvedValue({ user: { role: 'user' } } as any);
+      mockAuth.mockResolvedValue({ user: { role: 'user' } } as MockSession);
 
       const request = {
         url: 'https://example.com/api/admin/settings',
         json: async () => ({ settings: {} }),
-      } as any;
+      } as MockRequest as NextRequest;
 
       const response = await POST(request, { params: Promise.resolve({}) });
       const json = await response.json();
@@ -161,12 +177,12 @@ describe('/api/admin/settings', () => {
     });
 
     it('returns error when settings data is missing', async () => {
-      mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+      mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
 
       const request = {
         url: 'https://example.com/api/admin/settings',
         json: async () => ({}),
-      } as any;
+      } as MockRequest as NextRequest;
 
       const response = await POST(request, { params: Promise.resolve({}) });
       const json = await response.json();
@@ -178,7 +194,7 @@ describe('/api/admin/settings', () => {
     });
 
     it('creates new settings when none exist', async () => {
-      mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+      mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
       mockFetch.mockResolvedValue(null);
 
       const newSettings = {
@@ -198,7 +214,7 @@ describe('/api/admin/settings', () => {
       const request = {
         url: 'https://example.com/api/admin/settings',
         json: async () => ({ settings: newSettings }),
-      } as any;
+      } as MockRequest as NextRequest;
 
       const response = await POST(request, { params: Promise.resolve({}) });
       const json = await response.json();
@@ -213,7 +229,7 @@ describe('/api/admin/settings', () => {
     });
 
     it('updates existing settings', async () => {
-      mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+      mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
 
       const existingSettings = {
         _id: 'settings-1',
@@ -239,7 +255,7 @@ describe('/api/admin/settings', () => {
       const request = {
         url: 'https://example.com/api/admin/settings',
         json: async () => ({ settings: updatedData }),
-      } as any;
+      } as MockRequest as NextRequest;
 
       const response = await POST(request, { params: Promise.resolve({}) });
       const json = await response.json();
@@ -261,13 +277,13 @@ describe('/api/admin/settings', () => {
     });
 
     it('handles errors gracefully', async () => {
-      mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+      mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
       mockFetch.mockRejectedValue(new Error('Database error'));
 
       const request = {
         url: 'https://example.com/api/admin/settings',
         json: async () => ({ settings: { siteName: 'Test' } }),
-      } as any;
+      } as MockRequest as NextRequest;
 
       const response = await POST(request, { params: Promise.resolve({}) });
       const json = await response.json();
@@ -280,9 +296,9 @@ describe('/api/admin/settings', () => {
 
   describe('POST /backup', () => {
     it('requires admin access', async () => {
-      mockAuth.mockResolvedValue({ user: { role: 'user' } } as any);
+      mockAuth.mockResolvedValue({ user: { role: 'user' } } as MockSession);
 
-      const request = { url: 'https://example.com/api/admin/settings/backup' } as any;
+      const request = { url: 'https://example.com/api/admin/settings/backup' } as MockRequest as NextRequest;
       const response = await BACKUP_POST(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -291,14 +307,14 @@ describe('/api/admin/settings', () => {
     });
 
     it('updates lastBackupDate when settings exist', async () => {
-      mockAuth.mockResolvedValue({ user: { role: 'admin', id: 'admin-1' } } as any);
+      mockAuth.mockResolvedValue({ user: { role: 'admin', id: 'admin-1' } } as MockSession);
       mockFetch.mockResolvedValue({ _id: 'settings-1' });
       mockCommit.mockResolvedValue({
         _id: 'settings-1',
         lastBackupDate: '2024-01-01T00:00:00.000Z',
       });
 
-      const request = { url: 'https://example.com/api/admin/settings/backup' } as any;
+      const request = { url: 'https://example.com/api/admin/settings/backup' } as MockRequest as NextRequest;
       const response = await BACKUP_POST(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -318,7 +334,7 @@ describe('/api/admin/settings', () => {
     });
 
     it('creates settings document when missing', async () => {
-      mockAuth.mockResolvedValue({ user: { role: 'superAdmin', id: 'super-1' } } as any);
+      mockAuth.mockResolvedValue({ user: { role: 'superAdmin', id: 'super-1' } } as MockSession);
       mockFetch.mockResolvedValue(null);
       mockCreate.mockResolvedValue({
         _id: 'settings-2',
@@ -326,7 +342,7 @@ describe('/api/admin/settings', () => {
         lastBackupDate: '2024-01-01T00:00:00.000Z',
       });
 
-      const request = { url: 'https://example.com/api/admin/settings/backup' } as any;
+      const request = { url: 'https://example.com/api/admin/settings/backup' } as MockRequest as NextRequest;
       const response = await BACKUP_POST(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -342,11 +358,11 @@ describe('/api/admin/settings', () => {
     });
 
     it('handles errors when backup fails', async () => {
-      mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+      mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
       mockFetch.mockResolvedValue({ _id: 'settings-1' });
       mockCommit.mockRejectedValue(new Error('commit failed'));
 
-      const request = { url: 'https://example.com/api/admin/settings/backup' } as any;
+      const request = { url: 'https://example.com/api/admin/settings/backup' } as MockRequest as NextRequest;
       const response = await BACKUP_POST(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
