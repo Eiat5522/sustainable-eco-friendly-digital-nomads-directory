@@ -30,13 +30,17 @@ jest.mock('@/components/ui/neo-card', () => ({
 
 jest.mock('@/components/ui/neo-button', () => ({
   __esModule: true,
-  NeoButton: ({ children, asChild, ...props }: any) =>
-    asChild ? <span {...props}>{children}</span> : <button {...props}>{children}</button>,
+  NeoButton: ({ children, asChild, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+    asChild?: boolean;
+    children?: React.ReactNode;
+  }) => (asChild ? <span {...props}>{children}</span> : <button {...props}>{children}</button>),
 }));
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ children, href }: any) => <a href={href}>{children}</a>,
+  default: ({ children, href }: { children: React.ReactNode; href: string }) => (
+    <a href={href}>{children}</a>
+  ),
 }));
 
 let NewsletterConfirmedPage: React.ComponentType;

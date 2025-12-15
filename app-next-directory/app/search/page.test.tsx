@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
+import type React from 'react';
 import type { SearchParamRecord } from '@/types/search';
 
 const headerRenderMock = jest.fn(() => <header data-testid="header" />);
@@ -41,8 +42,10 @@ jest.mock('@/components/listings/ListingGrid', () => ({
 }));
 
 jest.mock('@/components/ui/neo-button', () => ({
-  NeoButton: ({ children, asChild = false, ...rest }: any) =>
-    asChild ? children : <button {...rest}>{children}</button>,
+  NeoButton: ({ children, asChild = false, ...rest }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+    asChild?: boolean;
+    children?: React.ReactNode;
+  }) => (asChild ? children : <button {...rest}>{children}</button>),
 }));
 
 jest.mock('./results/server', () => ({

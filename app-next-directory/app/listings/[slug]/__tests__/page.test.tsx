@@ -48,11 +48,23 @@ jest.mock('@/components/layout/Footer', () => ({
 const originalFetch = global.fetch;
 const originalStructuredClone = global.structuredClone;
 
+type GlobalWithStructuredClone = typeof globalThis & {
+  structuredClone?: typeof structuredClone;
+};
+
+const setStructuredClone = (implementation: typeof structuredClone) => {
+  (global as GlobalWithStructuredClone).structuredClone = implementation;
+};
+
+const clearStructuredClone = () => {
+  delete (global as GlobalWithStructuredClone).structuredClone;
+};
+
 const structuredClonePolyfill = <T,>(value: T): T => JSON.parse(JSON.stringify(value));
 
 beforeAll(() => {
   if (typeof global.structuredClone !== 'function') {
-    (global as any).structuredClone = structuredClonePolyfill as typeof structuredClone;
+    setStructuredClone(structuredClonePolyfill as typeof structuredClone);
   }
 });
 
@@ -67,7 +79,7 @@ describe('app/listings/[slug]/page', () => {
     mockGetCollection.mockReset();
     global.fetch = jest.fn() as unknown as typeof fetch;
     if (typeof global.structuredClone !== 'function') {
-      (global as any).structuredClone = structuredClonePolyfill as typeof structuredClone;
+      setStructuredClone(structuredClonePolyfill as typeof structuredClone);
     }
   });
 
@@ -79,9 +91,9 @@ describe('app/listings/[slug]/page', () => {
   afterAll(() => {
     global.fetch = originalFetch;
     if (originalStructuredClone) {
-      (global as any).structuredClone = originalStructuredClone;
+      setStructuredClone(originalStructuredClone);
     } else {
-      delete (global as any).structuredClone;
+      clearStructuredClone();
     }
   });
 
