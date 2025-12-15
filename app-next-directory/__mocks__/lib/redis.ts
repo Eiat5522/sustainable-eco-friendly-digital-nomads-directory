@@ -65,7 +65,7 @@ const getRedisClientMock = getRedisClient as GetRedisClientMock;
 
 getRedisClientMock.mockClear = () => {
   // Only clear recorded calls to align with Jest's mockClear semantics in our shim
-  getRedisClientMock.mock.calls = [] as unknown as any[];
+  getRedisClientMock.mock.calls = [] as unknown as Array<unknown[]>;
 };
 
 getRedisClientMock.mockResetClient = () => {

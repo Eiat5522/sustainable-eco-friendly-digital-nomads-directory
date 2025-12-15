@@ -27,7 +27,7 @@ export async function generateAsyncValue<T>(value: T): Promise<T> {
  * const element = await MyPage({ params: asyncParams({ slug: 'test' }) });
  * ```
  */
-export function asyncParams<T extends Record<string, any>>(value: T): Promise<T> {
+export function asyncParams<T extends Record<string, unknown>>(value: T): Promise<T> {
   return Promise.resolve(value);
 }
 
@@ -39,6 +39,6 @@ export function asyncParams<T extends Record<string, any>>(value: T): Promise<T>
  * const element = await MyPage({ searchParams: asyncSearchParams({ query: 'test' }) });
  * ```
  */
-export function asyncSearchParams<T extends Record<string, any>>(value: T): Promise<T> {
+export function asyncSearchParams<T extends Record<string, unknown>>(value: T): Promise<T> {
   return Promise.resolve(value);
 }

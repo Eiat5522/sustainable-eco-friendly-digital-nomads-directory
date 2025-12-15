@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type React from 'react';
 
 const mockUseSession = jest.fn();
-const favoriteShowcaseProps: Array<{ listings: any[]; onRemove: (id: string) => void }> = [];
+const favoriteShowcaseProps: Array<{ listings: unknown[]; onRemove: (id: string) => void }> = [];
 
 jest.mock('next-auth/react', () => ({
   useSession: (...args: unknown[]) => mockUseSession(...args),
@@ -72,7 +72,7 @@ jest.mock('@/components/profile/ProfileEditForm', () => ({
 }));
 
 jest.mock('../profile/FavoriteListingsShowcase', () => ({
-  FavoriteListingsShowcase: (props: { listings: any[]; onRemove: (id: string) => void }) => {
+  FavoriteListingsShowcase: (props: { listings: unknown[]; onRemove: (id: string) => void }) => {
     favoriteShowcaseProps.push(props);
     return (
       <div data-testid="favorite-showcase">
@@ -92,7 +92,11 @@ jest.mock('../profile/FavoriteListingsShowcase', () => ({
   },
 }));
 
-const mockedNormaliseFavorite = jest.fn((entry: any) => {
+const mockedNormaliseFavorite = jest.fn((entry: {
+  listing?: { slug?: string; name?: string; primaryImage?: { asset?: { url?: string } } };
+  _id?: string;
+  createdAt?: string;
+} | null | undefined) => {
   if (!entry) return null;
   const slug = entry?.listing?.slug;
   if (typeof slug !== 'string' || slug.trim().length === 0) return null;
@@ -110,17 +114,48 @@ const mockedNormaliseFavorite = jest.fn((entry: any) => {
   };
 });
 
-const mockedNormaliseOwnerReviews = jest.fn((response: any) => {
+const mockedNormaliseOwnerReviews = jest.fn((response: {
+  listings?: Array<{
+    slug?: string;
+    name?: string;
+    reviews?: Array<{
+      id?: string;
+      rating?: number;
+      comment?: string;
+      createdAt?: string;
+      reviewerName?: string;
+      reviewerImage?: string;
+    }>;
+  }>;
+}) => {
   if (!response?.listings) return [];
   return response.listings
-    .filter((listing: any) => typeof listing?.slug === 'string' && listing.slug)
-    .map((listing: any) => ({
+    .filter((listing: { slug?: string }) => typeof listing?.slug === 'string' && listing.slug)
+    .map((listing: {
+      slug?: string;
+      name?: string;
+      reviews?: Array<{
+        id?: string;
+        rating?: number;
+        comment?: string;
+        createdAt?: string;
+        reviewerName?: string;
+        reviewerImage?: string;
+      }>;
+    }) => ({
       slug: listing.slug,
       name: listing.name ?? 'Untitled listing',
       reviews: Array.isArray(listing?.reviews)
         ? listing.reviews
-            .filter((review: any) => typeof review?.id === 'string')
-            .map((review: any) => ({
+            .filter((review: { id?: string }) => typeof review?.id === 'string')
+            .map((review: {
+              id?: string;
+              rating?: number;
+              comment?: string;
+              createdAt?: string;
+              reviewerName?: string;
+              reviewerImage?: string;
+            }) => ({
               id: review.id,
               rating: Number(review.rating ?? 0),
               comment: review.comment ?? '',
@@ -131,10 +166,11 @@ const mockedNormaliseOwnerReviews = jest.fn((response: any) => {
         : [],
     }));
 });
+});
 
 jest.mock('../profile/utils', () => ({
-  normaliseFavorite: (entry: any) => mockedNormaliseFavorite(entry),
-  normaliseOwnerReviews: (response: any) => mockedNormaliseOwnerReviews(response),
+  normaliseFavorite: (entry: unknown) => mockedNormaliseFavorite(entry),
+  normaliseOwnerReviews: (response: unknown) => mockedNormaliseOwnerReviews(response),
   formatDate: (date: string) => date,
 }));
 

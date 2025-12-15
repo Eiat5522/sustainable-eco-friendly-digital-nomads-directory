@@ -83,7 +83,7 @@ class SchemaMock {
         (fieldDef.type && (fieldDef.type as { name?: string }).name === 'ObjectId')
     )
       return 'ObjectId';
-    if (Array.isArray((fieldDef as any).type)) return 'Array';
+    if (Array.isArray((fieldDef as Record<string, unknown>).type)) return 'Array';
     return 'Mixed';
   }
 
@@ -253,16 +253,30 @@ const createModelMock = (modelName: string, schema?: SchemaMock) => {
   }
 
   // attach some runtime helpers that tests may use
-  (modelMock as any).modelName = modelName;
-  (modelMock as any).schema = schema;
-  (modelMock as any).findOne = jest.fn();
-  (modelMock as any).create = jest.fn();
-  (modelMock as any).findById = jest.fn();
-  (modelMock as any).findByIdAndUpdate = jest.fn();
-  (modelMock as any).updateOne = jest.fn();
-  (modelMock as any).exists = jest.fn();
-  (modelMock as any).find = jest.fn();
-  (modelMock as any).countDocuments = jest.fn();
+  interface ModelMockWithStatics {
+    modelName: string;
+    schema: SchemaMock;
+    findOne: jest.Mock;
+    create: jest.Mock;
+    findById: jest.Mock;
+    findByIdAndUpdate: jest.Mock;
+    updateOne: jest.Mock;
+    exists: jest.Mock;
+    find: jest.Mock;
+    countDocuments: jest.Mock;
+  }
+  
+  const modelMockWithStatics = modelMock as unknown as ModelMockWithStatics;
+  modelMockWithStatics.modelName = modelName;
+  modelMockWithStatics.schema = schema;
+  modelMockWithStatics.findOne = jest.fn();
+  modelMockWithStatics.create = jest.fn();
+  modelMockWithStatics.findById = jest.fn();
+  modelMockWithStatics.findByIdAndUpdate = jest.fn();
+  modelMockWithStatics.updateOne = jest.fn();
+  modelMockWithStatics.exists = jest.fn();
+  modelMockWithStatics.find = jest.fn();
+  modelMockWithStatics.countDocuments = jest.fn();
 
   return modelMock as unknown as (...args: unknown[]) => Record<string, unknown>;
 };
