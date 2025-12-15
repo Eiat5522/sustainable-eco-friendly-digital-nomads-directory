@@ -21,11 +21,14 @@ jest.mock('@/lib/logger', () => ({
 
 describe('mongodb client module', () => {
   const originalEnv = process.env;
+  const globalWithMongo = global as typeof globalThis & {
+    _mongoClientPromise?: Promise<unknown>;
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
     process.env = { ...originalEnv };
-    delete (global as any)._mongoClientPromise;
+    delete globalWithMongo._mongoClientPromise;
     mockConnect.mockReset();
     mockMongoClient.mockClear();
     mockMongoClient.mockImplementation(() => ({ connect: mockConnect }));
@@ -33,7 +36,7 @@ describe('mongodb client module', () => {
 
   afterEach(() => {
     process.env = { ...originalEnv };
-    delete (global as any)._mongoClientPromise;
+    delete globalWithMongo._mongoClientPromise;
   });
 
   afterAll(() => {
@@ -107,7 +110,7 @@ describe('mongodb client module', () => {
 
     expect(mockMongoClient).toHaveBeenCalledTimes(1);
     expect(mockConnect).toHaveBeenCalledTimes(1);
-    expect((global as any)._mongoClientPromise).toBeDefined();
+    expect(globalWithMongo._mongoClientPromise).toBeDefined();
   });
   it('logs and rethrows connection errors outside of development caching', async () => {
     jest.resetModules();
@@ -143,7 +146,7 @@ describe('mongodb client module', () => {
       component: 'mongodb',
       message: 'dev-fail',
     });
-    expect((global as any)._mongoClientPromise).toBeUndefined();
+    expect(globalWithMongo._mongoClientPromise).toBeUndefined();
   });
 
   it('returns a connected client in production when credentials are valid', async () => {
@@ -167,7 +170,7 @@ describe('mongodb client module', () => {
   it('reuses an existing cached promise in development without reconnecting', async () => {
     jest.resetModules();
     const cached = Promise.resolve({ cached: true });
-    (global as any)._mongoClientPromise = cached;
+    globalWithMongo._mongoClientPromise = cached;
 
     process.env.NODE_ENV = 'development';
     process.env.MONGODB_URI = 'mongodb://localhost:27017/test';

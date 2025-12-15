@@ -163,7 +163,10 @@ describe('redis module', () => {
   });
 });
 
-const redisConstructor = jest.fn(function Redis(this: any, config: Record<string, unknown>) {
+const redisConstructor = jest.fn(function Redis(
+  this: { config?: Record<string, unknown> },
+  config: Record<string, unknown>
+) {
   Object.assign(this, { config });
 });
 
@@ -200,7 +203,7 @@ describe('redis helpers', () => {
   it('allows manually setting and retrieving the redis client', async () => {
     const { setRedisClient, getRedisClient } = await import('../redis');
 
-    const client = { kind: 'manual-client' } as any;
+    const client = { kind: 'manual-client' } as unknown as Redis;
     setRedisClient(client);
 
     expect(getRedisClient()).toBe(client);
@@ -214,20 +217,20 @@ describe('redis helpers', () => {
 
     expect(listener).toHaveBeenCalledWith(undefined);
 
-    const firstClient = { id: 1 } as any;
+    const firstClient = { id: 1 } as unknown as Redis;
     setRedisClient(firstClient);
     expect(listener).toHaveBeenCalledWith(firstClient);
 
     unsubscribe();
 
-    setRedisClient({ id: 2 } as any);
+    setRedisClient({ id: 2 } as unknown as Redis);
     expect(listener).toHaveBeenCalledTimes(2);
   });
 
   it('supports jest-style helpers on getRedisClient in tests', async () => {
     const { getRedisClient } = await import('../redis');
 
-    const mockClient = { id: 'mocked' } as any;
+    const mockClient = { id: 'mocked' } as unknown as Redis;
     getRedisClient.mockReturnValue(mockClient);
     expect(getRedisClient()).toBe(mockClient);
 
@@ -260,7 +263,7 @@ describe('redis helpers', () => {
       }
     });
 
-    setRedisClient({ id: 3 } as any);
+    setRedisClient({ id: 3 } as unknown as Redis);
 
     const mockLogger = jest.requireMock<typeof import('@/lib/logger')>('@/lib/logger');
     expect(mockLogger.structuredLogger.warn).toHaveBeenCalledWith(

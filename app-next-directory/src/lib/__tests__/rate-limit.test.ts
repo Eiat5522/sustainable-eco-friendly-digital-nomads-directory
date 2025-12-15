@@ -223,38 +223,40 @@ describe('rate-limit helpers', () => {
   });
 
   it('wraps exports with jest.fn when Jest is available', async () => {
-    const originalJest = (global as any).jest;
+    const globalWithOptionalJest = global as typeof globalThis & { jest?: Pick<typeof jest, 'fn'> };
+    const originalJest = globalWithOptionalJest.jest;
 
     try {
       const mod = await loadModule(() => {
-        (global as any).jest = { fn: jest.fn.bind(jest) };
+        globalWithOptionalJest.jest = { fn: jest.fn.bind(jest) };
       });
       const { getClientIp, isRateLimited, getRetryAfterMs } = mod;
 
-      expect(typeof (getClientIp as any).mock).toBe('object');
-      expect(typeof (isRateLimited as any).mock).toBe('object');
-      expect(typeof (getRetryAfterMs as any).mock).toBe('object');
+      expect(jest.isMockFunction(getClientIp)).toBe(true);
+      expect(jest.isMockFunction(isRateLimited)).toBe(true);
+      expect(jest.isMockFunction(getRetryAfterMs)).toBe(true);
     } finally {
-      (global as any).jest = originalJest;
+      globalWithOptionalJest.jest = originalJest;
     }
   });
 
   it('falls back to original functions when Jest is unavailable', async () => {
-    const originalJest = (global as any).jest;
+    const globalWithOptionalJest = global as typeof globalThis & { jest?: Pick<typeof jest, 'fn'> };
+    const originalJest = globalWithOptionalJest.jest;
 
     try {
       const mod = await loadModule(() => {
-        delete (global as any).jest;
+        delete globalWithOptionalJest.jest;
       });
 
-      expect('mock' in (mod.getClientIp as any)).toBe(false);
-      expect('mock' in (mod.isRateLimited as any)).toBe(false);
-      expect('mock' in (mod.getRetryAfterMs as any)).toBe(false);
+      expect(jest.isMockFunction(mod.getClientIp)).toBe(false);
+      expect(jest.isMockFunction(mod.isRateLimited)).toBe(false);
+      expect(jest.isMockFunction(mod.getRetryAfterMs)).toBe(false);
       expect(warnSpy).toHaveBeenCalledWith('Jest not available for mocking in rate-limit module', {
         component: 'rate-limit',
       });
     } finally {
-      (global as any).jest = originalJest;
+      globalWithOptionalJest.jest = originalJest;
     }
   });
 
