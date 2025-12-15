@@ -4,7 +4,9 @@ const mockCreateTestData = jest.fn();
 
 describe('/api/test-listings', () => {
   const originalNodeEnv = process.env.NODE_ENV;
-  let routeTestControl: any;
+  let routeTestControl: {
+    createTestDataOverride?: typeof mockCreateTestData | undefined;
+  };
 
   beforeEach(async () => {
     mockCreateTestData.mockReset();
@@ -39,7 +41,7 @@ describe('/api/test-listings', () => {
       { id: '2', name: 'Test Listing 2' },
     ];
 
-    mockCreateTestData.mockReturnValue({ listings: mockListings } as any);
+    mockCreateTestData.mockReturnValue({ listings: mockListings });
 
     const response = await GET();
     const json = await response.json();

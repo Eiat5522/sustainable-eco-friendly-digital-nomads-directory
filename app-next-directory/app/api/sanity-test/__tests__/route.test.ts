@@ -2,11 +2,14 @@ import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals
 
 const mockedFetch = jest.fn();
 jest.mock('@/lib/sanity/client', () => ({
-  client: { fetch: (...args: any[]) => mockedFetch(...args) },
+  client: { fetch: (...args: unknown[]) => mockedFetch(...args) },
 }));
 
-let GET: any;
-let routeTestControl: any;
+let GET: (request?: Request) => Promise<Response>;
+let routeTestControl: {
+  clientFetchOverride?: (() => Promise<unknown>) | undefined;
+  nodeEnvOverride?: string | undefined;
+};
 const originalEnv = { ...process.env };
 
 describe('/api/sanity-test', () => {

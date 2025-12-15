@@ -15,7 +15,7 @@ const mockedBuildE2EResponse = jest.fn();
 // Mock e2e fixture utilities but NOT the Sanity client
 jest.mock('@/data/e2e/discovery-fixtures', () => ({
   isE2ERun: () => mockedIsE2ERun(),
-  buildE2ESearchResponse: (...args: any[]) => mockedBuildE2EResponse(...args),
+  buildE2ESearchResponse: (...args: unknown[]) => mockedBuildE2EResponse(...args),
 }));
 
 const createRequest = (
@@ -23,8 +23,8 @@ const createRequest = (
   init?: ConstructorParameters<typeof NextRequest>[1]
 ) => new NextRequest(input, init);
 
-let GET: any;
-let POST: any;
+let GET: (request: NextRequest) => Promise<Response>;
+let POST: (request: NextRequest) => Promise<Response>;
 
 describe('/api/search (MSW version)', () => {
   beforeEach(async () => {

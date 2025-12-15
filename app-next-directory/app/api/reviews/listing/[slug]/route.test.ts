@@ -27,7 +27,7 @@ describe('API /api/reviews/listing/[slug]', () => {
     jest.clearAllMocks();
   });
 
-  function createMockCollection(reviews: any[] = [], totalCount?: number) {
+  function createMockCollection(reviews: unknown[] = [], totalCount?: number) {
     const mockCursor = {
       sort: jest.fn().mockReturnThis(),
       skip: jest.fn().mockReturnThis(),
