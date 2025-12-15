@@ -1,10 +1,25 @@
 import { jest } from '@jest/globals';
-import mongoose from 'mongoose';
+import mongoose, {
+  type CallbackWithoutResultAndOptionalError,
+  type HydratedDocument,
+  type Model,
+  type Schema,
+} from 'mongoose';
+import type { IPasswordResetToken } from '../PasswordResetToken';
 
 const loadModel = async () => {
   const mod = await import('../PasswordResetToken');
   return mod.default;
 };
+
+type SchemaWithPreHooks = Schema<IPasswordResetToken> & {
+  preHooks: Map<string, Array<(this: unknown, next: CallbackWithoutResultAndOptionalError) => void>>;
+};
+
+type SaveHook = (
+  this: HydratedDocument<IPasswordResetToken> & { createdAt?: unknown },
+  next: CallbackWithoutResultAndOptionalError
+) => void;
 
 describe('PasswordResetToken model', () => {
   beforeEach(() => {
@@ -15,7 +30,7 @@ describe('PasswordResetToken model', () => {
   it('describes required schema fields and validators', async () => {
     const PasswordResetToken = await loadModel();
     const userIdPath = PasswordResetToken.schema.path('userId');
-    const tokenHashPath = PasswordResetToken.schema.path('tokenHash') as any;
+    const tokenHashPath = PasswordResetToken.schema.path('tokenHash');
     const expiresAtPath = PasswordResetToken.schema.path('expiresAt');
 
     expect(userIdPath?.isRequired).toBe(true);
@@ -32,7 +47,7 @@ describe('PasswordResetToken model', () => {
 
   it('registers all expected indexes', async () => {
     const PasswordResetToken = await loadModel();
-    const indexes = (PasswordResetToken.schema as any).indexes();
+    const indexes = PasswordResetToken.schema.indexes();
 
     expect(indexes).toEqual(
       expect.arrayContaining([
@@ -60,10 +75,10 @@ describe('PasswordResetToken model', () => {
 
   it('coerces createdAt values to Date inside the save hook', async () => {
     const PasswordResetToken = await loadModel();
-    const schema = PasswordResetToken.schema as any;
-    const hook = schema.preHooks.get('save')?.[0] as (this: any, next: () => void) => void;
+    const schema = PasswordResetToken.schema as SchemaWithPreHooks;
+    const hook = schema.preHooks.get('save')?.[0] as SaveHook | undefined;
 
-    const doc: any = new PasswordResetToken({
+    const doc = new PasswordResetToken({
       userId: new mongoose.Types.ObjectId(),
       tokenHash: 'b'.repeat(64),
       expiresAt: new Date(Date.now() + 2000),
@@ -72,7 +87,7 @@ describe('PasswordResetToken model', () => {
     doc.createdAt = '2024-01-01T00:00:00.000Z';
 
     const next = jest.fn();
-    hook.call(doc, next);
+    hook?.call(doc, next);
 
     expect(doc.createdAt).toBeInstanceOf(Date);
     expect(doc.createdAt.toISOString()).toBe('2024-01-01T00:00:00.000Z');
@@ -81,11 +96,11 @@ describe('PasswordResetToken model', () => {
 
   it('keeps Date instances intact within the save hook', async () => {
     const PasswordResetToken = await loadModel();
-    const schema = PasswordResetToken.schema as any;
-    const hook = schema.preHooks.get('save')?.[0] as (this: any, next: () => void) => void;
+    const schema = PasswordResetToken.schema as SchemaWithPreHooks;
+    const hook = schema.preHooks.get('save')?.[0] as SaveHook | undefined;
 
     const initialDate = new Date('2023-12-31T23:59:59.000Z');
-    const doc: any = new PasswordResetToken({
+    const doc = new PasswordResetToken({
       userId: new mongoose.Types.ObjectId(),
       tokenHash: 'c'.repeat(64),
       expiresAt: new Date(Date.now() + 3000),
@@ -93,7 +108,7 @@ describe('PasswordResetToken model', () => {
     });
 
     const next = jest.fn();
-    hook.call(doc, next);
+    hook?.call(doc, next);
 
     expect(doc.createdAt).toBe(initialDate);
     expect(next).toHaveBeenCalledTimes(1);
@@ -102,12 +117,12 @@ describe('PasswordResetToken model', () => {
   it('reuses an existing compiled model from the mongoose cache', async () => {
     jest.resetModules();
     const imported = await import('mongoose');
-    const mongooseMod = (imported as any).default ?? imported;
+    const mongooseMod = imported.default ?? imported;
     const cachedModel = Object.assign(jest.fn(), {
       schema: {},
       modelName: 'PasswordResetToken',
-    });
-    mongooseMod.models = { PasswordResetToken: cachedModel } as any;
+    }) as unknown as Model<IPasswordResetToken>;
+    mongooseMod.models.PasswordResetToken = cachedModel;
 
     const { default: reused } = await import('../PasswordResetToken');
     expect(reused).toBe(cachedModel);

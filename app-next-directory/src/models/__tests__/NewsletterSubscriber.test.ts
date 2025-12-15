@@ -1,9 +1,28 @@
 import { jest } from '@jest/globals';
+import type {
+  CallbackWithoutResultAndOptionalError,
+  HydratedDocument,
+  Model,
+  Schema,
+  UpdateQuery,
+} from 'mongoose';
+import type { INewsletterSubscriber } from '../NewsletterSubscriber';
 
 const loadModel = async () => {
   const mod = await import('../NewsletterSubscriber');
   return mod.default;
 };
+
+type SchemaWithPreHooks = Schema<INewsletterSubscriber> & {
+  preHooks: Map<string, Array<(this: unknown, next?: CallbackWithoutResultAndOptionalError) => void>>;
+};
+
+type UpdateHookContext = { getUpdate: () => UpdateQuery<INewsletterSubscriber> };
+type UpdateHook = (this: UpdateHookContext, next?: CallbackWithoutResultAndOptionalError) => void;
+type ValidateHook = (
+  this: HydratedDocument<INewsletterSubscriber> & { createdAt?: Date; updatedAt?: Date },
+  next: CallbackWithoutResultAndOptionalError
+) => void;
 
 describe('NewsletterSubscriber model', () => {
   beforeEach(() => {
@@ -14,8 +33,8 @@ describe('NewsletterSubscriber model', () => {
   it('exposes the expected schema definition and defaults', async () => {
     const NewsletterSubscriber = await loadModel();
 
-    const emailPath = NewsletterSubscriber.schema.path('email') as any;
-    const confirmedAtPath = NewsletterSubscriber.schema.path('confirmedAt') as any;
+    const emailPath = NewsletterSubscriber.schema.path('email');
+    const confirmedAtPath = NewsletterSubscriber.schema.path('confirmedAt');
 
     expect(emailPath).toBeDefined();
     expect(emailPath.isRequired).toBe(true);
@@ -36,7 +55,7 @@ describe('NewsletterSubscriber model', () => {
 
   it('falls back to manual normalization when the schema setter is unavailable', async () => {
     const NewsletterSubscriber = await loadModel();
-    const schema = NewsletterSubscriber.schema as any;
+    const schema = NewsletterSubscriber.schema as SchemaWithPreHooks;
     const emailPath = schema.path('email');
     const originalSetter = emailPath.options.set;
 
@@ -69,13 +88,13 @@ describe('NewsletterSubscriber model', () => {
 
   it('normalises update payloads in the pre update hooks', async () => {
     const NewsletterSubscriber = await loadModel();
-    const schema = NewsletterSubscriber.schema as any;
+    const schema = NewsletterSubscriber.schema as SchemaWithPreHooks;
     const hooks = schema.preHooks.get('findOneAndUpdate');
     expect(hooks).toBeDefined();
-    const hook = hooks?.[0] as (this: { getUpdate: () => any }, next: () => void) => void;
+    const hook = hooks?.[0] as UpdateHook | undefined;
 
     const update = { email: '  UPDATED@Example.COM  ' };
-    const context = { getUpdate: () => update };
+    const context: UpdateHookContext = { getUpdate: () => update };
     const next = jest.fn();
 
     hook.call(context, next);
@@ -86,32 +105,26 @@ describe('NewsletterSubscriber model', () => {
 
   it('skips normalization when update payload does not include email', async () => {
     const NewsletterSubscriber = await loadModel();
-    const schema = NewsletterSubscriber.schema as any;
-    const hook = schema.preHooks.get('updateOne')?.[0] as (
-      this: { getUpdate: () => any },
-      next: () => void
-    ) => void;
+    const schema = NewsletterSubscriber.schema as SchemaWithPreHooks;
+    const hook = schema.preHooks.get('updateOne')?.[0] as UpdateHook | undefined;
 
     const update = { $set: { confirmedAt: new Date() } };
-    const context = { getUpdate: () => update };
-    hook.call(context);
+    const context: UpdateHookContext = { getUpdate: () => update };
+    hook?.call(context);
 
     expect(update.$set.confirmedAt).toBeInstanceOf(Date);
   });
 
   it('normalizes email values nested inside $set payloads', async () => {
     const NewsletterSubscriber = await loadModel();
-    const schema = NewsletterSubscriber.schema as any;
-    const hook = schema.preHooks.get('updateOne')?.[0] as (
-      this: { getUpdate: () => any },
-      next: () => void
-    ) => void;
+    const schema = NewsletterSubscriber.schema as SchemaWithPreHooks;
+    const hook = schema.preHooks.get('updateOne')?.[0] as UpdateHook | undefined;
 
     const update = { $set: { email: '  nested@example.COM  ' } };
-    const context = { getUpdate: () => update };
+    const context: UpdateHookContext = { getUpdate: () => update };
     const next = jest.fn();
 
-    hook.call(context, next);
+    hook?.call(context, next);
 
     expect(update.$set.email).toBe('nested@example.com');
     expect(next).toHaveBeenCalledTimes(1);
@@ -120,10 +133,10 @@ describe('NewsletterSubscriber model', () => {
   it('recompiles the model when an incomplete cached model exists', async () => {
     jest.resetModules();
     const imported = await import('mongoose');
-    const mongooseMod = (imported as any).default ?? imported;
+    const mongooseMod = imported.default ?? imported;
 
     const incomplete = mongooseMod.model('NewsletterSubscriber');
-    expect((incomplete as any).schema).toBeUndefined();
+    expect(incomplete.schema).toBeUndefined();
 
     const { default: compiled } = await import('../NewsletterSubscriber');
 
@@ -134,12 +147,12 @@ describe('NewsletterSubscriber model', () => {
   it('reuses an existing compiled model from the mongoose cache', async () => {
     jest.resetModules();
     const imported = await import('mongoose');
-    const mongooseMod = (imported as any).default ?? imported;
+    const mongooseMod = imported.default ?? imported;
     const cachedModel = Object.assign(jest.fn(), {
       schema: {},
       modelName: 'NewsletterSubscriber',
-    });
-    mongooseMod.models = { NewsletterSubscriber: cachedModel } as any;
+    }) as unknown as Model<INewsletterSubscriber>;
+    mongooseMod.models.NewsletterSubscriber = cachedModel;
 
     const { default: reused } = await import('../NewsletterSubscriber');
 
@@ -148,13 +161,13 @@ describe('NewsletterSubscriber model', () => {
 
   it('handles validation hook invocation when fields are absent', async () => {
     const NewsletterSubscriber = await loadModel();
-    const schema = NewsletterSubscriber.schema as any;
-    const hook = schema.preHooks.get('validate')?.[0] as (this: any, next: () => void) => void;
+    const schema = NewsletterSubscriber.schema as SchemaWithPreHooks;
+    const hook = schema.preHooks.get('validate')?.[0] as ValidateHook | undefined;
 
-    const doc: any = { isNew: true };
+    const doc: Partial<HydratedDocument<INewsletterSubscriber>> & { isNew: boolean } = { isNew: true };
     const next = jest.fn();
 
-    hook.call(doc, next);
+    hook?.call(doc as HydratedDocument<INewsletterSubscriber>, next);
 
     expect(doc.confirmedAt).toBeNull();
     expect(doc.createdAt).toBeInstanceOf(Date);
