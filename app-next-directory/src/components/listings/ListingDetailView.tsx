@@ -101,6 +101,9 @@ export function ListingDetailView({
       return;
     }
 
+    if (isTogglingFavorite) return;
+    setIsTogglingFavorite(true);
+
     try {
       // Use slug for favorite toggles to keep the dynamic path consistent
       const res = await fetch(`/api/user/favorites/${listing.slug}`, jsonPostOptions({}));
@@ -120,13 +123,12 @@ export function ListingDetailView({
         return;
       }
 
-      // Prevent double-clicks
-      if (isTogglingFavorite) return;
-      setIsTogglingFavorite(true);
-      const data = await res.json();
+      const data = (await res.json().catch(() => null)) as { favorited?: unknown } | null;
       setFavorited(Boolean(data?.favorited));
     } catch (err) {
       structuredLogger.error('Failed to toggle favorite', err, { component: 'listings' });
+    } finally {
+      setIsTogglingFavorite(false);
     }
   };
 

@@ -93,7 +93,7 @@ test.describe('[E2E] Responsive navigation layout', () => {
     const logoLink = header.getByRole('link', { name: /go to homepage/i });
     await expect(logoLink).toBeVisible();
 
-    const menuButton = header.getByRole('button', { name: /open menu/i });
+    const menuButton = header.getByTestId('mobile-menu-toggle');
     await expect(menuButton).toBeVisible();
     await expect(menuButton).toBeEnabled();
 
@@ -116,7 +116,7 @@ test.describe('[E2E] Responsive navigation layout', () => {
       await expect(primaryNav.getByRole('link', { name: linkName })).toBeVisible();
     }
 
-    const menuButton = header.getByRole('button', { name: /open menu/i });
+    const menuButton = header.getByTestId('mobile-menu-toggle');
     await expect(menuButton).toBeHidden();
 
     await expectNoHorizontalOverflow(page);

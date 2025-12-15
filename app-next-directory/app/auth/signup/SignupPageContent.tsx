@@ -67,6 +67,7 @@ export function SignupPageContent() {
                   type="text"
                   id="name"
                   name="name"
+                  aria-label="Name"
                   placeholder="Name"
                   autoComplete="name"
                   autoFocus
@@ -78,6 +79,7 @@ export function SignupPageContent() {
                   type="email"
                   id="email"
                   name="email"
+                  aria-label="Email"
                   placeholder="Email"
                   autoComplete="email"
                   required
@@ -88,6 +90,7 @@ export function SignupPageContent() {
                   type="password"
                   id="password"
                   name="password"
+                  aria-label="Password"
                   placeholder="Password"
                   autoComplete="new-password"
                   minLength={8}

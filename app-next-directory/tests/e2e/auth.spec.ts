@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('Authentication (Playwright)', () => {
-  test('registers a new user and redirects to login', async ({ page, baseURL }) => {
+  test('registers a new user and signs them in', async ({ page, baseURL }) => {
     const to = new URL('/auth/signup', baseURL ?? 'http://localhost:3000').toString();
     await page.goto(to);
 
@@ -11,10 +11,10 @@ test.describe('Authentication (Playwright)', () => {
     await page.getByLabel(/password/i).fill('Password_123!Aa');
 
     await Promise.all([
-      page.waitForURL('**/auth/login', { waitUntil: 'domcontentloaded' }),
-      page.getByRole('button', { name: /register/i }).click(),
+      page.waitForURL('**/', { waitUntil: 'domcontentloaded' }),
+      page.getByRole('button', { name: /sign up/i }).click(),
     ]);
 
-    await expect(page).toHaveURL(/\/auth\/login$/);
+    await expect(page).toHaveURL(/\/$/);
   });
 });

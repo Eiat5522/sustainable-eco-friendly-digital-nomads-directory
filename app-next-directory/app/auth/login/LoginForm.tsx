@@ -116,6 +116,8 @@ export default function LoginForm() {
       >
         <NeoInput
           type="email"
+          id="email"
+          name="email"
           placeholder="Email"
           value={email}
           onChange={e => setEmail(e.target.value)}
@@ -134,6 +136,8 @@ export default function LoginForm() {
         ) : null}
         <NeoInput
           type="password"
+          id="password"
+          name="password"
           placeholder="Password"
           value={password}
           onChange={e => setPassword(e.target.value)}

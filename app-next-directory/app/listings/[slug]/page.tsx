@@ -101,15 +101,23 @@ function isPriceRange(
 
 function cloneFixture(fixture: ListingFixture) {
   const listing = structuredClone(fixture.listing);
-  if (!Array.isArray(listing.galleryImages) || listing.galleryImages.length === 0) {
-    listing.galleryImages = ['/test-gallery-1.jpg', '/test-gallery-2.jpg'];
+  const fallbackImage = '/placeholder_image.png';
+  const normalizedGalleryImages = Array.isArray(listing.galleryImages)
+    ? listing.galleryImages
+        .map(src => (typeof src === 'string' && src.trim().length > 0 ? src : fallbackImage))
+        .filter(src => src.trim().length > 0)
+    : [];
+
+  if (normalizedGalleryImages.length === 0) {
+    listing.galleryImages = [fallbackImage, fallbackImage, fallbackImage];
+  } else if (normalizedGalleryImages.length < 3) {
+    const padded = [...normalizedGalleryImages];
+    while (padded.length < 3) {
+      padded.push(fallbackImage);
+    }
+    listing.galleryImages = padded;
   } else {
-    listing.galleryImages = listing.galleryImages.map((src, index) => {
-      if (typeof src === 'string' && src.trim().length > 0) {
-        return src === '/placeholder_image.png' ? `/test-gallery-${index + 1}.jpg` : src;
-      }
-      return `/test-gallery-${index + 1}.jpg`;
-    });
+    listing.galleryImages = normalizedGalleryImages;
   }
 
   return {
@@ -194,12 +202,20 @@ const FAVORITE_QUERY = groq`*[_type == "userFavorite" && user._ref == $userId &&
 
 // Wrap in React cache() to deduplicate requests within the same render pass
 const fetchListingBySlug = cache(async (slug: string): Promise<ListingDetailDTO | null> => {
-  const raw = await client.fetch<SanityListing | null>(LISTING_QUERY, { slug });
-  if (!raw) return null;
   try {
-    return transformToDetailDTO(raw);
-  } catch (e) {
-    logger.error('Failed to transform listing payload', e, { slug, component: 'listings/[slug]' });
+    const raw = await client.fetch<SanityListing | null>(LISTING_QUERY, { slug });
+    if (!raw) return null;
+    try {
+      return transformToDetailDTO(raw);
+    } catch (error) {
+      logger.error('Failed to transform listing payload', error, {
+        slug,
+        component: 'listings/[slug]',
+      });
+      return null;
+    }
+  } catch (error) {
+    logger.error('Failed to fetch listing payload', error, { slug, component: 'listings/[slug]' });
     return null;
   }
 });
@@ -428,6 +444,29 @@ export default async function ListingPage({ params }: Props) {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+
+  if (isE2ETest) {
+    const fixture = e2eFixtures[slug];
+    if (!fixture) {
+      return { title: 'Listing not found' };
+    }
+
+    const listing = fixture.listing;
+    const summary = listing.shortDescription ?? listing.longDescription ?? '';
+    const description = summary ? summary.slice(0, 160) : undefined;
+    const primaryImage = listing.galleryImages?.[0] ?? listing.imageUrl ?? undefined;
+
+    return {
+      title: listing.name,
+      description,
+      openGraph: {
+        title: listing.name,
+        description,
+        images: primaryImage ? [primaryImage] : undefined,
+      },
+    };
+  }
+
   const listing = await fetchListingBySlug(slug);
 
   if (!listing) {

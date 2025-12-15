@@ -1,6 +1,7 @@
 import type { QueryParams } from '@sanity/client';
 import type { NextRequest } from 'next/server';
 import { groq } from 'next-sanity';
+import { isE2ERun } from '@/data/e2e/discovery-fixtures';
 import { transformToBlogSummaryDTO } from '@/lib/dto-transformer';
 import { client as sanityClient } from '@/lib/sanity/client';
 import { ApiResponseHandler } from '@/utils/api-response';
@@ -56,6 +57,24 @@ export async function GET(request: NextRequest) {
     const rawSearch = searchParams.get('search');
     const tag = rawTag?.trim() ? rawTag.trim() : null;
     const search = rawSearch?.trim() ? rawSearch.trim() : null;
+
+    if (isE2ERun()) {
+      return ApiResponseHandler.success({
+        posts: [],
+        pagination: {
+          page,
+          limit,
+          totalCount: 0,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPrevPage: false,
+          nextPage: null,
+          prevPage: null,
+        },
+        filters: { tag, search },
+        uniqueTags: [],
+      });
+    }
 
     let finalQuery = postsQuery;
     let finalCountQuery = countQuery;

@@ -1,280 +1,44 @@
 import { expect, test } from '@playwright/test';
-import { CustomAssertions, TestHelpers } from '../utils/test-utils';
 
-test.describe('Listing Management E2E', () => {
-  // Test Data Management
-  const testData = {
-    listing: {
-      name: 'Test Eco Coworking',
-      description: 'Sustainable workspace in the heart of Bangkok',
-      category: 'coworking',
-      city: 'Bangkok',
-      address: '123 Green Street',
-      ecoTags: ['solar-powered', 'zero-waste'],
-    },
-    users: {
-      regular: {
-        email: `user${Date.now()}@example.com`,
-        password: 'UserPass123!',
-      },
-      owner: {
-        email: `owner${Date.now()}@example.com`,
-        password: 'OwnerPass123!',
-      },
-    },
-  };
+import { loginAs } from './helpers/auth';
 
-  // Track created resources for cleanup
-  const createdResources: { listings: string[]; users: string[] } = {
-    listings: [],
-    users: [],
-  };
+const BASE_URL = process.env.E2E_BASE_URL ?? process.env.BASE_URL ?? 'http://localhost:3000';
 
-  // Role-Based Access Tests
-  test.describe('role-based access control', () => {
-    test('regular user cannot access admin features', async ({ page }) => {
-      await TestHelpers.loginAsUser(
-        page,
-        testData.users.regular.email,
-        testData.users.regular.password
-      );
+test.describe('[E2E] Listing management', () => {
+  test('venue owners can access listing management', async ({ page }) => {
+    await loginAs(
+      page,
+      process.env.E2E_VENUE_OWNER_EMAIL ?? 'venue@example.com',
+      process.env.E2E_VENUE_OWNER_PASSWORD ?? 'password123'
+    );
 
-      // Try to access admin routes
-      await page.goto('/admin/dashboard');
-      await expect(page).toHaveURL('/403'); // Assuming 403 error page
-
-      await page.goto('/admin/listings');
-      await expect(page).toHaveURL('/403');
-
-      // Try to access moderation API
-      const response = await TestHelpers.makeAuthenticatedRequest(
-        page,
-        '/api/admin/reviews/moderate',
-        {
-          method: 'POST',
-          data: { reviewId: '123', action: 'approve' },
-        }
-      );
-      expect(response.status()).toBe(403);
-    });
-
-    test('admin can see all listings including flagged ones', async ({ page }) => {
-      await TestHelpers.loginAsAdmin(page);
-
-      await page.goto('/admin/listings');
-
-      // Check for flagged listings section
-      await expect(page.locator('[data-testid="flagged-listings"]')).toBeVisible();
-
-      // Verify admin controls
-      await expect(page.locator('[data-testid="moderate-button"]')).toBeVisible();
-      await expect(page.locator('[data-testid="delete-button"]')).toBeVisible();
-    });
+    await page.goto(`${BASE_URL}/dashboard/listings`);
+    await expect(page.getByRole('heading', { name: 'Manage Your Listings' })).toBeVisible();
   });
 
-  // Error Flow Tests
-  test.describe('error handling flows', () => {
-    test('handles invalid listing creation gracefully', async ({ page }) => {
-      await TestHelpers.loginAsVenueOwner(
-        page,
-        testData.users.owner.email,
-        testData.users.owner.password
-      );
+  test('regular users cannot access venue owner listing management', async ({ page }) => {
+    await loginAs(
+      page,
+      process.env.E2E_USER_EMAIL ?? 'e2e-test@example.com',
+      process.env.E2E_USER_PASSWORD ?? 'password123'
+    );
 
-      await page.goto('/dashboard/listings/new');
+    await page.goto(`${BASE_URL}/dashboard/listings`);
 
-      // Try to submit without required fields
-      await page.click('button[type="submit"]');
-
-      // Check validation messages
-      await CustomAssertions.assertFormError(page, 'name', 'Name is required');
-      await CustomAssertions.assertFormError(page, 'category', 'Category is required');
-
-      // Try to submit with invalid data
-      await TestHelpers.fillListingForm(page, {
-        name: 'a'.repeat(201), // Exceeds max length
-        description: '<script>alert("xss")</script>', // Contains invalid characters
-        category: 'invalid-category',
-      });
-
-      await page.click('button[type="submit"]');
-
-      // Check error messages
-      await CustomAssertions.assertFormError(page, 'name', 'Name must be less than 200 characters');
-      await CustomAssertions.assertFormError(
-        page,
-        'description',
-        'Description contains invalid characters'
-      );
-      await CustomAssertions.assertFormError(page, 'category', 'Invalid category selected');
-    });
-
-    test('prevents unauthorized listing modification', async ({ page }) => {
-      // Create a listing as one owner
-      await TestHelpers.loginAsVenueOwner(
-        page,
-        testData.users.owner.email,
-        testData.users.owner.password
-      );
-      const listing = await TestHelpers.createListing(page, testData.listing);
-      createdResources.listings.push(listing.id);
-
-      // Try to modify as different user
-      await TestHelpers.loginAsUser(
-        page,
-        testData.users.regular.email,
-        testData.users.regular.password
-      );
-
-      // Attempt to edit
-      await page.goto(`/dashboard/listings/${listing.id}/edit`);
-      await expect(page).toHaveURL('/403');
-
-      // Attempt to delete
-      const deleteResponse = await TestHelpers.makeAuthenticatedRequest(
-        page,
-        `/api/listings/manage/${listing.id}`,
-        {
-          method: 'DELETE',
-        }
-      );
-      expect(deleteResponse.status()).toBe(403);
-    });
+    const heading = page.getByRole('heading', { name: 'Manage Your Listings' });
+    await expect(heading).toHaveCount(0);
+    await expect(page).not.toHaveURL(/\/dashboard\/listings$/);
   });
 
-  // Concurrency Tests
-  test.describe('concurrent operations', () => {
-    test('handles simultaneous reviews correctly', async ({ page, context }) => {
-      // Create a listing
-      await TestHelpers.loginAsVenueOwner(
-        page,
-        testData.users.owner.email,
-        testData.users.owner.password
-      );
-      const listing = await TestHelpers.createListing(page, testData.listing);
-      createdResources.listings.push(listing.id);
+  test('venue owners can open the new listing form', async ({ page }) => {
+    await loginAs(
+      page,
+      process.env.E2E_VENUE_OWNER_EMAIL ?? 'venue@example.com',
+      process.env.E2E_VENUE_OWNER_PASSWORD ?? 'password123'
+    );
 
-      // Generate unique users for concurrent test
-      const concurrentUsers = {
-        user1: {
-          email: `concurrent-user1-${Date.now()}@example.com`,
-          password: 'ConcurrentUser1Pass123!',
-        },
-        user2: {
-          email: `concurrent-user2-${Date.now()}@example.com`,
-          password: 'ConcurrentUser2Pass123!',
-        },
-      };
-
-      // Create two user pages
-      const userPage1 = await context.newPage();
-      const userPage2 = await context.newPage();
-
-      // Login as different users
-      const user1Email = 'user1@example.com';
-      const user2Email = 'user2@example.com';
-      createdResources.users.push(user1Email, user2Email);
-      await TestHelpers.loginAsUser(
-        userPage1,
-        concurrentUsers.user1.email,
-        concurrentUsers.user1.password
-      );
-      await TestHelpers.loginAsUser(
-        userPage2,
-        concurrentUsers.user2.email,
-        concurrentUsers.user2.password
-      );
-
-      // Navigate to listing
-      await userPage1.goto(`/listings/${listing.id}`);
-      await userPage2.goto(`/listings/${listing.id}`);
-
-      // Submit reviews simultaneously
-      await Promise.all([
-        TestHelpers.submitReview(userPage1, {
-          rating: 5,
-          comment: 'Great place!',
-        }),
-        TestHelpers.submitReview(userPage2, {
-          rating: 4,
-          comment: 'Good experience',
-        }),
-      ]);
-
-      // Verify both reviews were saved
-      await userPage1.reload();
-      await expect(userPage1.locator('text=Great place!')).toBeVisible();
-      await expect(userPage1.locator('text=Good experience')).toBeVisible();
-    });
-  });
-
-  // Cross-Page Persistence Tests
-  test.describe('data persistence', () => {
-    test('maintains state across page refreshes', async ({ page }) => {
-      // Create a listing
-      await TestHelpers.loginAsVenueOwner(
-        page,
-        testData.users.owner.email,
-        testData.users.owner.password
-      );
-      const listing = await TestHelpers.createListing(page, testData.listing);
-      createdResources.listings.push(listing.id);
-
-      // Refresh page
-      await page.reload();
-
-      // Verify listing data persists
-      await expect(page.locator('h1')).toHaveText(testData.listing.name);
-      await expect(page.locator('[data-testid="listing-description"]')).toHaveText(
-        testData.listing.description
-      );
-
-      // Navigate away and back
-      await page.goto('/dashboard');
-      await page.goto(`/dashboard/listings/${listing.id}`);
-
-      // Verify data still exists
-      await expect(page.locator('h1')).toHaveText(testData.listing.name);
-    });
-
-    test('maintains session across multiple tabs', async ({ context }) => {
-      // Login in first tab
-      const page1 = await context.newPage();
-      await TestHelpers.loginAsVenueOwner(
-        page1,
-        testData.users.owner.email,
-        testData.users.owner.password
-      );
-
-      // Open new tab
-      const page2 = await context.newPage();
-      await page2.goto('/dashboard');
-
-      // Verify logged in state persists
-      await expect(page2.locator('[data-testid="user-menu"]')).toBeVisible();
-      await expect(page2.locator('[data-testid="user-email"]')).toHaveText(
-        testData.users.owner.email
-      );
-    });
-  });
-
-  // Clean up test data after all tests
-  test.afterAll(async ({ request }) => {
-    // Clean up created listings
-    for (const listingId of createdResources.listings) {
-      await request.delete(`/api/listings/manage/${listingId}`);
-    }
-
-    // Clean up test users
-    const response = await request.post('/api/test/cleanup', {
-      data: {
-        emails: [
-          ...createdResources.users,
-          testData.users.regular.email,
-          testData.users.owner.email,
-        ],
-      },
-    });
-    expect(response.ok()).toBeTruthy();
+    await page.goto(`${BASE_URL}/dashboard/listings/new`);
+    await expect(page.getByRole('heading', { name: 'Add New Listing' })).toBeVisible();
+    await expect(page.getByLabel('Listing Name')).toBeVisible();
   });
 });

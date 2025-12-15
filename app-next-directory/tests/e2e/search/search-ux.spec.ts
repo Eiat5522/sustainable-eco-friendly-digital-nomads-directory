@@ -9,13 +9,12 @@ test.describe('Search discovery experience', () => {
   test('submitting a query displays filtered results with preserved parameters', async ({
     page,
   }) => {
-    await page.goto('/search');
+    await page.goto('/search/results');
 
     const searchField = page.getByLabel('Search venues');
     await searchField.fill('cowork');
     await page.getByRole('button', { name: 'Search' }).click();
 
-    await page.waitForURL('**/search/results**');
     await expect(page).toHaveURL(/q=cowork/i);
 
     await expect(

@@ -11,8 +11,8 @@ test.describe('RBAC (Playwright)', () => {
       process.env.E2E_USER_PASSWORD ?? 'password123'
     );
 
-    await page.goto(`${BASE_URL}/admin`);
-    await expect(page.getByText(/access denied/i)).toBeVisible({ timeout: 10000 });
+    await page.goto(`${BASE_URL}/admin/dashboard`);
+    await expect(page).toHaveURL(/\/\?error=unauthorized_access/);
   });
 
   test('venue owner cannot access admin routes', async ({ page }) => {
@@ -22,17 +22,19 @@ test.describe('RBAC (Playwright)', () => {
       process.env.E2E_VENUE_OWNER_PASSWORD ?? 'password123'
     );
 
-    await page.goto(`${BASE_URL}/admin`);
-    await expect(page.getByText(/access denied/i)).toBeVisible({ timeout: 10000 });
+    await page.goto(`${BASE_URL}/admin/dashboard`);
+    await expect(page).toHaveURL(/\/\?error=unauthorized_access/);
   });
   test('admin can access admin routes', async ({ page }) => {
     await loginAs(
       page,
       process.env.E2E_ADMIN_EMAIL ?? 'admin@example.com',
-      process.env.E2E_ADMIN_PASSWORD ?? 'adminpassword'
+      process.env.E2E_ADMIN_PASSWORD ?? 'password123'
     );
 
-    await page.goto(`${BASE_URL}/admin`);
-    await expect(page.getByText(/admin dashboard/i)).toBeVisible({ timeout: 10000 });
+    await page.goto(`${BASE_URL}/admin/dashboard`);
+    await expect(page.getByRole('heading', { name: 'Admin Dashboard' })).toBeVisible({
+      timeout: 10000,
+    });
   });
 });
