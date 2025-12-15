@@ -33,7 +33,8 @@ describe('SanityImageUploader', () => {
 
   beforeAll(() => {
     if (typeof btoa === 'undefined') {
-      (global as any).btoa = (input: string) => Buffer.from(input, 'binary').toString('base64');
+      (globalThis as { btoa?: (input: string) => string }).btoa = (input: string) =>
+        Buffer.from(input, 'binary').toString('base64');
     }
   });
 
@@ -52,7 +53,7 @@ describe('SanityImageUploader', () => {
     URL.createObjectURL = jest.fn(() => 'blob:mock');
     URL.revokeObjectURL = jest.fn();
 
-    originalImage = (global as any).Image;
+    originalImage = (globalThis as { Image?: typeof Image }).Image as typeof Image;
 
     class MockImage {
       public onload: () => void = () => {};
@@ -64,7 +65,7 @@ describe('SanityImageUploader', () => {
       }
     }
 
-    (global as any).Image = MockImage as unknown as typeof Image;
+    (globalThis as { Image?: typeof Image }).Image = MockImage as unknown as typeof Image;
 
     jest.spyOn(console, 'log').mockImplementation(() => {});
     jest.spyOn(console, 'warn').mockImplementation(() => {});
@@ -75,14 +76,14 @@ describe('SanityImageUploader', () => {
     if (originalURLCreate) {
       URL.createObjectURL = originalURLCreate;
     } else {
-      delete (URL as any).createObjectURL;
+      delete (URL as Record<string, unknown>).createObjectURL;
     }
     if (originalURLRevoke) {
       URL.revokeObjectURL = originalURLRevoke;
     } else {
-      delete (URL as any).revokeObjectURL;
+      delete (URL as Record<string, unknown>).revokeObjectURL;
     }
-    (global as any).Image = originalImage;
+    (globalThis as { Image?: typeof Image }).Image = originalImage;
     jest.restoreAllMocks();
   });
 

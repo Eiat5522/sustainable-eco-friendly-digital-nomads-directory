@@ -108,7 +108,7 @@ describe('SanityBatchProcessor', () => {
       .mockRejectedValueOnce(new Error('temporary'))
       .mockResolvedValueOnce({ _id: 'listing-1' });
 
-    (processor as any).retryDelay = 0;
+    (processor as unknown as { retryDelay: number }).retryDelay = 0;
 
     const result = await processor.createListingsBatch([listing], { concurrency: 1 });
 
@@ -187,11 +187,11 @@ describe('SanityBatchProcessor', () => {
       { listing: { ...baseListing, country: '' }, message: 'Country is required' },
       { listing: { ...baseListing, website: 'not-a-url' }, message: 'Invalid website URL' },
       {
-        listing: { ...baseListing, coordinates: { lat: 200, lng: 0 } as any },
+        listing: { ...baseListing, coordinates: { lat: 200, lng: 0 } },
         message: 'Invalid latitude',
       },
       {
-        listing: { ...baseListing, coordinates: { lat: 0, lng: -200 } as any },
+        listing: { ...baseListing, coordinates: { lat: 0, lng: -200 } },
         message: 'Invalid longitude',
       },
       {
@@ -199,13 +199,20 @@ describe('SanityBatchProcessor', () => {
         message: 'Eco tags must be an array with max 10 items',
       },
       {
-        listing: { ...baseListing, images: new Array(21).fill({}) as any },
+        listing: {
+          ...baseListing,
+          images: Array.from({ length: 21 }, () =>
+            new File([new Uint8Array([1])], 'extra.jpg', { type: 'image/jpeg' })
+          ),
+        },
         message: 'Maximum 20 images allowed per listing',
       },
     ];
 
     for (const { listing, message } of cases) {
-      expect(() => (processor as any).validateSingleListing(listing)).toThrow(message);
+      expect(() =>
+        (processor as unknown as { validateSingleListing(l: Partial<Listing>): void }).validateSingleListing(listing)
+      ).toThrow(message);
     }
   });
 });
