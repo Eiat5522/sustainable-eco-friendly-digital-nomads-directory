@@ -87,7 +87,15 @@ export async function POST(request: NextRequest) {
       request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'anonymous';
     const rateLimitResult = await limiter(request);
     if (!rateLimitResult.success) {
-      return ApiResponseHandler.error('Too many requests. Please try again later.', 429);
+      const resetTimeMs =
+        rateLimitResult.resetTime < 1e12 ? rateLimitResult.resetTime * 1000 : rateLimitResult.resetTime;
+      const retryAfterSeconds = Math.max(1, Math.ceil((resetTimeMs - Date.now()) / 1000));
+      const response = ApiResponseHandler.error('Too many requests. Please try again later.', 429);
+      response.headers.set('retry-after', String(retryAfterSeconds));
+      response.headers.set('x-ratelimit-limit', String(rateLimitResult.limit));
+      response.headers.set('x-ratelimit-remaining', String(rateLimitResult.remaining));
+      response.headers.set('x-ratelimit-reset', String(Math.ceil(resetTimeMs / 1000)));
+      return response;
     }
 
     // Parse and validate request body

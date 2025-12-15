@@ -305,9 +305,9 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Listing Name</FormLabel>
+              <FormLabel htmlFor="listing-name">Listing Name</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., The Green Coworking Space" {...field} />
+                <Input id="listing-name" placeholder="e.g., The Green Coworking Space" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

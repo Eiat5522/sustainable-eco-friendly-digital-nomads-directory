@@ -112,7 +112,7 @@ describe('EmailVerificationToken Model', () => {
       const schema = EmailVerificationToken.schema;
       if (schema && typeof schema.indexes === 'function') {
         const indexes = schema.indexes();
-        const tokenHashIndex = indexes.find((idx: any) => idx[0].tokenHash === 1);
+        const tokenHashIndex = indexes.find(([fields]) => fields.tokenHash === 1);
         expect(tokenHashIndex).toBeDefined();
       } else {
         expect(EmailVerificationToken).toBeDefined();
@@ -123,9 +123,9 @@ describe('EmailVerificationToken Model', () => {
       const schema = EmailVerificationToken.schema;
       if (schema && typeof schema.indexes === 'function') {
         const indexes = schema.indexes();
-        const ttlIndex = indexes.find(
-          (idx: any) => idx[0].expiresAt === 1 && idx[1]?.expireAfterSeconds === 0
-        );
+        const ttlIndex = indexes.find(([fields, options]) => {
+          return fields.expiresAt === 1 && options?.expireAfterSeconds === 0;
+        });
         expect(ttlIndex).toBeDefined();
       } else {
         expect(EmailVerificationToken).toBeDefined();
@@ -136,9 +136,9 @@ describe('EmailVerificationToken Model', () => {
       const schema = EmailVerificationToken.schema;
       if (schema && typeof schema.indexes === 'function') {
         const indexes = schema.indexes();
-        const compoundIndex = indexes.find(
-          (idx: any) => idx[0].userId === 1 && idx[0].tokenHash === 1 && idx[1]?.unique === true
-        );
+        const compoundIndex = indexes.find(([fields, options]) => {
+          return fields.userId === 1 && fields.tokenHash === 1 && options?.unique === true;
+        });
         expect(compoundIndex).toBeDefined();
       } else {
         expect(EmailVerificationToken).toBeDefined();
@@ -314,9 +314,9 @@ describe('EmailVerificationToken Model', () => {
       const schema = EmailVerificationToken.schema;
       if (schema && typeof schema.indexes === 'function') {
         const indexes = schema.indexes();
-        const ttlIndex = indexes.find(
-          (idx: any) => idx[0].expiresAt && idx[1]?.expireAfterSeconds !== undefined
-        );
+        const ttlIndex = indexes.find(([fields, options]) => {
+          return fields.expiresAt && options?.expireAfterSeconds !== undefined;
+        });
 
         expect(ttlIndex).toBeDefined();
         if (ttlIndex) {
@@ -362,9 +362,9 @@ describe('EmailVerificationToken Model', () => {
       const schema = EmailVerificationToken.schema;
       if (schema && typeof schema.indexes === 'function') {
         const indexes = schema.indexes();
-        const uniqueIndex = indexes.find(
-          (idx: any) => idx[0].userId === 1 && idx[0].tokenHash === 1
-        );
+        const uniqueIndex = indexes.find(([fields]) => {
+          return fields.userId === 1 && fields.tokenHash === 1;
+        });
 
         expect(uniqueIndex).toBeDefined();
         if (uniqueIndex) {

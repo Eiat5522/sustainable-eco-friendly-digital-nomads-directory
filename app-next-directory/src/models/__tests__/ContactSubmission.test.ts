@@ -226,17 +226,17 @@ describe('ContactSubmission Model', () => {
   describe('Schema Indexes', () => {
     it('should have compound index on email and createdAt', () => {
       const indexes = ContactSubmission.schema.indexes();
-      const emailCreatedAtIndex = indexes.find(
-        (idx: any) => idx[0].email === 1 && idx[0].createdAt === -1
-      );
+      const emailCreatedAtIndex = indexes.find(([fields]) => {
+        return fields.email === 1 && fields.createdAt === -1;
+      });
       expect(emailCreatedAtIndex).toBeDefined();
     });
 
     it('should have compound index on status and createdAt', () => {
       const indexes = ContactSubmission.schema.indexes();
-      const statusCreatedAtIndex = indexes.find(
-        (idx: any) => idx[0].status === 1 && idx[0].createdAt === -1
-      );
+      const statusCreatedAtIndex = indexes.find(([fields]) => {
+        return fields.status === 1 && fields.createdAt === -1;
+      });
       expect(statusCreatedAtIndex).toBeDefined();
     });
   });

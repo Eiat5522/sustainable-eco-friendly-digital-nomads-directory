@@ -3,6 +3,7 @@
  * These tests actually execute the handler logic by simulating HTTP requests
  */
 
+import type { HttpHandler } from 'msw';
 import { setupServer } from 'msw/node';
 import { handlers, setRegisterResponse, setReviewsResponse } from '../handlers';
 
@@ -374,43 +375,43 @@ describe('MSW Handlers Integration Tests', () => {
   describe('Helper function execution coverage', () => {
     it('should execute setReviewsResponse unauthorized switch case', () => {
       const handler = setReviewsResponse('unauthorized');
-      const info = (handler as any).info;
+      const { info } = handler as HttpHandler;
       expect(info?.method).toBe('POST');
     });
 
     it('should execute setReviewsResponse forbidden switch case', () => {
       const handler = setReviewsResponse('forbidden');
-      const info = (handler as any).info;
+      const { info } = handler as HttpHandler;
       expect(info?.method).toBe('POST');
     });
 
     it('should execute setReviewsResponse conflict switch case', () => {
       const handler = setReviewsResponse('conflict');
-      const info = (handler as any).info;
+      const { info } = handler as HttpHandler;
       expect(info?.method).toBe('POST');
     });
 
     it('should execute setReviewsResponse error switch case', () => {
       const handler = setReviewsResponse('error');
-      const info = (handler as any).info;
+      const { info } = handler as HttpHandler;
       expect(info?.method).toBe('POST');
     });
 
     it('should execute setReviewsResponse success default case', () => {
       const handler = setReviewsResponse('success');
-      const info = (handler as any).info;
+      const { info } = handler as HttpHandler;
       expect(info?.method).toBe('POST');
     });
 
     it('should execute setRegisterResponse error switch case', () => {
       const handler = setRegisterResponse('error');
-      const info = (handler as any).info;
+      const { info } = handler as HttpHandler;
       expect(info?.method).toBe('POST');
     });
 
     it('should execute setRegisterResponse success default case', () => {
       const handler = setRegisterResponse('success');
-      const info = (handler as any).info;
+      const { info } = handler as HttpHandler;
       expect(info?.method).toBe('POST');
     });
   });

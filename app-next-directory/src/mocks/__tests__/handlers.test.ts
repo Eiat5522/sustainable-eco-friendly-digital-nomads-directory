@@ -1,4 +1,4 @@
-import { HttpResponse, http } from 'msw';
+import { HttpResponse, http, type HttpHandler, type RequestHandler } from 'msw';
 import { createTestData } from '@/tests/helpers/test-data';
 import { handlers, setRegisterResponse, setReviewsResponse } from '../handlers';
 
@@ -272,104 +272,104 @@ describe('MSW Handlers', () => {
 
   describe('Handler coverage tests', () => {
     it('should have GET search handler', () => {
-      const searchHandlers = handlers.filter(h => {
-        const info = (h as any).info;
+      const searchHandlers = handlers.filter((handler: RequestHandler) => {
+        const { info } = handler;
         return info?.path?.includes('/api/search');
       });
       expect(searchHandlers.length).toBeGreaterThan(0);
     });
 
     it('should have POST search handler', () => {
-      const postSearchHandlers = handlers.filter(h => {
-        const info = (h as any).info;
+      const postSearchHandlers = handlers.filter((handler: RequestHandler) => {
+        const { info } = handler;
         return info?.method === 'POST';
       });
       expect(postSearchHandlers.length).toBeGreaterThan(0);
     });
 
     it('should have cities handler', () => {
-      const citiesHandlers = handlers.filter(h => {
-        const info = (h as any).info;
+      const citiesHandlers = handlers.filter((handler: RequestHandler) => {
+        const { info } = handler;
         return info?.path?.includes('/api/cities');
       });
       expect(citiesHandlers.length).toBeGreaterThan(0);
     });
 
     it('should have listings handler', () => {
-      const listingsHandlers = handlers.filter(h => {
-        const info = (h as any).info;
+      const listingsHandlers = handlers.filter((handler: RequestHandler) => {
+        const { info } = handler;
         return info?.path?.includes('/api/listings') || info?.path?.includes('/api/test-listings');
       });
       expect(listingsHandlers.length).toBeGreaterThan(0);
     });
 
     it('should have reviews handlers', () => {
-      const reviewsHandlers = handlers.filter(h => {
-        const info = (h as any).info;
+      const reviewsHandlers = handlers.filter((handler: RequestHandler) => {
+        const { info } = handler;
         return info?.path?.includes('/api/reviews');
       });
       expect(reviewsHandlers.length).toBeGreaterThan(0);
     });
 
     it('should have auth handlers', () => {
-      const authHandlers = handlers.filter(h => {
-        const info = (h as any).info;
+      const authHandlers = handlers.filter((handler: RequestHandler) => {
+        const { info } = handler;
         return info?.path?.includes('/api/auth');
       });
       expect(authHandlers.length).toBeGreaterThan(0);
     });
 
     it('should have contact handler', () => {
-      const contactHandlers = handlers.filter(h => {
-        const info = (h as any).info;
+      const contactHandlers = handlers.filter((handler: RequestHandler) => {
+        const { info } = handler;
         return info?.path?.includes('/api/contact');
       });
       expect(contactHandlers.length).toBeGreaterThan(0);
     });
 
     it('should have favorites handler', () => {
-      const favoritesHandlers = handlers.filter(h => {
-        const info = (h as any).info;
+      const favoritesHandlers = handlers.filter((handler: RequestHandler) => {
+        const { info } = handler;
         return info?.path?.includes('/api/user/favorites');
       });
       expect(favoritesHandlers.length).toBeGreaterThan(0);
     });
 
     it('should have categories handler', () => {
-      const categoriesHandlers = handlers.filter(h => {
-        const info = (h as any).info;
+      const categoriesHandlers = handlers.filter((handler: RequestHandler) => {
+        const { info } = handler;
         return info?.path?.includes('/api/categories');
       });
       expect(categoriesHandlers.length).toBeGreaterThan(0);
     });
 
     it('should have amenities handler', () => {
-      const amenitiesHandlers = handlers.filter(h => {
-        const info = (h as any).info;
+      const amenitiesHandlers = handlers.filter((handler: RequestHandler) => {
+        const { info } = handler;
         return info?.path?.includes('/api/amenities');
       });
       expect(amenitiesHandlers.length).toBeGreaterThan(0);
     });
 
     it('should have featured listings handler', () => {
-      const featuredHandlers = handlers.filter(h => {
-        const info = (h as any).info;
+      const featuredHandlers = handlers.filter((handler: RequestHandler) => {
+        const { info } = handler;
         return info?.path?.includes('/api/featured-listings');
       });
       expect(featuredHandlers.length).toBeGreaterThan(0);
     });
 
     it('should have suggestions handler', () => {
-      const suggestionsHandlers = handlers.filter(h => {
-        const info = (h as any).info;
+      const suggestionsHandlers = handlers.filter((handler: RequestHandler) => {
+        const { info } = handler;
         return info?.path?.includes('/api/search/suggestions');
       });
       expect(suggestionsHandlers.length).toBeGreaterThan(0);
     });
 
     it('should have hello endpoint handler', () => {
-      const helloHandlers = handlers.filter(h => {
-        const info = (h as any).info;
+      const helloHandlers = handlers.filter((handler: RequestHandler) => {
+        const { info } = handler;
         return info?.path?.includes('/api/hello');
       });
       expect(helloHandlers.length).toBeGreaterThan(0);
@@ -380,35 +380,35 @@ describe('MSW Handlers', () => {
     it('should return unauthorized response in unauthorized mode', async () => {
       const handler = setReviewsResponse('unauthorized');
       expect(handler).toBeDefined();
-      const info = (handler as any).info;
+      const { info } = handler as HttpHandler;
       expect(info?.method).toBe('POST');
     });
 
     it('should return forbidden response in forbidden mode', async () => {
       const handler = setReviewsResponse('forbidden');
       expect(handler).toBeDefined();
-      const info = (handler as any).info;
+      const { info } = handler as HttpHandler;
       expect(info?.method).toBe('POST');
     });
 
     it('should return conflict response in conflict mode', async () => {
       const handler = setReviewsResponse('conflict');
       expect(handler).toBeDefined();
-      const info = (handler as any).info;
+      const { info } = handler as HttpHandler;
       expect(info?.method).toBe('POST');
     });
 
     it('should return error response in error mode', async () => {
       const handler = setReviewsResponse('error');
       expect(handler).toBeDefined();
-      const info = (handler as any).info;
+      const { info } = handler as HttpHandler;
       expect(info?.method).toBe('POST');
     });
 
     it('should return success response by default', async () => {
       const handler = setReviewsResponse('success');
       expect(handler).toBeDefined();
-      const info = (handler as any).info;
+      const { info } = handler as HttpHandler;
       expect(info?.method).toBe('POST');
     });
   });
@@ -417,26 +417,26 @@ describe('MSW Handlers', () => {
     it('should return error response in error mode', async () => {
       const handler = setRegisterResponse('error');
       expect(handler).toBeDefined();
-      const info = (handler as any).info;
+      const { info } = handler as HttpHandler;
       expect(info?.method).toBe('POST');
     });
 
     it('should return success response by default', async () => {
       const handler = setRegisterResponse('success');
       expect(handler).toBeDefined();
-      const info = (handler as any).info;
+      const { info } = handler as HttpHandler;
       expect(info?.method).toBe('POST');
     });
   });
 
   describe('HTTP method coverage', () => {
     it('should have both GET and POST handlers', () => {
-      const getMethods = handlers.filter(h => {
-        const info = (h as any).info;
+      const getMethods = handlers.filter((handler: RequestHandler) => {
+        const { info } = handler;
         return info?.method === 'GET';
       });
-      const postMethods = handlers.filter(h => {
-        const info = (h as any).info;
+      const postMethods = handlers.filter((handler: RequestHandler) => {
+        const { info } = handler;
         return info?.method === 'POST';
       });
 
@@ -447,8 +447,8 @@ describe('MSW Handlers', () => {
     it('should have multiple endpoints covered', () => {
       const uniquePaths = new Set(
         handlers
-          .map(h => {
-            const info = (h as any).info;
+          .map((handler: RequestHandler) => {
+            const { info } = handler;
             return info?.path;
           })
           .filter(Boolean)

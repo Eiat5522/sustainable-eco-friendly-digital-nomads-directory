@@ -10,7 +10,7 @@ export async function loginAs(page: Page, email: string, password: string) {
   for (const p of loginPaths) {
     await page.goto(p, { waitUntil: 'domcontentloaded' }).catch(() => undefined);
     const isLoginPage = await loginButton
-      .waitFor({ state: 'visible', timeout: 5000 })
+      .waitFor({ state: 'visible', timeout: 15_000 })
       .then(() => true)
       .catch(() => false);
     if (isLoginPage) {

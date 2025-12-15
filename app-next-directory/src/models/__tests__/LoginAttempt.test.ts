@@ -1,9 +1,19 @@
 import { jest } from '@jest/globals';
-import type { CallbackError } from 'mongoose';
+import type { CallbackError, Schema } from 'mongoose';
+
+type PreHook = (this: unknown, next: (err?: CallbackError | null) => void) =>
+  | void
+  | Promise<void>;
+
+type SchemaWithPreHooks = Schema & { preHooks: Map<string, PreHook[]> };
 
 const ensureMongooseErrors = async () => {
   const imported = await import('mongoose');
-  const mongooseMod = (imported as any).default ?? imported;
+  type MongooseModule = typeof import('mongoose') & {
+    Error?: typeof import('mongoose')['Error'];
+  };
+
+  const mongooseMod = (imported.default ?? imported) as MongooseModule;
   if (!mongooseMod.Error) {
     class MockValidatorError extends Error {
       path: string;
@@ -26,10 +36,10 @@ const ensureMongooseErrors = async () => {
       }
     }
 
-    (mongooseMod as any).Error = {
+    mongooseMod.Error = {
       ValidationError: MockValidationError,
       ValidatorError: MockValidatorError,
-    };
+    } as typeof import('mongoose')['Error'];
   }
   return mongooseMod;
 };
@@ -50,9 +60,9 @@ describe('LoginAttempt model', () => {
     const LoginAttempt = await loadModel();
 
     const emailPath = LoginAttempt.schema.path('email');
-    const reasonPath = LoginAttempt.schema.path('reason') as any;
+    const reasonPath = LoginAttempt.schema.path('reason');
     const successPath = LoginAttempt.schema.path('success');
-    const createdAtPath = LoginAttempt.schema.path('createdAt') as any;
+    const createdAtPath = LoginAttempt.schema.path('createdAt');
 
     expect(emailPath?.isRequired).toBe(true);
     expect(emailPath?.options.trim).toBe(true);
@@ -75,16 +85,20 @@ describe('LoginAttempt model', () => {
 
   const getValidateHook = async () => {
     const LoginAttempt = await loadModel();
-    const schema = LoginAttempt.schema as any;
-    return schema.preHooks.get('validate')?.[0] as (
-      this: any,
-      next: (err?: CallbackError | null) => void
-    ) => void;
+    const schema = LoginAttempt.schema as SchemaWithPreHooks;
+    const hook = schema.preHooks.get('validate')?.[0];
+    if (!hook) {
+      throw new Error('Validate hook is missing');
+    }
+    return hook;
   };
 
   it('enforces invariants for successful login attempts via the validate hook', async () => {
     const hook = await getValidateHook();
-    const doc: any = { success: true, reason: 'invalid_credentials' };
+    const doc: { reason: string; success: boolean } = {
+      success: true,
+      reason: 'invalid_credentials',
+    };
     const next = jest.fn();
 
     hook.call(doc, next);
@@ -97,7 +111,10 @@ describe('LoginAttempt model', () => {
 
   it('enforces invariants for failed login attempts via the validate hook', async () => {
     const hook = await getValidateHook();
-    const doc: any = { success: false, reason: 'success' };
+    const doc: { reason: string; success: boolean } = {
+      success: false,
+      reason: 'success',
+    };
     const next = jest.fn();
 
     hook.call(doc, next);
@@ -109,7 +126,10 @@ describe('LoginAttempt model', () => {
 
   it('allows valid combinations in the validate hook', async () => {
     const hook = await getValidateHook();
-    const doc: any = { success: false, reason: 'invalid_credentials' };
+    const doc: { reason: string; success: boolean } = {
+      success: false,
+      reason: 'invalid_credentials',
+    };
     const next = jest.fn();
 
     hook.call(doc, next);
@@ -120,15 +140,12 @@ describe('LoginAttempt model', () => {
   const callUpdateHook = async (
     update: unknown,
     options: Record<string, unknown> = {},
-    existsResult: any = null,
+    existsResult: unknown = null,
     filter: Record<string, unknown> = { email: 'user@example.com' }
   ) => {
     const LoginAttempt = await loadModel();
-    const schema = LoginAttempt.schema as any;
-    const hook = schema.preHooks.get('updateOne')?.[0] as (
-      this: any,
-      next: (err?: CallbackError | null) => void
-    ) => Promise<void>;
+    const schema = LoginAttempt.schema as SchemaWithPreHooks;
+    const hook = schema.preHooks.get('updateOne')?.[0];
 
     const exists = jest.fn().mockReturnValue({
       setOptions: jest.fn().mockResolvedValue(existsResult),
@@ -185,13 +202,13 @@ describe('LoginAttempt model', () => {
   });
 
   it('ensures success remains boolean when provided', async () => {
-    const update = { success: 'yes' } as any;
+    const update: unknown = { success: 'yes' };
     const { next } = await callUpdateHook(update);
     expect((next.mock.calls[0][0] as Error).message).toContain('must be a boolean');
   });
 
   it('ensures reason is a recognised value when provided', async () => {
-    const update = { reason: 'unknown_reason' } as any;
+    const update: unknown = { reason: 'unknown_reason' };
     const { next } = await callUpdateHook(update);
     expect((next.mock.calls[0][0] as Error).message).toContain('not recognised');
   });
@@ -245,7 +262,7 @@ describe('LoginAttempt model', () => {
 
   it('shares the same update hook across other operations', async () => {
     const LoginAttempt = await loadModel();
-    const schema = LoginAttempt.schema as any;
+    const schema = LoginAttempt.schema as SchemaWithPreHooks;
     const updateHook = schema.preHooks.get('updateOne')?.[0];
     expect(schema.preHooks.get('updateMany')?.[0]).toBe(updateHook);
     expect(schema.preHooks.get('findOneAndUpdate')?.[0]).toBe(updateHook);

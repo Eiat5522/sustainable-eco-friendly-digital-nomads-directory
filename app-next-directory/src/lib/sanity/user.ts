@@ -2,14 +2,14 @@ import { structuredLogger } from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
 import type { UserRole } from '@/types/auth';
 
-type EnsureUserOptions = {
+export type EnsureUserOptions = {
   id: string;
   name?: string | null;
   email?: string | null;
   role?: UserRole | null;
 };
 
-type SanityUser = {
+export type SanityUser = {
   _id: string;
   _type: 'user';
   name?: string;
@@ -119,7 +119,7 @@ const isTestEnvironment = Boolean(process.env.JEST_WORKER_ID);
 
 type EnsureSanityUserFn = (options: EnsureUserOptions) => Promise<SanityUser | null>;
 
-interface MockableEnsureSanityUser extends EnsureSanityUserFn {
+export interface MockableEnsureSanityUser extends EnsureSanityUserFn {
   mockResolvedValueOnce: (value: SanityUser | null) => MockableEnsureSanityUser;
   mockImplementation: (
     impl: (options: EnsureUserOptions) => SanityUser | null | Promise<SanityUser | null>

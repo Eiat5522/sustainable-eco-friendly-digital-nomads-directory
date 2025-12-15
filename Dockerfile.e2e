@@ -37,7 +37,7 @@ COPY . .
 
 # Build the application
 WORKDIR /app/app-next-directory
-RUN DISABLE_MONGODB_DURING_BUILD=1 E2E=1 NEXT_PUBLIC_E2E=1 pnpm build
+RUN DISABLE_MONGODB_DURING_BUILD=1 E2E=1 NEXT_PUBLIC_E2E=1 ENABLE_TEST_PAGES=true pnpm build
 
 # Expose port for the application
 EXPOSE 3000

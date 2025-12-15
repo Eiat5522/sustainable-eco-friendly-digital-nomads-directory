@@ -19,7 +19,14 @@ import {
 } from './viewCountPersistence';
 
 describe('View Count Persistence', () => {
-  let mockCollection: any;
+  type MockCollection = {
+    findOneAndUpdate: jest.Mock;
+    findOne: jest.Mock;
+    createIndex: jest.Mock;
+    deleteMany: jest.Mock;
+  };
+
+  let mockCollection: MockCollection;
 
   beforeEach(async () => {
     // Get the mock client and db
@@ -107,9 +114,13 @@ describe('View Count Persistence', () => {
     });
 
     it('should throw error for invalid postId (non-string)', async () => {
-      await expect(incrementViewCount(null as any)).rejects.toThrow('Invalid postId');
-      await expect(incrementViewCount(undefined as any)).rejects.toThrow('Invalid postId');
-      await expect(incrementViewCount(123 as any)).rejects.toThrow('Invalid postId');
+      await expect(incrementViewCount(null as unknown as string)).rejects.toThrow(
+        'Invalid postId'
+      );
+      await expect(incrementViewCount(undefined as unknown as string)).rejects.toThrow(
+        'Invalid postId'
+      );
+      await expect(incrementViewCount(123 as unknown as string)).rejects.toThrow('Invalid postId');
       expect(mockCollection.findOneAndUpdate).not.toHaveBeenCalled();
     });
 
@@ -163,7 +174,7 @@ describe('View Count Persistence', () => {
 
     it('should throw error for invalid postId', async () => {
       await expect(getViewCount('')).rejects.toThrow('Invalid postId');
-      await expect(getViewCount(null as any)).rejects.toThrow('Invalid postId');
+      await expect(getViewCount(null as unknown as string)).rejects.toThrow('Invalid postId');
     });
   });
 

@@ -290,15 +290,24 @@ test.describe('Security Testing', () => {
       // Email header injection payloads
       const injectionEmails = TEST_CONFIG.payloads.emailInjection;
 
+      const contactRegion = page.getByRole('region', { name: /contact us/i });
+      const emailInput = contactRegion.getByTestId('contact-email');
+      const nameInput = contactRegion.getByTestId('contact-name');
+      const subjectInput = contactRegion.getByTestId('contact-subject');
+      const messageInput = contactRegion.getByTestId('contact-message');
+      const submitButton = contactRegion.getByTestId('contact-submit');
+
+      await expect(nameInput).toBeVisible();
+
       for (const email of injectionEmails) {
-        await page.fill('input[name="email"]', email);
-        await page.fill('input[name="name"]', TEST_CONFIG.contactForm.standardName);
-        await page.fill('input[name="subject"]', 'Validate headers input');
-        await page.fill('textarea[name="enquiry"]', TEST_CONFIG.contactForm.standardMessage);
-        await page.click('button[type="submit"]');
+        await emailInput.fill(email);
+        await nameInput.fill(TEST_CONFIG.contactForm.standardName);
+        await subjectInput.fill('Validate headers input');
+        await messageInput.fill(TEST_CONFIG.contactForm.standardMessage);
+        await submitButton.click();
 
         // Should reject malformed emails
-        await expect(page.locator('[data-testid="email-error"]')).toBeVisible();
+        await expect(contactRegion.getByTestId('email-error')).toBeVisible();
 
         await page.reload();
       }

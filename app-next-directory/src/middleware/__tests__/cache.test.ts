@@ -12,7 +12,7 @@ const mockMiddlewareError = structuredLogger.middlewareError as jest.Mock;
 
 // Mock fetch
 const mockFetch = jest.fn();
-global.fetch = mockFetch as any;
+global.fetch = mockFetch as unknown as typeof fetch;
 
 import { cacheMiddleware, invalidateCache, purgeCache } from '../cache';
 

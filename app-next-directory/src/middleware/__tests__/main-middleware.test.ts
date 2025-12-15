@@ -1,4 +1,9 @@
 import { jest } from '@jest/globals';
+import type { FeaturePermissions } from '@/types/auth';
+
+type MiddlewareRequest = Parameters<
+  ReturnType<typeof import('../index').createMiddleware>
+>[0];
 
 type HeadersWithStore = {
   store: Map<string, string>;
@@ -55,7 +60,7 @@ const makePermissions = (canView: boolean) => ({
   canManage: false,
 });
 
-const sharedFeatures = {} as any;
+const sharedFeatures = {} as FeaturePermissions;
 
 const matrix = {
   user: {
@@ -105,7 +110,7 @@ jest.mock('@/types/auth', () => ({
 
 let createMiddleware: typeof import('../index').createMiddleware;
 
-const buildRequest = (pathname: string) => {
+const buildRequest = (pathname: string): MiddlewareRequest => {
   const url = new URL(`https://example.com${pathname}`);
   return {
     nextUrl: {
@@ -116,7 +121,7 @@ const buildRequest = (pathname: string) => {
     url: url.toString(),
     method: 'GET',
     headers: new Map(),
-  } as any;
+  };
 };
 
 const getHeader = (response: MockResponse, name: string) => response.headers.store.get(name);

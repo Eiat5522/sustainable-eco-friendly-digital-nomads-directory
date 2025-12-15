@@ -3,6 +3,8 @@
  */
 
 import { client } from './client';
+import type { UserRole } from '@/types/auth';
+import type { EnsureUserOptions, MockableEnsureSanityUser, SanityUser } from './user';
 import { ensureSanityUser, unfavoriteListing } from './user';
 
 // Mock the client module
@@ -28,6 +30,16 @@ jest.mock('@/lib/logger', () => ({
 
 describe('user.ts', () => {
   const mockClient = client as jest.Mocked<typeof client>;
+
+  type PatchChain<T> = {
+    set: jest.Mock<{ commit: jest.Mock<Promise<T>, []> }, [Partial<SanityUser>]>;
+  };
+
+  const createMockPatchChain = <T>(resolvedValue: T): PatchChain<T> => ({
+    set: jest.fn().mockReturnValue({
+      commit: jest.fn().mockResolvedValue(resolvedValue),
+    }),
+  });
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -215,12 +227,8 @@ describe('user.ts', () => {
 
       mockClient.createIfNotExists.mockResolvedValue(existingUser);
 
-      const mockPatchChain = {
-        set: jest.fn().mockReturnValue({
-          commit: jest.fn().mockResolvedValue(updatedUser),
-        }),
-      };
-      mockClient.patch.mockReturnValue(mockPatchChain as any);
+      const mockPatchChain = createMockPatchChain(updatedUser);
+      mockClient.patch.mockReturnValue(mockPatchChain);
 
       const result = await ensureSanityUser({
         id: 'user-123',
@@ -251,12 +259,8 @@ describe('user.ts', () => {
 
       mockClient.createIfNotExists.mockResolvedValue(existingUser);
 
-      const mockPatchChain = {
-        set: jest.fn().mockReturnValue({
-          commit: jest.fn().mockResolvedValue(updatedUser),
-        }),
-      };
-      mockClient.patch.mockReturnValue(mockPatchChain as any);
+      const mockPatchChain = createMockPatchChain(updatedUser);
+      mockClient.patch.mockReturnValue(mockPatchChain);
 
       const result = await ensureSanityUser({
         id: 'user-123',
@@ -286,12 +290,8 @@ describe('user.ts', () => {
 
       mockClient.createIfNotExists.mockResolvedValue(existingUser);
 
-      const mockPatchChain = {
-        set: jest.fn().mockReturnValue({
-          commit: jest.fn().mockResolvedValue(updatedUser),
-        }),
-      };
-      mockClient.patch.mockReturnValue(mockPatchChain as any);
+      const mockPatchChain = createMockPatchChain(updatedUser);
+      mockClient.patch.mockReturnValue(mockPatchChain);
 
       const result = await ensureSanityUser({
         id: 'user-123',
@@ -323,12 +323,8 @@ describe('user.ts', () => {
 
       mockClient.createIfNotExists.mockResolvedValue(existingUser);
 
-      const mockPatchChain = {
-        set: jest.fn().mockReturnValue({
-          commit: jest.fn().mockResolvedValue(updatedUser),
-        }),
-      };
-      mockClient.patch.mockReturnValue(mockPatchChain as any);
+      const mockPatchChain = createMockPatchChain(updatedUser);
+      mockClient.patch.mockReturnValue(mockPatchChain);
 
       await ensureSanityUser({
         id: 'user-123',
@@ -384,7 +380,7 @@ describe('user.ts', () => {
     });
 
     it('should handle different user roles', async () => {
-      const roles = ['user', 'moderator', 'admin', 'business_owner', 'super_admin'];
+      const roles: UserRole[] = ['user', 'venueOwner', 'admin', 'superAdmin'];
 
       for (const role of roles) {
         jest.clearAllMocks();
@@ -404,7 +400,7 @@ describe('user.ts', () => {
           id: `user-${role}`,
           name: 'Test User',
           email: 'test@example.com',
-          role: role as any,
+          role,
         });
 
         expect(mockClient.createIfNotExists).toHaveBeenCalledWith(
@@ -425,7 +421,7 @@ describe('user.ts', () => {
       };
 
       // Type assertion since we know it's mockable in test environment
-      const mockableFunc = ensureSanityUser as any;
+      const mockableFunc = ensureSanityUser as unknown as MockableEnsureSanityUser;
       if (mockableFunc.mockResolvedValueOnce) {
         mockableFunc.mockResolvedValueOnce(testUser);
 
@@ -440,11 +436,11 @@ describe('user.ts', () => {
     });
 
     it('should support mockImplementation', async () => {
-      const mockableFunc = ensureSanityUser as any;
+      const mockableFunc = ensureSanityUser as unknown as MockableEnsureSanityUser;
       if (mockableFunc.mockImplementation && mockableFunc.mockReset) {
         mockableFunc.mockReset();
 
-        mockableFunc.mockImplementation((options: any) => ({
+        mockableFunc.mockImplementation((options: EnsureUserOptions) => ({
           _id: options.id,
           _type: 'user' as const,
           name: `Custom ${options.name}`,
@@ -464,7 +460,7 @@ describe('user.ts', () => {
     });
 
     it('should support mockClear', async () => {
-      const mockableFunc = ensureSanityUser as any;
+      const mockableFunc = ensureSanityUser as unknown as MockableEnsureSanityUser;
       if (mockableFunc.mockClear && mockableFunc.mock) {
         mockableFunc.mockClear();
 
@@ -482,7 +478,7 @@ describe('user.ts', () => {
     });
 
     it('should have _isMockFunction property in test environment', () => {
-      const mockableFunc = ensureSanityUser as any;
+      const mockableFunc = ensureSanityUser as unknown as MockableEnsureSanityUser;
       expect(mockableFunc._isMockFunction).toBe(true);
     });
   });
