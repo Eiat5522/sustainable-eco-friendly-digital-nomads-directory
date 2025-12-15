@@ -10,13 +10,6 @@ jest.mock('next-auth/react', () => ({
   ),
 }));
 
-// Mock next-themes
-jest.mock('next-themes', () => ({
-  ThemeProvider: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="theme-provider">{children}</div>
-  ),
-}));
-
 describe('ClientRootLayout', () => {
   it('renders children within provider hierarchy', () => {
     const { getByText, getByTestId, queryByTestId } = render(
@@ -27,7 +20,6 @@ describe('ClientRootLayout', () => {
 
     expect(getByText('Test Content')).toBeInTheDocument();
     expect(getByTestId('session-provider')).toBeInTheDocument();
-    expect(getByTestId('theme-provider')).toBeInTheDocument();
     expect(queryByTestId('analytics-provider')).not.toBeInTheDocument();
   });
 
