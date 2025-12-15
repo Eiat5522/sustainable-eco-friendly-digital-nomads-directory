@@ -131,7 +131,7 @@ test.describe('Performance & Load Testing', () => {
 
       // Monitor memory usage during image loading
       const initialMemory = await page.evaluate(() => {
-        return (performance as any).memory?.usedJSHeapSize || 0;
+        return (performance as unknown as { memory?: { usedJSHeapSize?: number } }).memory?.usedJSHeapSize || 0;
       });
 
       // Scroll through image gallery to trigger lazy loading
@@ -141,7 +141,7 @@ test.describe('Performance & Load Testing', () => {
       await page.waitForTimeout(2000); // Allow images to load
 
       const afterImagesMemory = await page.evaluate(() => {
-        return (performance as any).memory?.usedJSHeapSize || 0;
+        return (performance as unknown as { memory?: { usedJSHeapSize?: number } }).memory?.usedJSHeapSize || 0;
       });
 
       // Memory increase should be reasonable (less than 50MB)

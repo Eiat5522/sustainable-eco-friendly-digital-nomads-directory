@@ -6,12 +6,12 @@ import { structuredLogger } from '@/lib/logger';
 const URL = 'http://localhost:3000/listings/banyan-tree-phuket';
 
 test('leaflet map debug', async ({ page }) => {
-  const consoleMessages: any[] = [];
+  const consoleMessages: Array<{ type: string; text: string; location: unknown }> = [];
   page.on('console', msg => {
     consoleMessages.push({ type: msg.type(), text: msg.text(), location: msg.location() });
   });
 
-  const requests: any[] = [];
+  const requests: Array<Record<string, unknown>> = [];
   page.on('request', req => {
     requests.push({
       url: req.url(),
@@ -24,10 +24,10 @@ test('leaflet map debug', async ({ page }) => {
     try {
       const res = req.response();
       const status =
-        res && typeof (res as any).status === 'function'
-          ? await (res as any).status()
+        res && typeof (res as unknown as { status: () => Promise<number> }).status === 'function'
+          ? await (res as unknown as { status: () => Promise<number> }).status()
           : res
-            ? (res as any).status
+            ? (res as unknown as { status: number }).status
             : null;
       requests.push({
         url: req.url(),
@@ -89,7 +89,7 @@ test('leaflet map debug', async ({ page }) => {
 
     // Check if Leaflet JS exists
 
-    const L = (window as any).L;
+    const L = (window as unknown as { L?: { version?: string } }).L;
     const leafletVersion = L?.version || null;
 
     return {

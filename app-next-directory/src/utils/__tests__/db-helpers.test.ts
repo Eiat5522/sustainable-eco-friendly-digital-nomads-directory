@@ -1,19 +1,19 @@
 import type { MockCollection } from '../db-helpers';
 
 type MongoMockModule = {
-  MongoClient: any;
+  MongoClient: unknown;
   __mock: {
     connectMock: jest.Mock;
     dbMock: jest.Mock;
     reset: () => void;
-    instances: any[];
+    instances: unknown[];
   };
 };
 
 jest.mock('mongodb', () => {
   const connectMock = jest.fn();
   const dbMock = jest.fn();
-  const instances: any[] = [];
+  const instances: unknown[] = [];
 
   class MockMongoClient {
     public close = jest.fn().mockResolvedValue(undefined);
@@ -75,8 +75,8 @@ describe('db-helpers mock database behaviour', () => {
     delete process.env.MOCK_MONGODB;
     delete process.env.MONGODB_URI;
 
-    delete (globalThis as any).__TEST_MONGO_DB__;
-    delete (globalThis as any)._mongoClientPromise;
+    delete (globalThis as Record<string, unknown>).__TEST_MONGO_DB__;
+    delete (globalThis as Record<string, unknown>)._mongoClientPromise;
   });
 
   it('returns consistent mock database and collection references', async () => {
@@ -120,7 +120,7 @@ describe('db-helpers mock database behaviour', () => {
 
     const iterated: string[] = [];
     for await (const doc of collection.find({}).sort({ name: 1 })) {
-      iterated.push((doc as any).name);
+      iterated.push((doc as Record<string, unknown>).name as string);
     }
     expect(iterated).toEqual(['A', 'B', 'C']);
 
@@ -252,8 +252,8 @@ describe('db-helpers real MongoClient pathway', () => {
       MONGODB_URI: 'mongodb://example',
     };
 
-    delete (globalThis as any).__TEST_MONGO_DB__;
-    delete (globalThis as any)._mongoClientPromise;
+    delete (globalThis as Record<string, unknown>).__TEST_MONGO_DB__;
+    delete (globalThis as Record<string, unknown>)._mongoClientPromise;
   });
 
   it('propagates connection failures from the MongoClient', async () => {

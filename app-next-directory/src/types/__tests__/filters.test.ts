@@ -233,7 +233,7 @@ describe('filters types', () => {
 
   describe('FilterResults interface', () => {
     it('should accept valid filter results', () => {
-      const results: FilterResults<any> = {
+      const results: FilterResults<unknown> = {
         data: [],
         total: 0,
         page: 1,
@@ -328,7 +328,7 @@ describe('filters types', () => {
     });
 
     it('should handle empty filter results', () => {
-      const results: FilterResults<any> = {
+      const results: FilterResults<unknown> = {
         data: [],
         total: 0,
         page: 1,

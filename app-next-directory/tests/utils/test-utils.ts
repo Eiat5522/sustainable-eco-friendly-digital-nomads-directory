@@ -111,7 +111,7 @@ async function loginByRole(
 }
 
 export const TestHelpers = {
-  async fillListingForm(page: Page, data: any = {}) {
+  async fillListingForm(page: Page, data: Record<string, unknown> = {}) {
     const defaultData = {
       name: 'Test Eco Space',
       description: 'A sustainable coworking space',
@@ -121,21 +121,21 @@ export const TestHelpers = {
       ...data,
     };
 
-    await page.fill('input[name="name"]', defaultData.name);
-    await page.fill('textarea[name="description"]', defaultData.description);
-    await page.selectOption('select[name="category"]', defaultData.category);
-    await page.fill('input[name="city"]', defaultData.city);
-    await page.fill('input[name="address"]', defaultData.address);
+    await page.fill('input[name="name"]', defaultData.name as string);
+    await page.fill('textarea[name="description"]', defaultData.description as string);
+    await page.selectOption('select[name="category"]', defaultData.category as string);
+    await page.fill('input[name="city"]', defaultData.city as string);
+    await page.fill('input[name="address"]', defaultData.address as string);
   },
 
-  async verifyListingCard(page: Page, data: any) {
-    const card = page.locator('[data-testid="listing-card"]').filter({ hasText: data.name });
+  async verifyListingCard(page: Page, data: Record<string, unknown>) {
+    const card = page.locator('[data-testid="listing-card"]').filter({ hasText: data.name as string });
     await expect(card).toBeVisible();
-    await expect(card.locator('[data-testid="listing-category"]')).toHaveText(data.category);
-    await expect(card.locator('[data-testid="listing-city"]')).toHaveText(data.city);
+    await expect(card.locator('[data-testid="listing-category"]')).toHaveText(data.category as string);
+    await expect(card.locator('[data-testid="listing-city"]')).toHaveText(data.city as string);
   },
 
-  async submitReview(page: Page, data: any = {}) {
+  async submitReview(page: Page, data: Record<string, unknown> = {}) {
     const defaultData = {
       rating: 5,
       comment: 'Great eco-friendly space!',
@@ -144,7 +144,7 @@ export const TestHelpers = {
 
     await page.click('button[data-testid="write-review-button"]');
     await page.fill('input[name="rating"]', String(defaultData.rating));
-    await page.fill('textarea[name="comment"]', defaultData.comment);
+    await page.fill('textarea[name="comment"]', defaultData.comment as string);
     await page.click('button[type="submit"]');
   },
 
@@ -170,7 +170,7 @@ export const TestHelpers = {
     await loginByRole(page, 'admin', '/admin/dashboard', email, password);
   },
 
-  async createListing(page: Page, data: any = {}) {
+  async createListing(page: Page, data: Record<string, unknown> = {}) {
     await page.goto('/dashboard/listings/new');
     await TestHelpers.fillListingForm(page, data);
     await page.click('button[type="submit"]');
@@ -194,12 +194,12 @@ export const TestHelpers = {
     return listing;
   },
 
-  async makeAuthenticatedRequest(page: Page, endpoint: string, options: any = {}) {
+  async makeAuthenticatedRequest(page: Page, endpoint: string, options: Record<string, unknown> = {}) {
     const token = await page.evaluate(() => window.localStorage.getItem('token'));
     return page.request.fetch(endpoint, {
       ...options,
       headers: {
-        ...options.headers,
+        ...((options.headers as Record<string, string>) || {}),
         Authorization: token ? `Bearer ${token}` : undefined,
       },
     });
