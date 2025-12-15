@@ -7,11 +7,11 @@ const mockedBuildE2EResponse = jest.fn();
 
 // Mock sanity client, e2e fixture utilities and ensure route uses these mocks
 jest.mock('@/lib/sanity/client', () => ({
-  client: { fetch: (...args: any[]) => mockedFetch(...args) },
+  client: { fetch: (...args: unknown[]) => mockedFetch(...args) },
 }));
 jest.mock('@/data/e2e/discovery-fixtures', () => ({
   isE2ERun: () => mockedIsE2ERun(),
-  buildE2ESearchResponse: (...args: any[]) => mockedBuildE2EResponse(...args),
+  buildE2ESearchResponse: (...args: unknown[]) => mockedBuildE2EResponse(...args),
 }));
 
 const createRequest = (
@@ -19,9 +19,12 @@ const createRequest = (
   init?: ConstructorParameters<typeof NextRequest>[1]
 ) => new NextRequest(input, init);
 
-let GET: any;
-let POST: any;
-let routeTestControl: any;
+let GET: (request: NextRequest) => Promise<Response>;
+let POST: (request: NextRequest) => Promise<Response>;
+let routeTestControl: {
+  clientFetchOverride?: typeof mockedFetch | undefined;
+  parseBodyOverride?: (() => Promise<Record<string, unknown>>) | undefined;
+};
 
 describe('/api/search', () => {
   beforeEach(async () => {

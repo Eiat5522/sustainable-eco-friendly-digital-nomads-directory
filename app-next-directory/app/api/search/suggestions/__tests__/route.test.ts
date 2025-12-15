@@ -5,7 +5,7 @@ const mockedGetSearchSuggestions = jest.fn();
 // Mock the search helper used by the route instead of mutating _testControl
 jest.mock('@/lib/search', () => ({ getSearchSuggestions: mockedGetSearchSuggestions }));
 
-let GET: any;
+let GET: (request: Request) => Promise<Response>;
 
 describe('/api/search/suggestions', () => {
   const originalNodeEnv = process.env.NODE_ENV;
