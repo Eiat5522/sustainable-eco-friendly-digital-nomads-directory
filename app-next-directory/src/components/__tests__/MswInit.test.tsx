@@ -21,19 +21,19 @@ jest.mock('../../mocks/browser', () => ({
 
 describe('MswInit', () => {
   const originalEnv = process.env;
-  const originalPwE2e = (globalThis as any).__PW_E2E__;
+  const originalPwE2e = (globalThis as { __PW_E2E__?: boolean }).__PW_E2E__;
 
   beforeEach(() => {
     jest.resetModules();
     mockStart.mockClear();
     jest.clearAllMocks();
     process.env = { ...originalEnv };
-    (globalThis as any).__PW_E2E__ = originalPwE2e;
+    (globalThis as { __PW_E2E__?: boolean }).__PW_E2E__ = originalPwE2e;
   });
 
   afterAll(() => {
     process.env = originalEnv;
-    (globalThis as any).__PW_E2E__ = originalPwE2e;
+    (globalThis as { __PW_E2E__?: boolean }).__PW_E2E__ = originalPwE2e;
   });
 
   it('should render null', () => {
@@ -61,7 +61,7 @@ describe('MswInit', () => {
   });
 
   it('should start the worker if __PW_E2E__ is true', async () => {
-    (globalThis as any).__PW_E2E__ = true;
+    (globalThis as { __PW_E2E__?: boolean }).__PW_E2E__ = true;
     mockStart.mockResolvedValueOnce(undefined);
     render(<MswInit />);
 

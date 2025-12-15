@@ -248,7 +248,7 @@ describe('SocialAuthRow', () => {
         json: async () => ({ google: { id: 'google' } }),
       } as Response);
 
-      mockSignIn.mockResolvedValue(undefined as any);
+      mockSignIn.mockResolvedValue(undefined as never);
 
       render(<SocialAuthRow />);
 
@@ -322,7 +322,7 @@ describe('SocialAuthRow', () => {
         json: async () => ({ google: { id: 'google' } }),
       } as Response);
 
-      mockSignIn.mockResolvedValue(undefined as any);
+      mockSignIn.mockResolvedValue(undefined as never);
 
       render(<SocialAuthRow />);
 

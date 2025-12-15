@@ -384,7 +384,7 @@ afterEach(async () => {
     if (BC && typeof (BC as { __cleanup?: () => void }).__cleanup === 'function') {
       (BC as { __cleanup: () => void }).__cleanup();
     }
-  } catch (e) {
+  } catch (_e) {
     // Ignore if broadcast-channel is not loaded
   }
 

@@ -14,7 +14,7 @@ describe('Footer', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     pushMock.mockReset();
-    mockUseRouter.mockReturnValue({ push: pushMock } as any);
+    mockUseRouter.mockReturnValue({ push: pushMock } as ReturnType<typeof useRouter>);
   });
 
   it('renders newsletter, quick links, and contact info', () => {

@@ -35,42 +35,42 @@ jest.mock('next/image', () => {
 
 jest.mock('lucide-react', () => ({
   __esModule: true,
-  Leaf: ({ children, ...props }: any) => (
+  Leaf: ({ children, ...props }: React.SVGProps<SVGSVGElement>) => (
     <svg data-icon="leaf" {...props}>
       {children}
     </svg>
   ),
-  MapPin: ({ children, ...props }: any) => (
+  MapPin: ({ children, ...props }: React.SVGProps<SVGSVGElement>) => (
     <svg data-icon="map-pin" {...props}>
       {children}
     </svg>
   ),
-  Wifi: ({ children, ...props }: any) => (
+  Wifi: ({ children, ...props }: React.SVGProps<SVGSVGElement>) => (
     <svg data-icon="wifi" {...props}>
       {children}
     </svg>
   ),
-  DollarSign: ({ children, ...props }: any) => (
+  DollarSign: ({ children, ...props }: React.SVGProps<SVGSVGElement>) => (
     <svg data-icon="dollar" {...props}>
       {children}
     </svg>
   ),
-  Thermometer: ({ children, ...props }: any) => (
+  Thermometer: ({ children, ...props }: React.SVGProps<SVGSVGElement>) => (
     <svg data-icon="thermometer" {...props}>
       {children}
     </svg>
   ),
-  Shield: ({ children, ...props }: any) => (
+  Shield: ({ children, ...props }: React.SVGProps<SVGSVGElement>) => (
     <svg data-icon="shield" {...props}>
       {children}
     </svg>
   ),
-  Footprints: ({ children, ...props }: any) => (
+  Footprints: ({ children, ...props }: React.SVGProps<SVGSVGElement>) => (
     <svg data-icon="footprints" {...props}>
       {children}
     </svg>
   ),
-  Wind: ({ children, ...props }: any) => (
+  Wind: ({ children, ...props }: React.SVGProps<SVGSVGElement>) => (
     <svg data-icon="wind" {...props}>
       {children}
     </svg>
