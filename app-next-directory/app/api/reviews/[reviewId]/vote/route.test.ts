@@ -38,11 +38,14 @@ describe('API /api/reviews/[reviewId]/vote', () => {
   });
 
   describe('POST', () => {
-    function createMockReviewsCollection(review: any = null) {
+    function createMockReviewsCollection(review: unknown = null) {
       return {
-        findOne: jest.fn().mockImplementation((filter: any) => {
+        findOne: jest.fn().mockImplementation((filter: unknown) => {
           // If filter includes status: 'approved' and review doesn't have that status, return null
-          if (filter?.status === 'approved' && review?.status !== 'approved') {
+          if (
+            (filter as { status?: string })?.status === 'approved' &&
+            (review as { status?: string })?.status !== 'approved'
+          ) {
             return Promise.resolve(null);
           }
           return Promise.resolve(review);
@@ -51,7 +54,7 @@ describe('API /api/reviews/[reviewId]/vote', () => {
       };
     }
 
-    function createMockVotesCollection(existingVote: any = null) {
+    function createMockVotesCollection(existingVote: unknown = null) {
       return {
         findOne: jest.fn().mockResolvedValue(existingVote),
         updateOne: jest.fn().mockResolvedValue({ modifiedCount: 1 }),

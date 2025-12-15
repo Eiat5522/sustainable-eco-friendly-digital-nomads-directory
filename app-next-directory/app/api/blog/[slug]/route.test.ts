@@ -427,7 +427,7 @@ describe('Blog [slug] API', () => {
         routeTestControl.resetViewCounts();
         routeTestControl.resetFallbackMetrics();
 
-        fetchMock.mockImplementation(async (_query: string, params?: Record<string, any>) => {
+        fetchMock.mockImplementation(async (_query: string, params?: Record<string, unknown>) => {
           const slug = (params?.slug ?? 'unknown') as string;
           return { _id: `post-${slug}`, slug };
         });

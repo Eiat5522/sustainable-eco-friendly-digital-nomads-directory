@@ -67,7 +67,7 @@ beforeAll(async () => {
   if (typeof global.setImmediate !== 'function') {
     // jsdom does not provide setImmediate; nodemailer expects it to exist
 
-    (global as any).setImmediate = (fn: (...args: unknown[]) => void, ...args: unknown[]) => {
+    (global as typeof globalThis & { setImmediate?: typeof setTimeout }).setImmediate = (fn: (...args: unknown[]) => void, ...args: unknown[]) => {
       return setTimeout(() => fn(...args), 0);
     };
   }
@@ -82,7 +82,7 @@ afterAll(() => {
   if (originalSetImmediate) {
     global.setImmediate = originalSetImmediate;
   } else {
-    delete (global as any).setImmediate;
+    delete (global as typeof globalThis & { setImmediate?: typeof setTimeout }).setImmediate;
   }
 });
 
@@ -108,7 +108,7 @@ describe('Contact API', () => {
         const response = await GET();
         const data = await response.json();
 
-        const typeValues = data.data.types.map((t: any) => t.value);
+        const typeValues = data.data.types.map((t: { value: string }) => t.value);
         expect(typeValues).toContain('general');
         expect(typeValues).toContain('listing');
         expect(typeValues).toContain('partnership');

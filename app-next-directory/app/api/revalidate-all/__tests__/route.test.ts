@@ -14,8 +14,8 @@ jest.mock('@/utils/revalidation-token', () => ({
   validateRevalidationToken: mockValidateRevalidationToken,
 }));
 
-let POST: any;
-let routeTestControl: any;
+let POST: typeof import('./route').POST;
+let routeTestControl: typeof import('./route').routeTestControl;
 
 describe('/api/revalidate-all', () => {
   const validToken = 'test-token-123';
