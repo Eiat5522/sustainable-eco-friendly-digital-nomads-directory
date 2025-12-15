@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals
 
 import { register, resetInstrumentationForTests } from '../instrumentation';
 
-type ListenerMap = Record<string, ((...args: any[]) => void) | undefined>;
+type ListenerMap = Record<string, ((...args: unknown[]) => void) | undefined>;
 
 describe('instrumentation register', () => {
   const originalNextRuntime = process.env.NEXT_RUNTIME;
@@ -21,12 +21,12 @@ describe('instrumentation register', () => {
     process.env.NODE_ENV = 'development';
     resetInstrumentationForTests();
 
-    processOnSpy = jest.spyOn(process, 'on').mockImplementation((event: any, handler: any) => {
-      listeners[event as string] = handler as (...args: any[]) => void;
+    processOnSpy = jest.spyOn(process, 'on').mockImplementation((event: string, handler: (...args: unknown[]) => void) => {
+      listeners[event as string] = handler as (...args: unknown[]) => void;
       return process;
     });
 
-    processExitSpy = jest.spyOn(process, 'exit').mockImplementation((() => undefined) as any);
+    processExitSpy = jest.spyOn(process, 'exit').mockImplementation((() => undefined) as never);
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
     consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
     consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);

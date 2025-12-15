@@ -18,7 +18,7 @@ global.alert = jest.fn();
 describe('FavoriteButton', () => {
   beforeAll(() => {
     // Set up fetch spy once before all tests
-    fetchSpy = jest.spyOn(global, 'fetch').mockImplementation(mockFetch as any);
+    fetchSpy = jest.spyOn(global, 'fetch').mockImplementation(mockFetch as jest.MockedFunction<typeof fetch>);
   });
 
   afterAll(() => {
@@ -457,7 +457,7 @@ describe('FavoriteButton', () => {
         json: async () => ({ favorited: false }),
       } as Response);
 
-      let resolveAddFavorite: any;
+      let resolveAddFavorite: ((value: Response) => void) | undefined;
       mockFetch.mockImplementation(
         () =>
           new Promise(resolve => {

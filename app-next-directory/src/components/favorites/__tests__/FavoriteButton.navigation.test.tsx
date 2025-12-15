@@ -25,7 +25,7 @@ global.alert = jest.fn();
 
 describe('FavoriteButton - Deterministic Navigation Flows', () => {
   beforeAll(() => {
-    fetchSpy = jest.spyOn(global, 'fetch').mockImplementation(mockFetch as any);
+    fetchSpy = jest.spyOn(global, 'fetch').mockImplementation(mockFetch as jest.MockedFunction<typeof fetch>);
   });
 
   afterAll(() => {
@@ -155,7 +155,8 @@ describe('FavoriteButton - Deterministic Navigation Flows', () => {
     it('preserves complex URLs with query parameters as callbackUrl', async () => {
       // Mock window.location
       const originalLocation = window.location;
-      delete (window as any).location;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      delete (window as { location?: Location }).location;
       window.location = {
         ...originalLocation,
         href: 'http://localhost:3000/listings/eco-venue?tab=reviews&sort=recent#location',
@@ -185,7 +186,8 @@ describe('FavoriteButton - Deterministic Navigation Flows', () => {
 
     it('uses current href for callbackUrl even with special characters', async () => {
       const originalLocation = window.location;
-      delete (window as any).location;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      delete (window as { location?: Location }).location;
       window.location = {
         ...originalLocation,
         href: 'http://localhost:3000/listings/café-bio?filter=organic&price=€€',

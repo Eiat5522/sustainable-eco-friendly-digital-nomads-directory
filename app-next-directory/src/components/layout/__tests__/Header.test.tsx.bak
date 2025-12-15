@@ -7,7 +7,7 @@ import * as nextAuth from 'next-auth/react'
 // Mock next/image used inside Header - strip props that aren't valid DOM attributes (like priority)
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: (props: any) => {
+  default: (props: { priority?: boolean; [key: string]: unknown }) => {
     const { priority, ...rest } = props
     // eslint-disable-next-line jsx-a11y/alt-text, @next/next/no-img-element
     return <img {...rest} />
@@ -25,7 +25,7 @@ describe('Header', () => {
     useSessionSpy.mockReturnValue({
       data: null,
       status: 'unauthenticated'
-    } as any)
+    } as ReturnType<typeof nextAuth.useSession>)
 
     render(<Header />)
 
@@ -45,7 +45,7 @@ describe('Header', () => {
         }
       },
       status: 'authenticated'
-    } as any)
+    } as ReturnType<typeof nextAuth.useSession>)
 
     render(<Header />)
 
@@ -69,7 +69,7 @@ describe('Header', () => {
         }
       },
       status: 'authenticated'
-    } as any)
+    } as ReturnType<typeof nextAuth.useSession>)
 
     render(<Header />)
 
@@ -93,7 +93,7 @@ describe('Header', () => {
         }
       },
       status: 'authenticated'
-    } as any)
+    } as ReturnType<typeof nextAuth.useSession>)
 
     let resolveSignOut: (() => void) | undefined
     const signOutSpy = jest.spyOn(nextAuth, 'signOut').mockImplementation(

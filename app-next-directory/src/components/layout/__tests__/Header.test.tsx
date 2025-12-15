@@ -42,7 +42,7 @@ jest.mock('next/image', () => {
 // Mock next/link
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ children, href, ...props }: any) => {
+  default: ({ children, href, ...props }: { children: React.ReactNode; href: string; [key: string]: unknown }) => {
     const { useRouter } = require('next/navigation');
     const router = useRouter();
 
@@ -118,7 +118,7 @@ describe('Header', () => {
       back: jest.fn(),
       forward: jest.fn(),
       refresh: jest.fn(),
-    } as any);
+    } as ReturnType<typeof useRouter>);
   });
 
   afterEach(() => {
@@ -133,7 +133,7 @@ describe('Header', () => {
   describe('useSafeSession hook', () => {
     it('warns in development when rendered without SessionProvider', () => {
       const originalEnv = process.env.NODE_ENV;
-      (process.env as any).NODE_ENV = 'development';
+      (process.env as { NODE_ENV?: string }).NODE_ENV = 'development';
 
       clearSessionContext();
       render(<Header />);
@@ -142,24 +142,24 @@ describe('Header', () => {
         '[auth] Header rendered without SessionProvider; defaulting to unauthenticated state'
       );
 
-      (process.env as any).NODE_ENV = originalEnv;
+      (process.env as { NODE_ENV?: string }).NODE_ENV = originalEnv;
     });
 
     it('does not warn in production when rendered without SessionProvider', () => {
       const originalEnv = process.env.NODE_ENV;
-      (process.env as any).NODE_ENV = 'production';
+      (process.env as { NODE_ENV?: string }).NODE_ENV = 'production';
 
       clearSessionContext();
       render(<Header />);
 
       expect(consoleWarnSpy).not.toHaveBeenCalled();
 
-      (process.env as any).NODE_ENV = originalEnv;
+      (process.env as { NODE_ENV?: string }).NODE_ENV = originalEnv;
     });
 
     it('only warns once even when re-rendered without SessionProvider', async () => {
       const originalEnv = process.env.NODE_ENV;
-      (process.env as any).NODE_ENV = 'development';
+      (process.env as { NODE_ENV?: string }).NODE_ENV = 'development';
       // Create a stable mock that persists across renders
       const useContextMock = jest.fn(context => {
         if (context === nextAuth.SessionContext) {
@@ -185,7 +185,7 @@ describe('Header', () => {
         );
       });
 
-      (process.env as any).NODE_ENV = originalEnv;
+      (process.env as { NODE_ENV?: string }).NODE_ENV = originalEnv;
     });
 
     it('returns unauthenticated status when context is missing', () => {
@@ -443,7 +443,7 @@ describe('Header', () => {
             id: '1',
             name: 'Test User',
             email: 'test@example.com',
-            image: null as any,
+            image: null,
           },
         } as unknown as Session,
         'authenticated'
@@ -568,7 +568,7 @@ describe('Header', () => {
         'authenticated'
       );
 
-      signOutSpy.mockResolvedValue(undefined as any);
+      signOutSpy.mockResolvedValue(undefined as never);
 
       render(<Header />);
 
@@ -678,7 +678,7 @@ describe('Header', () => {
 
   describe('Edge cases', () => {
     it('handles session with null user', () => {
-      mockSessionContext({ user: null } as any, 'authenticated');
+      mockSessionContext({ user: null } as unknown as Session, 'authenticated');
 
       render(<Header />);
 
