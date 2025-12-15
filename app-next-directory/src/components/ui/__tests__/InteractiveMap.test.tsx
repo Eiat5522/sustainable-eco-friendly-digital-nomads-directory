@@ -8,8 +8,13 @@ jest.mock(
   'leaflet',
   () => {
     const createMapInstance = () => {
-      const instance: any = {
-        setView: jest.fn().mockImplementation(function (this: any) {
+      const instance: {
+        setView: jest.Mock;
+        remove: jest.Mock;
+        whenReady: jest.Mock;
+        invalidateSize: jest.Mock;
+      } = {
+        setView: jest.fn().mockImplementation(function (this: unknown) {
           return this;
         }),
         remove: jest.fn(),
@@ -28,7 +33,7 @@ jest.mock(
       let popupInstance: { setContent: jest.Mock } | null = null;
       return {
         addTo: jest.fn().mockReturnThis(),
-        bindPopup: jest.fn(function (this: any, content) {
+        bindPopup: jest.fn(function (this: unknown, content) {
           if (!popupInstance) {
             popupInstance = { setContent: jest.fn().mockReturnThis() };
           }
@@ -97,7 +102,8 @@ describe('InteractiveMap', () => {
   });
 
   beforeAll(() => {
-    (global as any).requestAnimationFrame = (callback: any) => {
+    (global as unknown as { requestAnimationFrame: (callback: FrameRequestCallback) => number })
+      .requestAnimationFrame = (callback: FrameRequestCallback) => {
       if (typeof callback === 'function') {
         callback(0);
       }
@@ -135,7 +141,7 @@ describe('InteractiveMap', () => {
   });
 
   it('displays an error message when map tiles fail to load', async () => {
-    tileLayerInstance.on.mockImplementation(function (this: any, event, callback) {
+    tileLayerInstance.on.mockImplementation(function (this: unknown, event, callback) {
       if (event === 'tileerror') {
         callback({
           error: new Error('Failed to load'),
@@ -241,7 +247,7 @@ describe('InteractiveMap', () => {
     const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
     for (const errorCase of errorCases) {
-      tileLayerInstance.on.mockImplementation(function (this: any, event, callback) {
+      tileLayerInstance.on.mockImplementation(function (this: unknown, event, callback) {
         if (event === 'tileerror') {
           callback({
             ...errorCase,
@@ -264,10 +270,10 @@ describe('InteractiveMap', () => {
   });
 
   it('binds a new popup if one does not exist on update', async () => {
-    let popupInstance: any = null;
+    let popupInstance: { setContent: jest.Mock } | null = null;
     const markerInstance = {
       addTo: jest.fn().mockReturnThis(),
-      bindPopup: jest.fn(function (this: any, content) {
+      bindPopup: jest.fn(function (this: unknown, content) {
         popupInstance = { setContent: jest.fn().mockReturnValue(this) };
         if (content) popupInstance.setContent(content);
         return this;

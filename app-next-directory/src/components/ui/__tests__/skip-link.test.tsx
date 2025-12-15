@@ -6,7 +6,15 @@ import { SkipLink } from '../skip-link';
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ children, href, ...props }: any) => {
+  default: ({
+    children,
+    href,
+    ...props
+  }: {
+    children: React.ReactNode;
+    href: string;
+    [key: string]: unknown;
+  }) => {
     return (
       <a href={href} {...props}>
         {children}

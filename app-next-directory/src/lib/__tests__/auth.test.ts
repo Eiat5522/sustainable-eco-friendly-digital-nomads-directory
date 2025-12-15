@@ -15,13 +15,15 @@ jest.mock('next-auth', () => ({
   default: nextAuthSpy,
 }));
 
-const credentialsSpy = jest.fn((options: any) => ({
-  id: 'credentials',
-  type: 'credentials',
-  authorize: options.authorize,
-}));
+const credentialsSpy = jest.fn(
+  (options: { authorize: (credentials?: unknown, request?: unknown) => Promise<unknown> }) => ({
+    id: 'credentials',
+    type: 'credentials',
+    authorize: options.authorize,
+  })
+);
 
-const googleSpy = jest.fn((options: any) => ({
+const googleSpy = jest.fn((options: Record<string, unknown>) => ({
   id: 'google',
   type: 'oauth',
   options,
@@ -112,9 +114,13 @@ const importAuthModule = async () => {
 };
 
 const extractCredentialsProvider = (authOptions: NextAuthConfig) => {
-  const provider = authOptions.providers?.find((p: any) => p.id === 'credentials');
+  const provider = authOptions.providers?.find(
+    (p: { id: string }) => p.id === 'credentials'
+  );
   if (!provider) throw new Error('Credentials provider not found');
-  return provider as { authorize: (credentials?: any, request?: any) => Promise<any> };
+  return provider as {
+    authorize: (credentials?: unknown, request?: unknown) => Promise<unknown>;
+  };
 };
 
 const nextTick = () => new Promise<void>(resolve => queueMicrotask(resolve));
@@ -251,7 +257,9 @@ describe('auth module', () => {
         user: { email: 'verified@example.com' },
         account: { provider: 'google' },
         profile: { email_verified: true },
-      } as any);
+      } as Parameters<
+        Required<NextAuthConfig['callbacks']>['signIn']
+      >[0]);
 
       expect(dbConnect).toHaveBeenCalledTimes(1);
       expect(updateOne).toHaveBeenCalledWith(
@@ -279,7 +287,9 @@ describe('auth module', () => {
         user: { email: 'user@example.com' },
         account: { provider: 'google' },
         profile: { email_verified: true },
-      } as any);
+      } as Parameters<
+        Required<NextAuthConfig['callbacks']>['signIn']
+      >[0]);
 
       expect(warnSpy).toHaveBeenCalledWith(
         '[auth] signIn verification sync failed',
@@ -298,7 +308,9 @@ describe('auth module', () => {
       const result = await signIn?.({
         user: { email: 'user@example.com' },
         account: { provider: 'credentials' },
-      } as any);
+      } as Parameters<
+        Required<NextAuthConfig['callbacks']>['signIn']
+      >[0]);
 
       expect(dbConnect).not.toHaveBeenCalled();
       expect(updateOne).not.toHaveBeenCalled();
@@ -327,7 +339,9 @@ describe('auth module', () => {
       const token = await jwtCallback?.({
         token: { email: 'admin@example.com' } as JWT,
         user: { id: 'user-1', name: 'Admin User', role: 'member' },
-      } as any);
+      } as Parameters<
+        Required<NextAuthConfig['callbacks']>['jwt']
+      >[0]);
 
       expect(token).toMatchObject({
         id: 'user-1',
@@ -357,7 +371,9 @@ describe('auth module', () => {
       const token = await jwtCallback?.({
         token: { id: 'user-2', email: 'fetched@example.com' } as JWT,
         trigger: 'update',
-      } as any);
+      } as Parameters<
+        Required<NextAuthConfig['callbacks']>['jwt']
+      >[0]);
 
       expect(getUserById).toHaveBeenCalledWith('user-2');
       expect(token).toMatchObject({ name: 'Fetched User', role: 'admin', id: 'user-2' });
@@ -374,7 +390,9 @@ describe('auth module', () => {
         session: { user: {} },
         user: { id: 'abc', role: 'admin' },
         token: { id: 'ignored', role: 'member' },
-      } as any);
+      } as Parameters<
+        Required<NextAuthConfig['callbacks']>['session']
+      >[0]);
 
       expect(session?.user).toMatchObject({ id: 'abc', role: 'admin' });
     });
@@ -387,7 +405,9 @@ describe('auth module', () => {
       const session = await sessionCallback?.({
         session: { user: {} },
         token: { id: 'token-id', role: 'member' },
-      } as any);
+      } as Parameters<
+        Required<NextAuthConfig['callbacks']>['session']
+      >[0]);
 
       expect(session?.user).toMatchObject({ id: 'token-id', role: 'member' });
     });
@@ -408,7 +428,8 @@ describe('auth module', () => {
     process.env.GOOGLE_CLIENT_SECRET = 'client-secret';
     const { authOptions } = await importAuthModule();
 
-    const providerIds = authOptions.providers?.map((p: any) => p.id) ?? [];
+    const providerIds =
+      authOptions.providers?.map((p: { id: string }) => p.id) ?? [];
     expect(providerIds).toContain('google');
     expect(googleSpy).toHaveBeenCalledWith({
       clientId: 'client-id',
