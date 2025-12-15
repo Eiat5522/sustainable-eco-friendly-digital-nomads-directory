@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import UserAnalytics from '../UserAnalytics';
 
 describe('UserAnalytics model schema', () => {
-  const schema = UserAnalytics.schema as any;
+  const schema = UserAnalytics.schema;
 
   beforeAll(() => {});
 
@@ -93,11 +93,18 @@ describe('UserAnalytics model schema', () => {
   });
 
   it('limits analytics arrays via the pre-save hook', () => {
-    const preHooks: Array<(this: any, next?: () => void) => void> =
+    interface DocWithEngagement {
+      engagement: {
+        searchPatterns: Array<{ query: string; timestamp: Date; resultsCount: number }>;
+        viewHistory: Array<{ listingId: string; viewedAt: Date; timeSpent: number }>;
+      };
+    }
+    
+    const preHooks: Array<(this: DocWithEngagement, next?: () => void) => void> =
       schema.preHooks?.get('save') ?? [];
     expect(preHooks.length).toBeGreaterThan(0);
 
-    const doc = {
+    const doc: DocWithEngagement = {
       engagement: {
         searchPatterns: Array.from({ length: 150 }, (_, i) => ({
           query: `query-${i}`,

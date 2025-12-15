@@ -55,7 +55,7 @@ describe('API /api/user/favorites integration', () => {
     });
 
     _testControl.clientFetchOverride = jest.fn(
-      async (query: string, params?: Record<string, any>) => {
+      async (query: string, params?: Record<string, unknown>) => {
         if (query.includes('_type == "listing"') && query.includes('slug.current')) {
           if (params?.slug === listing.slug?.current) {
             return { _id: listing._id };
@@ -79,10 +79,10 @@ describe('API /api/user/favorites integration', () => {
                 shortDescription: listing.shortDescription,
                 primaryImage: listing.primaryImage ?? null,
                 mainImage: listing.mainImage ?? null,
-                ecoFocusTags: (listing.ecoFocusTags ?? []).map((tag: any) =>
+                ecoFocusTags: (listing.ecoFocusTags ?? []).map((tag: string | { name?: string }) =>
                   typeof tag === 'string' ? { name: tag } : { name: tag?.name }
                 ),
-                digitalNomadFeatures: (listing.digitalNomadFeatures ?? []).map((feature: any) =>
+                digitalNomadFeatures: (listing.digitalNomadFeatures ?? []).map((feature: string | { name?: string }) =>
                   typeof feature === 'string' ? { name: feature } : { name: feature?.name }
                 ),
                 city: listing.city
@@ -104,12 +104,12 @@ describe('API /api/user/favorites integration', () => {
       }
     );
 
-    _testControl.clientCreateOrReplaceOverride = jest.fn(async (doc: any) => {
+    _testControl.clientCreateOrReplaceOverride = jest.fn(async (doc: Record<string, unknown>) => {
       const entry: FavoriteDoc = {
-        _id: doc._id,
-        userId: doc.user._ref,
-        listingId: doc.listing._ref,
-        createdAt: doc.createdAt,
+        _id: doc._id as string,
+        userId: (doc.user as { _ref: string })._ref,
+        listingId: (doc.listing as { _ref: string })._ref,
+        createdAt: doc.createdAt as string,
       };
 
       const existingIndex = favoritesStore.findIndex(favorite => favorite._id === doc._id);

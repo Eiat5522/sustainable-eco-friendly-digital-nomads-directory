@@ -16,6 +16,7 @@ import type {
   ListingSummaryDTO,
   Money,
   OpeningHour,
+  Percentage0To100,
   RestaurantDetails,
 } from '../dto';
 import { asISODateString, assertISODateString, isISODateString } from '../dto';
@@ -46,7 +47,7 @@ describe('dto types', () => {
         name: 'Bangkok',
         slug: 'bangkok',
         country: 'Thailand',
-        sustainabilityScore: 85 as any,
+        sustainabilityScore: 85 as Percentage0To100,
         highlights: ['Transport', 'Parks'],
         imageUrl: 'https://example.com/bangkok.jpg',
         imageDimensions: { width: 1200, height: 800 },

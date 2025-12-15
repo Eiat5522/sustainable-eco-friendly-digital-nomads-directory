@@ -35,10 +35,10 @@ jest.mock('../lib/sanity/client', () => ({
  * Date: May 24, 2025
  */
 
-import { SanityAPIError } from '../lib/sanity-http-client';
+import { SanityAPIError, SanityHTTPClient } from '../lib/sanity-http-client';
 
 describe('Sanity HTTP Client Test Suite', () => {
-  let sanityHTTPClient: any;
+  let sanityHTTPClient: SanityHTTPClient;
 
   beforeEach(async () => {
     jest.resetModules();
