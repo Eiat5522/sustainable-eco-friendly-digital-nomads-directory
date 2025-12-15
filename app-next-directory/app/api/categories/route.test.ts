@@ -118,7 +118,7 @@ describe('Categories API - GET /api/categories', () => {
     });
 
     it('should handle error with status code', async () => {
-      const error = new Error('Sanity error') as any;
+      const error = new Error('Sanity error') as Error & { status?: number };
       error.status = 503;
       mockedFetch.mockRejectedValueOnce(error);
 

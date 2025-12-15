@@ -1,11 +1,12 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import type { NextRequest } from 'next/server';
 
 // Mock external deps used in the route
 // Ensure NextResponse is mocked before importing the route so module imports
 // that call NextResponse.json return a predictable test double.
 jest.mock('next/server', () => ({
   NextResponse: {
-    json: jest.fn((data: any, init?: { status?: number }) => ({
+    json: jest.fn((data: unknown, init?: { status?: number }) => ({
       status: init?.status ?? 200,
       json: () => Promise.resolve(data),
     })),
@@ -54,8 +55,8 @@ describe('API /api/comments', () => {
     });
 
     it('falls back to manual response handling when NextResponse.json is unavailable', async () => {
-      const originalJson = (NextResponse as any).json;
-      (NextResponse as any).json = undefined;
+      const originalJson = (NextResponse as { json?: unknown }).json;
+      (NextResponse as { json?: unknown }).json = undefined;
 
       try {
         (client.fetch as jest.Mock).mockResolvedValueOnce([]);
@@ -63,7 +64,7 @@ describe('API /api/comments', () => {
         expect(res.status).toBe(200);
         await expect(res.json()).resolves.toMatchObject({ success: true });
       } finally {
-        (NextResponse as any).json = originalJson;
+        (NextResponse as { json?: unknown }).json = originalJson;
       }
     });
 
@@ -95,7 +96,7 @@ describe('API /api/comments', () => {
     });
 
     it('rejects invalid URLs when parsing pagination parameters', async () => {
-      const res = await GET({ url: 'not-a-valid-url' } as any);
+      const res = await GET({ url: 'not-a-valid-url' } as Partial<NextRequest> as NextRequest);
       expect(res.status).toBe(400);
       await expect(res.json()).resolves.toEqual({ error: 'Invalid request URL' });
     });
@@ -153,15 +154,15 @@ describe('API /api/comments', () => {
 
     it('returns fallback error response when NextResponse.json is unavailable', async () => {
       mockAuth.mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
-      const originalJson = (NextResponse as any).json;
-      (NextResponse as any).json = undefined;
+      const originalJson = (NextResponse as { json?: unknown }).json;
+      (NextResponse as { json?: unknown }).json = undefined;
 
       try {
-        const res = await POST({} as any);
+        const res = await POST({} as Partial<NextRequest> as NextRequest);
         expect(res.status).toBe(422);
         await expect(res.json()).resolves.toEqual({ error: 'Invalid or missing fields' });
       } finally {
-        (NextResponse as any).json = originalJson;
+        (NextResponse as { json?: unknown }).json = originalJson;
       }
     });
 
@@ -263,7 +264,7 @@ describe('API /api/comments', () => {
     it('rejects requests without a json body parser', async () => {
       mockAuth.mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
 
-      const res = await POST({ method: 'POST' } as any);
+      const res = await POST({ method: 'POST' } as Partial<NextRequest> as NextRequest);
       expect(res.status).toBe(422);
       await expect(res.json()).resolves.toEqual({ error: 'Invalid or missing fields' });
     });
@@ -273,7 +274,7 @@ describe('API /api/comments', () => {
 
       const failingRequest = {
         json: jest.fn().mockRejectedValue(new Error('nope')),
-      } as any;
+      } as Partial<NextRequest> as NextRequest;
 
       const res = await POST(failingRequest);
       expect(res.status).toBe(422);

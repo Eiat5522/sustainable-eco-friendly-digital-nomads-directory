@@ -38,13 +38,13 @@ jest.mock('@/models/User', () => ({
 }));
 
 const rateLimitMock = jest.requireMock('@/lib/rate-limit') as jest.Mocked<{
-  getClientIp: (...args: any[]) => string;
-  isRateLimited: (...args: any[]) => boolean;
-  getRetryAfterMs: (...args: any[]) => number;
+  getClientIp: (...args: unknown[]) => string;
+  isRateLimited: (...args: unknown[]) => boolean;
+  getRetryAfterMs: (...args: unknown[]) => number;
 }>;
 
 const tokenMock = jest.requireMock('@/lib/tokens') as jest.Mocked<{
-  hashToken: (...args: any[]) => string;
+  hashToken: (...args: unknown[]) => string;
 }>;
 
 const loggerMock = jest.requireMock('@/lib/logger') as {
@@ -193,7 +193,7 @@ describe('POST /api/auth/reset-password', () => {
   it('returns 500 when user password field is inaccessible', async () => {
     const doc = { _id: 'token-id', userId: 'user-1', expiresAt: new Date(Date.now() + 60_000) };
     mockFindOne.mockReturnValueOnce(createLeanResult(doc));
-    const badUser = { password: undefined, set: jest.fn(), save: jest.fn() } as any;
+    const badUser = { password: undefined, set: jest.fn(), save: jest.fn() } as Record<string, unknown>;
     mockFindById.mockReturnValueOnce(createSelectResult(badUser));
 
     const response = await POST(createRequest({ token: 'token-00004', password: 'Password123!' }));
@@ -223,7 +223,7 @@ describe('POST /api/auth/reset-password', () => {
       password: 'old-hash',
       set: jest.fn(),
       save: jest.fn().mockResolvedValue(undefined),
-    } as any;
+    } as Record<string, unknown>;
     const session = createSession();
     const deleteOneSession = jest.fn().mockResolvedValue({ acknowledged: true });
 

@@ -18,8 +18,9 @@ jest.mock('@/lib/data/city', () => ({
   getCitiesList: (...args: unknown[]) => mockGetCitiesList(...args),
 }));
 
-let GET: any;
-let routeTestControl: any;
+type RouteModule = typeof import('../route');
+let GET: RouteModule['GET'];
+let routeTestControl: unknown;
 
 describe('Cities API - GET /api/cities', () => {
   beforeEach(async () => {
@@ -32,7 +33,7 @@ describe('Cities API - GET /api/cities', () => {
 
   afterEach(() => {
     if (routeTestControl) {
-      routeTestControl.fetchCitiesOverride = undefined;
+      (routeTestControl as { fetchCitiesOverride?: unknown }).fetchCitiesOverride = undefined;
     }
   });
 
@@ -131,7 +132,7 @@ describe('Cities API - GET /api/cities', () => {
 
       expect(data).toHaveProperty('cities');
       expect(Array.isArray(data.cities)).toBe(true);
-      data.cities.forEach((city: any) => {
+      (data.cities as unknown[]).forEach((city: Record<string, unknown>) => {
         expect(city).toHaveProperty('id');
         expect(city).toHaveProperty('slug');
       });
