@@ -5,7 +5,7 @@ import GalleryGrid from '../GalleryGrid';
 
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: ({ alt, src, onError, ...rest }: any) => {
+  default: ({ alt, src, onError, ...rest }: React.ComponentProps<'img'> & { fill?: boolean; priority?: boolean; sizes?: string }) => {
     const { fill: _fill, priority: _priority, sizes: _sizes, ...imgProps } = rest;
     return (
       // eslint-disable-next-line @next/next/no-img-element

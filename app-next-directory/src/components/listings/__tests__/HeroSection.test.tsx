@@ -4,7 +4,7 @@ import { HeroSection } from '../HeroSection';
 
 // Mock Next.js Image component
 jest.mock('next/image', () => {
-  return function MockImage({ src, alt, fill, sizes, className, priority }: any) {
+  return function MockImage({ src, alt, fill, sizes, className, priority }: React.ComponentProps<'img'> & { fill?: boolean; sizes?: string; priority?: boolean }) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
@@ -22,14 +22,14 @@ jest.mock('next/image', () => {
 
 // Mock Lucide React icons
 jest.mock('lucide-react', () => ({
-  MapPin: function MockMapPin({ size, className }: any) {
+  MapPin: function MockMapPin({ size, className }: { size?: number | string; className?: string }) {
     return (
       <span data-testid="map-pin-icon" data-size={size} className={className}>
         📍
       </span>
     );
   },
-  Heart: function MockHeart({ size, className }: any) {
+  Heart: function MockHeart({ size, className }: { size?: number | string; className?: string }) {
     return (
       <span data-testid="heart-icon" data-size={size} className={className}>
         ❤️
@@ -40,17 +40,17 @@ jest.mock('lucide-react', () => ({
 
 // Mock UI components
 jest.mock('@/components/ui/neo-card', () => ({
-  NeoCard: function MockNeoCard({ children, variant, className }: any) {
+  NeoCard: function MockNeoCard({ children, variant, className }: React.PropsWithChildren<{ variant?: string; className?: string }>) {
     return (
       <div className={className} data-variant={variant} data-testid="neo-card">
         {children}
       </div>
     );
   },
-  NeoCardHeader: function MockNeoCardHeader({ children }: any) {
+  NeoCardHeader: function MockNeoCardHeader({ children }: React.PropsWithChildren) {
     return <div data-testid="neo-card-header">{children}</div>;
   },
-  NeoCardTitle: function MockNeoCardTitle({ children, className }: any) {
+  NeoCardTitle: function MockNeoCardTitle({ children, className }: React.PropsWithChildren<{ className?: string }>) {
     return (
       <h1 className={className} data-testid="neo-card-title">
         {children}
@@ -67,7 +67,13 @@ jest.mock('@/components/ui/neo-button', () => ({
     size,
     className,
     'aria-label': ariaLabel,
-  }: any) {
+  }: React.PropsWithChildren<{
+    onClick?: () => void;
+    variant?: string;
+    size?: string;
+    className?: string;
+    'aria-label'?: string;
+  }>) {
     return (
       <button
         onClick={onClick}

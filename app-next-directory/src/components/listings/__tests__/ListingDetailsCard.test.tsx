@@ -5,7 +5,7 @@ import { ListingDetailsCard } from '../ListingDetailsCard';
 
 // Mock dynamic imports
 jest.mock('next/dynamic', () => () => {
-  const MockInteractiveMap = ({ location, address, name }: any) => (
+  const MockInteractiveMap = ({ location, address, name }: { location?: { lat: number; lng: number }; address?: string; name?: string }) => (
     <div data-testid="interactive-map">
       <span>{name}</span>
       <span>{address}</span>
@@ -126,7 +126,7 @@ describe('ListingDetailsCard', () => {
         longDescription: undefined,
       };
 
-      render(<ListingDetailsCard listing={listingWithoutDesc as any} />);
+      render(<ListingDetailsCard listing={listingWithoutDesc as unknown as ListingDetailDTO} />);
       expect(screen.queryByText('A beautiful eco-friendly hotel')).not.toBeInTheDocument();
     });
   });
@@ -410,7 +410,7 @@ describe('ListingDetailsCard', () => {
         accommodationDetails: undefined,
       };
 
-      render(<ListingDetailsCard listing={listing as any} />);
+      render(<ListingDetailsCard listing={listing as unknown as ListingDetailDTO} />);
 
       expect(screen.queryByText('Accommodation Details')).not.toBeInTheDocument();
     });
@@ -462,7 +462,7 @@ describe('ListingDetailsCard', () => {
         coworkingDetails: undefined,
       };
 
-      render(<ListingDetailsCard listing={listing as any} />);
+      render(<ListingDetailsCard listing={listing as unknown as ListingDetailDTO} />);
 
       expect(screen.queryByText('Coworking Details')).not.toBeInTheDocument();
     });
@@ -503,7 +503,7 @@ describe('ListingDetailsCard', () => {
         ...cafeListing,
         cafeDetails: {
           ...cafeListing.cafeDetails!,
-          noiseLevel: 'very_quiet' as any,
+          noiseLevel: 'very_quiet' as const,
         },
       };
 
@@ -518,7 +518,7 @@ describe('ListingDetailsCard', () => {
         cafeDetails: undefined,
       };
 
-      render(<ListingDetailsCard listing={listing as any} />);
+      render(<ListingDetailsCard listing={listing as unknown as ListingDetailDTO} />);
 
       expect(screen.queryByText('Cafe Details')).not.toBeInTheDocument();
     });
@@ -540,7 +540,7 @@ describe('ListingDetailsCard', () => {
         restaurantDetails: undefined,
       };
 
-      render(<ListingDetailsCard listing={listing as any} />);
+      render(<ListingDetailsCard listing={listing as unknown as ListingDetailDTO} />);
 
       expect(screen.queryByText('Restaurant Details')).not.toBeInTheDocument();
     });
@@ -562,7 +562,7 @@ describe('ListingDetailsCard', () => {
         activityDetails: undefined,
       };
 
-      render(<ListingDetailsCard listing={listing as any} />);
+      render(<ListingDetailsCard listing={listing as unknown as ListingDetailDTO} />);
 
       expect(screen.queryByText('Activity Details')).not.toBeInTheDocument();
     });
@@ -761,7 +761,7 @@ describe('ListingDetailsCard', () => {
         ...baseListing,
         type: 'accommodation',
         accommodationDetails: undefined,
-      } as any;
+      } as unknown as ListingDetailDTO;
 
       render(<ListingDetailsCard listing={genericListing} />);
 

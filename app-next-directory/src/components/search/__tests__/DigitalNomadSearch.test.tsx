@@ -57,9 +57,9 @@ describe('DigitalNomadSearch', () => {
       back: jest.fn(),
       forward: jest.fn(),
       refresh: jest.fn(),
-    } as any);
+    } as ReturnType<typeof useRouter>);
 
-    mockUseSearchParams.mockReturnValue(mockSearchParams as any);
+    mockUseSearchParams.mockReturnValue(mockSearchParams as ReturnType<typeof useSearchParams>);
   });
 
   describe('Rendering', () => {
@@ -119,7 +119,7 @@ describe('DigitalNomadSearch', () => {
     });
 
     it('should initialize with query param value', () => {
-      mockUseSearchParams.mockReturnValue(new URLSearchParams('q=eco+coworking') as any);
+      mockUseSearchParams.mockReturnValue(new URLSearchParams('q=eco+coworking') as ReturnType<typeof useSearchParams>);
       render(<DigitalNomadSearch />);
 
       const input = screen.getByTestId('neo-input') as HTMLInputElement;
@@ -130,7 +130,7 @@ describe('DigitalNomadSearch', () => {
       const { rerender } = render(<DigitalNomadSearch />);
 
       // Change search params
-      mockUseSearchParams.mockReturnValue(new URLSearchParams('q=new+search') as any);
+      mockUseSearchParams.mockReturnValue(new URLSearchParams('q=new+search') as ReturnType<typeof useSearchParams>);
       rerender(<DigitalNomadSearch />);
 
       await waitFor(() => {
@@ -140,7 +140,7 @@ describe('DigitalNomadSearch', () => {
     });
 
     it('should handle empty string query param', () => {
-      mockUseSearchParams.mockReturnValue(new URLSearchParams('q=') as any);
+      mockUseSearchParams.mockReturnValue(new URLSearchParams('q=') as ReturnType<typeof useSearchParams>);
       render(<DigitalNomadSearch />);
 
       const input = screen.getByTestId('neo-input') as HTMLInputElement;
@@ -231,7 +231,7 @@ describe('DigitalNomadSearch', () => {
 
     it('should delete query param when searching with empty value', async () => {
       const user = userEvent.setup();
-      mockUseSearchParams.mockReturnValue(new URLSearchParams('q=existing') as any);
+      mockUseSearchParams.mockReturnValue(new URLSearchParams('q=existing') as ReturnType<typeof useSearchParams>);
 
       render(<DigitalNomadSearch />);
 
@@ -246,7 +246,7 @@ describe('DigitalNomadSearch', () => {
 
     it('should preserve other query params', async () => {
       const user = userEvent.setup();
-      mockUseSearchParams.mockReturnValue(new URLSearchParams('category=coworking&page=2') as any);
+      mockUseSearchParams.mockReturnValue(new URLSearchParams('category=coworking&page=2') as ReturnType<typeof useSearchParams>);
 
       render(<DigitalNomadSearch />);
 
@@ -263,7 +263,7 @@ describe('DigitalNomadSearch', () => {
 
     it('should delete page param when searching', async () => {
       const user = userEvent.setup();
-      mockUseSearchParams.mockReturnValue(new URLSearchParams('page=3') as any);
+      mockUseSearchParams.mockReturnValue(new URLSearchParams('page=3') as ReturnType<typeof useSearchParams>);
 
       render(<DigitalNomadSearch />);
 

@@ -14,13 +14,13 @@ jest.mock('lucide-react', () => ({
 }));
 
 jest.mock('@/components/ui/neo-input', () => ({
-  NeoInput: ({ onChange, value, ...props }: any) => (
+  NeoInput: ({ onChange, value, ...props }: React.ComponentProps<'input'>) => (
     <input data-testid="hero-search-input" value={value} onChange={onChange} {...props} />
   ),
 }));
 
 jest.mock('@/components/ui/neo-button', () => ({
-  NeoButton: ({ children, type = 'button', ...props }: any) => (
+  NeoButton: ({ children, type = 'button', ...props }: React.PropsWithChildren<React.ComponentProps<'button'>>) => (
     <button type={type} data-testid="hero-search-button" {...props}>
       {children}
     </button>

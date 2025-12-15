@@ -32,7 +32,7 @@ describe('ProfileEditForm utilities', () => {
           priceRange: 'moderate', // Use one of the allowed values: 'budget', 'moderate', 'premium'
         },
         createdAt: '2024-01-01T00:00:00.000Z',
-      } as any;
+      } as unknown as Parameters<typeof normaliseFavorite>[0];
 
       expect(normaliseFavorite(entry)).toEqual({
         id: 'fav-123',
@@ -68,7 +68,7 @@ describe('ProfileEditForm utilities', () => {
             },
           },
         },
-      } as any;
+      } as unknown as Parameters<typeof normaliseFavorite>[0];
 
       expect(normaliseFavorite(entry)).toEqual({
         id: 'sustainable-hub',
@@ -95,7 +95,7 @@ describe('ProfileEditForm utilities', () => {
           slug: '',
           name: 'Eco',
         },
-      } as any;
+      } as unknown as Parameters<typeof normaliseFavorite>[0];
 
       expect(normaliseFavorite(entry)).toBeNull();
     });
@@ -105,7 +105,7 @@ describe('ProfileEditForm utilities', () => {
     it('returns an empty array when the payload is not usable', () => {
       expect(normaliseOwnerReviews(undefined)).toEqual([]);
       expect(normaliseOwnerReviews(null)).toEqual([]);
-      expect(normaliseOwnerReviews({ listings: null } as any)).toEqual([]);
+      expect(normaliseOwnerReviews({ listings: null } as unknown as Parameters<typeof normaliseOwnerReviews>[0])).toEqual([]);
     });
 
     it('normalises listings and filters out invalid review entries', () => {
@@ -150,7 +150,7 @@ describe('ProfileEditForm utilities', () => {
             reviews: [],
           },
         ],
-      } as any;
+      } as unknown as Parameters<typeof normaliseOwnerReviews>[0];
 
       expect(normaliseOwnerReviews(response)).toEqual([
         {
@@ -191,7 +191,7 @@ describe('ProfileEditForm component behavior', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    global.fetch = mockFetch as any;
+    global.fetch = mockFetch as unknown as typeof fetch;
   });
 
   it('should handle API call correctly', async () => {

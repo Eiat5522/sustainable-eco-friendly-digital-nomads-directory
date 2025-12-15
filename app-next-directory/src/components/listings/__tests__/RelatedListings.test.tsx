@@ -26,7 +26,7 @@ jest.mock('embla-carousel-autoplay', () => {
 
 // Mock Next.js components
 jest.mock('next/link', () => {
-  return ({ children, href, ...props }: any) => (
+  return ({ children, href, ...props }: React.PropsWithChildren<React.ComponentProps<'a'>>) => (
     <a href={href} {...props}>
       {children}
     </a>
@@ -34,7 +34,7 @@ jest.mock('next/link', () => {
 });
 
 jest.mock('next/image', () => {
-  return ({ src, alt, fill, onError, ...props }: any) => {
+  return ({ src, alt, fill, onError, ...props }: React.ComponentProps<'img'> & { fill?: boolean }) => {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img src={src} alt={alt} onError={onError} {...props} />
@@ -105,12 +105,12 @@ describe('RelatedListings', () => {
     });
 
     it('returns null when listings is null', () => {
-      const { container } = render(<RelatedListings listings={null as any} />);
+      const { container } = render(<RelatedListings listings={null as unknown as typeof mockListings} />);
       expect(container.firstChild).toBeNull();
     });
 
     it('returns null when listings is undefined', () => {
-      const { container } = render(<RelatedListings listings={undefined as any} />);
+      const { container } = render(<RelatedListings listings={undefined as unknown as typeof mockListings} />);
       expect(container.firstChild).toBeNull();
     });
   });
@@ -344,7 +344,7 @@ describe('RelatedListings', () => {
       const listingWithoutPrice = [
         {
           ...mockListings[0],
-          priceRange: undefined as any,
+          priceRange: undefined,
         },
       ];
 
@@ -607,7 +607,7 @@ describe('RelatedListings', () => {
       const noPriceListing = [
         {
           ...mockListings[0],
-          priceRange: undefined as any,
+          priceRange: undefined,
         },
       ];
 
@@ -659,7 +659,7 @@ describe('RelatedListings', () => {
       const unknownPriceListing = [
         {
           ...mockListings[0],
-          priceRange: 'unknown' as any,
+          priceRange: 'unknown' as 'budget',
         },
       ];
 
