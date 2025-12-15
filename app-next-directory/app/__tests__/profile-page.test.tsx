@@ -166,7 +166,6 @@ const mockedNormaliseOwnerReviews = jest.fn((response: {
         : [],
     }));
 });
-});
 
 jest.mock('../profile/utils', () => ({
   normaliseFavorite: (entry: unknown) => mockedNormaliseFavorite(entry),
