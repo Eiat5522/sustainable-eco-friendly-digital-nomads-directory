@@ -1,4 +1,29 @@
-import type { APIRequestContext } from '@playwright/test';
+import type { APIRequestContext, APIResponse } from '@playwright/test';
+
+export type TestUserRole = string;
+
+export type TestUserPayload = {
+  email: string;
+  password: string;
+  role: TestUserRole;
+  name: string;
+  [key: string]: unknown;
+};
+
+export type TestListingPayload = {
+  title: string;
+  slug: string;
+  city: string;
+  category: string;
+  ecoTags: string[];
+  description: string;
+  [key: string]: unknown;
+};
+
+const ensureResponse = async <T = unknown>(response: APIResponse, label: string): Promise<T> => {
+  if (!response.ok()) throw new Error(`${label} failed: ${response.status()}`);
+  return response.json() as Promise<T>;
+};
 
 /**
  * Lightweight API helpers for test seeding and cleanup.
@@ -7,28 +32,24 @@ import type { APIRequestContext } from '@playwright/test';
  * if your project exposes different routes for test fixtures.
  */
 
-export async function createTestUser(request: APIRequestContext, user: any) {
+export async function createTestUser(request: APIRequestContext, user: TestUserPayload) {
   const res = await request.post('/api/test/users', { data: user });
-  if (!res.ok()) throw new Error(`createTestUser failed: ${res.status()}`);
-  return res.json();
+  return ensureResponse(res, 'createTestUser');
 }
 
 export async function deleteTestUser(request: APIRequestContext, email: string) {
   const res = await request.del('/api/test/users', { data: { email } });
-  if (!res.ok()) throw new Error(`deleteTestUser failed: ${res.status()}`);
-  return res.json().catch(() => ({}));
+  return ensureResponse(res, 'deleteTestUser').catch(() => ({} as unknown));
 }
 
-export async function createTestListing(request: APIRequestContext, listing: any) {
+export async function createTestListing(request: APIRequestContext, listing: TestListingPayload) {
   const res = await request.post('/api/test/listings', { data: listing });
-  if (!res.ok()) throw new Error(`createTestListing failed: ${res.status()}`);
-  return res.json();
+  return ensureResponse(res, 'createTestListing');
 }
 
 export async function deleteTestListing(request: APIRequestContext, slug: string) {
   const res = await request.del('/api/test/listings', { data: { slug } });
-  if (!res.ok()) throw new Error(`deleteTestListing failed: ${res.status()}`);
-  return res.json().catch(() => ({}));
+  return ensureResponse(res, 'deleteTestListing').catch(() => ({} as unknown));
 }
 
 export async function seedDefaults(request: APIRequestContext) {

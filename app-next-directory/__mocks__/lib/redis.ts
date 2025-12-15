@@ -16,13 +16,16 @@ const mockRedisClient = {
   ping: jest.fn().mockResolvedValue('PONG'),
 };
 
+// Type describing the runtime shape of our mock Redis client
+type RedisClient = typeof mockRedisClient;
+
 // Track the current client so subscribers receive the current state
-let currentClient: any = mockRedisClient;
+let currentClient: RedisClient | undefined = mockRedisClient;
 
 // Listener registry for onRedisClientChange
-const listeners: Set<(client: any) => void> = new Set();
+const listeners: Set<(client: RedisClient | undefined) => void> = new Set();
 
-export function onRedisClientChange(fn: (client: any) => void) {
+export function onRedisClientChange(fn: (client: RedisClient | undefined) => void) {
   listeners.add(fn);
   // Immediately notify subscriber of current client to match runtime behaviour
   try {
@@ -34,7 +37,7 @@ export function onRedisClientChange(fn: (client: any) => void) {
   return () => listeners.delete(fn);
 }
 
-export function _notifyRedisClientChange(client: any) {
+export function _notifyRedisClientChange(client: RedisClient | undefined) {
   currentClient = client;
   for (const l of Array.from(listeners)) {
     try {
@@ -45,49 +48,33 @@ export function _notifyRedisClientChange(client: any) {
   }
 }
 
-export const getRedisClient = jest.fn(() => mockRedisClient);
+export const getRedisClient: jest.Mock<RedisClient | undefined, []> = jest.fn(
+  () => mockRedisClient,
+);
 
 // Provide test helper shims so tests can call mockGetRedisClient.mockClear()
 // and friends on the exported function. These helpers also update the
 // `currentClient` and notify listeners to mimic the real `src/lib/redis.ts`.
-(getRedisClient as any).mockClear = () => {
-  // Only clear recorded calls to align with Jest's mockClear semantics in our shim
-  // Do not alter implementation or notify listeners here.
-  (getRedisClient as any).mock.calls = [];
+type GetRedisClientMock = jest.Mock<RedisClient | undefined, []> & {
+  mockClear?: () => void;
+  mockResetClient?: () => void;
+  mockClearAndReset?: () => void;
 };
 
-/**
- * Jest mock helpers:
- * - mockClear: only clears call history (matches Jest semantics)
- * - mockResetClient: resets implementation to undefined and notifies listeners (for full reset)
- *
- * Use mockClear for normal test isolation. Use mockResetClient if you need to simulate client disconnect/reset.
- */
-(getRedisClient as any).mockClear = () => {
+const getRedisClientMock = getRedisClient as GetRedisClientMock;
+
+getRedisClientMock.mockClear = () => {
   // Only clear recorded calls to align with Jest's mockClear semantics in our shim
-  (getRedisClient as any).mock.calls = [];
+  getRedisClientMock.mock.calls = [] as unknown as any[];
 };
 
-(getRedisClient as any).mockResetClient = () => {
-  (getRedisClient as any).mockImplementation(() => undefined);
+getRedisClientMock.mockResetClient = () => {
+  getRedisClientMock.mockImplementation(() => undefined);
   _notifyRedisClientChange(undefined);
   listeners.clear();
-  // Optionally, reset internal mock implementations on the mock client if needed
 };
 
 // Alias for legacy usage
-(getRedisClient as any).mockClearAndReset = (getRedisClient as any).mockResetClient;
-
-// Provide an explicit, lighter reset that only changes the return implementation
-// and notifies listeners, without clearing other internal mocks or listeners.
-// This allows tests to opt-in to resetting the client state without the side effects
-// previously bundled into mockClear.
-(getRedisClient as any).mockResetClient = () => {
-  (getRedisClient as any).mockImplementation(() => undefined);
-  _notifyRedisClientChange(undefined);
-};
-
-// Back-compat alias with a descriptive name if tests expect a combined action
-(getRedisClient as any).mockClearAndReset = (getRedisClient as any).mockResetClient;
+getRedisClientMock.mockClearAndReset = getRedisClientMock.mockResetClient;
 
 export default getRedisClient;

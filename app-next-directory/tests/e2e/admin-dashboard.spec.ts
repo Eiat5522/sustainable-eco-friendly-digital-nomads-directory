@@ -39,7 +39,7 @@ test.describe('Admin Dashboard Integration', () => {
       );
 
       await page.goto(`${BASE_URL}/admin/dashboard`);
-      await expect(page).toHaveURL(/\/auth\/login/);
+      await expect(page).toHaveURL(/\/\?error=unauthorized_access/);
     });
 
     test('venue owner cannot access admin dashboard', async ({ page }) => {
@@ -50,12 +50,12 @@ test.describe('Admin Dashboard Integration', () => {
       );
 
       await page.goto(`${BASE_URL}/admin/dashboard`);
-      await expect(page).toHaveURL(/\/auth\/login/);
+      await expect(page).toHaveURL(/\/\?error=unauthorized_access/);
     });
 
-    test('unauthenticated user is redirected to login', async ({ page }) => {
+    test('unauthenticated user is redirected away from admin', async ({ page }) => {
       await page.goto(`${BASE_URL}/admin/dashboard`);
-      await expect(page).toHaveURL(/\/auth\/login/);
+      await expect(page).toHaveURL(/\/auth\/login\?callbackUrl=%2Fadmin%2Fdashboard/);
     });
   });
 

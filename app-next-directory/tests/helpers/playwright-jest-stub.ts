@@ -37,37 +37,76 @@ let exportedRequest: typeof import('@playwright/test').request;
 const noopAsync = async () => undefined;
 const noopSync = () => undefined;
 
+type SafeRequest = Record<string, typeof noopAsync>;
+
 const createNoopRequest = () =>
-  new Proxy(
+  new Proxy<SafeRequest>(
     {},
     {
       get: () => noopAsync,
     }
-  ) as unknown as typeof import('@playwright/test').request;
+  ) as typeof import('@playwright/test').request;
 
-const attachNoopModifiers = (fn: any) => {
-  fn.skip = noopSync;
-  fn.only = noopSync;
-  fn.fixme = noopSync;
-  fn.fail = noopSync;
-  fn.slow = noopSync;
-  fn.step = noopAsync;
-  fn.setTimeout = noopSync;
+type ModifierType = {
+  skip: typeof noopSync;
+  only: typeof noopSync;
+  fixme: typeof noopSync;
+  fail: typeof noopSync;
+  slow: typeof noopSync;
+  step: typeof noopAsync;
+  setTimeout: typeof noopSync;
+};
+
+const attachNoopModifiers = <T extends Partial<ModifierType>>(fn: T): T => {
+  const modifiers: ModifierType = {
+    skip: noopSync,
+    only: noopSync,
+    fixme: noopSync,
+    fail: noopSync,
+    slow: noopSync,
+    step: noopAsync,
+    setTimeout: noopSync,
+  };
+  Object.assign(fn, modifiers);
   return fn;
 };
 
-const createNoopDescribe = () => {
-  const describe = (..._args: unknown[]) => undefined;
-  (describe as any).only = noopSync;
-  (describe as any).skip = noopSync;
-  (describe as any).parallel = noopSync;
-  (describe as any).serial = noopSync;
-  (describe as any).configure = noopSync;
+type NoopDescribe = ((...args: unknown[]) => void) & {
+  only: typeof noopSync;
+  skip: typeof noopSync;
+  parallel: typeof noopSync;
+  serial: typeof noopSync;
+  configure: typeof noopSync;
+};
+
+const createNoopDescribe = (): NoopDescribe => {
+  const describe = ((..._args: unknown[]) => undefined) as NoopDescribe;
+  describe.only = noopSync;
+  describe.skip = noopSync;
+  describe.parallel = noopSync;
+  describe.serial = noopSync;
+  describe.configure = noopSync;
   return describe;
 };
 
-const createNoopTest = () => {
-  const testFn: any = (..._args: unknown[]) => undefined;
+type PlaywrightTestType = TestType<
+  PlaywrightTestArgs & PlaywrightTestOptions,
+  PlaywrightWorkerArgs & PlaywrightWorkerOptions
+>;
+
+type NoopTest = PlaywrightTestType & {
+  beforeAll: typeof noopAsync;
+  afterAll: typeof noopAsync;
+  beforeEach: typeof noopAsync;
+  afterEach: typeof noopAsync;
+  use: typeof noopSync;
+  extend: () => NoopTest;
+  describe: NoopDescribe;
+  info: PlaywrightTestType['info'];
+};
+
+const createNoopTest = (): NoopTest => {
+  const testFn = ((..._args: unknown[]) => undefined) as NoopTest;
 
   testFn.beforeAll = noopAsync;
   testFn.afterAll = noopAsync;
@@ -92,10 +131,7 @@ const createNoopTest = () => {
   });
 
   attachNoopModifiers(testFn);
-  return testFn as TestType<
-    PlaywrightTestArgs & PlaywrightTestOptions,
-    PlaywrightWorkerArgs & PlaywrightWorkerOptions
-  >;
+  return testFn;
 };
 
 if (isPlaywrightRuntime) {

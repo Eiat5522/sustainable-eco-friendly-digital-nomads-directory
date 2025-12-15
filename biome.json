@@ -46,8 +46,8 @@
     "rules": {
       "recommended": true,
       "a11y": {
-        "noSvgWithoutTitle": "off",
-        "useSemanticElements": "off",
+        "noSvgWithoutTitle": "warn",
+        "useSemanticElements": "info",
         "noNoninteractiveElementToInteractiveRole": "off",
         "useKeyWithClickEvents": "off",
         "useButtonType": "off",
@@ -60,11 +60,11 @@
         "useLiteralKeys": "off"
       },
       "correctness": {
-        "noUnusedVariables": "off",
+        "noUnusedVariables": "warn",
         "useExhaustiveDependencies": "warn",
-        "noInvalidUseBeforeDeclaration": "off",
+        "noInvalidUseBeforeDeclaration": "error",
         "noVoidTypeReturn": "off",
-        "noUnsafeFinally": "off"
+        "noUnsafeFinally": "warn"
       },
       "style": {
         "noNonNullAssertion": "off",
@@ -72,7 +72,7 @@
         "noParameterAssign": "off"
       },
       "performance": {
-        "noImgElement": "off",
+        "noImgElement": "warn",
         "noDynamicNamespaceImportAccess": "off"
       },
       "suspicious": {
@@ -81,7 +81,8 @@
         "noConsole": "warn",
         "noExportsInTest": "off",
         "noRedeclare": "off",
-        "noImplicitAnyLet": "off",
+        "noImplicitAnyLet": "error",
+        "noAsyncPromiseExecutor": "warn",
         "noTemplateCurlyInString": "off",
         "useIterableCallbackReturn": "off",
         "noGlobalIsNan": "off",
@@ -99,12 +100,12 @@
       "linter": {
         "rules": {
           "suspicious": {
-            "noExplicitAny": "off",
-            "noConsole": "off"
+            "noExplicitAny": "error",
+            "noConsole": "warn"
           },
           "correctness": {
-            "noUnusedVariables": "off",
-            "noUnusedFunctionParameters": "off"
+            "noUnusedVariables": "warn",
+            "noUnusedFunctionParameters": "warn"
           }
         }
       }
@@ -114,12 +115,12 @@
       "linter": {
         "rules": {
           "suspicious": {
-            "noExplicitAny": "off",
-            "noConsole": "off"
+            "noExplicitAny": "error",
+            "noConsole": "warn"
           },
           "correctness": {
-            "noUnusedVariables": "off",
-            "noUnusedFunctionParameters": "off"
+            "noUnusedVariables": "warn",
+            "noUnusedFunctionParameters": "warn"
           }
         }
       }
@@ -130,10 +131,10 @@
       "linter": {
         "rules": {
           "suspicious": {
-            "noExplicitAny": "off"
+            "noExplicitAny": "error"
           },
           "correctness": {
-            "noUnusedVariables": "off"
+            "noUnusedVariables": "warn"
           }
         }
       }

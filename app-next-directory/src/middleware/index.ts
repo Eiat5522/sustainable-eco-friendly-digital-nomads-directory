@@ -163,6 +163,20 @@ export function createMiddleware(options: MiddlewareOptions) {
         return response;
       }
 
+      // Handle admin routes (require authentication first, then authorization)
+      if (routeType === 'admin' && !token) {
+        const signinUrl = new URL('/auth/login', request.nextUrl.origin);
+        signinUrl.searchParams.set('callbackUrl', pathname);
+        const response = options.NextResponse.redirect(signinUrl);
+
+        // Add security headers
+        Object.entries(securityHeaders).forEach(([key, value]) => {
+          response.headers.set(key, value);
+        });
+
+        return response;
+      }
+
       // Handle protected routes with permission check (user is authenticated but may lack permissions)
       if (routeType === 'protected' && token && !hasPermission(token, routeType)) {
         const homeUrl = new URL('/', request.nextUrl.origin);

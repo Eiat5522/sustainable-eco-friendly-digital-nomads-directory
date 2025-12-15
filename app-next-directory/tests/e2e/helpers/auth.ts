@@ -4,66 +4,56 @@ export async function loginAs(page: Page, email: string, password: string) {
   // Try common login routes and stop on the first that exposes a recognizable input
   const loginPaths = ['/login', '/auth/login', '/auth/signin', '/signin'];
 
-  // Candidate selectors in preferred order
+  const loginButton = page.getByTestId('login-button').first();
+  let found = false;
+
+  for (const p of loginPaths) {
+    await page.goto(p, { waitUntil: 'domcontentloaded' }).catch(() => undefined);
+    if (await loginButton.isVisible().catch(() => false)) {
+      found = true;
+      break;
+    }
+  }
+
+  if (!found) {
+    throw new Error('Login page not found: expected a login form with data-testid="login-button".');
+  }
+
+  const form = page.locator('form').filter({ has: loginButton }).first();
+
   const emailSelectors = [
-    () => page.getByLabel(/email/i),
-    () => page.locator('input[name="email"]'),
-    () => page.locator('input[type="email"]'),
-    () => page.locator('input[placeholder*="email"]'),
-    () => page.locator('input[id*="email"]'),
-    () => page.locator('[aria-label*="email"] input'),
+    () => form.getByLabel('Email', { exact: true }),
+    () => form.locator('input[aria-label="Email"]'),
+    () => form.locator('input[type="email"]'),
+    () => form.locator('input[name="email"]'),
+    () => form.locator('input[id*="email"]'),
   ];
 
   const passwordSelectors = [
-    () => page.getByLabel(/password/i),
-    () => page.locator('input[name="password"]'),
-    () => page.locator('input[type="password"]'),
-    () => page.locator('input[placeholder*="password"]'),
+    () => form.getByLabel('Password', { exact: true }),
+    () => form.locator('input[aria-label="Password"]'),
+    () => form.locator('input[type="password"]'),
+    () => form.locator('input[name="password"]'),
   ];
 
-  let found = false;
-  for (const p of loginPaths) {
-    await page.goto(p, { waitUntil: 'domcontentloaded' }).catch(() => undefined);
-    // quick probe for an email input
-    for (const sel of emailSelectors) {
-      const locator = sel();
-      if ((await locator.count()) > 0 || (await locator.isVisible().catch(() => false))) {
-        found = true;
-        break;
-      }
-    }
-    if (found) break;
-  }
-
-  // Fill credentials using first available locator from the lists
-  async function fillFirst(selectors: Array<() => ReturnType<typeof page.locator>>, value: string) {
+  async function fillFirst(
+    selectors: Array<() => ReturnType<typeof page.locator>>,
+    value: string
+  ) {
     for (const sel of selectors) {
       const locator = sel();
       try {
-        if ((await locator.count()) === 0) continue;
-        await locator.fill(value);
-        return true;
+        await locator.first().fill(value);
+        return;
       } catch {
         // ignore and try next
       }
     }
-    return false;
+    throw new Error('Unable to locate login form input.');
   }
 
-  const filledEmail = await fillFirst(emailSelectors, email);
-  const filledPassword = await fillFirst(passwordSelectors, password);
-
-  const roleSubmit = page.getByTestId('login-button');
-  const submitFallback = page.locator('button[type="submit"], button[data-test="submit"]');
-  let submitLocator = submitFallback;
-  try {
-    if ((await roleSubmit.count()) > 0 || (await roleSubmit.isVisible().catch(() => false))) {
-      submitLocator = roleSubmit;
-    }
-  } catch {
-    // ignore and use fallback
-  }
-  await submitLocator.waitFor({ state: 'visible', timeout: 5000 }).catch(() => undefined);
+  await fillFirst(emailSelectors, email);
+  await fillFirst(passwordSelectors, password);
 
   try {
     // After successful login, the app redirects to the callbackUrl or home page (/)
@@ -76,9 +66,9 @@ export async function loginAs(page: Page, email: string, password: string) {
           // Check for exact auth routes to avoid false positives
           return !pathname.match(/^\/(auth\/(login|signin)|login|signin)(\/)?$/);
         },
-        { timeout: 10000 }
+        { timeout: 30000, waitUntil: 'domcontentloaded' }
       ),
-      submitLocator.click(),
+      loginButton.click(),
     ]);
   } catch (error) {
     // Surface any visible error messages to aid debugging

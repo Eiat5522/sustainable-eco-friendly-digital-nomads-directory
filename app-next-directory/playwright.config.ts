@@ -21,6 +21,7 @@ const chromiumLaunchOptions = chromiumExecutablePath
       args: ['--no-sandbox', '--disable-dev-shm-usage'],
     }
   : undefined;
+const videoMode = chromiumExecutablePath ? 'off' : 'retain-on-failure';
 
 export default defineConfig({
   // Run Playwright tests from the project tests directory using .spec.ts extension only
@@ -61,7 +62,7 @@ export default defineConfig({
     headless: true,
     actionTimeout: 15_000,
     ignoreHTTPSErrors: Boolean(process.env.ALLOW_INSECURE_HTTPS),
-    video: 'retain-on-failure',
+    video: videoMode,
     trace: 'retain-on-failure',
     ...(chromiumLaunchOptions ? { launchOptions: chromiumLaunchOptions } : {}),
   },
@@ -75,7 +76,7 @@ export default defineConfig({
     ? {
         command: 'E2E=1 pnpm start',
         url: serverWaitURL.toString(),
-        timeout: 60_000,
+        timeout: 120_000,
         reuseExistingServer: !process.env.CI,
         env: {
           // Load .env.e2e file for isolated test environment
@@ -87,6 +88,8 @@ export default defineConfig({
           AUTH_TRUST_HOST: 'true',
           // Enable dev/test-only pages while still running a production build
           ENABLE_TEST_PAGES: 'true',
+          // Use real MongoDB in E2E runs (avoid unit-test mocks)
+          ALLOW_REAL_MONGO_IN_TESTS: 'true',
           // Use isolated test credentials
           NEXT_PUBLIC_SANITY_PROJECT_ID: 'test-project-id',
           NEXT_PUBLIC_SANITY_DATASET: 'test',

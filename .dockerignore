@@ -52,4 +52,6 @@ docs
 
 # Ignore environment files (will be set by docker-compose)
 .env*
+**/.env*
 !.env.example
+!**/.env.example

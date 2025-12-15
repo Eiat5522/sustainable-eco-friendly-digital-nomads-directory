@@ -33,6 +33,7 @@ services:
       NEXT_PUBLIC_E2E: "1"
 
       # Test credentials (non-production)
+      ALLOW_REAL_MONGO_IN_TESTS: "true"
       TEST_USER_EMAIL: e2e-test@example.com
       TEST_USER_PASSWORD: password123
       TEST_ADMIN_EMAIL: admin@example.com
