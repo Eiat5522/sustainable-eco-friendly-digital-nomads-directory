@@ -2,35 +2,45 @@
 
 import '@testing-library/jest-dom';
 import { render, screen, within } from '@testing-library/react';
+import type React from 'react';
+
+type ListingGridProps = { listings: unknown[] };
+type SearchFiltersProps = { initialParams: Record<string, unknown> };
 
 import { extractTagNames, mapResultToDTO } from './helpers';
 
-const listingGridRenderMock = jest.fn(({ listings }: any) => (
+const listingGridRenderMock = jest.fn(({ listings }: ListingGridProps) => (
   <div data-testid="listing-grid">{JSON.stringify(listings)}</div>
 ));
-const searchFiltersRenderMock = jest.fn(({ initialParams }: any) => (
+const searchFiltersRenderMock = jest.fn(({ initialParams }: SearchFiltersProps) => (
   <div data-testid="search-filters-form">{JSON.stringify(initialParams)}</div>
 ));
 
 const fetchSearchResultsMock = jest.fn();
 
 jest.mock('@/components/ui/neo-button', () => ({
-  NeoButton: ({ children, asChild = false, ...props }: any) =>
-    asChild ? children : <button {...props}>{children}</button>,
+  NeoButton: ({ children, asChild = false, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+    asChild?: boolean;
+    children?: React.ReactNode;
+  }) => (asChild ? children : <button {...props}>{children}</button>),
 }));
 
 jest.mock('@/components/listings/ListingGrid', () => ({
-  ListingGrid: (props: any) => listingGridRenderMock(props),
+  ListingGrid: (props: ListingGridProps) => listingGridRenderMock(props),
 }));
 
 jest.mock('@/components/search/SearchFiltersForm', () => ({
-  SearchFiltersForm: (props: any) => searchFiltersRenderMock(props),
+  SearchFiltersForm: (props: SearchFiltersProps) => searchFiltersRenderMock(props),
 }));
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, ...props }: any) => (
-    <a href={typeof href === 'string' ? href : (href?.pathname ?? '')} {...props}>
+  default: ({
+    href,
+    children,
+    ...props
+  }: { href: string | URL; children: React.ReactNode } & React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
+    <a href={typeof href === 'string' ? href : href.pathname} {...props}>
       {children}
     </a>
   ),
@@ -177,7 +187,7 @@ describe('Search results page module', () => {
       tags: ['wifi', 'vegan'],
       page: '2',
       limit: '24',
-    } as Record<string, any>);
+    } as Record<string, string | string[]>);
 
     const ui = await ResultsPage({ searchParams });
     render(ui);
