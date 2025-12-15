@@ -28,14 +28,17 @@ describe('ListingDetailsCard integration', () => {
   });
 
   it('omits category details when data is unavailable', () => {
-    const listing = {
+    const listing: ListingDetailDTO = {
       ...mockListingDetail,
       type: 'cafe' as const,
       cafeDetails: undefined,
       accommodationDetails: undefined,
+      activityDetails: undefined,
+      restaurantDetails: undefined,
+      coworkingDetails: undefined,
     };
 
-    render(<ListingDetailsCard listing={listing as unknown as ListingDetailDTO} />);
+    render(<ListingDetailsCard listing={listing} />);
 
     expect(screen.queryByText('Accommodation Details')).not.toBeInTheDocument();
     expect(screen.queryByText('Cafe Details')).not.toBeInTheDocument();
