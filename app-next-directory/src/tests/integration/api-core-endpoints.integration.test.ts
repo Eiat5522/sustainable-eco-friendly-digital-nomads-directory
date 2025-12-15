@@ -168,7 +168,7 @@ describe('API integration (Jest)', () => {
   it('GET /api/search uses test overrides to return stubbed results', async () => {
     const routeModule = searchRoute as unknown as {
       GET: (request: Request) => Promise<Response>;
-      _testControl?: Record<string, any>;
+      _testControl?: Record<string, unknown>;
     };
 
     if (routeModule._testControl) {
@@ -190,7 +190,7 @@ describe('API integration (Jest)', () => {
   it('GET /api/search/suggestions returns stubbed suggestions', async () => {
     const routeModule = searchSuggestionsRoute as unknown as {
       GET: (request: Request) => Promise<Response>;
-      _testControl?: Record<string, any>;
+      _testControl?: Record<string, unknown>;
     };
 
     if (routeModule._testControl) {
@@ -214,7 +214,7 @@ describe('API integration (Jest)', () => {
   it('GET /api/cities returns fixture data via override', async () => {
     const routeModule = citiesRoute as unknown as {
       GET: (request: Request) => Promise<Response>;
-      _testControl?: Record<string, any>;
+      _testControl?: Record<string, unknown>;
     };
 
     if (routeModule._testControl) {
