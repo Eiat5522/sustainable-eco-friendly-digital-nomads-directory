@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 
 import { ListingDetailsCard } from '@/components/listings/ListingDetailsCard';
 import { mockListingDetail } from '@/components/listings/listingDetailMockData';
+import type { ListingDetailDTO } from '@/types/dto';
 
 jest.mock('next/dynamic', () => () => {
   const MockInteractiveMap = ({ name }: { name: string }) => (
@@ -34,7 +35,7 @@ describe('ListingDetailsCard integration', () => {
       accommodationDetails: undefined,
     };
 
-    render(<ListingDetailsCard listing={listing as any} />);
+    render(<ListingDetailsCard listing={listing as unknown as ListingDetailDTO} />);
 
     expect(screen.queryByText('Accommodation Details')).not.toBeInTheDocument();
     expect(screen.queryByText('Cafe Details')).not.toBeInTheDocument();
