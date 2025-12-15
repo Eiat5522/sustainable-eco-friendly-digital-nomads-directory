@@ -31,7 +31,7 @@ const mockApiResponseHandler = ApiResponseHandler as unknown as {
 };
 
 // Helper function to create mock response objects
-const createMockResponse = (status: number, data: any) => ({
+const createMockResponse = (status: number, data: unknown) => ({
   status,
   json: () => Promise.resolve(data),
 });
@@ -70,7 +70,7 @@ describe('Auth Helpers', () => {
     });
 
     it('should throw UNAUTHORIZED error when session is undefined', async () => {
-      mockAuth.mockResolvedValue(undefined as any);
+      mockAuth.mockResolvedValue(undefined as unknown as Session);
 
       await expect(requireAuth()).rejects.toThrow('UNAUTHORIZED');
     });
@@ -214,7 +214,7 @@ describe('Auth Helpers', () => {
 
       mockApiResponseHandler.error.mockReturnValue(expectedResponse);
 
-      const result = handleAuthError(null as any);
+      const result = handleAuthError(null as unknown as Error);
 
       expect(result).toEqual(expectedResponse);
       expect(mockApiResponseHandler.error).toHaveBeenCalledWith('Authentication error');

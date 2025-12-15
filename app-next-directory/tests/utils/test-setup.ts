@@ -24,7 +24,7 @@ export async function setupViewport(page: Page, device: 'desktop' | 'tablet' | '
   await page.setViewportSize(viewports[device]);
 }
 
-export async function setupLocalStorage(page: Page, data: Record<string, any>) {
+export async function setupLocalStorage(page: Page, data: Record<string, unknown>) {
   await page.evaluate(storageData => {
     for (const [key, value] of Object.entries(storageData)) {
       localStorage.setItem(key, JSON.stringify(value));

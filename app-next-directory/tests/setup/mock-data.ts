@@ -19,10 +19,10 @@ export default setup('seed reusable test data', async ({ page }) => {
   await page.addInitScript(
     payload => {
       // Expose dataset for interactive debugging and component smoke tests
-      (window as any).__TEST_DATA__ = payload;
+      (window as Record<string, unknown>).__TEST_DATA__ = payload;
 
-      if (!(window as any).L) {
-        const mapInstances = new Set<any>();
+      if (!(window as Record<string, unknown>).L) {
+        const mapInstances = new Set<unknown>();
         const createBounds = () => ({
           getNorth: () => 0,
           getSouth: () => 0,
@@ -44,7 +44,7 @@ export default setup('seed reusable test data', async ({ page }) => {
             addTo() {
               return this;
             },
-            bindPopup(content: any) {
+            bindPopup(content: unknown) {
               popupEl.classList.remove('hidden');
               popupEl.innerHTML = '';
               if (content instanceof HTMLElement) {
@@ -56,7 +56,7 @@ export default setup('seed reusable test data', async ({ page }) => {
             },
             getPopup() {
               return {
-                setContent(inner: any) {
+                setContent(inner: unknown) {
                   popupEl.innerHTML = '';
                   if (inner instanceof HTMLElement) {
                     popupEl.appendChild(inner);
@@ -76,7 +76,7 @@ export default setup('seed reusable test data', async ({ page }) => {
           };
         };
 
-        (window as any).L = {
+        (window as Record<string, unknown>).L = {
           map: (container: HTMLElement | string) => {
             const element =
               typeof container === 'string' ? document.getElementById(container) : container;
@@ -121,7 +121,7 @@ export default setup('seed reusable test data', async ({ page }) => {
             const [lat, lng] = position;
             const iconHtml = options?.icon?.html ?? `${lat.toFixed(2)},${lng.toFixed(2)}`;
             return {
-              addTo(target: any) {
+              addTo(target: { _el?: HTMLElement }) {
                 if (target?._el instanceof HTMLElement) {
                   return createMarker(target._el, iconHtml);
                 }
@@ -129,10 +129,10 @@ export default setup('seed reusable test data', async ({ page }) => {
               },
             };
           },
-          divIcon(opts: any) {
+          divIcon(opts: Record<string, unknown>) {
             return { ...opts };
           },
-          icon(opts: any) {
+          icon(opts: Record<string, unknown>) {
             return { ...opts };
           },
         };

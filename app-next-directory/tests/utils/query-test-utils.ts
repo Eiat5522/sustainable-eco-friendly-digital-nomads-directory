@@ -32,7 +32,7 @@ export async function cleanupTestListings(ids: string[]) {
   void ids.length;
 }
 
-export function validateListingResult(listing: any) {
+export function validateListingResult(listing: Record<string, unknown>) {
   expect(listing).toHaveProperty('_id');
   expect(listing).toHaveProperty('name');
   expect(listing).toHaveProperty('type');
