@@ -56,7 +56,7 @@ describe('API /api/listings/[slug] route handlers', () => {
 
   describe('GET', () => {
     it('returns listing data when found', async () => {
-      mockGetListingBySlug.mockResolvedValueOnce({ _id: 'listing-1', name: 'Eco Hub' } as any);
+      mockGetListingBySlug.mockResolvedValueOnce({ _id: 'listing-1', name: 'Eco Hub' } as unknown);
 
       const response = await GET(
         new Request('http://localhost/api/listings/test-listing'),
@@ -105,7 +105,7 @@ describe('API /api/listings/[slug] route handlers', () => {
       });
 
     it('updates listing when user is the owner', async () => {
-      mockRequireAuth.mockResolvedValueOnce({ user: { id: 'owner-1' } } as any);
+      mockRequireAuth.mockResolvedValueOnce({ user: { id: 'owner-1' } } as unknown);
       const updateOne = jest.fn().mockResolvedValue({ acknowledged: true, modifiedCount: 1 });
       mockGetCollection.mockResolvedValueOnce({
         findOne: jest.fn().mockResolvedValue({ slug: 'test-listing', ownerId: 'owner-1' }),
@@ -127,7 +127,7 @@ describe('API /api/listings/[slug] route handlers', () => {
     });
 
     it('returns not found when listing does not exist', async () => {
-      mockRequireAuth.mockResolvedValueOnce({ user: { id: 'owner-1' } } as any);
+      mockRequireAuth.mockResolvedValueOnce({ user: { id: 'owner-1' } } as unknown);
       mockGetCollection.mockResolvedValueOnce({
         findOne: jest.fn().mockResolvedValue(null),
       });
@@ -140,7 +140,7 @@ describe('API /api/listings/[slug] route handlers', () => {
     });
 
     it('returns forbidden when user is not the owner', async () => {
-      mockRequireAuth.mockResolvedValueOnce({ user: { id: 'other-user' } } as any);
+      mockRequireAuth.mockResolvedValueOnce({ user: { id: 'other-user' } } as unknown);
       mockGetCollection.mockResolvedValueOnce({
         findOne: jest.fn().mockResolvedValue({ slug: 'test-listing', ownerId: 'owner-1' }),
       });
@@ -168,7 +168,7 @@ describe('API /api/listings/[slug] route handlers', () => {
     const request = new Request('http://localhost/api/listings/test-listing', { method: 'DELETE' });
 
     it('marks listing as deleted when user is owner', async () => {
-      mockRequireAuth.mockResolvedValueOnce({ user: { id: 'owner-1' } } as any);
+      mockRequireAuth.mockResolvedValueOnce({ user: { id: 'owner-1' } } as unknown);
       const updateOne = jest.fn().mockResolvedValue({ acknowledged: true, modifiedCount: 1 });
       mockGetCollection.mockResolvedValueOnce({
         findOne: jest.fn().mockResolvedValue({ slug: 'test-listing', ownerId: 'owner-1' }),
@@ -187,7 +187,7 @@ describe('API /api/listings/[slug] route handlers', () => {
     });
 
     it('returns not found when listing does not exist', async () => {
-      mockRequireAuth.mockResolvedValueOnce({ user: { id: 'owner-1' } } as any);
+      mockRequireAuth.mockResolvedValueOnce({ user: { id: 'owner-1' } } as unknown);
       mockGetCollection.mockResolvedValueOnce({
         findOne: jest.fn().mockResolvedValue(null),
       });
@@ -200,7 +200,7 @@ describe('API /api/listings/[slug] route handlers', () => {
     });
 
     it('returns forbidden when user is not the owner', async () => {
-      mockRequireAuth.mockResolvedValueOnce({ user: { id: 'other-user' } } as any);
+      mockRequireAuth.mockResolvedValueOnce({ user: { id: 'other-user' } } as unknown);
       mockGetCollection.mockResolvedValueOnce({
         findOne: jest.fn().mockResolvedValue({ slug: 'test-listing', ownerId: 'owner-1' }),
       });

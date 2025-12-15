@@ -54,8 +54,8 @@ describe('Preview Mode API - GET /api/preview', () => {
 
       try {
         await GET(request);
-      } catch (error: any) {
-        expect(error.message).toContain('NEXT_REDIRECT:/listings/test-listing');
+      } catch (error: unknown) {
+        expect((error as Error).message).toContain('NEXT_REDIRECT:/listings/test-listing');
       }
 
       expect(mockValidatePreviewToken).toHaveBeenCalledWith('valid-secret');
@@ -72,8 +72,8 @@ describe('Preview Mode API - GET /api/preview', () => {
 
       try {
         await GET(request);
-      } catch (error: any) {
-        expect(error.message).toContain('NEXT_REDIRECT:/listings/eco-workspace');
+      } catch (error: unknown) {
+        expect((error as Error).message).toContain('NEXT_REDIRECT:/listings/eco-workspace');
       }
 
       expect(mockRedirect).toHaveBeenCalledWith('/listings/eco-workspace');
@@ -88,8 +88,8 @@ describe('Preview Mode API - GET /api/preview', () => {
 
       try {
         await GET(request);
-      } catch (error: any) {
-        expect(error.message).toContain('NEXT_REDIRECT:/blog/test-post');
+      } catch (error: unknown) {
+        expect((error as Error).message).toContain('NEXT_REDIRECT:/blog/test-post');
       }
 
       expect(mockRedirect).toHaveBeenCalledWith('/blog/test-post');
@@ -104,8 +104,8 @@ describe('Preview Mode API - GET /api/preview', () => {
 
       try {
         await GET(request);
-      } catch (error: any) {
-        expect(error.message).toContain('NEXT_REDIRECT');
+      } catch (error: unknown) {
+        expect((error as Error).message).toContain('NEXT_REDIRECT');
       }
 
       expect(mockDraftMode).toHaveBeenCalled();
@@ -121,8 +121,8 @@ describe('Preview Mode API - GET /api/preview', () => {
 
       try {
         await GET(request);
-      } catch (error: any) {
-        expect(error.message).toContain('NEXT_REDIRECT:/listings/eco-workspace-amsterdam');
+      } catch (error: unknown) {
+        expect((error as Error).message).toContain('NEXT_REDIRECT:/listings/eco-workspace-amsterdam');
       }
     });
   });
@@ -176,8 +176,8 @@ describe('Preview Mode API - GET /api/preview', () => {
 
       try {
         await GET(request);
-      } catch (error: any) {
-        expect(error.message).toContain('NEXT_REDIRECT');
+      } catch (error: unknown) {
+        expect((error as Error).message).toContain('NEXT_REDIRECT');
       }
 
       expect(mockValidatePreviewToken).toHaveBeenCalledWith('abc-123_xyz.token');
@@ -223,8 +223,8 @@ describe('Preview Mode API - GET /api/preview', () => {
 
       try {
         await GET(request);
-      } catch (error: any) {
-        expect(error.message).toContain('/listings/test-listing');
+      } catch (error: unknown) {
+        expect((error as Error).message).toContain('/listings/test-listing');
       }
     });
 
@@ -237,8 +237,8 @@ describe('Preview Mode API - GET /api/preview', () => {
 
       try {
         await GET(request);
-      } catch (error: any) {
-        expect(error.message).toContain('/blog/blog-post');
+      } catch (error: unknown) {
+        expect((error as Error).message).toContain('/blog/blog-post');
       }
     });
 
@@ -251,8 +251,8 @@ describe('Preview Mode API - GET /api/preview', () => {
 
       try {
         await GET(request);
-      } catch (error: any) {
-        expect(error.message).toContain('/city/amsterdam');
+      } catch (error: unknown) {
+        expect((error as Error).message).toContain('/city/amsterdam');
       }
     });
 
@@ -263,9 +263,9 @@ describe('Preview Mode API - GET /api/preview', () => {
 
       try {
         await GET(request);
-      } catch (error: any) {
+      } catch (error: unknown) {
         // Type is null when not provided, resulting in /null/test path
-        expect(error.message).toContain('/null/test');
+        expect((error as Error).message).toContain('/null/test');
       }
     });
   });
@@ -319,8 +319,8 @@ describe('Preview Mode API - GET /api/preview', () => {
 
       try {
         await GET(request);
-      } catch (error: any) {
-        expect(error.message).toContain('/listings/eco workspace');
+      } catch (error: unknown) {
+        expect((error as Error).message).toContain('/listings/eco workspace');
       }
     });
 
@@ -333,8 +333,8 @@ describe('Preview Mode API - GET /api/preview', () => {
 
       try {
         await GET(request);
-      } catch (error: any) {
-        expect(error.message).toContain('NEXT_REDIRECT');
+      } catch (error: unknown) {
+        expect((error as Error).message).toContain('NEXT_REDIRECT');
       }
 
       expect(mockDraftMode).toHaveBeenCalled();
