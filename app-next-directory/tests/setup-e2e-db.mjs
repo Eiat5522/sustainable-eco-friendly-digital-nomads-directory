@@ -11,6 +11,7 @@
  */
 
 import { MongoClient } from 'mongodb';
+import bcrypt from 'bcryptjs';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/e2e_test';
 const DB_NAME = 'e2e_test';
@@ -63,37 +64,85 @@ async function setupE2EDatabase() {
     console.log('🌱 Seeding test data...');
 
     // Create a test user
+    const testUserEmail =
+      process.env.TEST_USER_EMAIL ?? process.env.E2E_USER_EMAIL ?? 'e2e-test@example.com';
+    const testUserPassword =
+      process.env.TEST_USER_PASSWORD ?? process.env.E2E_USER_PASSWORD ?? 'password123';
+    const adminEmail =
+      process.env.TEST_ADMIN_EMAIL ?? process.env.E2E_ADMIN_EMAIL ?? 'admin@example.com';
+    const adminPassword =
+      process.env.TEST_ADMIN_PASSWORD ?? process.env.E2E_ADMIN_PASSWORD ?? 'password123';
+    const venueOwnerEmail =
+      process.env.TEST_VENUE_OWNER_EMAIL ??
+      process.env.E2E_VENUE_OWNER_EMAIL ??
+      'venue@example.com';
+    const venueOwnerPassword =
+      process.env.TEST_VENUE_OWNER_PASSWORD ??
+      process.env.E2E_VENUE_OWNER_PASSWORD ??
+      'password123';
+
+    const parsedCost = Number.parseInt(
+      process.env.E2E_BCRYPT_COST ?? process.env.BCRYPT_COST ?? '10',
+      10
+    );
+    const bcryptCost = Number.isFinite(parsedCost) && parsedCost > 3 ? parsedCost : 10;
+    const now = new Date();
+
+    const [testUserHash, adminHash, venueOwnerHash] = await Promise.all([
+      bcrypt.hash(testUserPassword, bcryptCost),
+      bcrypt.hash(adminPassword, bcryptCost),
+      bcrypt.hash(venueOwnerPassword, bcryptCost),
+    ]);
+
     const testUser = {
-      email: 'e2e-test@example.com',
+      email: testUserEmail,
       name: 'E2E Test User',
-      password: '$2a$10$test.hash.for.Test123!@#SecurePassword', // Bcrypt hash
+      password: testUserHash,
       role: 'user',
-      emailVerified: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      status: 'active',
+      emailVerified: now,
+      createdAt: now,
+      updatedAt: now,
     };
 
     await db.collection('users').insertOne(testUser);
-    console.log('  - Created test user: e2e-test@example.com');
+    console.log(`  - Created test user: ${testUserEmail}`);
 
     // Create an admin test user
     const adminUser = {
-      email: 'e2e-admin@example.com',
+      email: adminEmail,
       name: 'E2E Admin User',
-      password: '$2a$10$test.hash.for.Admin123!@#SecurePassword',
+      password: adminHash,
       role: 'admin',
-      emailVerified: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      status: 'active',
+      emailVerified: now,
+      createdAt: now,
+      updatedAt: now,
     };
 
     await db.collection('users').insertOne(adminUser);
-    console.log('  - Created admin user: e2e-admin@example.com');
+    console.log(`  - Created admin user: ${adminEmail}`);
+
+    // Create a venue owner test user
+    const venueOwnerUser = {
+      email: venueOwnerEmail,
+      name: 'E2E Venue Owner',
+      password: venueOwnerHash,
+      role: 'venueOwner',
+      status: 'active',
+      emailVerified: now,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    await db.collection('users').insertOne(venueOwnerUser);
+    console.log(`  - Created venue owner: ${venueOwnerEmail}`);
 
     console.log('\n✨ E2E database setup complete!\n');
     console.log('Database:', DB_NAME);
-    console.log('Test User:', testUser.email);
-    console.log('Admin User:', adminUser.email);
+    console.log('Test User:', testUserEmail);
+    console.log('Admin User:', adminEmail);
+    console.log('Venue Owner:', venueOwnerEmail);
     console.log('');
   } catch (error) {
     console.error('❌ Error setting up E2E database:', error);

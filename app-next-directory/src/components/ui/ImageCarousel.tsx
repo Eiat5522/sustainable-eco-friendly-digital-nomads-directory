@@ -12,12 +12,23 @@ interface ImageCarouselProps {
   className?: string;
 }
 
-export function ImageCarousel({ images, alt, className }: ImageCarouselProps) {
+export function ImageCarousel({
+  images,
+  alt,
+  className,
+}: ImageCarouselProps): React.JSX.Element | null {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   if (!images || images.length === 0) {
     return null;
   }
+
+  const firstImage = images[0];
+  if (!firstImage) {
+    return null;
+  }
+
+  const currentImage = images[currentIndex] ?? firstImage;
 
   const goToPrevious = () => {
     setCurrentIndex(prevIndex => (prevIndex === 0 ? images.length - 1 : prevIndex - 1));
@@ -36,12 +47,12 @@ export function ImageCarousel({ images, alt, className }: ImageCarouselProps) {
       {/* Main Image Display */}
       <div className="relative h-96 md:h-[500px] overflow-hidden rounded-lg bg-gray-100">
         <Image
-          src={images[currentIndex]}
+          src={currentImage}
           alt={`${alt} - Image ${currentIndex + 1}`}
           fill
           sizes="(min-width: 768px) 100vw, 100vw"
           className="object-cover"
-          priority={currentIndex === 0 ? 'true' : 'false'}
+          priority={currentIndex === 0}
         />
 
         {/* Navigation Buttons */}

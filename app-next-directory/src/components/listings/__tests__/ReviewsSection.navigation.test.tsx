@@ -1,20 +1,20 @@
 /**
  * ReviewsSection Navigation Tests
- * 
+ *
  * This file contains Jest/RTL tests for deterministic navigation flows in ReviewsSection.
  * These tests verify redirect/callbackUrl behavior that was previously tested via Playwright E2E.
- * 
+ *
  * Covered E2E scenarios:
  * - #153: should show sign-in prompt with correct callbackUrl
  * - #154: should navigate to login with callbackUrl when Sign In clicked
- * - #158: should redirect to login on 401 response with callbackUrl  
+ * - #158: should redirect to login on 401 response with callbackUrl
  * - #159: should show success message on 200 response
  */
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useRouter } from 'next/navigation';
-import { ReviewsSection } from '../ReviewsSection';
 import { getCurrentHref } from '@/utils/navigation';
+import { ReviewsSection } from '../ReviewsSection';
 
 type FetchReturn = Awaited<ReturnType<typeof fetch>>;
 
@@ -191,17 +191,17 @@ describe('ReviewsSection - Deterministic Navigation Flows', () => {
     // Actual navigation behavior is browser-native and doesn't need testing in unit tests.
     it('has correct href on sign-in link that would navigate to login with callbackUrl', async () => {
       mockGetCurrentHref.mockReturnValue('http://localhost:3000/listings/sustainable-hotel');
-      
+
       render(<ReviewsSection reviews={[]} listingId="sustainable-hotel" isSignedIn={false} />);
 
       await waitFor(() => {
         const signInLink = screen.getByTestId('next-link');
         const href = signInLink.getAttribute('href');
-        
+
         expect(href).toBe(
           '/auth/login?callbackUrl=http%3A%2F%2Flocalhost%3A3000%2Flistings%2Fsustainable-hotel'
         );
-        
+
         // Verify the callbackUrl can be decoded correctly
         const url = new URL(href!, 'http://localhost');
         const callbackUrl = url.searchParams.get('callbackUrl');
@@ -262,7 +262,10 @@ describe('ReviewsSection - Deterministic Navigation Flows', () => {
     it('uses fallback callbackUrl on 401 when current location is unavailable', async () => {
       mockGetCurrentHref.mockReturnValue('');
       mockFetch.mockResolvedValue(
-        mockResponse({ error: 'Unauthorized' }, { status: 401, ok: false }) as unknown as FetchReturn
+        mockResponse(
+          { error: 'Unauthorized' },
+          { status: 401, ok: false }
+        ) as unknown as FetchReturn
       );
 
       render(<ReviewsSection reviews={[]} listingId="test-listing" isSignedIn />);
@@ -345,26 +348,35 @@ describe('ReviewsSection - Deterministic Navigation Flows', () => {
 
   describe('CallbackUrl Encoding Edge Cases', () => {
     it('properly encodes callbackUrl with special characters', async () => {
-      mockGetCurrentHref.mockReturnValue('http://localhost/listings/café-écologique?tab=reviews&filter=new');
+      mockGetCurrentHref.mockReturnValue(
+        'http://localhost/listings/café-écologique?tab=reviews&filter=new'
+      );
 
       render(<ReviewsSection reviews={[]} listingId="test" isSignedIn={false} />);
 
       await waitFor(() => {
         const signInLink = screen.getByTestId('next-link');
         const href = signInLink.getAttribute('href');
-        
+
         // Verify URL is properly encoded
         expect(href).toContain('callbackUrl=');
         const url = new URL(href!, 'http://localhost');
         const callbackUrl = url.searchParams.get('callbackUrl');
-        expect(callbackUrl).toBe('http://localhost/listings/café-écologique?tab=reviews&filter=new');
+        expect(callbackUrl).toBe(
+          'http://localhost/listings/café-écologique?tab=reviews&filter=new'
+        );
       });
     });
 
     it('handles callbackUrl redirect for 401 with complex URL parameters', async () => {
-      mockGetCurrentHref.mockReturnValue('http://localhost/listings/test?sort=rating&min=4#reviews');
+      mockGetCurrentHref.mockReturnValue(
+        'http://localhost/listings/test?sort=rating&min=4#reviews'
+      );
       mockFetch.mockResolvedValue(
-        mockResponse({ error: 'Unauthorized' }, { status: 401, ok: false }) as unknown as FetchReturn
+        mockResponse(
+          { error: 'Unauthorized' },
+          { status: 401, ok: false }
+        ) as unknown as FetchReturn
       );
 
       render(<ReviewsSection reviews={[]} listingId="test" isSignedIn />);
@@ -373,9 +385,7 @@ describe('ReviewsSection - Deterministic Navigation Flows', () => {
       fireEvent.click(screen.getByRole('button', { name: /submit review/i }));
 
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith(
-          expect.stringContaining('/auth/login?callbackUrl=')
-        );
+        expect(mockPush).toHaveBeenCalledWith(expect.stringContaining('/auth/login?callbackUrl='));
         const callArg = mockPush.mock.calls[0][0];
         const url = new URL(callArg, 'http://localhost');
         const callbackUrl = url.searchParams.get('callbackUrl');

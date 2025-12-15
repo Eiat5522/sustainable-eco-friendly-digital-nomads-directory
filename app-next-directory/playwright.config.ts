@@ -14,6 +14,13 @@ const resolvedBaseURL = PLAYWRIGHT_BASE_URL;
 const isLocal = PLAYWRIGHT_IS_LOCAL;
 const resolvedPort = PLAYWRIGHT_PORT;
 const serverWaitURL = PLAYWRIGHT_ENV.serverWaitURL;
+const chromiumExecutablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
+const chromiumLaunchOptions = chromiumExecutablePath
+  ? {
+      executablePath: chromiumExecutablePath,
+      args: ['--no-sandbox', '--disable-dev-shm-usage'],
+    }
+  : undefined;
 
 export default defineConfig({
   // Run Playwright tests from the project tests directory using .spec.ts extension only
@@ -46,7 +53,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   reporter: [
     ['list'],
-    ['html', { outputFolder: 'playwright-report' }],
+    ['html', { outputFolder: 'playwright-report', open: 'never' }],
     ['json', { outputFile: 'test-results/test-results.json' }],
   ],
   use: {
@@ -56,6 +63,7 @@ export default defineConfig({
     ignoreHTTPSErrors: Boolean(process.env.ALLOW_INSECURE_HTTPS),
     video: 'retain-on-failure',
     trace: 'retain-on-failure',
+    ...(chromiumLaunchOptions ? { launchOptions: chromiumLaunchOptions } : {}),
   },
   projects: [
     {

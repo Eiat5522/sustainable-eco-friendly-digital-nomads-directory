@@ -31,7 +31,7 @@ const ANALYTICS_FIXTURE = {
 
 test.describe('Admin Dashboard Integration', () => {
   test.describe('Access Control', () => {
-    test.only('regular user cannot access admin dashboard', async ({ page }) => {
+    test('regular user cannot access admin dashboard', async ({ page }) => {
       await loginAs(
         page,
         process.env.E2E_USER_EMAIL ?? 'e2e-test@example.com',

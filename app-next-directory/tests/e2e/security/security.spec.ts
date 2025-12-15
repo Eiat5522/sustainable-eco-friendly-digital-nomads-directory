@@ -134,11 +134,7 @@ test.describe('Security Testing', () => {
 
     test('prevents privilege escalation', async ({ page }) => {
       // Login as regular user using the auth helper
-      await loginAs(
-        page,
-        TEST_CONFIG.credentials.userEmail,
-        TEST_CONFIG.credentials.userPassword
-      );
+      await loginAs(page, TEST_CONFIG.credentials.userEmail, TEST_CONFIG.credentials.userPassword);
 
       // Try to access admin API endpoints
       const response = await page.request.get(TEST_CONFIG.urls.api.adminUsers);
@@ -147,11 +143,7 @@ test.describe('Security Testing', () => {
 
     test('session timeout security', async ({ page }) => {
       // Login using the auth helper
-      await loginAs(
-        page,
-        TEST_CONFIG.credentials.userEmail,
-        TEST_CONFIG.credentials.userPassword
-      );
+      await loginAs(page, TEST_CONFIG.credentials.userEmail, TEST_CONFIG.credentials.userPassword);
 
       // Simulate session expiry by clearing cookies (NextAuth uses cookies for session)
       await page.context().clearCookies();
@@ -192,9 +184,9 @@ test.describe('Security Testing', () => {
         // Should not cause database errors - check if error message exists first
         const errorMessage = page.locator('[data-testid="error-message"]');
         const errorCount = await errorMessage.count();
-        
+
         if (errorCount > 0) {
-          const errorText = await errorMessage.textContent() || '';
+          const errorText = (await errorMessage.textContent()) || '';
           // If there's an error, it should not expose database details
           expect(errorText).not.toMatch(/database|sql|mysql|postgres/i);
         }
@@ -235,11 +227,7 @@ test.describe('Security Testing', () => {
 
     test('prevents CSRF attacks', async ({ page, context }) => {
       // Login and get session using the auth helper
-      await loginAs(
-        page,
-        TEST_CONFIG.credentials.userEmail,
-        TEST_CONFIG.credentials.userPassword
-      );
+      await loginAs(page, TEST_CONFIG.credentials.userEmail, TEST_CONFIG.credentials.userPassword);
 
       // Get CSRF token
       const csrfToken = await page.evaluate(() => {
@@ -261,12 +249,8 @@ test.describe('Security Testing', () => {
 
     test('file upload security', async ({ page }) => {
       // Login first since create listing page requires authentication
-      await loginAs(
-        page,
-        TEST_CONFIG.credentials.userEmail,
-        TEST_CONFIG.credentials.userPassword
-      );
-      
+      await loginAs(page, TEST_CONFIG.credentials.userEmail, TEST_CONFIG.credentials.userPassword);
+
       await page.goto(TEST_CONFIG.urls.createListing);
 
       // Test malicious file types

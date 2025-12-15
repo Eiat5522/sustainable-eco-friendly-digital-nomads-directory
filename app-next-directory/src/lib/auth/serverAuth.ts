@@ -5,20 +5,13 @@
  * - Server Actions
  */
 
-import bcrypt from 'bcryptjs';
-import { type FilterQuery, isValidObjectId, type Types } from 'mongoose';
+import { isValidObjectId, type Types } from 'mongoose';
 import dbConnect from '@/lib/dbConnect';
 import User from '@/models/User';
 import type { UserRole } from '@/types/auth';
-import { isEmailVerificationRequired } from './config';
-// Import DAL functions
-import {
-  getUserById as dalGetUserById,
-  authenticateUserCredentials,
-  createUser,
-  type AuthUser,
-} from './dal';
 import { withMongooseCache } from '../mongoose-cache';
+// Import DAL functions
+import { authenticateUserCredentials, createUser, getUserById as dalGetUserById } from './dal';
 
 // Memoized database connection function
 const connectToDatabase = async () => {

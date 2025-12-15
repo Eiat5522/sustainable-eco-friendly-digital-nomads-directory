@@ -205,9 +205,9 @@ export async function POST(request: NextRequest) {
       reviewDoc.nomadRating = nomadRating;
     }
 
-    const newReview = (await (client.create as (doc: unknown) => Promise<{ _id: string }>)(
+    const newReview = await (client.create as (doc: unknown) => Promise<{ _id: string }>)(
       reviewDoc
-    ));
+    );
 
     const listingSlug = (listingDoc as { slug?: { current?: string } } | null | undefined)?.slug
       ?.current;

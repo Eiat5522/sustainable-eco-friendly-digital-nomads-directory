@@ -60,7 +60,7 @@ afterEach(() => {
       _warnSpy?.mockRestore();
 
       // Print full details for triage
-       
+
       console.error('\n' + lines.join('\n'));
 
       throw new Error(

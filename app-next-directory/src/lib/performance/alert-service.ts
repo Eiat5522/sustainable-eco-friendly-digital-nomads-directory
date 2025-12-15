@@ -77,7 +77,9 @@ export async function processMetricForAlert(
   const channels = getNotificationChannels(category, name, severity);
 
   try {
-    const dispatchResults = await Promise.all(channels.map(channel => dispatchAlert(alert, channel)));
+    const dispatchResults = await Promise.all(
+      channels.map(channel => dispatchAlert(alert, channel))
+    );
     if (dispatchResults.some(result => result === false)) {
       throw new Error('Failed to deliver one or more alert channels');
     }

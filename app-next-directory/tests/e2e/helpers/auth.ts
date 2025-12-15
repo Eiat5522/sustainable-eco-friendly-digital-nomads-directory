@@ -69,12 +69,15 @@ export async function loginAs(page: Page, email: string, password: string) {
     // After successful login, the app redirects to the callbackUrl or home page (/)
     // We wait for the URL to change away from login/signin routes
     await Promise.all([
-      page.waitForURL(url => {
-        const pathname = new URL(url).pathname;
-        // Consider login successful if we're not on an auth route
-        // Check for exact auth routes to avoid false positives
-        return !pathname.match(/^\/(auth\/(login|signin)|login|signin)(\/)?$/);
-      }, { timeout: 10000 }),
+      page.waitForURL(
+        url => {
+          const pathname = new URL(url).pathname;
+          // Consider login successful if we're not on an auth route
+          // Check for exact auth routes to avoid false positives
+          return !pathname.match(/^\/(auth\/(login|signin)|login|signin)(\/)?$/);
+        },
+        { timeout: 10000 }
+      ),
       submitLocator.click(),
     ]);
   } catch (error) {

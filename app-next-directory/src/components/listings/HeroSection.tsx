@@ -19,12 +19,13 @@ export function HeroSection(props: Readonly<HeroSectionProps>): React.JSX.Elemen
     typeof listing.imageUrl === 'string' &&
     listing.imageUrl.length > 0 &&
     listing.imageUrl !== FALLBACK_IMAGE;
+  const heroImageSrc = hasRealHeroImage ? listing.imageUrl : undefined;
   return (
     <NeoCard variant="elevated" className="mb-8">
       <div className="relative h-64 md:h-80 mb-6 overflow-hidden rounded-lg">
-        {hasRealHeroImage && (
+        {heroImageSrc && (
           <Image
-            src={listing.imageUrl}
+            src={heroImageSrc}
             alt={`${listing.name}${listing.city?.name ? ` - ${listing.city?.name}` : ''} sustainable venue`}
             fill
             sizes="100vw"

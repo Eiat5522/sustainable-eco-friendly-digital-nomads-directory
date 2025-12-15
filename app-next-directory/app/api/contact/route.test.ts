@@ -66,7 +66,7 @@ beforeAll(async () => {
 
   if (typeof global.setImmediate !== 'function') {
     // jsdom does not provide setImmediate; nodemailer expects it to exist
-     
+
     (global as any).setImmediate = (fn: (...args: unknown[]) => void, ...args: unknown[]) => {
       return setTimeout(() => fn(...args), 0);
     };
@@ -82,7 +82,6 @@ afterAll(() => {
   if (originalSetImmediate) {
     global.setImmediate = originalSetImmediate;
   } else {
-     
     delete (global as any).setImmediate;
   }
 });

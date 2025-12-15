@@ -31,6 +31,20 @@ services:
       NODE_ENV: production
       E2E: "1"
       NEXT_PUBLIC_E2E: "1"
+
+      # Test credentials (non-production)
+      TEST_USER_EMAIL: e2e-test@example.com
+      TEST_USER_PASSWORD: password123
+      TEST_ADMIN_EMAIL: admin@example.com
+      TEST_ADMIN_PASSWORD: password123
+      TEST_VENUE_OWNER_EMAIL: venue@example.com
+      TEST_VENUE_OWNER_PASSWORD: password123
+      E2E_USER_EMAIL: e2e-test@example.com
+      E2E_USER_PASSWORD: password123
+      E2E_ADMIN_EMAIL: admin@example.com
+      E2E_ADMIN_PASSWORD: password123
+      E2E_VENUE_OWNER_EMAIL: venue@example.com
+      E2E_VENUE_OWNER_PASSWORD: password123
       
       # MongoDB connection
       MONGODB_URI: mongodb://mongodb:27017/e2e_test

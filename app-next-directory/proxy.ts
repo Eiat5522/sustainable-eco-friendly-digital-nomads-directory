@@ -1,7 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
-import { auth } from '@/lib/auth';
 import { structuredLogger } from '@/lib/logger';
 import type { UserRole } from '@/types/auth';
 
@@ -60,7 +59,7 @@ export async function proxy(request: NextRequest) {
 
     // Protected routes check
     const isProtectedRoute = protectedRoutes.some(path => pathname.startsWith(path));
-    
+
     if (isProtectedRoute) {
       // Always redirect unauthenticated users to /auth/login with callbackUrl
       if (!isAuthenticated || !userRole) {

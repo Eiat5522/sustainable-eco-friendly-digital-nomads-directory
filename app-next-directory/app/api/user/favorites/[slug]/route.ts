@@ -65,12 +65,12 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
       return NextResponse.json({ favorited: false, message: 'Removed from favorites' });
     } else {
       // Add to favorites
-      const favorite = (await (client.create as (doc: unknown) => Promise<{ _id: string }>)({
+      const favorite = await (client.create as (doc: unknown) => Promise<{ _id: string }>)({
         _type: 'userFavorite',
         user: { _type: 'reference', _ref: sanityUser._id },
         listing: { _type: 'reference', _ref: listingId },
         createdAt: new Date().toISOString(),
-      }));
+      });
       return NextResponse.json({
         favorited: true,
         message: 'Added to favorites',

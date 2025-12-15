@@ -52,18 +52,18 @@ jest.mock('./results/server', () => ({
 let SearchPage: typeof import('./page').default;
 let dynamicExport: string | undefined;
 
-  beforeAll(async () => {
-    const pageModule = await import('./page');
-    SearchPage = pageModule.default;
-    dynamicExport = (pageModule as { dynamic?: string }).dynamic;
-  });
+beforeAll(async () => {
+  const pageModule = await import('./page');
+  SearchPage = pageModule.default;
+  dynamicExport = (pageModule as { dynamic?: string }).dynamic;
+});
 
 describe('SearchPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-it('no longer exports a dynamic rendering hint with cache components', () => {
+  it('no longer exports a dynamic rendering hint with cache components', () => {
     expect(dynamicExport).toBeUndefined();
   });
 

@@ -67,7 +67,7 @@ export function Header(): React.JSX.Element {
   }, [signingOut]);
 
   return (
-    <header className="w-full bg-background border-b-4 border-neo-border" role="banner">
+    <header className="w-full bg-background border-b-4 border-neo-border">
       <div className="container mx-auto px-4 py-4">
         <div className="relative flex items-center justify-between">
           {/* Left: Logo + Mobile Menu */}
