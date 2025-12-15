@@ -35,8 +35,8 @@ describe('AnalyticsManager', () => {
     const analyticsModule = await import('../analytics');
     const { analytics } = analyticsModule;
 
-    const again = (analytics.constructor as any).getInstance();
-    expect(again).toBe(analytics);
+    const { analytics: analyticsAgain } = await import('../analytics');
+    expect(analyticsAgain).toBe(analytics);
 
     analytics.trackExperiment(
       {
@@ -103,13 +103,19 @@ describe('AnalyticsManager', () => {
 
     await analytics.initialize();
 
-    const [, options] = mockPosthog.init.mock.calls[0];
+    const [, options] = mockPosthog.init.mock.calls[0] as [
+      string,
+      {
+        api_host?: string;
+        loaded?: (posthog: { debug: () => void }) => void;
+      },
+    ];
     expect(options).toMatchObject({
       api_host: 'https://app.posthog.com',
       loaded: expect.any(Function),
     });
 
-    options.loaded?.({ debug: mockPosthog.debug } as any);
+    options.loaded?.({ debug: mockPosthog.debug });
     expect(mockPosthog.debug).toHaveBeenCalled();
 
     process.env.NODE_ENV = originalNodeEnv;

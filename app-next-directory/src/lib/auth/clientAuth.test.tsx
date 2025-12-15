@@ -22,6 +22,8 @@ jest.mock('next-auth/react', () => ({
 const useSessionMock = useSession as jest.Mock;
 const signInMock = signIn as jest.Mock;
 const signOutMock = signOut as jest.Mock;
+type PagePermissionChecker = typeof import('../../types/auth').hasPagePermission;
+type FeaturePermissionChecker = typeof import('../../types/auth').hasFeaturePermission;
 
 describe('clientAuth context and helpers', () => {
   beforeEach(() => {
@@ -47,8 +49,10 @@ describe('clientAuth context and helpers', () => {
       status: 'authenticated',
     });
 
-    const hasPagePermissionMock = jest.fn(() => true);
-    const hasFeaturePermissionMock = jest.fn(() => false);
+    const hasPagePermissionMock: jest.MockedFunction<PagePermissionChecker> = jest.fn(() => true);
+    const hasFeaturePermissionMock: jest.MockedFunction<FeaturePermissionChecker> = jest.fn(
+      () => false
+    );
 
     const Consumer = () => {
       const ctx = useAuthContext();
@@ -74,10 +78,7 @@ describe('clientAuth context and helpers', () => {
 
     const user = userEvent.setup();
     render(
-      <AuthProvider
-        hasPagePermission={hasPagePermissionMock as any}
-        hasFeaturePermission={hasFeaturePermissionMock as any}
-      >
+      <AuthProvider hasPagePermission={hasPagePermissionMock} hasFeaturePermission={hasFeaturePermissionMock}>
         <Consumer />
       </AuthProvider>
     );
@@ -218,10 +219,12 @@ describe('clientAuth context and helpers', () => {
         status: 'authenticated',
       });
 
-      const hasFeaturePermissionMock = jest.fn(() => true);
+      const hasFeaturePermissionMock: jest.MockedFunction<FeaturePermissionChecker> = jest.fn(
+        () => true
+      );
 
       render(
-        <AuthProvider hasFeaturePermission={hasFeaturePermissionMock as any}>
+        <AuthProvider hasFeaturePermission={hasFeaturePermissionMock}>
           <RequirePermission feature="editContent">
             <div data-testid="permission-pass">Granted</div>
           </RequirePermission>
@@ -238,10 +241,12 @@ describe('clientAuth context and helpers', () => {
         status: 'authenticated',
       });
 
-      const hasFeaturePermissionMock = jest.fn(() => false);
+      const hasFeaturePermissionMock: jest.MockedFunction<FeaturePermissionChecker> = jest.fn(
+        () => false
+      );
 
       render(
-        <AuthProvider hasFeaturePermission={hasFeaturePermissionMock as any}>
+        <AuthProvider hasFeaturePermission={hasFeaturePermissionMock}>
           <RequirePermission
             feature="editContent"
             fallback={<div data-testid="permission-fallback">No access</div>}

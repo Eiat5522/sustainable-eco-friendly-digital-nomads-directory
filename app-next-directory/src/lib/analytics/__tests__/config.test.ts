@@ -55,10 +55,10 @@ describe('analytics config helpers', () => {
     process.env.NEXT_PUBLIC_POSTHOG_TOKEN = 'token';
     process.env.NODE_ENV = 'production';
 
-    let trackPageView: any;
-    let trackEvent: any;
-    let identifyUser: any;
-    let ANALYTICS_CONFIG: any;
+    let trackPageView: typeof import('../config').trackPageView;
+    let trackEvent: typeof import('../config').trackEvent;
+    let identifyUser: typeof import('../config').identifyUser;
+    let ANALYTICS_CONFIG: typeof import('../config').ANALYTICS_CONFIG;
 
     jest.isolateModules(() => {
       const mod = require('../config');
@@ -100,9 +100,9 @@ describe('analytics config helpers', () => {
     analyticsInstance.track.mockRejectedValueOnce(new Error('track-error'));
     analyticsInstance.identify.mockRejectedValueOnce(new Error('identify-error'));
 
-    let trackPageView: any;
-    let trackEvent: any;
-    let identifyUser: any;
+    let trackPageView: typeof import('../config').trackPageView;
+    let trackEvent: typeof import('../config').trackEvent;
+    let identifyUser: typeof import('../config').identifyUser;
 
     const loggerErrorSpy = jest.spyOn(jest.requireMock('@/lib/logger').structuredLogger, 'error');
 
