@@ -8,7 +8,7 @@ jest.mock('@/utils/db-helpers', () => ({
   getCollection: getCollectionMock,
 }));
 
-type TestCursor<T = any> = {
+type TestCursor<T = unknown> = {
   toArray: jest.Mock<Promise<T[]>, []>;
 };
 
@@ -18,7 +18,7 @@ type TestCollection = {
     [Record<string, unknown>, Record<string, unknown>]
   >;
   updateOne: jest.Mock<
-    Promise<any>,
+    Promise<void>,
     [Record<string, unknown>, Record<string, unknown>, Record<string, unknown>]
   >;
   find: jest.Mock<TestCursor, [Record<string, unknown>]>;
