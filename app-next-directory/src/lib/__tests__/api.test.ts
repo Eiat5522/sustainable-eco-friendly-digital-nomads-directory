@@ -26,7 +26,7 @@ describe('API Functions', () => {
 
       server.use(
         http.get('*/api/cities/:slug', ({ params }) => {
-          const { slug } = params as any;
+          const { slug } = params as { slug: string };
           if (slug !== 'bangkok') return new Response(null, { status: 404 });
           return jsonResponse({ success: true, data: { city: mockCityData } }, { status: 200 });
         })

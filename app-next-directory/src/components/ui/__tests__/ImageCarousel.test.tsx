@@ -5,7 +5,12 @@ import { ImageCarousel } from '../ImageCarousel';
 // Mock Next.js Image component
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: (props: any) => {
+  default: (props: {
+    fill?: boolean;
+    priority?: boolean;
+    alt?: string;
+    [key: string]: unknown;
+  }) => {
     const { fill, priority, alt = '', ...rest } = props;
     return (
       // eslint-disable-next-line @next/next/no-img-element

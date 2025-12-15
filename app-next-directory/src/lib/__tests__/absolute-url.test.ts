@@ -45,7 +45,7 @@ describe('absolute-url', () => {
         }),
       };
 
-      mockHeadersFn.mockResolvedValueOnce(mockHeadersObj as any);
+      mockHeadersFn.mockResolvedValueOnce(mockHeadersObj as unknown as Headers);
 
       const result = await getBaseUrl();
       // Should fall back to environment URL
@@ -122,7 +122,7 @@ describe('absolute-url', () => {
         }),
       };
 
-      mockHeadersFn.mockResolvedValueOnce(mockHeadersObj as any);
+      mockHeadersFn.mockResolvedValueOnce(mockHeadersObj as unknown as Headers);
 
       const result = await getBaseUrl();
       expect(result).toBe('https://fallback.example.com');

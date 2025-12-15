@@ -4,7 +4,15 @@ import { TestimonialsSection } from '../TestimonialsSection';
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, ...props }: any) => (
+  default: ({
+    href,
+    children,
+    ...props
+  }: {
+    href: string;
+    children: React.ReactNode;
+    [key: string]: unknown;
+  }) => (
     <a href={href} {...props}>
       {children}
     </a>
@@ -13,7 +21,20 @@ jest.mock('next/link', () => ({
 
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: ({ alt, src, onError, ...props }: any) => {
+  default: ({
+    alt,
+    src,
+    onError,
+    ...props
+  }: {
+    alt: string;
+    src: string;
+    onError?: React.ReactEventHandler<HTMLImageElement>;
+    fill?: boolean;
+    priority?: boolean;
+    sizes?: string;
+    [key: string]: unknown;
+  }) => {
     const { fill: _fill, priority: _priority, sizes: _sizes, ...imgProps } = props;
     return (
       // eslint-disable-next-line @next/next/no-img-element
@@ -30,12 +51,24 @@ jest.mock('lucide-react', () => ({
 }));
 
 jest.mock('@/components/ui/neo-card', () => ({
-  NeoCard: ({ children, ...props }: any) => (
+  NeoCard: ({
+    children,
+    ...props
+  }: {
+    children: React.ReactNode;
+    [key: string]: unknown;
+  }) => (
     <div data-testid="neo-card" {...props}>
       {children}
     </div>
   ),
-  NeoCardContent: ({ children, ...props }: any) => (
+  NeoCardContent: ({
+    children,
+    ...props
+  }: {
+    children: React.ReactNode;
+    [key: string]: unknown;
+  }) => (
     <div data-testid="neo-card-content" {...props}>
       {children}
     </div>
@@ -43,7 +76,13 @@ jest.mock('@/components/ui/neo-card', () => ({
 }));
 
 jest.mock('@/components/ui/neo-badge', () => ({
-  NeoBadge: ({ children, ...props }: any) => (
+  NeoBadge: ({
+    children,
+    ...props
+  }: {
+    children: React.ReactNode;
+    [key: string]: unknown;
+  }) => (
     <span data-testid="neo-badge" {...props}>
       {children}
     </span>

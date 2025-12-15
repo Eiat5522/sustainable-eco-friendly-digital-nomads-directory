@@ -15,7 +15,12 @@ jest.mock('gsap', () => ({
 // Mock Next.js Image component
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: (props: any) => {
+  default: (props: {
+    fill?: boolean;
+    priority?: boolean;
+    alt?: string;
+    [key: string]: unknown;
+  }) => {
     const { fill, priority, alt = '', ...rest } = props;
     return (
       // eslint-disable-next-line @next/next/no-img-element
@@ -31,7 +36,15 @@ jest.mock('next/navigation', () => ({
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, ...props }: any) => {
+  default: ({
+    href,
+    children,
+    ...props
+  }: {
+    href: string;
+    children: React.ReactNode;
+    [key: string]: unknown;
+  }) => {
     const { useRouter } = require('next/navigation');
     const router = useRouter();
 
@@ -91,7 +104,7 @@ describe('CityCarouselWave', () => {
       back: jest.fn(),
       forward: jest.fn(),
       refresh: jest.fn(),
-    } as any);
+    } as ReturnType<typeof useRouter>);
   });
 
   it('renders nothing when no cities are provided', () => {

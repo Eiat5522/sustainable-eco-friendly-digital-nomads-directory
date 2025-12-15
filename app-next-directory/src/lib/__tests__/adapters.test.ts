@@ -9,7 +9,7 @@ beforeAll(() => {
     () =>
       ({
         toISOString: () => MOCK_DATE,
-      }) as any
+      }) as unknown as Date
   );
 });
 
