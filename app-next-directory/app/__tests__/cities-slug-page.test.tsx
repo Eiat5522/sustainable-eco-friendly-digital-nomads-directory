@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 
-const cityDetailViewSpy = jest.fn((props: any) => (
+const cityDetailViewSpy = jest.fn((props: { city?: { name?: string }; listings?: unknown[] }) => (
   <div data-testid="city-detail-view">
     <span data-testid="city-name">{props.city?.name}</span>
     <span data-testid="listing-count">{props.listings?.length ?? 0}</span>

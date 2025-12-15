@@ -11,7 +11,14 @@ jest.mock('next/navigation', () => ({
   notFound: notFoundMock,
 }));
 
-const listingDetailViewSpy = jest.fn((props: any) => (
+const listingDetailViewSpy = jest.fn((props: {
+  listing?: { name?: string };
+  relatedListings?: unknown[];
+  reviews?: unknown[];
+  isSignedIn?: boolean;
+  isFavorited?: boolean;
+  userId?: string;
+}) => (
   <div data-testid="listing-detail-view">
     <span data-testid="listing-name">{props.listing?.name}</span>
     <span data-testid="related-count">{props.relatedListings?.length ?? 0}</span>
@@ -57,7 +64,7 @@ const originalE2EFlag = process.env.E2E;
 
 beforeAll(() => {
   if (typeof global.structuredClone !== 'function') {
-    (global as any).structuredClone = (value: unknown) => JSON.parse(JSON.stringify(value));
+    (global as { structuredClone?: (value: unknown) => unknown }).structuredClone = (value: unknown) => JSON.parse(JSON.stringify(value));
   }
 });
 
@@ -70,9 +77,9 @@ afterEach(() => {
 
 afterAll(() => {
   if (originalStructuredClone) {
-    (global as any).structuredClone = originalStructuredClone;
+    (global as { structuredClone?: (value: unknown) => unknown }).structuredClone = originalStructuredClone;
   } else {
-    delete (global as any).structuredClone;
+    delete (global as { structuredClone?: (value: unknown) => unknown }).structuredClone;
   }
 });
 
@@ -287,7 +294,7 @@ describe('ListingPage', () => {
 
     const metadata = await pageModule.generateMetadata({
       params: Promise.resolve({ slug: 'meta-listing' }),
-    } as any);
+    } as { params: Promise<{ slug: string }> });
 
     expect(metadata).toEqual(
       expect.objectContaining({
@@ -321,7 +328,7 @@ describe('ListingPage', () => {
 
     const metadata = await pageModule.generateMetadata({
       params: Promise.resolve({ slug: 'broken-listing' }),
-    } as any);
+    } as { params: Promise<{ slug: string }> });
 
     expect(metadata).toEqual({ title: 'Listing not found' });
   });
@@ -354,7 +361,7 @@ describe('ListingPage', () => {
 
     const metadata = await pageModule.generateMetadata({
       params: Promise.resolve({ slug: 'meta-listing-long' }),
-    } as any);
+    } as { params: Promise<{ slug: string }> });
 
     const description = metadata.description as string;
     expect(description).toHaveLength(160);
@@ -389,7 +396,7 @@ describe('ListingPage', () => {
 
     const metadata = await pageModule.generateMetadata({
       params: Promise.resolve({ slug: 'minimal-listing' }),
-    } as any);
+    } as { params: Promise<{ slug: string }> });
 
     expect(metadata.title).toBe('Minimal Listing');
     expect(metadata.description).toBeUndefined();

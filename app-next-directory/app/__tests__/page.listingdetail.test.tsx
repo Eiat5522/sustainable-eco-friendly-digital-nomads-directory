@@ -13,7 +13,13 @@ jest.mock('@/components/layout/Footer', () => ({
 
 // Mock ListingDetailView
 jest.mock('@/components/listings/ListingDetailView', () => ({
-  ListingDetailView: ({ listing, reviews, relatedListings, isSignedIn, isFavorited }: any) => (
+  ListingDetailView: ({ listing, reviews, relatedListings, isSignedIn, isFavorited }: {
+    listing?: { name?: string };
+    reviews?: unknown[];
+    relatedListings?: unknown[];
+    isSignedIn?: boolean;
+    isFavorited?: boolean;
+  }) => (
     <div data-testid="listing-detail-view">
       <div data-testid="listing-name">{listing?.name}</div>
       <div data-testid="reviews-count">{reviews?.length}</div>
