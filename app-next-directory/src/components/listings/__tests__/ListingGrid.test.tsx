@@ -4,7 +4,7 @@ import { ListingGrid } from '../ListingGrid';
 
 // Mock Next.js components
 jest.mock('next/link', () => {
-  return ({ children, href, ...props }: any) => (
+  return ({ children, href, ...props }: React.PropsWithChildren<React.ComponentProps<'a'>>) => (
     <a href={href} {...props}>
       {children}
     </a>
@@ -12,7 +12,7 @@ jest.mock('next/link', () => {
 });
 
 jest.mock('next/image', () => {
-  return ({ src, alt, fill, onError, ...props }: any) => {
+  return ({ src, alt, fill, onError, ...props }: React.ComponentProps<'img'> & { fill?: boolean }) => {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img src={src} alt={alt} onError={onError} {...props} />
@@ -59,7 +59,7 @@ describe('ListingGrid', () => {
     });
 
     it('renders NoListingsFound when listings is not an array', () => {
-      render(<ListingGrid listings={null as any} />);
+      render(<ListingGrid listings={null as unknown as ListingSummaryDTO[]} />);
 
       expect(screen.getByText(/No listings found/i)).toBeInTheDocument();
     });

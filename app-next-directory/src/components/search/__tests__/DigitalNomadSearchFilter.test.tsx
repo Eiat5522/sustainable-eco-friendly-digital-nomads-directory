@@ -25,7 +25,7 @@ jest.mock('@/hooks/useFilters', () => ({
 
 // Mock UI components
 jest.mock('@/components/ui/neo-button', () => ({
-  NeoButton: function MockNeoButton({ children, onClick, ...props }: any) {
+  NeoButton: function MockNeoButton({ children, onClick, ...props }: React.PropsWithChildren<React.ComponentProps<'button'>>) {
     return (
       <button onClick={onClick} data-testid="clear-filters-button" {...props}>
         {children}
@@ -35,20 +35,20 @@ jest.mock('@/components/ui/neo-button', () => ({
 }));
 
 jest.mock('@/components/ui/neo-card', () => ({
-  NeoCard: function MockNeoCard({ children, ...props }: any) {
+  NeoCard: function MockNeoCard({ children, ...props }: React.PropsWithChildren<React.ComponentProps<'div'>>) {
     return (
       <div data-testid="neo-card" {...props}>
         {children}
       </div>
     );
   },
-  NeoCardHeader: function MockNeoCardHeader({ children }: any) {
+  NeoCardHeader: function MockNeoCardHeader({ children }: React.PropsWithChildren) {
     return <div data-testid="neo-card-header">{children}</div>;
   },
-  NeoCardTitle: function MockNeoCardTitle({ children }: any) {
+  NeoCardTitle: function MockNeoCardTitle({ children }: React.PropsWithChildren) {
     return <h3 data-testid="neo-card-title">{children}</h3>;
   },
-  NeoCardContent: function MockNeoCardContent({ children, className }: any) {
+  NeoCardContent: function MockNeoCardContent({ children, className }: React.PropsWithChildren<{ className?: string }>) {
     return (
       <div data-testid="neo-card-content" className={className}>
         {children}

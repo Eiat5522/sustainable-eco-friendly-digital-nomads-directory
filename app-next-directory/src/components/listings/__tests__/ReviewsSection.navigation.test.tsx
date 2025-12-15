@@ -27,7 +27,7 @@ jest.mock('@/utils/navigation', () => ({
 }));
 
 jest.mock('@/components/ui/StarRating', () => ({
-  StarRating: function MockStarRating({ rating, interactive, onRatingChange }: any) {
+  StarRating: function MockStarRating({ rating, interactive, onRatingChange }: { rating: number; interactive?: boolean; onRatingChange?: (rating: number) => void }) {
     if (interactive) {
       return (
         <div data-testid="star-rating-interactive" data-rating={rating}>
@@ -48,22 +48,22 @@ jest.mock('@/components/ui/StarRating', () => ({
 }));
 
 jest.mock('@/components/ui/neo-card', () => ({
-  NeoCard: function MockNeoCard({ children }: any) {
+  NeoCard: function MockNeoCard({ children }: React.PropsWithChildren) {
     return <div data-testid="neo-card">{children}</div>;
   },
-  NeoCardHeader: function MockNeoCardHeader({ children }: any) {
+  NeoCardHeader: function MockNeoCardHeader({ children }: React.PropsWithChildren) {
     return <div data-testid="neo-card-header">{children}</div>;
   },
-  NeoCardTitle: function MockNeoCardTitle({ children }: any) {
+  NeoCardTitle: function MockNeoCardTitle({ children }: React.PropsWithChildren) {
     return <h2 data-testid="neo-card-title">{children}</h2>;
   },
-  NeoCardContent: function MockNeoCardContent({ children }: any) {
+  NeoCardContent: function MockNeoCardContent({ children }: React.PropsWithChildren) {
     return <div data-testid="neo-card-content">{children}</div>;
   },
 }));
 
 jest.mock('@/components/ui/neo-button', () => ({
-  NeoButton: function MockNeoButton({ children, onClick, disabled, variant, size }: any) {
+  NeoButton: function MockNeoButton({ children, onClick, disabled, variant, size }: React.PropsWithChildren<{ onClick?: () => void; disabled?: boolean; variant?: string; size?: string }>) {
     return (
       <button
         data-testid="neo-button"
@@ -92,7 +92,14 @@ jest.mock('@/components/ui/textarea', () => ({
     disabled,
     rows,
     maxLength,
-  }: any) {
+  }: {
+    value?: string;
+    onChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
+    placeholder?: string;
+    disabled?: boolean;
+    rows?: number;
+    maxLength?: number;
+  }) {
     return (
       <textarea
         data-testid="textarea"
@@ -109,14 +116,14 @@ jest.mock('@/components/ui/textarea', () => ({
 
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: function MockImage({ src, alt, ...rest }: any) {
+  default: function MockImage({ src, alt, ...rest }: React.ComponentProps<'img'>) {
     return <span role="img" data-testid="next-image" data-src={src} aria-label={alt} {...rest} />;
   },
 }));
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: function MockLink({ href, children }: any) {
+  default: function MockLink({ href, children }: React.PropsWithChildren<{ href: string }>) {
     return (
       <a data-testid="next-link" href={href}>
         {children}
