@@ -1,4 +1,7 @@
 import { beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import type { NextRequest } from 'next/server';
+import type { Session } from 'next-auth';
+import type { UserRole } from '@/types/auth';
 
 jest.mock('@/lib/auth', () => ({
   __esModule: true,
@@ -40,6 +43,19 @@ let GET: RouteModule['GET'];
 const mockAuth = authMockModule.auth;
 const mockFetch = clientMockModule.__mock.fetchMock;
 
+// Helper type for mock session
+type MockSession = Session & {
+  user: {
+    role?: UserRole;
+  };
+};
+
+// Helper type for mock request
+interface MockRequest extends Partial<NextRequest> {
+  url?: string;
+  json?: () => Promise<unknown>;
+}
+
 beforeAll(async () => {
   ({ GET } = await import('../route'));
 });
@@ -52,9 +68,9 @@ describe('/api/admin/listings/stats', () => {
   });
 
   it('requires admin access', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'user' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'user' } } as MockSession);
 
-    const request = { url: 'https://example.com/api/admin/listings/stats' } as any;
+    const request = { url: 'https://example.com/api/admin/listings/stats' } as MockRequest as NextRequest;
     const response = await GET(request, { params: Promise.resolve({}) });
     const json = await response.json();
 
@@ -64,7 +80,7 @@ describe('/api/admin/listings/stats', () => {
   });
 
   it('returns listing statistics', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
 
     // Mock the responses in order of the API calls
     mockFetch.mockResolvedValueOnce(100); // totalCount
@@ -80,7 +96,7 @@ describe('/api/admin/listings/stats', () => {
       { type: 'accommodation', count: 30 },
     ]);
 
-    const request = { url: 'https://example.com/api/admin/listings/stats' } as any;
+    const request = { url: 'https://example.com/api/admin/listings/stats' } as MockRequest as NextRequest;
     const response = await GET(request, { params: Promise.resolve({}) });
     const json = await response.json();
 
@@ -101,10 +117,10 @@ describe('/api/admin/listings/stats', () => {
   });
 
   it('handles errors gracefully', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
     mockFetch.mockRejectedValue(new Error('Database error'));
 
-    const request = { url: 'https://example.com/api/admin/listings/stats' } as any;
+    const request = { url: 'https://example.com/api/admin/listings/stats' } as MockRequest as NextRequest;
     const response = await GET(request, { params: Promise.resolve({}) });
     const json = await response.json();
 
@@ -122,10 +138,10 @@ describe('/api/admin/listings/stats', () => {
   });
 
   it('returns 504 when listing analytics time out', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
     mockFetch.mockRejectedValue(new RequestTimeoutError('Fetching listing statistics timed out'));
 
-    const request = { url: 'https://example.com/api/admin/listings/stats' } as any;
+    const request = { url: 'https://example.com/api/admin/listings/stats' } as MockRequest as NextRequest;
     const response = await GET(request, { params: Promise.resolve({}) });
     const json = await response.json();
 

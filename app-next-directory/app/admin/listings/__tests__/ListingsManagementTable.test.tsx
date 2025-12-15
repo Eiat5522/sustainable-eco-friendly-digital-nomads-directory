@@ -156,8 +156,8 @@ const handlers = [
       },
       filters: {
         search,
-        status: status as any, // Cast to any for simplicity in mock
-        type: type as any, // Cast to any for simplicity in mock
+        status: status as ListingWorkflowStatus | null,
+        type: type as ListingManagementItem['type'] | null,
       },
     };
     return HttpResponse.json(response);

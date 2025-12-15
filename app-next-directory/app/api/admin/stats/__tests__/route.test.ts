@@ -1,4 +1,7 @@
 import { beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import type { NextRequest } from 'next/server';
+import type { Session } from 'next-auth';
+import type { UserRole } from '@/types/auth';
 
 jest.mock('@/lib/auth', () => ({
   __esModule: true,
@@ -33,6 +36,19 @@ const mockLogger = jest.requireMock('@/lib/logger').structuredLogger as {
   error: jest.Mock;
 };
 
+// Helper type for mock session
+type MockSession = Session & {
+  user: {
+    role?: UserRole;
+  };
+};
+
+// Helper type for mock request
+interface MockRequest extends Partial<NextRequest> {
+  url?: string;
+  json?: () => Promise<unknown>;
+}
+
 beforeAll(async () => {
   ({ GET, POST } = await import('../route'));
 });
@@ -45,9 +61,9 @@ describe('/api/admin/stats', () => {
   });
 
   it('requires admin access', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'user' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'user' } } as MockSession);
 
-    const response = await GET({} as any, { params: Promise.resolve({}) });
+    const response = await GET({} as NextRequest, { params: Promise.resolve({}) });
     const json = await response.json();
 
     expect(response.status).toBe(403);
@@ -56,7 +72,7 @@ describe('/api/admin/stats', () => {
   });
 
   it('returns transformed analytics for admin users', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
     mockFetchAnalytics.mockResolvedValue({
       overview: {
         totalUsers: 42,
@@ -69,7 +85,7 @@ describe('/api/admin/stats', () => {
       generatedAt: '2024-03-01T12:00:00.000Z',
     });
 
-    const response = await GET({} as any, { params: Promise.resolve({}) });
+    const response = await GET({} as NextRequest, { params: Promise.resolve({}) });
     const json = await response.json();
 
     expect(response.status).toBe(200);
@@ -86,7 +102,7 @@ describe('/api/admin/stats', () => {
   });
 
   it('allows super administrators', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'superAdmin' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'superAdmin' } } as MockSession);
     mockFetchAnalytics.mockResolvedValue({
       overview: {
         totalUsers: 1,
@@ -99,16 +115,16 @@ describe('/api/admin/stats', () => {
       generatedAt: '2024-01-01T00:00:00.000Z',
     });
 
-    const response = await GET({} as any, { params: Promise.resolve({}) });
+    const response = await GET({} as NextRequest, { params: Promise.resolve({}) });
 
     expect(response.status).toBe(200);
     expect(mockFetchAnalytics).toHaveBeenCalledTimes(1);
   });
 
   it('handles analytics fetch failures', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
     mockFetchAnalytics.mockRejectedValue(new Error('analytics unavailable'));
-    const response = await GET({} as any, { params: Promise.resolve({}) });
+    const response = await GET({} as NextRequest, { params: Promise.resolve({}) });
     const json = await response.json();
 
     expect(response.status).toBe(500);
@@ -122,10 +138,10 @@ describe('/api/admin/stats', () => {
   });
 
   it('returns 504 when analytics fetching times out', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
     mockFetchAnalytics.mockRejectedValue(new RequestTimeoutError('Fetching admin stats timed out'));
 
-    const response = await GET({} as any, { params: Promise.resolve({}) });
+    const response = await GET({} as NextRequest, { params: Promise.resolve({}) });
     const json = await response.json();
 
     expect(response.status).toBe(504);
@@ -142,7 +158,7 @@ describe('/api/admin/stats', () => {
   });
 
   it('rejects POST requests', async () => {
-    const response = await POST({} as any, { params: Promise.resolve({}) });
+    const response = await POST({} as NextRequest, { params: Promise.resolve({}) });
     const json = await response.json();
 
     expect(response.status).toBe(405);

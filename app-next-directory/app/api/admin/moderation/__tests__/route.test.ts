@@ -1,4 +1,7 @@
 import { beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import type { NextRequest } from 'next/server';
+import type { Session } from 'next-auth';
+import type { UserRole } from '@/types/auth';
 
 jest.mock('@/lib/auth', () => ({
   __esModule: true,
@@ -27,6 +30,19 @@ const mockFetchQueue = analyticsMockModule.fetchModerationQueue;
 const mockSummarize = analyticsMockModule.summarizeModerationQueue;
 const mockPerformAction = analyticsMockModule.performModerationAction;
 
+// Helper type for mock session
+type MockSession = Session & {
+  user: {
+    role?: UserRole;
+  };
+};
+
+// Helper type for mock request
+interface MockRequest extends Partial<NextRequest> {
+  url?: string;
+  json?: () => Promise<unknown>;
+}
+
 beforeAll(async () => {
   ({ GET, POST } = await import('../route'));
 });
@@ -40,8 +56,8 @@ describe('/api/admin/moderation', () => {
   });
 
   it('requires admin role for GET', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'user' } } as any);
-    const request = { url: 'https://example.com/api/admin/moderation' } as any;
+    mockAuth.mockResolvedValue({ user: { role: 'user' } } as MockSession);
+    const request = { url: 'https://example.com/api/admin/moderation' } as MockRequest as NextRequest;
 
     const response = await GET(request, { params: Promise.resolve({}) });
     const json = await response.json();
@@ -52,7 +68,7 @@ describe('/api/admin/moderation', () => {
   });
 
   it('returns moderation queue with optional summary', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
     mockFetchQueue.mockResolvedValue([
       {
         id: 'queue-123',
@@ -66,7 +82,7 @@ describe('/api/admin/moderation', () => {
     ]);
     mockSummarize.mockResolvedValue({ queueSize: 1, oldestItemAgeHours: 12 });
 
-    const request = { url: 'https://example.com/api/admin/moderation?summary=true&limit=5' } as any;
+    const request = { url: 'https://example.com/api/admin/moderation?summary=true&limit=5' } as MockRequest as NextRequest;
     const response = await GET(request, { params: Promise.resolve({}) });
     const json = await response.json();
 
@@ -77,10 +93,10 @@ describe('/api/admin/moderation', () => {
   });
 
   it('falls back to default limit and skips summary when not requested', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
     mockFetchQueue.mockResolvedValue([]);
 
-    const request = { url: 'https://example.com/api/admin/moderation?limit=invalid' } as any;
+    const request = { url: 'https://example.com/api/admin/moderation?limit=invalid' } as MockRequest as NextRequest;
     const response = await GET(request, { params: Promise.resolve({}) });
 
     expect(response.status).toBe(200);
@@ -89,10 +105,10 @@ describe('/api/admin/moderation', () => {
   });
 
   it('returns 500 when fetching the moderation queue fails', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
     mockFetchQueue.mockRejectedValue(new Error('network down'));
 
-    const response = await GET({ url: 'https://example.com/api/admin/moderation' } as any, {
+    const response = await GET({ url: 'https://example.com/api/admin/moderation' } as MockRequest as NextRequest, {
       params: Promise.resolve({}),
     });
     const json = await response.json();
@@ -102,11 +118,11 @@ describe('/api/admin/moderation', () => {
   });
 
   it('rejects missing moderationId on POST', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
 
     const request = {
       json: () => Promise.resolve({ action: 'approve' }),
-    } as any;
+    } as MockRequest as NextRequest;
 
     const response = await POST(request, { params: Promise.resolve({}) });
     const json = await response.json();
@@ -116,10 +132,10 @@ describe('/api/admin/moderation', () => {
   });
 
   it('requires admin role for POST', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'user' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'user' } } as MockSession);
 
     const response = await POST(
-      { json: () => Promise.resolve({ moderationId: '1', action: 'approve' }) } as any,
+      { json: () => Promise.resolve({ moderationId: '1', action: 'approve' }) } as MockRequest as NextRequest,
       {
         params: Promise.resolve({}),
       }
@@ -130,10 +146,10 @@ describe('/api/admin/moderation', () => {
   });
 
   it('validates required action fields', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
 
     const missingAction = await POST(
-      { json: () => Promise.resolve({ moderationId: 'queue-1' }) } as any,
+      { json: () => Promise.resolve({ moderationId: 'queue-1' }) } as MockRequest as NextRequest,
       { params: Promise.resolve({}) }
     );
     const missingJson = await missingAction.json();
@@ -141,7 +157,7 @@ describe('/api/admin/moderation', () => {
     expect(missingJson.error).toBe('action is required');
 
     const unsupported = await POST(
-      { json: () => Promise.resolve({ moderationId: 'queue-1', action: 'unknown' }) } as any,
+      { json: () => Promise.resolve({ moderationId: 'queue-1', action: 'unknown' }) } as MockRequest as NextRequest,
       { params: Promise.resolve({}) }
     );
     const unsupportedJson = await unsupported.json();
@@ -150,20 +166,20 @@ describe('/api/admin/moderation', () => {
   });
 
   it('handles malformed POST bodies and unexpected failures', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
 
-    const malformed = await POST({ json: () => Promise.reject(new Error('parse error')) } as any, {
+    const malformed = await POST({ json: () => Promise.reject(new Error('parse error')) } as MockRequest as NextRequest, {
       params: Promise.resolve({}),
     });
     const malformedJson = await malformed.json();
     expect(malformed.status).toBe(400);
     expect(malformedJson.error).toBe('moderationId is required');
 
-    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
     mockPerformAction.mockRejectedValue(new Error('action failed'));
 
     const response = await POST(
-      { json: () => Promise.resolve({ moderationId: 'queue-1', action: 'approve' }) } as any,
+      { json: () => Promise.resolve({ moderationId: 'queue-1', action: 'approve' }) } as MockRequest as NextRequest,
       { params: Promise.resolve({}) }
     );
     const json = await response.json();
@@ -172,7 +188,7 @@ describe('/api/admin/moderation', () => {
   });
 
   it('applies moderation action', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'superAdmin', id: 'admin-1' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'superAdmin', id: 'admin-1' } } as MockSession);
     mockPerformAction.mockResolvedValue({
       id: 'queue-123',
       itemType: 'listing',
@@ -185,7 +201,7 @@ describe('/api/admin/moderation', () => {
 
     const request = {
       json: () => Promise.resolve({ moderationId: 'queue-123', action: 'approve' }),
-    } as any;
+    } as MockRequest as NextRequest;
 
     const response = await POST(request, { params: Promise.resolve({}) });
     const json = await response.json();
@@ -202,14 +218,14 @@ describe('/api/admin/moderation', () => {
   });
 
   it('defaults actor id when session user id is missing', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
     mockPerformAction.mockResolvedValue({ id: 'queue-1', status: 'flagged' });
 
     const response = await POST(
       {
         json: () =>
           Promise.resolve({ moderationId: 'queue-1', action: 'flag', notes: 'Check later' }),
-      } as any,
+      } as MockRequest as NextRequest,
       { params: Promise.resolve({}) }
     );
 

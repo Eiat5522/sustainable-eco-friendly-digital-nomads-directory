@@ -1,4 +1,7 @@
 import { beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import type { NextRequest } from 'next/server';
+import type { Session } from 'next-auth';
+import type { UserRole } from '@/types/auth';
 
 jest.mock('@/lib/auth', () => ({
   __esModule: true,
@@ -47,6 +50,19 @@ const mockSet = clientMockModule.__mock.setMock;
 const mockCommit = clientMockModule.__mock.commitMock;
 const mockDelete = clientMockModule.__mock.deleteMock;
 
+// Helper type for mock session
+type MockSession = Session & {
+  user: {
+    role?: UserRole;
+  };
+};
+
+// Helper type for mock request
+interface MockRequest extends Partial<NextRequest> {
+  url?: string;
+  json?: () => Promise<unknown>;
+}
+
 beforeAll(async () => {
   ({ GET, PATCH, DELETE } = await import('../route'));
 });
@@ -67,9 +83,9 @@ describe('/api/admin/listings', () => {
 
   describe('GET', () => {
     it('requires admin access', async () => {
-      mockAuth.mockResolvedValue({ user: { role: 'user' } } as any);
+      mockAuth.mockResolvedValue({ user: { role: 'user' } } as MockSession);
 
-      const request = { url: 'https://example.com/api/admin/listings' } as any;
+      const request = { url: 'https://example.com/api/admin/listings' } as MockRequest as NextRequest;
       const response = await GET(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -79,7 +95,7 @@ describe('/api/admin/listings', () => {
     });
 
     it('returns filtered listing list with pagination metadata', async () => {
-      mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+      mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
       mockFetch.mockResolvedValueOnce([
         {
           _id: 'listing-1',
@@ -96,7 +112,7 @@ describe('/api/admin/listings', () => {
       ]);
       mockFetch.mockResolvedValueOnce(1);
 
-      const request = { url: 'https://example.com/api/admin/listings?page=1&limit=20' } as any;
+      const request = { url: 'https://example.com/api/admin/listings?page=1&limit=20' } as MockRequest as NextRequest;
       const response = await GET(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -117,11 +133,11 @@ describe('/api/admin/listings', () => {
     });
 
     it('handles search filter', async () => {
-      mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+      mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
       mockFetch.mockResolvedValueOnce([]);
       mockFetch.mockResolvedValueOnce(0);
 
-      const request = { url: 'https://example.com/api/admin/listings?search=cafe' } as any;
+      const request = { url: 'https://example.com/api/admin/listings?search=cafe' } as MockRequest as NextRequest;
       const response = await GET(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -132,11 +148,11 @@ describe('/api/admin/listings', () => {
 
   describe('PATCH', () => {
     it('requires admin access', async () => {
-      mockAuth.mockResolvedValue({ user: { role: 'user' } } as any);
+      mockAuth.mockResolvedValue({ user: { role: 'user' } } as MockSession);
 
       const request = {
         json: async () => ({ listingId: 'listing-1', action: 'publish' }),
-      } as any;
+      } as MockRequest as NextRequest;
       const response = await PATCH(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -145,11 +161,11 @@ describe('/api/admin/listings', () => {
     });
 
     it('updates listing status to published', async () => {
-      mockAuth.mockResolvedValue({ user: { id: 'admin-1', role: 'admin' } } as any);
+      mockAuth.mockResolvedValue({ user: { id: 'admin-1', role: 'admin' } } as MockSession);
 
       const request = {
         json: async () => ({ listingId: 'listing-1', action: 'publish' }),
-      } as any;
+      } as MockRequest as NextRequest;
       const response = await PATCH(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -160,11 +176,11 @@ describe('/api/admin/listings', () => {
     });
 
     it('suspends listing', async () => {
-      mockAuth.mockResolvedValue({ user: { id: 'admin-1', role: 'admin' } } as any);
+      mockAuth.mockResolvedValue({ user: { id: 'admin-1', role: 'admin' } } as MockSession);
 
       const request = {
         json: async () => ({ listingId: 'listing-1', action: 'suspend' }),
-      } as any;
+      } as MockRequest as NextRequest;
       const response = await PATCH(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -173,11 +189,11 @@ describe('/api/admin/listings', () => {
     });
 
     it('returns error for missing listingId', async () => {
-      mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+      mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
 
       const request = {
         json: async () => ({ action: 'publish' }),
-      } as any;
+      } as MockRequest as NextRequest;
       const response = await PATCH(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -186,11 +202,11 @@ describe('/api/admin/listings', () => {
     });
 
     it('returns error for invalid action', async () => {
-      mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+      mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
 
       const request = {
         json: async () => ({ listingId: 'listing-1', action: 'invalid' }),
-      } as any;
+      } as MockRequest as NextRequest;
       const response = await PATCH(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -201,11 +217,11 @@ describe('/api/admin/listings', () => {
 
   describe('DELETE', () => {
     it('requires admin access', async () => {
-      mockAuth.mockResolvedValue({ user: { role: 'user' } } as any);
+      mockAuth.mockResolvedValue({ user: { role: 'user' } } as MockSession);
 
       const request = {
         json: async () => ({ listingId: 'listing-1' }),
-      } as any;
+      } as MockRequest as NextRequest;
       const response = await DELETE(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -214,11 +230,11 @@ describe('/api/admin/listings', () => {
     });
 
     it('deletes listing', async () => {
-      mockAuth.mockResolvedValue({ user: { id: 'admin-1', role: 'admin' } } as any);
+      mockAuth.mockResolvedValue({ user: { id: 'admin-1', role: 'admin' } } as MockSession);
 
       const request = {
         json: async () => ({ listingId: 'listing-1' }),
-      } as any;
+      } as MockRequest as NextRequest;
       const response = await DELETE(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -228,11 +244,11 @@ describe('/api/admin/listings', () => {
     });
 
     it('returns error for missing listingId', async () => {
-      mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+      mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
 
       const request = {
         json: async () => ({}),
-      } as any;
+      } as MockRequest as NextRequest;
       const response = await DELETE(request, { params: Promise.resolve({}) });
       const json = await response.json();
 

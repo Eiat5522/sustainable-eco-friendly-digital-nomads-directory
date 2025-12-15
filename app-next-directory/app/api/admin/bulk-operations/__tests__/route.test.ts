@@ -1,4 +1,7 @@
 import { beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import type { NextRequest } from 'next/server';
+import type { Session } from 'next-auth';
+import type { UserRole } from '@/types/auth';
 
 jest.mock('@/lib/auth', () => ({
   __esModule: true,
@@ -21,6 +24,19 @@ let POST: typeof import('../route').POST;
 const mockAuth = authMockModule.auth;
 const mockRunBulk = analyticsMockModule.runBulkOperation;
 
+// Helper type for mock session
+type MockSession = Session & {
+  user: {
+    role?: UserRole;
+  };
+};
+
+// Helper type for mock request
+interface MockRequest extends Partial<NextRequest> {
+  url?: string;
+  json?: () => Promise<unknown>;
+}
+
 beforeAll(async () => {
   ({ GET, POST } = await import('../route'));
 });
@@ -32,9 +48,9 @@ describe('/api/admin/bulk-operations', () => {
   });
 
   it('requires admin for GET', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'user' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'user' } } as MockSession);
 
-    const response = await GET({} as any, { params: Promise.resolve({}) });
+    const response = await GET({} as NextRequest, { params: Promise.resolve({}) });
     const json = await response.json();
 
     expect(response.status).toBe(403);
@@ -44,7 +60,7 @@ describe('/api/admin/bulk-operations', () => {
   it('returns 500 if fetching operations throws', async () => {
     mockAuth.mockRejectedValue(new Error('auth fail'));
 
-    const response = await GET({} as any, { params: Promise.resolve({}) });
+    const response = await GET({} as NextRequest, { params: Promise.resolve({}) });
     const json = await response.json();
 
     expect(response.status).toBe(500);
@@ -52,9 +68,9 @@ describe('/api/admin/bulk-operations', () => {
   });
 
   it('lists available operations', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
 
-    const response = await GET({} as any, { params: Promise.resolve({}) });
+    const response = await GET({} as NextRequest, { params: Promise.resolve({}) });
     const json = await response.json();
 
     expect(response.status).toBe(200);
@@ -65,13 +81,13 @@ describe('/api/admin/bulk-operations', () => {
   });
 
   it('rejects unsupported operation', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
 
     const request = {
       json: () => Promise.resolve({ operation: 'unknown', ids: ['1'] }),
-    } as any;
+    } as MockRequest;
 
-    const response = await POST(request, { params: Promise.resolve({}) });
+    const response = await POST(request as NextRequest, { params: Promise.resolve({}) });
     const json = await response.json();
 
     expect(response.status).toBe(400);
@@ -79,18 +95,18 @@ describe('/api/admin/bulk-operations', () => {
   });
 
   it('requires authentication and validates payload', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'user' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'user' } } as MockSession);
 
     const forbidden = await POST(
-      { json: () => Promise.resolve({ operation: 'publishListings', ids: ['1'] }) } as any,
+      { json: () => Promise.resolve({ operation: 'publishListings', ids: ['1'] }) } as MockRequest as NextRequest,
       {
         params: Promise.resolve({}),
       }
     );
     expect(forbidden.status).toBe(403);
 
-    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
-    const missingOperation = await POST({ json: () => Promise.resolve({ ids: ['1'] }) } as any, {
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
+    const missingOperation = await POST({ json: () => Promise.resolve({ ids: ['1'] }) } as MockRequest as NextRequest, {
       params: Promise.resolve({}),
     });
     const missingOperationJson = await missingOperation.json();
@@ -98,7 +114,7 @@ describe('/api/admin/bulk-operations', () => {
     expect(missingOperationJson.error).toBe('operation is required');
 
     const missingIds = await POST(
-      { json: () => Promise.resolve({ operation: 'publishListings', ids: [] }) } as any,
+      { json: () => Promise.resolve({ operation: 'publishListings', ids: [] }) } as MockRequest as NextRequest,
       {
         params: Promise.resolve({}),
       }
@@ -109,11 +125,11 @@ describe('/api/admin/bulk-operations', () => {
   });
 
   it('limits the number of ids and filters invalid entries', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
 
     const overLimitIds = Array.from({ length: 1001 }, (_, i) => `id-${i}`);
     const overLimit = await POST(
-      { json: () => Promise.resolve({ operation: 'publishListings', ids: overLimitIds }) } as any,
+      { json: () => Promise.resolve({ operation: 'publishListings', ids: overLimitIds }) } as MockRequest as NextRequest,
       {
         params: Promise.resolve({}),
       }
@@ -125,14 +141,14 @@ describe('/api/admin/bulk-operations', () => {
     const request = {
       json: () =>
         Promise.resolve({ operation: 'publishListings', ids: ['  listing-1  ', '', 'listing-2'] }),
-    } as any;
+    } as MockRequest;
     mockRunBulk.mockResolvedValue({
       operation: 'publishListings',
       total: 2,
       succeeded: 2,
       failed: [],
     });
-    const response = await POST(request, { params: Promise.resolve({}) });
+    const response = await POST(request as NextRequest, { params: Promise.resolve({}) });
     expect(response.status).toBe(200);
     expect(mockRunBulk).toHaveBeenCalledWith({
       operation: 'publishListings',
@@ -141,7 +157,7 @@ describe('/api/admin/bulk-operations', () => {
   });
 
   it('runs bulk operation', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'superAdmin' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'superAdmin' } } as MockSession);
     mockRunBulk.mockResolvedValue({
       operation: 'publishListings',
       total: 2,
@@ -152,9 +168,9 @@ describe('/api/admin/bulk-operations', () => {
     const request = {
       json: () =>
         Promise.resolve({ operation: 'publishListings', ids: ['listing-1', 'listing-2'] }),
-    } as any;
+    } as MockRequest;
 
-    const response = await POST(request, { params: Promise.resolve({}) });
+    const response = await POST(request as NextRequest, { params: Promise.resolve({}) });
     const json = await response.json();
 
     expect(response.status).toBe(200);
@@ -166,19 +182,19 @@ describe('/api/admin/bulk-operations', () => {
   });
 
   it('handles bulk operation failures and malformed requests', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
 
-    const malformed = await POST({ json: () => Promise.reject(new Error('parse error')) } as any, {
+    const malformed = await POST({ json: () => Promise.reject(new Error('parse error')) } as MockRequest as NextRequest, {
       params: Promise.resolve({}),
     });
     const malformedJson = await malformed.json();
     expect(malformed.status).toBe(400);
     expect(malformedJson.error).toBe('operation is required');
 
-    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
     mockRunBulk.mockRejectedValue(new Error('bulk failure'));
     const response = await POST(
-      { json: () => Promise.resolve({ operation: 'publishListings', ids: ['listing-1'] }) } as any,
+      { json: () => Promise.resolve({ operation: 'publishListings', ids: ['listing-1'] }) } as MockRequest as NextRequest,
       { params: Promise.resolve({}) }
     );
     const json = await response.json();
