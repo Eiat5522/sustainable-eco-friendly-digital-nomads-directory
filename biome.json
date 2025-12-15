@@ -63,11 +63,12 @@
         "noUnusedVariables": "warn",
         "useExhaustiveDependencies": "warn",
         "noInvalidUseBeforeDeclaration": "error",
-        "noVoidTypeReturn": "off",
-        "noUnsafeFinally": "warn"
+        "noVoidTypeReturn": "warn",
+        "noUnsafeFinally": "warn",
+        "noUnusedFunctionParameters": "warn"
       },
       "style": {
-        "noNonNullAssertion": "off",
+        "noNonNullAssertion": "error",
         "useTemplate": "off",
         "noParameterAssign": "off"
       },
@@ -87,7 +88,7 @@
         "useIterableCallbackReturn": "off",
         "noGlobalIsNan": "off",
         "noAssignInExpressions": "off",
-        "noFocusedTests": "off"
+        "noFocusedTests": "error"
       },
       "security": {
         "noDangerouslySetInnerHtml": "warn"
@@ -96,7 +97,29 @@
   },
   "overrides": [
     {
-      "includes": ["**/*.test.*", "**/__tests__/**/*", "**/tests/**/*"],
+      "includes": [
+        "**/*.test.*",
+        "**/__tests__/**/*",
+        "**/tests/**/*"
+      ],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "error",
+            "noConsole": "warn",
+            "noFocusedTests": "error"
+          },
+          "correctness": {
+            "noUnusedVariables": "warn",
+            "noUnusedFunctionParameters": "warn"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "**/__mocks__/**/*"
+      ],
       "linter": {
         "rules": {
           "suspicious": {
@@ -111,23 +134,9 @@
       }
     },
     {
-      "includes": ["**/__mocks__/**/*"],
-      "linter": {
-        "rules": {
-          "suspicious": {
-            "noExplicitAny": "error",
-            "noConsole": "warn"
-          },
-          "correctness": {
-            "noUnusedVariables": "warn",
-            "noUnusedFunctionParameters": "warn"
-          }
-        }
-      }
-    },
-
-    {
-      "includes": ["**/*.d.ts"],
+      "includes": [
+        "**/*.d.ts"
+      ],
       "linter": {
         "rules": {
           "suspicious": {
@@ -140,7 +149,9 @@
       }
     },
     {
-      "includes": ["**/scripts/**/*"],
+      "includes": [
+        "**/scripts/**/*"
+      ],
       "linter": {
         "rules": {
           "suspicious": {
@@ -150,7 +161,11 @@
       }
     },
     {
-      "includes": ["**/InteractiveMap.tsx", "**/e2e/**/*", "**/http/request.ts"],
+      "includes": [
+        "**/InteractiveMap.tsx",
+        "**/e2e/**/*",
+        "**/http/request.ts"
+      ],
       "linter": {
         "rules": {
           "suspicious": {
@@ -160,7 +175,10 @@
       }
     },
     {
-      "includes": ["**/jest.setup.ts", "**/*.config.*"],
+      "includes": [
+        "**/jest.setup.ts",
+        "**/*.config.*"
+      ],
       "linter": {
         "rules": {
           "suspicious": {
@@ -170,7 +188,11 @@
       }
     },
     {
-      "includes": ["**/instrumentation.ts", "**/logger.ts", "**/alert-service.ts"],
+      "includes": [
+        "**/instrumentation.ts",
+        "**/logger.ts",
+        "**/alert-service.ts"
+      ],
       "linter": {
         "rules": {
           "suspicious": {
@@ -180,7 +202,9 @@
       }
     },
     {
-      "includes": ["**/*.css"],
+      "includes": [
+        "**/*.css"
+      ],
       "css": {
         "parser": {
           "cssModules": true,

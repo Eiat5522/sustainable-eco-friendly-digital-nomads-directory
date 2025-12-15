@@ -6,14 +6,16 @@ test.describe('Authentication (Playwright)', () => {
     await page.goto(to);
 
     const unique = `${Date.now()}-${test.info().workerIndex}-${Math.random().toString(36).slice(2, 8)}`;
-    const signupSection = page.getByRole('heading', { name: /^sign up$/i }).locator('..');
-    await signupSection.getByLabel(/name/i).fill('Test User');
-    await signupSection.getByLabel(/email/i).fill(`test+${unique}@example.com`);
-    await signupSection.getByLabel(/password/i).fill('Password_123!Aa');
+    const signupButton = page.getByRole('button', { name: /^sign up$/i }).first();
+    const signupForm = page.locator('form').filter({ has: signupButton }).first();
+
+    await signupForm.getByLabel('Name', { exact: true }).fill('Test User');
+    await signupForm.getByLabel('Email', { exact: true }).fill(`test+${unique}@example.com`);
+    await signupForm.getByLabel('Password', { exact: true }).fill('Password_123!Aa');
 
     await Promise.all([
       page.waitForURL('**/', { waitUntil: 'domcontentloaded' }),
-      page.getByRole('button', { name: /sign up/i }).click(),
+      signupButton.click(),
     ]);
 
     await expect(page).toHaveURL(/\/$/);

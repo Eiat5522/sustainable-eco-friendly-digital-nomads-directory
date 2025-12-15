@@ -26,21 +26,68 @@ const eslintConfig = [
       '**/playwright-report/**',
       '**/test-results/**',
       'tsconfig.test.json',
-      '../sanity/**',
+      './sanity/**',
       '**/.env*',
       '**/next-env.d.ts',
     ],
   },
+
+  // Next.js + TypeScript baseline (already includes @typescript-eslint rules).
   ...compat.extends('next/core-web-vitals', 'next/typescript'),
+
+  // Help eslint-plugin-next resolve the project root correctly in monorepos
   {
-    // Help eslint-plugin-next resolve the project root correctly in monorepos
     settings: {
       next: {
-        // You can also set this to an array of roots if needed
         rootDir: __dirname,
       },
     },
   },
+
+  // Enable type-aware linting (required for many of the strongest TS rules).
+  // NOTE: this requires your ESLint setup to be able to load your tsconfig.
+  {
+    files: ['**/*.{ts,tsx,mts,cts}'],
+    languageOptions: {
+      parserOptions: {
+        // If you're on typescript-eslint v7+, ESLint will auto-detect this correctly.
+        // If you hit performance issues, consider setting `project` to a specific tsconfig instead.
+        project: true,
+        tsconfigRootDir: __dirname,
+      },
+    },
+    rules: {
+      // Core: block unsafeness
+      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-unsafe-assignment': 'error',
+      '@typescript-eslint/no-unsafe-argument': 'error',
+      '@typescript-eslint/no-unsafe-call': 'error',
+      '@typescript-eslint/no-unsafe-member-access': 'error',
+      '@typescript-eslint/no-unsafe-return': 'error',
+
+      // Promises / async correctness
+      '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/no-misused-promises': 'error',
+      '@typescript-eslint/await-thenable': 'error',
+      '@typescript-eslint/promise-function-async': 'error',
+
+      // Narrowing / correctness
+      '@typescript-eslint/no-unnecessary-condition': 'error',
+      '@typescript-eslint/no-unnecessary-type-assertion': 'error',
+      '@typescript-eslint/switch-exhaustiveness-check': 'error',
+
+      // Imports / consistency
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        { prefer: 'type-imports', disallowTypeAnnotations: false, fixStyle: 'separate-type-imports' },
+      ],
+
+      // Make “unsafe escapes” explicit (avoid `!`, `as`, etc.)
+      '@typescript-eslint/no-non-null-assertion': 'error',
+    },
+  },
+
+  // Your local rule(s) + general stricter defaults
   {
     plugins: {
       'local-react-strictness': {
@@ -50,7 +97,6 @@ const eslintConfig = [
       },
     },
     rules: {
-      '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': [
         'warn',
         {
@@ -60,22 +106,32 @@ const eslintConfig = [
         },
       ],
       '@typescript-eslint/ban-ts-comment': [
-        'warn',
-        { 'ts-expect-error': 'allow-with-description', minimumDescriptionLength: 3 },
+        'error',
+        { 'ts-expect-error': 'allow-with-description', minimumDescriptionLength: 10 },
       ],
-      '@typescript-eslint/no-empty-object-type': 'warn',
+      '@typescript-eslint/no-empty-object-type': 'error',
       '@typescript-eslint/prefer-as-const': 'warn',
-      '@typescript-eslint/no-require-imports': 'warn',
-      'react-hooks/rules-of-hooks': 'warn',
+      '@typescript-eslint/no-require-imports': 'error',
+
+      // React
+      'react-hooks/rules-of-hooks': 'error',
       'react/no-unescaped-entities': 'warn',
-      'react/display-name': 'warn',
-      '@next/next/no-html-link-for-pages': 'warn',
-      'import/no-anonymous-default-export': 'warn',
-      'no-var': 'warn',
-      'prefer-const': 'warn',
-      'react/jsx-key': 'warn',
+      'react/display-name': 'off',
+      'react/jsx-key': 'error',
       'react/jsx-no-comment-textnodes': 'warn',
+
+      // Next.js
+      '@next/next/no-html-link-for-pages': 'warn',
+
+      // JS hygiene
+      'import/no-anonymous-default-export': 'warn',
+      'no-var': 'error',
+      'prefer-const': 'warn',
+
+      // Your custom strictness
       'local-react-strictness/require-react-fc-type-parameters': 'warn',
+
+      // Naming (keep your existing allow-list)
       camelcase: [
         'error',
         {
@@ -96,17 +152,22 @@ const eslintConfig = [
       ],
     },
   },
+
+  // Tests: keep strict types, but relax a few ergonomics.
   {
     files: ['**/*.test.*', '**/__tests__/**/*', '**/tests/**/*'],
     rules: {
       '@typescript-eslint/no-require-imports': 'off',
-      '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/ban-ts-comment': 'off',
-      '@typescript-eslint/no-unused-vars': 'off',
-      'react/display-name': 'off',
-      'react-hooks/rules-of-hooks': 'off',
+      '@typescript-eslint/ban-ts-comment': [
+        'error',
+        { 'ts-expect-error': 'allow-with-description', minimumDescriptionLength: 3 },
+      ],
+      // If you want to allow `any` only in tests, flip this to 'warn' or 'off'.
+      '@typescript-eslint/no-explicit-any': 'error',
     },
   },
+
+  // Declaration files: avoid noisy lint (these often need looser typing)
   {
     files: ['**/*.d.ts'],
     rules: {
@@ -116,17 +177,20 @@ const eslintConfig = [
       'no-var': 'off',
     },
   },
+
+  // Mocks: allow CommonJS and small shortcuts
   {
     files: ['**/__mocks__/**/*'],
     rules: {
       '@typescript-eslint/no-unused-vars': 'off',
-      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-require-imports': 'off',
       'import/no-anonymous-default-export': 'off',
     },
   },
+
+  // CommonJS files (.cjs) and root-level scripts should use require()
   {
-    // CommonJS files (.cjs) and root-level test/debug scripts should use require()
     files: [
       '**/*.cjs',
       'test-*.js',
@@ -143,6 +207,8 @@ const eslintConfig = [
       '@typescript-eslint/no-explicit-any': 'warn',
     },
   },
+
+  // Generated file (keep your existing exception)
   {
     files: ['./sanity.types.ts'],
     rules: {
@@ -150,4 +216,5 @@ const eslintConfig = [
     },
   },
 ];
+
 export default eslintConfig;
