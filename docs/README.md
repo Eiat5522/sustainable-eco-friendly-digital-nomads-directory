@@ -1,7 +1,7 @@
 # 📚 Documentation Hub - Consolidated & Organized
 
-**Last Updated**: December 26, 2024  
-**Status**: ✅ FULLY CONSOLIDATED DOCUMENTATION STRUCTURE  
+**Last Updated**: December 15, 2025
+**Status**: ✅ CONSOLIDATED & STREAMLINED (legacy docs archived)
 
 This is the **central documentation hub** for the **Sustainable Eco-Friendly Digital Nomads Directory** monorepo, featuring consolidated, comprehensive guides for all aspects of the project.
 
@@ -19,6 +19,11 @@ This is the **central documentation hub** for the **Sustainable Eco-Friendly Dig
 - **[🧪 Testing Guide](testing/README.md)** - 120+ E2E tests, unit tests, and testing strategies
 - **[🚀 Deployment Guide](deployment/README.md)** - Production deployment and operations
 - **[🗂️ Reference Library](reference/README.md)** - Changelog, contribution workflow, and historical consolidation reports
+
+### **🗄️ Archived Legacy Docs (Read-Only)**
+- **[archieve_15Dec2025/docs/root](../archieve_15Dec2025/docs/root)** - Historical root-level guides (deprecated duplicates)
+- **[archieve_15Dec2025/docs/app-next-directory](../archieve_15Dec2025/docs/app-next-directory)** - Legacy Next.js workspace guides superseded by consolidated docs
+- **[archieve_15Dec2025/app-next-directory/docs](../archieve_15Dec2025/app-next-directory/docs)** - Old Next.js 16 upgrade/testing playbooks no longer needed
 
 ### **🐛 Troubleshooting & Error Tracking**
 - **[📋 Console Errors Classification](CONSOLE_ERRORS_CLASSIFICATION.md)** - Comprehensive error classification and prioritization
