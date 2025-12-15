@@ -27,8 +27,8 @@ jest.mock('@hookform/resolvers/zod', () => {
   return {
     ...actual,
     zodResolver: (schema: unknown, ...rest: unknown[]) => {
-      const baseResolver = actual.zodResolver(schema as any, ...rest);
-      return async (values: any, context: any, options: any) => {
+      const baseResolver = actual.zodResolver(schema as Parameters<typeof actual.zodResolver>[0], ...rest);
+      return async (values: Record<string, unknown>, context: unknown, options: unknown) => {
         const result = await baseResolver(values, context, options);
         return {
           ...result,
@@ -42,7 +42,7 @@ jest.mock('@hookform/resolvers/zod', () => {
 jest.mock('@/components/ui/select', () => {
   const React = require('react') as typeof import('react');
 
-  const SelectItemComponent = ({ value, children }: any) => (
+  const SelectItemComponent = ({ value, children }: { value: string; children?: React.ReactNode }) => (
     <option value={value}>{children}</option>
   );
 
@@ -71,7 +71,7 @@ jest.mock('@/components/ui/select', () => {
     return result;
   };
 
-  const Select = ({ defaultValue, value, onValueChange, children }: any) => {
+  const Select = ({ defaultValue, value, onValueChange, children }: { defaultValue?: string; value?: string; onValueChange?: (value: string) => void; children?: React.ReactNode }) => {
     const [current, setCurrent] = React.useState(value ?? defaultValue ?? '');
 
     React.useEffect(() => {
@@ -95,8 +95,8 @@ jest.mock('@/components/ui/select', () => {
     );
   };
 
-  const SelectTrigger = ({ children }: any) => <>{children}</>;
-  const SelectContent = ({ children }: any) => <>{children}</>;
+  const SelectTrigger = ({ children }: { children?: React.ReactNode }) => <>{children}</>;
+  const SelectContent = ({ children }: { children?: React.ReactNode }) => <>{children}</>;
   const SelectValue = () => null;
 
   return {

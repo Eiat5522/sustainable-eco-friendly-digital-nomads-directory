@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import type { NextRequest } from 'next/server';
 import { structuredLogger } from '@/lib/logger';
 import { _createAnalyticsHandler as createAnalyticsHandler } from './route';
 
@@ -31,8 +32,8 @@ describe('/api/user/analytics GET', () => {
     structuredLoggerSpy = jest.spyOn(structuredLogger, 'error').mockImplementation(() => undefined);
 
     GET = createAnalyticsHandler({
-      authFn: authMock as any,
-      fetchDashboard: fetchDashboardMock as any,
+      authFn: authMock as jest.Mock,
+      fetchDashboard: fetchDashboardMock as jest.Mock,
       logger: loggerMock,
     });
   });
@@ -45,7 +46,7 @@ describe('/api/user/analytics GET', () => {
   it('returns 401 for unauthenticated requests', async () => {
     authMock.mockResolvedValueOnce(null);
 
-    const response = await GET(createRequest('http://localhost/api/user/analytics') as any);
+    const response = await GET(createRequest('http://localhost/api/user/analytics') as NextRequest);
 
     expect(response.status).toBe(401);
     await expect(response.json()).resolves.toEqual({ error: 'Authentication required' });
@@ -67,7 +68,7 @@ describe('/api/user/analytics GET', () => {
     fetchDashboardMock.mockResolvedValueOnce(dashboardPayload);
 
     const response = await GET(
-      createRequest('http://localhost/api/user/analytics?months=18') as any
+      createRequest('http://localhost/api/user/analytics?months=18') as NextRequest
     );
 
     expect(authMock).toHaveBeenCalled();
@@ -113,7 +114,7 @@ describe('/api/user/analytics GET', () => {
 
     fetchDashboardMock.mockResolvedValueOnce(dashboardPayload);
 
-    await GET(createRequest('http://localhost/api/user/analytics?months=abc') as any);
+    await GET(createRequest('http://localhost/api/user/analytics?months=abc') as NextRequest);
 
     expect(fetchDashboardMock).toHaveBeenCalledWith(expect.objectContaining({ id: 'user-456' }), {
       months: 3,
@@ -132,7 +133,7 @@ describe('/api/user/analytics GET', () => {
       },
     });
 
-    await GET(createRequest('http://localhost/api/user/analytics?months=0') as any);
+    await GET(createRequest('http://localhost/api/user/analytics?months=0') as NextRequest);
 
     expect(fetchDashboardMock).toHaveBeenCalledWith(expect.objectContaining({ id: 'user-456' }), {
       months: 1,
@@ -142,7 +143,7 @@ describe('/api/user/analytics GET', () => {
   it('returns 404 when analytics data is missing', async () => {
     fetchDashboardMock.mockResolvedValueOnce(null);
 
-    const response = await GET(createRequest('http://localhost/api/user/analytics') as any);
+    const response = await GET(createRequest('http://localhost/api/user/analytics') as NextRequest);
 
     expect(response.status).toBe(404);
     await expect(response.json()).resolves.toEqual({ error: 'Analytics unavailable' });
@@ -151,7 +152,7 @@ describe('/api/user/analytics GET', () => {
   it('maps venue owner dashboards into analytics summaries', async () => {
     authMock.mockResolvedValueOnce({
       user: { ...baseSession.user, role: 'venueOwner' },
-    } as any);
+    } as { user: typeof baseSession.user });
     const dashboardPayload = {
       user: { id: 'owner-1', role: 'venueOwner' },
       generatedAt: '2024-02-01T00:00:00.000Z',
@@ -178,7 +179,7 @@ describe('/api/user/analytics GET', () => {
     };
     fetchDashboardMock.mockResolvedValueOnce(dashboardPayload);
 
-    const response = await GET(createRequest('http://localhost/api/user/analytics') as any);
+    const response = await GET(createRequest('http://localhost/api/user/analytics') as NextRequest);
     const body = await response.json();
 
     expect(response.status).toBe(200);
@@ -203,7 +204,7 @@ describe('/api/user/analytics GET', () => {
     const failure = new Error('analytics failure');
     fetchDashboardMock.mockRejectedValueOnce(failure);
 
-    const response = await GET(createRequest('http://localhost/api/user/analytics') as any);
+    const response = await GET(createRequest('http://localhost/api/user/analytics') as NextRequest);
 
     expect(loggerMock.error).toHaveBeenCalledWith('[user-analytics] GET failed', failure, {
       route: '/api/user/analytics',
@@ -216,11 +217,11 @@ describe('/api/user/analytics GET', () => {
     fetchDashboardMock.mockRejectedValueOnce(new Error('analytics failure'));
 
     const handler = createAnalyticsHandler({
-      authFn: authMock as any,
-      fetchDashboard: fetchDashboardMock as any,
+      authFn: authMock as jest.Mock,
+      fetchDashboard: fetchDashboardMock as jest.Mock,
     });
 
-    const response = await handler(createRequest('http://localhost/api/user/analytics') as any);
+    const response = await handler(createRequest('http://localhost/api/user/analytics') as NextRequest);
 
     expect(structuredLoggerSpy).toHaveBeenCalledWith(
       '[user-analytics] GET failed',
@@ -231,7 +232,7 @@ describe('/api/user/analytics GET', () => {
   });
 
   it('uses default role and clears nullable fields when session omits optional properties', async () => {
-    authMock.mockResolvedValueOnce({ user: { id: 'bare-user' } } as any);
+    authMock.mockResolvedValueOnce({ user: { id: 'bare-user' } } as { user: { id: string } });
     fetchDashboardMock.mockResolvedValueOnce({
       user: { id: 'bare-user', role: 'user' },
       generatedAt: '2024-05-01T00:00:00.000Z',
@@ -243,7 +244,7 @@ describe('/api/user/analytics GET', () => {
       },
     });
 
-    await GET(createRequest('http://localhost/api/user/analytics') as any);
+    await GET(createRequest('http://localhost/api/user/analytics') as NextRequest);
 
     expect(fetchDashboardMock).toHaveBeenCalledWith(
       {

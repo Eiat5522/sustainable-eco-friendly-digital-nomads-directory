@@ -27,9 +27,9 @@ describe('/api/user/profile GET', () => {
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
     handlers = createProfileHandlers({
-      authFn: authMock as any,
-      getUserByIdFn: getUserByIdMock as any,
-      updateUserProfileFn: updateUserProfileMock as any,
+      authFn: authMock as jest.Mock,
+      getUserByIdFn: getUserByIdMock as jest.Mock,
+      updateUserProfileFn: updateUserProfileMock as jest.Mock,
     });
   });
 
@@ -107,9 +107,9 @@ describe('/api/user/profile PUT', () => {
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
     handlers = createProfileHandlers({
-      authFn: authMock as any,
-      getUserByIdFn: getUserByIdMock as any,
-      updateUserProfileFn: updateUserProfileMock as any,
+      authFn: authMock as jest.Mock,
+      getUserByIdFn: getUserByIdMock as jest.Mock,
+      updateUserProfileFn: updateUserProfileMock as jest.Mock,
     });
   });
 

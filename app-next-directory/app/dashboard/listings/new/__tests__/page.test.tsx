@@ -22,7 +22,7 @@ describe('NewListingPage', () => {
 
   beforeEach(() => {
     pushMock.mockReset();
-    (global as any).fetch = jest.fn();
+    (global as { fetch: jest.Mock }).fetch = jest.fn();
   });
 
   it('creates a new listing and navigates back to the listings dashboard on success', async () => {
