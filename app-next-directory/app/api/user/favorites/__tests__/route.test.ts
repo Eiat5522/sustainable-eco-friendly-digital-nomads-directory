@@ -8,22 +8,29 @@ const mockedCreateOrReplace = jest.fn();
 const mockedDelete = jest.fn();
 const mockedEnsureSanityUser = jest.fn();
 
-jest.mock('@/lib/auth', () => ({ auth: (...args: any[]) => mockedAuth(...args) }));
+jest.mock('@/lib/auth', () => ({ auth: (...args: unknown[]) => mockedAuth(...args) }));
 jest.mock('@/lib/sanity/client', () => ({
   client: {
-    fetch: (...args: any[]) => mockedFetch(...args),
-    createOrReplace: (...args: any[]) => mockedCreateOrReplace(...args),
-    delete: (...args: any[]) => mockedDelete(...args),
+    fetch: (...args: unknown[]) => mockedFetch(...args),
+    createOrReplace: (...args: unknown[]) => mockedCreateOrReplace(...args),
+    delete: (...args: unknown[]) => mockedDelete(...args),
   },
 }));
 jest.mock('@/lib/sanity/user', () => ({
-  ensureSanityUser: (...args: any[]) => mockedEnsureSanityUser(...args),
+  ensureSanityUser: (...args: unknown[]) => mockedEnsureSanityUser(...args),
 }));
 
-let GET: any;
-let POST: any;
-let DELETE: any;
-let routeTestControl: any;
+let GET: (request?: NextRequest) => Promise<Response>;
+let POST: (request: NextRequest) => Promise<Response>;
+let DELETE: (request: NextRequest) => Promise<Response>;
+let routeTestControl: {
+  authOverride?: () => Promise<unknown>;
+  clientFetchOverride?: (...args: unknown[]) => Promise<unknown>;
+  clientCreateOrReplaceOverride?: (...args: unknown[]) => Promise<unknown>;
+  clientDeleteOverride?: (...args: unknown[]) => Promise<unknown>;
+  ensureSanityUserOverride?: (...args: unknown[]) => Promise<unknown>;
+  parseBodyOverride?: (request: NextRequest) => Promise<{ slug: string }>;
+};
 
 describe('/api/user/favorites', () => {
   beforeEach(async () => {

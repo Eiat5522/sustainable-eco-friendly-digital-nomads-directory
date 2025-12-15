@@ -5,7 +5,7 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 const pushMock = jest.fn();
-let paramsValue: any = { id: 'listing-1' };
+let paramsValue: { id?: string } = { id: 'listing-1' };
 
 jest.mock('next/navigation', () => ({
   __esModule: true,
@@ -23,7 +23,7 @@ describe('EditListingPage', () => {
   beforeEach(() => {
     pushMock.mockReset();
     paramsValue = { id: 'listing-1' };
-    (global as any).fetch = jest.fn();
+    (global as { fetch: jest.Mock }).fetch = jest.fn();
   });
 
   it('loads the listing details and saves updates', async () => {

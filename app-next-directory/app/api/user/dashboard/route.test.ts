@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import type { NextRequest } from 'next/server';
 import { structuredLogger } from '@/lib/logger';
 import { createDashboardHandler, normalizeMonthWindow } from './route-helpers';
 
@@ -54,8 +55,8 @@ describe('/api/user/dashboard GET', () => {
     structuredLoggerSpy = jest.spyOn(structuredLogger, 'error').mockImplementation(() => undefined);
 
     GET = createDashboardHandler({
-      authFn: authMock as any,
-      fetchDashboard: fetchDashboardMock as any,
+      authFn: authMock as jest.Mock,
+      fetchDashboard: fetchDashboardMock as jest.Mock,
       logger: loggerMock,
     });
   });
@@ -68,7 +69,7 @@ describe('/api/user/dashboard GET', () => {
   it('returns 401 when no authenticated user is present', async () => {
     authMock.mockResolvedValueOnce(null);
 
-    const response = await GET(createRequest('http://localhost/api/user/dashboard') as any);
+    const response = await GET(createRequest('http://localhost/api/user/dashboard') as NextRequest);
 
     expect(response.status).toBe(401);
     await expect(response.json()).resolves.toEqual({ error: 'Authentication required' });
@@ -90,7 +91,7 @@ describe('/api/user/dashboard GET', () => {
     fetchDashboardMock.mockResolvedValueOnce(dashboardPayload);
 
     const response = await GET(
-      createRequest('http://localhost/api/user/dashboard?months=not-a-number') as any
+      createRequest('http://localhost/api/user/dashboard?months=not-a-number') as NextRequest
     );
 
     expect(authMock).toHaveBeenCalledTimes(1);
@@ -111,7 +112,7 @@ describe('/api/user/dashboard GET', () => {
     fetchDashboardMock.mockResolvedValueOnce({ dashboard: true });
 
     const response = await GET(
-      createRequest('http://localhost/api/user/dashboard?months=42') as any
+      createRequest('http://localhost/api/user/dashboard?months=42') as NextRequest
     );
 
     expect(authMock).toHaveBeenCalledTimes(1);
@@ -124,7 +125,7 @@ describe('/api/user/dashboard GET', () => {
   it('returns 404 when dashboard data is unavailable', async () => {
     fetchDashboardMock.mockResolvedValueOnce(null);
 
-    const response = await GET(createRequest('http://localhost/api/user/dashboard') as any);
+    const response = await GET(createRequest('http://localhost/api/user/dashboard') as NextRequest);
 
     expect(response.status).toBe(404);
     await expect(response.json()).resolves.toEqual({ error: 'Dashboard unavailable' });
@@ -135,7 +136,7 @@ describe('/api/user/dashboard GET', () => {
     fetchDashboardMock.mockRejectedValueOnce(failure);
 
     const response = await GET(
-      createRequest('http://localhost/api/user/dashboard?months=6') as any
+      createRequest('http://localhost/api/user/dashboard?months=6') as NextRequest
     );
 
     expect(loggerMock.error).toHaveBeenCalledWith('[user-dashboard] GET failed', failure, {
@@ -149,11 +150,11 @@ describe('/api/user/dashboard GET', () => {
     fetchDashboardMock.mockRejectedValueOnce(new Error('dashboard failure'));
 
     const handler = createDashboardHandler({
-      authFn: authMock as any,
-      fetchDashboard: fetchDashboardMock as any,
+      authFn: authMock as jest.Mock,
+      fetchDashboard: fetchDashboardMock as jest.Mock,
     });
 
-    const response = await handler(createRequest('http://localhost/api/user/dashboard') as any);
+    const response = await handler(createRequest('http://localhost/api/user/dashboard') as NextRequest);
 
     expect(structuredLoggerSpy).toHaveBeenCalledWith(
       '[user-dashboard] GET failed',
