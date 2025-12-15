@@ -93,7 +93,7 @@ function getClientPromise(): Promise<MongoClient> {
             message,
           });
           globalWithMongo._mongoClientPromise = undefined;
-          throw error;
+          process.exit(1);
         });
     }
     clientPromise = globalWithMongo._mongoClientPromise as Promise<MongoClient>;
@@ -108,7 +108,7 @@ function getClientPromise(): Promise<MongoClient> {
           component: 'mongodb',
           message,
         });
-        throw error;
+        process.exit(1);
       });
   }
 
