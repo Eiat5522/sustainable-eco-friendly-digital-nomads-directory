@@ -1,4 +1,7 @@
 import { beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import type { NextRequest } from 'next/server';
+import type { Session } from 'next-auth';
+import type { UserRole } from '@/types/auth';
 
 jest.mock('@/lib/auth', () => ({
   __esModule: true,
@@ -23,6 +26,13 @@ let POST: typeof import('../route').POST;
 const mockAuth = authMockModule.auth;
 const mockFetchAnalytics = analyticsMockModule.fetchAdminAnalytics;
 
+// Helper type for mock session
+type MockSession = Session & {
+  user: {
+    role?: UserRole;
+  };
+};
+
 beforeAll(async () => {
   ({ GET, POST } = await import('../route'));
 });
@@ -34,9 +44,9 @@ describe('/api/admin/analytics', () => {
   });
 
   it('requires admin role', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'user' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'user' } } as MockSession);
 
-    const response = await GET({} as any, { params: Promise.resolve({}) });
+    const response = await GET({} as NextRequest, { params: Promise.resolve({}) });
     const json = await response.json();
 
     expect(response.status).toBe(403);
@@ -45,7 +55,7 @@ describe('/api/admin/analytics', () => {
   });
 
   it('returns analytics for admin', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
     mockFetchAnalytics.mockResolvedValue({
       overview: {
         totalUsers: 100,
@@ -59,7 +69,7 @@ describe('/api/admin/analytics', () => {
       generatedAt: '2024-01-01T00:00:00.000Z',
     });
 
-    const response = await GET({} as any, { params: Promise.resolve({}) });
+    const response = await GET({} as NextRequest, { params: Promise.resolve({}) });
     const json = await response.json();
 
     expect(response.status).toBe(200);
@@ -69,7 +79,7 @@ describe('/api/admin/analytics', () => {
   });
 
   it('allows superAdmin role', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'superAdmin' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'superAdmin' } } as MockSession);
     mockFetchAnalytics.mockResolvedValue({
       overview: {
         totalUsers: 1,
@@ -83,16 +93,16 @@ describe('/api/admin/analytics', () => {
       generatedAt: '2024-01-01T00:00:00.000Z',
     });
 
-    const response = await GET({} as any, { params: Promise.resolve({}) });
+    const response = await GET({} as NextRequest, { params: Promise.resolve({}) });
     expect(response.status).toBe(200);
     expect(mockFetchAnalytics).toHaveBeenCalledTimes(1);
   });
 
   it('handles failures from analytics service', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
     mockFetchAnalytics.mockRejectedValue(new Error('Sanity down'));
 
-    const response = await GET({} as any, { params: Promise.resolve({}) });
+    const response = await GET({} as NextRequest, { params: Promise.resolve({}) });
     const json = await response.json();
 
     expect(response.status).toBe(500);
@@ -100,12 +110,12 @@ describe('/api/admin/analytics', () => {
   });
 
   it('returns 504 when analytics fetching times out', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
     mockFetchAnalytics.mockRejectedValue(
       new RequestTimeoutError('Fetching admin analytics timed out')
     );
 
-    const response = await GET({} as any, { params: Promise.resolve({}) });
+    const response = await GET({} as NextRequest, { params: Promise.resolve({}) });
     const json = await response.json();
 
     expect(response.status).toBe(504);
@@ -113,9 +123,9 @@ describe('/api/admin/analytics', () => {
   });
 
   it('returns 403 when the session has no role information', async () => {
-    mockAuth.mockResolvedValue({ user: {} } as any);
+    mockAuth.mockResolvedValue({ user: {} } as MockSession);
 
-    const response = await GET({} as any, { params: Promise.resolve({}) });
+    const response = await GET({} as NextRequest, { params: Promise.resolve({}) });
 
     expect(response.status).toBe(403);
     expect(mockFetchAnalytics).not.toHaveBeenCalled();
@@ -124,7 +134,7 @@ describe('/api/admin/analytics', () => {
   it('returns 500 when authentication fails', async () => {
     mockAuth.mockRejectedValue(new Error('auth error'));
 
-    const response = await GET({} as any, { params: Promise.resolve({}) });
+    const response = await GET({} as NextRequest, { params: Promise.resolve({}) });
     const json = await response.json();
 
     expect(response.status).toBe(500);
@@ -134,7 +144,7 @@ describe('/api/admin/analytics', () => {
   it('returns 405 for POST requests (unsupported method)', async () => {
     // Note: No auth mocking needed since POST handler doesn't perform authentication
 
-    const response = await POST({} as any, { params: Promise.resolve({}) });
+    const response = await POST({} as NextRequest, { params: Promise.resolve({}) });
     const json = await response.json();
 
     expect(response.status).toBe(405);

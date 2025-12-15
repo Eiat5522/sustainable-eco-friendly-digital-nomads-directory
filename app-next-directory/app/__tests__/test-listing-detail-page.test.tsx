@@ -7,8 +7,16 @@ const mockListingDetailData = {
 const mockReviewsData = [{ id: 'review-1' }];
 const mockRelatedListingsData = [{ id: 'related-1' }, { id: 'related-2' }];
 
+interface MockListingDetailViewProps {
+  listing?: { name?: string };
+  reviews?: Array<{ id: string }>;
+  relatedListings?: Array<{ id: string }>;
+  isSignedIn?: boolean;
+  isFavorited?: boolean;
+}
+
 const mockListingDetailView = jest.fn(
-  ({ listing, reviews, relatedListings, isSignedIn, isFavorited }: any) => (
+  ({ listing, reviews, relatedListings, isSignedIn, isFavorited }: MockListingDetailViewProps) => (
     <div data-testid="mock-listing-view">
       <span data-testid="listing-name">{listing?.name}</span>
       <span data-testid="reviews-count">{reviews?.length ?? 0}</span>
@@ -21,7 +29,7 @@ const mockListingDetailView = jest.fn(
 
 jest.mock('@/components/listings/ListingDetailView', () => ({
   __esModule: true,
-  ListingDetailView: (props: any) => mockListingDetailView(props),
+  ListingDetailView: (props: MockListingDetailViewProps) => mockListingDetailView(props),
 }));
 
 jest.mock('@/components/listings/listingDetailMockData', () => ({
