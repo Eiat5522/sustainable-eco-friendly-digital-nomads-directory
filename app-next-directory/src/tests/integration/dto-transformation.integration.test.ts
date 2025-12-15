@@ -101,7 +101,7 @@ describe('DTO Integration Tests - Transformation with Realistic Sanity Data', ()
         website: undefined,
         location: undefined,
         amenities: [],
-      } as any);
+      } as Partial<SanityListing>);
 
       const dto = transformToFeaturedDTO(minimalListing);
 
@@ -117,7 +117,7 @@ describe('DTO Integration Tests - Transformation with Realistic Sanity Data', ()
             url: 'https://cdn.sanity.io/images/test/image.jpg',
           },
         },
-      } as any);
+      } as Partial<SanityListing>);
 
       const dto = transformToFeaturedDTO(listingWithAssetUrl);
       expect(dto.imageUrl).toContain('https://');
@@ -149,7 +149,7 @@ describe('DTO Integration Tests - Transformation with Realistic Sanity Data', ()
           sustainabilityScore: 85,
           highlights: ['Green Transport', 'Urban Parks'],
         },
-      } as any);
+      } as Partial<SanityListing>);
 
       const dto = transformToSummaryDTO(listingWithCity);
 
@@ -171,7 +171,7 @@ describe('DTO Integration Tests - Transformation with Realistic Sanity Data', ()
           slug: { current: 'test' },
           sustainabilityScore: 150, // Invalid: over 100
         },
-      } as any);
+      } as Partial<SanityListing>);
 
       const dto = transformToSummaryDTO(listingWithHighScore);
       expect(dto.city?.sustainabilityScore).toBe(100);
@@ -180,7 +180,7 @@ describe('DTO Integration Tests - Transformation with Realistic Sanity Data', ()
     it('should normalize amenity names and remove duplicates', () => {
       const listingWithDuplicates = createMockSanityListing({
         amenities: [{ name: 'WiFi' }, { name: 'wifi' }, { name: ' WiFi ' }, { name: 'Coffee' }],
-      } as any);
+      } as Partial<SanityListing>);
 
       const dto = transformToSummaryDTO(listingWithDuplicates);
       expect(dto.amenityNames).toEqual(['WiFi', 'Coffee']);
@@ -189,7 +189,7 @@ describe('DTO Integration Tests - Transformation with Realistic Sanity Data', ()
     it('should handle invalid location coordinates', () => {
       const listingWithBadLocation = createMockSanityListing({
         location: { lat: 10, lng: NaN },
-      } as any);
+      } as Partial<SanityListing>);
 
       const dto = transformToSummaryDTO(listingWithBadLocation);
       expect(dto.location).toBeUndefined();
@@ -197,7 +197,7 @@ describe('DTO Integration Tests - Transformation with Realistic Sanity Data', ()
 
     it('should fallback invalid listing types to activities', () => {
       const listingWithInvalidType = createMockSanityListing({
-        type: 'unknown-type' as any,
+        type: 'unknown-type' as SanityListing['type'],
       });
 
       const dto = transformToSummaryDTO(listingWithInvalidType);
@@ -207,7 +207,7 @@ describe('DTO Integration Tests - Transformation with Realistic Sanity Data', ()
     it('should validate and reject invalid website URLs', () => {
       const listingWithBadUrl = createMockSanityListing({
         website: 'ftp://invalid-protocol.com',
-      } as any);
+      } as Partial<SanityListing>);
 
       const dto = transformToSummaryDTO(listingWithBadUrl);
       expect(dto.website).toBeUndefined();
@@ -242,7 +242,7 @@ describe('DTO Integration Tests - Transformation with Realistic Sanity Data', ()
             { type: null, price: null, period: null },
           ],
         },
-      } as any);
+      } as Partial<SanityListing>);
 
       const dto = transformToDetailDTO(listingWithInvalidPlans);
 
@@ -262,7 +262,7 @@ describe('DTO Integration Tests - Transformation with Realistic Sanity Data', ()
           noiseLevel: 'Moderate',
           workPolicy: 'Laptop friendly with time limit',
         },
-      } as any);
+      } as Partial<SanityListing>);
 
       const dto = transformToDetailDTO(cafeListing);
 
@@ -282,7 +282,7 @@ describe('DTO Integration Tests - Transformation with Realistic Sanity Data', ()
           dietaryOptions: ['Vegetarian', 'Vegan', 'Gluten-Free'],
           averageMealPriceThb: 350,
         },
-      } as any);
+      } as Partial<SanityListing>);
 
       const dto = transformToDetailDTO(restaurantListing);
 
@@ -307,7 +307,7 @@ describe('DTO Integration Tests - Transformation with Realistic Sanity Data', ()
           skillLevel: 'Beginner',
           languages: ['English', 'Thai'],
         },
-      } as any);
+      } as Partial<SanityListing>);
 
       const dto = transformToDetailDTO(activitiesListing);
 
@@ -328,7 +328,7 @@ describe('DTO Integration Tests - Transformation with Realistic Sanity Data', ()
           roomTypesAvailable: [{ type: 'Single' }, { type: 'Double' }, { type: 'Suite' }],
           minimumStay: 2,
         },
-      } as any);
+      } as Partial<SanityListing>);
 
       const dto = transformToDetailDTO(accommodationListing);
 
@@ -347,7 +347,7 @@ describe('DTO Integration Tests - Transformation with Realistic Sanity Data', ()
 
     it('should throw error for unsupported listing types', () => {
       const unsupportedListing = createMockSanityListing({
-        type: 'unsupported-type' as any,
+        type: 'unsupported-type' as SanityListing['type'],
       });
 
       expect(() => transformToDetailDTO(unsupportedListing)).toThrow(
@@ -361,7 +361,7 @@ describe('DTO Integration Tests - Transformation with Realistic Sanity Data', ()
           { asset: { url: 'https://cdn.sanity.io/images/test/gallery1.jpg' } },
           { asset: { url: 'https://cdn.sanity.io/images/test/gallery2.jpg' } },
         ],
-      } as any);
+      } as Partial<SanityListing>);
 
       const dto = transformToDetailDTO(listingWithGallery);
 
@@ -457,7 +457,7 @@ describe('DTO Integration Tests - Transformation with Realistic Sanity Data', ()
           slug: { current: 'test' },
           sustainabilityScore: 75,
         },
-      } as any);
+      } as Partial<SanityListing>);
 
       const dto = transformToSummaryDTO(listingWithCity);
       const city: CityDTO | null | undefined = dto.city;
@@ -500,7 +500,7 @@ describe('DTO Integration Tests - Transformation with Realistic Sanity Data', ()
         website: null,
         location: null,
         contactEmail: null,
-      } as any);
+      } as Partial<SanityListing>);
 
       const dto = transformToSummaryDTO(listingWithNulls);
       expect(dto.shortDescription).toBeUndefined();
@@ -513,7 +513,7 @@ describe('DTO Integration Tests - Transformation with Realistic Sanity Data', ()
         galleryImages: [],
         amenities: [],
         ecoFocusTags: [],
-      } as any);
+      } as Partial<SanityListing>);
 
       const dto = transformToDetailDTO(listingWithEmptyArrays);
       expect(dto.galleryImages).toEqual([]);
