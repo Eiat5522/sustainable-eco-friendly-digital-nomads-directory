@@ -13,9 +13,20 @@ const builderCalls: Array<{
   __state: { input: unknown; width: number; height: number; fit: string; auto: string };
 }> = [];
 
-const createBuilder = (input: unknown) => {
-  const state = { input, width: 0, height: 0, fit: '', auto: '' };
-  const builder: any = {
+type BuilderState = { input: unknown; width: number; height: number; fit: string; auto: string };
+
+type ImageUrlBuilder = {
+  __state: BuilderState;
+  width: jest.Mock<ImageUrlBuilder, [number]>;
+  height: jest.Mock<ImageUrlBuilder, [number]>;
+  fit: jest.Mock<ImageUrlBuilder, [string]>;
+  auto: jest.Mock<ImageUrlBuilder, [string]>;
+  url: jest.Mock<string, []>;
+};
+
+const createBuilder = (input: unknown): ImageUrlBuilder => {
+  const state: BuilderState = { input, width: 0, height: 0, fit: '', auto: '' };
+  const builder: ImageUrlBuilder = {
     __state: state,
     width: jest.fn((value: number) => {
       state.width = value;

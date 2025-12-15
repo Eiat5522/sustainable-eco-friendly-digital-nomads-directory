@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { searchListings } from '../client';
 
+type FetchMock = jest.MockedFunction<typeof fetch>;
+
 describe('client', () => {
   beforeEach(() => {
     // Reset the global.fetch mock before each test
-    global.fetch = jest.fn() as any;
+    global.fetch = jest.fn() as FetchMock;
   });
 
   describe('searchListings', () => {
@@ -14,7 +16,7 @@ describe('client', () => {
         { id: '2', title: 'Listing 2' },
       ];
 
-      (global.fetch as any).mockResolvedValueOnce({
+      (global.fetch as FetchMock).mockResolvedValueOnce({
         ok: true,
         json: async () => mockListings,
       });
@@ -33,7 +35,7 @@ describe('client', () => {
     });
 
     it('should return empty array when response is not ok', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      (global.fetch as FetchMock).mockResolvedValueOnce({
         ok: false,
         status: 500,
         statusText: 'Internal Server Error',
@@ -45,7 +47,7 @@ describe('client', () => {
     });
 
     it('should return empty array on network error', async () => {
-      (global.fetch as any).mockRejectedValueOnce(new Error('Network error'));
+      (global.fetch as FetchMock).mockRejectedValueOnce(new Error('Network error'));
 
       const result = await searchListings('test query');
 
@@ -53,7 +55,7 @@ describe('client', () => {
     });
 
     it('should return empty array on JSON parse error', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      (global.fetch as FetchMock).mockResolvedValueOnce({
         ok: true,
         json: async () => {
           throw new Error('Invalid JSON');
@@ -68,7 +70,7 @@ describe('client', () => {
     it('should handle empty query string', async () => {
       const mockListings: never[] = [];
 
-      (global.fetch as any).mockResolvedValueOnce({
+      (global.fetch as FetchMock).mockResolvedValueOnce({
         ok: true,
         json: async () => mockListings,
       });
@@ -90,7 +92,7 @@ describe('client', () => {
       const specialQuery = 'café & "quotes" <html>';
       const mockListings = [{ id: '1', title: 'Result' }];
 
-      (global.fetch as any).mockResolvedValueOnce({
+      (global.fetch as FetchMock).mockResolvedValueOnce({
         ok: true,
         json: async () => mockListings,
       });
@@ -112,7 +114,7 @@ describe('client', () => {
       const longQuery = 'a'.repeat(1000);
       const mockListings: never[] = [];
 
-      (global.fetch as any).mockResolvedValueOnce({
+      (global.fetch as FetchMock).mockResolvedValueOnce({
         ok: true,
         json: async () => mockListings,
       });
