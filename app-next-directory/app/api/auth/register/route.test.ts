@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import type { Session } from 'next-auth';
 import { structuredLogger } from '@/lib/logger';
 
 jest.mock('@/lib/logger');
@@ -45,16 +46,16 @@ const mockUserCreate = User.create as jest.MockedFunction<typeof User.create>;
 const mockBcryptHash = bcrypt.hash as jest.MockedFunction<
   (data: string | Buffer, saltOrRounds: string | number) => Promise<string>
 >;
-const mockAuth = auth as jest.MockedFunction<() => Promise<any>>;
+const mockAuth = auth as jest.MockedFunction<() => Promise<Session | null>>;
 
 /**
  * Helper to extract response body from API route handler result
  */
-async function getResponseBody(response: any) {
+async function getResponseBody(response: Response) {
   if (typeof response.json === 'function') {
     return await response.json();
   }
-  return response.body || response;
+  return response;
 }
 
 describe('Registration API Routes', () => {
@@ -65,14 +66,14 @@ describe('Registration API Routes', () => {
     mockUserCreate.mockReset();
     mockBcryptHash.mockReset();
     mockConnect.mockResolvedValue(undefined);
-    mockUserFindOne.mockResolvedValue(null as any);
+    mockUserFindOne.mockResolvedValue(null);
     mockBcryptHash.mockResolvedValue('hashedpassword');
     mockUserCreate.mockResolvedValue({
       _id: 'new-id',
       name: 'Test User',
       email: 'test@example.com',
       role: 'user',
-    } as any);
+    } as ReturnType<typeof User.create>);
     process.env.MONGODB_URI = 'mongodb://localhost/test-db';
     delete process.env.EDGE_RUNTIME;
   });
@@ -92,7 +93,7 @@ describe('Registration API Routes', () => {
       };
       const req = {
         json: jest.fn().mockResolvedValue(reqBody),
-      } as any;
+      } as Partial<NextRequest> as NextRequest;
 
       mockConnect.mockResolvedValue(undefined);
       mockUserFindOne.mockResolvedValue(null);
@@ -102,7 +103,7 @@ describe('Registration API Routes', () => {
         name: 'Test User',
         email: 'test@example.com',
         role: 'user',
-      } as any);
+      } as ReturnType<typeof User.create>);
 
       // Act
       const response = await registerPOST(req);
@@ -124,10 +125,10 @@ describe('Registration API Routes', () => {
       };
       const req = {
         json: jest.fn().mockResolvedValue(reqBody),
-      } as any;
+      } as Partial<NextRequest> as NextRequest;
 
       mockConnect.mockResolvedValue(undefined);
-      mockUserFindOne.mockResolvedValue({ email: 'test@example.com' } as any);
+      mockUserFindOne.mockResolvedValue({ email: 'test@example.com' } as ReturnType<typeof User.findOne>);
 
       // Act
       const response = await registerPOST(req);
@@ -149,7 +150,7 @@ describe('Registration API Routes', () => {
       };
       const req = {
         json: jest.fn().mockResolvedValue(reqBody),
-      } as any;
+      } as Partial<NextRequest> as NextRequest;
 
       mockConnect.mockResolvedValue(undefined);
       mockUserFindOne.mockResolvedValue(null);
@@ -176,7 +177,7 @@ describe('Registration API Routes', () => {
       };
       const req = {
         json: jest.fn().mockResolvedValue(reqBody),
-      } as any;
+      } as Partial<NextRequest> as NextRequest;
 
       mockConnect.mockRejectedValue(new Error('Connection error'));
 
@@ -194,7 +195,7 @@ describe('Registration API Routes', () => {
     test('should return 400 if the body cannot be parsed', async () => {
       const req = {
         json: jest.fn().mockRejectedValue(new Error('invalid json')),
-      } as any;
+      } as Partial<NextRequest> as NextRequest;
 
       const response = await registerPOST(req);
       const body = await getResponseBody(response);
@@ -219,7 +220,7 @@ describe('Registration API Routes', () => {
           email: 'tester@example.com',
           password: 'password123',
         }),
-      } as any;
+      } as Partial<NextRequest> as NextRequest;
 
       const response = await registerPOST(req);
       const body = await getResponseBody(response);
@@ -233,7 +234,7 @@ describe('Registration API Routes', () => {
       // Arrange
       const req = {
         json: jest.fn().mockResolvedValue(undefined),
-      } as any;
+      } as Partial<NextRequest> as NextRequest;
 
       // Act
       const response = await registerPOST(req);
@@ -254,7 +255,7 @@ describe('Registration API Routes', () => {
       };
       const req = {
         json: jest.fn().mockResolvedValue(reqBody),
-      } as any;
+      } as Partial<NextRequest> as NextRequest;
 
       const doc = {
         toObject: jest.fn().mockReturnValue({
@@ -267,7 +268,7 @@ describe('Registration API Routes', () => {
 
       mockUserFindOne.mockResolvedValue(null);
       mockBcryptHash.mockResolvedValue('hashed');
-      mockUserCreate.mockResolvedValue(doc as any);
+      mockUserCreate.mockResolvedValue(doc as ReturnType<typeof User.create>);
 
       const response = await registerPOST(req);
       const body = await getResponseBody(response);
@@ -284,11 +285,11 @@ describe('Registration API Routes', () => {
       };
       const req = {
         json: jest.fn().mockResolvedValue(reqBody),
-      } as any;
+      } as Partial<NextRequest> as NextRequest;
 
       mockUserFindOne.mockResolvedValue(null);
       mockBcryptHash.mockResolvedValue('hashed');
-      mockUserCreate.mockResolvedValue({ _id: 'created-id' } as any);
+      mockUserCreate.mockResolvedValue({ _id: 'created-id' } as ReturnType<typeof User.create>);
 
       const response = await registerPOST(req);
       const body = await getResponseBody(response);
@@ -309,7 +310,7 @@ describe('Registration API Routes', () => {
       };
       const req = {
         json: jest.fn().mockResolvedValue(reqBody),
-      } as any;
+      } as Partial<NextRequest> as NextRequest;
 
       // Act
       const response = await registerPOST(req);
@@ -330,7 +331,7 @@ describe('Registration API Routes', () => {
       };
       const req = {
         json: jest.fn().mockResolvedValue(reqBody),
-      } as any;
+      } as Partial<NextRequest> as NextRequest;
 
       // Act
       const response = await registerPOST(req);
@@ -351,7 +352,7 @@ describe('Registration API Routes', () => {
       };
       const req = {
         json: jest.fn().mockResolvedValue(reqBody),
-      } as any;
+      } as Partial<NextRequest> as NextRequest;
 
       // Act
       const response = await registerPOST(req);
@@ -367,7 +368,7 @@ describe('Registration API Routes', () => {
     test('rejects non-object request bodies', async () => {
       const req = {
         json: jest.fn().mockResolvedValue('not-an-object'),
-      } as any;
+      } as Partial<NextRequest> as NextRequest;
 
       const response = await registerPOST(req);
       const body = await getResponseBody(response);
@@ -380,7 +381,7 @@ describe('Registration API Routes', () => {
     test('rejects whitespace-only fields', async () => {
       const req = {
         json: jest.fn().mockResolvedValue({ name: '   ', email: '   ', password: '   ' }),
-      } as any;
+      } as Partial<NextRequest> as NextRequest;
 
       const response = await registerPOST(req);
       const body = await getResponseBody(response);
@@ -399,7 +400,7 @@ describe('Registration API Routes', () => {
       };
       const req = {
         json: jest.fn().mockResolvedValue(reqBody),
-      } as any;
+      } as Partial<NextRequest> as NextRequest;
 
       mockUserFindOne.mockResolvedValue(null);
       mockBcryptHash.mockRejectedValue(new Error('hash failed'));

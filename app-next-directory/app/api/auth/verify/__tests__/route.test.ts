@@ -41,13 +41,13 @@ jest.mock('mongoose', () => ({
 }));
 
 const rateLimitMock = jest.requireMock('@/lib/rate-limit') as jest.Mocked<{
-  getClientIp: (...args: any[]) => string;
-  isRateLimited: (...args: any[]) => boolean;
-  getRetryAfterMs: (...args: any[]) => number;
+  getClientIp: (...args: unknown[]) => string;
+  isRateLimited: (...args: unknown[]) => boolean;
+  getRetryAfterMs: (...args: unknown[]) => number;
 }>;
 
 const tokenMock = jest.requireMock('@/lib/tokens') as jest.Mocked<{
-  hashToken: (...args: any[]) => string;
+  hashToken: (...args: unknown[]) => string;
 }>;
 
 const loggerMock = jest.requireMock('@/lib/logger') as {

@@ -4,10 +4,11 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { NextRequest } from 'next/server';
 
 // We'll mock the modules the route imports so tests don't need to mutate exported _testControl
-const fetchMock = jest.fn() as jest.MockedFunction<(...args: any[]) => Promise<any>>;
-const transformMock = jest.fn() as jest.MockedFunction<(p: any) => any>;
+const fetchMock = jest.fn() as jest.MockedFunction<(...args: unknown[]) => Promise<unknown>>;
+const transformMock = jest.fn() as jest.MockedFunction<(p: unknown) => unknown>;
 const trackViewCountMock = jest.fn() as jest.MockedFunction<(id: string) => Promise<number>>;
 const persistentIncrementMock = jest.fn() as jest.MockedFunction<(id: string) => Promise<number>>;
 
@@ -30,18 +31,19 @@ jest.mock('@/lib/logger', () => ({
 }));
 
 jest.mock('@/lib/sanity/client', () => ({
-  client: { fetch: (...args: any[]) => fetchMock(...args) },
+  client: { fetch: (...args: unknown[]) => fetchMock(...args) },
 }));
 jest.mock('@/lib/dto-transformer', () => ({
-  transformToBlogDetailDTO: (...args: any[]) => transformMock(...args),
+  transformToBlogDetailDTO: (...args: unknown[]) => transformMock(...args),
 }));
 jest.mock('@/lib/viewCountPersistence', () => ({
-  incrementViewCount: (...args: any[]) => persistentIncrementMock(...args),
+  incrementViewCount: (...args: unknown[]) => persistentIncrementMock(...args),
 }));
 
-let GET: any;
-let PUT: any;
-let routeTestControl: any;
+type RouteModule = typeof import('../route');
+let GET: RouteModule['GET'];
+let PUT: RouteModule['PUT'];
+let routeTestControl: unknown;
 
 // Test-only types
 type BlogPost = {
@@ -50,7 +52,7 @@ type BlogPost = {
   slug?: string;
   publishedAt?: string;
   excerpt?: string;
-  body?: any[];
+  body?: unknown[];
   tags?: string[];
   authorName?: string;
   readingTime?: number;
@@ -59,7 +61,7 @@ type BlogPost = {
   _updatedAt?: string;
 };
 
-type SanityFetchFn = (...args: any[]) => Promise<BlogPost | BlogPost[] | null>;
+type SanityFetchFn = (...args: unknown[]) => Promise<BlogPost | BlogPost[] | null>;
 
 // (mocks defined above and used by module mocks)
 
@@ -82,9 +84,9 @@ describe('Blog [slug] API', () => {
     routeTestControl = route._testControl;
 
     // trackViewCount is internal; set the override on the required module's _testControl
-    routeTestControl.trackViewCountOverride = trackViewCountMock as any;
-    routeTestControl.resetViewCounts();
-    routeTestControl.resetFallbackMetrics();
+    (routeTestControl as { trackViewCountOverride?: typeof trackViewCountMock; resetViewCounts: () => void; resetFallbackMetrics: () => void }).trackViewCountOverride = trackViewCountMock;
+    (routeTestControl as { resetViewCounts: () => void }).resetViewCounts();
+    (routeTestControl as { resetFallbackMetrics: () => void }).resetFallbackMetrics();
   });
 
   afterEach(() => {
@@ -124,7 +126,7 @@ describe('Blog [slug] API', () => {
         // Use a real Request so route handlers that read headers/body behave correctly
         const request = new Request('http://localhost/api/blog/sustainable-living-guide');
         const params = Promise.resolve({ slug: 'sustainable-living-guide' });
-        const response = await GET(request as any, { params });
+        const response = await GET(request as Partial<NextRequest> as NextRequest, { params });
         const data = await response.json();
 
         // Debug: log response if not 200
@@ -168,7 +170,7 @@ describe('Blog [slug] API', () => {
 
         const request = new Request('http://localhost/api/blog/test-post');
         const params = Promise.resolve({ slug: 'test-post' });
-        const response = await GET(request as any, { params });
+        const response = await GET(request as Partial<NextRequest> as NextRequest, { params });
         const data = await response.json();
 
         /* End of new strong-typed test file */
@@ -199,7 +201,7 @@ describe('Blog [slug] API', () => {
 
         const request = new Request('http://localhost/api/blog/test-post');
         const params = Promise.resolve({ slug: 'test-post' });
-        const response = await GET(request as any, { params });
+        const response = await GET(request as Partial<NextRequest> as NextRequest, { params });
         const data = await response.json();
 
         expect(data.data.relatedPosts).toEqual([]);
@@ -212,7 +214,7 @@ describe('Blog [slug] API', () => {
       it('should use correct GROQ query with slug parameter', async () => {
         fetchMock.mockResolvedValueOnce(null);
 
-        const request = {} as any;
+        const request = {} as Partial<NextRequest> as NextRequest;
         const params = Promise.resolve({ slug: 'test-slug' });
         await GET(request, { params });
 
@@ -229,7 +231,7 @@ describe('Blog [slug] API', () => {
       it('should return 404 when blog post not found', async () => {
         fetchMock.mockResolvedValueOnce(null);
 
-        const request = {} as any;
+        const request = {} as Partial<NextRequest> as NextRequest;
         const params = Promise.resolve({ slug: 'non-existent' });
         const response = await GET(request, { params });
         const data = await response.json();
@@ -240,7 +242,7 @@ describe('Blog [slug] API', () => {
       });
 
       it('should return 400 when slug is missing', async () => {
-        const request = {} as any;
+        const request = {} as Partial<NextRequest> as NextRequest;
         const params = Promise.resolve({ slug: '' });
         const response = await GET(request, { params });
         const data = await response.json();
@@ -254,7 +256,7 @@ describe('Blog [slug] API', () => {
       it('should return 500 on database fetch failure', async () => {
         fetchMock.mockRejectedValueOnce(new Error('Database error'));
 
-        const request = {} as any;
+        const request = {} as Partial<NextRequest> as NextRequest;
         const params = Promise.resolve({ slug: 'test-slug' });
         const response = await GET(request, { params });
         const data = await response.json();
@@ -267,7 +269,7 @@ describe('Blog [slug] API', () => {
       it('should return 503 on CMS connection failure', async () => {
         fetchMock.mockRejectedValueOnce(new Error('fetch failed'));
 
-        const request = {} as any;
+        const request = {} as Partial<NextRequest> as NextRequest;
         const params = Promise.resolve({ slug: 'test-slug' });
         const response = await GET(request, { params });
         const data = await response.json();
@@ -279,7 +281,7 @@ describe('Blog [slug] API', () => {
       it('should return 400 on invalid slug parameter', async () => {
         fetchMock.mockRejectedValueOnce(new Error('Invalid parameter'));
 
-        const request = {} as any;
+        const request = {} as Partial<NextRequest> as NextRequest;
         const params = Promise.resolve({ slug: 'test-slug' });
         const response = await GET(request, { params });
         const data = await response.json();

@@ -28,14 +28,14 @@ jest.mock('@/models/PasswordResetToken', () => ({
 }));
 
 const rateLimitMock = jest.requireMock('@/lib/rate-limit') as jest.Mocked<{
-  getClientIp: (...args: any[]) => string;
-  isRateLimited: (...args: any[]) => boolean;
-  getRetryAfterMs: (...args: any[]) => number;
+  getClientIp: (...args: unknown[]) => string;
+  isRateLimited: (...args: unknown[]) => boolean;
+  getRetryAfterMs: (...args: unknown[]) => number;
 }>;
 
 const tokenMock = jest.requireMock('@/lib/tokens') as jest.Mocked<{
-  generateToken: (...args: any[]) => { raw: string; hash: string };
-  minutesFromNow: (...args: any[]) => Date;
+  generateToken: (...args: unknown[]) => { raw: string; hash: string };
+  minutesFromNow: (...args: unknown[]) => Date;
 }>;
 
 const loggerMock = jest.requireMock('@/lib/logger') as {

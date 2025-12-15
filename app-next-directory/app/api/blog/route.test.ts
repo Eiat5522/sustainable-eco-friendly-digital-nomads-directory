@@ -1,13 +1,13 @@
 import { beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
-const fetchMock = jest.fn<any, any[]>();
-const transformMock = jest.fn((post: any) => ({ id: post._id, title: post.title }));
+const fetchMock = jest.fn<unknown, unknown[]>();
+const transformMock = jest.fn((post: { _id: string; title?: string }) => ({ id: post._id, title: post.title }));
 
 jest.mock('@/lib/sanity/client', () => ({
-  client: { fetch: (...args: any[]) => fetchMock(...args) },
+  client: { fetch: (...args: unknown[]) => fetchMock(...args) },
 }));
 jest.mock('@/lib/dto-transformer', () => ({
-  transformToBlogSummaryDTO: (...args: any[]) => transformMock(...args),
+  transformToBlogSummaryDTO: (...args: unknown[]) => transformMock(...args),
 }));
 
 let GET: typeof import('./route').GET;
