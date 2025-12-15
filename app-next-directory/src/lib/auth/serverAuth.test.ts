@@ -1,4 +1,5 @@
 import { jest } from '@jest/globals';
+import type { UserRole } from '@/types/auth';
 
 // Mock dependencies
 const mockBcryptCompare = jest.fn();
@@ -444,7 +445,7 @@ describe('serverAuth', () => {
       mockIsValidObjectId.mockReturnValue(false);
 
       const { updateUserRole } = await import('./serverAuth');
-      const result = await updateUserRole('invalid-id', 'admin' as any);
+      const result = await updateUserRole('invalid-id', 'admin' as UserRole);
 
       expect(result).toBe(false);
       expect(mockUserModel.updateOne).not.toHaveBeenCalled();
@@ -455,7 +456,7 @@ describe('serverAuth', () => {
       mockUserModel.updateOne.mockResolvedValue({ matchedCount: 1 });
 
       const { updateUserRole } = await import('./serverAuth');
-      const result = await updateUserRole('507f1f77bcf86cd799439011', 'admin' as any);
+      const result = await updateUserRole('507f1f77bcf86cd799439011', 'admin' as UserRole);
 
       expect(result).toBe(true);
       expect(mockUserModel.updateOne).toHaveBeenCalledWith(
@@ -470,7 +471,7 @@ describe('serverAuth', () => {
       mockUserModel.updateOne.mockResolvedValue({ matchedCount: 0 });
 
       const { updateUserRole } = await import('./serverAuth');
-      const result = await updateUserRole('507f1f77bcf86cd799439011', 'admin' as any);
+      const result = await updateUserRole('507f1f77bcf86cd799439011', 'admin' as UserRole);
 
       expect(result).toBe(false);
     });
@@ -480,7 +481,7 @@ describe('serverAuth', () => {
       mockUserModel.updateOne.mockRejectedValue(new Error('Database error'));
 
       const { updateUserRole } = await import('./serverAuth');
-      const result = await updateUserRole('507f1f77bcf86cd799439011', 'admin' as any);
+      const result = await updateUserRole('507f1f77bcf86cd799439011', 'admin' as UserRole);
 
       expect(result).toBe(false);
     });

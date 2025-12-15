@@ -1,4 +1,5 @@
 import { jest } from '@jest/globals';
+import type { Adapter } from 'next-auth/adapters';
 
 jest.mock('@auth/mongodb-adapter', () => ({
   MongoDBAdapter: jest.fn(),
@@ -49,8 +50,8 @@ describe('createAuthAdapter', () => {
   it('returns MongoDB adapter when USE_REAL_MONGODB_FOR_TESTS is set', async () => {
     process.env.MONGODB_URI = 'mongodb://example.com';
     process.env.USE_REAL_MONGODB_FOR_TESTS = '1';
-    const adapterInstance = { connected: true };
-    mockMongoDBAdapter.mockReturnValue(adapterInstance as any);
+    const adapterInstance = { connected: true } as unknown as Adapter;
+    mockMongoDBAdapter.mockReturnValue(adapterInstance);
 
     const { createAuthAdapter } = require('./adapter');
     const adapter = createAuthAdapter();
