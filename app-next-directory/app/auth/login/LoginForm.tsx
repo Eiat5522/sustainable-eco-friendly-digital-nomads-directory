@@ -155,7 +155,13 @@ export default function LoginForm() {
             {error}
           </p>
         ) : null}
-        <NeoButton type="submit" className="w-full" disabled={isLoading} aria-disabled={isLoading}>
+        <NeoButton
+          type="submit"
+          className="w-full"
+          disabled={isLoading}
+          aria-disabled={isLoading}
+          data-testid="login-button"
+        >
           {isLoading ? 'Signing in…' : 'Login'}
         </NeoButton>
       </form>
