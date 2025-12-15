@@ -32,16 +32,16 @@ describe('API /api/reviews/analytics', () => {
   });
 
   function createMockCollection(
-    overallStats: any[] = [],
-    ratingDistribution: any[] = [],
-    trends: any[] = [],
-    topListings: any[] = [],
-    moderation: any[] = [],
-    sentiment: any[] = [],
-    responseTime: any[] = []
+    overallStats: unknown[] = [],
+    ratingDistribution: unknown[] = [],
+    trends: unknown[] = [],
+    topListings: unknown[] = [],
+    moderation: unknown[] = [],
+    sentiment: unknown[] = [],
+    responseTime: unknown[] = []
   ) {
     let callCount = 0;
-    const aggregate = jest.fn((pipeline: any[]) => {
+    const aggregate = jest.fn((pipeline: unknown[]) => {
       // Return aggregations in the order they're called in the route
       const results = [
         overallStats, // 0: overallStats
@@ -268,7 +268,7 @@ describe('API /api/reviews/analytics', () => {
     });
     expect(json.data.distribution).toHaveLength(5);
     // All distribution counts should be 0
-    json.data.distribution.forEach((bucket: any) => {
+    json.data.distribution.forEach((bucket: Record<string, unknown>) => {
       expect(bucket.count).toBe(0);
       expect(bucket.percentage).toBe('0.0');
     });

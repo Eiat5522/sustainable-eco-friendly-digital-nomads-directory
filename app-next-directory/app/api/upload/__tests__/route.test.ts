@@ -4,7 +4,7 @@ import { NextRequest } from 'next/server';
 const mockedAuth = jest.fn();
 const mockUpload = jest.fn();
 
-jest.mock('@/lib/auth', () => ({ auth: (...args: any[]) => mockedAuth(...args) }));
+jest.mock('@/lib/auth', () => ({ auth: (...args: unknown[]) => mockedAuth(...args) }));
 
 // Mock fs/promises for readFile
 jest.mock('fs/promises', () => ({
@@ -17,8 +17,14 @@ jest.mock('@/lib/image-optimizer', () => ({
   cleanupOptimizedFile: jest.fn().mockResolvedValue(undefined),
 }));
 
-let POST: any;
-let routeTestControl: any;
+let POST: (req: NextRequest) => Promise<Response>;
+let routeTestControl: {
+  formDataOverride?: (() => Promise<FormData>) | jest.Mock;
+  authOverride?: unknown;
+  uploadOverride?: jest.Mock;
+  optimizeOverride?: unknown;
+  skipOptimization?: boolean;
+};
 
 const createMockFormData = (file?: File) =>
   ({
@@ -68,7 +74,7 @@ describe('/api/upload', () => {
   it('returns 401 when user is not a venue owner', async () => {
     mockedAuth.mockResolvedValue({
       user: { id: 'user-1', role: 'user' },
-    } as any);
+    } as { user: { id: string; role: string } });
 
     const formData = new FormData();
     const request = new NextRequest('http://localhost:3000/api/upload', {
@@ -86,7 +92,7 @@ describe('/api/upload', () => {
   it('returns 400 when file is missing', async () => {
     mockedAuth.mockResolvedValue({
       user: { id: 'user-1', role: 'venueOwner' },
-    } as any);
+    } as { user: { id: string; role: string } });
     const formDataOverride = jest.fn(async () => createMockFormData());
     routeTestControl.formDataOverride = formDataOverride;
 
@@ -107,13 +113,13 @@ describe('/api/upload', () => {
   it('uploads file successfully for venue owner', async () => {
     mockedAuth.mockResolvedValue({
       user: { id: 'user-1', role: 'venueOwner' },
-    } as any);
+    } as { user: { id: string; role: string } });
 
     const mockAsset = {
       _id: 'image-asset-1',
       url: 'https://cdn.sanity.io/images/test.jpg',
     };
-    mockUpload.mockResolvedValue(mockAsset as any);
+    mockUpload.mockResolvedValue(mockAsset as { _id: string; url: string });
 
     const file = new File(['test content'], 'test.jpg', { type: 'image/jpeg' });
     routeTestControl.formDataOverride = async () => createMockFormData(file);
@@ -141,7 +147,7 @@ describe('/api/upload', () => {
   it('handles upload errors', async () => {
     mockedAuth.mockResolvedValue({
       user: { id: 'user-1', role: 'venueOwner' },
-    } as any);
+    } as { user: { id: string; role: string } });
 
     mockUpload.mockRejectedValue(new Error('Upload failed'));
 
@@ -165,13 +171,13 @@ describe('/api/upload', () => {
   it('uses optimized image when optimization succeeds', async () => {
     mockedAuth.mockResolvedValue({
       user: { id: 'user-1', role: 'venueOwner' },
-    } as any);
+    } as { user: { id: string; role: string } });
 
     const mockAsset = {
       _id: 'image-asset-2',
       url: 'https://cdn.sanity.io/images/test-optimized.webp',
     };
-    mockUpload.mockResolvedValue(mockAsset as any);
+    mockUpload.mockResolvedValue(mockAsset as { _id: string; url: string });
 
     // Create a file with arrayBuffer method
     const fileContent = Buffer.from('test content');

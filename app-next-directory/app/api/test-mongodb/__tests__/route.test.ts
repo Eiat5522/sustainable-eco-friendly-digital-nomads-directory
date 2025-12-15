@@ -4,8 +4,8 @@ const mockCommand = jest.fn();
 const mockDb = jest.fn(() => ({ command: mockCommand }));
 const mockClient = { db: mockDb } as const;
 
-let GET: any;
-let routeTestControl: any;
+let GET: () => Promise<Response>;
+let routeTestControl: { clientOverride?: Promise<unknown> };
 const originalNodeEnv = process.env.NODE_ENV;
 
 beforeEach(async () => {
@@ -16,7 +16,7 @@ beforeEach(async () => {
   // require after reset so we can set overrides on the required module's _testControl
 
   ({ GET, _testControl: routeTestControl } = require('../route'));
-  routeTestControl.clientOverride = Promise.resolve(mockClient as any);
+  routeTestControl.clientOverride = Promise.resolve(mockClient as { db: () => { command: jest.Mock } });
 });
 
 afterEach(() => {

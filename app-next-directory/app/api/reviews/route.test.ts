@@ -88,7 +88,7 @@ describe('API /api/reviews GET', () => {
   });
 
   // Simplified mock setup
-  function createMockCollection(docs: any[] = [], totalCount?: number) {
+  function createMockCollection(docs: unknown[] = [], totalCount?: number) {
     const mockCursor = {
       sort: jest.fn().mockReturnThis(),
       skip: jest.fn().mockReturnThis(),
@@ -110,7 +110,7 @@ describe('API /api/reviews GET', () => {
     ]);
 
     const req = new Request('http://localhost/api/reviews');
-    const res = await GET(req, { collection: mockCollection } as any);
+    const res = await GET(req, { collection: mockCollection } as { collection: unknown });
 
     expect(res.status).toBe(200);
     const json = await res.json();
@@ -132,7 +132,7 @@ describe('API /api/reviews GET', () => {
       'http://localhost/api/reviews?listing=list-1&userId=user-1&page=2&limit=5'
     );
 
-    await GET(req, { collection: mockCollection } as any);
+    await GET(req, { collection: mockCollection } as { collection: unknown });
 
     expect(mockCollection.find).toHaveBeenCalledWith({
       $or: [{ status: 'approved' }, { status: 'pending', user: 'user-1' }],
@@ -144,7 +144,7 @@ describe('API /api/reviews GET', () => {
   it('supports filtering by listing, rating, and verified status', async () => {
     const mockCollection = createMockCollection([{ _id: 'r1', verified: true, helpfulCount: 5 }]);
     const req = new Request('http://localhost/api/reviews?listing=slug-1&rating=5&verified=true');
-    const res = await GET(req, { collection: mockCollection } as any);
+    const res = await GET(req, { collection: mockCollection } as { collection: unknown });
 
     expect(res.status).toBe(200);
 
@@ -159,7 +159,7 @@ describe('API /api/reviews GET', () => {
   it('supports sorting by helpful, and sets isHelpful correctly', async () => {
     const mockCollection = createMockCollection([{ _id: 'r1', verified: true, helpfulCount: 5 }]);
     const req = new Request('http://localhost/api/reviews?listing=slug-1&sortBy=helpful');
-    const res = await GET(req, { collection: mockCollection } as any);
+    const res = await GET(req, { collection: mockCollection } as { collection: unknown });
 
     expect(res.status).toBe(200);
     const json = await res.json();
@@ -175,7 +175,7 @@ describe('API /api/reviews GET', () => {
       { _id: 'r2', verified: true },
     ]);
     const req = new Request('http://localhost/api/reviews');
-    const res = await GET(req, { collection: mockCollection } as any);
+    const res = await GET(req, { collection: mockCollection } as { collection: unknown });
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.data.reviews[0].isHelpful).toBe(false);
@@ -185,7 +185,7 @@ describe('API /api/reviews GET', () => {
   it('returns empty list and correct pagination when no results', async () => {
     const mockCollection = createMockCollection([], 0);
     const req = new Request('http://localhost/api/reviews?page=2&limit=10');
-    const res = await GET(req, { collection: mockCollection } as any);
+    const res = await GET(req, { collection: mockCollection } as { collection: unknown });
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.data.reviews).toEqual([]);
@@ -209,7 +209,7 @@ describe('API /api/reviews GET', () => {
     };
 
     const req = new Request('http://localhost/api/reviews');
-    const res = await GET(req, { collection: badCollection } as any);
+    const res = await GET(req, { collection: badCollection } as { collection: unknown });
 
     // The most important thing is that it returns a 500 status code
     expect(res.status).toBe(500);
