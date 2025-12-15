@@ -15,6 +15,7 @@ const isLocal = PLAYWRIGHT_IS_LOCAL;
 const resolvedPort = PLAYWRIGHT_PORT;
 const serverWaitURL = PLAYWRIGHT_ENV.serverWaitURL;
 const chromiumExecutablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
+const testTimeout = chromiumExecutablePath ? 120_000 : 60_000;
 const chromiumLaunchOptions = chromiumExecutablePath
   ? {
       executablePath: chromiumExecutablePath,
@@ -45,7 +46,7 @@ export default defineConfig({
     '**/tests/performance/**',
     '**/tests/visual/**',
   ],
-  timeout: 60_000,
+  timeout: testTimeout,
   expect: {
     timeout: 5_000,
   },

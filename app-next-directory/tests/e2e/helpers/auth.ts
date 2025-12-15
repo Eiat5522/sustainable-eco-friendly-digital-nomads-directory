@@ -2,14 +2,18 @@ import type { Page } from '@playwright/test';
 
 export async function loginAs(page: Page, email: string, password: string) {
   // Try common login routes and stop on the first that exposes a recognizable input
-  const loginPaths = ['/login', '/auth/login', '/auth/signin', '/signin'];
+  const loginPaths = ['/auth/login', '/login', '/auth/signin', '/signin'];
 
   const loginButton = page.getByTestId('login-button').first();
   let found = false;
 
   for (const p of loginPaths) {
     await page.goto(p, { waitUntil: 'domcontentloaded' }).catch(() => undefined);
-    if (await loginButton.isVisible().catch(() => false)) {
+    const isLoginPage = await loginButton
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .then(() => true)
+      .catch(() => false);
+    if (isLoginPage) {
       found = true;
       break;
     }

@@ -11,6 +11,10 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
+# Prefer Compose's internal builder over Bake/BuildKit in environments where
+# Docker Desktop credential helpers can be flaky (e.g., WSL vsock errors).
+export COMPOSE_BAKE="${COMPOSE_BAKE:-0}"
+
 # Fix Docker socket path for WSL (unset if pointing to wrong location)
 if [[ "$DOCKER_HOST" == *"run/user"* ]]; then
     unset DOCKER_HOST
@@ -47,12 +51,12 @@ sleep 5
 # Setup database
 echo ""
 echo "📦 Setting up test database..."
-docker-compose -f docker-compose.e2e.yml run --rm app-e2e node tests/setup-e2e-db.mjs
+docker-compose -f docker-compose.e2e.yml run --rm --no-deps app-e2e node tests/setup-e2e-db.mjs
 
 # Run E2E tests
 echo ""
 echo "🧪 Running E2E tests..."
-docker-compose -f docker-compose.e2e.yml run --rm app-e2e pnpm test:e2e
+docker-compose -f docker-compose.e2e.yml run --rm --no-deps app-e2e pnpm test:e2e
 
 # Capture exit code
 EXIT_CODE=$?

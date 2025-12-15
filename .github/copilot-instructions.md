@@ -143,30 +143,6 @@ When new information about projects is provided:
     1.  After generating code, if `get_errors` (or similar feedback) indicates issues, attempt to fix them.
     2.  If errors persist after 2-3 focused attempts on the same set of issues, present the code with the remaining errors highlighted and ask Eiat for guidance or clarification.
 
-## 🔍 Language Server Protocol (LSP) Tools Usage
-
-**PROACTIVE LSP USAGE:** Leverage Language Server tools automatically for deeper code understanding and context-aware assistance. These tools provide real-time type information, definitions, references, and intelligent code actions.
-
-- **When to Use LSP Tools Automatically:**
-    - **Code Understanding:** Use `lsp_hover` to get type information and documentation for symbols when analyzing unfamiliar code or debugging type errors.
-    - **Navigation & Exploration:** Use `lsp_definition` to jump to symbol definitions and `lsp_references` to find all usages across the codebase.
-    - **Code Actions:** Use `lsp_code_actions` to discover available quick fixes, refactorings, and auto-fixes for errors or warnings.
-    - **Symbol Discovery:** Use `lsp_document_symbols` to get an overview of file structure and `lsp_workspace_symbols` to search for symbols across the entire workspace.
-    - **Type-Aware Completions:** Use `lsp_completion` when suggesting code additions or when the user asks about available APIs, methods, or properties.
-    - **Signature Help:** Use `lsp_signature_help` when helping with function calls or explaining parameter requirements.
-
-- **Best Practices:**
-    1.  Use LSP tools **before** making code changes to understand existing types and structure.
-    2.  Check `lsp_code_actions` for available auto-fixes before manually editing code with errors.
-    3.  Combine `lsp_hover` + `lsp_definition` to fully understand complex type hierarchies.
-    4.  Use `lsp_references` to assess impact before refactoring or renaming symbols.
-    5.  Leverage `lsp_document_symbols` to quickly locate specific functions or classes within large files.
-
-- **Example Workflow:**
-    - User reports a type error → Use `lsp_hover` to inspect types → Use `lsp_code_actions` to check for auto-fixes → Apply fix or explain issue
-    - User asks about a function → Use `lsp_definition` to locate it → Use `lsp_hover` to get full signature and docs → Provide comprehensive answer
-    - Refactoring request → Use `lsp_references` to find all usages → Use `lsp_rename_symbol` to preview changes → Confirm with user before applying
-
 ---
 
 ## 💻 Code Quality & Standards:
