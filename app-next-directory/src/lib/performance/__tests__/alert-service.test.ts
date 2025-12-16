@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import * as loggerModule from '@/lib/logger';
 import { __TEST_ONLY__, processMetricForAlert } from '../alert-service';
 import {
   ALERT_DESTINATION_CONFIG,
@@ -11,11 +12,10 @@ describe('performance alert service', () => {
   let originalEnv: string | undefined;
   let originalFetch: typeof globalThis.fetch | undefined;
   let fetchMock: jest.Mock;
-  let consoleLogSpy: jest.SpyInstance;
-  let consoleWarnSpy: jest.SpyInstance;
-  let consoleErrorSpy: jest.SpyInstance;
   let dateNowSpy: jest.SpyInstance<number, []>;
   let randomSpy: jest.SpyInstance<number, []>;
+  let loggerErrorSpy: jest.SpyInstance;
+  let loggerWarnSpy: jest.SpyInstance;
   let originalSlackWebhook: string | undefined;
   let originalSlackChannel: string | undefined;
   let originalWebhookUrl: string | undefined;
@@ -31,12 +31,16 @@ describe('performance alert service', () => {
     (globalThis as { fetch?: typeof globalThis.fetch }).fetch =
       fetchMock as unknown as typeof globalThis.fetch;
 
-    consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-    consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    loggerErrorSpy = jest
+      .spyOn(loggerModule.structuredLogger, 'error')
+      .mockImplementation(() => undefined);
+    loggerWarnSpy = jest
+      .spyOn(loggerModule.structuredLogger, 'warn')
+      .mockImplementation(() => undefined);
 
     dateNowSpy = jest.spyOn(Date, 'now').mockReturnValue(1_700_000_000_000);
     randomSpy = jest.spyOn(Math, 'random').mockReturnValue(0.123456789);
+    jest.clearAllMocks();
 
     const slackConfig = ALERT_DESTINATION_CONFIG[NOTIFICATION_CHANNELS.SLACK];
     originalSlackWebhook = slackConfig.webhook;
@@ -59,11 +63,11 @@ describe('performance alert service', () => {
       delete (globalThis as { fetch?: unknown }).fetch;
     }
 
-    consoleLogSpy.mockRestore();
-    consoleWarnSpy.mockRestore();
-    consoleErrorSpy.mockRestore();
+    loggerErrorSpy.mockRestore();
+    loggerWarnSpy.mockRestore();
     dateNowSpy.mockRestore();
     randomSpy.mockRestore();
+    jest.clearAllMocks();
 
     const slackConfig = ALERT_DESTINATION_CONFIG[NOTIFICATION_CHANNELS.SLACK];
     slackConfig.webhook = originalSlackWebhook;
@@ -84,7 +88,7 @@ describe('performance alert service', () => {
     const result = await processMetricForAlert('pageLoad', 'FCP', 2000);
 
     expect(result).toBeNull();
-    expect(consoleErrorSpy).not.toHaveBeenCalled();
+    expect(loggerModule.structuredLogger.error).not.toHaveBeenCalled();
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
@@ -99,12 +103,17 @@ describe('performance alert service', () => {
     expect(result?.context.url).toBe('/destinations');
     expect(result?.context.timestamp).toBe(1_700_000_000_000);
     expect(result?.id).toBe('perf-1700000000000-4fzzzxjy');
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
+    expect(loggerModule.structuredLogger.error).toHaveBeenCalledWith(
       expect.stringContaining('[Performance Alert][ERROR] pageLoad.FCP: 4200'),
-      expect.objectContaining({ metricName: 'FCP' })
+      expect.objectContaining({ metricName: 'FCP' }),
+      expect.objectContaining({
+        component: 'performance',
+        metric: 'pageLoad.FCP',
+        value: 4200,
+      })
     );
-    expect(consoleWarnSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Would send email to'),
+    expect(loggerModule.structuredLogger.warn).toHaveBeenCalledWith(
+      'Would send email to',
       expect.objectContaining({
         _alert: expect.objectContaining({ metricName: 'FCP' }),
       })
@@ -177,9 +186,14 @@ describe('performance alert service', () => {
     const result = await processMetricForAlert('pageLoad', 'FCP', 4200);
 
     expect(result).toBeNull();
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      '[Alert Service] Error dispatching alert:',
-      expect.any(Error)
+    expect(loggerModule.structuredLogger.error).toHaveBeenCalledWith(
+      'Alert dispatch failed',
+      expect.any(Error),
+      expect.objectContaining({
+        component: 'alert-service',
+        alertId: expect.any(String),
+        metric: 'FCP',
+      })
     );
   });
 });

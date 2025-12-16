@@ -85,20 +85,11 @@ export async function processMetricForAlert(
     }
     return alert;
   } catch (error) {
-    try {
-      console.error('[Alert Service] Error dispatching alert:', error);
-    } catch {
-      // Ignore logging failures for tests that intentionally throw from console.error
-    }
-    try {
-      structuredLogger.error('Alert dispatch failed', error, {
-        component: 'alert-service',
-        alertId: alert.id,
-        metric: alert.metricName,
-      });
-    } catch {
-      // Best effort to log the failure without letting logging errors bubble up
-    }
+    structuredLogger.error('Alert dispatch failed', error, {
+      component: 'alert-service',
+      alertId: alert.id,
+      metric: alert.metricName,
+    });
     return null;
   }
 }

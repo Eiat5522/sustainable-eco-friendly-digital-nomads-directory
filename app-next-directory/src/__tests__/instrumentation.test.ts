@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import * as loggerModule from '@/lib/logger';
 
 import { register, resetInstrumentationForTests } from '../instrumentation';
 
@@ -11,15 +12,26 @@ describe('instrumentation register', () => {
   let listeners: ListenerMap;
   let processOnSpy: jest.SpyInstance;
   let processExitSpy: jest.SpyInstance;
-  let consoleErrorSpy: jest.SpyInstance;
-  let consoleWarnSpy: jest.SpyInstance;
-  let consoleLogSpy: jest.SpyInstance;
+  let loggerInfoSpy: jest.SpyInstance;
+  let loggerWarnSpy: jest.SpyInstance;
+  let loggerErrorSpy: jest.SpyInstance;
 
   beforeEach(() => {
     listeners = {};
     process.env.NEXT_RUNTIME = 'nodejs';
     process.env.NODE_ENV = 'development';
     resetInstrumentationForTests();
+    jest.clearAllMocks();
+
+    loggerInfoSpy = jest
+      .spyOn(loggerModule.structuredLogger, 'info')
+      .mockImplementation(() => undefined);
+    loggerWarnSpy = jest
+      .spyOn(loggerModule.structuredLogger, 'warn')
+      .mockImplementation(() => undefined);
+    loggerErrorSpy = jest
+      .spyOn(loggerModule.structuredLogger, 'error')
+      .mockImplementation(() => undefined);
 
     processOnSpy = jest
       .spyOn(process, 'on')
@@ -29,20 +41,18 @@ describe('instrumentation register', () => {
       });
 
     processExitSpy = jest.spyOn(process, 'exit').mockImplementation((() => undefined) as never);
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
-    consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-    consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
   });
 
   afterEach(() => {
     processOnSpy.mockRestore();
     processExitSpy.mockRestore();
-    consoleErrorSpy.mockRestore();
-    consoleWarnSpy.mockRestore();
-    consoleLogSpy.mockRestore();
+    loggerInfoSpy.mockRestore();
+    loggerWarnSpy.mockRestore();
+    loggerErrorSpy.mockRestore();
     process.env.NEXT_RUNTIME = originalNextRuntime;
     process.env.NODE_ENV = originalNodeEnv;
     resetInstrumentationForTests();
+    jest.clearAllMocks();
   });
 
   it('registers rejection and exception handlers when running in the node runtime', async () => {
@@ -50,8 +60,9 @@ describe('instrumentation register', () => {
 
     expect(processOnSpy).toHaveBeenCalledWith('unhandledRejection', expect.any(Function));
     expect(processOnSpy).toHaveBeenCalledWith('uncaughtException', expect.any(Function));
-    expect(consoleLogSpy).toHaveBeenCalledWith(
-      'Server instrumentation registered: Error handlers active'
+    expect(loggerModule.structuredLogger.info).toHaveBeenCalledWith(
+      'Server instrumentation registered: Error handlers active',
+      { component: 'instrumentation' }
     );
 
     const rejectionHandler = listeners.unhandledRejection;
@@ -60,8 +71,17 @@ describe('instrumentation register', () => {
     const rejectionError = new Error('MongoServerSelectionError: connection timeout');
     rejectionHandler?.(rejectionError, Promise.resolve());
 
-    expect(consoleWarnSpy).toHaveBeenCalledWith(
-      'MongoDB connection issue detected. The server will continue running and retry on next request.'
+    expect(loggerModule.structuredLogger.error).toHaveBeenCalledWith(
+      'Unhandled Promise Rejection',
+      rejectionError,
+      expect.objectContaining({
+        component: 'instrumentation',
+        details: { event: 'unhandledRejection' },
+      })
+    );
+    expect(loggerModule.structuredLogger.warn).toHaveBeenCalledWith(
+      'MongoDB connection issue detected. The server will continue running and retry on next request.',
+      { component: 'instrumentation' }
     );
     expect(processExitSpy).not.toHaveBeenCalled();
   });
@@ -74,17 +94,18 @@ describe('instrumentation register', () => {
 
     rejectionHandler?.('transient network blip', Promise.resolve());
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
+    expect(loggerModule.structuredLogger.error).toHaveBeenCalledWith(
       'Unhandled Promise Rejection',
-      'transient network blip'
+      undefined,
+      expect.objectContaining({
+        component: 'instrumentation',
+        details: expect.objectContaining({
+          event: 'unhandledRejection',
+          reason: 'transient network blip',
+        }),
+      })
     );
-    expect(consoleErrorSpy).not.toHaveBeenCalledWith(
-      'Unhandled Promise Rejection reason',
-      expect.anything()
-    );
-    expect(consoleWarnSpy).not.toHaveBeenCalledWith(
-      'MongoDB connection issue detected. The server will continue running and retry on next request.'
-    );
+    expect(loggerModule.structuredLogger.warn).not.toHaveBeenCalled();
   });
 
   it('logs Mongo retry guidance when server selection timeouts occur', async () => {
@@ -93,8 +114,9 @@ describe('instrumentation register', () => {
     const rejectionHandler = listeners.unhandledRejection;
     rejectionHandler?.(new Error('Server selection timed out after 5000 ms'), Promise.resolve());
 
-    expect(consoleWarnSpy).toHaveBeenCalledWith(
-      'MongoDB connection issue detected. The server will continue running and retry on next request.'
+    expect(loggerModule.structuredLogger.warn).toHaveBeenCalledWith(
+      'MongoDB connection issue detected. The server will continue running and retry on next request.',
+      { component: 'instrumentation' }
     );
   });
 
@@ -105,12 +127,17 @@ describe('instrumentation register', () => {
     const genericError = new Error('Generic failure');
     rejectionHandler?.(genericError, Promise.resolve());
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      'Unhandled Promise Rejection reason',
-      genericError
+    expect(loggerModule.structuredLogger.error).toHaveBeenCalledWith(
+      'Unhandled Promise Rejection',
+      genericError,
+      expect.objectContaining({
+        component: 'instrumentation',
+        details: { event: 'unhandledRejection' },
+      })
     );
-    expect(consoleWarnSpy).not.toHaveBeenCalledWith(
-      'MongoDB connection issue detected. The server will continue running and retry on next request.'
+    expect(loggerModule.structuredLogger.warn).not.toHaveBeenCalledWith(
+      'MongoDB connection issue detected. The server will continue running and retry on next request.',
+      expect.anything()
     );
   });
 
@@ -123,7 +150,10 @@ describe('instrumentation register', () => {
     exceptionHandler?.(new Error('MongoServerSelectionError: primary down'));
 
     expect(processExitSpy).not.toHaveBeenCalled();
-    expect(consoleWarnSpy).toHaveBeenCalledWith('MongoDB connection issue detected. Continuing...');
+    expect(loggerModule.structuredLogger.warn).toHaveBeenCalledWith(
+      'MongoDB connection issue detected. Continuing...',
+      { component: 'instrumentation' }
+    );
   });
 
   it('logs the failure context and exits the process for critical production errors', async () => {
@@ -134,8 +164,9 @@ describe('instrumentation register', () => {
     exceptionHandler?.(new Error('Unexpected fatal error'));
 
     expect(processExitSpy).toHaveBeenCalledWith(1);
-    expect(consoleErrorSpy).not.toHaveBeenCalledWith(
-      'Development mode: Server will continue running'
+    expect(loggerModule.structuredLogger.warn).not.toHaveBeenCalledWith(
+      'Development mode: Server will continue running after uncaught exception',
+      expect.anything()
     );
   });
 
@@ -148,8 +179,9 @@ describe('instrumentation register', () => {
     exceptionHandler?.(new Error('Rendering error'));
 
     expect(processExitSpy).not.toHaveBeenCalled();
-    expect(consoleErrorSpy).not.toHaveBeenCalledWith(
-      'Development mode: Server will continue running'
+    expect(loggerModule.structuredLogger.warn).toHaveBeenCalledWith(
+      'Development mode: Server will continue running after uncaught exception',
+      { component: 'instrumentation' }
     );
   });
 
@@ -159,6 +191,6 @@ describe('instrumentation register', () => {
     await register();
 
     expect(processOnSpy).not.toHaveBeenCalled();
-    expect(consoleLogSpy).not.toHaveBeenCalled();
+    expect(loggerModule.structuredLogger.info).not.toHaveBeenCalled();
   });
 });

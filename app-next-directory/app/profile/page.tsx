@@ -339,14 +339,14 @@ export default function ProfilePage() {
       </div>
 
       {favoritesLoading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" role="status" aria-live="polite">
+        <output className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" role="status" aria-live="polite">
           {Array.from({ length: 3 }).map((_, index) => (
             <div
               key={index}
               className="h-48 animate-pulse rounded-3xl border-4 border-dashed border-neo-border/60 bg-white/60"
             />
           ))}
-        </div>
+        </output>
       ) : favoritesError ? (
         <NeoCard variant="flat" className="border-4 border-rose-200 bg-rose-50">
           <NeoCardHeader className="pb-2">
@@ -401,14 +401,14 @@ export default function ProfilePage() {
       </div>
 
       {ownerLoading ? (
-        <div className="space-y-4" role="status" aria-live="polite">
+        <output className="space-y-4" role="status" aria-live="polite">
           {Array.from({ length: 2 }).map((_, index) => (
             <div
               key={index}
               className="h-40 animate-pulse rounded-3xl border-4 border-dashed border-neo-border/60 bg-white/60"
             />
           ))}
-        </div>
+        </output>
       ) : ownerError ? (
         <NeoCard variant="flat" className="border-4 border-rose-200 bg-rose-50">
           <NeoCardHeader className="pb-2">
@@ -750,10 +750,10 @@ export default function ProfilePage() {
   const renderMonthlyTrendSection = () => {
     if (dashboardLoading) {
       return (
-        <div className="flex items-center gap-3 text-sm text-neo-text-secondary" role="status">
+        <output className="flex items-center gap-3 text-sm text-neo-text-secondary" role="status">
           <Loader2 className="h-5 w-5 animate-spin text-neo-primary" aria-hidden="true" />
           Loading recent trends…
-        </div>
+        </output>
       );
     }
 
@@ -949,7 +949,7 @@ export default function ProfilePage() {
                     Favourite listing dashboards
                   </h2>
                   {dashboardLoading ? (
-                    <div
+                    <output
                       className="flex items-center gap-3 text-sm text-neo-text-secondary"
                       role="status"
                     >
@@ -958,7 +958,7 @@ export default function ProfilePage() {
                         aria-hidden="true"
                       />
                       Loading favourites analytics…
-                    </div>
+                    </output>
                   ) : dashboardError ? (
                     <NeoCard variant="flat" className="border-4 border-rose-200 bg-rose-50">
                       <NeoCardContent className="text-sm text-rose-700">
@@ -982,13 +982,13 @@ export default function ProfilePage() {
             {activeTab === 'listings' && (
               <div className="space-y-10">
                 {dashboardLoading && ownerRole ? (
-                  <div
+                  <output
                     className="flex items-center gap-3 text-sm text-neo-text-secondary"
                     role="status"
                   >
                     <Loader2 className="h-5 w-5 animate-spin text-neo-primary" aria-hidden="true" />
                     Loading listing analytics…
-                  </div>
+                  </output>
                 ) : dashboardError && ownerRole ? (
                   <NeoCard variant="flat" className="border-4 border-rose-200 bg-rose-50">
                     <NeoCardContent className="text-sm text-rose-700">

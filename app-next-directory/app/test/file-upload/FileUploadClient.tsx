@@ -46,7 +46,7 @@ export default function FileUploadClient() {
         />
       </label>
 
-      <div
+      <section
         className="flex min-h-24 items-center justify-center rounded border-2 border-dashed border-neutral-400 bg-neutral-50 p-6 text-sm text-neutral-700"
         data-testid="file-drop-zone"
         onDragOver={handleDragOver}
@@ -55,7 +55,7 @@ export default function FileUploadClient() {
         aria-label="File drop zone"
       >
         Drag & drop a file here
-      </div>
+      </section>
 
       {files.names.length > 0 ? (
         <section className="rounded border border-neutral-200 bg-white p-4 shadow-sm">

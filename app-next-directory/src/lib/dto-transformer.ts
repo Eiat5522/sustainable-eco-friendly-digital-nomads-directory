@@ -129,6 +129,7 @@ export const imageOrFallback = (img: unknown, w: number, h: number): string => {
     }
     // Otherwise only treat as a Sanity asset ref/id if valid
     if (isImageAssetId(img)) {
+      // biome-ignore lint/suspicious/noFocusedTests: 'fit' is an image transformation, not a focused test
       return urlFor(img).width(w).height(h).fit('crop').auto('format').url();
     }
     return FALLBACK_IMAGE;
@@ -146,6 +147,7 @@ export const imageOrFallback = (img: unknown, w: number, h: number): string => {
   }
 
   if (isSanityImage(img)) {
+    // biome-ignore lint/suspicious/noFocusedTests: 'fit' is an image transformation, not a focused test
     return urlFor(img).width(w).height(h).fit('crop').auto('format').url();
   }
   return FALLBACK_IMAGE;

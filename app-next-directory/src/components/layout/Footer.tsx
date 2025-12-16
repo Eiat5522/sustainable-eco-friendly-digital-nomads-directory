@@ -40,7 +40,6 @@ export function Footer() {
   return (
     <footer
       id="footer-content"
-      role="contentinfo"
       className="bg-neo-text-primary text-white border-t-4 border-neo-border"
     >
       <div className="container mx-auto px-4 py-16">

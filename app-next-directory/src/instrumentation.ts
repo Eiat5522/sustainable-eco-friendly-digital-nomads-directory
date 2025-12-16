@@ -45,22 +45,29 @@ const attachProcessHandlers = (
     return;
   }
 
-  const rejectionHandler: NodeJS.UnhandledRejectionListener = (reason: unknown) => {
-    if (reason instanceof Error) {
-      console.error('Unhandled Promise Rejection reason', reason);
-    } else {
-      console.error('Unhandled Promise Rejection', reason);
+  const serializeReason = (reason: unknown): string => {
+    if (typeof reason === 'string') return reason;
+    if (reason === null || typeof reason === 'undefined') return 'undefined';
+    if (typeof reason === 'number' || typeof reason === 'boolean') {
+      return String(reason);
     }
-    structuredLogger.error('Unhandled Promise Rejection', undefined, {
-      component: 'instrumentation',
+    try {
+      return JSON.stringify(reason);
+    } catch {
+      return String(reason);
+    }
+  };
+
+  const rejectionHandler: NodeJS.UnhandledRejectionListener = (reason: unknown) => {
+    const baseContext = {
+      component: 'instrumentation' as const,
       details: {
         event: 'unhandledRejection',
       },
-    });
+    };
+
     if (reason instanceof Error) {
-      structuredLogger.error('Unhandled Promise Rejection reason', reason, {
-        component: 'instrumentation',
-      });
+      structuredLogger.error('Unhandled Promise Rejection', reason, baseContext);
 
       if (
         reason.message?.includes('MongoServerSelectionError') ||
@@ -69,11 +76,20 @@ const attachProcessHandlers = (
         structuredLogger.warn(
           'MongoDB connection issue detected. The server will continue running and retry on next request.',
           {
-            component: 'instrumentation',
+            component: 'instrumentation' as const,
           }
         );
       }
+      return;
     }
+
+    structuredLogger.error('Unhandled Promise Rejection', undefined, {
+      ...baseContext,
+      details: {
+        ...baseContext.details,
+        reason: serializeReason(reason),
+      },
+    });
   };
 
   const exceptionHandler: NodeJS.UncaughtExceptionListener = (error: Error) => {

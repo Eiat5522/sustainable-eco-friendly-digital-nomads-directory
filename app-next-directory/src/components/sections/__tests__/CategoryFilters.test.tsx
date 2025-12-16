@@ -1,8 +1,8 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
+import { useState } from 'react';
 import { CategoryFilters } from '../CategoryFilters';
 
 jest.mock('lucide-react', () => ({

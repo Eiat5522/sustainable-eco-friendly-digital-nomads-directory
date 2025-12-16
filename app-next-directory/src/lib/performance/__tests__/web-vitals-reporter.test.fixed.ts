@@ -1,4 +1,4 @@
-import { WebVitalsReporter, type WebVitalsMetric } from '../web-vitals-reporter';
+import { type WebVitalsMetric, WebVitalsReporter } from '../web-vitals-reporter';
 
 describe('WebVitalsReporter (fixed)', () => {
   const originalNavigator = globalThis.navigator;

@@ -1,10 +1,9 @@
 import { describe, expect, it } from '@jest/globals';
 
 // Simple utility functions to test
-export const addNumbers = (a: number, b: number): number => a + b;
-export const formatName = (firstName: string, lastName: string): string =>
-  `${firstName} ${lastName}`.trim();
-export const isValidEmail = (email: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+const addNumbers = (a: number, b: number): number => a + b;
+const formatName = (firstName: string, lastName: string): string => `${firstName} ${lastName}`.trim();
+const isValidEmail = (email: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 describe('Helper Utilities', () => {
   describe('addNumbers', () => {

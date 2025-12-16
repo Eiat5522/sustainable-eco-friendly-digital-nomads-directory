@@ -38,7 +38,10 @@ describe('CityCarousel', () => {
     jest.clearAllMocks();
     emblaApiMock.canScrollPrev.mockReturnValue(true);
     emblaApiMock.canScrollNext.mockReturnValue(true);
-    mockedUseEmblaCarousel.mockReturnValue([jest.fn(), emblaApiMock as unknown as EmblaCarouselType]);
+    mockedUseEmblaCarousel.mockReturnValue([
+      jest.fn(),
+      emblaApiMock as unknown as EmblaCarouselType,
+    ]);
 
     server.use(http.get('/api/cities', () => HttpResponse.json({ cities: mockCities })));
   });

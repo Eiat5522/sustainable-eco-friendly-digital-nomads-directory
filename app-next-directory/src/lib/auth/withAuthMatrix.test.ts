@@ -5,7 +5,7 @@ import { getToken } from 'next-auth/jwt';
 jest.mock('@/lib/logger');
 
 import { structuredLogger } from '@/lib/logger';
-import { ACCESS_CONTROL_MATRIX, type PagePermissions, type UserRole } from '../../types/auth';
+import type { ACCESS_CONTROL_MATRIX, PagePermissions, UserRole } from '../../types/auth';
 
 type StructuredLogger = typeof import('@/lib/logger')['structuredLogger'];
 
