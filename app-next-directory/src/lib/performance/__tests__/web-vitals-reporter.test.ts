@@ -350,7 +350,7 @@ describe('recordMetric', () => {
       value: fetchMock,
     });
 
-    const circular: any = {};
+    const circular: Record<string, unknown> & { self?: unknown } = {};
     circular.self = circular;
 
     expect(() => recordMetric('circular', 99, circular)).not.toThrow();
