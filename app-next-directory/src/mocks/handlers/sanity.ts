@@ -143,7 +143,7 @@ export const sanityHandlers = [
         });
       }
 
-      const review = data.reviews?.find((r: { _id: string }) => r._id === docId);
+      const review = data.reviews?.find(({ id }) => id === docId);
       if (review) {
         return HttpResponse.json({
           documents: [review],

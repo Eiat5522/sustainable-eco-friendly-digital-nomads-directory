@@ -28,14 +28,6 @@ const data = createTestData();
 const ok = <Body>(body: Body, status = 200) =>
   HttpResponse.json(body as Record<string, unknown>, { status });
 
-interface ListingItem {
-  _id: string;
-  name: string;
-  city: { name: string; slug?: { current: string } };
-  slug?: { current: string };
-  [key: string]: unknown;
-}
-
 /**
  * Internal API route handlers
  */
@@ -47,8 +39,8 @@ export const apiHandlers = [
     const url = new URL(request.url);
     const query = url.searchParams.get('q') ?? '';
     const results = data.listings
-      .filter((listing: ListingItem) => listing.name.toLowerCase().includes(query.toLowerCase()))
-      .map((listing: ListingItem) => ({
+      .filter(listing => listing.name.toLowerCase().includes(query.toLowerCase()))
+      .map(listing => ({
         id: listing._id,
         name: listing.name,
         city: listing.city.name,
@@ -80,8 +72,8 @@ export const apiHandlers = [
     }
     const query = typeof body?.query === 'string' ? body.query.trim().toLowerCase() : '';
     const results = data.listings
-      .filter((listing: ListingItem) => listing.name.toLowerCase().includes(query))
-      .map((listing: ListingItem) => ({
+      .filter(listing => listing.name.toLowerCase().includes(query))
+      .map(listing => ({
         id: listing._id,
         name: listing.name,
         city: listing.city.name,
@@ -113,9 +105,7 @@ export const apiHandlers = [
    * Categories API
    */
   http.get('/api/categories', () => {
-    const categories = Array.from(
-      new Set(data.listings.map((listing: ListingItem) => listing.type))
-    );
+    const categories = Array.from(new Set(data.listings.map(listing => listing.type)));
     return ok({ categories });
   }),
 
@@ -181,7 +171,7 @@ export const apiHandlers = [
     const url = new URL(request.url);
     const citySlug = url.searchParams.get('citySlug');
     const listings = citySlug
-      ? data.listings.filter((listing: ListingItem) => listing.city.slug?.current === citySlug)
+      ? data.listings.filter(listing => listing.city.slug?.current === citySlug)
       : data.listings;
 
     return ok({
@@ -275,8 +265,12 @@ export const apiHandlers = [
    */
   http.get('/api/user/favorites', () => {
     const user = data.users[0];
+    if (!user) {
+      return ok({ favorites: [] });
+    }
+
     const favorites = getFavoritesForUser(user.id).map(favorite => {
-      const listing = data.listings.find((item: ListingItem) => item._id === favorite.listingId);
+      const listing = data.listings.find(item => item._id === favorite.listingId);
       return {
         _id: favorite.id,
         createdAt: favorite.createdAt,
