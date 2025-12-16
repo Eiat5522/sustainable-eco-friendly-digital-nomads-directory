@@ -5,11 +5,13 @@ import { getUserFacingMessage } from '@/lib/client-utils';
 import { fetchJsonWithRetry, getDefaultTimeout, RequestTimeoutError } from '@/lib/http/request';
 import type { UserRole } from '@/types/auth';
 
+type AdminRole = UserRole | 'editor' | 'contentEditor' | 'moderator' | 'unidentifiedUser';
+
 type UserListItem = {
   id: string;
   name: string | null;
   email: string | null;
-  role: UserRole;
+  role: AdminRole;
   createdAt: string;
   lastActiveAt: string | null;
   status: 'active' | 'inactive';
@@ -36,12 +38,9 @@ type UsersResponse = {
   };
 };
 
-const ROLE_OPTIONS: { value: UserRole; label: string; description: string }[] = [
+const ROLE_OPTIONS: { value: AdminRole; label: string; description: string }[] = [
   { value: 'user', label: 'User', description: 'Basic user with limited permissions' },
   { value: 'venueOwner', label: 'Venue Owner', description: 'Can manage own listings' },
-  { value: 'editor', label: 'Editor', description: 'Can edit content and listings' },
-  { value: 'contentEditor', label: 'Content Editor', description: 'Can create and edit content' },
-  { value: 'moderator', label: 'Moderator', description: 'Can moderate content' },
   { value: 'admin', label: 'Admin', description: 'Full admin privileges' },
   { value: 'superAdmin', label: 'Super Admin', description: 'Highest level access' },
 ];
@@ -49,7 +48,7 @@ const ROLE_OPTIONS: { value: UserRole; label: string; description: string }[] = 
 async function fetchUsers(
   page: number,
   search: string,
-  roleFilter: UserRole | null
+  roleFilter: AdminRole | null
 ): Promise<UsersResponse> {
   const params = new URLSearchParams({
     page: page.toString(),
@@ -67,7 +66,7 @@ async function fetchUsers(
 
 async function updateUser(
   userId: string,
-  updates: { role?: UserRole; status?: 'active' | 'inactive' }
+  updates: { role?: AdminRole; status?: 'active' | 'inactive' }
 ) {
   return fetchJsonWithRetry<{ message: string }>(
     '/api/admin/users',
@@ -119,8 +118,8 @@ function formatTimeAgo(dateString: string | null): string {
   return `${diffInMonths}mo ago`;
 }
 
-function RoleBadge({ role }: { role: UserRole }) {
-  const roleColors: Record<UserRole, string> = {
+function RoleBadge({ role }: { role: AdminRole }) {
+  const roleColors: Record<AdminRole, string> = {
     user: 'bg-gray-50 text-gray-700 border-gray-200',
     venueOwner: 'bg-blue-50 text-blue-700 border-blue-200',
     editor: 'bg-green-50 text-green-700 border-green-200',
@@ -131,7 +130,7 @@ function RoleBadge({ role }: { role: UserRole }) {
     unidentifiedUser: 'bg-gray-50 text-gray-500 border-gray-200',
   };
 
-  const roleLabels: Record<UserRole, string> = {
+  const roleLabels: Record<AdminRole, string> = {
     user: 'User',
     venueOwner: 'Venue Owner',
     editor: 'Editor',
@@ -176,7 +175,7 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
     hasPrevPage: false,
   });
   const [search, setSearch] = useState('');
-  const [roleFilter, setRoleFilter] = useState<UserRole | ''>('');
+  const [roleFilter, setRoleFilter] = useState<AdminRole | ''>('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -209,7 +208,7 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
     loadUsers(1);
   }, [loadUsers]);
 
-  const handleRoleChange = (userId: string, newRole: UserRole) => {
+  const handleRoleChange = (userId: string, newRole: AdminRole) => {
     if (!canChangeRoles) {
       setFeedback('Only Super Admins can change user roles');
       return;
@@ -220,18 +219,20 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
       return;
     }
 
-    startTransition(async () => {
-      try {
-        await updateUser(userId, { role: newRole });
-        setFeedback(`User role updated to ${newRole}`);
-        await loadUsers(pagination.page);
+    startTransition(() => {
+      void (async () => {
+        try {
+          await updateUser(userId, { role: newRole });
+          setFeedback(`User role updated to ${newRole}`);
+          await loadUsers(pagination.page);
 
-        // Clear feedback after 3 seconds
-        setTimeout(() => setFeedback(null), 3000);
-      } catch (err) {
-        setFeedback(getUserFacingMessage(err, 'Failed to update user role'));
-        setTimeout(() => setFeedback(null), 4000);
-      }
+          // Clear feedback after 3 seconds
+          setTimeout(() => setFeedback(null), 3000);
+        } catch (err) {
+          setFeedback(getUserFacingMessage(err, 'Failed to update user role'));
+          setTimeout(() => setFeedback(null), 4000);
+        }
+      })();
     });
   };
 
@@ -241,18 +242,20 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
       setTimeout(() => setFeedback(null), 4000);
       return;
     }
-    startTransition(async () => {
-      try {
-        await updateUser(userId, { status: newStatus });
-        setFeedback(`User ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`);
-        await loadUsers(pagination.page);
+    startTransition(() => {
+      void (async () => {
+        try {
+          await updateUser(userId, { status: newStatus });
+          setFeedback(`User ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`);
+          await loadUsers(pagination.page);
 
-        // Clear feedback after 3 seconds
-        setTimeout(() => setFeedback(null), 3000);
-      } catch (err) {
-        setFeedback(getUserFacingMessage(err, 'Failed to update user status'));
-        setTimeout(() => setFeedback(null), 4000);
-      }
+          // Clear feedback after 3 seconds
+          setTimeout(() => setFeedback(null), 3000);
+        } catch (err) {
+          setFeedback(getUserFacingMessage(err, 'Failed to update user status'));
+          setTimeout(() => setFeedback(null), 4000);
+        }
+      })();
     });
   };
 
@@ -278,16 +281,18 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
       return;
     }
 
-    startTransition(async () => {
-      try {
-        await deleteUser(userId);
-        setFeedback('User deleted successfully');
-        await loadUsers(pagination.page);
-        setTimeout(() => setFeedback(null), 3000);
-      } catch (err) {
-        setFeedback(getUserFacingMessage(err, 'Failed to delete user'));
-        setTimeout(() => setFeedback(null), 4000);
-      }
+    startTransition(() => {
+      void (async () => {
+        try {
+          await deleteUser(userId);
+          setFeedback('User deleted successfully');
+          await loadUsers(pagination.page);
+          setTimeout(() => setFeedback(null), 3000);
+        } catch (err) {
+          setFeedback(getUserFacingMessage(err, 'Failed to delete user'));
+          setTimeout(() => setFeedback(null), 4000);
+        }
+      })();
     });
   };
 
@@ -321,7 +326,7 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
             <select
               id="roleFilter"
               value={roleFilter}
-              onChange={e => setRoleFilter(e.target.value as UserRole | '')}
+              onChange={e => setRoleFilter(e.target.value as AdminRole | '')}
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">All roles</option>
@@ -393,7 +398,7 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
                         {canChangeRoles ? (
                           <select
                             value={user.role}
-                            onChange={e => handleRoleChange(user.id, e.target.value as UserRole)}
+                            onChange={e => handleRoleChange(user.id, e.target.value as AdminRole)}
                             disabled={
                               isPending || (user.id === currentUserId && user.role === 'superAdmin')
                             }
