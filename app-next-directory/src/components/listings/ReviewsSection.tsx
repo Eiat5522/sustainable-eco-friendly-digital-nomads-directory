@@ -314,10 +314,9 @@ export function ReviewsSection({
             )}
 
             {submitted && (
-              <div
+              <output
                 className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm"
                 data-testid="review-success-message"
-                role="status"
               >
                 <p>Thank you! Your review has been submitted and is pending approval.</p>
                 {submittedReview && (
@@ -332,7 +331,7 @@ export function ReviewsSection({
                     </p>
                   </div>
                 )}
-              </div>
+              </output>
             )}
 
             <div className="mb-4">

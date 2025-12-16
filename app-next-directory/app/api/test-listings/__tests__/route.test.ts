@@ -12,7 +12,7 @@ describe('/api/test-listings', () => {
     mockCreateTestData.mockReset();
     // require after reset so we can set overrides on the required module's _testControl
     jest.resetModules();
-    const { GET: newGET, _testControl: newTestControl } = require('../route');
+    const { _testControl: newTestControl } = require('../route');
     routeTestControl = newTestControl;
     routeTestControl.createTestDataOverride = mockCreateTestData;
     delete process.env.NODE_ENV;

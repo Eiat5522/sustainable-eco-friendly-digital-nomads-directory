@@ -27,7 +27,6 @@ jest.mock('@/data/e2e/discovery-fixtures', () => ({
 }));
 
 const { cachedClient } = require('@/lib/sanity/cached-client');
-const { client } = require('@/lib/sanity/client');
 const { transformToSummaryDTO } = require('@/lib/dto-transformer');
 const fixtures = require('@/data/e2e/discovery-fixtures');
 

@@ -4,14 +4,14 @@ import { NoListingsFound } from '../NoListingsFound';
 describe('NoListingsFound', () => {
   describe('Basic Rendering', () => {
     it('renders the component', () => {
-      const { container } = render(<NoListingsFound />);
-      expect(container.firstChild).toBeInTheDocument();
+      render(<NoListingsFound />);
+      expect(screen.getByText('No listings found for this city yet.')).toBeInTheDocument();
     });
 
     it('renders the emoji icon', () => {
-      const { container } = render(<NoListingsFound />);
-      const emoji = container.querySelector('[aria-hidden="true"]');
-      expect(emoji).toHaveTextContent('🧐');
+      render(<NoListingsFound />);
+      const emoji = screen.getByText('🧐');
+      expect(emoji).toHaveAttribute('aria-hidden', 'true');
     });
 
     it('renders the main message', () => {
@@ -27,16 +27,16 @@ describe('NoListingsFound', () => {
 
   describe('Styling', () => {
     it('applies container styling', () => {
-      const { container } = render(<NoListingsFound />);
-      const wrapper = container.firstChild as HTMLElement;
+      render(<NoListingsFound />);
+      const wrapper = screen.getByRole('status');
 
       expect(wrapper).toHaveClass('text-center');
       expect(wrapper).toHaveClass('py-12');
     });
 
     it('styles the emoji container', () => {
-      const { container } = render(<NoListingsFound />);
-      const emojiContainer = container.querySelector('.rounded-full');
+      render(<NoListingsFound />);
+      const emojiContainer = screen.getByText('🧐').parentElement;
 
       expect(emojiContainer).toHaveClass('mx-auto');
       expect(emojiContainer).toHaveClass('mb-3');
@@ -50,13 +50,13 @@ describe('NoListingsFound', () => {
     });
 
     it('applies body-lg class to main message', () => {
-      const { container } = render(<NoListingsFound />);
+      render(<NoListingsFound />);
       const mainMessage = screen.getByText('No listings found for this city yet.');
       expect(mainMessage).toHaveClass('body-lg');
     });
 
     it('applies body-sm and text-neo-text-secondary to helper text', () => {
-      const { container } = render(<NoListingsFound />);
+      render(<NoListingsFound />);
       const helperText = screen.getByText('Try adjusting filters or check back later.');
 
       expect(helperText).toHaveClass('body-sm');
@@ -67,21 +67,20 @@ describe('NoListingsFound', () => {
 
   describe('Accessibility', () => {
     it('has role="status"', () => {
-      const { container } = render(<NoListingsFound />);
-      const wrapper = container.firstChild as HTMLElement;
+      render(<NoListingsFound />);
+      const wrapper = screen.getByRole('status');
       expect(wrapper).toHaveAttribute('role', 'status');
     });
 
     it('has aria-live="polite"', () => {
-      const { container } = render(<NoListingsFound />);
-      const wrapper = container.firstChild as HTMLElement;
+      render(<NoListingsFound />);
+      const wrapper = screen.getByRole('status');
       expect(wrapper).toHaveAttribute('aria-live', 'polite');
     });
 
     it('hides emoji from screen readers', () => {
-      const { container } = render(<NoListingsFound />);
-      const emoji = container.querySelector('[aria-hidden="true"]');
-      expect(emoji).toBeInTheDocument();
+      render(<NoListingsFound />);
+      const emoji = screen.getByText('🧐');
       expect(emoji).toHaveAttribute('aria-hidden', 'true');
     });
 
@@ -97,13 +96,14 @@ describe('NoListingsFound', () => {
 
   describe('Structure', () => {
     it('wraps content in a div', () => {
-      const { container } = render(<NoListingsFound />);
-      expect(container.firstChild).toBeInstanceOf(HTMLDivElement);
+      render(<NoListingsFound />);
+      const wrapper = screen.getByRole('status');
+      expect(wrapper.tagName).toBe('DIV');
     });
 
     it('has correct element hierarchy', () => {
-      const { container } = render(<NoListingsFound />);
-      const wrapper = container.firstChild as HTMLElement;
+      render(<NoListingsFound />);
+      const wrapper = screen.getByRole('status');
 
       // Should contain emoji container
       const emojiContainer = wrapper.querySelector('.rounded-full');
@@ -115,13 +115,13 @@ describe('NoListingsFound', () => {
     });
 
     it('renders main message as paragraph', () => {
-      const { container } = render(<NoListingsFound />);
+      render(<NoListingsFound />);
       const mainMessage = screen.getByText('No listings found for this city yet.');
       expect(mainMessage.tagName).toBe('P');
     });
 
     it('renders helper text as paragraph', () => {
-      const { container } = render(<NoListingsFound />);
+      render(<NoListingsFound />);
       const helperText = screen.getByText('Try adjusting filters or check back later.');
       expect(helperText.tagName).toBe('P');
     });
@@ -129,20 +129,20 @@ describe('NoListingsFound', () => {
 
   describe('Visual Presentation', () => {
     it('centers all content', () => {
-      const { container } = render(<NoListingsFound />);
-      const wrapper = container.firstChild as HTMLElement;
+      render(<NoListingsFound />);
+      const wrapper = screen.getByRole('status');
       expect(wrapper).toHaveClass('text-center');
     });
 
     it('provides adequate padding', () => {
-      const { container } = render(<NoListingsFound />);
-      const wrapper = container.firstChild as HTMLElement;
+      render(<NoListingsFound />);
+      const wrapper = screen.getByRole('status');
       expect(wrapper).toHaveClass('py-12');
     });
 
     it('positions emoji above text', () => {
-      const { container } = render(<NoListingsFound />);
-      const wrapper = container.firstChild as HTMLElement;
+      render(<NoListingsFound />);
+      const wrapper = screen.getByRole('status');
       const children = Array.from(wrapper.children);
 
       // First child should be emoji container
@@ -154,11 +154,11 @@ describe('NoListingsFound', () => {
 
   describe('Consistency', () => {
     it('renders consistently across multiple renders', () => {
-      const { rerender, container } = render(<NoListingsFound />);
-      const firstRender = container.innerHTML;
+      const { rerender } = render(<NoListingsFound />);
+      const firstRender = document.querySelector('[role="status"]')?.innerHTML;
 
       rerender(<NoListingsFound />);
-      const secondRender = container.innerHTML;
+      const secondRender = document.querySelector('[role="status"]')?.innerHTML;
 
       expect(firstRender).toBe(secondRender);
     });

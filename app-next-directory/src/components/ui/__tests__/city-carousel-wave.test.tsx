@@ -23,7 +23,13 @@ jest.mock('next/image', () => ({
   }) => {
     const { fill, priority, alt = '', ...rest } = props;
     return (
-      <div role="img" aria-label={alt} data-fill={fill?.toString()} data-priority={priority?.toString()} {...rest} />
+      <div
+        role="img"
+        aria-label={alt}
+        data-fill={fill?.toString()}
+        data-priority={priority?.toString()}
+        {...rest}
+      />
     );
   },
 }));

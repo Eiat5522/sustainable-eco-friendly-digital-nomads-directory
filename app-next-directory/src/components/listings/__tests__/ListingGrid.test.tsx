@@ -19,9 +19,7 @@ jest.mock('next/image', () => {
     onError,
     ...props
   }: React.ComponentProps<'img'> & { fill?: boolean }) => {
-    return (
-        <div role="img" aria-label={alt} data-src={src} {...props} />
-    );
+    return <div role="img" aria-label={alt} data-src={src} {...props} />;
   };
 });
 
@@ -212,7 +210,7 @@ describe('ListingGrid', () => {
     });
 
     it('displays star icon in featured badge', () => {
-      const { container } = render(<ListingGrid listings={mockListings} />);
+      render(<ListingGrid listings={mockListings} />);
 
       const featuredBadge = screen.getByText('Featured').closest('div');
       expect(featuredBadge).toContainHTML('svg');
@@ -635,7 +633,7 @@ describe('ListingGrid', () => {
     });
 
     it('includes aria-hidden for decorative star icon', () => {
-      const { container } = render(<ListingGrid listings={mockListings} />);
+      render(<ListingGrid listings={mockListings} />);
 
       const featuredBadge = screen.getByText('Featured').closest('div');
       const starIcon = featuredBadge?.querySelector('svg');

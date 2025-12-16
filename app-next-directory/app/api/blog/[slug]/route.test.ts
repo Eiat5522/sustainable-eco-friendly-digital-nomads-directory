@@ -61,8 +61,6 @@ type BlogPost = {
   _updatedAt?: string;
 };
 
-type SanityFetchFn = (...args: unknown[]) => Promise<BlogPost | BlogPost[] | null>;
-
 // (mocks defined above and used by module mocks)
 
 describe('Blog [slug] API', () => {

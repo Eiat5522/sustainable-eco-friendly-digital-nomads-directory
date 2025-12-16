@@ -28,7 +28,6 @@ export function HeroSection() {
       <div
         className="absolute top-20 left-20 w-32 h-32 bg-neo-secondary rounded-full opacity-80"
         aria-hidden="true"
-        role="presentation"
       >
         <div className="absolute inset-4 bg-neo-border rounded-full"></div>
         <div className="absolute top-8 left-8 w-4 h-16 bg-neo-border rounded-full"></div>
@@ -58,7 +57,7 @@ export function HeroSection() {
           </p>
 
           {/* Search Bar */}
-          <form role="search" onSubmit={handleSubmit} className="relative max-w-2xl mx-auto mb-8">
+          <search onSubmit={handleSubmit} className="relative max-w-2xl mx-auto mb-8">
             <div className="relative">
               <Search
                 aria-hidden="true"
@@ -84,7 +83,7 @@ export function HeroSection() {
                 Search
               </NeoButton>
             </div>
-          </form>
+          </search>
         </div>
       </div>
 

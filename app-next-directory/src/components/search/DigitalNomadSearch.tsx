@@ -46,7 +46,6 @@ export function DigitalNomadSearch({
     <form
       onSubmit={onSubmit}
       className="flex gap-3 w-full"
-      role="search"
       aria-label="Search listings"
     >
       <NeoInput

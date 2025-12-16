@@ -4,10 +4,6 @@
 import { jest } from '@jest/globals';
 import * as geocodeModule from '../geocode';
 
-type MockFetchResponse = {
-  json: () => Promise<unknown>;
-};
-
 jest.mock('fs/promises', () => ({
   readFile: jest.fn(),
   writeFile: jest.fn(),
@@ -23,8 +19,6 @@ jest.mock('path', () => ({
 global.fetch = jest.fn() as jest.MockedFunction<typeof fetch>;
 
 const getFetchMock = () => global.fetch as jest.MockedFunction<typeof fetch>;
-
-const _fs = require('node:fs/promises') as jest.Mocked<typeof import('fs/promises')>;
 
 describe('findLandmarkCoordinates', () => {
   it('returns coordinates for a matching landmark', () => {
@@ -228,7 +222,7 @@ describe('geocodeAddress', () => {
  */
 describe('updateListingsWithCoordinates', () => {
   let _geocodeModule: typeof import('../geocode');
-  let fs: typeof import('fs/promises');
+  let _fs: typeof import('fs/promises');
   let _path: typeof import('path');
   const mockedPath = 'D:\\mocked\\path\\listings.json';
 
@@ -242,7 +236,7 @@ describe('updateListingsWithCoordinates', () => {
     jest.doMock('path', () => ({
       join: jest.fn(() => mockedPath),
     }));
-    fs = require('node:fs/promises');
+    _fs = require('node:fs/promises');
     _path = require('node:path');
     _geocodeModule = require('../geocode');
   });
@@ -286,7 +280,7 @@ describe('updateListingsWithCoordinates', () => {
     jest.doMock('path', () => ({
       join: jest.fn(() => mockedPath),
     }));
-    const _fs = require('node:fs/promises');
+    const __fs = require('node:fs/promises');
     const path = require('node:path');
     const geocodeModule = require('../geocode');
 

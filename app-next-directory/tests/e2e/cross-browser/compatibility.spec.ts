@@ -98,7 +98,7 @@ test.describe('Cross-Browser Compatibility Testing', () => {
           destructuring: (() => {
             try {
               const [a, _b] = [1, 2];
-              const { x, y } = { x: 1, y: 2 };
+              const { x } = { x: 1, y: 2 };
               return a === 1 && x === 1;
             } catch (_e) {
               return false;
@@ -179,7 +179,7 @@ test.describe('Cross-Browser Compatibility Testing', () => {
       }
     });
 
-    test('touch events compatibility', async ({ page }) => {
+    test('touch events compatibility', async ({ page: _page }) => {
       test.skip(true, 'Use the touch-enabled browser context test below');
     });
 

@@ -49,7 +49,7 @@ describe('Providers', () => {
   });
 
   it('maintains proper provider nesting order', () => {
-    const { container } = render(
+    render(
       <Providers>
         <div data-testid="inner-content">Content</div>
       </Providers>
@@ -78,14 +78,14 @@ describe('Providers', () => {
   });
 
   it('handles empty children', () => {
-    const { container } = render(<Providers>{null}</Providers>);
+    render(<Providers>{null}</Providers>);
 
     expect(screen.getByTestId('session-provider')).toBeInTheDocument();
     expect(screen.getByTestId('auth-provider')).toBeInTheDocument();
   });
 
   it('handles undefined children', () => {
-    const { container } = render(<Providers>{undefined}</Providers>);
+    render(<Providers>{undefined}</Providers>);
 
     expect(screen.getByTestId('session-provider')).toBeInTheDocument();
     expect(screen.getByTestId('auth-provider')).toBeInTheDocument();

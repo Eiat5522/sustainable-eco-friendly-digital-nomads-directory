@@ -97,9 +97,8 @@ export function Authenticated({ children, fallback = null }: AuthenticatedProps)
 
   if (isLoading) {
     return (
-      <div
+      <output
         data-testid="loading"
-        role="status"
         aria-live="polite"
         className="flex justify-center items-center h-64"
       >
@@ -108,7 +107,7 @@ export function Authenticated({ children, fallback = null }: AuthenticatedProps)
           className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"
         />
         <span className="sr-only">Loading</span>
-      </div>
+      </output>
     );
   }
 
@@ -129,9 +128,8 @@ export function RequireRole({ role = 'admin', children, fallback = null }: Requi
 
   if (isLoading) {
     return (
-      <div
+      <output
         data-testid="loading"
-        role="status"
         aria-live="polite"
         className="flex justify-center items-center h-64"
       >
@@ -140,7 +138,7 @@ export function RequireRole({ role = 'admin', children, fallback = null }: Requi
           className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"
         />
         <span className="sr-only">Loading</span>
-      </div>
+      </output>
     );
   }
 
@@ -161,9 +159,8 @@ export function RequirePermission({ feature, children, fallback = null }: Requir
 
   if (isLoading) {
     return (
-      <div
+      <output
         data-testid="loading"
-        role="status"
         aria-live="polite"
         className="flex justify-center items-center h-64"
       >
@@ -172,7 +169,7 @@ export function RequirePermission({ feature, children, fallback = null }: Requir
           className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"
         />
         <span className="sr-only">Loading</span>
-      </div>
+      </output>
     );
   }
 
@@ -192,9 +189,8 @@ export function AdminOnly({ children, fallback = null }: AdminOnlyProps) {
 
   if (isLoading) {
     return (
-      <div
+      <output
         data-testid="loading"
-        role="status"
         aria-live="polite"
         className="flex justify-center items-center h-64"
       >
@@ -203,7 +199,7 @@ export function AdminOnly({ children, fallback = null }: AdminOnlyProps) {
           className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"
         />
         <span className="sr-only">Loading</span>
-      </div>
+      </output>
     );
   }
 

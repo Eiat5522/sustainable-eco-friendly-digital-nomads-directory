@@ -136,13 +136,12 @@ export function CityCarousel(): React.JSX.Element {
               <ChevronLeft size={18} />
             </NeoButton>
 
-            <div
+            <section
               ref={viewportRef}
               className="overflow-hidden"
-              role="region"
               aria-label="Featured city destinations"
             >
-              <div className="flex gap-6" role="list">
+              <ul className="flex gap-6">
                 {sanitizedCities.map((city, index) => {
                   const key =
                     city._originalSlug || city._fallbackId || city.name || `city-${index}`;
@@ -150,9 +149,8 @@ export function CityCarousel(): React.JSX.Element {
                   const displayName =
                     city.name && city.name.length > 0 ? city.name : 'Explore City';
                   return (
-                    <div
+                    <li
                       key={key}
-                      role="listitem"
                       className="flex-none w-[85%] sm:w-[55%] lg:w-1/3 xl:w-1/4"
                     >
                       <Link
@@ -198,11 +196,11 @@ export function CityCarousel(): React.JSX.Element {
                           </div>
                         </div>
                       </Link>
-                    </div>
+                    </li>
                   );
                 })}
-              </div>
-            </div>
+              </ul>
+            </section>
 
             <NeoButton
               variant="secondary"

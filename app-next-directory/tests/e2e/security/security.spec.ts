@@ -218,7 +218,7 @@ test.describe('Security Testing', () => {
       }
     });
 
-    test('prevents CSRF attacks', async ({ page, context }) => {
+    test('prevents CSRF attacks', async ({ page, context: _context }) => {
       // Login and get session using the auth helper
       await loginAs(page, TEST_CONFIG.credentials.userEmail, TEST_CONFIG.credentials.userPassword);
 
@@ -240,7 +240,7 @@ test.describe('Security Testing', () => {
       expect([403, 422]).toContain(response.status());
     });
 
-    test('file upload security', async ({ page }) => {
+    test('file upload security', async ({ page: _page }) => {
       test.skip(
         true,
         'Listing upload validation is covered by unit tests; E2E uses the dedicated /test/file-upload route.'

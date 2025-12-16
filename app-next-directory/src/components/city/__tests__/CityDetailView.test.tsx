@@ -35,42 +35,50 @@ jest.mock('next/image', () => {
 jest.mock('lucide-react', () => ({
   __esModule: true,
   Leaf: ({ children, ...props }: React.SVGProps<SVGSVGElement>) => (
-    <svg data-icon="leaf" {...props}>
+    <svg data-icon="leaf" {...props} role="img" aria-label="Leaf icon representing sustainability and eco-friendliness">
+      <title>Leaf - Sustainability indicator</title>
       {children}
     </svg>
   ),
   MapPin: ({ children, ...props }: React.SVGProps<SVGSVGElement>) => (
-    <svg data-icon="map-pin" {...props}>
+    <svg data-icon="map-pin" {...props} role="img" aria-label="Map pin icon indicating location and place information">
+      <title>Map Pin - Location indicator</title>
       {children}
     </svg>
   ),
   Wifi: ({ children, ...props }: React.SVGProps<SVGSVGElement>) => (
-    <svg data-icon="wifi" {...props}>
+    <svg data-icon="wifi" {...props} role="img" aria-label="WiFi icon representing internet connectivity and speed">
+      <title>WiFi - Internet connectivity</title>
       {children}
     </svg>
   ),
   DollarSign: ({ children, ...props }: React.SVGProps<SVGSVGElement>) => (
-    <svg data-icon="dollar" {...props}>
+    <svg data-icon="dollar" {...props} role="img" aria-label="Dollar sign icon representing cost of living and pricing">
+      <title>Dollar Sign - Cost indicator</title>
       {children}
     </svg>
   ),
   Thermometer: ({ children, ...props }: React.SVGProps<SVGSVGElement>) => (
-    <svg data-icon="thermometer" {...props}>
+    <svg data-icon="thermometer" {...props} role="img" aria-label="Thermometer icon indicating temperature and climate conditions">
+      <title>Thermometer - Climate and temperature</title>
       {children}
     </svg>
   ),
   Shield: ({ children, ...props }: React.SVGProps<SVGSVGElement>) => (
-    <svg data-icon="shield" {...props}>
+    <svg data-icon="shield" {...props} role="img" aria-label="Shield icon representing safety and security information">
+      <title>Shield - Safety indicator</title>
       {children}
     </svg>
   ),
   Footprints: ({ children, ...props }: React.SVGProps<SVGSVGElement>) => (
-    <svg data-icon="footprints" {...props}>
+    <svg data-icon="footprints" {...props} role="img" aria-label="Footprints icon indicating walkability and pedestrian accessibility">
+      <title>Footprints - Walkability indicator</title>
       {children}
     </svg>
   ),
   Wind: ({ children, ...props }: React.SVGProps<SVGSVGElement>) => (
-    <svg data-icon="wind" {...props}>
+    <svg data-icon="wind" {...props} role="img" aria-label="Wind icon representing air quality and environmental conditions">
+      <title>Wind - Air quality indicator</title>
       {children}
     </svg>
   ),
@@ -193,11 +201,11 @@ describe('CityDetailView', () => {
 
     render(<CityDetailView city={city} listings={sampleListings} />);
 
-    const image = screen.getByAltText('Testopolis cityscape');
+    const image = screen.getByLabelText('Testopolis cityscape');
     fireEvent.error(image);
 
     await waitFor(() => {
-      expect(screen.queryByAltText('Testopolis cityscape')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('Testopolis cityscape')).not.toBeInTheDocument();
     });
   });
 

@@ -246,9 +246,9 @@ describe('ListingDetailsCard', () => {
         longDescription: longDesc,
       };
 
-      const { container } = render(<ListingDetailsCard listing={listingWithLongDesc} />);
+      render(<ListingDetailsCard listing={listingWithLongDesc} />);
 
-      const gradient = container.querySelector('.bg-gradient-to-t');
+      const gradient = screen.getByTestId('long-description').parentElement?.querySelector('.bg-gradient-to-t');
       expect(gradient).toBeInTheDocument();
       expect(gradient).toHaveClass('pointer-events-none');
     });
@@ -260,13 +260,13 @@ describe('ListingDetailsCard', () => {
         longDescription: longDesc,
       };
 
-      const { container } = render(<ListingDetailsCard listing={listingWithLongDesc} />);
+      render(<ListingDetailsCard listing={listingWithLongDesc} />);
 
       const button = screen.getByTestId('read-more-button');
       await userEvent.click(button);
 
       await waitFor(() => {
-        const gradient = container.querySelector('.bg-gradient-to-t');
+        const gradient = screen.getByTestId('long-description').parentElement?.querySelector('.bg-gradient-to-t');
         expect(gradient).not.toBeInTheDocument();
       });
     });
@@ -625,7 +625,7 @@ describe('ListingDetailsCard', () => {
     });
 
     it('renders phone icon', () => {
-      const { container } = render(<ListingDetailsCard listing={accommodationListing} />);
+      render(<ListingDetailsCard listing={accommodationListing} />);
 
       const phoneSection = screen.getByText('Phone').closest('div')?.parentElement;
       const icon = phoneSection?.querySelector('svg');
@@ -633,7 +633,7 @@ describe('ListingDetailsCard', () => {
     });
 
     it('renders email icon', () => {
-      const { container } = render(<ListingDetailsCard listing={accommodationListing} />);
+      render(<ListingDetailsCard listing={accommodationListing} />);
 
       // "Email" appears twice, so get the first one (the label)
       const emailLabel = screen.getAllByText('Email')[0];
@@ -643,7 +643,7 @@ describe('ListingDetailsCard', () => {
     });
 
     it('renders globe icon for website', () => {
-      const { container } = render(<ListingDetailsCard listing={accommodationListing} />);
+      render(<ListingDetailsCard listing={accommodationListing} />);
 
       const websiteSection = screen.getByText('Website').closest('div')?.parentElement;
       const icon = websiteSection?.querySelector('svg');
@@ -651,7 +651,7 @@ describe('ListingDetailsCard', () => {
     });
 
     it('renders map pin icon for address', () => {
-      const { container } = render(<ListingDetailsCard listing={accommodationListing} />);
+      render(<ListingDetailsCard listing={accommodationListing} />);
 
       const addressSection = screen.getByText('Address').closest('div')?.parentElement;
       const icon = addressSection?.querySelector('svg');
@@ -701,11 +701,11 @@ describe('ListingDetailsCard', () => {
 
   describe('Separators', () => {
     it('includes separators between sections', () => {
-      const { container } = render(<ListingDetailsCard listing={accommodationListing} />);
+      render(<ListingDetailsCard listing={accommodationListing} />);
 
       // Radix UI Separator with decorative=true doesn't add role="separator"
       // Check for separator by class or data attribute
-      const separators = container.querySelectorAll('[data-radix-collection-item], .bg-border, hr');
+      const separators = document.querySelectorAll('[data-radix-collection-item], .bg-border, hr');
       expect(separators.length).toBeGreaterThan(0);
     });
   });
@@ -756,9 +756,9 @@ describe('ListingDetailsCard', () => {
         longDescription: longDesc,
       };
 
-      const { container } = render(<ListingDetailsCard listing={listing} />);
+      render(<ListingDetailsCard listing={listing} />);
 
-      const gradient = container.querySelector('.bg-gradient-to-t');
+      const gradient = screen.getByTestId('long-description').parentElement?.querySelector('.bg-gradient-to-t');
       expect(gradient).toHaveAttribute('aria-hidden', 'true');
     });
   });

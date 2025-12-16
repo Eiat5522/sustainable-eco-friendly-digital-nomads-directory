@@ -16,6 +16,7 @@ type Provider = {
 const Icons = {
   google: (
     <svg viewBox="0 0 24 24" aria-hidden className="w-5 h-5">
+      <title>Google</title>
       <path
         fill="#EA4335"
         d="M12 10.2v3.73h5.27c-.23 1.2-1.4 3.52-5.27 3.52-3.17 0-5.76-2.62-5.76-5.86S8.83 5.73 12 5.73c1.8 0 3.02.77 3.72 1.43l2.54-2.45C16.69 3.35 14.5 2.5 12 2.5 6.98 2.5 2.9 6.58 2.9 11.6S6.98 20.7 12 20.7c6.96 0 8.1-4.86 8.1-7.2 0-.49-.05-.83-.11-1.2H12z"
@@ -24,6 +25,7 @@ const Icons = {
   ),
   facebook: (
     <svg viewBox="0 0 24 24" aria-hidden="true" className="w-5 h-5">
+      <title>Facebook</title>
       <path
         fill="currentColor"
         d="M13.5 8.5V7.1c0-.62.41-1.02 1.03-1.02h1.47V3.5h-2.5c-2.07 0-3.5 1.44-3.5 3.6v1.4H8v2.6h1.99V20h3.01v-8.9h2.2l.3-2.6h-2.5z"
@@ -32,6 +34,7 @@ const Icons = {
   ),
   twitterx: (
     <svg viewBox="0 0 24 24" aria-hidden="true" className="w-5 h-5">
+      <title>X (Twitter)</title>
       <path
         fill="currentColor"
         d="M18.9 2.5h3.1l-6.78 7.75 7.96 11.25H17.3l-4.96-6.59-5.68 6.59H2.5l7.24-8.4L2 2.5h6.02l4.49 6.01 6.39-6.01z"
@@ -40,6 +43,7 @@ const Icons = {
   ),
   microsoft: (
     <svg viewBox="0 0 24 24" aria-hidden="true" className="w-5 h-5">
+      <title>Microsoft</title>
       <path fill="#F25022" d="M3 3h8v8H3z" />
       <path fill="#7FBA00" d="M13 3h8v8h-8z" />
       <path fill="#00A4EF" d="M3 13h8v8H3z" />

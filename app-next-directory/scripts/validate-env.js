@@ -87,7 +87,9 @@ export function validateEnvironment() {
   sanityVars.forEach(variable => {
     const isValid = variable.value && variable.value.length > 0;
     const status = isValid ? '✅' : '○';
-    process.stdout.write(`   ${status} ${variable.name}: ${isValid ? '✓ Configured' : '○ Optional'}\n`);
+    process.stdout.write(
+      `   ${status} ${variable.name}: ${isValid ? '✓ Configured' : '○ Optional'}\n`
+    );
   });
 
   const oauthVars = [

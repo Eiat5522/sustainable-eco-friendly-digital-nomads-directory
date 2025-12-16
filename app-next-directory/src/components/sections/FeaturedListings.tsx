@@ -144,8 +144,9 @@ export function FeaturedListings(): React.JSX.Element {
           : DEFAULT_ERROR_MESSAGE;
       setError(message);
     } finally {
-      if (controller.signal.aborted || activeRequest.current !== requestId) return;
-      setLoading(false);
+      if (!(controller.signal.aborted || activeRequest.current !== requestId)) {
+        setLoading(false);
+      }
       if (abortRef.current === controller) {
         abortRef.current = null;
       }
@@ -181,7 +182,7 @@ export function FeaturedListings(): React.JSX.Element {
           </div>
         ) : error ? (
           <div className="text-center space-y-4">
-            <p className="body-lg text-red-500" role="alert">
+            <p className="body-lg text-red-500">
               {error}
             </p>
             <NeoButton variant="primary" onClick={handleRetry} disabled={loading}>
@@ -217,10 +218,9 @@ export function FeaturedListings(): React.JSX.Element {
             </NeoButton>
 
             {/* Embla viewport & container */}
-            <div
+            <section
               ref={viewportRef}
               className="overflow-hidden"
-              role="region"
               aria-label="Featured venues carousel"
             >
               <div className="flex gap-6">
@@ -233,7 +233,7 @@ export function FeaturedListings(): React.JSX.Element {
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
           </div>
         )}
       </div>

@@ -143,7 +143,7 @@ describe('Label', () => {
     });
 
     it('supports multiple labels with different htmlFor', () => {
-      const { container } = render(
+      render(
         <>
           <Label htmlFor="first-name">First Name</Label>
           <Label htmlFor="last-name">Last Name</Label>

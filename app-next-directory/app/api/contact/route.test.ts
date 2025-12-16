@@ -855,7 +855,7 @@ describe('Contact API', () => {
       it('should default to general type when not specified', async () => {
         mockLimiterFn.mockImplementation(async () => ({ success: true }));
         process.env.RESEND_API_KEY = 'test-key';
-        const { type, ...dataWithoutType } = validContactData;
+        const { type: _unusedType, ...dataWithoutType } = validContactData;
 
         const request = createPostRequest(dataWithoutType);
 

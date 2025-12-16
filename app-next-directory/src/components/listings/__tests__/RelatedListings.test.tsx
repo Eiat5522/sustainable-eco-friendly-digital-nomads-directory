@@ -152,7 +152,7 @@ describe('RelatedListings', () => {
     });
 
     it('hides navigation buttons on mobile (md breakpoint)', () => {
-      const { container } = render(<RelatedListings listings={mockListings} />);
+      render(<RelatedListings listings={mockListings} />);
 
       const prevButton = screen.getByLabelText('Scroll related listings left');
       const nextButton = screen.getByLabelText('Scroll related listings right');
@@ -248,7 +248,7 @@ describe('RelatedListings', () => {
 
   describe('Images', () => {
     it('renders placeholder image for all listings', () => {
-      const { container } = render(<RelatedListings listings={mockListings} />);
+      render(<RelatedListings listings={mockListings} />);
 
       const placeholders = screen.getAllByTestId('related-listing-fallback');
       expect(placeholders).toHaveLength(3);
@@ -670,7 +670,7 @@ describe('RelatedListings', () => {
         },
       ];
 
-      const { container } = render(<RelatedListings listings={unknownPriceListing} />);
+      render(<RelatedListings listings={unknownPriceListing} />);
 
       const badge = screen.getByText('Unknown');
       expect(badge).toHaveClass('text-gray-600');

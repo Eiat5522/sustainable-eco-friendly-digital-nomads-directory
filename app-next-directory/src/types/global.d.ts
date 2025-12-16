@@ -1,5 +1,3 @@
-
-
 declare global {
   interface Window {
     // Speech recognition APIs removed - feature not implemented

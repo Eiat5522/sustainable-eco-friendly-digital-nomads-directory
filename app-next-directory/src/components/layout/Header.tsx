@@ -231,11 +231,10 @@ export function Header(): React.JSX.Element {
 
       {/* Mobile navigation drawer */}
       {isMobileMenuOpen && (
-        <div
+        <nav
           id="mobile-nav"
           data-testid="mobile-menu"
           className="md:hidden border-t border-neo-border bg-background shadow-lg"
-          role="navigation"
           aria-label="Mobile navigation"
         >
           <div className="container mx-auto px-4 py-4 space-y-3">
@@ -268,7 +267,7 @@ export function Header(): React.JSX.Element {
               Contact Us
             </Link>
           </div>
-        </div>
+        </nav>
       )}
     </header>
   );

@@ -76,7 +76,9 @@ try {
   // For user feedback in postinstall, write to stderr for visibility
   process.stderr.write('\n');
   process.stderr.write('⚠️  [postinstall-playwright] Browser installation failed (non-fatal)\n');
-  process.stderr.write('   This is a known issue with Playwright installation progress reporting.\n');
+  process.stderr.write(
+    '   This is a known issue with Playwright installation progress reporting.\n'
+  );
   process.stderr.write('\n');
   process.stderr.write('   To install browsers manually, run:\n');
   if (runner.includes('pnpm')) {
@@ -86,7 +88,9 @@ try {
   } else if (runner.includes('yarn')) {
     process.stderr.write(`   yarn workspace ${workspaceName} exec playwright install chromium\n`);
     process.stderr.write('   OR with system dependencies:\n');
-    process.stderr.write(`   yarn workspace ${workspaceName} exec playwright install --with-deps\n`);
+    process.stderr.write(
+      `   yarn workspace ${workspaceName} exec playwright install --with-deps\n`
+    );
   } else {
     process.stderr.write('   npx playwright install chromium\n');
     process.stderr.write('   OR with system dependencies:\n');

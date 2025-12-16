@@ -12,15 +12,7 @@ jest.mock('next/image', () => ({
     ...rest
   }: React.ComponentProps<'img'> & { fill?: boolean; priority?: boolean; sizes?: string }) => {
     const { fill: _fill, priority: _priority, sizes: _sizes, ...imgProps } = rest;
-    return (
-      <div
-        role="img"
-        aria-label={alt}
-        data-src={src}
-        data-mock-image
-        {...imgProps}
-      />
-    );
+    return <div role="img" aria-label={alt} data-src={src} data-mock-image {...imgProps} />;
   },
 }));
 

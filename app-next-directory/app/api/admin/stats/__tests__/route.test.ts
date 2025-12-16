@@ -43,12 +43,6 @@ type MockSession = Session & {
   };
 };
 
-// Helper type for mock request
-interface MockRequest extends Partial<NextRequest> {
-  url?: string;
-  json?: () => Promise<unknown>;
-}
-
 beforeAll(async () => {
   ({ GET, POST } = await import('../route'));
 });

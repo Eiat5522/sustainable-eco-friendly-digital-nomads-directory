@@ -43,12 +43,6 @@ interface MiddlewareOptions {
   };
 }
 
-// RequestContext is used by getRequestContext but not directly in this file
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-interface RequestContext {
-  traceId: string;
-}
-
 // Helper to check if path should bypass middleware
 function shouldBypass(pathname: string): boolean {
   return (

@@ -116,8 +116,7 @@ describe('Sanity client module', () => {
 
   describe('Image URL Building', () => {
     it('should build image URLs using urlFor function', () => {
-      const { createClient } = require('@sanity/client');
-      const imageUrlBuilder = require('@sanity/image-url');
+      const imageUrlBuilder = require('@/sanity/image-url');
 
       const mockImageChain = {
         url: jest.fn(() => 'https://cdn.sanity.io/test.jpg'),
@@ -148,8 +147,7 @@ describe('Sanity client module', () => {
     });
 
     it('should handle centralized image model structure', () => {
-      const { createClient } = require('@sanity/client');
-      const imageUrlBuilder = require('@sanity/image-url');
+      const imageUrlBuilder = require('@/sanity/image-url');
 
       const mockImageChain = {
         url: jest.fn(() => 'https://cdn.sanity.io/test.jpg'),

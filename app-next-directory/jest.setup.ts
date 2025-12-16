@@ -343,15 +343,6 @@ type GlobalConsoleFilterRegistry = typeof globalThis & {
   withDefaultConsoleFilters?: typeof withDefaultConsoleFilters;
 };
 
-(globalThis as GlobalConsoleFilterRegistry).withConsoleFilters = withConsoleFilters;
-(globalThis as GlobalConsoleFilterRegistry).withDefaultConsoleFilters = withDefaultConsoleFilters;
-
-declare global {
-  var withConsoleFilters: typeof withConsoleFilters;
-
-  var withDefaultConsoleFilters: typeof withDefaultConsoleFilters;
-}
-
 // Apply console filters globally by default to suppress noisy test errors
 // Set JEST_CONSOLE_NO_FILTER=1 to disable filtering for debugging
 //
@@ -374,6 +365,16 @@ import { jest } from '@jest/globals';
 import '@testing-library/jest-dom';
 import { cleanup } from '@testing-library/react';
 import { createTestData } from './src/tests/helpers/test-data';
+
+declare global {
+  var withConsoleFilters: typeof withConsoleFilters;
+
+  var withDefaultConsoleFilters: typeof withDefaultConsoleFilters;
+}
+
+// Assign functions to global object AFTER they are declared
+(globalThis as GlobalConsoleFilterRegistry).withConsoleFilters = withConsoleFilters;
+(globalThis as GlobalConsoleFilterRegistry).withDefaultConsoleFilters = withDefaultConsoleFilters;
 
 // Provide deterministic dataset for unit tests
 // Use a function instead of storing on global to avoid memory leaks

@@ -54,14 +54,13 @@ function SearchResults({ listings, totalCount, hasMore, onClearFilters }: Search
 
   return (
     <section aria-label="Search results" aria-live="polite" className="mt-6 space-y-4">
-      <div
-        role="status"
+      <output
         className="font-medium"
         aria-live="polite"
         aria-label={`${totalCount} results found`}
       >
         {totalCount} results found
-      </div>
+      </output>
       <ul className="space-y-3">
         {listings.map(listing => (
           <li key={listing.id} className="rounded border border-border p-3">
@@ -173,7 +172,6 @@ export function SearchForm(): React.JSX.Element {
     <div className="w-full max-w-3xl">
       <form
         onSubmit={handleSubmit}
-        role="search"
         aria-label="Search listings"
         className="rounded-md border border-border bg-card p-4 shadow-sm"
       >

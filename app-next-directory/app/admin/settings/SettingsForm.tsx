@@ -42,13 +42,7 @@ export function SettingsForm() {
       const data = (await response.json()) as AdminSettingsResponse;
 
       // Extract only the form fields from settings
-      const {
-        _id: ignoredId,
-        _type: ignoredType,
-        _createdAt: ignoredCreatedAt,
-        _updatedAt: ignoredUpdatedAt,
-        ...formData
-      } = data.settings;
+      const { _id: _ignoredId, _type: _ignoredType, _createdAt: _ignoredCreatedAt, _updatedAt: _ignoredUpdatedAt, ...formData } = data.settings;
       setSettings(formData);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load settings');
@@ -93,13 +87,7 @@ export function SettingsForm() {
         setSuccessMessage(data.message || 'Settings saved successfully');
 
         // Update settings with saved data
-        const {
-          _id: ignoredId,
-          _type: ignoredType,
-          _createdAt: ignoredCreatedAt,
-          _updatedAt: ignoredUpdatedAt,
-          ...formData
-        } = data.settings;
+        const { _id: _ignoredId, _type: _ignoredType, _createdAt: _ignoredCreatedAt, _updatedAt: _ignoredUpdatedAt, ...formData } = data.settings;
         setSettings(formData);
 
         // Clear success message after 3 seconds

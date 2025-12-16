@@ -2,10 +2,6 @@ import 'whatwg-fetch';
 import { TextDecoder, TextEncoder } from 'node:util';
 import { jest } from '@jest/globals';
 
-// Type for headers compatibility
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-type HeadersLike = HeadersInit | Record<string, string> | [string, string][];
-
 type NextResponseInit = { status?: number; headers?: HeadersInit };
 
 if (!globalThis.TextEncoder) {

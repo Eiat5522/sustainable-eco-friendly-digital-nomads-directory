@@ -29,7 +29,7 @@ describe('AdminSettingsPage', () => {
     } as never);
 
     const page = await AdminSettingsPage();
-    const { container } = render(page);
+    render(page);
 
     expect(screen.getByTestId('admin-settings-page')).toBeInTheDocument();
     expect(screen.getByTestId('admin-settings-title')).toHaveTextContent('Admin Settings');
@@ -92,7 +92,7 @@ describe('AdminSettingsPage', () => {
     } as never);
 
     const page = await AdminSettingsPage();
-    const { container } = render(page);
+    render(page);
 
     const mainElement = screen.getByTestId('admin-settings-page');
     expect(mainElement).toHaveClass('min-h-screen', 'bg-gray-50');
