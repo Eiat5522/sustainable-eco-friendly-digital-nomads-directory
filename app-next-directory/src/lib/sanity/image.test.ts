@@ -1,3 +1,4 @@
+import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
 import { builder } from './client';
 import { urlFor } from './image';
 
@@ -30,19 +31,19 @@ describe('urlFor', () => {
   });
 
   test('should return undefined for a null source', () => {
-    const imageUrl = urlFor({} as any);
+    const imageUrl = urlFor(null as unknown as SanityImageSource);
     expect(imageUrl).toBeUndefined();
     expect(builder.image).not.toHaveBeenCalled();
   });
 
   test('should return undefined for an undefined source', () => {
-    const imageUrl = urlFor({} as any);
+    const imageUrl = urlFor(undefined as unknown as SanityImageSource);
     expect(imageUrl).toBeUndefined();
     expect(builder.image).not.toHaveBeenCalled();
   });
 
   test('should return undefined for an empty object source', () => {
-    const imageUrl = urlFor({});
+    const imageUrl = urlFor({} as unknown as SanityImageSource);
     expect(imageUrl).toBeUndefined();
     expect(builder.image).not.toHaveBeenCalled();
   });

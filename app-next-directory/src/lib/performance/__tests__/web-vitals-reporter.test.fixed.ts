@@ -1,8 +1,8 @@
-import { WebVitalsReporter } from '../web-vitals-reporter';
+import { WebVitalsReporter, type WebVitalsMetric } from '../web-vitals-reporter';
 
 describe('WebVitalsReporter (fixed)', () => {
-  const originalNavigator = (global as any).navigator;
-  const originalFetch = (global as any).fetch;
+  const originalNavigator = globalThis.navigator;
+  const originalFetch = globalThis.fetch;
 
   afterEach(() => {
     Object.defineProperty(global, 'navigator', {
@@ -17,7 +17,7 @@ describe('WebVitalsReporter (fixed)', () => {
   });
 
   test('uses navigator.sendBeacon when available and returns true', () => {
-    const sendBeacon = jest.fn(() => true);
+    const sendBeacon = jest.fn<(url: string, data?: BodyInit | null) => boolean>(() => true);
     Object.defineProperty(global, 'navigator', {
       configurable: true,
       value: { sendBeacon },
@@ -27,18 +27,18 @@ describe('WebVitalsReporter (fixed)', () => {
       value: jest.fn(() => Promise.resolve({ ok: true })),
     });
 
-    const metric = { id: '1', name: 'CLS', value: 1 } as any;
+    const metric = { id: '1', name: 'CLS', value: 1 } satisfies WebVitalsMetric;
     WebVitalsReporter(metric);
 
     expect(sendBeacon).toHaveBeenCalledWith(
       '/api/performance/web-vitals',
       JSON.stringify({ ...metric, entries: [] })
     );
-    expect((global as any).fetch).not.toHaveBeenCalled();
+    expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 
   test('falls back to fetch when sendBeacon exists but returns false', () => {
-    const sendBeacon = jest.fn(() => false);
+    const sendBeacon = jest.fn<(url: string, data?: BodyInit | null) => boolean>(() => false);
     Object.defineProperty(global, 'navigator', {
       configurable: true,
       value: { sendBeacon },
@@ -49,7 +49,7 @@ describe('WebVitalsReporter (fixed)', () => {
       value: fetchMock,
     });
 
-    const metric = { id: '2', name: 'LCP', value: 2 } as any;
+    const metric = { id: '2', name: 'LCP', value: 2 } satisfies WebVitalsMetric;
     WebVitalsReporter(metric);
 
     expect(sendBeacon).toHaveBeenCalled();
