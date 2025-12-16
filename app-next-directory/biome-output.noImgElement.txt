@@ -1,0 +1,157 @@
+src/components/city/__tests__/CityDetailView.test.tsx:23:7 lint/performance/noImgElement ━━━━━━━━━━
+
+  ! Don't use <img> element.
+  
+    21 │     return (
+    22 │       // eslint-disable-next-line @next/next/no-img-element
+  > 23 │       <img
+       │       ^^^^
+  > 24 │         alt={alt}
+        ...
+  > 30 │         {...props}
+  > 31 │       />
+       │       ^^
+    32 │     );
+    33 │   };
+  
+  i Using the <img> can lead to slower LCP and higher bandwidth. Consider using <Image /> from next/image to automatically optimize images.
+  
+
+src/components/layout/__tests__/Header.test.tsx:29:7 lint/performance/noImgElement ━━━━━━━━━━
+
+  ! Don't use <img> element.
+  
+    27 │     return (
+    28 │       // eslint-disable-next-line @next/next/no-img-element
+  > 29 │       <img
+       │       ^^^^
+  > 30 │         alt={alt}
+        ...
+  > 36 │         {...props}
+  > 37 │       />
+       │       ^^
+    38 │     );
+    39 │   };
+  
+  i Using the <img> can lead to slower LCP and higher bandwidth. Consider using <Image /> from next/image to automatically optimize images.
+  
+
+src/components/listings/__tests__/GalleryGrid.test.tsx:17:7 lint/performance/noImgElement ━━━━━━━━━━
+
+  ! Don't use <img> element.
+  
+    15 │     return (
+    16 │       // eslint-disable-next-line @next/next/no-img-element
+  > 17 │       <img alt={alt} src={src} onError={onError} data-mock-image {...imgProps} />
+       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    18 │     );
+    19 │   },
+  
+  i Using the <img> can lead to slower LCP and higher bandwidth. Consider using <Image /> from next/image to automatically optimize images.
+  
+
+src/components/listings/__tests__/HeroSection.test.tsx:17:7 lint/performance/noImgElement ━━━━━━━━━━
+
+  ! Don't use <img> element.
+  
+    15 │     return (
+    16 │       // eslint-disable-next-line @next/next/no-img-element
+  > 17 │       <img
+       │       ^^^^
+  > 18 │         src={src}
+        ...
+  > 24 │         data-priority={priority}
+  > 25 │       />
+       │       ^^
+    26 │     );
+    27 │   };
+  
+  i Using the <img> can lead to slower LCP and higher bandwidth. Consider using <Image /> from next/image to automatically optimize images.
+  
+
+src/components/listings/__tests__/ListingGrid.test.tsx:24:7 lint/performance/noImgElement ━━━━━━━━━━
+
+  ! Don't use <img> element.
+  
+    22 │     return (
+    23 │       // eslint-disable-next-line @next/next/no-img-element
+  > 24 │       <img src={src} alt={alt} onError={onError} {...props} />
+       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    25 │     );
+    26 │   };
+  
+  i Using the <img> can lead to slower LCP and higher bandwidth. Consider using <Image /> from next/image to automatically optimize images.
+  
+
+src/components/listings/__tests__/RelatedListings.test.tsx:46:7 lint/performance/noImgElement ━━━━━━━━━━
+
+  ! Don't use <img> element.
+  
+    44 │     return (
+    45 │       // eslint-disable-next-line @next/next/no-img-element
+  > 46 │       <img src={src} alt={alt} onError={onError} {...props} />
+       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    47 │     );
+    48 │   };
+  
+  i Using the <img> can lead to slower LCP and higher bandwidth. Consider using <Image /> from next/image to automatically optimize images.
+  
+
+src/components/sections/__tests__/TestimonialsSection.test.tsx:41:7 lint/performance/noImgElement ━━━━━━━━━━
+
+  ! Don't use <img> element.
+  
+    39 │     return (
+    40 │       // eslint-disable-next-line @next/next/no-img-element
+  > 41 │       <img alt={alt} src={src} onError={onError} data-testid="testimonial-avatar" {...imgProps} />
+       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    42 │     );
+    43 │   },
+  
+  i Using the <img> can lead to slower LCP and higher bandwidth. Consider using <Image /> from next/image to automatically optimize images.
+  
+
+src/components/ui/__tests__/ImageCarousel.test.tsx:17:7 lint/performance/noImgElement ━━━━━━━━━━
+
+  ! Don't use <img> element.
+  
+    15 │     return (
+    16 │       // eslint-disable-next-line @next/next/no-img-element
+  > 17 │       <img {...rest} alt={alt} fill={fill?.toString()} priority={priority?.toString()} />
+       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    18 │     );
+    19 │   },
+  
+  i Using the <img> can lead to slower LCP and higher bandwidth. Consider using <Image /> from next/image to automatically optimize images.
+  
+
+src/components/ui/__tests__/VenueCard.test.tsx:17:12 lint/performance/noImgElement ━━━━━━━━━━
+
+  ! Don't use <img> element.
+  
+    15 │   return ({ src, alt }) => {
+    16 │     // eslint-disable-next-line @next/next/no-img-element
+  > 17 │     return <img src={src} alt={alt} />;
+       │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    18 │   };
+    19 │ });
+  
+  i Using the <img> can lead to slower LCP and higher bandwidth. Consider using <Image /> from next/image to automatically optimize images.
+  
+
+src/components/ui/__tests__/city-carousel-wave.test.tsx:27:7 lint/performance/noImgElement ━━━━━━━━━━
+
+  ! Don't use <img> element.
+  
+    25 │     return (
+    26 │       // eslint-disable-next-line @next/next/no-img-element
+  > 27 │       <img {...rest} alt={alt} fill={fill?.toString()} priority={priority?.toString()} />
+       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    28 │     );
+    29 │   },
+  
+  i Using the <img> can lead to slower LCP and higher bandwidth. Consider using <Image /> from next/image to automatically optimize images.
+  
+
+Checked 914 files in 854ms. No fixes applied.
+Found 10 warnings.

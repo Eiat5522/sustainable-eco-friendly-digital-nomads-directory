@@ -61,6 +61,25 @@ jest.mock('broadcast-channel', () => {
 // Load polyfills FIRST before any other imports (after jest.mock calls which are hoisted)
 import './jest.polyfills';
 
+// Import structuredLogger for test-time filtering/mocking. Use a safe fallback.
+let structuredLogger: {
+  error?: (...args: unknown[]) => void;
+  warn?: (...args: unknown[]) => void;
+  info?: (...args: unknown[]) => void;
+  debug?: (...args: unknown[]) => void;
+} = {};
+try {
+  // Require at runtime to avoid module resolution issues in certain test setups
+  structuredLogger = require('./src/lib/logger').structuredLogger;
+} catch (_e) {
+  structuredLogger = {
+    error: () => {},
+    warn: () => {},
+    info: () => {},
+    debug: () => {},
+  };
+}
+
 // ============================================================================
 // STOP! Do not add `jest.mock('mongoose')` calls in this file.
 // The Jest config maps `mongoose` to a handcrafted manual mock that provides
@@ -270,26 +289,26 @@ const runWithConsoleFilters = <T>(
     return callback();
   }
 
-  const originalConsoleError = console.error;
-  const originalConsoleWarn = console.warn;
+  const originalStructuredError = structuredLogger.error;
+  const originalStructuredWarn = structuredLogger.warn;
 
-  console.error = ((...args: unknown[]) => {
+  structuredLogger.error = ((...args: unknown[]) => {
     if (shouldFilterWithFilters(errorFilters, args)) {
       return;
     }
-    originalConsoleError(...args);
-  }) as typeof console.error;
+    originalStructuredError?.(...args);
+  }) as typeof structuredLogger.error;
 
-  console.warn = ((...args: unknown[]) => {
+  structuredLogger.warn = ((...args: unknown[]) => {
     if (shouldFilterWithFilters(warnFilters, args)) {
       return;
     }
-    originalConsoleWarn(...args);
-  }) as typeof console.warn;
+    originalStructuredWarn?.(...args);
+  }) as typeof structuredLogger.warn;
 
   const restore = () => {
-    console.error = originalConsoleError;
-    console.warn = originalConsoleWarn;
+    structuredLogger.error = originalStructuredError;
+    structuredLogger.warn = originalStructuredWarn;
   };
 
   try {
@@ -337,20 +356,17 @@ declare global {
 // Set JEST_CONSOLE_NO_FILTER=1 to disable filtering for debugging
 //
 if (process.env.JEST_CONSOLE_NO_FILTER !== '1') {
-  const originalConsoleError = console.error;
-  const originalConsoleWarn = console.warn;
-  const _ignoredOriginalConsoleLog = console.log;
+  const originalStructuredError = structuredLogger.error;
+  const originalStructuredWarn = structuredLogger.warn;
+  // Expose originals for opt-in spying by tests
+  (structuredLogger as Record<string, unknown>).originalStructuredError = originalStructuredError;
+  (structuredLogger as Record<string, unknown>).originalStructuredWarn = originalStructuredWarn;
 
-  (console as Console & { originalConsoleError?: typeof console.error }).originalConsoleError =
-    originalConsoleError;
-  (console as Console & { originalConsoleWarn?: typeof console.warn }).originalConsoleWarn =
-    originalConsoleWarn;
-
-  // Silence noisy console output in test runs; originals are kept for opt-in spying
-  console.error = (() => {}) as typeof console.error;
-  console.warn = (() => {}) as typeof console.warn;
-  console.debug = (() => {}) as typeof console.debug;
-  console.log = (() => {}) as typeof console.log;
+  // Silence noisy logger output in test runs; originals are kept for opt-in spying
+  structuredLogger.error = (() => {}) as typeof structuredLogger.error;
+  structuredLogger.warn = (() => {}) as typeof structuredLogger.warn;
+  structuredLogger.debug = (() => {}) as typeof structuredLogger.debug;
+  structuredLogger.info = (() => {}) as typeof structuredLogger.info;
 }
 
 // jest.setup.ts

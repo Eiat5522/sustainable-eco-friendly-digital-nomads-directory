@@ -25,11 +25,10 @@ jest.mock('next/image', () => {
   }) {
     const resolvedSrc = typeof src === 'string' ? src : (src?.src ?? '');
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        alt={alt}
-        src={resolvedSrc}
-        onError={onError}
+      <div
+        role="img"
+        aria-label={alt}
+        data-src={resolvedSrc}
         data-testid="next-image"
         data-fill={fill ? 'true' : 'false'}
         data-priority={priority ? 'true' : 'false'}
@@ -425,9 +424,9 @@ describe('Header', () => {
 
       render(<Header />);
 
-      const avatar = screen.getByAltText(/test user avatar/i);
+      const avatar = screen.getByRole('img', { name: /test user avatar/i });
       expect(avatar).toBeInTheDocument();
-      expect(avatar).toHaveAttribute('src', 'https://example.com/avatar.jpg');
+      expect(avatar).toHaveAttribute('data-src', 'https://example.com/avatar.jpg');
     });
 
     it('displays initials when no image is available', () => {
@@ -441,7 +440,7 @@ describe('Header', () => {
       render(<Header />);
 
       expect(screen.getByText('TU')).toBeInTheDocument();
-      expect(screen.queryByAltText(/avatar/i)).not.toBeInTheDocument();
+      expect(screen.queryByRole('img', { name: /avatar/i })).not.toBeInTheDocument();
     });
 
     it('handles non-string image values', () => {

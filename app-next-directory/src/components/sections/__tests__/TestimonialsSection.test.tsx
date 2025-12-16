@@ -37,8 +37,13 @@ jest.mock('next/image', () => ({
   }) => {
     const { fill: _fill, priority: _priority, sizes: _sizes, ...imgProps } = props;
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img alt={alt} src={src} onError={onError} data-testid="testimonial-avatar" {...imgProps} />
+      <div
+        role="img"
+        aria-label={alt}
+        data-src={src}
+        data-testid="testimonial-avatar"
+        {...imgProps}
+      />
     );
   },
 }));

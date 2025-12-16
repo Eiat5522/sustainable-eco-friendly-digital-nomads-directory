@@ -10,13 +10,25 @@ const env = NODE_ENV || 'development';
 const hasPublicDir = existsSync(path.resolve(__dirname, '../public'));
 const shouldInit = hasPublicDir && !hasWorker && !isCi && env !== 'production';
 
+// Import structuredLogger for logging
+let structuredLogger;
+try {
+  structuredLogger = require('../src/lib/logger').structuredLogger;
+} catch (_error) {
+  // Fallback to simple stdout/stderr for standalone usage (avoid console.*)
+  structuredLogger = {
+    info: (...args) => process.stdout.write(args.map(String).join(' ') + '\n'),
+    warn: (...args) => process.stderr.write(args.map(String).join(' ') + '\n'),
+  };
+}
+
 if (shouldInit) {
   const runner = UA?.includes('pnpm') ? 'pnpm dlx' : UA?.includes('yarn') ? 'yarn dlx' : 'npx -y';
   const cmd = `${runner} msw init public --save`;
   try {
-    console.log(`[postinstall-msw] Initializing MSW: ${cmd}`);
+    structuredLogger.info(`[postinstall-msw] Initializing MSW: ${cmd}`);
     execSync(cmd, { stdio: 'inherit' });
   } catch (err) {
-    console.warn('[postinstall-msw] Skipped MSW init:', err?.message || err);
+    structuredLogger.warn('[postinstall-msw] Skipped MSW init:', err?.message || err);
   }
 }

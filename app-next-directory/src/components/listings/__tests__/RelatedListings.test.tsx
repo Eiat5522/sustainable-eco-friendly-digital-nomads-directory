@@ -41,10 +41,7 @@ jest.mock('next/image', () => {
     onError,
     ...props
   }: React.ComponentProps<'img'> & { fill?: boolean }) => {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img src={src} alt={alt} onError={onError} {...props} />
-    );
+    return <div role="img" aria-label={alt} data-src={src} {...props} />;
   };
 });
 

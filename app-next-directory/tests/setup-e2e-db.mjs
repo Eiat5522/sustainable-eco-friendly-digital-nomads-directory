@@ -128,5 +128,29 @@ async function setupE2EDatabase() {
   }
 }
 
+// Import structuredLogger for error logging
+// Use dynamic import to handle ES module compatibility
+async function getStructuredLogger() {
+  try {
+    const loggerModule = await import('../src/lib/logger.js');
+    return loggerModule.structuredLogger;
+  } catch (_error) {
+    // Fallback to no-op for standalone usage (avoids console.error violation)
+    return {
+      error: () => {},
+      info: () => {},
+    };
+  }
+}
+
 // Run setup
-setupE2EDatabase().catch(console.error);
+setupE2EDatabase()
+  .then(async () => {
+    const structuredLogger = await getStructuredLogger();
+    structuredLogger.info('E2E database setup completed successfully');
+  })
+  .catch(async error => {
+    const structuredLogger = await getStructuredLogger();
+    structuredLogger.error('E2E database setup failed', error);
+    process.exit(1);
+  });

@@ -1,0 +1,1437 @@
+app-next-directory/src/components/layout/Header.tsx:238:11 lint/a11y/useSemanticElements ━━━━━━━━━━
+
+  i The elements with this role can be changed to the following elements:
+    <nav>
+  
+    236 │           data-testid="mobile-menu"
+    237 │           className="md:hidden border-t border-neo-border bg-background shadow-lg"
+  > 238 │           role="navigation"
+        │           ^^^^^^^^^^^^^^^^^
+    239 │           aria-label="Mobile navigation"
+    240 │         >
+  
+  i For examples and more information, see WAI-ARIA Roles
+  
+
+app-next-directory/src/components/listings/NoListingsFound.tsx:5:40 lint/a11y/useSemanticElements ━━━━━━━━━━
+
+  i The elements with this role can be changed to the following elements:
+    <output>
+  
+    3 │ export function NoListingsFound(): React.JSX.Element {
+    4 │   return (
+  > 5 │     <div className="text-center py-12" role="status" aria-live="polite">
+      │                                        ^^^^^^^^^^^^^
+    6 │       <div className="mx-auto mb-3 h-12 w-12 rounded-full bg-muted flex items-center justify-center shadow-inner">
+    7 │         <span aria-hidden="true">🧐</span>
+  
+  i For examples and more information, see WAI-ARIA Roles
+  
+
+app-next-directory/src/components/listings/ReviewsSection.tsx:320:17 lint/a11y/useSemanticElements ━━━━━━━━━━
+
+  i The elements with this role can be changed to the following elements:
+    <output>
+  
+    318 │                 className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm"
+    319 │                 data-testid="review-success-message"
+  > 320 │                 role="status"
+        │                 ^^^^^^^^^^^^^
+    321 │               >
+    322 │                 <p>Thank you! Your review has been submitted and is pending approval.</p>
+  
+  i For examples and more information, see WAI-ARIA Roles
+  
+
+app-next-directory/src/components/search/DigitalNomadSearch.tsx:49:7 lint/a11y/useSemanticElements ━━━━━━━━━━
+
+  i The elements with this role can be changed to the following elements:
+    <search>
+  
+    47 │       onSubmit={onSubmit}
+    48 │       className="flex gap-3 w-full"
+  > 49 │       role="search"
+       │       ^^^^^^^^^^^^^
+    50 │       aria-label="Search listings"
+    51 │     >
+  
+  i For examples and more information, see WAI-ARIA Roles
+  
+
+app-next-directory/src/components/search/SearchForm.tsx:58:9 lint/a11y/useSemanticElements ━━━━━━━━━━
+
+  i The elements with this role can be changed to the following elements:
+    <output>
+  
+    56 │     <section aria-label="Search results" aria-live="polite" className="mt-6 space-y-4">
+    57 │       <div
+  > 58 │         role="status"
+       │         ^^^^^^^^^^^^^
+    59 │         className="font-medium"
+    60 │         aria-live="polite"
+  
+  i For examples and more information, see WAI-ARIA Roles
+  
+
+app-next-directory/src/components/search/SearchForm.tsx:176:9 lint/a11y/useSemanticElements ━━━━━━━━━━
+
+  i The elements with this role can be changed to the following elements:
+    <search>
+  
+    174 │       <form
+    175 │         onSubmit={handleSubmit}
+  > 176 │         role="search"
+        │         ^^^^^^^^^^^^^
+    177 │         aria-label="Search listings"
+    178 │         className="rounded-md border border-border bg-card p-4 shadow-sm"
+  
+  i For examples and more information, see WAI-ARIA Roles
+  
+
+app-next-directory/src/components/sections/CityCarousel.tsx:142:15 lint/a11y/useSemanticElements ━━━━━━━━━━
+
+  i The elements with this role can be changed to the following elements:
+    <section>
+  
+    140 │               ref={viewportRef}
+    141 │               className="overflow-hidden"
+  > 142 │               role="region"
+        │               ^^^^^^^^^^^^^
+    143 │               aria-label="Featured city destinations"
+    144 │             >
+  
+  i For examples and more information, see WAI-ARIA Roles
+  
+
+app-next-directory/src/components/sections/CityCarousel.tsx:145:43 lint/a11y/useSemanticElements ━━━━━━━━━━
+
+  i The elements with this role can be changed to the following elements:
+    <ol>
+    <ul>
+  
+    143 │               aria-label="Featured city destinations"
+    144 │             >
+  > 145 │               <div className="flex gap-6" role="list">
+        │                                           ^^^^^^^^^^^
+    146 │                 {sanitizedCities.map((city, index) => {
+    147 │                   const key =
+  
+  i For examples and more information, see WAI-ARIA Roles
+  
+
+app-next-directory/src/components/sections/CityCarousel.tsx:155:23 lint/a11y/useSemanticElements ━━━━━━━━━━
+
+  i The elements with this role can be changed to the following elements:
+    <li>
+  
+    153 │                     <div
+    154 │                       key={key}
+  > 155 │                       role="listitem"
+        │                       ^^^^^^^^^^^^^^^
+    156 │                       className="flex-none w-[85%] sm:w-[55%] lg:w-1/3 xl:w-1/4"
+    157 │                     >
+  
+  i For examples and more information, see WAI-ARIA Roles
+  
+
+app-next-directory/src/components/sections/FeaturedListings.tsx:223:15 lint/a11y/useSemanticElements ━━━━━━━━━━
+
+  i The elements with this role can be changed to the following elements:
+    <section>
+  
+    221 │               ref={viewportRef}
+    222 │               className="overflow-hidden"
+  > 223 │               role="region"
+        │               ^^^^^^^^^^^^^
+    224 │               aria-label="Featured venues carousel"
+    225 │             >
+  
+  i For examples and more information, see WAI-ARIA Roles
+  
+
+app-next-directory/src/components/sections/HeroSection.tsx:61:17 lint/a11y/useSemanticElements ━━━━━━━━━━
+
+  i The elements with this role can be changed to the following elements:
+    <search>
+  
+    60 │           {/* Search Bar */}
+  > 61 │           <form role="search" onSubmit={handleSubmit} className="relative max-w-2xl mx-auto mb-8">
+       │                 ^^^^^^^^^^^^^
+    62 │             <div className="relative">
+    63 │               <Search
+  
+  i For examples and more information, see WAI-ARIA Roles
+  
+
+app-next-directory/src/lib/auth/clientAuth.tsx:197:9 lint/a11y/useSemanticElements ━━━━━━━━━━
+
+  i The elements with this role can be changed to the following elements:
+    <output>
+  
+    195 │       <div
+    196 │         data-testid="loading"
+  > 197 │         role="status"
+        │         ^^^^^^^^^^^^^
+    198 │         aria-live="polite"
+    199 │         className="flex justify-center items-center h-64"
+  
+  i For examples and more information, see WAI-ARIA Roles
+  
+
+app-next-directory/src/lib/auth/clientAuth.tsx:102:9 lint/a11y/useSemanticElements ━━━━━━━━━━
+
+  i The elements with this role can be changed to the following elements:
+    <output>
+  
+    100 │       <div
+    101 │         data-testid="loading"
+  > 102 │         role="status"
+        │         ^^^^^^^^^^^^^
+    103 │         aria-live="polite"
+    104 │         className="flex justify-center items-center h-64"
+  
+  i For examples and more information, see WAI-ARIA Roles
+  
+
+app-next-directory/src/lib/auth/clientAuth.tsx:134:9 lint/a11y/useSemanticElements ━━━━━━━━━━
+
+  i The elements with this role can be changed to the following elements:
+    <output>
+  
+    132 │       <div
+    133 │         data-testid="loading"
+  > 134 │         role="status"
+        │         ^^^^^^^^^^^^^
+    135 │         aria-live="polite"
+    136 │         className="flex justify-center items-center h-64"
+  
+  i For examples and more information, see WAI-ARIA Roles
+  
+
+app-next-directory/src/lib/auth/clientAuth.tsx:166:9 lint/a11y/useSemanticElements ━━━━━━━━━━
+
+  i The elements with this role can be changed to the following elements:
+    <output>
+  
+    164 │       <div
+    165 │         data-testid="loading"
+  > 166 │         role="status"
+        │         ^^^^^^^^^^^^^
+    167 │         aria-live="polite"
+    168 │         className="flex justify-center items-center h-64"
+  
+  i For examples and more information, see WAI-ARIA Roles
+  
+
+app-next-directory/app/admin/settings/SettingsForm.tsx:47:16 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable ignoredType is unused.
+  
+    45 │       const {
+    46 │         _id: ignoredId,
+  > 47 │         _type: ignoredType,
+       │                ^^^^^^^^^^^
+    48 │         _createdAt: ignoredCreatedAt,
+    49 │         _updatedAt: ignoredUpdatedAt,
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/app/admin/settings/SettingsForm.tsx:48:21 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable ignoredCreatedAt is unused.
+  
+    46 │         _id: ignoredId,
+    47 │         _type: ignoredType,
+  > 48 │         _createdAt: ignoredCreatedAt,
+       │                     ^^^^^^^^^^^^^^^^
+    49 │         _updatedAt: ignoredUpdatedAt,
+    50 │         ...formData
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/app/admin/settings/SettingsForm.tsx:49:21 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable ignoredUpdatedAt is unused.
+  
+    47 │         _type: ignoredType,
+    48 │         _createdAt: ignoredCreatedAt,
+  > 49 │         _updatedAt: ignoredUpdatedAt,
+       │                     ^^^^^^^^^^^^^^^^
+    50 │         ...formData
+    51 │       } = data.settings;
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/app/admin/settings/SettingsForm.tsx:97:16 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable ignoredId is unused.
+  
+    95 │         // Update settings with saved data
+    96 │         const {
+  > 97 │           _id: ignoredId,
+       │                ^^^^^^^^^
+    98 │           _type: ignoredType,
+    99 │           _createdAt: ignoredCreatedAt,
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/app/admin/settings/SettingsForm.tsx:98:18 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable ignoredType is unused.
+  
+     96 │         const {
+     97 │           _id: ignoredId,
+   > 98 │           _type: ignoredType,
+        │                  ^^^^^^^^^^^
+     99 │           _createdAt: ignoredCreatedAt,
+    100 │           _updatedAt: ignoredUpdatedAt,
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/app/admin/settings/SettingsForm.tsx:46:14 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable ignoredId is unused.
+  
+    44 │       // Extract only the form fields from settings
+    45 │       const {
+  > 46 │         _id: ignoredId,
+       │              ^^^^^^^^^
+    47 │         _type: ignoredType,
+    48 │         _createdAt: ignoredCreatedAt,
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/app/admin/settings/SettingsForm.tsx:99:23 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable ignoredCreatedAt is unused.
+  
+     97 │           _id: ignoredId,
+     98 │           _type: ignoredType,
+   > 99 │           _createdAt: ignoredCreatedAt,
+        │                       ^^^^^^^^^^^^^^^^
+    100 │           _updatedAt: ignoredUpdatedAt,
+    101 │           ...formData
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/app/admin/settings/SettingsForm.tsx:100:23 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable ignoredUpdatedAt is unused.
+  
+     98 │           _type: ignoredType,
+     99 │           _createdAt: ignoredCreatedAt,
+  > 100 │           _updatedAt: ignoredUpdatedAt,
+        │                       ^^^^^^^^^^^^^^^^
+    101 │           ...formData
+    102 │         } = data.settings;
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/app/admin/settings/__tests__/page.test.tsx:32:13 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable container is unused.
+  
+    31 │     const page = await AdminSettingsPage();
+  > 32 │     const { container } = render(page);
+       │             ^^^^^^^^^
+    33 │ 
+    34 │     expect(screen.getByTestId('admin-settings-page')).toBeInTheDocument();
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/app/admin/settings/__tests__/page.test.tsx:95:13 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable container is unused.
+  
+    94 │     const page = await AdminSettingsPage();
+  > 95 │     const { container } = render(page);
+       │             ^^^^^^^^^
+    96 │ 
+    97 │     const mainElement = screen.getByTestId('admin-settings-page');
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/app/api/admin/settings/route.ts:129:22 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable ignoredType is unused.
+  
+    127 │     } else {
+    128 │       // Create new settings document
+  > 129 │       const { _type: ignoredType, ...defaultSettings } = DEFAULT_ADMIN_SETTINGS;
+        │                      ^^^^^^^^^^^
+    130 │       savedSettings = await (client.create as (doc: unknown) => Promise<AdminSettings>)({
+    131 │         _type: 'adminSettings',
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/app/api/admin/stats/__tests__/route.test.ts:47:11 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This interface MockRequest is unused.
+  
+    46 │ // Helper type for mock request
+  > 47 │ interface MockRequest extends Partial<NextRequest> {
+       │           ^^^^^^^^^^^
+    48 │   url?: string;
+    49 │   json?: () => Promise<unknown>;
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/app/api/blog/[slug]/route.test.ts:64:6 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This type alias SanityFetchFn is unused.
+  
+    62 │ };
+    63 │ 
+  > 64 │ type SanityFetchFn = (...args: unknown[]) => Promise<BlogPost | BlogPost[] | null>;
+       │      ^^^^^^^^^^^^^
+    65 │ 
+    66 │ // (mocks defined above and used by module mocks)
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/app/api/contact/route.test.ts:858:17 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable type is unused.
+  
+    856 │         mockLimiterFn.mockImplementation(async () => ({ success: true }));
+    857 │         process.env.RESEND_API_KEY = 'test-key';
+  > 858 │         const { type, ...dataWithoutType } = validContactData;
+        │                 ^^^^
+    859 │ 
+    860 │         const request = createPostRequest(dataWithoutType);
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/app/api/test-listings/__tests__/route.test.ts:15:18 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable newGET is unused.
+  
+    13 │     // require after reset so we can set overrides on the required module's _testControl
+    14 │     jest.resetModules();
+  > 15 │     const { GET: newGET, _testControl: newTestControl } = require('../route');
+       │                  ^^^^^^
+    16 │     routeTestControl = newTestControl;
+    17 │     routeTestControl.createTestDataOverride = mockCreateTestData;
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/app/blog/[slug]/page.tsx:33:6 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This type alias PostResponse is unused.
+  
+    31 │ // Type for potential future use
+    32 │ // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  > 33 │ type PostResponse = { post: PostDTO; comments: Comment[] };
+       │      ^^^^^^^^^^^^
+    34 │ 
+    35 │ export default async function BlogPostPage(props: Readonly<{ params: Promise<{ slug: string }> }>) {
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/next.setup.ts:7:6 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This type alias HeadersLike is unused.
+  
+    5 │ // Type for headers compatibility
+    6 │ // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  > 7 │ type HeadersLike = HeadersInit | Record<string, string> | [string, string][];
+      │      ^^^^^^^^^^^
+    8 │ 
+    9 │ type NextResponseInit = { status?: number; headers?: HeadersInit };
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/src/components/__tests__/Providers.test.tsx:52:13 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable container is unused.
+  
+    51 │   it('maintains proper provider nesting order', () => {
+  > 52 │     const { container } = render(
+       │             ^^^^^^^^^
+    53 │       <Providers>
+    54 │         <div data-testid="inner-content">Content</div>
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/src/components/__tests__/Providers.test.tsx:81:13 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable container is unused.
+  
+    80 │   it('handles empty children', () => {
+  > 81 │     const { container } = render(<Providers>{null}</Providers>);
+       │             ^^^^^^^^^
+    82 │ 
+    83 │     expect(screen.getByTestId('session-provider')).toBeInTheDocument();
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/src/components/__tests__/Providers.test.tsx:88:13 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable container is unused.
+  
+    87 │   it('handles undefined children', () => {
+  > 88 │     const { container } = render(<Providers>{undefined}</Providers>);
+       │             ^^^^^^^^^
+    89 │ 
+    90 │     expect(screen.getByTestId('session-provider')).toBeInTheDocument();
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/src/components/auth/SocialAuthRow.tsx:18:5 lint/a11y/noSvgWithoutTitle ━━━━━━━━━━
+
+  ! Alternative text title element cannot be empty
+  
+    16 │ const Icons = {
+    17 │   google: (
+  > 18 │     <svg viewBox="0 0 24 24" aria-hidden className="w-5 h-5">
+       │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    19 │       <path
+    20 │         fill="#EA4335"
+  
+  i For accessibility purposes, SVGs should have an alternative text, provided via title element. If the svg element has role="img", you should add the aria-label or aria-labelledby attribute.
+  
+
+app-next-directory/src/components/city/__tests__/CityDetailView.test.tsx:69:5 lint/a11y/noSvgWithoutTitle ━━━━━━━━━━
+
+  ! Alternative text title element cannot be empty
+  
+    67 │   ),
+    68 │   Footprints: ({ children, ...props }: React.SVGProps<SVGSVGElement>) => (
+  > 69 │     <svg data-icon="footprints" {...props}>
+       │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    70 │       {children}
+    71 │     </svg>
+  
+  i For accessibility purposes, SVGs should have an alternative text, provided via title element. If the svg element has role="img", you should add the aria-label or aria-labelledby attribute.
+  
+
+app-next-directory/src/components/city/__tests__/CityDetailView.test.tsx:39:5 lint/a11y/noSvgWithoutTitle ━━━━━━━━━━
+
+  ! Alternative text title element cannot be empty
+  
+    37 │   __esModule: true,
+    38 │   Leaf: ({ children, ...props }: React.SVGProps<SVGSVGElement>) => (
+  > 39 │     <svg data-icon="leaf" {...props}>
+       │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    40 │       {children}
+    41 │     </svg>
+  
+  i For accessibility purposes, SVGs should have an alternative text, provided via title element. If the svg element has role="img", you should add the aria-label or aria-labelledby attribute.
+  
+
+app-next-directory/src/components/city/__tests__/CityDetailView.test.tsx:44:5 lint/a11y/noSvgWithoutTitle ━━━━━━━━━━
+
+  ! Alternative text title element cannot be empty
+  
+    42 │   ),
+    43 │   MapPin: ({ children, ...props }: React.SVGProps<SVGSVGElement>) => (
+  > 44 │     <svg data-icon="map-pin" {...props}>
+       │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    45 │       {children}
+    46 │     </svg>
+  
+  i For accessibility purposes, SVGs should have an alternative text, provided via title element. If the svg element has role="img", you should add the aria-label or aria-labelledby attribute.
+  
+
+app-next-directory/src/components/city/__tests__/CityDetailView.test.tsx:49:5 lint/a11y/noSvgWithoutTitle ━━━━━━━━━━
+
+  ! Alternative text title element cannot be empty
+  
+    47 │   ),
+    48 │   Wifi: ({ children, ...props }: React.SVGProps<SVGSVGElement>) => (
+  > 49 │     <svg data-icon="wifi" {...props}>
+       │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    50 │       {children}
+    51 │     </svg>
+  
+  i For accessibility purposes, SVGs should have an alternative text, provided via title element. If the svg element has role="img", you should add the aria-label or aria-labelledby attribute.
+  
+
+app-next-directory/src/components/city/__tests__/CityDetailView.test.tsx:54:5 lint/a11y/noSvgWithoutTitle ━━━━━━━━━━
+
+  ! Alternative text title element cannot be empty
+  
+    52 │   ),
+    53 │   DollarSign: ({ children, ...props }: React.SVGProps<SVGSVGElement>) => (
+  > 54 │     <svg data-icon="dollar" {...props}>
+       │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    55 │       {children}
+    56 │     </svg>
+  
+  i For accessibility purposes, SVGs should have an alternative text, provided via title element. If the svg element has role="img", you should add the aria-label or aria-labelledby attribute.
+  
+
+app-next-directory/src/components/city/__tests__/CityDetailView.test.tsx:59:5 lint/a11y/noSvgWithoutTitle ━━━━━━━━━━
+
+  ! Alternative text title element cannot be empty
+  
+    57 │   ),
+    58 │   Thermometer: ({ children, ...props }: React.SVGProps<SVGSVGElement>) => (
+  > 59 │     <svg data-icon="thermometer" {...props}>
+       │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    60 │       {children}
+    61 │     </svg>
+  
+  i For accessibility purposes, SVGs should have an alternative text, provided via title element. If the svg element has role="img", you should add the aria-label or aria-labelledby attribute.
+  
+
+app-next-directory/src/components/city/__tests__/CityDetailView.test.tsx:64:5 lint/a11y/noSvgWithoutTitle ━━━━━━━━━━
+
+  ! Alternative text title element cannot be empty
+  
+    62 │   ),
+    63 │   Shield: ({ children, ...props }: React.SVGProps<SVGSVGElement>) => (
+  > 64 │     <svg data-icon="shield" {...props}>
+       │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    65 │       {children}
+    66 │     </svg>
+  
+  i For accessibility purposes, SVGs should have an alternative text, provided via title element. If the svg element has role="img", you should add the aria-label or aria-labelledby attribute.
+  
+
+app-next-directory/src/components/city/__tests__/CityDetailView.test.tsx:74:5 lint/a11y/noSvgWithoutTitle ━━━━━━━━━━
+
+  ! Alternative text title element cannot be empty
+  
+    72 │   ),
+    73 │   Wind: ({ children, ...props }: React.SVGProps<SVGSVGElement>) => (
+  > 74 │     <svg data-icon="wind" {...props}>
+       │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    75 │       {children}
+    76 │     </svg>
+  
+  i For accessibility purposes, SVGs should have an alternative text, provided via title element. If the svg element has role="img", you should add the aria-label or aria-labelledby attribute.
+  
+
+app-next-directory/src/components/city/__tests__/CityDetailView.test.tsx:23:7 lint/performance/noImgElement ━━━━━━━━━━
+
+  ! Don't use <img> element.
+  
+    21 │     return (
+    22 │       // eslint-disable-next-line @next/next/no-img-element
+  > 23 │       <img
+       │       ^^^^
+  > 24 │         alt={alt}
+        ...
+  > 30 │         {...props}
+  > 31 │       />
+       │       ^^
+    32 │     );
+    33 │   };
+  
+  i Using the <img> can lead to slower LCP and higher bandwidth. Consider using <Image /> from next/image to automatically optimize images.
+  
+
+app-next-directory/src/components/layout/__tests__/Header.test.tsx:29:7 lint/performance/noImgElement ━━━━━━━━━━
+
+  ! Don't use <img> element.
+  
+    27 │     return (
+    28 │       // eslint-disable-next-line @next/next/no-img-element
+  > 29 │       <img
+       │       ^^^^
+  > 30 │         alt={alt}
+        ...
+  > 36 │         {...props}
+  > 37 │       />
+       │       ^^
+    38 │     );
+    39 │   };
+  
+  i Using the <img> can lead to slower LCP and higher bandwidth. Consider using <Image /> from next/image to automatically optimize images.
+  
+
+app-next-directory/src/components/listings/__tests__/GalleryGrid.test.tsx:17:7 lint/performance/noImgElement ━━━━━━━━━━
+
+  ! Don't use <img> element.
+  
+    15 │     return (
+    16 │       // eslint-disable-next-line @next/next/no-img-element
+  > 17 │       <img alt={alt} src={src} onError={onError} data-mock-image {...imgProps} />
+       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    18 │     );
+    19 │   },
+  
+  i Using the <img> can lead to slower LCP and higher bandwidth. Consider using <Image /> from next/image to automatically optimize images.
+  
+
+app-next-directory/src/components/listings/__tests__/HeroSection.test.tsx:17:7 lint/performance/noImgElement ━━━━━━━━━━
+
+  ! Don't use <img> element.
+  
+    15 │     return (
+    16 │       // eslint-disable-next-line @next/next/no-img-element
+  > 17 │       <img
+       │       ^^^^
+  > 18 │         src={src}
+        ...
+  > 24 │         data-priority={priority}
+  > 25 │       />
+       │       ^^
+    26 │     );
+    27 │   };
+  
+  i Using the <img> can lead to slower LCP and higher bandwidth. Consider using <Image /> from next/image to automatically optimize images.
+  
+
+app-next-directory/src/components/listings/__tests__/ListingDetailsCard.test.tsx:628:15 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable container is unused.
+  
+    627 │     it('renders phone icon', () => {
+  > 628 │       const { container } = render(<ListingDetailsCard listing={accommodationListing} />);
+        │               ^^^^^^^^^
+    629 │ 
+    630 │       const phoneSection = screen.getByText('Phone').closest('div')?.parentElement;
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/src/components/listings/__tests__/ListingDetailsCard.test.tsx:636:15 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable container is unused.
+  
+    635 │     it('renders email icon', () => {
+  > 636 │       const { container } = render(<ListingDetailsCard listing={accommodationListing} />);
+        │               ^^^^^^^^^
+    637 │ 
+    638 │       // "Email" appears twice, so get the first one (the label)
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/src/components/listings/__tests__/ListingDetailsCard.test.tsx:646:15 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable container is unused.
+  
+    645 │     it('renders globe icon for website', () => {
+  > 646 │       const { container } = render(<ListingDetailsCard listing={accommodationListing} />);
+        │               ^^^^^^^^^
+    647 │ 
+    648 │       const websiteSection = screen.getByText('Website').closest('div')?.parentElement;
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/src/components/listings/__tests__/ListingDetailsCard.test.tsx:654:15 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable container is unused.
+  
+    653 │     it('renders map pin icon for address', () => {
+  > 654 │       const { container } = render(<ListingDetailsCard listing={accommodationListing} />);
+        │               ^^^^^^^^^
+    655 │ 
+    656 │       const addressSection = screen.getByText('Address').closest('div')?.parentElement;
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/src/components/listings/__tests__/ListingGrid.test.tsx:24:7 lint/performance/noImgElement ━━━━━━━━━━
+
+  ! Don't use <img> element.
+  
+    22 │     return (
+    23 │       // eslint-disable-next-line @next/next/no-img-element
+  > 24 │       <img src={src} alt={alt} onError={onError} {...props} />
+       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    25 │     );
+    26 │   };
+  
+  i Using the <img> can lead to slower LCP and higher bandwidth. Consider using <Image /> from next/image to automatically optimize images.
+  
+
+app-next-directory/src/components/listings/__tests__/ListingGrid.test.tsx:216:15 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable container is unused.
+  
+    215 │     it('displays star icon in featured badge', () => {
+  > 216 │       const { container } = render(<ListingGrid listings={mockListings} />);
+        │               ^^^^^^^^^
+    217 │ 
+    218 │       const featuredBadge = screen.getByText('Featured').closest('div');
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/src/components/listings/__tests__/ListingGrid.test.tsx:639:15 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable container is unused.
+  
+    638 │     it('includes aria-hidden for decorative star icon', () => {
+  > 639 │       const { container } = render(<ListingGrid listings={mockListings} />);
+        │               ^^^^^^^^^
+    640 │ 
+    641 │       const featuredBadge = screen.getByText('Featured').closest('div');
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/src/components/listings/__tests__/NoListingsFound.test.tsx:53:15 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable container is unused.
+  
+    52 │     it('applies body-lg class to main message', () => {
+  > 53 │       const { container } = render(<NoListingsFound />);
+       │               ^^^^^^^^^
+    54 │       const mainMessage = screen.getByText('No listings found for this city yet.');
+    55 │       expect(mainMessage).toHaveClass('body-lg');
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/src/components/listings/__tests__/NoListingsFound.test.tsx:59:15 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable container is unused.
+  
+    58 │     it('applies body-sm and text-neo-text-secondary to helper text', () => {
+  > 59 │       const { container } = render(<NoListingsFound />);
+       │               ^^^^^^^^^
+    60 │       const helperText = screen.getByText('Try adjusting filters or check back later.');
+    61 │ 
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/src/components/listings/__tests__/NoListingsFound.test.tsx:118:15 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable container is unused.
+  
+    117 │     it('renders main message as paragraph', () => {
+  > 118 │       const { container } = render(<NoListingsFound />);
+        │               ^^^^^^^^^
+    119 │       const mainMessage = screen.getByText('No listings found for this city yet.');
+    120 │       expect(mainMessage.tagName).toBe('P');
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/src/components/listings/__tests__/NoListingsFound.test.tsx:124:15 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable container is unused.
+  
+    123 │     it('renders helper text as paragraph', () => {
+  > 124 │       const { container } = render(<NoListingsFound />);
+        │               ^^^^^^^^^
+    125 │       const helperText = screen.getByText('Try adjusting filters or check back later.');
+    126 │       expect(helperText.tagName).toBe('P');
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/src/components/listings/__tests__/RelatedListings.test.tsx:676:15 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable container is unused.
+  
+    674 │       ];
+    675 │ 
+  > 676 │       const { container } = render(<RelatedListings listings={unknownPriceListing} />);
+        │               ^^^^^^^^^
+    677 │ 
+    678 │       const badge = screen.getByText('Unknown');
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/src/components/listings/__tests__/RelatedListings.test.tsx:46:7 lint/performance/noImgElement ━━━━━━━━━━
+
+  ! Don't use <img> element.
+  
+    44 │     return (
+    45 │       // eslint-disable-next-line @next/next/no-img-element
+  > 46 │       <img src={src} alt={alt} onError={onError} {...props} />
+       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    47 │     );
+    48 │   };
+  
+  i Using the <img> can lead to slower LCP and higher bandwidth. Consider using <Image /> from next/image to automatically optimize images.
+  
+
+app-next-directory/src/components/listings/__tests__/RelatedListings.test.tsx:158:15 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable container is unused.
+  
+    157 │     it('hides navigation buttons on mobile (md breakpoint)', () => {
+  > 158 │       const { container } = render(<RelatedListings listings={mockListings} />);
+        │               ^^^^^^^^^
+    159 │ 
+    160 │       const prevButton = screen.getByLabelText('Scroll related listings left');
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/src/components/listings/__tests__/RelatedListings.test.tsx:254:15 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable container is unused.
+  
+    252 │   describe('Images', () => {
+    253 │     it('renders placeholder image for all listings', () => {
+  > 254 │       const { container } = render(<RelatedListings listings={mockListings} />);
+        │               ^^^^^^^^^
+    255 │ 
+    256 │       const placeholders = screen.getAllByTestId('related-listing-fallback');
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/src/components/sections/FeaturedListings.tsx:147:77 lint/correctness/noUnsafeFinally ━━━━━━━━━━
+
+  ! Unsafe usage of 'return'.
+  
+    145 │       setError(message);
+    146 │     } finally {
+  > 147 │       if (controller.signal.aborted || activeRequest.current !== requestId) return;
+        │                                                                             ^^^^^^^
+    148 │       setLoading(false);
+    149 │       if (abortRef.current === controller) {
+  
+  i 'return' in 'finally' overwrites the control flow statements inside 'try' and 'catch'.
+  
+
+app-next-directory/src/components/sections/__tests__/TestimonialsSection.test.tsx:41:7 lint/performance/noImgElement ━━━━━━━━━━
+
+  ! Don't use <img> element.
+  
+    39 │     return (
+    40 │       // eslint-disable-next-line @next/next/no-img-element
+  > 41 │       <img alt={alt} src={src} onError={onError} data-testid="testimonial-avatar" {...imgProps} />
+       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    42 │     );
+    43 │   },
+  
+  i Using the <img> can lead to slower LCP and higher bandwidth. Consider using <Image /> from next/image to automatically optimize images.
+  
+
+app-next-directory/src/components/ui/__tests__/ImageCarousel.test.tsx:17:7 lint/performance/noImgElement ━━━━━━━━━━
+
+  ! Don't use <img> element.
+  
+    15 │     return (
+    16 │       // eslint-disable-next-line @next/next/no-img-element
+  > 17 │       <img {...rest} alt={alt} fill={fill?.toString()} priority={priority?.toString()} />
+       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    18 │     );
+    19 │   },
+  
+  i Using the <img> can lead to slower LCP and higher bandwidth. Consider using <Image /> from next/image to automatically optimize images.
+  
+
+app-next-directory/src/components/ui/__tests__/VenueCard.test.tsx:17:12 lint/performance/noImgElement ━━━━━━━━━━
+
+  ! Don't use <img> element.
+  
+    15 │   return ({ src, alt }) => {
+    16 │     // eslint-disable-next-line @next/next/no-img-element
+  > 17 │     return <img src={src} alt={alt} />;
+       │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    18 │   };
+    19 │ });
+  
+  i Using the <img> can lead to slower LCP and higher bandwidth. Consider using <Image /> from next/image to automatically optimize images.
+  
+
+app-next-directory/src/components/ui/__tests__/city-carousel-wave.test.tsx:27:7 lint/performance/noImgElement ━━━━━━━━━━
+
+  ! Don't use <img> element.
+  
+    25 │     return (
+    26 │       // eslint-disable-next-line @next/next/no-img-element
+  > 27 │       <img {...rest} alt={alt} fill={fill?.toString()} priority={priority?.toString()} />
+       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    28 │     );
+    29 │   },
+  
+  i Using the <img> can lead to slower LCP and higher bandwidth. Consider using <Image /> from next/image to automatically optimize images.
+  
+
+app-next-directory/src/components/ui/__tests__/label.test.tsx:146:15 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable container is unused.
+  
+    145 │     it('supports multiple labels with different htmlFor', () => {
+  > 146 │       const { container } = render(
+        │               ^^^^^^^^^
+    147 │         <>
+    148 │           <Label htmlFor="first-name">First Name</Label>
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/src/data/e2e/discovery-fixtures.ts:428:20 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable ignored_gallery is unused.
+  
+    426 │   if (!detail) return null;
+    427 │   const {
+  > 428 │     galleryImages: ignored_gallery,
+        │                    ^^^^^^^^^^^^^^^
+    429 │     digitalNomadFeatures: ignored_dn,
+    430 │     sustainabilityInitiatives: ignored_si,
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/src/data/e2e/discovery-fixtures.ts:429:27 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable ignored_dn is unused.
+  
+    427 │   const {
+    428 │     galleryImages: ignored_gallery,
+  > 429 │     digitalNomadFeatures: ignored_dn,
+        │                           ^^^^^^^^^^
+    430 │     sustainabilityInitiatives: ignored_si,
+    431 │     shortDescription: ignored_sd,
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/src/data/e2e/discovery-fixtures.ts:430:32 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable ignored_si is unused.
+  
+    428 │     galleryImages: ignored_gallery,
+    429 │     digitalNomadFeatures: ignored_dn,
+  > 430 │     sustainabilityInitiatives: ignored_si,
+        │                                ^^^^^^^^^^
+    431 │     shortDescription: ignored_sd,
+    432 │     airQuality: ignored_aq,
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/src/data/e2e/discovery-fixtures.ts:431:23 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable ignored_sd is unused.
+  
+    429 │     digitalNomadFeatures: ignored_dn,
+    430 │     sustainabilityInitiatives: ignored_si,
+  > 431 │     shortDescription: ignored_sd,
+        │                       ^^^^^^^^^^
+    432 │     airQuality: ignored_aq,
+    433 │     internetSpeed: ignored_is,
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/src/data/e2e/discovery-fixtures.ts:432:17 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable ignored_aq is unused.
+  
+    430 │     sustainabilityInitiatives: ignored_si,
+    431 │     shortDescription: ignored_sd,
+  > 432 │     airQuality: ignored_aq,
+        │                 ^^^^^^^^^^
+    433 │     internetSpeed: ignored_is,
+    434 │     costOfLiving: ignored_cl,
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/src/data/e2e/discovery-fixtures.ts:433:20 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable ignored_is is unused.
+  
+    431 │     shortDescription: ignored_sd,
+    432 │     airQuality: ignored_aq,
+  > 433 │     internetSpeed: ignored_is,
+        │                    ^^^^^^^^^^
+    434 │     costOfLiving: ignored_cl,
+    435 │     climate: ignored_climate,
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/src/data/e2e/discovery-fixtures.ts:434:19 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable ignored_cl is unused.
+  
+    432 │     airQuality: ignored_aq,
+    433 │     internetSpeed: ignored_is,
+  > 434 │     costOfLiving: ignored_cl,
+        │                   ^^^^^^^^^^
+    435 │     climate: ignored_climate,
+    436 │     safety: ignored_safety,
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/src/data/e2e/discovery-fixtures.ts:435:14 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable ignored_climate is unused.
+  
+    433 │     internetSpeed: ignored_is,
+    434 │     costOfLiving: ignored_cl,
+  > 435 │     climate: ignored_climate,
+        │              ^^^^^^^^^^^^^^^
+    436 │     safety: ignored_safety,
+    437 │     walkability: ignored_walk,
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/src/data/e2e/discovery-fixtures.ts:436:13 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable ignored_safety is unused.
+  
+    434 │     costOfLiving: ignored_cl,
+    435 │     climate: ignored_climate,
+  > 436 │     safety: ignored_safety,
+        │             ^^^^^^^^^^^^^^
+    437 │     walkability: ignored_walk,
+    438 │     ...rest
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/src/data/e2e/discovery-fixtures.ts:437:18 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable ignored_walk is unused.
+  
+    435 │     climate: ignored_climate,
+    436 │     safety: ignored_safety,
+  > 437 │     walkability: ignored_walk,
+        │                  ^^^^^^^^^^^^
+    438 │     ...rest
+    439 │   } = detail;
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i You can use the ignoreRestSiblings option to ignore unused variables in an object destructuring with a spread.
+  
+
+app-next-directory/src/lib/__tests__/geocode.test.ts:7:6 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This type alias MockFetchResponse is unused.
+  
+    5 │ import * as geocodeModule from '../geocode';
+    6 │ 
+  > 7 │ type MockFetchResponse = {
+      │      ^^^^^^^^^^^^^^^^^
+    8 │   json: () => Promise<unknown>;
+    9 │ };
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/src/lib/__tests__/geocode.test.ts:231:7 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable fs is unused.
+  
+    229 │ describe('updateListingsWithCoordinates', () => {
+    230 │   let _geocodeModule: typeof import('../geocode');
+  > 231 │   let fs: typeof import('fs/promises');
+        │       ^^
+    232 │   let _path: typeof import('path');
+    233 │   const mockedPath = 'D:\\mocked\\path\\listings.json';
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/src/lib/dashboard/user-dashboard.ts:61:6 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This type alias ignoredVenueOwnerDashboard is unused.
+  
+    59 │ type ListingMonthlyMetrics = DashboardTimeSeriesPointDTO;
+    60 │ type ListingDashboardMetrics = DashboardListingSummaryDTO;
+  > 61 │ type ignoredVenueOwnerDashboard = VenueOwnerDashboardDTO;
+       │      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    62 │ type FavoriteSummary = UserDashboardFavoriteDTO;
+    63 │ type ignoredRegularUserDashboard = RegularUserDashboardDTO;
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/src/lib/dashboard/user-dashboard.ts:63:6 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This type alias ignoredRegularUserDashboard is unused.
+  
+    61 │ type ignoredVenueOwnerDashboard = VenueOwnerDashboardDTO;
+    62 │ type FavoriteSummary = UserDashboardFavoriteDTO;
+  > 63 │ type ignoredRegularUserDashboard = RegularUserDashboardDTO;
+       │      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    64 │ type DashboardPayload = UserDashboardPayloadDTO;
+    65 │ 
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/src/lib/data/__tests__/city.test.ts:30:9 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable client is unused.
+  
+    29 │ const { cachedClient } = require('@/lib/sanity/cached-client');
+  > 30 │ const { client } = require('@/lib/sanity/client');
+       │         ^^^^^^
+    31 │ const { transformToSummaryDTO } = require('@/lib/dto-transformer');
+    32 │ const fixtures = require('@/data/e2e/discovery-fixtures');
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/src/lib/dto-transformer.ts:132:7 suppressions/unused ━━━━━━━━━━
+
+  ! Suppression comment has no effect. Remove the suppression or make sure you are suppressing the correct rule.
+  
+    130 │     // Otherwise only treat as a Sanity asset ref/id if valid
+    131 │     if (isImageAssetId(img)) {
+  > 132 │       // biome-ignore lint/suspicious/noFocusedTests: 'fit' is an image transformation, not a focused test
+        │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    133 │       return urlFor(img).width(w).height(h).fit('crop').auto('format').url();
+    134 │     }
+  
+
+app-next-directory/src/lib/dto-transformer.ts:150:5 suppressions/unused ━━━━━━━━━━
+
+  ! Suppression comment has no effect. Remove the suppression or make sure you are suppressing the correct rule.
+  
+    149 │   if (isSanityImage(img)) {
+  > 150 │     // biome-ignore lint/suspicious/noFocusedTests: 'fit' is an image transformation, not a focused test
+        │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    151 │     return urlFor(img).width(w).height(h).fit('crop').auto('format').url();
+    152 │   }
+  
+
+app-next-directory/src/lib/sanity/client.test.ts:119:15 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable createClient is unused.
+  
+    117 │   describe('Image URL Building', () => {
+    118 │     it('should build image URLs using urlFor function', () => {
+  > 119 │       const { createClient } = require('@sanity/client');
+        │               ^^^^^^^^^^^^
+    120 │       const imageUrlBuilder = require('@sanity/image-url');
+    121 │ 
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/src/lib/sanity/client.test.ts:151:15 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable createClient is unused.
+  
+    150 │     it('should handle centralized image model structure', () => {
+  > 151 │       const { createClient } = require('@sanity/client');
+        │               ^^^^^^^^^^^^
+    152 │       const imageUrlBuilder = require('@sanity/image-url');
+    153 │ 
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/src/middleware/index.ts:48:11 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This interface RequestContext is unused.
+  
+    46 │ // RequestContext is used by getRequestContext but not directly in this file
+    47 │ // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  > 48 │ interface RequestContext {
+       │           ^^^^^^^^^^^^^^
+    49 │   traceId: string;
+    50 │ }
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/src/middleware/server-timing.ts:57:6 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This type alias NextResponseLike is unused.
+  
+    55 │ // Used in function signatures
+    56 │ // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  > 57 │ type NextResponseLike = {
+       │      ^^^^^^^^^^^^^^^^
+    58 │   headers: Headers;
+    59 │   next: () => NextResponseLike;
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/tests/e2e/cross-browser/compatibility.spec.ts:101:26 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable y is unused.
+  
+     99 │             try {
+    100 │               const [a, _b] = [1, 2];
+  > 101 │               const { x, y } = { x: 1, y: 2 };
+        │                          ^
+    102 │               return a === 1 && x === 1;
+    103 │             } catch (_e) {
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/tests/e2e/cross-browser/compatibility.spec.ts:182:49 lint/correctness/noUnusedFunctionParameters ━━━━━━━━━━
+
+  ! This parameter is unused.
+  
+    180 │     });
+    181 │ 
+  > 182 │     test('touch events compatibility', async ({ page }) => {
+        │                                                 ^^^^
+    183 │       test.skip(true, 'Use the touch-enabled browser context test below');
+    184 │     });
+  
+  i Unused parameters might be the result of an incomplete refactoring.
+  
+
+app-next-directory/tests/e2e/security/security.spec.ts:243:43 lint/correctness/noUnusedFunctionParameters ━━━━━━━━━━
+
+  ! This parameter is unused.
+  
+    241 │     });
+    242 │ 
+  > 243 │     test('file upload security', async ({ page }) => {
+        │                                           ^^^^
+    244 │       test.skip(
+    245 │         true,
+  
+  i Unused parameters might be the result of an incomplete refactoring.
+  
+
+app-next-directory/tests/e2e/security/security.spec.ts:221:50 lint/correctness/noUnusedFunctionParameters ━━━━━━━━━━
+
+  ! This parameter is unused.
+  
+    219 │     });
+    220 │ 
+  > 221 │     test('prevents CSRF attacks', async ({ page, context }) => {
+        │                                                  ^^^^^^^
+    222 │       // Login and get session using the auth helper
+    223 │       await loginAs(page, TEST_CONFIG.credentials.userEmail, TEST_CONFIG.credentials.userPassword);
+  
+  i Unused parameters might be the result of an incomplete refactoring.
+  
+
+app-next-directory/tests/helpers/typedMocks.ts:3:6 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This type alias MethodKeys is unused.
+  
+    1 │ // Robust, type-safe mock helpers for Jest and TypeScript.
+    2 │ 
+  > 3 │ type MethodKeys<T> = {
+      │      ^^^^^^^^^^
+    4 │   [K in keyof T]: T[K] extends (...args: unknown[]) => unknown ? K : never;
+    5 │ }[keyof T];
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+app-next-directory/tests/seed.spec.ts:4:25 lint/correctness/noUnusedFunctionParameters ━━━━━━━━━━
+
+  ! This parameter is unused.
+  
+    3 │ test.describe('Test group', () => {
+  > 4 │   test('seed', async ({ page }) => {
+      │                         ^^^^
+    5 │     // generate code here.
+    6 │   });
+  
+  i Unused parameters might be the result of an incomplete refactoring.
+  
+
+app-next-directory/jest.setup.ts:327:66 lint/correctness/noInvalidUseBeforeDeclaration ━━━━━━━━━━
+
+  × This variable is used before its declaration.
+  
+    325 │ };
+    326 │ 
+  > 327 │ (globalThis as GlobalConsoleFilterRegistry).withConsoleFilters = withConsoleFilters;
+        │                                                                  ^^^^^^^^^^^^^^^^^^
+    328 │ (globalThis as GlobalConsoleFilterRegistry).withDefaultConsoleFilters = withDefaultConsoleFilters;
+    329 │ 
+  
+  i The variable is declared here:
+  
+    330 │ declare global {
+  > 331 │   var withConsoleFilters: typeof withConsoleFilters;
+        │       ^^^^^^^^^^^^^^^^^^
+    332 │ 
+    333 │   var withDefaultConsoleFilters: typeof withDefaultConsoleFilters;
+  
+
+app-next-directory/jest.setup.ts:328:73 lint/correctness/noInvalidUseBeforeDeclaration ━━━━━━━━━━
+
+  × This variable is used before its declaration.
+  
+    327 │ (globalThis as GlobalConsoleFilterRegistry).withConsoleFilters = withConsoleFilters;
+  > 328 │ (globalThis as GlobalConsoleFilterRegistry).withDefaultConsoleFilters = withDefaultConsoleFilters;
+        │                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+    329 │ 
+    330 │ declare global {
+  
+  i The variable is declared here:
+  
+    331 │   var withConsoleFilters: typeof withConsoleFilters;
+    332 │ 
+  > 333 │   var withDefaultConsoleFilters: typeof withDefaultConsoleFilters;
+        │       ^^^^^^^^^^^^^^^^^^^^^^^^^
+    334 │ }
+    335 │ 
+  
+
+Checked 966 files in 4s. No fixes applied.
+Found 2 errors.
+Found 81 warnings.
+Found 15 infos.
+lint ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while running checks.
+  
+

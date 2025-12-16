@@ -61,8 +61,7 @@ afterEach(() => {
 
       // Print full details for triage
 
-      console.error('\n' + lines.join('\n'));
-
+      process.stderr.write('\n' + lines.join('\n') + '\n');
       throw new Error(
         `Test emitted unexpected console output (${unexpectedErrors.length} error(s), ${unexpectedWarns.length} warn(s)). See logs above.`
       );

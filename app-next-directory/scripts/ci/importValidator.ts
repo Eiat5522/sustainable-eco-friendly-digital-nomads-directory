@@ -2,6 +2,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { structuredLogger } from '../../src/lib/logger';
 
 /**
  * Recursively finds all .ts and .tsx files in a directory.
@@ -49,13 +50,13 @@ function main() {
     const errors = validateImports(file);
     if (errors.length) {
       hasError = true;
-      errors.forEach(err => console.error(err));
+      errors.forEach(err => structuredLogger.error(err));
     }
   }
   if (hasError) {
     process.exit(1);
   } else {
-    console.log('All imports validated successfully.');
+    structuredLogger.info('All imports validated successfully.');
   }
 }
 

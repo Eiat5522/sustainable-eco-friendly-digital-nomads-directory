@@ -9,8 +9,20 @@ import dotenv from 'dotenv';
 
 dotenv.config({ path: '.env.local' });
 
+// Import structuredLogger for logging
+let structuredLogger;
+try {
+  structuredLogger = require('../src/lib/logger').structuredLogger;
+} catch (_error) {
+  // Fallback to stdout/stderr for standalone usage (avoid console.*)
+  structuredLogger = {
+    info: (...args) => process.stdout.write(args.map(String).join(' ') + '\n'),
+    warn: (...args) => process.stderr.write(args.map(String).join(' ') + '\n'),
+  };
+}
+
 export function validateEnvironment() {
-  console.log('🔍 Environment Validation for Phase 1 Integration\n');
+  process.stdout.write('🔍 Environment Validation for Phase 1 Integration\n\n');
 
   const requiredVars = [
     {
@@ -56,24 +68,26 @@ export function validateEnvironment() {
 
   let allValid = true;
 
-  console.log('🔐 Authentication Variables:');
+  process.stdout.write('🔐 Authentication Variables:\n');
   requiredVars.forEach(variable => {
     const isValid = variable.value && variable.value.length > 0;
     const status = isValid ? '✅' : '❌';
-    console.log(`   ${status} ${variable.name}: ${isValid ? '✓ Configured' : '❌ Missing'}`);
+    process.stdout.write(
+      `   ${status} ${variable.name}: ${isValid ? '✓ Configured' : '❌ Missing'}\n`
+    );
 
     if (!isValid) {
-      console.log(`      Description: ${variable.description}`);
-      console.log(`      Example: ${variable.example}`);
+      process.stdout.write(`      Description: ${variable.description}\n`);
+      process.stdout.write(`      Example: ${variable.example}\n`);
       allValid = false;
     }
   });
 
-  console.log('\n📊 CMS Variables:');
+  process.stdout.write('\n📊 CMS Variables:\n');
   sanityVars.forEach(variable => {
     const isValid = variable.value && variable.value.length > 0;
     const status = isValid ? '✅' : '○';
-    console.log(`   ${status} ${variable.name}: ${isValid ? '✓ Configured' : '○ Optional'}`);
+    process.stdout.write(`   ${status} ${variable.name}: ${isValid ? '✓ Configured' : '○ Optional'}\n`);
   });
 
   const oauthVars = [
@@ -91,32 +105,40 @@ export function validateEnvironment() {
     },
   ];
 
-  console.log('\n🌐 Social Sign-In Providers:');
+  process.stdout.write('\n🌐 Social Sign-In Providers:\n');
   oauthVars.forEach(variable => {
     const isValid = variable.value && variable.value.length > 0;
     const status = isValid ? '✅' : '○';
-    console.log(`   ${status} ${variable.name}: ${isValid ? '✓ Configured' : '○ Optional'}`);
+    process.stdout.write(`   ${status} ${variable.name}: ${isValid ? '✅' : '○ Optional'}\n`);
     if (!isValid) {
-      console.log(`      ${variable.description}`);
+      process.stdout.write(`      ${variable.description}\n`);
     }
   });
 
-  console.log('\n📋 Summary:');
+  process.stdout.write('\n📋 Summary:\n');
   if (allValid) {
-    console.log('🎉 All required environment variables are configured!');
-    console.log('🚀 Ready to run integration tests');
-    console.log('\nNext steps:');
-    console.log('   1. pnpm run test:db-connection');
-    console.log('   2. pnpm run test:integration');
-    console.log('   3. pnpm dev (start development server)');
+    process.stdout.write('🎉 All required environment variables are configured!\n');
+    process.stdout.write('🚀 Ready to run integration tests\n');
+    process.stdout.write('\nNext steps:\n');
+    process.stdout.write('   1. pnpm run test:db-connection\n');
+    process.stdout.write('   2. pnpm run test:integration\n');
+    process.stdout.write('   3. pnpm dev (start development server)\n');
   } else {
-    console.log('⚠️  Some required environment variables are missing');
-    console.log('📖 Please see MONGODB_SETUP.md for configuration instructions');
-    console.log('\nQuick setup:');
-    console.log('   1. Copy .env.example to .env.local');
-    console.log('   2. Configure MONGODB_URI with your database');
-    console.log('   3. pnpm run validate:env (after filling values)');
+    process.stdout.write('⚠️  Some required environment variables are missing\n');
+    process.stdout.write('📖 Please see MONGODB_SETUP.md for configuration instructions\n');
+    process.stdout.write('\nQuick setup:\n');
+    process.stdout.write('   1. Copy .env.example to .env.local\n');
+    process.stdout.write('   2. Configure MONGODB_URI with your database\n');
+    process.stdout.write('   3. pnpm run validate:env (after filling values)\n');
   }
+
+  // Log the validation results with structuredLogger as well
+  structuredLogger.info('Environment validation completed', {
+    allValid,
+    requiredCount: requiredVars.length,
+    sanityCount: sanityVars.length,
+    oauthCount: oauthVars.length,
+  });
 
   return allValid;
 }

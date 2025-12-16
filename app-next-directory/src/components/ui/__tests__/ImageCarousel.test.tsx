@@ -13,8 +13,7 @@ jest.mock('next/image', () => ({
   }) => {
     const { fill, priority, alt = '', ...rest } = props;
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img {...rest} alt={alt} fill={fill?.toString()} priority={priority?.toString()} />
+      <div role="img" aria-label={alt} data-fill={fill?.toString()} data-priority={priority?.toString()} {...rest} />
     );
   },
 }));

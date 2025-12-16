@@ -9,6 +9,17 @@
 
 const { SignJWT } = require('jose');
 
+// Import structuredLogger for error logging
+let structuredLogger;
+try {
+  structuredLogger = require('../src/lib/logger').structuredLogger;
+} catch (_error) {
+  // Fallback to no-op for standalone usage (avoids console.error violation)
+  structuredLogger = {
+    error: () => {},
+  };
+}
+
 function parseArg(name) {
   const arg = process.argv.find(a => a.startsWith(`--${name}=`));
   if (!arg) return undefined;
@@ -20,7 +31,7 @@ function parseArg(name) {
   const validRoles = ['admin', 'user', 'venueOwner'];
   const inputRole = parseArg('role') || 'admin';
   if (!validRoles.includes(inputRole)) {
-    console.error(`Invalid role: ${inputRole}. Valid roles: ${validRoles.join(', ')}`);
+    structuredLogger.error(`Invalid role: ${inputRole}. Valid roles: ${validRoles.join(', ')}`);
     process.exit(1);
   }
   const role = inputRole;
@@ -41,5 +52,7 @@ function parseArg(name) {
     .setExpirationTime(exp)
     .sign(key);
 
-  console.log(token);
+  // Output token for use by calling scripts - this is the primary purpose of this script
+  // Write token to stdout so calling scripts can consume it reliably
+  process.stdout.write(token + '\n');
 })();

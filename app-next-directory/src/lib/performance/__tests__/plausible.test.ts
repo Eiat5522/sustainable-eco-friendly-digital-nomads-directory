@@ -3,7 +3,15 @@ jest.mock('../budgets.ts', () => ({
   shouldAlert: jest.fn(),
 }));
 
+// Mock the logger module to test structuredLogger calls
+jest.mock('@/lib/logger', () => ({
+  structuredLogger: {
+    warn: jest.fn(),
+  },
+}));
+
 import { shouldAlert } from '../budgets.ts';
+import { structuredLogger } from '@/lib/logger';
 import {
   dependencies,
   PERFORMANCE_EVENTS,
@@ -70,8 +78,9 @@ describe('plausible-integration', () => {
         category: 'WEB_VITALS',
       });
 
-      expect(console.warn).toHaveBeenCalledWith(
-        '[Performance] Plausible Analytics not initialized'
+      expect(structuredLogger.warn).toHaveBeenCalledWith(
+        '[Performance] Plausible Analytics not initialized',
+        expect.objectContaining({ component: 'performance' })
       );
     });
 
@@ -345,8 +354,9 @@ describe('plausible-integration', () => {
         trackPerformance({ name: 'test', value: 100 });
       }).not.toThrow();
 
-      expect(console.warn).toHaveBeenCalledWith(
-        '[Performance] Plausible Analytics not initialized'
+      expect(structuredLogger.warn).toHaveBeenCalledWith(
+        '[Performance] Plausible Analytics not initialized',
+        expect.objectContaining({ component: 'performance' })
       );
     });
 

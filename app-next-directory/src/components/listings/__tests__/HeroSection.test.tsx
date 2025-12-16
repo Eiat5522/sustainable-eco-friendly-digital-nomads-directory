@@ -13,10 +13,10 @@ jest.mock('next/image', () => {
     priority,
   }: React.ComponentProps<'img'> & { fill?: boolean; sizes?: string; priority?: boolean }) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={src}
-        alt={alt}
+      <div
+        role="img"
+        aria-label={alt}
+        data-src={src}
         className={className}
         data-testid="next-image"
         data-fill={fill}

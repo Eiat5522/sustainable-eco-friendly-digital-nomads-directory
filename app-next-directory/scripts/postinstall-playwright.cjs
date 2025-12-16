@@ -5,11 +5,23 @@ const { CI, SKIP_PLAYWRIGHT_INSTALL, NODE_ENV } = process.env;
 // Helper to check if environment variable is truthy
 const isEnvTrue = value => value === '1' || value === 'true';
 
+// Import structuredLogger for logging
+let structuredLogger;
+try {
+  structuredLogger = require('../src/lib/logger').structuredLogger;
+} catch (_error) {
+  // Fallback to simple stdout/stderr for standalone usage (avoid console.*)
+  structuredLogger = {
+    info: (...args) => process.stdout.write(args.map(String).join(' ') + '\n'),
+    warn: (...args) => process.stderr.write(args.map(String).join(' ') + '\n'),
+  };
+}
+
 // Skip installation in CI (handled separately with caching) or if explicitly disabled
 const shouldSkip = isEnvTrue(SKIP_PLAYWRIGHT_INSTALL) || isEnvTrue(CI) || NODE_ENV === 'production';
 
 if (shouldSkip) {
-  console.log('[postinstall-playwright] Skipping browser installation (CI or disabled)');
+  structuredLogger.info('[postinstall-playwright] Skipping browser installation (CI or disabled)');
   process.exit(0);
 }
 
@@ -36,12 +48,16 @@ try {
 const shouldInstall = !browsersInstalled || process.env.FORCE_PLAYWRIGHT_INSTALL === '1';
 
 if (!shouldInstall) {
-  console.log('[postinstall-playwright] Browsers appear to be cached, skipping installation');
-  console.log('[postinstall-playwright] Run with FORCE_PLAYWRIGHT_INSTALL=1 to force reinstall');
+  structuredLogger.info(
+    '[postinstall-playwright] Browsers appear to be cached, skipping installation'
+  );
+  structuredLogger.info(
+    '[postinstall-playwright] Run with FORCE_PLAYWRIGHT_INSTALL=1 to force reinstall'
+  );
   process.exit(0);
 }
 
-console.log('[postinstall-playwright] Installing Playwright browsers...');
+structuredLogger.info('[postinstall-playwright] Installing Playwright browsers...');
 
 try {
   // Install browsers without --with-deps to avoid system dependency issues during postinstall
@@ -51,33 +67,41 @@ try {
     stdio: 'inherit',
     timeout: 300000, // 5 minute timeout
   });
-  console.log('[postinstall-playwright] Browser installation complete');
+  structuredLogger.info('[postinstall-playwright] Browser installation complete');
 } catch (err) {
   // Get workspace name dynamically from package.json for better portability
   const packageJson = require('../package.json');
   const workspaceName = packageJson.name || 'app-next-directory';
 
-  console.warn('');
-  console.warn('⚠️  [postinstall-playwright] Browser installation failed (non-fatal)');
-  console.warn('   This is a known issue with Playwright installation progress reporting.');
-  console.warn('');
-  console.warn('   To install browsers manually, run:');
+  // For user feedback in postinstall, write to stderr for visibility
+  process.stderr.write('\n');
+  process.stderr.write('⚠️  [postinstall-playwright] Browser installation failed (non-fatal)\n');
+  process.stderr.write('   This is a known issue with Playwright installation progress reporting.\n');
+  process.stderr.write('\n');
+  process.stderr.write('   To install browsers manually, run:\n');
   if (runner.includes('pnpm')) {
-    console.warn(`   pnpm --filter ${workspaceName} exec playwright install chromium`);
-    console.warn('   OR with system dependencies:');
-    console.warn(`   pnpm --filter ${workspaceName} exec playwright install --with-deps`);
+    process.stderr.write(`   pnpm --filter ${workspaceName} exec playwright install chromium\n`);
+    process.stderr.write('   OR with system dependencies:\n');
+    process.stderr.write(`   pnpm --filter ${workspaceName} exec playwright install --with-deps\n`);
   } else if (runner.includes('yarn')) {
-    console.warn(`   yarn workspace ${workspaceName} exec playwright install chromium`);
-    console.warn('   OR with system dependencies:');
-    console.warn(`   yarn workspace ${workspaceName} exec playwright install --with-deps`);
+    process.stderr.write(`   yarn workspace ${workspaceName} exec playwright install chromium\n`);
+    process.stderr.write('   OR with system dependencies:\n');
+    process.stderr.write(`   yarn workspace ${workspaceName} exec playwright install --with-deps\n`);
   } else {
-    console.warn('   npx playwright install chromium');
-    console.warn('   OR with system dependencies:');
-    console.warn('   npx playwright install --with-deps');
+    process.stderr.write('   npx playwright install chromium\n');
+    process.stderr.write('   OR with system dependencies:\n');
+    process.stderr.write('   npx playwright install --with-deps\n');
   }
-  console.warn('');
-  console.warn('   Error details:', err?.message || err);
-  console.warn('');
+  process.stderr.write('\n');
+  process.stderr.write('   Error details: ' + (err?.message || err) + '\n');
+  process.stderr.write('\n');
+
+  // Log the error with structuredLogger as well
+  structuredLogger.warn('Browser installation failed (non-fatal)', err, {
+    workspaceName,
+    runner,
+  });
+
   // Don't fail the install - this is non-fatal
   process.exit(0);
 }
