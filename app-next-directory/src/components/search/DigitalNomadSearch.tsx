@@ -43,11 +43,7 @@ export function DigitalNomadSearch({
   };
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className="flex gap-3 w-full"
-      aria-label="Search listings"
-    >
+    <form onSubmit={onSubmit} className="flex gap-3 w-full" aria-label="Search listings">
       <NeoInput
         value={value}
         onChange={e => setValue(e.target.value)}

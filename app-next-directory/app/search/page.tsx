@@ -1,5 +1,5 @@
-import type React from 'react';
 import Link from 'next/link';
+import type React from 'react';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
 import { ListingGrid } from '@/components/listings/ListingGrid';

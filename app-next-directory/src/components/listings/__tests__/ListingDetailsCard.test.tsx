@@ -248,7 +248,9 @@ describe('ListingDetailsCard', () => {
 
       render(<ListingDetailsCard listing={listingWithLongDesc} />);
 
-      const gradient = screen.getByTestId('long-description').parentElement?.querySelector('.bg-gradient-to-t');
+      const gradient = screen
+        .getByTestId('long-description')
+        .parentElement?.querySelector('.bg-gradient-to-t');
       expect(gradient).toBeInTheDocument();
       expect(gradient).toHaveClass('pointer-events-none');
     });
@@ -266,7 +268,9 @@ describe('ListingDetailsCard', () => {
       await userEvent.click(button);
 
       await waitFor(() => {
-        const gradient = screen.getByTestId('long-description').parentElement?.querySelector('.bg-gradient-to-t');
+        const gradient = screen
+          .getByTestId('long-description')
+          .parentElement?.querySelector('.bg-gradient-to-t');
         expect(gradient).not.toBeInTheDocument();
       });
     });
@@ -758,7 +762,9 @@ describe('ListingDetailsCard', () => {
 
       render(<ListingDetailsCard listing={listing} />);
 
-      const gradient = screen.getByTestId('long-description').parentElement?.querySelector('.bg-gradient-to-t');
+      const gradient = screen
+        .getByTestId('long-description')
+        .parentElement?.querySelector('.bg-gradient-to-t');
       expect(gradient).toHaveAttribute('aria-hidden', 'true');
     });
   });

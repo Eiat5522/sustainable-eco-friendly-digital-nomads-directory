@@ -127,6 +127,7 @@ export async function POST(request: NextRequest, _context: RouteContext) {
     } else {
       // Create new settings document
       const { _type: _ignoredType, ...defaultSettings } = DEFAULT_ADMIN_SETTINGS;
+      const { _type: _ignoredType2 } = DEFAULT_ADMIN_SETTINGS;
       savedSettings = await (client.create as (doc: unknown) => Promise<AdminSettings>)({
         _type: 'adminSettings',
         ...defaultSettings,

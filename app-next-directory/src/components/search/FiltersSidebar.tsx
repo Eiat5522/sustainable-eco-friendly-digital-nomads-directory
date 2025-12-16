@@ -2,28 +2,11 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { NeoButton } from '@/components/ui/neo-button';
 import type { FilterDefinition } from '@/hooks/useFilters';
 import { ListingCategory } from '@/types/enums';
 import { DigitalNomadSearchFilter } from './DigitalNomadSearchFilter';
 
 type FiltersMap = Record<string, string[]>;
-
-type SpeechRecognitionConstructor = new () => SpeechRecognition;
-
-const CLEAR_COMMAND_PATTERNS = ['clear filters', 'reset filters', 'remove filters'] as const;
-
-function normalizeText(value: string): string {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-function tokenize(value: string): string[] {
-  return normalizeText(value).split(' ').filter(Boolean);
-}
 
 type FiltersMapEntry = [groupId: string, values: string[]];
 
@@ -44,91 +27,6 @@ function normalizeFilters(filters: FiltersMap): FiltersMap {
     if (unique.length) normalized[groupId] = unique;
   });
   return normalized;
-}
-
-function filterToAllowedValues(
-  filters: FiltersMap,
-  allowedByGroup: Map<string, Set<string>>
-): FiltersMap {
-  const sanitized: FiltersMap = {};
-  Object.entries(filters).forEach(([groupId, values]) => {
-    const allowed = allowedByGroup.get(groupId);
-    if (!allowed) return;
-    const unique = Array.from(new Set(values)).filter(value => allowed.has(value));
-    if (unique.length) sanitized[groupId] = unique;
-  });
-  return sanitized;
-}
-
-function collectTranscript(event: SpeechRecognitionEvent): string {
-  const parts: string[] = [];
-  for (let i = event.resultIndex; i < event.results.length; i += 1) {
-    const result = event.results[i];
-    if (!result) continue;
-    for (let j = 0; j < result.length; j += 1) {
-      const alternative = result[j];
-      if (alternative?.transcript) parts.push(alternative.transcript);
-    }
-  }
-  return parts.join(' ').trim();
-}
-
-function shouldClearFilters(normalizedTranscript: string, tokens: string[]): boolean {
-  return (
-    CLEAR_COMMAND_PATTERNS.some(command => normalizedTranscript.includes(command)) ||
-    (tokens.includes('clear') && tokens.includes('filters'))
-  );
-}
-
-function candidateMatches(
-  transcriptTokens: string[],
-  normalizedTranscript: string,
-  candidate: string
-): boolean {
-  const normalizedCandidate = normalizeText(candidate);
-  if (!normalizedCandidate) return false;
-  const candidateTokens = normalizedCandidate.split(' ');
-  const everyTokenPresent = candidateTokens.every(token => transcriptTokens.includes(token));
-  if (everyTokenPresent) return true;
-  const normalizedTranscriptWithSpaces = normalizedTranscript.replace(/\s+/g, ' ');
-  return normalizedTranscriptWithSpaces.includes(normalizedCandidate);
-}
-
-function extractFiltersFromTranscript(
-  transcript: string,
-  definitions: FilterDefinition[]
-): FiltersMap {
-  const normalizedTranscript = normalizeText(transcript);
-  const tokens = tokenize(transcript);
-  const matches: FiltersMap = {};
-
-  definitions.forEach(definition => {
-    const optionMatches = new Set<string>();
-    definition.options?.forEach(option => {
-      if (
-        candidateMatches(tokens, normalizedTranscript, option.label) ||
-        candidateMatches(tokens, normalizedTranscript, option.id)
-      ) {
-        optionMatches.add(option.id);
-      }
-    });
-    if (optionMatches.size > 0) {
-      matches[definition.id] = Array.from(optionMatches);
-    }
-  });
-
-  return matches;
-}
-
-function getSpeechRecognitionConstructor(): SpeechRecognitionConstructor | null {
-  if (typeof window === 'undefined') return null;
-  if (window.SpeechRecognition && typeof window.SpeechRecognition === 'function') {
-    return window.SpeechRecognition as SpeechRecognitionConstructor;
-  }
-  if (window.webkitSpeechRecognition && typeof window.webkitSpeechRecognition === 'function') {
-    return window.webkitSpeechRecognition as SpeechRecognitionConstructor;
-  }
-  return null;
 }
 
 const defaultDefinitions: FilterDefinition[] = [
@@ -247,138 +145,8 @@ export function FiltersSidebar({ definitions = defaultDefinitions }: FiltersSide
     [applyFilters]
   );
 
-  const speechRecognitionCtor = getSpeechRecognitionConstructor();
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
-  const [isListening, setIsListening] = useState(false);
-  const [voiceError, setVoiceError] = useState<string | null>(null);
-  const [lastTranscript, setLastTranscript] = useState<string | null>(null);
-
-  useEffect(
-    () => () => {
-      recognitionRef.current?.abort();
-    },
-    []
-  );
-
-  const stopListening = useCallback(() => {
-    recognitionRef.current?.stop();
-    setIsListening(false);
-  }, []);
-
-  const startListening = useCallback(() => {
-    if (!speechRecognitionCtor) return;
-
-    let recognition = recognitionRef.current;
-    if (!recognition) {
-      recognition = new speechRecognitionCtor();
-      recognition.lang = 'en-US';
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 3;
-      recognitionRef.current = recognition;
-    }
-
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
-      const transcript = collectTranscript(event);
-      const normalizedTranscript = normalizeText(transcript);
-      const tokens = tokenize(transcript);
-      setLastTranscript(transcript || null);
-
-      if (!normalizedTranscript) {
-        setVoiceError('No speech detected. Please try again.');
-        return;
-      }
-
-      if (shouldClearFilters(normalizedTranscript, tokens)) {
-        setVoiceError(null);
-        applyFilters({});
-        return;
-      }
-
-      const recognized = extractFiltersFromTranscript(transcript, definitions);
-      const sanitized = filterToAllowedValues(recognized, allowedByGroup);
-      if (Object.keys(sanitized).length === 0) {
-        setVoiceError(
-          'No matching filters detected. Try mentioning filter names like "category coworking".'
-        );
-        return;
-      }
-
-      setVoiceError(null);
-      applyFilters(sanitized);
-    };
-
-    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      const message =
-        event.error === 'not-allowed'
-          ? 'Microphone access was denied.'
-          : event.error === 'no-speech'
-            ? 'No speech detected. Please try again.'
-            : 'Voice recognition error. Please try again.';
-      setVoiceError(message);
-    };
-
-    recognition.onend = () => {
-      setIsListening(false);
-    };
-
-    try {
-      recognition.start();
-      setVoiceError(null);
-      setLastTranscript(null);
-      setIsListening(true);
-    } catch (_error) {
-      setVoiceError('Voice recognition is already running.');
-    }
-  }, [allowedByGroup, applyFilters, definitions, speechRecognitionCtor]);
-
-  const toggleListening = useCallback(() => {
-    if (!speechRecognitionCtor) return;
-    if (isListening) {
-      stopListening();
-    } else {
-      startListening();
-    }
-  }, [isListening, speechRecognitionCtor, startListening, stopListening]);
-
   return (
     <div className="space-y-4">
-      {speechRecognitionCtor ? (
-        <section
-          aria-live="polite"
-          className="rounded-md border border-border bg-card p-4"
-          data-testid="voice-filter-section"
-        >
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="space-y-1">
-              <h3 className="heading-sm">Voice filters</h3>
-              <p className="text-sm text-muted-foreground">
-                {isListening
-                  ? 'Listening… mention filter names like "category coworking" or say "clear filters".'
-                  : 'Use your voice to update filters. Try phrases like "category coworking" or "amenities Wi-Fi".'}
-              </p>
-            </div>
-            <NeoButton
-              type="button"
-              variant={isListening ? 'accent' : 'secondary'}
-              onClick={toggleListening}
-              aria-pressed={isListening}
-            >
-              {isListening ? 'Stop voice input' : 'Use voice filters'}
-            </NeoButton>
-          </div>
-          {lastTranscript ? (
-            <p className="mt-2 text-sm text-muted-foreground" data-testid="voice-transcript">
-              Heard: <span className="font-medium">{lastTranscript}</span>
-            </p>
-          ) : null}
-          {voiceError ? (
-            <p className="mt-2 text-sm text-destructive" role="alert" data-testid="voice-error">
-              {voiceError}
-            </p>
-          ) : null}
-        </section>
-      ) : null}
-
       <DigitalNomadSearchFilter
         key={filtersKey}
         definitions={definitions}

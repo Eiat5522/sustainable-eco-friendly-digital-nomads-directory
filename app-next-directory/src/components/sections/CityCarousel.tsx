@@ -149,10 +149,7 @@ export function CityCarousel(): React.JSX.Element {
                   const displayName =
                     city.name && city.name.length > 0 ? city.name : 'Explore City';
                   return (
-                    <li
-                      key={key}
-                      className="flex-none w-[85%] sm:w-[55%] lg:w-1/3 xl:w-1/4"
-                    >
+                    <li key={key} className="flex-none w-[85%] sm:w-[55%] lg:w-1/3 xl:w-1/4">
                       <Link
                         href={`/cities/${encodeURIComponent(slugSegment)}`}
                         className="group block rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"

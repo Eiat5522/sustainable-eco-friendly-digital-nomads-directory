@@ -69,8 +69,9 @@ let structuredLogger: {
   debug?: (...args: unknown[]) => void;
 } = {};
 try {
-  // Require at runtime to avoid module resolution issues in certain test setups
-  structuredLogger = require('./src/lib/logger').structuredLogger;
+  // Import at runtime to avoid module resolution issues in certain test setups
+  const loggerModule = await import('./src/lib/logger');
+  structuredLogger = loggerModule.structuredLogger;
 } catch (_e) {
   structuredLogger = {
     error: () => {},

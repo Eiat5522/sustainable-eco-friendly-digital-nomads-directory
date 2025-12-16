@@ -10,8 +10,8 @@ jest.mock('@/lib/logger', () => ({
   },
 }));
 
-import { shouldAlert } from '../budgets.ts';
 import { structuredLogger } from '@/lib/logger';
+import { shouldAlert } from '../budgets.ts';
 import {
   dependencies,
   PERFORMANCE_EVENTS,

@@ -182,9 +182,7 @@ export function FeaturedListings(): React.JSX.Element {
           </div>
         ) : error ? (
           <div className="text-center space-y-4">
-            <p className="body-lg text-red-500">
-              {error}
-            </p>
+            <p className="body-lg text-red-500">{error}</p>
             <NeoButton variant="primary" onClick={handleRetry} disabled={loading}>
               Retry
             </NeoButton>

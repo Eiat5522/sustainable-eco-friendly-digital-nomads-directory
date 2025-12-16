@@ -54,11 +54,7 @@ function SearchResults({ listings, totalCount, hasMore, onClearFilters }: Search
 
   return (
     <section aria-label="Search results" aria-live="polite" className="mt-6 space-y-4">
-      <output
-        className="font-medium"
-        aria-live="polite"
-        aria-label={`${totalCount} results found`}
-      >
+      <output className="font-medium" aria-live="polite" aria-label={`${totalCount} results found`}>
         {totalCount} results found
       </output>
       <ul className="space-y-3">
