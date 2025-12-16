@@ -187,7 +187,7 @@ describe('request JSON helpers', () => {
     it('should preserve method when merging options', () => {
       const body = { test: 'data' };
       const result = jsonPostOptions(body, {
-        method: 'PUT' as any, // This should be overridden
+        method: 'PUT' as RequestInit['method'], // This should be overridden
       });
 
       expect(result.method).toBe('POST'); // POST should take precedence

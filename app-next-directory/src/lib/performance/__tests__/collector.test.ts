@@ -87,7 +87,7 @@ describe('performance collector', () => {
       plausible,
       performance: { mark, measure } as Record<string, unknown>,
       PerformanceObserver: MockPerformanceObserver as unknown,
-    } as unknown as Record<string, any>;
+    } as Record<string, unknown>;
     dependencies.global = dependencies.window;
 
     dependencies.getNodeEnv = () => 'development';
@@ -150,7 +150,7 @@ describe('performance collector', () => {
 
     dependencies.window = { performance: { mark, measure } as Record<string, unknown> } as Record<
       string,
-      any
+      unknown
     >;
     dependencies.global = dependencies.window;
 
@@ -198,7 +198,7 @@ describe('performance collector', () => {
       performance: { mark, measure },
       PerformanceObserver: GlobalObserver as unknown,
       plausible,
-    } as Record<string, any>;
+    } as Record<string, unknown>;
 
     dependencies.getNodeEnv = () => 'production';
     initPerformanceMonitoring();
@@ -236,8 +236,8 @@ describe('performance collector', () => {
       callbacks.CLS = cb;
     });
 
-    dependencies.window = { plausible: 'not-a-function' } as Record<string, any>;
-    dependencies.global = {} as Record<string, any>;
+    dependencies.window = { plausible: 'not-a-function' } as Record<string, unknown>;
+    dependencies.global = {} as Record<string, unknown>;
 
     dependencies.getNodeEnv = () => 'production';
     const consoleLogSpy = jest.spyOn(console, 'log');
@@ -257,8 +257,8 @@ describe('performance collector', () => {
       callbacks.CLS = cb;
     });
 
-    dependencies.window = {} as Record<string, any>;
-    dependencies.global = {} as Record<string, any>;
+    dependencies.window = {} as Record<string, unknown>;
+    dependencies.global = {} as Record<string, unknown>;
 
     dependencies.getNodeEnv = () => 'test';
     initPerformanceMonitoring();

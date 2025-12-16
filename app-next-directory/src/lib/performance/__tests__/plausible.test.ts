@@ -13,7 +13,7 @@ import {
 
 describe('plausible-integration', () => {
   let mockPlausible: jest.Mock;
-  let originalWindow: (Window & typeof globalThis & { plausible?: any }) | undefined;
+  let originalWindow: (Window & typeof globalThis & { plausible?: unknown }) | undefined;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -24,7 +24,7 @@ describe('plausible-integration', () => {
     originalWindow = dependencies.window;
     dependencies.window = {
       plausible: mockPlausible,
-    } as any;
+    } as const;
   });
 
   afterEach(() => {
@@ -43,7 +43,7 @@ describe('plausible-integration', () => {
 
     it('should be immutable', () => {
       expect(() => {
-        (PERFORMANCE_EVENTS as any).WEB_VITALS = 'modified';
+        (PERFORMANCE_EVENTS as Record<string, string>).WEB_VITALS = 'modified';
       }).toThrow();
     });
   });
@@ -62,7 +62,7 @@ describe('plausible-integration', () => {
     });
 
     it('should warn if plausible is not initialized', () => {
-      dependencies.window = {} as any;
+      dependencies.window = {} as Record<string, never>;
 
       reportPerformanceEvent({
         name: 'CLS',
@@ -338,7 +338,7 @@ describe('plausible-integration', () => {
     });
 
     it('should work when plausible is not initialized', () => {
-      dependencies.window = {} as any;
+      dependencies.window = {} as Record<string, never>;
       const { trackPerformance } = usePerformanceTracking();
 
       expect(() => {

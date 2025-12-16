@@ -31,7 +31,7 @@ describe('baseline-testing utilities', () => {
 
   it('generates a lighthouse config mapped to performance budgets', () => {
     const config = generateLighthouseConfig();
-    const budget = (config.budgets as any[])[0];
+    const budget = config.budgets?.[0];
 
     expect(config.settings?.onlyCategories).toContain('performance');
     expect(budget.resourceSizes).toEqual(
