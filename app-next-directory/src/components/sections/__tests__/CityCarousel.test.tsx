@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import type { EmblaCarouselType } from 'embla-carousel';
 import useEmblaCarousel from 'embla-carousel-react';
 import { HttpResponse, http } from 'msw';
 import { server } from '../../../test-helpers/msw-server-bridge';
@@ -11,7 +12,12 @@ jest.mock('embla-carousel-autoplay', () => ({
   default: jest.fn(() => ({ stop: jest.fn(), play: jest.fn() })),
 }));
 
-const emblaApiMock = {
+type EmblaApiSubset = Pick<
+  EmblaCarouselType,
+  'scrollPrev' | 'scrollNext' | 'canScrollPrev' | 'canScrollNext' | 'on' | 'off'
+>;
+
+const emblaApiMock: jest.Mocked<EmblaApiSubset> = {
   scrollPrev: jest.fn(),
   scrollNext: jest.fn(),
   canScrollPrev: jest.fn(() => true),
@@ -32,7 +38,7 @@ describe('CityCarousel', () => {
     jest.clearAllMocks();
     emblaApiMock.canScrollPrev.mockReturnValue(true);
     emblaApiMock.canScrollNext.mockReturnValue(true);
-    mockedUseEmblaCarousel.mockReturnValue([jest.fn(), emblaApiMock as any]);
+    mockedUseEmblaCarousel.mockReturnValue([jest.fn(), emblaApiMock as unknown as EmblaCarouselType]);
 
     server.use(http.get('/api/cities', () => HttpResponse.json({ cities: mockCities })));
   });

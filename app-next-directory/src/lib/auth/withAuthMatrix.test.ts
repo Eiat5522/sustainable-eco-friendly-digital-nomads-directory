@@ -5,6 +5,7 @@ import { getToken } from 'next-auth/jwt';
 jest.mock('@/lib/logger');
 
 import { structuredLogger } from '@/lib/logger';
+import { ACCESS_CONTROL_MATRIX, type PagePermissions, type UserRole } from '../../types/auth';
 
 type StructuredLogger = typeof import('@/lib/logger')['structuredLogger'];
 
@@ -27,6 +28,19 @@ const mockGetToken = getToken as jest.MockedFunction<typeof getToken>;
 const mockAuth = jest.fn();
 const mockHasPagePermission = jest.fn();
 const mockHasFeaturePermission = jest.fn();
+
+type PageKey = keyof (typeof ACCESS_CONTROL_MATRIX)[UserRole]['pages'];
+type PageAction = keyof PagePermissions;
+type FeatureKey = keyof (typeof ACCESS_CONTROL_MATRIX)[UserRole]['features'];
+
+const adminPage: PageKey = 'admin';
+const homePage: PageKey = 'home';
+const editListingPage: PageKey = 'editListing';
+const viewAction: PageAction = 'canView';
+const editAction: PageAction = 'canEdit';
+const manageListingsFeature: FeatureKey = 'editAllListings';
+const manageUsersFeature: FeatureKey = 'manageUserRoles';
+const editOwnListingsFeature: FeatureKey = 'editOwnListings';
 
 jest.mock('@/lib/auth', () => ({
   __esModule: true,
@@ -105,8 +119,8 @@ describe('withAuthMatrix', () => {
       const request = new NextRequest('http://localhost:3000/api/test');
       const response = await withAuthMatrix(
         request,
-        'adminPanel' as any,
-        'canView' as any,
+        adminPage,
+        viewAction,
         true,
         undefined,
         mockHasPagePermission
@@ -126,8 +140,8 @@ describe('withAuthMatrix', () => {
       const request = new NextRequest('http://localhost:3000/api/test');
       const response = await withAuthMatrix(
         request,
-        'adminPanel' as any,
-        'canView' as any,
+        adminPage,
+        viewAction,
         true,
         undefined,
         mockHasPagePermission
@@ -146,8 +160,8 @@ describe('withAuthMatrix', () => {
       const request = new NextRequest('http://localhost:3000/');
       const response = await withAuthMatrix(
         request,
-        'home' as any,
-        'canView' as any,
+        homePage,
+        viewAction,
         false,
         undefined,
         mockHasPagePermission
@@ -164,8 +178,8 @@ describe('withAuthMatrix', () => {
       const request = new NextRequest('http://localhost:3000/admin');
       const response = await withAuthMatrix(
         request,
-        'adminPanel' as any,
-        'canView' as any,
+        adminPage,
+        viewAction,
         false,
         undefined,
         mockHasPagePermission
@@ -184,8 +198,8 @@ describe('withAuthMatrix', () => {
       const request = new NextRequest('http://localhost:3000/admin');
       const response = await withAuthMatrix(
         request,
-        'adminPanel' as any,
-        'canView' as any,
+        adminPage,
+        viewAction,
         false,
         undefined,
         mockHasPagePermission
@@ -203,8 +217,8 @@ describe('withAuthMatrix', () => {
       const request = new NextRequest('http://localhost:3000/admin');
       const response = await withAuthMatrix(
         request,
-        'adminPanel' as any,
-        'canView' as any,
+        adminPage,
+        viewAction,
         false,
         undefined,
         mockHasPagePermission
@@ -223,8 +237,8 @@ describe('withAuthMatrix', () => {
       const request = new NextRequest('http://localhost:3000/listings/edit/123');
       const response = await withAuthMatrix(
         request,
-        'editListing' as any,
-        'canEdit' as any,
+        editListingPage,
+        editAction,
         false,
         { userId: 'user123', resourceOwnerId: 'user123' },
         mockHasPagePermission
@@ -245,8 +259,8 @@ describe('withAuthMatrix', () => {
       const request = new NextRequest('http://localhost:3000/listings/edit/456');
       const response = await withAuthMatrix(
         request,
-        'editListing' as any,
-        'canEdit' as any,
+        editListingPage,
+        editAction,
         false,
         { userId: 'user123', resourceOwnerId: 'user456' },
         mockHasPagePermission
@@ -309,7 +323,7 @@ describe('withAuthApiFeature', () => {
     const request = new NextRequest('http://localhost:3000/api/feature');
     const response = await withAuthApiFeature(
       request,
-      'manageListings' as any,
+      manageListingsFeature,
       undefined,
       mockHasFeaturePermission
     );
@@ -326,7 +340,7 @@ describe('withAuthApiFeature', () => {
     const request = new NextRequest('http://localhost:3000/api/feature');
     const response = await withAuthApiFeature(
       request,
-      'manageUsers' as any,
+      manageUsersFeature,
       undefined,
       mockHasFeaturePermission
     );
@@ -343,7 +357,7 @@ describe('withAuthApiFeature', () => {
     const request = new NextRequest('http://localhost:3000/api/feature');
     const response = await withAuthApiFeature(
       request,
-      'manageUsers' as any,
+      manageUsersFeature,
       undefined,
       mockHasFeaturePermission
     );
@@ -359,7 +373,7 @@ describe('withAuthApiFeature', () => {
     const request = new NextRequest('http://localhost:3000/api/listings/123');
     const response = await withAuthApiFeature(
       request,
-      'editOwnListings' as any,
+      editOwnListingsFeature,
       { userId: 'user123', resourceOwnerId: 'user123' },
       mockHasFeaturePermission
     );
@@ -375,7 +389,7 @@ describe('withAuthApiFeature', () => {
     const request = new NextRequest('http://localhost:3000/api/listings/456');
     const response = await withAuthApiFeature(
       request,
-      'editOwnListings' as any,
+      editOwnListingsFeature,
       { userId: 'user123', resourceOwnerId: 'user456' },
       mockHasFeaturePermission
     );
@@ -395,7 +409,7 @@ describe('withMinimumRole', () => {
       mockGetToken.mockResolvedValue(null);
 
       const request = new NextRequest('http://localhost:3000/api/admin');
-      const response = await withMinimumRole(request, 'admin' as any, true);
+      const response = await withMinimumRole(request, 'admin', true);
 
       expect(response.status).toBe(401);
     });
@@ -404,7 +418,7 @@ describe('withMinimumRole', () => {
       mockGetToken.mockResolvedValue({ role: 'user' });
 
       const request = new NextRequest('http://localhost:3000/api/admin');
-      const response = await withMinimumRole(request, 'admin' as any, true);
+      const response = await withMinimumRole(request, 'admin', true);
 
       expect(response.status).toBe(403);
       const json = await response.json();
@@ -415,7 +429,7 @@ describe('withMinimumRole', () => {
       mockGetToken.mockResolvedValue({ role: 'admin' });
 
       const request = new NextRequest('http://localhost:3000/api/admin');
-      const response = await withMinimumRole(request, 'moderator' as any, true);
+      const response = await withMinimumRole(request, 'venueOwner', true);
 
       expect(response).toBeInstanceOf(NextResponse);
       expect(response.status).not.toBe(403);
@@ -427,7 +441,7 @@ describe('withMinimumRole', () => {
       mockGetToken.mockResolvedValue(null);
 
       const request = new NextRequest('http://localhost:3000/admin');
-      const response = await withMinimumRole(request, 'admin' as any, false);
+      const response = await withMinimumRole(request, 'admin', false);
 
       expect(response.status).toBe(307);
       const location = response.headers.get('location');
@@ -438,7 +452,7 @@ describe('withMinimumRole', () => {
       mockGetToken.mockResolvedValue(null);
 
       const request = new NextRequest('http://localhost:3000/');
-      const response = await withMinimumRole(request, 'unidentifiedUser' as any, false);
+      const response = await withMinimumRole(request, 'user', false);
 
       expect(response).toBeInstanceOf(NextResponse);
       expect(response.status).not.toBe(307);
@@ -448,7 +462,7 @@ describe('withMinimumRole', () => {
       mockGetToken.mockResolvedValue({ role: 'user' });
 
       const request = new NextRequest('http://localhost:3000/admin');
-      const response = await withMinimumRole(request, 'admin' as any, false);
+      const response = await withMinimumRole(request, 'admin', false);
 
       expect(response.status).toBe(307);
       const location = response.headers.get('location');
@@ -459,7 +473,7 @@ describe('withMinimumRole', () => {
       mockGetToken.mockResolvedValue({ role: 'admin' });
 
       const request = new NextRequest('http://localhost:3000/admin');
-      const response = await withMinimumRole(request, 'user' as any, false);
+      const response = await withMinimumRole(request, 'user', false);
 
       expect(response).toBeInstanceOf(NextResponse);
       expect(response.status).not.toBe(307);

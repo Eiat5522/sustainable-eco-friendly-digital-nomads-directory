@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
+import type { LucideIcon } from 'lucide-react';
 import { CategoryFilters } from '../CategoryFilters';
 
 jest.mock('lucide-react', () => ({
@@ -52,6 +53,7 @@ describe('CategoryFilters', () => {
   it('supports custom item lists supplied by parents', () => {
     const CustomHarness = () => {
       const [value, setValue] = useState<string[]>([]);
+      const CustomIcon: LucideIcon = () => <span data-testid="custom-icon" />;
       return (
         <CategoryFilters
           value={value}
@@ -61,7 +63,7 @@ describe('CategoryFilters', () => {
               id: 'custom',
               name: 'Custom',
               count: 1,
-              icon: (() => <span data-testid="custom-icon" />) as any,
+              icon: CustomIcon,
             },
           ]}
         />
