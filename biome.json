@@ -60,7 +60,12 @@
         "useLiteralKeys": "off"
       },
       "correctness": {
-        "noUnusedVariables": "warn",
+        "noUnusedVariables": {
+          "level": "warn",
+          "options": {
+            "ignoreRestSiblings": true
+          }
+        },
         "useExhaustiveDependencies": "warn",
         "noInvalidUseBeforeDeclaration": "error",
         "noVoidTypeReturn": "off",
@@ -104,7 +109,12 @@
             "noConsole": "warn"
           },
           "correctness": {
-            "noUnusedVariables": "warn",
+            "noUnusedVariables": {
+              "level": "warn",
+              "options": {
+                "ignoreRestSiblings": true
+              }
+            },
             "noUnusedFunctionParameters": "warn"
           }
         }
@@ -119,7 +129,12 @@
             "noConsole": "warn"
           },
           "correctness": {
-            "noUnusedVariables": "warn",
+            "noUnusedVariables": {
+              "level": "warn",
+              "options": {
+                "ignoreRestSiblings": true
+              }
+            },
             "noUnusedFunctionParameters": "warn"
           }
         }
@@ -134,7 +149,12 @@
             "noExplicitAny": "error"
           },
           "correctness": {
-            "noUnusedVariables": "warn"
+            "noUnusedVariables": {
+              "level": "warn",
+              "options": {
+                "ignoreRestSiblings": true
+              }
+            }
           }
         }
       }
