@@ -25,14 +25,13 @@ interface MongooseCache {
   promise: Promise<Mongoose> | null;
 }
 
-let cached = (global as typeof globalThis & { mongoose?: MongooseCache }).mongoose;
+const globalWithCache = globalThis as typeof globalThis & { __mongooseCache?: MongooseCache };
 
-if (!cached) {
-  cached = (global as typeof globalThis & { mongoose?: MongooseCache }).mongoose = {
-    conn: null,
-    promise: null,
-  };
+if (!globalWithCache.__mongooseCache) {
+  globalWithCache.__mongooseCache = { conn: null, promise: null };
 }
+
+const cached: MongooseCache = globalWithCache.__mongooseCache;
 
 async function connectWithCaching(): Promise<Mongoose> {
   // FORTEST: Validate URI only when actually connecting, not at module scope

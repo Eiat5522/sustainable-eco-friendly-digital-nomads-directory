@@ -1,6 +1,7 @@
 import { ApiResponseHandler } from '@/utils/api-response';
 
-type CreateTestDataFn = () => { listings: unknown };
+type TestListingsData = { listings: unknown };
+type CreateTestDataFn = (overrides?: Partial<TestListingsData>) => TestListingsData;
 type NodeEnvFn = () => string | undefined;
 
 const isTestEnv = process.env.NODE_ENV === 'test';
@@ -29,7 +30,8 @@ export async function GET(): Promise<Response> {
   // Load test helpers lazily to avoid bundlers trying to statically
   // resolve test-only modules during a production build.
   const testModule = await import('@/tests/helpers/test-data');
-  const createData = _testControl?.createTestDataOverride ?? testModule.createTestData;
+  const createData: CreateTestDataFn =
+    _testControl?.createTestDataOverride ?? (testModule.createTestData as CreateTestDataFn);
   const { listings } = createData();
   return ApiResponseHandler.success({ listings });
 }
