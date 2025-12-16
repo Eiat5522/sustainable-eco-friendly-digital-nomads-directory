@@ -1,0 +1,1316 @@
+app-next-directory/__mocks__/lib/logger.js:8:32 lint/suspicious/noConsole ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+     6 │       ? args.slice(0, 2)
+     7 │       : [args[0]];
+   > 8 │   const fn = console[level] || console.log;
+       │                                ^^^^^^^^^^^
+     9 │   if (typeof fn === 'function') {
+    10 │     try {
+  
+  i The use of console is often reserved for debugging.
+  
+
+app-next-directory/__mocks__/lib/logger.js:8:14 lint/suspicious/noConsole ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+     6 │       ? args.slice(0, 2)
+     7 │       : [args[0]];
+   > 8 │   const fn = console[level] || console.log;
+       │              ^^^^^^^^^^^^^^
+     9 │   if (typeof fn === 'function') {
+    10 │     try {
+  
+  i The use of console is often reserved for debugging.
+  
+
+app-next-directory/jest.setup.ts:273:32 lint/suspicious/noConsole ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    271 │   }
+    272 │ 
+  > 273 │   const originalConsoleError = console.error;
+        │                                ^^^^^^^^^^^^^
+    274 │   const originalConsoleWarn = console.warn;
+    275 │ 
+  
+  i The use of console is often reserved for debugging.
+  
+
+app-next-directory/jest.setup.ts:274:31 lint/suspicious/noConsole ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    273 │   const originalConsoleError = console.error;
+  > 274 │   const originalConsoleWarn = console.warn;
+        │                               ^^^^^^^^^^^^
+    275 │ 
+    276 │   console.error = ((...args: unknown[]) => {
+  
+  i The use of console is often reserved for debugging.
+  
+
+app-next-directory/jest.setup.ts:340:32 lint/suspicious/noConsole ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    338 │ //
+    339 │ if (process.env.JEST_CONSOLE_NO_FILTER !== '1') {
+  > 340 │   const originalConsoleError = console.error;
+        │                                ^^^^^^^^^^^^^
+    341 │   const originalConsoleWarn = console.warn;
+    342 │   const _ignoredOriginalConsoleLog = console.log;
+  
+  i The use of console is often reserved for debugging.
+  
+
+app-next-directory/jest.setup.ts:341:31 lint/suspicious/noConsole ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    339 │ if (process.env.JEST_CONSOLE_NO_FILTER !== '1') {
+    340 │   const originalConsoleError = console.error;
+  > 341 │   const originalConsoleWarn = console.warn;
+        │                               ^^^^^^^^^^^^
+    342 │   const _ignoredOriginalConsoleLog = console.log;
+    343 │ 
+  
+  i The use of console is often reserved for debugging.
+  
+
+app-next-directory/jest.setup.ts:342:38 lint/suspicious/noConsole ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    340 │   const originalConsoleError = console.error;
+    341 │   const originalConsoleWarn = console.warn;
+  > 342 │   const _ignoredOriginalConsoleLog = console.log;
+        │                                      ^^^^^^^^^^^
+    343 │ 
+    344 │   (console as Console & { originalConsoleError?: typeof console.error }).originalConsoleError =
+  
+  i The use of console is often reserved for debugging.
+  
+
+app-next-directory/scripts/ci/importValidator.ts:52:29 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    50 │     if (errors.length) {
+    51 │       hasError = true;
+  > 52 │       errors.forEach(err => console.error(err));
+       │                             ^^^^^^^^^^^^^
+    53 │     }
+    54 │   }
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    50 50 │       if (errors.length) {
+    51 51 │         hasError = true;
+    52    │ - ······errors.forEach(err·=>·console.error(err));
+       52 │ + ······errors.forEach(err·=>·{});
+    53 53 │       }
+    54 54 │     }
+  
+
+app-next-directory/scripts/ci/importValidator.ts:58:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    56 │     process.exit(1);
+    57 │   } else {
+  > 58 │     console.log('All imports validated successfully.');
+       │     ^^^^^^^^^^^
+    59 │   }
+    60 │ }
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    56 56 │       process.exit(1);
+    57 57 │     } else {
+    58    │ - ····console.log('All·imports·validated·successfully.');
+    59 58 │     }
+    60 59 │   }
+  
+
+app-next-directory/scripts/generate-test-jwt.js:23:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    21 │   const inputRole = parseArg('role') || 'admin';
+    22 │   if (!validRoles.includes(inputRole)) {
+  > 23 │     console.error(`Invalid role: ${inputRole}. Valid roles: ${validRoles.join(', ')}`);
+       │     ^^^^^^^^^^^^^
+    24 │     process.exit(1);
+    25 │   }
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    21 21 │     const inputRole = parseArg('role') || 'admin';
+    22 22 │     if (!validRoles.includes(inputRole)) {
+    23    │ - ····console.error(`Invalid·role:·${inputRole}.·Valid·roles:·${validRoles.join(',·')}`);
+    24 23 │       process.exit(1);
+    25 24 │     }
+  
+
+app-next-directory/scripts/generate-test-jwt.js:44:3 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    42 │     .sign(key);
+    43 │ 
+  > 44 │   console.log(token);
+       │   ^^^^^^^^^^^
+    45 │ })();
+    46 │ 
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    41 41 │       .setExpirationTime(exp)
+    42 42 │       .sign(key);
+    43    │ - 
+    44    │ - ··console.log(token);
+    45 43 │   })();
+    46 44 │   
+  
+
+app-next-directory/scripts/postinstall-msw.cjs:17:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    15 │   const cmd = `${runner} msw init public --save`;
+    16 │   try {
+  > 17 │     console.log(`[postinstall-msw] Initializing MSW: ${cmd}`);
+       │     ^^^^^^^^^^^
+    18 │     execSync(cmd, { stdio: 'inherit' });
+    19 │   } catch (err) {
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    15 15 │     const cmd = `${runner} msw init public --save`;
+    16 16 │     try {
+    17    │ - ····console.log(`[postinstall-msw]·Initializing·MSW:·${cmd}`);
+    18 17 │       execSync(cmd, { stdio: 'inherit' });
+    19 18 │     } catch (err) {
+  
+
+app-next-directory/scripts/postinstall-msw.cjs:20:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    18 │     execSync(cmd, { stdio: 'inherit' });
+    19 │   } catch (err) {
+  > 20 │     console.warn('[postinstall-msw] Skipped MSW init:', err?.message || err);
+       │     ^^^^^^^^^^^^
+    21 │   }
+    22 │ }
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    18 18 │       execSync(cmd, { stdio: 'inherit' });
+    19 19 │     } catch (err) {
+    20    │ - ····console.warn('[postinstall-msw]·Skipped·MSW·init:',·err?.message·||·err);
+    21 20 │     }
+    22 21 │   }
+  
+
+app-next-directory/scripts/postinstall-playwright.cjs:75:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    73 │   } else {
+    74 │     console.warn('   npx playwright install chromium');
+  > 75 │     console.warn('   OR with system dependencies:');
+       │     ^^^^^^^^^^^^
+    76 │     console.warn('   npx playwright install --with-deps');
+    77 │   }
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    73 73 │     } else {
+    74 74 │       console.warn('   npx playwright install chromium');
+    75    │ - ····console.warn('···OR·with·system·dependencies:');
+    76 75 │       console.warn('   npx playwright install --with-deps');
+    77 76 │     }
+  
+
+app-next-directory/scripts/postinstall-playwright.cjs:12:3 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    11 │ if (shouldSkip) {
+  > 12 │   console.log('[postinstall-playwright] Skipping browser installation (CI or disabled)');
+       │   ^^^^^^^^^^^
+    13 │   process.exit(0);
+    14 │ }
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    10 10 │   
+    11 11 │   if (shouldSkip) {
+    12    │ - ··console.log('[postinstall-playwright]·Skipping·browser·installation·(CI·or·disabled)');
+    13 12 │     process.exit(0);
+    14 13 │   }
+  
+
+app-next-directory/scripts/postinstall-playwright.cjs:39:3 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    38 │ if (!shouldInstall) {
+  > 39 │   console.log('[postinstall-playwright] Browsers appear to be cached, skipping installation');
+       │   ^^^^^^^^^^^
+    40 │   console.log('[postinstall-playwright] Run with FORCE_PLAYWRIGHT_INSTALL=1 to force reinstall');
+    41 │   process.exit(0);
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    37 37 │   
+    38 38 │   if (!shouldInstall) {
+    39    │ - ··console.log('[postinstall-playwright]·Browsers·appear·to·be·cached,·skipping·installation');
+    40 39 │     console.log('[postinstall-playwright] Run with FORCE_PLAYWRIGHT_INSTALL=1 to force reinstall');
+    41 40 │     process.exit(0);
+  
+
+app-next-directory/scripts/postinstall-playwright.cjs:40:3 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    38 │ if (!shouldInstall) {
+    39 │   console.log('[postinstall-playwright] Browsers appear to be cached, skipping installation');
+  > 40 │   console.log('[postinstall-playwright] Run with FORCE_PLAYWRIGHT_INSTALL=1 to force reinstall');
+       │   ^^^^^^^^^^^
+    41 │   process.exit(0);
+    42 │ }
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    38 38 │   if (!shouldInstall) {
+    39 39 │     console.log('[postinstall-playwright] Browsers appear to be cached, skipping installation');
+    40    │ - ··console.log('[postinstall-playwright]·Run·with·FORCE_PLAYWRIGHT_INSTALL=1·to·force·reinstall');
+    41 40 │     process.exit(0);
+    42 41 │   }
+  
+
+app-next-directory/scripts/postinstall-playwright.cjs:44:1 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    42 │ }
+    43 │ 
+  > 44 │ console.log('[postinstall-playwright] Installing Playwright browsers...');
+       │ ^^^^^^^^^^^
+    45 │ 
+    46 │ try {
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    41 41 │     process.exit(0);
+    42 42 │   }
+    43    │ - 
+    44    │ - console.log('[postinstall-playwright]·Installing·Playwright·browsers...');
+    45 43 │   
+    46 44 │   try {
+  
+
+app-next-directory/scripts/postinstall-playwright.cjs:54:3 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    52 │     timeout: 300000, // 5 minute timeout
+    53 │   });
+  > 54 │   console.log('[postinstall-playwright] Browser installation complete');
+       │   ^^^^^^^^^^^
+    55 │ } catch (err) {
+    56 │   // Get workspace name dynamically from package.json for better portability
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    52 52 │       timeout: 300000, // 5 minute timeout
+    53 53 │     });
+    54    │ - ··console.log('[postinstall-playwright]·Browser·installation·complete');
+    55 54 │   } catch (err) {
+    56 55 │     // Get workspace name dynamically from package.json for better portability
+  
+
+app-next-directory/scripts/postinstall-playwright.cjs:60:3 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    58 │   const workspaceName = packageJson.name || 'app-next-directory';
+    59 │ 
+  > 60 │   console.warn('');
+       │   ^^^^^^^^^^^^
+    61 │   console.warn('!�  [postinstall-playwright] Browser installation failed (non-fatal)');
+    62 │   console.warn('   This is a known issue with Playwright installation progress reporting.');
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    57 57 │     const packageJson = require('../package.json');
+    58 58 │     const workspaceName = packageJson.name || 'app-next-directory';
+    59    │ - 
+    60    │ - ··console.warn('');
+    61 59 │     console.warn('!�  [postinstall-playwright] Browser installation failed (non-fatal)');
+    62 60 │     console.warn('   This is a known issue with Playwright installation progress reporting.');
+  
+
+app-next-directory/scripts/postinstall-playwright.cjs:61:3 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    60 │   console.warn('');
+  > 61 │   console.warn('!�  [postinstall-playwright] Browser installation failed (non-fatal)');
+       │   ^^^^^^^^^^^^
+    62 │   console.warn('   This is a known issue with Playwright installation progress reporting.');
+    63 │   console.warn('');
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    59 59 │   
+    60 60 │     console.warn('');
+    61    │ - ··console.warn('!�··[postinstall-playwright]·Browser·installation·failed·(non-fatal)');
+    62 61 │     console.warn('   This is a known issue with Playwright installation progress reporting.');
+    63 62 │     console.warn('');
+  
+
+app-next-directory/scripts/postinstall-playwright.cjs:62:3 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    60 │   console.warn('');
+    61 │   console.warn('!�  [postinstall-playwright] Browser installation failed (non-fatal)');
+  > 62 │   console.warn('   This is a known issue with Playwright installation progress reporting.');
+       │   ^^^^^^^^^^^^
+    63 │   console.warn('');
+    64 │   console.warn('   To install browsers manually, run:');
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    60 60 │     console.warn('');
+    61 61 │     console.warn('!�  [postinstall-playwright] Browser installation failed (non-fatal)');
+    62    │ - ··console.warn('···This·is·a·known·issue·with·Playwright·installation·progress·reporting.');
+    63 62 │     console.warn('');
+    64 63 │     console.warn('   To install browsers manually, run:');
+  
+
+app-next-directory/scripts/postinstall-playwright.cjs:63:3 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    61 │   console.warn('!�  [postinstall-playwright] Browser installation failed (non-fatal)');
+    62 │   console.warn('   This is a known issue with Playwright installation progress reporting.');
+  > 63 │   console.warn('');
+       │   ^^^^^^^^^^^^
+    64 │   console.warn('   To install browsers manually, run:');
+    65 │   if (runner.includes('pnpm')) {
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    61 61 │     console.warn('!�  [postinstall-playwright] Browser installation failed (non-fatal)');
+    62 62 │     console.warn('   This is a known issue with Playwright installation progress reporting.');
+    63    │ - ··console.warn('');
+    64 63 │     console.warn('   To install browsers manually, run:');
+    65 64 │     if (runner.includes('pnpm')) {
+  
+
+app-next-directory/scripts/postinstall-playwright.cjs:64:3 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    62 │   console.warn('   This is a known issue with Playwright installation progress reporting.');
+    63 │   console.warn('');
+  > 64 │   console.warn('   To install browsers manually, run:');
+       │   ^^^^^^^^^^^^
+    65 │   if (runner.includes('pnpm')) {
+    66 │     console.warn(`   pnpm --filter ${workspaceName} exec playwright install chromium`);
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    62 62 │     console.warn('   This is a known issue with Playwright installation progress reporting.');
+    63 63 │     console.warn('');
+    64    │ - ··console.warn('···To·install·browsers·manually,·run:');
+    65 64 │     if (runner.includes('pnpm')) {
+    66 65 │       console.warn(`   pnpm --filter ${workspaceName} exec playwright install chromium`);
+  
+
+app-next-directory/scripts/postinstall-playwright.cjs:66:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    64 │   console.warn('   To install browsers manually, run:');
+    65 │   if (runner.includes('pnpm')) {
+  > 66 │     console.warn(`   pnpm --filter ${workspaceName} exec playwright install chromium`);
+       │     ^^^^^^^^^^^^
+    67 │     console.warn('   OR with system dependencies:');
+    68 │     console.warn(`   pnpm --filter ${workspaceName} exec playwright install --with-deps`);
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    64 64 │     console.warn('   To install browsers manually, run:');
+    65 65 │     if (runner.includes('pnpm')) {
+    66    │ - ····console.warn(`···pnpm·--filter·${workspaceName}·exec·playwright·install·chromium`);
+    67 66 │       console.warn('   OR with system dependencies:');
+    68 67 │       console.warn(`   pnpm --filter ${workspaceName} exec playwright install --with-deps`);
+  
+
+app-next-directory/scripts/postinstall-playwright.cjs:67:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    65 │   if (runner.includes('pnpm')) {
+    66 │     console.warn(`   pnpm --filter ${workspaceName} exec playwright install chromium`);
+  > 67 │     console.warn('   OR with system dependencies:');
+       │     ^^^^^^^^^^^^
+    68 │     console.warn(`   pnpm --filter ${workspaceName} exec playwright install --with-deps`);
+    69 │   } else if (runner.includes('yarn')) {
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    65 65 │     if (runner.includes('pnpm')) {
+    66 66 │       console.warn(`   pnpm --filter ${workspaceName} exec playwright install chromium`);
+    67    │ - ····console.warn('···OR·with·system·dependencies:');
+    68 67 │       console.warn(`   pnpm --filter ${workspaceName} exec playwright install --with-deps`);
+    69 68 │     } else if (runner.includes('yarn')) {
+  
+
+app-next-directory/scripts/postinstall-playwright.cjs:68:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    66 │     console.warn(`   pnpm --filter ${workspaceName} exec playwright install chromium`);
+    67 │     console.warn('   OR with system dependencies:');
+  > 68 │     console.warn(`   pnpm --filter ${workspaceName} exec playwright install --with-deps`);
+       │     ^^^^^^^^^^^^
+    69 │   } else if (runner.includes('yarn')) {
+    70 │     console.warn(`   yarn workspace ${workspaceName} exec playwright install chromium`);
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    66 66 │       console.warn(`   pnpm --filter ${workspaceName} exec playwright install chromium`);
+    67 67 │       console.warn('   OR with system dependencies:');
+    68    │ - ····console.warn(`···pnpm·--filter·${workspaceName}·exec·playwright·install·--with-deps`);
+    69 68 │     } else if (runner.includes('yarn')) {
+    70 69 │       console.warn(`   yarn workspace ${workspaceName} exec playwright install chromium`);
+  
+
+app-next-directory/scripts/postinstall-playwright.cjs:70:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    68 │     console.warn(`   pnpm --filter ${workspaceName} exec playwright install --with-deps`);
+    69 │   } else if (runner.includes('yarn')) {
+  > 70 │     console.warn(`   yarn workspace ${workspaceName} exec playwright install chromium`);
+       │     ^^^^^^^^^^^^
+    71 │     console.warn('   OR with system dependencies:');
+    72 │     console.warn(`   yarn workspace ${workspaceName} exec playwright install --with-deps`);
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    68 68 │       console.warn(`   pnpm --filter ${workspaceName} exec playwright install --with-deps`);
+    69 69 │     } else if (runner.includes('yarn')) {
+    70    │ - ····console.warn(`···yarn·workspace·${workspaceName}·exec·playwright·install·chromium`);
+    71 70 │       console.warn('   OR with system dependencies:');
+    72 71 │       console.warn(`   yarn workspace ${workspaceName} exec playwright install --with-deps`);
+  
+
+app-next-directory/scripts/postinstall-playwright.cjs:71:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    69 │   } else if (runner.includes('yarn')) {
+    70 │     console.warn(`   yarn workspace ${workspaceName} exec playwright install chromium`);
+  > 71 │     console.warn('   OR with system dependencies:');
+       │     ^^^^^^^^^^^^
+    72 │     console.warn(`   yarn workspace ${workspaceName} exec playwright install --with-deps`);
+    73 │   } else {
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    69 69 │     } else if (runner.includes('yarn')) {
+    70 70 │       console.warn(`   yarn workspace ${workspaceName} exec playwright install chromium`);
+    71    │ - ····console.warn('···OR·with·system·dependencies:');
+    72 71 │       console.warn(`   yarn workspace ${workspaceName} exec playwright install --with-deps`);
+    73 72 │     } else {
+  
+
+app-next-directory/scripts/postinstall-playwright.cjs:72:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    70 │     console.warn(`   yarn workspace ${workspaceName} exec playwright install chromium`);
+    71 │     console.warn('   OR with system dependencies:');
+  > 72 │     console.warn(`   yarn workspace ${workspaceName} exec playwright install --with-deps`);
+       │     ^^^^^^^^^^^^
+    73 │   } else {
+    74 │     console.warn('   npx playwright install chromium');
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    70 70 │       console.warn(`   yarn workspace ${workspaceName} exec playwright install chromium`);
+    71 71 │       console.warn('   OR with system dependencies:');
+    72    │ - ····console.warn(`···yarn·workspace·${workspaceName}·exec·playwright·install·--with-deps`);
+    73 72 │     } else {
+    74 73 │       console.warn('   npx playwright install chromium');
+  
+
+app-next-directory/scripts/postinstall-playwright.cjs:74:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    72 │     console.warn(`   yarn workspace ${workspaceName} exec playwright install --with-deps`);
+    73 │   } else {
+  > 74 │     console.warn('   npx playwright install chromium');
+       │     ^^^^^^^^^^^^
+    75 │     console.warn('   OR with system dependencies:');
+    76 │     console.warn('   npx playwright install --with-deps');
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    72 72 │       console.warn(`   yarn workspace ${workspaceName} exec playwright install --with-deps`);
+    73 73 │     } else {
+    74    │ - ····console.warn('···npx·playwright·install·chromium');
+    75 74 │       console.warn('   OR with system dependencies:');
+    76 75 │       console.warn('   npx playwright install --with-deps');
+  
+
+app-next-directory/scripts/postinstall-playwright.cjs:76:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    74 │     console.warn('   npx playwright install chromium');
+    75 │     console.warn('   OR with system dependencies:');
+  > 76 │     console.warn('   npx playwright install --with-deps');
+       │     ^^^^^^^^^^^^
+    77 │   }
+    78 │   console.warn('');
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    74 74 │       console.warn('   npx playwright install chromium');
+    75 75 │       console.warn('   OR with system dependencies:');
+    76    │ - ····console.warn('···npx·playwright·install·--with-deps');
+    77 76 │     }
+    78 77 │     console.warn('');
+  
+
+app-next-directory/scripts/postinstall-playwright.cjs:78:3 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    76 │     console.warn('   npx playwright install --with-deps');
+    77 │   }
+  > 78 │   console.warn('');
+       │   ^^^^^^^^^^^^
+    79 │   console.warn('   Error details:', err?.message || err);
+    80 │   console.warn('');
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    76 76 │       console.warn('   npx playwright install --with-deps');
+    77 77 │     }
+    78    │ - ··console.warn('');
+    79 78 │     console.warn('   Error details:', err?.message || err);
+    80 79 │     console.warn('');
+  
+
+app-next-directory/scripts/postinstall-playwright.cjs:79:3 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    77 │   }
+    78 │   console.warn('');
+  > 79 │   console.warn('   Error details:', err?.message || err);
+       │   ^^^^^^^^^^^^
+    80 │   console.warn('');
+    81 │   // Don't fail the install - this is non-fatal
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    77 77 │     }
+    78 78 │     console.warn('');
+    79    │ - ··console.warn('···Error·details:',·err?.message·||·err);
+    80 79 │     console.warn('');
+    81 80 │     // Don't fail the install - this is non-fatal
+  
+
+app-next-directory/scripts/postinstall-playwright.cjs:80:3 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    78 │   console.warn('');
+    79 │   console.warn('   Error details:', err?.message || err);
+  > 80 │   console.warn('');
+       │   ^^^^^^^^^^^^
+    81 │   // Don't fail the install - this is non-fatal
+    82 │   process.exit(0);
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    78 78 │     console.warn('');
+    79 79 │     console.warn('   Error details:', err?.message || err);
+    80    │ - ··console.warn('');
+    81 80 │     // Don't fail the install - this is non-fatal
+    82 81 │     process.exit(0);
+  
+
+app-next-directory/scripts/validate-env.js:59:3 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    57 │   let allValid = true;
+    58 │ 
+  > 59 │   console.log('🔐 Authentication Variables:');
+       │   ^^^^^^^^^^^
+    60 │   requiredVars.forEach(variable => {
+    61 │     const isValid = variable.value && variable.value.length > 0;
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+     56  56 │   
+     57  57 │     let allValid = true;
+     58     │ - 
+     59     │ - ··console.log('🔐·Authentication·Variables:');
+     60  58 │     requiredVars.forEach(variable => {
+     61  59 │       const isValid = variable.value && variable.value.length > 0;
+  
+
+app-next-directory/scripts/validate-env.js:13:3 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    12 │ export function validateEnvironment() {
+  > 13 │   console.log('🔍 Environment Validation for Phase 1 Integration\n');
+       │   ^^^^^^^^^^^
+    14 │ 
+    15 │   const requiredVars = [
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+     11  11 │   
+     12  12 │   export function validateEnvironment() {
+     13     │ - ··console.log('🔍·Environment·Validation·for·Phase·1·Integration\n');
+     14  13 │   
+     15  14 │     const requiredVars = [
+  
+
+app-next-directory/scripts/validate-env.js:63:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    61 │     const isValid = variable.value && variable.value.length > 0;
+    62 │     const status = isValid ? '✅' : '❌';
+  > 63 │     console.log(`   ${status} ${variable.name}: ${isValid ? '✓ Configured' : '❌ Missing'}`);
+       │     ^^^^^^^^^^^
+    64 │ 
+    65 │     if (!isValid) {
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+     61  61 │       const isValid = variable.value && variable.value.length > 0;
+     62  62 │       const status = isValid ? '✅' : '❌';
+     63     │ - ····console.log(`···${status}·${variable.name}:·${isValid·?·'✓·Configured'·:·'❌·Missing'}`);
+     64  63 │   
+     65  64 │       if (!isValid) {
+  
+
+app-next-directory/scripts/validate-env.js:66:7 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    65 │     if (!isValid) {
+  > 66 │       console.log(`      Description: ${variable.description}`);
+       │       ^^^^^^^^^^^
+    67 │       console.log(`      Example: ${variable.example}`);
+    68 │       allValid = false;
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+     64  64 │   
+     65  65 │       if (!isValid) {
+     66     │ - ······console.log(`······Description:·${variable.description}`);
+     67  66 │         console.log(`      Example: ${variable.example}`);
+     68  67 │         allValid = false;
+  
+
+app-next-directory/scripts/validate-env.js:67:7 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    65 │     if (!isValid) {
+    66 │       console.log(`      Description: ${variable.description}`);
+  > 67 │       console.log(`      Example: ${variable.example}`);
+       │       ^^^^^^^^^^^
+    68 │       allValid = false;
+    69 │     }
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+     65  65 │       if (!isValid) {
+     66  66 │         console.log(`      Description: ${variable.description}`);
+     67     │ - ······console.log(`······Example:·${variable.example}`);
+     68  67 │         allValid = false;
+     69  68 │       }
+  
+
+app-next-directory/scripts/validate-env.js:72:3 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    70 │   });
+    71 │ 
+  > 72 │   console.log('\n📊 CMS Variables:');
+       │   ^^^^^^^^^^^
+    73 │   sanityVars.forEach(variable => {
+    74 │     const isValid = variable.value && variable.value.length > 0;
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+     69  69 │       }
+     70  70 │     });
+     71     │ - 
+     72     │ - ··console.log('\n📊·CMS·Variables:');
+     73  71 │     sanityVars.forEach(variable => {
+     74  72 │       const isValid = variable.value && variable.value.length > 0;
+  
+
+app-next-directory/scripts/validate-env.js:76:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    74 │     const isValid = variable.value && variable.value.length > 0;
+    75 │     const status = isValid ? '✅' : '○';
+  > 76 │     console.log(`   ${status} ${variable.name}: ${isValid ? '✓ Configured' : '○ Optional'}`);
+       │     ^^^^^^^^^^^
+    77 │   });
+    78 │ 
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+     74  74 │       const isValid = variable.value && variable.value.length > 0;
+     75  75 │       const status = isValid ? '✅' : '○';
+     76     │ - ····console.log(`···${status}·${variable.name}:·${isValid·?·'✓·Configured'·:·'○·Optional'}`);
+     77  76 │     });
+     78  77 │   
+  
+
+app-next-directory/scripts/validate-env.js:94:3 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    92 │   ];
+    93 │ 
+  > 94 │   console.log('\n🌐 Social Sign-In Providers:');
+       │   ^^^^^^^^^^^
+    95 │   oauthVars.forEach(variable => {
+    96 │     const isValid = variable.value && variable.value.length > 0;
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+     91  91 │       },
+     92  92 │     ];
+     93     │ - 
+     94     │ - ··console.log('\n🌐·Social·Sign-In·Providers:');
+     95  93 │     oauthVars.forEach(variable => {
+     96  94 │       const isValid = variable.value && variable.value.length > 0;
+  
+
+app-next-directory/scripts/validate-env.js:98:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+     96 │     const isValid = variable.value && variable.value.length > 0;
+     97 │     const status = isValid ? '✅' : '○';
+   > 98 │     console.log(`   ${status} ${variable.name}: ${isValid ? '✓ Configured' : '○ Optional'}`);
+        │     ^^^^^^^^^^^
+     99 │     if (!isValid) {
+    100 │       console.log(`      ${variable.description}`);
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+     96  96 │       const isValid = variable.value && variable.value.length > 0;
+     97  97 │       const status = isValid ? '✅' : '○';
+     98     │ - ····console.log(`···${status}·${variable.name}:·${isValid·?·'✓·Configured'·:·'○·Optional'}`);
+     99  98 │       if (!isValid) {
+    100  99 │         console.log(`      ${variable.description}`);
+  
+
+app-next-directory/scripts/validate-env.js:100:7 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+     98 │     console.log(`   ${status} ${variable.name}: ${isValid ? '✓ Configured' : '○ Optional'}`);
+     99 │     if (!isValid) {
+  > 100 │       console.log(`      ${variable.description}`);
+        │       ^^^^^^^^^^^
+    101 │     }
+    102 │   });
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+     98  98 │       console.log(`   ${status} ${variable.name}: ${isValid ? '✓ Configured' : '○ Optional'}`);
+     99  99 │       if (!isValid) {
+    100     │ - ······console.log(`······${variable.description}`);
+    101 100 │       }
+    102 101 │     });
+  
+
+app-next-directory/scripts/validate-env.js:104:3 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    102 │   });
+    103 │ 
+  > 104 │   console.log('\n📋 Summary:');
+        │   ^^^^^^^^^^^
+    105 │   if (allValid) {
+    106 │     console.log('🎉 All required environment variables are configured!');
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    101 101 │       }
+    102 102 │     });
+    103     │ - 
+    104     │ - ··console.log('\n📋·Summary:');
+    105 103 │     if (allValid) {
+    106 104 │       console.log('🎉 All required environment variables are configured!');
+  
+
+app-next-directory/scripts/validate-env.js:106:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    104 │   console.log('\n📋 Summary:');
+    105 │   if (allValid) {
+  > 106 │     console.log('🎉 All required environment variables are configured!');
+        │     ^^^^^^^^^^^
+    107 │     console.log('🚀 Ready to run integration tests');
+    108 │     console.log('\nNext steps:');
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    104 104 │     console.log('\n📋 Summary:');
+    105 105 │     if (allValid) {
+    106     │ - ····console.log('🎉·All·required·environment·variables·are·configured!');
+    107 106 │       console.log('🚀 Ready to run integration tests');
+    108 107 │       console.log('\nNext steps:');
+  
+
+app-next-directory/scripts/validate-env.js:107:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    105 │   if (allValid) {
+    106 │     console.log('🎉 All required environment variables are configured!');
+  > 107 │     console.log('🚀 Ready to run integration tests');
+        │     ^^^^^^^^^^^
+    108 │     console.log('\nNext steps:');
+    109 │     console.log('   1. pnpm run test:db-connection');
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    105 105 │     if (allValid) {
+    106 106 │       console.log('🎉 All required environment variables are configured!');
+    107     │ - ····console.log('🚀·Ready·to·run·integration·tests');
+    108 107 │       console.log('\nNext steps:');
+    109 108 │       console.log('   1. pnpm run test:db-connection');
+  
+
+app-next-directory/scripts/validate-env.js:108:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    106 │     console.log('🎉 All required environment variables are configured!');
+    107 │     console.log('🚀 Ready to run integration tests');
+  > 108 │     console.log('\nNext steps:');
+        │     ^^^^^^^^^^^
+    109 │     console.log('   1. pnpm run test:db-connection');
+    110 │     console.log('   2. pnpm run test:integration');
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    106 106 │       console.log('🎉 All required environment variables are configured!');
+    107 107 │       console.log('🚀 Ready to run integration tests');
+    108     │ - ····console.log('\nNext·steps:');
+    109 108 │       console.log('   1. pnpm run test:db-connection');
+    110 109 │       console.log('   2. pnpm run test:integration');
+  
+
+app-next-directory/scripts/validate-env.js:109:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    107 │     console.log('🚀 Ready to run integration tests');
+    108 │     console.log('\nNext steps:');
+  > 109 │     console.log('   1. pnpm run test:db-connection');
+        │     ^^^^^^^^^^^
+    110 │     console.log('   2. pnpm run test:integration');
+    111 │     console.log('   3. pnpm dev (start development server)');
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    107 107 │       console.log('🚀 Ready to run integration tests');
+    108 108 │       console.log('\nNext steps:');
+    109     │ - ····console.log('···1.·pnpm·run·test:db-connection');
+    110 109 │       console.log('   2. pnpm run test:integration');
+    111 110 │       console.log('   3. pnpm dev (start development server)');
+  
+
+app-next-directory/scripts/validate-env.js:110:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    108 │     console.log('\nNext steps:');
+    109 │     console.log('   1. pnpm run test:db-connection');
+  > 110 │     console.log('   2. pnpm run test:integration');
+        │     ^^^^^^^^^^^
+    111 │     console.log('   3. pnpm dev (start development server)');
+    112 │   } else {
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    108 108 │       console.log('\nNext steps:');
+    109 109 │       console.log('   1. pnpm run test:db-connection');
+    110     │ - ····console.log('···2.·pnpm·run·test:integration');
+    111 110 │       console.log('   3. pnpm dev (start development server)');
+    112 111 │     } else {
+  
+
+app-next-directory/scripts/validate-env.js:111:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    109 │     console.log('   1. pnpm run test:db-connection');
+    110 │     console.log('   2. pnpm run test:integration');
+  > 111 │     console.log('   3. pnpm dev (start development server)');
+        │     ^^^^^^^^^^^
+    112 │   } else {
+    113 │     console.log('!�  Some required environment variables are missing');
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    109 109 │       console.log('   1. pnpm run test:db-connection');
+    110 110 │       console.log('   2. pnpm run test:integration');
+    111     │ - ····console.log('···3.·pnpm·dev·(start·development·server)');
+    112 111 │     } else {
+    113 112 │       console.log('!�  Some required environment variables are missing');
+  
+
+app-next-directory/scripts/validate-env.js:113:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    111 │     console.log('   3. pnpm dev (start development server)');
+    112 │   } else {
+  > 113 │     console.log('!�  Some required environment variables are missing');
+        │     ^^^^^^^^^^^
+    114 │     console.log('📖 Please see MONGODB_SETUP.md for configuration instructions');
+    115 │     console.log('\nQuick setup:');
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    111 111 │       console.log('   3. pnpm dev (start development server)');
+    112 112 │     } else {
+    113     │ - ····console.log('!�··Some·required·environment·variables·are·missing');
+    114 113 │       console.log('📖 Please see MONGODB_SETUP.md for configuration instructions');
+    115 114 │       console.log('\nQuick setup:');
+  
+
+app-next-directory/scripts/validate-env.js:114:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    112 │   } else {
+    113 │     console.log('!�  Some required environment variables are missing');
+  > 114 │     console.log('📖 Please see MONGODB_SETUP.md for configuration instructions');
+        │     ^^^^^^^^^^^
+    115 │     console.log('\nQuick setup:');
+    116 │     console.log('   1. Copy .env.example to .env.local');
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    112 112 │     } else {
+    113 113 │       console.log('!�  Some required environment variables are missing');
+    114     │ - ····console.log('📖·Please·see·MONGODB_SETUP.md·for·configuration·instructions');
+    115 114 │       console.log('\nQuick setup:');
+    116 115 │       console.log('   1. Copy .env.example to .env.local');
+  
+
+app-next-directory/scripts/validate-env.js:115:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    113 │     console.log('!�  Some required environment variables are missing');
+    114 │     console.log('📖 Please see MONGODB_SETUP.md for configuration instructions');
+  > 115 │     console.log('\nQuick setup:');
+        │     ^^^^^^^^^^^
+    116 │     console.log('   1. Copy .env.example to .env.local');
+    117 │     console.log('   2. Configure MONGODB_URI with your database');
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    113 113 │       console.log('!�  Some required environment variables are missing');
+    114 114 │       console.log('📖 Please see MONGODB_SETUP.md for configuration instructions');
+    115     │ - ····console.log('\nQuick·setup:');
+    116 115 │       console.log('   1. Copy .env.example to .env.local');
+    117 116 │       console.log('   2. Configure MONGODB_URI with your database');
+  
+
+app-next-directory/scripts/validate-env.js:116:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    114 │     console.log('📖 Please see MONGODB_SETUP.md for configuration instructions');
+    115 │     console.log('\nQuick setup:');
+  > 116 │     console.log('   1. Copy .env.example to .env.local');
+        │     ^^^^^^^^^^^
+    117 │     console.log('   2. Configure MONGODB_URI with your database');
+    118 │     console.log('   3. pnpm run validate:env (after filling values)');
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    114 114 │       console.log('📖 Please see MONGODB_SETUP.md for configuration instructions');
+    115 115 │       console.log('\nQuick setup:');
+    116     │ - ····console.log('···1.·Copy·.env.example·to·.env.local');
+    117 116 │       console.log('   2. Configure MONGODB_URI with your database');
+    118 117 │       console.log('   3. pnpm run validate:env (after filling values)');
+  
+
+app-next-directory/scripts/validate-env.js:117:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    115 │     console.log('\nQuick setup:');
+    116 │     console.log('   1. Copy .env.example to .env.local');
+  > 117 │     console.log('   2. Configure MONGODB_URI with your database');
+        │     ^^^^^^^^^^^
+    118 │     console.log('   3. pnpm run validate:env (after filling values)');
+    119 │   }
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    115 115 │       console.log('\nQuick setup:');
+    116 116 │       console.log('   1. Copy .env.example to .env.local');
+    117     │ - ····console.log('···2.·Configure·MONGODB_URI·with·your·database');
+    118 117 │       console.log('   3. pnpm run validate:env (after filling values)');
+    119 118 │     }
+  
+
+app-next-directory/scripts/validate-env.js:118:5 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    116 │     console.log('   1. Copy .env.example to .env.local');
+    117 │     console.log('   2. Configure MONGODB_URI with your database');
+  > 118 │     console.log('   3. pnpm run validate:env (after filling values)');
+        │     ^^^^^^^^^^^
+    119 │   }
+    120 │ 
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    116 116 │       console.log('   1. Copy .env.example to .env.local');
+    117 117 │       console.log('   2. Configure MONGODB_URI with your database');
+    118     │ - ····console.log('···3.·pnpm·run·validate:env·(after·filling·values)');
+    119 118 │     }
+    120 119 │   
+  
+
+app-next-directory/src/lib/logger.ts:447:17 lint/suspicious/noConsole ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    445 │   warn: 'warn',
+    446 │   error: 'error',
+  > 447 │   debug: typeof console.debug === 'function' ? 'debug' : 'log',
+        │                 ^^^^^^^^^^^^^
+    448 │ };
+    449 │ 
+  
+  i The use of console is often reserved for debugging.
+  
+
+app-next-directory/src/lib/logger.ts:510:25 lint/suspicious/noConsole ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    509 │   const method = legacyConsoleMethodMap[level];
+  > 510 │   const consoleMethod = console[method];
+        │                         ^^^^^^^^^^^^^^^
+    511 │   const fn =
+    512 │     typeof consoleMethod === 'function'
+  
+  i The use of console is often reserved for debugging.
+  
+
+app-next-directory/src/lib/performance/__tests__/plausible.test.ts:73:14 lint/suspicious/noConsole ━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    71 │       });
+    72 │ 
+  > 73 │       expect(console.warn).toHaveBeenCalledWith(
+       │              ^^^^^^^^^^^^
+    74 │         '[Performance] Plausible Analytics not initialized'
+    75 │       );
+  
+  i The use of console is often reserved for debugging.
+  
+
+app-next-directory/src/lib/performance/__tests__/plausible.test.ts:348:14 lint/suspicious/noConsole ━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    346 │       }).not.toThrow();
+    347 │ 
+  > 348 │       expect(console.warn).toHaveBeenCalledWith(
+        │              ^^^^^^^^^^^^
+    349 │         '[Performance] Plausible Analytics not initialized'
+    350 │       );
+  
+  i The use of console is often reserved for debugging.
+  
+
+app-next-directory/tests/jest.setup.ts:64:7 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    62 │       // Print full details for triage
+    63 │ 
+  > 64 │       console.error('\n' + lines.join('\n'));
+       │       ^^^^^^^^^^^^^
+    65 │ 
+    66 │       throw new Error(
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    59 59 │         _errorSpy?.mockRestore();
+    60 60 │         _warnSpy?.mockRestore();
+    61    │ - 
+    62    │ - ······//·Print·full·details·for·triage
+    63    │ - 
+    64    │ - ······console.error('\n'·+·lines.join('\n'));
+    65 61 │   
+    66 62 │         throw new Error(
+  
+
+app-next-directory/tests/setup-e2e-db.mjs:132:26 lint/suspicious/noConsole ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    131 │ // Run setup
+  > 132 │ setupE2EDatabase().catch(console.error);
+        │                          ^^^^^^^^^^^^^
+    133 │ 
+  
+  i The use of console is often reserved for debugging.
+  
+
+Checked 966 files in 2s. No fixes applied.
+Found 64 warnings.

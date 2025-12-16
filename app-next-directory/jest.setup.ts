@@ -339,7 +339,7 @@ declare global {
 if (process.env.JEST_CONSOLE_NO_FILTER !== '1') {
   const originalConsoleError = console.error;
   const originalConsoleWarn = console.warn;
-  const ignoredOriginalConsoleLog = console.log;
+  const _ignoredOriginalConsoleLog = console.log;
 
   (console as Console & { originalConsoleError?: typeof console.error }).originalConsoleError =
     originalConsoleError;

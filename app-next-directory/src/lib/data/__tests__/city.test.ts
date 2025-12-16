@@ -262,7 +262,7 @@ describe('city data helpers', () => {
       },
     ]);
 
-    const listings = await getListingsByCityId('city-2');
+    const _listings = await getListingsByCityId('city-2');
     expect(transformToSummaryDTO).toHaveBeenCalledWith({
       _id: 'listing-2',
       name: 'Nomad Space',

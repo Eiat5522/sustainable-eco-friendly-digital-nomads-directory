@@ -212,7 +212,7 @@ describe('Newsletter Confirmation API - GET /api/newsletter/confirm', () => {
         'http://localhost/api/newsletter/confirm?token=abc-123_xyz.token'
       );
 
-      const response = await GET(request);
+      const _response = await GET(request);
 
       expect(mockVerifyToken).toHaveBeenCalledWith('abc-123_xyz.token');
     });

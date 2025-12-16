@@ -5,7 +5,7 @@ declare const _default: {
   dataset: string;
   plugins: import('sanity').PluginOptions[];
   schema: {
-    types: any;
+    types: import('sanity').SchemaTypeDefinition[];
   };
 };
 export default _default;

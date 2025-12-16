@@ -3,7 +3,7 @@ import { HttpResponse, http } from 'msw';
 import { NextRequest } from 'next/server';
 import { server } from '@/mocks/server';
 
-const createRequest = () => new NextRequest('http://localhost/api/featured-listings');
+const _createRequest = () => new NextRequest('http://localhost/api/featured-listings');
 
 let GET: typeof import('../route').GET;
 

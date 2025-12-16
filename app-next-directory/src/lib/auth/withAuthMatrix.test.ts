@@ -9,7 +9,7 @@ import type { ACCESS_CONTROL_MATRIX, PagePermissions, UserRole } from '../../typ
 
 type StructuredLogger = typeof import('@/lib/logger')['structuredLogger'];
 
-const getStructuredLoggerMock = () =>
+const _getStructuredLoggerMock = () =>
   jest.requireMock<typeof import('@/lib/logger')>('@/lib/logger')
     .structuredLogger as jest.Mocked<StructuredLogger>;
 
@@ -251,7 +251,7 @@ describe('withAuthMatrix', () => {
     it('denies venue owners access to others listings', async () => {
       mockGetToken.mockResolvedValue({ role: 'venueOwner', email: 'owner@example.com' });
       mockHasPagePermission.mockClear();
-      mockHasPagePermission.mockImplementation((role, page, action) => {
+      mockHasPagePermission.mockImplementation((_role, _page, _action) => {
         // console.log('[TEST] mockHasPagePermission called with:', { role, page, action });
         return false;
       });

@@ -170,7 +170,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
       } as unknown as NextRequest;
 
       const response = await GET(request);
-      const data = await response.json();
+      const _data = await response.json();
 
       expect(response.status).toBe(200);
       expect(mockRevalidatePath).toHaveBeenCalledWith('/blog/sustainable-eco-travel');

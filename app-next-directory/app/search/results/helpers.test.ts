@@ -144,7 +144,7 @@ describe('Search Results Helper Functions', () => {
 
     it('should skip undefined values', () => {
       const searchParams = { q: 'test', undefined: undefined };
-      const overrides = {};
+      const _overrides = {};
 
       const params = new URLSearchParams();
       for (const [k, v] of Object.entries(searchParams)) {

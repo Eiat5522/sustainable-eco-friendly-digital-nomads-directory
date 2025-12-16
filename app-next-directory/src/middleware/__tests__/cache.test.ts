@@ -249,7 +249,7 @@ describe('cache middleware', () => {
       };
       const mockSet = jest.fn();
       const mockAppend = jest.fn();
-      const response = {
+      const _response = {
         headers: {
           set: mockSet,
           append: mockAppend,

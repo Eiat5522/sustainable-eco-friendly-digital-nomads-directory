@@ -111,7 +111,7 @@ test('leaflet map debug', async ({ page }) => {
   const outDir = path.join(process.cwd(), 'playwright-debug-output');
   try {
     fs.mkdirSync(outDir);
-  } catch (e) {
+  } catch (_e) {
     /* ok */
   }
   const fullShot = path.join(outDir, 'leaflet-fullpage.png');
@@ -123,7 +123,7 @@ test('leaflet map debug', async ({ page }) => {
     if (mapEl) {
       await mapEl.screenshot({ path: path.join(outDir, 'leaflet-map.png') });
     }
-  } catch (e) {
+  } catch (_e) {
     // ignore
   }
 

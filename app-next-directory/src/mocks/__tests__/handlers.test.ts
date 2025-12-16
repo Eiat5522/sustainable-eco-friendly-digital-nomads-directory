@@ -83,7 +83,7 @@ describe('MSW Handlers', () => {
   });
 
   it('should include handlers for common API endpoints', () => {
-    const handlerPaths = handlers
+    const _handlerPaths = handlers
       .map((handler: typeof http.get) => {
         // Extract the path from the handler
         return (handler as unknown as { info: { path: string } }).info?.path;
@@ -504,6 +504,6 @@ describe('MSW Handlers', () => {
 });
 
 // Helper to create mock request
-function createMockRequest(url: string, init?: RequestInit): Request {
+function _createMockRequest(url: string, init?: RequestInit): Request {
   return new Request(url, init);
 }

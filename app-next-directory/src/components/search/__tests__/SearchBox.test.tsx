@@ -133,7 +133,7 @@ describe('SearchBox', () => {
 
     it('should maintain structure when placeholder changes', () => {
       const { rerender } = render(<SearchBox placeholder="Initial" />);
-      const initialCard = screen.getByTestId('neo-card');
+      const _initialCard = screen.getByTestId('neo-card');
 
       rerender(<SearchBox placeholder="Updated" />);
       const updatedCard = screen.getByTestId('neo-card');

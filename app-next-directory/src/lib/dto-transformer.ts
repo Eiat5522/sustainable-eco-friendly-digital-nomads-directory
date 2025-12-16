@@ -215,7 +215,7 @@ const toAmenities = (
     }));
 
 // Shared helpers for simple name extraction and string validation
-const ignoredIsNonEmptyString = (x: unknown): x is string => typeof x === 'string' && x.length > 0;
+const _ignoredIsNonEmptyString = (x: unknown): x is string => typeof x === 'string' && x.length > 0;
 
 const toNames = (arr?: ReadonlyArray<{ name?: string } | null | undefined>): string[] => {
   const seen = new Set<string>();
@@ -277,7 +277,7 @@ export function transformToSummaryDTO(
   if (typeof websiteRaw === 'string') {
     try {
       // new URL will throw for invalid URLs
-      const ignoredU = new URL(websiteRaw, 'https://example.com');
+      const _ignoredU = new URL(websiteRaw, 'https://example.com');
       // If provided string already absolute, keep it; if it was relative, drop it
       if (/^https?:\/\//i.test(websiteRaw)) website = websiteRaw;
     } catch {

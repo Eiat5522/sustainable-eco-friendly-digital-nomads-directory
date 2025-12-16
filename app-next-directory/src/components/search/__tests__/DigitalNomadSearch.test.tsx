@@ -172,7 +172,7 @@ describe('DigitalNomadSearch', () => {
       const input = screen.getByTestId('neo-input');
       await user.type(input, 'test query');
 
-      const form = screen.getByRole('search');
+      const _form = screen.getByRole('search');
       await user.click(screen.getByTestId('neo-button'));
 
       await waitFor(() => {

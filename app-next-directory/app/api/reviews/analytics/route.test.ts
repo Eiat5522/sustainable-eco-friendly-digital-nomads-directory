@@ -41,7 +41,7 @@ describe('API /api/reviews/analytics', () => {
     responseTime: unknown[] = []
   ) {
     let callCount = 0;
-    const aggregate = jest.fn((pipeline: unknown[]) => {
+    const aggregate = jest.fn((_pipeline: unknown[]) => {
       // Return aggregations in the order they're called in the route
       const results = [
         overallStats, // 0: overallStats

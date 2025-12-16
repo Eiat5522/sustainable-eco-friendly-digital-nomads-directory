@@ -4,7 +4,11 @@ import { AboutSection } from '../AboutSection';
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, ...props }: { href?: string; children?: React.ReactNode } & Record<string, unknown>) => (
+  default: ({
+    href,
+    children,
+    ...props
+  }: { href?: string; children?: React.ReactNode } & Record<string, unknown>) => (
     <a href={href} {...(props as Record<string, unknown>)}>
       {children}
     </a>

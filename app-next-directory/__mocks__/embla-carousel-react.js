@@ -9,7 +9,7 @@ const mockEmblaApi = {
   reInit: () => {},
 };
 
-const useEmblaCarousel = (options, plugins) => {
+const useEmblaCarousel = (_options, _plugins) => {
   // Return a ref function and the mock API
   const ref = () => {};
   return [ref, mockEmblaApi];

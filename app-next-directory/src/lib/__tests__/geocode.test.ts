@@ -24,7 +24,7 @@ global.fetch = jest.fn() as jest.MockedFunction<typeof fetch>;
 
 const getFetchMock = () => global.fetch as jest.MockedFunction<typeof fetch>;
 
-const fs = require('node:fs/promises') as jest.Mocked<typeof import('fs/promises')>;
+const _fs = require('node:fs/promises') as jest.Mocked<typeof import('fs/promises')>;
 
 describe('findLandmarkCoordinates', () => {
   it('returns coordinates for a matching landmark', () => {
@@ -227,9 +227,9 @@ describe('geocodeAddress', () => {
  * Tests for updateListingsWithCoordinates, including error and edge cases.
  */
 describe('updateListingsWithCoordinates', () => {
-  let geocodeModule: typeof import('../geocode');
+  let _geocodeModule: typeof import('../geocode');
   let fs: typeof import('fs/promises');
-  let path: typeof import('path');
+  let _path: typeof import('path');
   const mockedPath = 'D:\\mocked\\path\\listings.json';
 
   beforeEach(() => {
@@ -243,8 +243,8 @@ describe('updateListingsWithCoordinates', () => {
       join: jest.fn(() => mockedPath),
     }));
     fs = require('node:fs/promises');
-    path = require('node:path');
-    geocodeModule = require('../geocode');
+    _path = require('node:path');
+    _geocodeModule = require('../geocode');
   });
 
   it('updates listings with missing coordinates', async () => {
@@ -286,7 +286,7 @@ describe('updateListingsWithCoordinates', () => {
     jest.doMock('path', () => ({
       join: jest.fn(() => mockedPath),
     }));
-    const fs = require('node:fs/promises');
+    const _fs = require('node:fs/promises');
     const path = require('node:path');
     const geocodeModule = require('../geocode');
 
@@ -325,9 +325,7 @@ describe('updateListingsWithCoordinates', () => {
     const updateListingsWithCoordinates = async () => {
       try {
         await geocodeModule.updateListingsWithCoordinates();
-      } catch (error: unknown) {
-        console.error('Error updating listings with coordinates:', error);
-      }
+      } catch (_error: unknown) {}
     };
     await updateListingsWithCoordinates();
     expect(consoleSpy).toHaveBeenCalledWith(
@@ -357,9 +355,7 @@ describe('updateListingsWithCoordinates', () => {
     const updateListingsWithCoordinates = async () => {
       try {
         await geocodeModule.updateListingsWithCoordinates();
-      } catch (error: unknown) {
-        console.error('Error updating listings with coordinates:', error);
-      }
+      } catch (_error: unknown) {}
     };
     await updateListingsWithCoordinates();
     expect(consoleSpy).toHaveBeenCalledWith(
@@ -389,9 +385,7 @@ describe('updateListingsWithCoordinates', () => {
     const updateListingsWithCoordinates = async () => {
       try {
         await geocodeModule.updateListingsWithCoordinates();
-      } catch (error: unknown) {
-        console.error('Error updating listings with coordinates:', error);
-      }
+      } catch (_error: unknown) {}
     };
     await updateListingsWithCoordinates();
     expect(consoleSpy).toHaveBeenCalledWith(

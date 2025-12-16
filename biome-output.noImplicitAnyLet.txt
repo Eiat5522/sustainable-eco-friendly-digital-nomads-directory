@@ -1,0 +1,48 @@
+app-next-directory/app/search/page.tsx:28:7 lint/suspicious/noImplicitAnyLet ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × This variable implicitly has the any type.
+  
+    26 │   const result = await fetchSearchResults(resolvedSearchParams);
+    27 │ 
+  > 28 │   let mainContent;
+       │       ^^^^^^^^^^^
+    29 │   if (result.ok) {
+    30 │     const { pagination, pageSizeOptions, listings, pages } = result;
+  
+  i Variable declarations without type annotation and initialization implicitly have the any type. Declare a type or initialize the variable with some value.
+  
+
+app-next-directory/src/lib/adapters.ts:55:7 lint/suspicious/noImplicitAnyLet ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × This variable implicitly has the any type.
+  
+    54 │   // Build location with coordinates if present
+  > 55 │   let location;
+       │       ^^^^^^^^
+    56 │   if (
+    57 │     json.location &&
+  
+  i Variable declarations without type annotation and initialization implicitly have the any type. Declare a type or initialize the variable with some value.
+  
+
+app-next-directory/src/middleware/authCallbackHandler.ts:23:9 lint/suspicious/noImplicitAnyLet ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × This variable implicitly has the any type.
+  
+    21 │     // Prevent double-encoding: decode until stable
+    22 │     let decoded = urlParam;
+  > 23 │     let prev;
+       │         ^^^^
+    24 │     do {
+    25 │       prev = decoded;
+  
+  i Variable declarations without type annotation and initialization implicitly have the any type. Declare a type or initialize the variable with some value.
+  
+
+Checked 966 files in 1440ms. No fixes applied.
+Found 3 errors.
+lint ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while running checks.
+  
+

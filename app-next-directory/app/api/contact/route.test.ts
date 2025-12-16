@@ -402,8 +402,7 @@ describe('Contact API', () => {
 
             // Add debugging to see what's happening
             if (response.status !== 200) {
-              const errorData = await response.json();
-              console.error('Test failed with response:', errorData);
+              const _errorData = await response.json();
             }
 
             const data = await response.json();

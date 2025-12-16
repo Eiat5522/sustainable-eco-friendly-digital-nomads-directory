@@ -72,7 +72,7 @@ describe('rate-limit helpers', () => {
   });
 
   it('initializes rate limiters with Redis client', async () => {
-    const mod = await loadModule();
+    const _mod = await loadModule();
 
     expect(mockGetRedisClient).toHaveBeenCalled();
     expect(mockRatelimitConstructor).toHaveBeenCalledTimes(2); // login and api rate limiters

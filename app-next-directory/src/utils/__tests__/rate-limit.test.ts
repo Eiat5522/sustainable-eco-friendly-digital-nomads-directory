@@ -6,7 +6,7 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, jest } from '@j
 import { rateLimit, rateLimiters, rateLimitStore } from '../rate-limit';
 
 // Helper function to reduce code duplication
-function createTestRequest(ip: string): Request {
+function _createTestRequest(ip: string): Request {
   return new Request('http://localhost', {
     headers: { 'x-forwarded-for': ip },
   });

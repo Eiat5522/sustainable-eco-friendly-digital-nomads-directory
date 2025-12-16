@@ -19,7 +19,7 @@ jest.mock('@/lib/auth', () => ({
 
 // Mock the Sanity client
 const mockFetch = jest.fn();
-const mockPatch = jest.fn();
+const _mockPatch = jest.fn();
 const mockSet = jest.fn();
 const mockCommit = jest.fn();
 const mockDelete = jest.fn();
@@ -238,7 +238,7 @@ describe('Manage Listings API', () => {
         const context: RouteContext = { params: { id: 'listing-1' } };
 
         const response = await PUT(request, context);
-        const data = await response.json();
+        const _data = await response.json();
 
         expect(response.status).toBe(200);
         expect(mockCommit).toHaveBeenCalled();

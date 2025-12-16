@@ -11,7 +11,7 @@ jest.mock('@/lib/dbConnect', () => ({
   default: mockDbConnect,
 }));
 
-const mockFindOne = jest.fn();
+const _mockFindOne = jest.fn();
 const mockUpdateOne = jest.fn();
 jest.mock('@/models/User', () => ({
   __esModule: true,

@@ -18,36 +18,25 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/e2e_te
 const DB_NAME = 'e2e_test';
 
 async function setupE2EDatabase() {
-  console.log('🚀 Setting up E2E test database...');
-
   let client;
 
   try {
     // Connect to MongoDB
     client = new MongoClient(MONGODB_URI);
     await client.connect();
-    console.log('✅ Connected to MongoDB');
 
     const db = client.db(DB_NAME);
-
-    // Drop existing collections to ensure clean state
-    console.log('🧹 Cleaning up existing test data...');
     const collections = await db.listCollections().toArray();
 
     for (const collection of collections) {
       await db.collection(collection.name).drop();
-      console.log(`  - Dropped collection: ${collection.name}`);
     }
-
-    // Create test collections with indexes
-    console.log('📦 Creating collections and indexes...');
 
     // Users collection
     await db.createCollection('users');
     await db
       .collection('users')
       .createIndexes([{ key: { email: 1 }, unique: true, name: 'email_unique' }]);
-    console.log('  - Created users collection');
 
     // Sessions collection
     await db.createCollection('sessions');
@@ -55,14 +44,9 @@ async function setupE2EDatabase() {
       { key: { sessionToken: 1 }, unique: true },
       { key: { expires: 1 }, expireAfterSeconds: 0 },
     ]);
-    console.log('  - Created sessions collection');
 
     // Test listings collection (if needed)
     await db.createCollection('listings');
-    console.log('  - Created listings collection');
-
-    // Seed test data
-    console.log('🌱 Seeding test data...');
 
     // Create a test user
     const testUserEmail =
@@ -107,7 +91,6 @@ async function setupE2EDatabase() {
     };
 
     await db.collection('users').insertOne(testUser);
-    console.log(`  - Created test user: ${testUserEmail}`);
 
     // Create an admin test user
     const adminUser = {
@@ -122,7 +105,6 @@ async function setupE2EDatabase() {
     };
 
     await db.collection('users').insertOne(adminUser);
-    console.log(`  - Created admin user: ${adminEmail}`);
 
     // Create a venue owner test user
     const venueOwnerUser = {
@@ -137,21 +119,11 @@ async function setupE2EDatabase() {
     };
 
     await db.collection('users').insertOne(venueOwnerUser);
-    console.log(`  - Created venue owner: ${venueOwnerEmail}`);
-
-    console.log('\n✨ E2E database setup complete!\n');
-    console.log('Database:', DB_NAME);
-    console.log('Test User:', testUserEmail);
-    console.log('Admin User:', adminEmail);
-    console.log('Venue Owner:', venueOwnerEmail);
-    console.log('');
-  } catch (error) {
-    console.error('❌ Error setting up E2E database:', error);
+  } catch (_error) {
     process.exit(1);
   } finally {
     if (client) {
       await client.close();
-      console.log('✅ Closed database connection');
     }
   }
 }

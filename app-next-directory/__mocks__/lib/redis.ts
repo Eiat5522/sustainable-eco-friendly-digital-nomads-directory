@@ -30,7 +30,7 @@ export function onRedisClientChange(fn: (client: RedisClient | undefined) => voi
   // Immediately notify subscriber of current client to match runtime behaviour
   try {
     fn(currentClient);
-  } catch (e) {
+  } catch (_e) {
     // best-effort
   }
 
@@ -42,7 +42,7 @@ export function _notifyRedisClientChange(client: RedisClient | undefined) {
   for (const l of Array.from(listeners)) {
     try {
       l(client);
-    } catch (e) {
+    } catch (_e) {
       // Listener errors should not break the emitter
     }
   }

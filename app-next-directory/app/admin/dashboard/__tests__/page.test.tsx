@@ -36,14 +36,14 @@ jest.mock('../ModerationActions', () => ({
   ),
 }));
 
-const mockAuth = jest.requireMock('@/lib/auth').auth as jest.Mock;
-const mockFetchAnalytics = jest.requireMock('@/lib/admin/analytics')
+const _mockAuth = jest.requireMock('@/lib/auth').auth as jest.Mock;
+const _mockFetchAnalytics = jest.requireMock('@/lib/admin/analytics')
   .fetchAdminAnalytics as jest.Mock;
 const mockLogger = jest.requireMock('@/lib/logger').structuredLogger as {
   error: jest.Mock;
 };
 
-const buildSnapshot = () => ({
+const _buildSnapshot = () => ({
   overview: {
     totalUsers: 150,
     totalListings: 45,

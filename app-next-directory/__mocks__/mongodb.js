@@ -44,7 +44,7 @@ class MockMongoClient {
   }
   db() {
     return {
-      collection: name => ({
+      collection: _name => ({
         find: jest.fn().mockReturnValue({
           skip: jest.fn().mockReturnThis(),
           limit: jest.fn().mockReturnThis(),

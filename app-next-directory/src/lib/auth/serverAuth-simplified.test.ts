@@ -27,7 +27,7 @@ describe('Server Auth Module (Simplified)', () => {
     it('should validate password comparison logic', async () => {
       // Mock a bcrypt comparison scenario
       const plainPassword = 'userPassword123';
-      const hashedPassword = '$2a$12$mockedHashedPassword';
+      const _hashedPassword = '$2a$12$mockedHashedPassword';
 
       // In real implementation, bcrypt.compare would be used
       const mockCompareResult = plainPassword === 'userPassword123';

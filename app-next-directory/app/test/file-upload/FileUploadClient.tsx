@@ -51,7 +51,6 @@ export default function FileUploadClient() {
         data-testid="file-drop-zone"
         onDragOver={handleDragOver}
         onDrop={handleDrop}
-        role="region"
         aria-label="File drop zone"
       >
         Drag & drop a file here

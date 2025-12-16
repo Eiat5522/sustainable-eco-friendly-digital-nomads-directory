@@ -8,7 +8,7 @@ jest.mock('@sanity/image-url', () => ({
   })),
 }));
 jest.mock('../lib/sanity/client', () => ({
-  createClient: jest.fn(config => {
+  createClient: jest.fn(_config => {
     const patchChain = {
       set: jest.fn(() => ({
         commit: jest.fn(() => Promise.resolve({})),

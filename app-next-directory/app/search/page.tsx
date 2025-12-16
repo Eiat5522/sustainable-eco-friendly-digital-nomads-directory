@@ -1,3 +1,4 @@
+import type React from 'react';
 import Link from 'next/link';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
@@ -25,7 +26,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   const result = await fetchSearchResults(resolvedSearchParams);
 
-  let mainContent;
+  let mainContent: React.ReactNode;
   if (result.ok) {
     const { pagination, pageSizeOptions, listings, pages } = result;
     const prevLink =

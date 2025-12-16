@@ -3,7 +3,7 @@ import { structuredLogger } from '@/lib/logger';
 
 jest.mock('@/lib/logger');
 
-const loggerMock = jest.mocked(structuredLogger);
+const _loggerMock = jest.mocked(structuredLogger);
 
 const REQUIRED_ENV = {
   NEXT_PUBLIC_SANITY_PROJECT_ID: 'test-project-id',

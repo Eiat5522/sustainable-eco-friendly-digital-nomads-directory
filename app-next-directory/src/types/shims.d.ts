@@ -2,7 +2,18 @@
 
 declare module 'react-cookie-consent' {
   import React from 'react';
-  const CookieConsent: React.ComponentType<any>;
+  interface CookieConsentProps {
+    children?: React.ReactNode;
+    onAccept?: () => void;
+    onDecline?: () => void;
+    buttonText?: string;
+    declineButtonText?: string;
+    enableDeclineButton?: boolean;
+    expires?: number;
+    debug?: boolean;
+    [key: string]: unknown;
+  }
+  const CookieConsent: React.ComponentType<CookieConsentProps>;
   export default CookieConsent;
 }
 

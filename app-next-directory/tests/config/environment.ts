@@ -15,7 +15,7 @@ const rawBaseURL =
 const normaliseURL = (value: string) => {
   try {
     return new URL(value);
-  } catch (error) {
+  } catch (_error) {
     throw new Error(`Invalid Playwright base URL: ${value}`);
   }
 };

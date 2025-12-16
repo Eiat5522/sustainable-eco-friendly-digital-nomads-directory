@@ -13,13 +13,13 @@ jest.mock('next/navigation', () => ({
 const mockAuth = jest.requireMock('@/lib/auth').auth as jest.Mock;
 
 describe('Admin layout', () => {
-  let AdminLayout: typeof import('../layout').default;
+  let _AdminLayout: typeof import('../layout').default;
   let AdminShell: typeof import('../layout').AdminShell;
 
   beforeEach(async () => {
     jest.clearAllMocks();
     const layoutModule = await import('../layout');
-    AdminLayout = layoutModule.default;
+    _AdminLayout = layoutModule.default;
     AdminShell = layoutModule.AdminShell;
   });
 

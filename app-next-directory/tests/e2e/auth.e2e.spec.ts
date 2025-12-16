@@ -5,12 +5,7 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 test.describe('Authentication System (Playwright)', () => {
   const testEmails: string[] = [];
 
-  test.afterAll(async () => {
-    // TODO: Implement cleanup logic here.
-    // This might involve calling a backend endpoint to delete the users by email.
-
-    console.info('E2E created test users:', testEmails);
-  });
+  test.afterAll(async () => {});
 
   test('registers a new user and signs them in', async ({ page }) => {
     await page.goto(`${BASE_URL}/auth/signup`);

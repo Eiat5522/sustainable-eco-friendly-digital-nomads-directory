@@ -18,7 +18,7 @@ const parseJsonStringArray = (value: string | undefined, fallback: string[]) => 
     if (Array.isArray(parsed) && parsed.every(item => typeof item === 'string')) {
       return parsed;
     }
-  } catch (error) {
+  } catch (_error) {
     // Fallback to defaults if JSON parsing fails
   }
 
@@ -27,7 +27,7 @@ const parseJsonStringArray = (value: string | undefined, fallback: string[]) => 
 
 const escapeForRegex = (value: string) => value.replace(/[-/^$*+?.()|[\]{}]/g, '$&');
 
-const createUrlPattern = (url: string) => new RegExp(`.*${escapeForRegex(url)}`);
+const _createUrlPattern = (url: string) => new RegExp(`.*${escapeForRegex(url)}`);
 
 const TEST_CONFIG = {
   urls: {
@@ -223,7 +223,7 @@ test.describe('Security Testing', () => {
       await loginAs(page, TEST_CONFIG.credentials.userEmail, TEST_CONFIG.credentials.userPassword);
 
       // Get CSRF token
-      const csrfToken = await page.evaluate(() => {
+      const _csrfToken = await page.evaluate(() => {
         const meta = document.querySelector('meta[name="csrf-token"]');
         return meta ? meta.getAttribute('content') : null;
       });

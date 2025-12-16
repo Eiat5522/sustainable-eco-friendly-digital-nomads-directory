@@ -24,7 +24,7 @@ const createRequest = (
 ) => new NextRequest(input, init);
 
 let GET: (request: NextRequest) => Promise<Response>;
-let POST: (request: NextRequest) => Promise<Response>;
+let _POST: (request: NextRequest) => Promise<Response>;
 
 describe('/api/search (MSW version)', () => {
   beforeEach(async () => {
@@ -37,7 +37,7 @@ describe('/api/search (MSW version)', () => {
     process.env.SANITY_FETCH_MODE = 'msw';
 
     // Import the route - this will use the real Sanity client with fetch
-    ({ GET, POST } = await import('../route'));
+    ({ GET, _POST } = await import('../route'));
   });
 
   afterEach(() => {

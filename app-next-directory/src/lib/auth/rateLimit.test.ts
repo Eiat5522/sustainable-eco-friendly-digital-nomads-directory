@@ -223,7 +223,7 @@ describe('auth rateLimit utilities', () => {
     isEmail: mockValidatorIsEmail,
   }));
 
-  const flushRateLimiter = () => new Promise(resolve => setTimeout(resolve, 0));
+  const _flushRateLimiter = () => new Promise(resolve => setTimeout(resolve, 0));
 
   describe('rateLimit module', () => {
     const originalEnv = process.env;

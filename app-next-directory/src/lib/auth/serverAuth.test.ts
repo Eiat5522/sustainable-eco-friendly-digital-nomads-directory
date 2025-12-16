@@ -627,7 +627,7 @@ describe('serverAuth', () => {
       mockUserModel.findByIdAndUpdate.mockReturnValue(mockQuery);
 
       const { updateUserProfile } = await import('./serverAuth');
-      const result = await updateUserProfile('507f1f77bcf86cd799439011', {
+      const _result = await updateUserProfile('507f1f77bcf86cd799439011', {
         image: null,
       });
 

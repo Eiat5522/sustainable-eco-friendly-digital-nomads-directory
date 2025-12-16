@@ -179,7 +179,7 @@ describe('/api/search', () => {
 
       const request = createRequest(`http://localhost:3000/api/search?q=${longQuery}`);
       const response = await GET(request);
-      const json = await response.json();
+      const _json = await response.json();
 
       expect(response.status).toBe(400);
     });
@@ -439,7 +439,7 @@ describe('/api/search', () => {
       mockedIsE2ERun.mockReturnValue(false);
 
       // Mock the Sanity client
-      const mockClient = {
+      const _mockClient = {
         fetch: jest.fn().mockResolvedValueOnce([]).mockResolvedValueOnce(0),
       };
 

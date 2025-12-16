@@ -137,7 +137,6 @@ describe('/api/upload', () => {
     const json = await response.json();
 
     if (response.status !== 200) {
-      console.error('Test failed with response:', json);
     }
 
     expect(response.status).toBe(200);

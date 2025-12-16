@@ -339,7 +339,7 @@ export default function ProfilePage() {
       </div>
 
       {favoritesLoading ? (
-        <output className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" role="status" aria-live="polite">
+        <output className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-live="polite">
           {Array.from({ length: 3 }).map((_, index) => (
             <div
               key={index}
@@ -401,7 +401,7 @@ export default function ProfilePage() {
       </div>
 
       {ownerLoading ? (
-        <output className="space-y-4" role="status" aria-live="polite">
+        <output className="space-y-4" aria-live="polite">
           {Array.from({ length: 2 }).map((_, index) => (
             <div
               key={index}
@@ -750,7 +750,7 @@ export default function ProfilePage() {
   const renderMonthlyTrendSection = () => {
     if (dashboardLoading) {
       return (
-        <output className="flex items-center gap-3 text-sm text-neo-text-secondary" role="status">
+        <output className="flex items-center gap-3 text-sm text-neo-text-secondary">
           <Loader2 className="h-5 w-5 animate-spin text-neo-primary" aria-hidden="true" />
           Loading recent trends…
         </output>
@@ -949,10 +949,7 @@ export default function ProfilePage() {
                     Favourite listing dashboards
                   </h2>
                   {dashboardLoading ? (
-                    <output
-                      className="flex items-center gap-3 text-sm text-neo-text-secondary"
-                      role="status"
-                    >
+                    <output className="flex items-center gap-3 text-sm text-neo-text-secondary">
                       <Loader2
                         className="h-5 w-5 animate-spin text-neo-primary"
                         aria-hidden="true"
@@ -982,10 +979,7 @@ export default function ProfilePage() {
             {activeTab === 'listings' && (
               <div className="space-y-10">
                 {dashboardLoading && ownerRole ? (
-                  <output
-                    className="flex items-center gap-3 text-sm text-neo-text-secondary"
-                    role="status"
-                  >
+                  <output className="flex items-center gap-3 text-sm text-neo-text-secondary">
                     <Loader2 className="h-5 w-5 animate-spin text-neo-primary" aria-hidden="true" />
                     Loading listing analytics…
                   </output>

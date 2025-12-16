@@ -12,8 +12,8 @@ jest.mock('@/lib/logger', () => ({
 }));
 
 // Import the component as a module to avoid React hook execution during test setup
-const ErrorComponent = () => {
-  const ErrorComponent = require('../error').default;
+const _ErrorComponent = () => {
+  const _ErrorComponent = require('../error').default;
   return Error;
 };
 

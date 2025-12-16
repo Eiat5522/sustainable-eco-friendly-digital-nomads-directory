@@ -11,8 +11,8 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ListingCategory } from '@/types/enums';
-import { FiltersSidebar } from '../FiltersSidebar';
 import type { DigitalNomadSearchFilterProps } from '../DigitalNomadSearchFilter';
+import { FiltersSidebar } from '../FiltersSidebar';
 
 // Mock Next.js navigation hooks
 const mockPush = jest.fn();
@@ -64,7 +64,9 @@ describe('FiltersSidebar', () => {
       refresh: jest.fn(),
     } as unknown as ReturnType<typeof useRouter>);
 
-    mockUseSearchParams.mockReturnValue(mockSearchParams as unknown as ReturnType<typeof useSearchParams>);
+    mockUseSearchParams.mockReturnValue(
+      mockSearchParams as unknown as ReturnType<typeof useSearchParams>
+    );
   });
 
   describe('Rendering', () => {
@@ -139,7 +141,9 @@ describe('FiltersSidebar', () => {
 
       const definitions = screen.getByTestId('filter-definitions');
       const content = JSON.parse(definitions.textContent || '[]') as unknown[];
-      const destinationDef = content.find((d: unknown) => (d as { id?: string }).id === 'destination');
+      const destinationDef = content.find(
+        (d: unknown) => (d as { id?: string }).id === 'destination'
+      );
 
       expect(destinationDef).toBeDefined();
       expect(destinationDef.label).toBe('Destination');
@@ -168,7 +172,9 @@ describe('FiltersSidebar', () => {
 
       const definitions = screen.getByTestId('filter-definitions');
       const content = JSON.parse(definitions.textContent || '[]') as unknown[];
-      const featuresDef = content.find((d: unknown) => (d as { id?: string }).id === 'nomadFeatures');
+      const featuresDef = content.find(
+        (d: unknown) => (d as { id?: string }).id === 'nomadFeatures'
+      );
 
       expect(featuresDef).toBeDefined();
       expect(featuresDef.label).toBe('Nomad Features');
@@ -294,11 +300,11 @@ describe('FiltersSidebar', () => {
       const { rerender } = render(<FiltersSidebar />);
 
       // Simulate clearing filters
-      digitalNomadSearchFilterMock.mockImplementationOnce(({
-        onChange,
-      }: {
-        onChange?: (filters: Record<string, string[]>) => void;
-      }) => <button onClick={() => onChange?.({})}>Clear All</button>);
+      digitalNomadSearchFilterMock.mockImplementationOnce(
+        ({ onChange }: { onChange?: (filters: Record<string, string[]>) => void }) => (
+          <button onClick={() => onChange?.({})}>Clear All</button>
+        )
+      );
 
       rerender(<FiltersSidebar />);
       await user.click(screen.getByText('Clear All'));
@@ -520,22 +526,20 @@ describe('FiltersSidebar', () => {
 
       const { rerender } = render(<FiltersSidebar />);
 
-      digitalNomadSearchFilterMock.mockImplementationOnce(({
-        onChange,
-      }: {
-        onChange?: (filters: Record<string, string[]>) => void;
-      }) => (
-        <button
-          onClick={() =>
-            onChange?.({
-              category: ['coworking', 'cafe'],
-              destination: ['Lisbon', 'Bali'],
-            })
-          }
-        >
-          Apply Multiple
-        </button>
-      ));
+      digitalNomadSearchFilterMock.mockImplementationOnce(
+        ({ onChange }: { onChange?: (filters: Record<string, string[]>) => void }) => (
+          <button
+            onClick={() =>
+              onChange?.({
+                category: ['coworking', 'cafe'],
+                destination: ['Lisbon', 'Bali'],
+              })
+            }
+          >
+            Apply Multiple
+          </button>
+        )
+      );
 
       rerender(<FiltersSidebar />);
 
@@ -591,11 +595,12 @@ describe('FiltersSidebar', () => {
 
       const { rerender } = render(<FiltersSidebar />);
 
-      digitalNomadSearchFilterMock.mockImplementationOnce(({
-        onChange,
-      }: {
-        onChange?: (filters: Record<string, string[]>) => void;
-      }) => <button onClick={() => onChange?.({ amenities: ['Wi-Fi & Power'] })}>Apply Special</button>
+      digitalNomadSearchFilterMock.mockImplementationOnce(
+        ({ onChange }: { onChange?: (filters: Record<string, string[]>) => void }) => (
+          <button onClick={() => onChange?.({ amenities: ['Wi-Fi & Power'] })}>
+            Apply Special
+          </button>
+        )
       );
 
       rerender(<FiltersSidebar />);

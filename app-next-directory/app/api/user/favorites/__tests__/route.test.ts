@@ -124,7 +124,7 @@ describe('/api/user/favorites', () => {
       });
 
       const response = await POST(request);
-      const json = await response.json();
+      const _json = await response.json();
 
       expect(response.status).toBe(401);
     });

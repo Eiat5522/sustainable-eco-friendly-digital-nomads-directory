@@ -80,10 +80,10 @@ test.describe('Cross-Browser Compatibility Testing', () => {
           arrow_functions: (() => true)(),
           const_let: (() => {
             try {
-              const test = 'test';
-              const test2 = 'test2';
+              const _test = 'test';
+              const _test2 = 'test2';
               return true;
-            } catch (e) {
+            } catch (_e) {
               return false;
             }
           })(),
@@ -91,16 +91,16 @@ test.describe('Cross-Browser Compatibility Testing', () => {
             try {
               const test = `template ${1 + 1}`;
               return test === 'template 2';
-            } catch (e) {
+            } catch (_e) {
               return false;
             }
           })(),
           destructuring: (() => {
             try {
-              const [a, b] = [1, 2];
+              const [a, _b] = [1, 2];
               const { x, y } = { x: 1, y: 2 };
               return a === 1 && x === 1;
-            } catch (e) {
+            } catch (_e) {
               return false;
             }
           })(),
@@ -114,7 +114,7 @@ test.describe('Cross-Browser Compatibility Testing', () => {
       });
 
       // All modern features should be supported
-      Object.entries(jsFeatures).forEach(([feature, supported]) => {
+      Object.entries(jsFeatures).forEach(([_feature, supported]) => {
         expect(supported).toBeTruthy();
       });
     });
@@ -141,7 +141,7 @@ test.describe('Cross-Browser Compatibility Testing', () => {
       });
 
       // All CSS features should be supported
-      Object.entries(cssFeatures).forEach(([feature, supported]) => {
+      Object.entries(cssFeatures).forEach(([_feature, supported]) => {
         expect(supported).toBeTruthy();
       });
     });
@@ -260,7 +260,7 @@ test.describe('Cross-Browser Compatibility Testing', () => {
               const style = document.createElement('style');
               style.textContent = '::-webkit-scrollbar { width: 10px; }';
               return true;
-            } catch (e) {
+            } catch (_e) {
               return false;
             }
           })(),
