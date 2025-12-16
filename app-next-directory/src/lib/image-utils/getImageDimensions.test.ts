@@ -12,7 +12,7 @@ describe('getImageDimensions', () => {
           dimensions: { width: 800, height: 600 },
         },
       },
-    } as any;
+    } satisfies Parameters<typeof getImageDimensions>[0];
 
     const dims = getImageDimensions(image);
     expect(dims.width).toBe(800);
@@ -21,7 +21,9 @@ describe('getImageDimensions', () => {
   });
 
   it('returns empty when metadata is missing', () => {
-    const image = { asset: { url: 'http://example.com/img.jpg' } } as any;
+    const image = { asset: { url: 'http://example.com/img.jpg' } } satisfies Parameters<
+      typeof getImageDimensions
+    >[0];
     expect(getImageDimensions(image)).toEqual({});
   });
 });
