@@ -4,8 +4,8 @@ import { AboutSection } from '../AboutSection';
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, ...props }: any) => (
-    <a href={href} {...props}>
+  default: ({ href, children, ...props }: { href?: string; children?: React.ReactNode } & Record<string, unknown>) => (
+    <a href={href} {...(props as Record<string, unknown>)}>
       {children}
     </a>
   ),
@@ -19,13 +19,13 @@ jest.mock('lucide-react', () => ({
 }));
 
 jest.mock('@/components/ui/neo-card', () => ({
-  NeoCard: ({ children, ...props }: any) => (
-    <div data-testid="neo-card" {...props}>
+  NeoCard: ({ children, ...props }: React.PropsWithChildren<Record<string, unknown>>) => (
+    <div data-testid="neo-card" {...(props as Record<string, unknown>)}>
       {children}
     </div>
   ),
-  NeoCardContent: ({ children, ...props }: any) => (
-    <div data-testid="neo-card-content" {...props}>
+  NeoCardContent: ({ children, ...props }: React.PropsWithChildren<Record<string, unknown>>) => (
+    <div data-testid="neo-card-content" {...(props as Record<string, unknown>)}>
       {children}
     </div>
   ),

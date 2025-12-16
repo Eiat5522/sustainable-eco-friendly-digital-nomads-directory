@@ -110,7 +110,7 @@ describe('API /api/reviews GET', () => {
     ]);
 
     const req = new Request('http://localhost/api/reviews');
-    const res = await GET(req, { collection: mockCollection } as any);
+    const res = await GET(req, { collection: mockCollection } as unknown as Parameters<typeof GET>[1]);
 
     expect(res.status).toBe(200);
     const json = await res.json();

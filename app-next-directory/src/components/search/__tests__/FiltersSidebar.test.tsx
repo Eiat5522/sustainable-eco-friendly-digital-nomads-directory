@@ -12,6 +12,7 @@ import userEvent from '@testing-library/user-event';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ListingCategory } from '@/types/enums';
 import { FiltersSidebar } from '../FiltersSidebar';
+import type { DigitalNomadSearchFilterProps } from '../DigitalNomadSearchFilter';
 
 // Mock Next.js navigation hooks
 const mockPush = jest.fn();
@@ -25,7 +26,8 @@ jest.mock('next/navigation', () => ({
 const digitalNomadSearchFilterMock = jest.fn();
 
 jest.mock('../DigitalNomadSearchFilter', () => ({
-  DigitalNomadSearchFilter: (props: any) => digitalNomadSearchFilterMock(props),
+  DigitalNomadSearchFilter: (props: DigitalNomadSearchFilterProps) =>
+    digitalNomadSearchFilterMock(props),
 }));
 
 const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>;
@@ -36,7 +38,7 @@ const defaultDigitalNomadSearchFilterImplementation = ({
   initialFilters,
   onChange,
   title,
-}: any) => (
+}: DigitalNomadSearchFilterProps) => (
   <div data-testid="digital-nomad-search-filter">
     <h2>{title}</h2>
     <div data-testid="filter-definitions">{JSON.stringify(definitions)}</div>
@@ -60,9 +62,9 @@ describe('FiltersSidebar', () => {
       back: jest.fn(),
       forward: jest.fn(),
       refresh: jest.fn(),
-    } as any);
+    } as unknown as ReturnType<typeof useRouter>);
 
-    mockUseSearchParams.mockReturnValue(mockSearchParams as any);
+    mockUseSearchParams.mockReturnValue(mockSearchParams as unknown as ReturnType<typeof useSearchParams>);
   });
 
   describe('Rendering', () => {
@@ -116,8 +118,8 @@ describe('FiltersSidebar', () => {
       render(<FiltersSidebar />);
 
       const definitions = screen.getByTestId('filter-definitions');
-      const content = JSON.parse(definitions.textContent || '[]');
-      const categoryDef = content.find((d: any) => d.id === 'category');
+      const content = JSON.parse(definitions.textContent || '[]') as unknown[];
+      const categoryDef = content.find((d: unknown) => (d as { id?: string }).id === 'category');
 
       expect(categoryDef).toBeDefined();
       expect(categoryDef.label).toBe('Category');
@@ -136,8 +138,8 @@ describe('FiltersSidebar', () => {
       render(<FiltersSidebar />);
 
       const definitions = screen.getByTestId('filter-definitions');
-      const content = JSON.parse(definitions.textContent || '[]');
-      const destinationDef = content.find((d: any) => d.id === 'destination');
+      const content = JSON.parse(definitions.textContent || '[]') as unknown[];
+      const destinationDef = content.find((d: unknown) => (d as { id?: string }).id === 'destination');
 
       expect(destinationDef).toBeDefined();
       expect(destinationDef.label).toBe('Destination');
@@ -151,8 +153,8 @@ describe('FiltersSidebar', () => {
       render(<FiltersSidebar />);
 
       const definitions = screen.getByTestId('filter-definitions');
-      const content = JSON.parse(definitions.textContent || '[]');
-      const amenitiesDef = content.find((d: any) => d.id === 'amenities');
+      const content = JSON.parse(definitions.textContent || '[]') as unknown[];
+      const amenitiesDef = content.find((d: unknown) => (d as { id?: string }).id === 'amenities');
 
       expect(amenitiesDef).toBeDefined();
       expect(amenitiesDef.label).toBe('Amenities');
@@ -165,8 +167,8 @@ describe('FiltersSidebar', () => {
       render(<FiltersSidebar />);
 
       const definitions = screen.getByTestId('filter-definitions');
-      const content = JSON.parse(definitions.textContent || '[]');
-      const featuresDef = content.find((d: any) => d.id === 'nomadFeatures');
+      const content = JSON.parse(definitions.textContent || '[]') as unknown[];
+      const featuresDef = content.find((d: unknown) => (d as { id?: string }).id === 'nomadFeatures');
 
       expect(featuresDef).toBeDefined();
       expect(featuresDef.label).toBe('Nomad Features');
@@ -292,9 +294,11 @@ describe('FiltersSidebar', () => {
       const { rerender } = render(<FiltersSidebar />);
 
       // Simulate clearing filters
-      digitalNomadSearchFilterMock.mockImplementationOnce(({ onChange }: any) => (
-        <button onClick={() => onChange({})}>Clear All</button>
-      ));
+      digitalNomadSearchFilterMock.mockImplementationOnce(({
+        onChange,
+      }: {
+        onChange?: (filters: Record<string, string[]>) => void;
+      }) => <button onClick={() => onChange?.({})}>Clear All</button>);
 
       rerender(<FiltersSidebar />);
       await user.click(screen.getByText('Clear All'));
@@ -313,18 +317,18 @@ describe('FiltersSidebar', () => {
       public lang = 'en-US';
       public interimResults = false;
       public maxAlternatives = 1;
-      public onaudioend: ((this: SpeechRecognition, ev: Event) => any) | null = null;
-      public onaudiostart: ((this: SpeechRecognition, ev: Event) => any) | null = null;
+      public onaudioend: ((this: SpeechRecognition, ev: Event) => void) | null = null;
+      public onaudiostart: ((this: SpeechRecognition, ev: Event) => void) | null = null;
       public onend: (() => void) | null = null;
       public onerror: ((event: SpeechRecognitionErrorEvent) => void) | null = null;
-      public onnomatch: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null =
+      public onnomatch: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => void) | null =
         null;
       public onresult: ((event: SpeechRecognitionEvent) => void) | null = null;
-      public onsoundend: ((this: SpeechRecognition, ev: Event) => any) | null = null;
-      public onsoundstart: ((this: SpeechRecognition, ev: Event) => any) | null = null;
-      public onspeechend: ((this: SpeechRecognition, ev: Event) => any) | null = null;
-      public onspeechstart: ((this: SpeechRecognition, ev: Event) => any) | null = null;
-      public onstart: ((this: SpeechRecognition, ev: Event) => any) | null = null;
+      public onsoundend: ((this: SpeechRecognition, ev: Event) => void) | null = null;
+      public onsoundstart: ((this: SpeechRecognition, ev: Event) => void) | null = null;
+      public onspeechend: ((this: SpeechRecognition, ev: Event) => void) | null = null;
+      public onspeechstart: ((this: SpeechRecognition, ev: Event) => void) | null = null;
+      public onstart: ((this: SpeechRecognition, ev: Event) => void) | null = null;
       public start = jest.fn();
       public stop = jest.fn(() => {
         this.onend?.();
@@ -333,7 +337,7 @@ describe('FiltersSidebar', () => {
     }
 
     let recognitionInstances: MockSpeechRecognition[];
-    const originalWebkit = (window as any).webkitSpeechRecognition;
+    const originalWebkit = (window as unknown as Record<string, unknown>).webkitSpeechRecognition;
 
     beforeEach(() => {
       recognitionInstances = [];
@@ -349,15 +353,17 @@ describe('FiltersSidebar', () => {
     });
 
     afterEach(() => {
+      const win = window as unknown as Record<string, unknown>;
       if (originalWebkit === undefined) {
-        delete (window as any).webkitSpeechRecognition;
+        delete win['webkitSpeechRecognition'];
       } else {
-        (window as any).webkitSpeechRecognition = originalWebkit;
+        (win as Record<string, unknown>)['webkitSpeechRecognition'] = originalWebkit;
       }
     });
 
     it('should not render voice controls when speech recognition is unavailable', () => {
-      delete (window as any).webkitSpeechRecognition;
+      const win = window as unknown as Record<string, unknown>;
+      delete win['webkitSpeechRecognition'];
 
       render(<FiltersSidebar />);
 
@@ -514,10 +520,14 @@ describe('FiltersSidebar', () => {
 
       const { rerender } = render(<FiltersSidebar />);
 
-      digitalNomadSearchFilterMock.mockImplementationOnce(({ onChange }: any) => (
+      digitalNomadSearchFilterMock.mockImplementationOnce(({
+        onChange,
+      }: {
+        onChange?: (filters: Record<string, string[]>) => void;
+      }) => (
         <button
           onClick={() =>
-            onChange({
+            onChange?.({
               category: ['coworking', 'cafe'],
               destination: ['Lisbon', 'Bali'],
             })
@@ -581,9 +591,12 @@ describe('FiltersSidebar', () => {
 
       const { rerender } = render(<FiltersSidebar />);
 
-      digitalNomadSearchFilterMock.mockImplementationOnce(({ onChange }: any) => (
-        <button onClick={() => onChange({ amenities: ['Wi-Fi & Power'] })}>Apply Special</button>
-      ));
+      digitalNomadSearchFilterMock.mockImplementationOnce(({
+        onChange,
+      }: {
+        onChange?: (filters: Record<string, string[]>) => void;
+      }) => <button onClick={() => onChange?.({ amenities: ['Wi-Fi & Power'] })}>Apply Special</button>
+      );
 
       rerender(<FiltersSidebar />);
 

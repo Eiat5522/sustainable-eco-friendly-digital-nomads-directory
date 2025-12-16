@@ -157,7 +157,7 @@ describe('FavoriteButton - Deterministic Navigation Flows', () => {
     it('preserves complex URLs with query parameters as callbackUrl', async () => {
       // Mock window.location
       const originalLocation = window.location;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       delete (window as { location?: Location }).location;
       window.location = {
         ...originalLocation,
@@ -188,7 +188,7 @@ describe('FavoriteButton - Deterministic Navigation Flows', () => {
 
     it('uses current href for callbackUrl even with special characters', async () => {
       const originalLocation = window.location;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       delete (window as { location?: Location }).location;
       window.location = {
         ...originalLocation,
