@@ -1,9 +1,7 @@
 import { jest } from '@jest/globals';
 import type { FeaturePermissions } from '@/types/auth';
 
-type MiddlewareRequest = Parameters<
-  ReturnType<typeof import('../index').createMiddleware>
->[0];
+type MiddlewareRequest = Parameters<ReturnType<typeof import('../index').createMiddleware>>[0];
 
 type HeadersWithStore = {
   store: Map<string, string>;

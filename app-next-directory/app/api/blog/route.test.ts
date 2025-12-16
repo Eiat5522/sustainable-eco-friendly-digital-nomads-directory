@@ -1,7 +1,10 @@
 import { beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 const fetchMock = jest.fn<unknown, unknown[]>();
-const transformMock = jest.fn((post: { _id: string; title?: string }) => ({ id: post._id, title: post.title }));
+const transformMock = jest.fn((post: { _id: string; title?: string }) => ({
+  id: post._id,
+  title: post.title,
+}));
 
 jest.mock('@/lib/sanity/client', () => ({
   client: { fetch: (...args: unknown[]) => fetchMock(...args) },

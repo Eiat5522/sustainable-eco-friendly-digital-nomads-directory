@@ -128,7 +128,9 @@ describe('Registration API Routes', () => {
       } as Partial<NextRequest> as NextRequest;
 
       mockConnect.mockResolvedValue(undefined);
-      mockUserFindOne.mockResolvedValue({ email: 'test@example.com' } as ReturnType<typeof User.findOne>);
+      mockUserFindOne.mockResolvedValue({ email: 'test@example.com' } as ReturnType<
+        typeof User.findOne
+      >);
 
       // Act
       const response = await registerPOST(req);

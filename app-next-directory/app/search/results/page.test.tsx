@@ -19,7 +19,11 @@ const searchFiltersRenderMock = jest.fn(({ initialParams }: SearchFiltersProps) 
 const fetchSearchResultsMock = jest.fn();
 
 jest.mock('@/components/ui/neo-button', () => ({
-  NeoButton: ({ children, asChild = false, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  NeoButton: ({
+    children,
+    asChild = false,
+    ...props
+  }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
     asChild?: boolean;
     children?: React.ReactNode;
   }) => (asChild ? children : <button {...props}>{children}</button>),
@@ -39,7 +43,10 @@ jest.mock('next/link', () => ({
     href,
     children,
     ...props
-  }: { href: string | URL; children: React.ReactNode } & React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
+  }: {
+    href: string | URL;
+    children: React.ReactNode;
+  } & React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
     <a href={typeof href === 'string' ? href : href.pathname} {...props}>
       {children}
     </a>

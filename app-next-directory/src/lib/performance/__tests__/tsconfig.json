@@ -4,12 +4,6 @@
     "types": ["jest", "node"],
     "noEmit": true
   },
-  "include": [
-    "./**/*.test.ts",
-    "./**/*.test.tsx"
-  ],
-  "exclude": [
-    "../../../../.next",
-    "../../../../node_modules"
-  ]
+  "include": ["./**/*.test.ts", "./**/*.test.tsx"],
+  "exclude": ["../../../../.next", "../../../../node_modules"]
 }

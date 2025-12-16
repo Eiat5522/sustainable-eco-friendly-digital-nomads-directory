@@ -159,14 +159,18 @@ test.describe('Security Testing', () => {
       await page.goto(TEST_CONFIG.urls.signup);
 
       // Test weak passwords
-      const weakPasswords = TEST_CONFIG.payloads.weakPasswords.filter(password => password.length < 8);
+      const weakPasswords = TEST_CONFIG.payloads.weakPasswords.filter(
+        password => password.length < 8
+      );
 
       for (const weakPassword of weakPasswords) {
         await page.goto(TEST_CONFIG.urls.signup);
         await page.fill('input[name="email"]', TEST_CONFIG.credentials.genericEmail);
         await page.fill('input[name="password"]', weakPassword);
         const passwordInput = page.locator('input[name="password"]');
-        const isValid = await passwordInput.evaluate(el => (el as HTMLInputElement).checkValidity());
+        const isValid = await passwordInput.evaluate(el =>
+          (el as HTMLInputElement).checkValidity()
+        );
         expect(isValid).toBe(false);
       }
     });

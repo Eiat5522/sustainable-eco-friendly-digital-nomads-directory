@@ -40,10 +40,7 @@ export async function loginAs(page: Page, email: string, password: string) {
     () => form.locator('input[name="password"]'),
   ];
 
-  async function fillFirst(
-    selectors: Array<() => ReturnType<typeof page.locator>>,
-    value: string
-  ) {
+  async function fillFirst(selectors: Array<() => ReturnType<typeof page.locator>>, value: string) {
     for (const sel of selectors) {
       const locator = sel();
       try {

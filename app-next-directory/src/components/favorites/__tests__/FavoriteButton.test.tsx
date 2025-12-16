@@ -18,7 +18,9 @@ global.alert = jest.fn();
 describe('FavoriteButton', () => {
   beforeAll(() => {
     // Set up fetch spy once before all tests
-    fetchSpy = jest.spyOn(global, 'fetch').mockImplementation(mockFetch as jest.MockedFunction<typeof fetch>);
+    fetchSpy = jest
+      .spyOn(global, 'fetch')
+      .mockImplementation(mockFetch as jest.MockedFunction<typeof fetch>);
   });
 
   afterAll(() => {

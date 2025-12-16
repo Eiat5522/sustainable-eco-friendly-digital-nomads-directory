@@ -2,7 +2,7 @@
 const noop = () => {};
 
 class ObjectIdMock {
-	private _id: string;
+  private _id: string;
   constructor(id?: string) {
     this._id = id || Math.random().toString(16).slice(2).padEnd(24, '0');
   }
@@ -36,15 +36,15 @@ interface PathDef {
   enumValues?: unknown[];
 }
 
-  // Document instance shape used in mocks
-  type Doc = Record<string, unknown> & {
-    _id?: unknown;
-    isNew?: boolean;
-    schema?: SchemaMock;
-    save?: () => Promise<unknown>;
-    validate?: () => Promise<unknown>;
-    isModified?: () => boolean;
-  };
+// Document instance shape used in mocks
+type Doc = Record<string, unknown> & {
+  _id?: unknown;
+  isNew?: boolean;
+  schema?: SchemaMock;
+  save?: () => Promise<unknown>;
+  validate?: () => Promise<unknown>;
+  isModified?: () => boolean;
+};
 
 class SchemaMock {
   static Types = { ObjectId: ObjectIdMock };
@@ -80,7 +80,7 @@ class SchemaMock {
     if (fieldDef.type === Date) return 'Date';
     if (
       fieldDef.type === ObjectIdMock ||
-        (fieldDef.type && (fieldDef.type as { name?: string }).name === 'ObjectId')
+      (fieldDef.type && (fieldDef.type as { name?: string }).name === 'ObjectId')
     )
       return 'ObjectId';
     if (Array.isArray((fieldDef as Record<string, unknown>).type)) return 'Array';
@@ -135,8 +135,8 @@ const createModelMock = (modelName: string, schema?: SchemaMock) => {
     const instance: Record<string, unknown> = { ...(doc || {}) };
     instance._id = instance._id || new ObjectIdMock();
     instance.isNew = true;
-      const inst = instance as Doc;
-      if (schema) inst.schema = schema; // keep runtime shape for code that expects .schema
+    const inst = instance as Doc;
+    if (schema) inst.schema = schema; // keep runtime shape for code that expects .schema
 
     const _store: Record<string, unknown> = {};
 
@@ -242,9 +242,9 @@ const createModelMock = (modelName: string, schema?: SchemaMock) => {
       // ignore
     }
 
-      inst.save = jest.fn().mockResolvedValue(instance);
-      inst.validate = jest.fn().mockResolvedValue(undefined);
-      inst.isModified = jest.fn(() => false);
+    inst.save = jest.fn().mockResolvedValue(instance);
+    inst.validate = jest.fn().mockResolvedValue(undefined);
+    inst.isModified = jest.fn(() => false);
 
     // Set the prototype to make `instanceof` checks work
     Object.setPrototypeOf(instance, modelMock.prototype);
@@ -265,7 +265,7 @@ const createModelMock = (modelName: string, schema?: SchemaMock) => {
     find: jest.Mock;
     countDocuments: jest.Mock;
   }
-  
+
   const modelMockWithStatics = modelMock as unknown as ModelMockWithStatics;
   modelMockWithStatics.modelName = modelName;
   modelMockWithStatics.schema = schema;

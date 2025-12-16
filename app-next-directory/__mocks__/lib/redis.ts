@@ -49,7 +49,7 @@ export function _notifyRedisClientChange(client: RedisClient | undefined) {
 }
 
 export const getRedisClient: jest.Mock<RedisClient | undefined, []> = jest.fn(
-  () => mockRedisClient,
+  () => mockRedisClient
 );
 
 // Provide test helper shims so tests can call mockGetRedisClient.mockClear()

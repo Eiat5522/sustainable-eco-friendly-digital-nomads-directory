@@ -38,7 +38,9 @@ const attachProcessListener = <E extends InstrumentationEvent>(
   listenerRegistry[event] = listener as InstrumentationListenerMap[E];
 };
 
-const attachProcessHandlers = (structuredLogger: typeof import('@/lib/logger').structuredLogger) => {
+const attachProcessHandlers = (
+  structuredLogger: typeof import('@/lib/logger').structuredLogger
+) => {
   if (!nodeProcess || hasInstalledProcessHandlers) {
     return;
   }

@@ -13,7 +13,10 @@ const loadModel = async () => {
 };
 
 type SchemaWithPreHooks = Schema<IPasswordResetToken> & {
-  preHooks: Map<string, Array<(this: unknown, next: CallbackWithoutResultAndOptionalError) => void>>;
+  preHooks: Map<
+    string,
+    Array<(this: unknown, next: CallbackWithoutResultAndOptionalError) => void>
+  >;
 };
 
 type SaveHook = (

@@ -5,7 +5,15 @@ import { ListingDetailsCard } from '../ListingDetailsCard';
 
 // Mock dynamic imports
 jest.mock('next/dynamic', () => () => {
-  const MockInteractiveMap = ({ location, address, name }: { location?: { lat: number; lng: number }; address?: string; name?: string }) => (
+  const MockInteractiveMap = ({
+    location,
+    address,
+    name,
+  }: {
+    location?: { lat: number; lng: number };
+    address?: string;
+    name?: string;
+  }) => (
     <div data-testid="interactive-map">
       <span>{name}</span>
       <span>{address}</span>

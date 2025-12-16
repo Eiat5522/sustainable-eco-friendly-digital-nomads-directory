@@ -105,7 +105,11 @@ describe('ProfileEditForm utilities', () => {
     it('returns an empty array when the payload is not usable', () => {
       expect(normaliseOwnerReviews(undefined)).toEqual([]);
       expect(normaliseOwnerReviews(null)).toEqual([]);
-      expect(normaliseOwnerReviews({ listings: null } as unknown as Parameters<typeof normaliseOwnerReviews>[0])).toEqual([]);
+      expect(
+        normaliseOwnerReviews({ listings: null } as unknown as Parameters<
+          typeof normaliseOwnerReviews
+        >[0])
+      ).toEqual([]);
     });
 
     it('normalises listings and filters out invalid review entries', () => {

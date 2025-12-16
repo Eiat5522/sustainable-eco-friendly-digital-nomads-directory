@@ -102,8 +102,9 @@ describe('InteractiveMap', () => {
   });
 
   beforeAll(() => {
-    (global as unknown as { requestAnimationFrame: (callback: FrameRequestCallback) => number })
-      .requestAnimationFrame = (callback: FrameRequestCallback) => {
+    (
+      global as unknown as { requestAnimationFrame: (callback: FrameRequestCallback) => number }
+    ).requestAnimationFrame = (callback: FrameRequestCallback) => {
       if (typeof callback === 'function') {
         callback(0);
       }

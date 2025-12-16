@@ -70,7 +70,9 @@ describe('/api/admin/listings/stats', () => {
   it('requires admin access', async () => {
     mockAuth.mockResolvedValue({ user: { role: 'user' } } as MockSession);
 
-    const request = { url: 'https://example.com/api/admin/listings/stats' } as MockRequest as NextRequest;
+    const request = {
+      url: 'https://example.com/api/admin/listings/stats',
+    } as MockRequest as NextRequest;
     const response = await GET(request, { params: Promise.resolve({}) });
     const json = await response.json();
 
@@ -96,7 +98,9 @@ describe('/api/admin/listings/stats', () => {
       { type: 'accommodation', count: 30 },
     ]);
 
-    const request = { url: 'https://example.com/api/admin/listings/stats' } as MockRequest as NextRequest;
+    const request = {
+      url: 'https://example.com/api/admin/listings/stats',
+    } as MockRequest as NextRequest;
     const response = await GET(request, { params: Promise.resolve({}) });
     const json = await response.json();
 
@@ -120,7 +124,9 @@ describe('/api/admin/listings/stats', () => {
     mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
     mockFetch.mockRejectedValue(new Error('Database error'));
 
-    const request = { url: 'https://example.com/api/admin/listings/stats' } as MockRequest as NextRequest;
+    const request = {
+      url: 'https://example.com/api/admin/listings/stats',
+    } as MockRequest as NextRequest;
     const response = await GET(request, { params: Promise.resolve({}) });
     const json = await response.json();
 
@@ -141,7 +147,9 @@ describe('/api/admin/listings/stats', () => {
     mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
     mockFetch.mockRejectedValue(new RequestTimeoutError('Fetching listing statistics timed out'));
 
-    const request = { url: 'https://example.com/api/admin/listings/stats' } as MockRequest as NextRequest;
+    const request = {
+      url: 'https://example.com/api/admin/listings/stats',
+    } as MockRequest as NextRequest;
     const response = await GET(request, { params: Promise.resolve({}) });
     const json = await response.json();
 

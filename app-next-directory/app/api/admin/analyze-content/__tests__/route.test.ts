@@ -91,7 +91,9 @@ describe('/api/admin/analyze-content', () => {
   it('rejects invalid windowDays values', async () => {
     mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
 
-    const request = { url: 'https://example.com/api/admin/analyze-content?windowDays=0' } as MockRequest;
+    const request = {
+      url: 'https://example.com/api/admin/analyze-content?windowDays=0',
+    } as MockRequest;
     const response = await GET(request as NextRequest, { params: Promise.resolve({}) });
     const json = await response.json();
 
@@ -169,14 +171,19 @@ describe('/api/admin/analyze-content', () => {
   it('handles malformed POST bodies and authorization issues', async () => {
     mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
 
-    const malformed = await POST({ json: () => Promise.reject(new Error('nope')) } as MockRequest as NextRequest, {
-      params: Promise.resolve({}),
-    });
+    const malformed = await POST(
+      { json: () => Promise.reject(new Error('nope')) } as MockRequest as NextRequest,
+      {
+        params: Promise.resolve({}),
+      }
+    );
     expect(malformed.status).toBe(400);
 
     mockAuth.mockResolvedValue({ user: { role: 'user' } } as MockSession);
     const forbidden = await POST(
-      { json: () => Promise.resolve({ samples: [{ id: '1', text: 'ok' }] }) } as MockRequest as NextRequest,
+      {
+        json: () => Promise.resolve({ samples: [{ id: '1', text: 'ok' }] }),
+      } as MockRequest as NextRequest,
       {
         params: Promise.resolve({}),
       }
@@ -185,7 +192,9 @@ describe('/api/admin/analyze-content', () => {
 
     mockAuth.mockRejectedValue(new Error('auth failed'));
     const errorResponse = await POST(
-      { json: () => Promise.resolve({ samples: [{ id: '2', text: 'spam' }] }) } as MockRequest as NextRequest,
+      {
+        json: () => Promise.resolve({ samples: [{ id: '2', text: 'spam' }] }),
+      } as MockRequest as NextRequest,
       {
         params: Promise.resolve({}),
       }

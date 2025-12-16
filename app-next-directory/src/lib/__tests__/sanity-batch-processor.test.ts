@@ -201,8 +201,9 @@ describe('SanityBatchProcessor', () => {
       {
         listing: {
           ...baseListing,
-          images: Array.from({ length: 21 }, () =>
-            new File([new Uint8Array([1])], 'extra.jpg', { type: 'image/jpeg' })
+          images: Array.from(
+            { length: 21 },
+            () => new File([new Uint8Array([1])], 'extra.jpg', { type: 'image/jpeg' })
           ),
         },
         message: 'Maximum 20 images allowed per listing',
@@ -211,7 +212,9 @@ describe('SanityBatchProcessor', () => {
 
     for (const { listing, message } of cases) {
       expect(() =>
-        (processor as unknown as { validateSingleListing(l: Partial<Listing>): void }).validateSingleListing(listing)
+        (
+          processor as unknown as { validateSingleListing(l: Partial<Listing>): void }
+        ).validateSingleListing(listing)
       ).toThrow(message);
     }
   });

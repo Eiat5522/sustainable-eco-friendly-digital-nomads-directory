@@ -1,6 +1,6 @@
+import { isE2ERun } from '@/data/e2e/discovery-fixtures';
 import { structuredLogger } from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
-import { isE2ERun } from '@/data/e2e/discovery-fixtures';
 
 type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<unknown>;
 

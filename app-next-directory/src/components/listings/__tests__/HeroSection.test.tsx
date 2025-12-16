@@ -4,7 +4,14 @@ import { HeroSection } from '../HeroSection';
 
 // Mock Next.js Image component
 jest.mock('next/image', () => {
-  return function MockImage({ src, alt, fill, sizes, className, priority }: React.ComponentProps<'img'> & { fill?: boolean; sizes?: string; priority?: boolean }) {
+  return function MockImage({
+    src,
+    alt,
+    fill,
+    sizes,
+    className,
+    priority,
+  }: React.ComponentProps<'img'> & { fill?: boolean; sizes?: string; priority?: boolean }) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
@@ -40,7 +47,11 @@ jest.mock('lucide-react', () => ({
 
 // Mock UI components
 jest.mock('@/components/ui/neo-card', () => ({
-  NeoCard: function MockNeoCard({ children, variant, className }: React.PropsWithChildren<{ variant?: string; className?: string }>) {
+  NeoCard: function MockNeoCard({
+    children,
+    variant,
+    className,
+  }: React.PropsWithChildren<{ variant?: string; className?: string }>) {
     return (
       <div className={className} data-variant={variant} data-testid="neo-card">
         {children}
@@ -50,7 +61,10 @@ jest.mock('@/components/ui/neo-card', () => ({
   NeoCardHeader: function MockNeoCardHeader({ children }: React.PropsWithChildren) {
     return <div data-testid="neo-card-header">{children}</div>;
   },
-  NeoCardTitle: function MockNeoCardTitle({ children, className }: React.PropsWithChildren<{ className?: string }>) {
+  NeoCardTitle: function MockNeoCardTitle({
+    children,
+    className,
+  }: React.PropsWithChildren<{ className?: string }>) {
     return (
       <h1 className={className} data-testid="neo-card-title">
         {children}

@@ -57,7 +57,9 @@ describe('/api/admin/moderation', () => {
 
   it('requires admin role for GET', async () => {
     mockAuth.mockResolvedValue({ user: { role: 'user' } } as MockSession);
-    const request = { url: 'https://example.com/api/admin/moderation' } as MockRequest as NextRequest;
+    const request = {
+      url: 'https://example.com/api/admin/moderation',
+    } as MockRequest as NextRequest;
 
     const response = await GET(request, { params: Promise.resolve({}) });
     const json = await response.json();
@@ -82,7 +84,9 @@ describe('/api/admin/moderation', () => {
     ]);
     mockSummarize.mockResolvedValue({ queueSize: 1, oldestItemAgeHours: 12 });
 
-    const request = { url: 'https://example.com/api/admin/moderation?summary=true&limit=5' } as MockRequest as NextRequest;
+    const request = {
+      url: 'https://example.com/api/admin/moderation?summary=true&limit=5',
+    } as MockRequest as NextRequest;
     const response = await GET(request, { params: Promise.resolve({}) });
     const json = await response.json();
 
@@ -96,7 +100,9 @@ describe('/api/admin/moderation', () => {
     mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
     mockFetchQueue.mockResolvedValue([]);
 
-    const request = { url: 'https://example.com/api/admin/moderation?limit=invalid' } as MockRequest as NextRequest;
+    const request = {
+      url: 'https://example.com/api/admin/moderation?limit=invalid',
+    } as MockRequest as NextRequest;
     const response = await GET(request, { params: Promise.resolve({}) });
 
     expect(response.status).toBe(200);
@@ -108,9 +114,12 @@ describe('/api/admin/moderation', () => {
     mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
     mockFetchQueue.mockRejectedValue(new Error('network down'));
 
-    const response = await GET({ url: 'https://example.com/api/admin/moderation' } as MockRequest as NextRequest, {
-      params: Promise.resolve({}),
-    });
+    const response = await GET(
+      { url: 'https://example.com/api/admin/moderation' } as MockRequest as NextRequest,
+      {
+        params: Promise.resolve({}),
+      }
+    );
     const json = await response.json();
 
     expect(response.status).toBe(500);
@@ -135,7 +144,9 @@ describe('/api/admin/moderation', () => {
     mockAuth.mockResolvedValue({ user: { role: 'user' } } as MockSession);
 
     const response = await POST(
-      { json: () => Promise.resolve({ moderationId: '1', action: 'approve' }) } as MockRequest as NextRequest,
+      {
+        json: () => Promise.resolve({ moderationId: '1', action: 'approve' }),
+      } as MockRequest as NextRequest,
       {
         params: Promise.resolve({}),
       }
@@ -157,7 +168,9 @@ describe('/api/admin/moderation', () => {
     expect(missingJson.error).toBe('action is required');
 
     const unsupported = await POST(
-      { json: () => Promise.resolve({ moderationId: 'queue-1', action: 'unknown' }) } as MockRequest as NextRequest,
+      {
+        json: () => Promise.resolve({ moderationId: 'queue-1', action: 'unknown' }),
+      } as MockRequest as NextRequest,
       { params: Promise.resolve({}) }
     );
     const unsupportedJson = await unsupported.json();
@@ -168,9 +181,12 @@ describe('/api/admin/moderation', () => {
   it('handles malformed POST bodies and unexpected failures', async () => {
     mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
 
-    const malformed = await POST({ json: () => Promise.reject(new Error('parse error')) } as MockRequest as NextRequest, {
-      params: Promise.resolve({}),
-    });
+    const malformed = await POST(
+      { json: () => Promise.reject(new Error('parse error')) } as MockRequest as NextRequest,
+      {
+        params: Promise.resolve({}),
+      }
+    );
     const malformedJson = await malformed.json();
     expect(malformed.status).toBe(400);
     expect(malformedJson.error).toBe('moderationId is required');
@@ -179,7 +195,9 @@ describe('/api/admin/moderation', () => {
     mockPerformAction.mockRejectedValue(new Error('action failed'));
 
     const response = await POST(
-      { json: () => Promise.resolve({ moderationId: 'queue-1', action: 'approve' }) } as MockRequest as NextRequest,
+      {
+        json: () => Promise.resolve({ moderationId: 'queue-1', action: 'approve' }),
+      } as MockRequest as NextRequest,
       { params: Promise.resolve({}) }
     );
     const json = await response.json();

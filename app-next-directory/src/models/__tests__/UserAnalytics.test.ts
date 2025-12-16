@@ -99,7 +99,7 @@ describe('UserAnalytics model schema', () => {
         viewHistory: Array<{ listingId: string; viewedAt: Date; timeSpent: number }>;
       };
     }
-    
+
     const preHooks: Array<(this: DocWithEngagement, next?: () => void) => void> =
       schema.preHooks?.get('save') ?? [];
     expect(preHooks.length).toBeGreaterThan(0);

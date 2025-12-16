@@ -122,7 +122,9 @@ describe('Preview Mode API - GET /api/preview', () => {
       try {
         await GET(request);
       } catch (error: unknown) {
-        expect((error as Error).message).toContain('NEXT_REDIRECT:/listings/eco-workspace-amsterdam');
+        expect((error as Error).message).toContain(
+          'NEXT_REDIRECT:/listings/eco-workspace-amsterdam'
+        );
       }
     });
   });

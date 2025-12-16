@@ -14,7 +14,10 @@ const loadModel = async () => {
 };
 
 type SchemaWithPreHooks = Schema<INewsletterSubscriber> & {
-  preHooks: Map<string, Array<(this: unknown, next?: CallbackWithoutResultAndOptionalError) => void>>;
+  preHooks: Map<
+    string,
+    Array<(this: unknown, next?: CallbackWithoutResultAndOptionalError) => void>
+  >;
 };
 
 type UpdateHookContext = { getUpdate: () => UpdateQuery<INewsletterSubscriber> };
@@ -164,7 +167,9 @@ describe('NewsletterSubscriber model', () => {
     const schema = NewsletterSubscriber.schema as SchemaWithPreHooks;
     const hook = schema.preHooks.get('validate')?.[0] as ValidateHook | undefined;
 
-    const doc: Partial<HydratedDocument<INewsletterSubscriber>> & { isNew: boolean } = { isNew: true };
+    const doc: Partial<HydratedDocument<INewsletterSubscriber>> & { isNew: boolean } = {
+      isNew: true,
+    };
     const next = jest.fn();
 
     hook?.call(doc as HydratedDocument<INewsletterSubscriber>, next);

@@ -7,9 +7,7 @@ const loadModel = async () => {
 };
 
 interface SchemaWithIndexes extends Schema {
-  indexes(): Array<
-    [Record<string, number>, { unique?: boolean; [key: string]: unknown }]
-  >;
+  indexes(): Array<[Record<string, number>, { unique?: boolean; [key: string]: unknown }]>;
 }
 
 interface UserFavoriteDoc {
@@ -42,7 +40,7 @@ describe('UserFavorite model', () => {
     const indexes = (UserFavorite.schema as SchemaWithIndexes).indexes();
 
     const compound = indexes.find(
-      (entry) => entry[0].userId === 1 && entry[0].listingId === 1 && entry[1]?.unique === true
+      entry => entry[0].userId === 1 && entry[0].listingId === 1 && entry[1]?.unique === true
     );
 
     expect(compound).toBeDefined();
@@ -59,7 +57,10 @@ describe('UserFavorite model', () => {
     expect(doc.createdAt).toBeInstanceOf(Date);
 
     const schema = UserFavorite.schema as SchemaWithIndexes;
-    const hook = schema.preHooks.get('save')?.[0] as (this: UserFavoriteDoc, next: () => void) => void;
+    const hook = schema.preHooks.get('save')?.[0] as (
+      this: UserFavoriteDoc,
+      next: () => void
+    ) => void;
     const manual = new UserFavorite({
       userId: new mongoose.Types.ObjectId(),
       listingId: new mongoose.Types.ObjectId(),
@@ -77,7 +78,10 @@ describe('UserFavorite model', () => {
   it('leaves Date instances untouched in the save hook', async () => {
     const UserFavorite = await loadModel();
     const schema = UserFavorite.schema as SchemaWithIndexes;
-    const hook = schema.preHooks.get('save')?.[0] as (this: UserFavoriteDoc, next: () => void) => void;
+    const hook = schema.preHooks.get('save')?.[0] as (
+      this: UserFavoriteDoc,
+      next: () => void
+    ) => void;
 
     const initial = new Date('2024-02-03T05:06:07Z');
     const doc = new UserFavorite({

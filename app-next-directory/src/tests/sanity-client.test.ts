@@ -35,7 +35,7 @@ jest.mock('../lib/sanity/client', () => ({
  * Date: May 24, 2025
  */
 
-import { SanityAPIError, SanityHTTPClient } from '../lib/sanity-http-client';
+import { SanityAPIError, type SanityHTTPClient } from '../lib/sanity-http-client';
 
 describe('Sanity HTTP Client Test Suite', () => {
   let sanityHTTPClient: SanityHTTPClient;

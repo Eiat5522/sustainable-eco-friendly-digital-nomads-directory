@@ -78,7 +78,10 @@ describe('clientAuth context and helpers', () => {
 
     const user = userEvent.setup();
     render(
-      <AuthProvider hasPagePermission={hasPagePermissionMock} hasFeaturePermission={hasFeaturePermissionMock}>
+      <AuthProvider
+        hasPagePermission={hasPagePermissionMock}
+        hasFeaturePermission={hasFeaturePermissionMock}
+      >
         <Consumer />
       </AuthProvider>
     );

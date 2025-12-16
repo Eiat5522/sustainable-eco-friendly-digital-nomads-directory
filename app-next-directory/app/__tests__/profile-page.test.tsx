@@ -92,46 +92,38 @@ jest.mock('../profile/FavoriteListingsShowcase', () => ({
   },
 }));
 
-const mockedNormaliseFavorite = jest.fn((entry: {
-  listing?: { slug?: string; name?: string; primaryImage?: { asset?: { url?: string } } };
-  _id?: string;
-  createdAt?: string;
-} | null | undefined) => {
-  if (!entry) return null;
-  const slug = entry?.listing?.slug;
-  if (typeof slug !== 'string' || slug.trim().length === 0) return null;
-  return {
-    id: entry?._id ?? slug,
-    name: entry?.listing?.name ?? 'Untitled listing',
-    slug,
-    city: entry?.listing?.city?.name ?? null,
-    country: entry?.listing?.city?.country ?? null,
-    priceRange: 'moderate' as const,
-    ecoFocusTags: [],
-    digitalNomadFeatures: [],
-    imageUrl: entry?.listing?.primaryImage?.asset?.url ?? '',
-    createdAt: entry?.createdAt ?? '',
-  };
-});
+const mockedNormaliseFavorite = jest.fn(
+  (
+    entry:
+      | {
+          listing?: { slug?: string; name?: string; primaryImage?: { asset?: { url?: string } } };
+          _id?: string;
+          createdAt?: string;
+        }
+      | null
+      | undefined
+  ) => {
+    if (!entry) return null;
+    const slug = entry?.listing?.slug;
+    if (typeof slug !== 'string' || slug.trim().length === 0) return null;
+    return {
+      id: entry?._id ?? slug,
+      name: entry?.listing?.name ?? 'Untitled listing',
+      slug,
+      city: entry?.listing?.city?.name ?? null,
+      country: entry?.listing?.city?.country ?? null,
+      priceRange: 'moderate' as const,
+      ecoFocusTags: [],
+      digitalNomadFeatures: [],
+      imageUrl: entry?.listing?.primaryImage?.asset?.url ?? '',
+      createdAt: entry?.createdAt ?? '',
+    };
+  }
+);
 
-const mockedNormaliseOwnerReviews = jest.fn((response: {
-  listings?: Array<{
-    slug?: string;
-    name?: string;
-    reviews?: Array<{
-      id?: string;
-      rating?: number;
-      comment?: string;
-      createdAt?: string;
-      reviewerName?: string;
-      reviewerImage?: string;
-    }>;
-  }>;
-}) => {
-  if (!response?.listings) return [];
-  return response.listings
-    .filter((listing: { slug?: string }) => typeof listing?.slug === 'string' && listing.slug)
-    .map((listing: {
+const mockedNormaliseOwnerReviews = jest.fn(
+  (response: {
+    listings?: Array<{
       slug?: string;
       name?: string;
       reviews?: Array<{
@@ -142,30 +134,51 @@ const mockedNormaliseOwnerReviews = jest.fn((response: {
         reviewerName?: string;
         reviewerImage?: string;
       }>;
-    }) => ({
-      slug: listing.slug,
-      name: listing.name ?? 'Untitled listing',
-      reviews: Array.isArray(listing?.reviews)
-        ? listing.reviews
-            .filter((review: { id?: string }) => typeof review?.id === 'string')
-            .map((review: {
-              id?: string;
-              rating?: number;
-              comment?: string;
-              createdAt?: string;
-              reviewerName?: string;
-              reviewerImage?: string;
-            }) => ({
-              id: review.id,
-              rating: Number(review.rating ?? 0),
-              comment: review.comment ?? '',
-              createdAt: review.createdAt ?? '',
-              reviewerName: review.reviewerName ?? '',
-              reviewerImage: review.reviewerImage ?? '',
-            }))
-        : [],
-    }));
-});
+    }>;
+  }) => {
+    if (!response?.listings) return [];
+    return response.listings
+      .filter((listing: { slug?: string }) => typeof listing?.slug === 'string' && listing.slug)
+      .map(
+        (listing: {
+          slug?: string;
+          name?: string;
+          reviews?: Array<{
+            id?: string;
+            rating?: number;
+            comment?: string;
+            createdAt?: string;
+            reviewerName?: string;
+            reviewerImage?: string;
+          }>;
+        }) => ({
+          slug: listing.slug,
+          name: listing.name ?? 'Untitled listing',
+          reviews: Array.isArray(listing?.reviews)
+            ? listing.reviews
+                .filter((review: { id?: string }) => typeof review?.id === 'string')
+                .map(
+                  (review: {
+                    id?: string;
+                    rating?: number;
+                    comment?: string;
+                    createdAt?: string;
+                    reviewerName?: string;
+                    reviewerImage?: string;
+                  }) => ({
+                    id: review.id,
+                    rating: Number(review.rating ?? 0),
+                    comment: review.comment ?? '',
+                    createdAt: review.createdAt ?? '',
+                    reviewerName: review.reviewerName ?? '',
+                    reviewerImage: review.reviewerImage ?? '',
+                  })
+                )
+            : [],
+        })
+      );
+  }
+);
 
 jest.mock('../profile/utils', () => ({
   normaliseFavorite: (entry: unknown) => mockedNormaliseFavorite(entry),

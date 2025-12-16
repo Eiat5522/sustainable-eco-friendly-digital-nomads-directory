@@ -88,7 +88,9 @@ export async function POST(request: NextRequest) {
     const rateLimitResult = await limiter(request);
     if (!rateLimitResult.success) {
       const resetTimeMs =
-        rateLimitResult.resetTime < 1e12 ? rateLimitResult.resetTime * 1000 : rateLimitResult.resetTime;
+        rateLimitResult.resetTime < 1e12
+          ? rateLimitResult.resetTime * 1000
+          : rateLimitResult.resetTime;
       const retryAfterSeconds = Math.max(1, Math.ceil((resetTimeMs - Date.now()) / 1000));
       const response = ApiResponseHandler.error('Too many requests. Please try again later.', 429);
       response.headers.set('retry-after', String(retryAfterSeconds));

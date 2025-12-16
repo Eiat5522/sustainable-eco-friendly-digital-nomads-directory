@@ -67,7 +67,10 @@ beforeAll(async () => {
   if (typeof global.setImmediate !== 'function') {
     // jsdom does not provide setImmediate; nodemailer expects it to exist
 
-    (global as typeof globalThis & { setImmediate?: typeof setTimeout }).setImmediate = (fn: (...args: unknown[]) => void, ...args: unknown[]) => {
+    (global as typeof globalThis & { setImmediate?: typeof setTimeout }).setImmediate = (
+      fn: (...args: unknown[]) => void,
+      ...args: unknown[]
+    ) => {
       return setTimeout(() => fn(...args), 0);
     };
   }

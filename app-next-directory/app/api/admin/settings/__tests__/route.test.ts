@@ -86,7 +86,9 @@ describe('/api/admin/settings', () => {
     it('requires admin access', async () => {
       mockAuth.mockResolvedValue({ user: { role: 'user' } } as MockSession);
 
-      const request = { url: 'https://example.com/api/admin/settings' } as MockRequest as NextRequest;
+      const request = {
+        url: 'https://example.com/api/admin/settings',
+      } as MockRequest as NextRequest;
       const response = await GET(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -119,7 +121,9 @@ describe('/api/admin/settings', () => {
 
       mockFetch.mockResolvedValue(mockSettings);
 
-      const request = { url: 'https://example.com/api/admin/settings' } as MockRequest as NextRequest;
+      const request = {
+        url: 'https://example.com/api/admin/settings',
+      } as MockRequest as NextRequest;
       const response = await GET(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -132,7 +136,9 @@ describe('/api/admin/settings', () => {
       mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
       mockFetch.mockResolvedValue(null);
 
-      const request = { url: 'https://example.com/api/admin/settings' } as MockRequest as NextRequest;
+      const request = {
+        url: 'https://example.com/api/admin/settings',
+      } as MockRequest as NextRequest;
       const response = await GET(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -147,7 +153,9 @@ describe('/api/admin/settings', () => {
       mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
       mockFetch.mockRejectedValue(new Error('Database error'));
 
-      const request = { url: 'https://example.com/api/admin/settings' } as MockRequest as NextRequest;
+      const request = {
+        url: 'https://example.com/api/admin/settings',
+      } as MockRequest as NextRequest;
       const response = await GET(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -298,7 +306,9 @@ describe('/api/admin/settings', () => {
     it('requires admin access', async () => {
       mockAuth.mockResolvedValue({ user: { role: 'user' } } as MockSession);
 
-      const request = { url: 'https://example.com/api/admin/settings/backup' } as MockRequest as NextRequest;
+      const request = {
+        url: 'https://example.com/api/admin/settings/backup',
+      } as MockRequest as NextRequest;
       const response = await BACKUP_POST(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -314,7 +324,9 @@ describe('/api/admin/settings', () => {
         lastBackupDate: '2024-01-01T00:00:00.000Z',
       });
 
-      const request = { url: 'https://example.com/api/admin/settings/backup' } as MockRequest as NextRequest;
+      const request = {
+        url: 'https://example.com/api/admin/settings/backup',
+      } as MockRequest as NextRequest;
       const response = await BACKUP_POST(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -342,7 +354,9 @@ describe('/api/admin/settings', () => {
         lastBackupDate: '2024-01-01T00:00:00.000Z',
       });
 
-      const request = { url: 'https://example.com/api/admin/settings/backup' } as MockRequest as NextRequest;
+      const request = {
+        url: 'https://example.com/api/admin/settings/backup',
+      } as MockRequest as NextRequest;
       const response = await BACKUP_POST(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -362,7 +376,9 @@ describe('/api/admin/settings', () => {
       mockFetch.mockResolvedValue({ _id: 'settings-1' });
       mockCommit.mockRejectedValue(new Error('commit failed'));
 
-      const request = { url: 'https://example.com/api/admin/settings/backup' } as MockRequest as NextRequest;
+      const request = {
+        url: 'https://example.com/api/admin/settings/backup',
+      } as MockRequest as NextRequest;
       const response = await BACKUP_POST(request, { params: Promise.resolve({}) });
       const json = await response.json();
 

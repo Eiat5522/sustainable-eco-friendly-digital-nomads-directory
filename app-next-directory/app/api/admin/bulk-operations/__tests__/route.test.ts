@@ -98,7 +98,9 @@ describe('/api/admin/bulk-operations', () => {
     mockAuth.mockResolvedValue({ user: { role: 'user' } } as MockSession);
 
     const forbidden = await POST(
-      { json: () => Promise.resolve({ operation: 'publishListings', ids: ['1'] }) } as MockRequest as NextRequest,
+      {
+        json: () => Promise.resolve({ operation: 'publishListings', ids: ['1'] }),
+      } as MockRequest as NextRequest,
       {
         params: Promise.resolve({}),
       }
@@ -106,15 +108,20 @@ describe('/api/admin/bulk-operations', () => {
     expect(forbidden.status).toBe(403);
 
     mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
-    const missingOperation = await POST({ json: () => Promise.resolve({ ids: ['1'] }) } as MockRequest as NextRequest, {
-      params: Promise.resolve({}),
-    });
+    const missingOperation = await POST(
+      { json: () => Promise.resolve({ ids: ['1'] }) } as MockRequest as NextRequest,
+      {
+        params: Promise.resolve({}),
+      }
+    );
     const missingOperationJson = await missingOperation.json();
     expect(missingOperation.status).toBe(400);
     expect(missingOperationJson.error).toBe('operation is required');
 
     const missingIds = await POST(
-      { json: () => Promise.resolve({ operation: 'publishListings', ids: [] }) } as MockRequest as NextRequest,
+      {
+        json: () => Promise.resolve({ operation: 'publishListings', ids: [] }),
+      } as MockRequest as NextRequest,
       {
         params: Promise.resolve({}),
       }
@@ -129,7 +136,9 @@ describe('/api/admin/bulk-operations', () => {
 
     const overLimitIds = Array.from({ length: 1001 }, (_, i) => `id-${i}`);
     const overLimit = await POST(
-      { json: () => Promise.resolve({ operation: 'publishListings', ids: overLimitIds }) } as MockRequest as NextRequest,
+      {
+        json: () => Promise.resolve({ operation: 'publishListings', ids: overLimitIds }),
+      } as MockRequest as NextRequest,
       {
         params: Promise.resolve({}),
       }
@@ -184,9 +193,12 @@ describe('/api/admin/bulk-operations', () => {
   it('handles bulk operation failures and malformed requests', async () => {
     mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
 
-    const malformed = await POST({ json: () => Promise.reject(new Error('parse error')) } as MockRequest as NextRequest, {
-      params: Promise.resolve({}),
-    });
+    const malformed = await POST(
+      { json: () => Promise.reject(new Error('parse error')) } as MockRequest as NextRequest,
+      {
+        params: Promise.resolve({}),
+      }
+    );
     const malformedJson = await malformed.json();
     expect(malformed.status).toBe(400);
     expect(malformedJson.error).toBe('operation is required');
@@ -194,7 +206,9 @@ describe('/api/admin/bulk-operations', () => {
     mockAuth.mockResolvedValue({ user: { role: 'admin' } } as MockSession);
     mockRunBulk.mockRejectedValue(new Error('bulk failure'));
     const response = await POST(
-      { json: () => Promise.resolve({ operation: 'publishListings', ids: ['listing-1'] }) } as MockRequest as NextRequest,
+      {
+        json: () => Promise.resolve({ operation: 'publishListings', ids: ['listing-1'] }),
+      } as MockRequest as NextRequest,
       { params: Promise.resolve({}) }
     );
     const json = await response.json();

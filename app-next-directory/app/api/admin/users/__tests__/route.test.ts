@@ -79,7 +79,9 @@ describe('/api/admin/users', () => {
   it('requires admin access for GET', async () => {
     mockAuth.mockResolvedValue({ user: { role: 'user' } } as Session);
 
-    const request = { url: 'https://example.com/api/admin/users' } as Partial<NextRequest> as NextRequest;
+    const request = {
+      url: 'https://example.com/api/admin/users',
+    } as Partial<NextRequest> as NextRequest;
     const response = await GET(request, { params: Promise.resolve({}) });
     const json = await response.json();
 
@@ -194,7 +196,9 @@ describe('/api/admin/users', () => {
     mockFetch.mockRejectedValueOnce(new Error('sanity unavailable'));
     mockFetch.mockResolvedValueOnce(0);
 
-    const request = { url: 'https://example.com/api/admin/users' } as Partial<NextRequest> as NextRequest;
+    const request = {
+      url: 'https://example.com/api/admin/users',
+    } as Partial<NextRequest> as NextRequest;
     const response = await GET(request, { params: Promise.resolve({}) });
     const json = await response.json();
 
@@ -350,7 +354,9 @@ describe('/api/admin/users', () => {
     mockFetch.mockResolvedValueOnce([]);
     mockFetch.mockResolvedValueOnce(0);
 
-    const request = { url: 'https://example.com/api/admin/users' } as Partial<NextRequest> as NextRequest;
+    const request = {
+      url: 'https://example.com/api/admin/users',
+    } as Partial<NextRequest> as NextRequest;
     const response = await GET(request, { params: Promise.resolve({}) });
 
     expect(response.status).toBe(200);
@@ -363,7 +369,9 @@ describe('/api/admin/users', () => {
     mockFetch.mockResolvedValueOnce([mockUser]);
     mockFetch.mockResolvedValueOnce(1);
 
-    const request = { url: 'https://example.com/api/admin/users' } as Partial<NextRequest> as NextRequest;
+    const request = {
+      url: 'https://example.com/api/admin/users',
+    } as Partial<NextRequest> as NextRequest;
     const response = await GET(request, { params: Promise.resolve({}) });
     const json = await response.json();
 
@@ -385,7 +393,9 @@ describe('/api/admin/users', () => {
     mockFetch.mockResolvedValueOnce([]);
     mockFetch.mockResolvedValueOnce(0);
 
-    const request = { url: 'https://example.com/api/admin/users?limit=200' } as Partial<NextRequest> as NextRequest;
+    const request = {
+      url: 'https://example.com/api/admin/users?limit=200',
+    } as Partial<NextRequest> as NextRequest;
     await GET(request, { params: Promise.resolve({}) });
 
     const query = mockFetch.mock.calls[0][0];
@@ -397,7 +407,9 @@ describe('/api/admin/users', () => {
     mockFetch.mockResolvedValueOnce([]);
     mockFetch.mockResolvedValueOnce(0);
 
-    const request = { url: 'https://example.com/api/admin/users?page=abc' } as Partial<NextRequest> as NextRequest;
+    const request = {
+      url: 'https://example.com/api/admin/users?page=abc',
+    } as Partial<NextRequest> as NextRequest;
     const response = await GET(request, { params: Promise.resolve({}) });
     const json = await response.json();
     expect(json.pagination.page).toBe(1);
@@ -474,7 +486,9 @@ describe('/api/admin/users', () => {
 
   it('rejects unauthenticated GET request', async () => {
     mockAuth.mockResolvedValue(null);
-    const request = { url: 'https://example.com/api/admin/users' } as Partial<NextRequest> as NextRequest;
+    const request = {
+      url: 'https://example.com/api/admin/users',
+    } as Partial<NextRequest> as NextRequest;
     const response = await GET(request, { params: Promise.resolve({}) });
     expect(response.status).toBe(403);
   });

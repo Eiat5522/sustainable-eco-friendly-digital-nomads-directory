@@ -11,23 +11,25 @@ jest.mock('next/navigation', () => ({
   notFound: notFoundMock,
 }));
 
-const listingDetailViewSpy = jest.fn((props: {
-  listing?: { name?: string };
-  relatedListings?: unknown[];
-  reviews?: unknown[];
-  isSignedIn?: boolean;
-  isFavorited?: boolean;
-  userId?: string;
-}) => (
-  <div data-testid="listing-detail-view">
-    <span data-testid="listing-name">{props.listing?.name}</span>
-    <span data-testid="related-count">{props.relatedListings?.length ?? 0}</span>
-    <span data-testid="reviews-count">{props.reviews?.length ?? 0}</span>
-    <span data-testid="is-signed-in">{String(props.isSignedIn)}</span>
-    <span data-testid="is-favorited">{String(props.isFavorited)}</span>
-    <span data-testid="user-id">{props.userId ?? ''}</span>
-  </div>
-));
+const listingDetailViewSpy = jest.fn(
+  (props: {
+    listing?: { name?: string };
+    relatedListings?: unknown[];
+    reviews?: unknown[];
+    isSignedIn?: boolean;
+    isFavorited?: boolean;
+    userId?: string;
+  }) => (
+    <div data-testid="listing-detail-view">
+      <span data-testid="listing-name">{props.listing?.name}</span>
+      <span data-testid="related-count">{props.relatedListings?.length ?? 0}</span>
+      <span data-testid="reviews-count">{props.reviews?.length ?? 0}</span>
+      <span data-testid="is-signed-in">{String(props.isSignedIn)}</span>
+      <span data-testid="is-favorited">{String(props.isFavorited)}</span>
+      <span data-testid="user-id">{props.userId ?? ''}</span>
+    </div>
+  )
+);
 
 jest.mock('@/components/listings/ListingDetailView', () => ({
   ListingDetailView: (props: unknown) => listingDetailViewSpy(props),
@@ -64,7 +66,9 @@ const originalE2EFlag = process.env.E2E;
 
 beforeAll(() => {
   if (typeof global.structuredClone !== 'function') {
-    (global as { structuredClone?: (value: unknown) => unknown }).structuredClone = (value: unknown) => JSON.parse(JSON.stringify(value));
+    (global as { structuredClone?: (value: unknown) => unknown }).structuredClone = (
+      value: unknown
+    ) => JSON.parse(JSON.stringify(value));
   }
 });
 
@@ -77,7 +81,8 @@ afterEach(() => {
 
 afterAll(() => {
   if (originalStructuredClone) {
-    (global as { structuredClone?: (value: unknown) => unknown }).structuredClone = originalStructuredClone;
+    (global as { structuredClone?: (value: unknown) => unknown }).structuredClone =
+      originalStructuredClone;
   } else {
     delete (global as { structuredClone?: (value: unknown) => unknown }).structuredClone;
   }

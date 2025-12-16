@@ -63,11 +63,12 @@
         "noUnusedVariables": "warn",
         "useExhaustiveDependencies": "warn",
         "noInvalidUseBeforeDeclaration": "error",
-        "noVoidTypeReturn": "off",
-        "noUnsafeFinally": "warn"
+        "noVoidTypeReturn": "warn",
+        "noUnsafeFinally": "warn",
+        "noUnusedFunctionParameters": "warn"
       },
       "style": {
-        "noNonNullAssertion": "off",
+        "noNonNullAssertion": "error",
         "useTemplate": "off",
         "noParameterAssign": "off"
       },
@@ -87,7 +88,7 @@
         "useIterableCallbackReturn": "off",
         "noGlobalIsNan": "off",
         "noAssignInExpressions": "off",
-        "noFocusedTests": "off"
+        "noFocusedTests": "error"
       },
       "security": {
         "noDangerouslySetInnerHtml": "warn"
@@ -101,7 +102,8 @@
         "rules": {
           "suspicious": {
             "noExplicitAny": "error",
-            "noConsole": "warn"
+            "noConsole": "warn",
+            "noFocusedTests": "error"
           },
           "correctness": {
             "noUnusedVariables": "warn",
@@ -125,7 +127,6 @@
         }
       }
     },
-
     {
       "includes": ["**/*.d.ts"],
       "linter": {

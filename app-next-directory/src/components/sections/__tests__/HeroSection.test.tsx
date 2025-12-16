@@ -20,7 +20,11 @@ jest.mock('@/components/ui/neo-input', () => ({
 }));
 
 jest.mock('@/components/ui/neo-button', () => ({
-  NeoButton: ({ children, type = 'button', ...props }: React.PropsWithChildren<React.ComponentProps<'button'>>) => (
+  NeoButton: ({
+    children,
+    type = 'button',
+    ...props
+  }: React.PropsWithChildren<React.ComponentProps<'button'>>) => (
     <button type={type} data-testid="hero-search-button" {...props}>
       {children}
     </button>

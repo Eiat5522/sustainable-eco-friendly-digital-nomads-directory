@@ -1,5 +1,5 @@
-import { setupServer } from 'msw/node';
 import type { RequestHandler } from 'msw';
+import { setupServer } from 'msw/node';
 
 // Define handlers array - can be populated as needed
 export const handlers: RequestHandler[] = [];

@@ -25,7 +25,9 @@ global.alert = jest.fn();
 
 describe('FavoriteButton - Deterministic Navigation Flows', () => {
   beforeAll(() => {
-    fetchSpy = jest.spyOn(global, 'fetch').mockImplementation(mockFetch as jest.MockedFunction<typeof fetch>);
+    fetchSpy = jest
+      .spyOn(global, 'fetch')
+      .mockImplementation(mockFetch as jest.MockedFunction<typeof fetch>);
   });
 
   afterAll(() => {

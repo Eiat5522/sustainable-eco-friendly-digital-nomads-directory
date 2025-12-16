@@ -1,4 +1,4 @@
-import { HttpResponse, http, type HttpHandler, type RequestHandler } from 'msw';
+import { type HttpHandler, HttpResponse, http, type RequestHandler } from 'msw';
 import { createTestData } from '@/tests/helpers/test-data';
 import { handlers, setRegisterResponse, setReviewsResponse } from '../handlers';
 

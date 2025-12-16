@@ -114,9 +114,7 @@ describe('View Count Persistence', () => {
     });
 
     it('should throw error for invalid postId (non-string)', async () => {
-      await expect(incrementViewCount(null as unknown as string)).rejects.toThrow(
-        'Invalid postId'
-      );
+      await expect(incrementViewCount(null as unknown as string)).rejects.toThrow('Invalid postId');
       await expect(incrementViewCount(undefined as unknown as string)).rejects.toThrow(
         'Invalid postId'
       );

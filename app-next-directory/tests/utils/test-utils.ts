@@ -129,9 +129,13 @@ export const TestHelpers = {
   },
 
   async verifyListingCard(page: Page, data: Record<string, unknown>) {
-    const card = page.locator('[data-testid="listing-card"]').filter({ hasText: data.name as string });
+    const card = page
+      .locator('[data-testid="listing-card"]')
+      .filter({ hasText: data.name as string });
     await expect(card).toBeVisible();
-    await expect(card.locator('[data-testid="listing-category"]')).toHaveText(data.category as string);
+    await expect(card.locator('[data-testid="listing-category"]')).toHaveText(
+      data.category as string
+    );
     await expect(card.locator('[data-testid="listing-city"]')).toHaveText(data.city as string);
   },
 
@@ -194,7 +198,11 @@ export const TestHelpers = {
     return listing;
   },
 
-  async makeAuthenticatedRequest(page: Page, endpoint: string, options: Record<string, unknown> = {}) {
+  async makeAuthenticatedRequest(
+    page: Page,
+    endpoint: string,
+    options: Record<string, unknown> = {}
+  ) {
     const token = await page.evaluate(() => window.localStorage.getItem('token'));
     return page.request.fetch(endpoint, {
       ...options,

@@ -193,7 +193,10 @@ describe('POST /api/auth/reset-password', () => {
   it('returns 500 when user password field is inaccessible', async () => {
     const doc = { _id: 'token-id', userId: 'user-1', expiresAt: new Date(Date.now() + 60_000) };
     mockFindOne.mockReturnValueOnce(createLeanResult(doc));
-    const badUser = { password: undefined, set: jest.fn(), save: jest.fn() } as Record<string, unknown>;
+    const badUser = { password: undefined, set: jest.fn(), save: jest.fn() } as Record<
+      string,
+      unknown
+    >;
     mockFindById.mockReturnValueOnce(createSelectResult(badUser));
 
     const response = await POST(createRequest({ token: 'token-00004', password: 'Password123!' }));

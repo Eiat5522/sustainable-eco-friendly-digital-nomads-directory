@@ -30,7 +30,11 @@ jest.mock('@/components/ui/neo-card', () => ({
 
 jest.mock('@/components/ui/neo-button', () => ({
   __esModule: true,
-  NeoButton: ({ children, asChild, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  NeoButton: ({
+    children,
+    asChild,
+    ...props
+  }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
     asChild?: boolean;
     children?: React.ReactNode;
   }) => (asChild ? <span {...props}>{children}</span> : <button {...props}>{children}</button>),

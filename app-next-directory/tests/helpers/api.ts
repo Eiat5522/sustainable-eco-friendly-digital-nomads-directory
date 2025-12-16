@@ -39,7 +39,7 @@ export async function createTestUser(request: APIRequestContext, user: TestUserP
 
 export async function deleteTestUser(request: APIRequestContext, email: string) {
   const res = await request.del('/api/test/users', { data: { email } });
-  return ensureResponse(res, 'deleteTestUser').catch(() => ({} as unknown));
+  return ensureResponse(res, 'deleteTestUser').catch(() => ({}) as unknown);
 }
 
 export async function createTestListing(request: APIRequestContext, listing: TestListingPayload) {
@@ -49,7 +49,7 @@ export async function createTestListing(request: APIRequestContext, listing: Tes
 
 export async function deleteTestListing(request: APIRequestContext, slug: string) {
   const res = await request.del('/api/test/listings', { data: { slug } });
-  return ensureResponse(res, 'deleteTestListing').catch(() => ({} as unknown));
+  return ensureResponse(res, 'deleteTestListing').catch(() => ({}) as unknown);
 }
 
 export async function seedDefaults(request: APIRequestContext) {

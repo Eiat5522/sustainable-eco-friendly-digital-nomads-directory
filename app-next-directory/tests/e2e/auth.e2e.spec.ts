@@ -8,7 +8,7 @@ test.describe('Authentication System (Playwright)', () => {
   test.afterAll(async () => {
     // TODO: Implement cleanup logic here.
     // This might involve calling a backend endpoint to delete the users by email.
-     
+
     console.info('E2E created test users:', testEmails);
   });
 

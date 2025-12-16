@@ -19,7 +19,10 @@ const loadModule = async () => {
 };
 
 type SchemaWithPreHooks = Schema<IUser> & {
-  preHooks: Map<string, Array<(this: unknown, next: CallbackWithoutResultAndOptionalError) => Promise<void>>>;
+  preHooks: Map<
+    string,
+    Array<(this: unknown, next: CallbackWithoutResultAndOptionalError) => Promise<void>>
+  >;
 };
 
 type SaveHook = (

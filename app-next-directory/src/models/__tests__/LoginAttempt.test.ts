@@ -1,9 +1,7 @@
 import { jest } from '@jest/globals';
 import type { CallbackError, Schema } from 'mongoose';
 
-type PreHook = (this: unknown, next: (err?: CallbackError | null) => void) =>
-  | void
-  | Promise<void>;
+type PreHook = (this: unknown, next: (err?: CallbackError | null) => void) => void | Promise<void>;
 
 type SchemaWithPreHooks = Schema & { preHooks: Map<string, PreHook[]> };
 

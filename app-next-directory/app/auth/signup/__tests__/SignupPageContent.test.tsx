@@ -25,13 +25,27 @@ jest.mock('@/components/auth/SocialAuthRow', () => ({
 }));
 
 jest.mock('@/components/ui/neo-input', () => ({
-  NeoInput: ({ asChild, children, ...props }: { asChild?: boolean; children?: React.ReactNode; [key: string]: unknown }) => (
-    <input data-testid={(props.id ?? props.name) as string} {...props} />
-  ),
+  NeoInput: ({
+    asChild,
+    children,
+    ...props
+  }: {
+    asChild?: boolean;
+    children?: React.ReactNode;
+    [key: string]: unknown;
+  }) => <input data-testid={(props.id ?? props.name) as string} {...props} />,
 }));
 
 jest.mock('@/components/ui/neo-button', () => ({
-  NeoButton: ({ children, asChild = false, ...props }: { children?: React.ReactNode; asChild?: boolean; [key: string]: unknown }) =>
+  NeoButton: ({
+    children,
+    asChild = false,
+    ...props
+  }: {
+    children?: React.ReactNode;
+    asChild?: boolean;
+    [key: string]: unknown;
+  }) =>
     asChild ? (
       children
     ) : (
@@ -42,10 +56,18 @@ jest.mock('@/components/ui/neo-button', () => ({
 }));
 
 jest.mock('@/components/ui/neo-card', () => ({
-  NeoCard: ({ children }: { children?: React.ReactNode }) => <div data-testid="neo-card">{children}</div>,
-  NeoCardContent: ({ children }: { children?: React.ReactNode }) => <div data-testid="neo-card-content">{children}</div>,
-  NeoCardHeader: ({ children }: { children?: React.ReactNode }) => <div data-testid="neo-card-header">{children}</div>,
-  NeoCardTitle: ({ children }: { children?: React.ReactNode }) => <h1 data-testid="neo-card-title">{children}</h1>,
+  NeoCard: ({ children }: { children?: React.ReactNode }) => (
+    <div data-testid="neo-card">{children}</div>
+  ),
+  NeoCardContent: ({ children }: { children?: React.ReactNode }) => (
+    <div data-testid="neo-card-content">{children}</div>
+  ),
+  NeoCardHeader: ({ children }: { children?: React.ReactNode }) => (
+    <div data-testid="neo-card-header">{children}</div>
+  ),
+  NeoCardTitle: ({ children }: { children?: React.ReactNode }) => (
+    <h1 data-testid="neo-card-title">{children}</h1>
+  ),
 }));
 
 describe('SignupPageContent', () => {

@@ -27,7 +27,15 @@ jest.mock('@/utils/navigation', () => ({
 }));
 
 jest.mock('@/components/ui/StarRating', () => ({
-  StarRating: function MockStarRating({ rating, interactive, onRatingChange }: { rating: number; interactive?: boolean; onRatingChange?: (rating: number) => void }) {
+  StarRating: function MockStarRating({
+    rating,
+    interactive,
+    onRatingChange,
+  }: {
+    rating: number;
+    interactive?: boolean;
+    onRatingChange?: (rating: number) => void;
+  }) {
     if (interactive) {
       return (
         <div data-testid="star-rating-interactive" data-rating={rating}>
@@ -63,7 +71,18 @@ jest.mock('@/components/ui/neo-card', () => ({
 }));
 
 jest.mock('@/components/ui/neo-button', () => ({
-  NeoButton: function MockNeoButton({ children, onClick, disabled, variant, size }: React.PropsWithChildren<{ onClick?: () => void; disabled?: boolean; variant?: string; size?: string }>) {
+  NeoButton: function MockNeoButton({
+    children,
+    onClick,
+    disabled,
+    variant,
+    size,
+  }: React.PropsWithChildren<{
+    onClick?: () => void;
+    disabled?: boolean;
+    variant?: string;
+    size?: string;
+  }>) {
     return (
       <button
         data-testid="neo-button"

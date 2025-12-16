@@ -34,7 +34,13 @@ jest.mock('next/link', () => {
 });
 
 jest.mock('next/image', () => {
-  return ({ src, alt, fill, onError, ...props }: React.ComponentProps<'img'> & { fill?: boolean }) => {
+  return ({
+    src,
+    alt,
+    fill,
+    onError,
+    ...props
+  }: React.ComponentProps<'img'> & { fill?: boolean }) => {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img src={src} alt={alt} onError={onError} {...props} />
@@ -105,12 +111,16 @@ describe('RelatedListings', () => {
     });
 
     it('returns null when listings is null', () => {
-      const { container } = render(<RelatedListings listings={null as unknown as typeof mockListings} />);
+      const { container } = render(
+        <RelatedListings listings={null as unknown as typeof mockListings} />
+      );
       expect(container.firstChild).toBeNull();
     });
 
     it('returns null when listings is undefined', () => {
-      const { container } = render(<RelatedListings listings={undefined as unknown as typeof mockListings} />);
+      const { container } = render(
+        <RelatedListings listings={undefined as unknown as typeof mockListings} />
+      );
       expect(container.firstChild).toBeNull();
     });
   });

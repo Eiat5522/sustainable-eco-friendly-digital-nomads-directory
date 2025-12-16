@@ -30,14 +30,29 @@ jest.mock('@/components/ui/neo-card', () => ({
 
 jest.mock('@/components/ui/neo-button', () => ({
   __esModule: true,
-  NeoButton: ({ children, asChild, ...props }: { children?: React.ReactNode; asChild?: boolean; [key: string]: unknown }) =>
-    asChild ? <span {...props}>{children}</span> : <button {...props}>{children}</button>,
+  NeoButton: ({
+    children,
+    asChild,
+    ...props
+  }: {
+    children?: React.ReactNode;
+    asChild?: boolean;
+    [key: string]: unknown;
+  }) => (asChild ? <span {...props}>{children}</span> : <button {...props}>{children}</button>),
 }));
 
 jest.mock('@/components/ui/select', () => {
   const React = require('react') as typeof import('react');
 
-  const Select = ({ value, onValueChange, children }: { value?: string; onValueChange?: (value: string) => void; children?: React.ReactNode }) => (
+  const Select = ({
+    value,
+    onValueChange,
+    children,
+  }: {
+    value?: string;
+    onValueChange?: (value: string) => void;
+    children?: React.ReactNode;
+  }) => (
     <select
       data-testid="enquiry-type-select"
       value={value}
@@ -50,7 +65,9 @@ jest.mock('@/components/ui/select', () => {
   const SelectTrigger = ({ children }: { children?: React.ReactNode }) => <>{children}</>;
   const SelectContent = ({ children }: { children?: React.ReactNode }) => <>{children}</>;
   const SelectValue = () => null;
-  const SelectItem = ({ value, children }: { value: string; children?: React.ReactNode }) => <option value={value}>{children}</option>;
+  const SelectItem = ({ value, children }: { value: string; children?: React.ReactNode }) => (
+    <option value={value}>{children}</option>
+  );
 
   return {
     __esModule: true,
@@ -64,12 +81,16 @@ jest.mock('@/components/ui/select', () => {
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ children, href }: { children?: React.ReactNode; href: string }) => <a href={href}>{children}</a>,
+  default: ({ children, href }: { children?: React.ReactNode; href: string }) => (
+    <a href={href}>{children}</a>
+  ),
 }));
 
 jest.mock('lucide-react', () => ({
   Mail: (props: React.SVGProps<SVGSVGElement>) => <svg {...props} data-testid="icon-mail" />,
-  MessageSquare: (props: React.SVGProps<SVGSVGElement>) => <svg {...props} data-testid="icon-message" />,
+  MessageSquare: (props: React.SVGProps<SVGSVGElement>) => (
+    <svg {...props} data-testid="icon-message" />
+  ),
   Type: (props: React.SVGProps<SVGSVGElement>) => <svg {...props} data-testid="icon-type" />,
 }));
 

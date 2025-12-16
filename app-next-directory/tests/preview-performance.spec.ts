@@ -93,7 +93,9 @@ test.describe('Preview Mode Performance Tests', () => {
   test('memory usage in preview mode', async ({ page }) => {
     // Get initial memory usage
     const initialMemory = await page.evaluate(
-      () => (performance as unknown as { memory?: { usedJSHeapSize?: number } }).memory?.usedJSHeapSize || 0
+      () =>
+        (performance as unknown as { memory?: { usedJSHeapSize?: number } }).memory
+          ?.usedJSHeapSize || 0
     );
 
     // Enable preview mode
@@ -109,7 +111,11 @@ test.describe('Preview Mode Performance Tests', () => {
     }
 
     // Get final memory usage
-    const finalMemory = await page.evaluate(() => (performance as unknown as { memory?: { usedJSHeapSize?: number } }).memory?.usedJSHeapSize || 0);
+    const finalMemory = await page.evaluate(
+      () =>
+        (performance as unknown as { memory?: { usedJSHeapSize?: number } }).memory
+          ?.usedJSHeapSize || 0
+    );
 
     // Log memory usage
     structuredLogger.debug('Memory Usage:', {

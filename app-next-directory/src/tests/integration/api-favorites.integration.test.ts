@@ -82,8 +82,9 @@ describe('API /api/user/favorites integration', () => {
                 ecoFocusTags: (listing.ecoFocusTags ?? []).map((tag: string | { name?: string }) =>
                   typeof tag === 'string' ? { name: tag } : { name: tag?.name }
                 ),
-                digitalNomadFeatures: (listing.digitalNomadFeatures ?? []).map((feature: string | { name?: string }) =>
-                  typeof feature === 'string' ? { name: feature } : { name: feature?.name }
+                digitalNomadFeatures: (listing.digitalNomadFeatures ?? []).map(
+                  (feature: string | { name?: string }) =>
+                    typeof feature === 'string' ? { name: feature } : { name: feature?.name }
                 ),
                 city: listing.city
                   ? { name: listing.city.name, country: listing.city.country ?? '' }

@@ -221,7 +221,9 @@ describe('/api/user/analytics GET', () => {
       fetchDashboard: fetchDashboardMock as jest.Mock,
     });
 
-    const response = await handler(createRequest('http://localhost/api/user/analytics') as NextRequest);
+    const response = await handler(
+      createRequest('http://localhost/api/user/analytics') as NextRequest
+    );
 
     expect(structuredLoggerSpy).toHaveBeenCalledWith(
       '[user-analytics] GET failed',

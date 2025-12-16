@@ -59,4 +59,3 @@ test.describe('[E2E] Admin dashboard', () => {
     await expect(robotsMeta).toHaveAttribute('content', /nofollow/i);
   });
 });
-

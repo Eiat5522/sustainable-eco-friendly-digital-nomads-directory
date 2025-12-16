@@ -25,7 +25,13 @@ jest.mock('@/lib/logger', () => ({
 }));
 
 jest.mock('@/components/city/CityDetailView', () => ({
-  CityDetailView: ({ city, listings }: { city: { name: string; description: string }; listings: Array<{ id: string; name: string }> }) => (
+  CityDetailView: ({
+    city,
+    listings,
+  }: {
+    city: { name: string; description: string };
+    listings: Array<{ id: string; name: string }>;
+  }) => (
     <div>
       <h1 data-testid="city-name">{city.name}</h1>
       <p data-testid="city-description">{city.description}</p>

@@ -22,7 +22,10 @@ const mockCommit = jest.fn<Promise<SanityDocument | null | undefined>, []>();
 const mockSet = jest.fn(() => ({ commit: mockCommit }));
 const mockPatch = jest.fn(() => ({ set: mockSet }));
 const mockTransactionCreate = jest.fn<Promise<SanityDocument | undefined>, [SanityDocument]>();
-const mockTransactionCommit = jest.fn<Promise<SanityDocument | { results?: Array<{ document?: SanityDocument }> } | undefined>, []>();
+const mockTransactionCommit = jest.fn<
+  Promise<SanityDocument | { results?: Array<{ document?: SanityDocument }> } | undefined>,
+  []
+>();
 const mockTransaction = jest.fn(() => ({
   create: mockTransactionCreate,
   commit: mockTransactionCommit,
@@ -38,7 +41,10 @@ type SanityWriteClient = {
   assets: {
     upload: jest.Mock<
       Promise<SanityDocument | null | undefined>,
-      [Buffer | ArrayBuffer, { filename?: string; contentType?: string; title?: string; description?: string }?]
+      [
+        Buffer | ArrayBuffer,
+        { filename?: string; contentType?: string; title?: string; description?: string }?,
+      ]
     >;
   };
   patch: jest.Mock<{ set: typeof mockSet }, [string]>;
@@ -59,11 +65,17 @@ const mockWriteClient: SanityWriteClient = {
   assets: {
     upload: jest.fn<
       Promise<SanityDocument | null | undefined>,
-      [Buffer | ArrayBuffer, { filename?: string; contentType?: string; title?: string; description?: string }?]
+      [
+        Buffer | ArrayBuffer,
+        { filename?: string; contentType?: string; title?: string; description?: string }?,
+      ]
     >(),
   },
   patch: mockPatch as jest.Mock<{ set: typeof mockSet }, [string]>,
-  transaction: mockTransaction as jest.Mock<{ create: typeof mockTransactionCreate; commit: typeof mockTransactionCommit }, []>,
+  transaction: mockTransaction as jest.Mock<
+    { create: typeof mockTransactionCreate; commit: typeof mockTransactionCommit },
+    []
+  >,
 };
 const mockCreateClient = jest.fn<ClientFactory>((config: { token?: string }) =>
   mockCreateClient.mock.calls.length === 0 || !config.token ? mockReadClient : mockWriteClient
@@ -147,7 +159,8 @@ describe('SanityHTTPClient', () => {
       const mod = await import('../sanity-http-client');
       new mod.SanityHTTPClient();
       const logger = jest.mocked(
-        (jest.requireMock('@/lib/logger') as { structuredLogger: typeof structuredLogger }).structuredLogger
+        (jest.requireMock('@/lib/logger') as { structuredLogger: typeof structuredLogger })
+          .structuredLogger
       );
       expect(logger.warn).toHaveBeenCalledWith(
         'Missing optional environment variable: SANITY_API_TOKEN',
@@ -309,7 +322,8 @@ describe('SanityHTTPClient', () => {
         expect(mockWriteClient.create).toHaveBeenCalledWith({ _type: 'test' });
         expect(result).toEqual(doc);
         const logger = jest.mocked(
-          (jest.requireMock('@/lib/logger') as { structuredLogger: typeof structuredLogger }).structuredLogger
+          (jest.requireMock('@/lib/logger') as { structuredLogger: typeof structuredLogger })
+            .structuredLogger
         );
         expect(logger.info).toHaveBeenCalledWith('Sanity document created', {
           component: 'sanity-http',
@@ -333,7 +347,8 @@ describe('SanityHTTPClient', () => {
 
         expect(result).toEqual({ _type: 'test', title: 'no-id' });
         const logger = jest.mocked(
-          (jest.requireMock('@/lib/logger') as { structuredLogger: typeof structuredLogger }).structuredLogger
+          (jest.requireMock('@/lib/logger') as { structuredLogger: typeof structuredLogger })
+            .structuredLogger
         );
         expect(logger.info).toHaveBeenCalledWith('Sanity document created (no _id)', {
           component: 'sanity-http',
@@ -404,7 +419,8 @@ describe('SanityHTTPClient', () => {
         await client.update('doc-2', { title: 'debug' });
 
         const logger = jest.mocked(
-          (jest.requireMock('@/lib/logger') as { structuredLogger: typeof structuredLogger }).structuredLogger
+          (jest.requireMock('@/lib/logger') as { structuredLogger: typeof structuredLogger })
+            .structuredLogger
         );
         expect(logger.info).toHaveBeenCalledWith('Sanity document updated', {
           component: 'sanity-http',
@@ -495,7 +511,8 @@ describe('SanityHTTPClient', () => {
         await client.delete('doc-3');
 
         const logger = jest.mocked(
-          (jest.requireMock('@/lib/logger') as { structuredLogger: typeof structuredLogger }).structuredLogger
+          (jest.requireMock('@/lib/logger') as { structuredLogger: typeof structuredLogger })
+            .structuredLogger
         );
         expect(logger.info).toHaveBeenCalledWith('Sanity document deleted', {
           component: 'sanity-http',

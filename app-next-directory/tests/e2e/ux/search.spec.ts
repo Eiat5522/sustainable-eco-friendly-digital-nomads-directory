@@ -52,4 +52,3 @@ test.describe('[E2E] Search UX', () => {
     await expect(page).toHaveURL(/category=coworking/);
   });
 });
-

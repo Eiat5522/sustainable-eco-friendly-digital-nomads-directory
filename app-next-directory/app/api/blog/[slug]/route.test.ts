@@ -4,7 +4,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 // We'll mock the modules the route imports so tests don't need to mutate exported _testControl
 const fetchMock = jest.fn() as jest.MockedFunction<(...args: unknown[]) => Promise<unknown>>;
@@ -84,7 +84,13 @@ describe('Blog [slug] API', () => {
     routeTestControl = route._testControl;
 
     // trackViewCount is internal; set the override on the required module's _testControl
-    (routeTestControl as { trackViewCountOverride?: typeof trackViewCountMock; resetViewCounts: () => void; resetFallbackMetrics: () => void }).trackViewCountOverride = trackViewCountMock;
+    (
+      routeTestControl as {
+        trackViewCountOverride?: typeof trackViewCountMock;
+        resetViewCounts: () => void;
+        resetFallbackMetrics: () => void;
+      }
+    ).trackViewCountOverride = trackViewCountMock;
     (routeTestControl as { resetViewCounts: () => void }).resetViewCounts();
     (routeTestControl as { resetFallbackMetrics: () => void }).resetFallbackMetrics();
   });

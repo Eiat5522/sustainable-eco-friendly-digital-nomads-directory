@@ -21,10 +21,12 @@ describe('instrumentation register', () => {
     process.env.NODE_ENV = 'development';
     resetInstrumentationForTests();
 
-    processOnSpy = jest.spyOn(process, 'on').mockImplementation((event: string, handler: (...args: unknown[]) => void) => {
-      listeners[event as string] = handler as (...args: unknown[]) => void;
-      return process;
-    });
+    processOnSpy = jest
+      .spyOn(process, 'on')
+      .mockImplementation((event: string, handler: (...args: unknown[]) => void) => {
+        listeners[event as string] = handler as (...args: unknown[]) => void;
+        return process;
+      });
 
     processExitSpy = jest.spyOn(process, 'exit').mockImplementation((() => undefined) as never);
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);

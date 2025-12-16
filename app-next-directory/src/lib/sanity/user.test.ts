@@ -2,8 +2,8 @@
  * Tests for user.ts - Sanity user management functions
  */
 
-import { client } from './client';
 import type { UserRole } from '@/types/auth';
+import { client } from './client';
 import type { EnsureUserOptions, MockableEnsureSanityUser, SanityUser } from './user';
 import { ensureSanityUser, unfavoriteListing } from './user';
 

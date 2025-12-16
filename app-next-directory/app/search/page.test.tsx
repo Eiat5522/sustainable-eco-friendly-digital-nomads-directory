@@ -42,7 +42,11 @@ jest.mock('@/components/listings/ListingGrid', () => ({
 }));
 
 jest.mock('@/components/ui/neo-button', () => ({
-  NeoButton: ({ children, asChild = false, ...rest }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  NeoButton: ({
+    children,
+    asChild = false,
+    ...rest
+  }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
     asChild?: boolean;
     children?: React.ReactNode;
   }) => (asChild ? children : <button {...rest}>{children}</button>),

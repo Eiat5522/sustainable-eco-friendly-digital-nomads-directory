@@ -85,7 +85,9 @@ describe('/api/admin/listings', () => {
     it('requires admin access', async () => {
       mockAuth.mockResolvedValue({ user: { role: 'user' } } as MockSession);
 
-      const request = { url: 'https://example.com/api/admin/listings' } as MockRequest as NextRequest;
+      const request = {
+        url: 'https://example.com/api/admin/listings',
+      } as MockRequest as NextRequest;
       const response = await GET(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -112,7 +114,9 @@ describe('/api/admin/listings', () => {
       ]);
       mockFetch.mockResolvedValueOnce(1);
 
-      const request = { url: 'https://example.com/api/admin/listings?page=1&limit=20' } as MockRequest as NextRequest;
+      const request = {
+        url: 'https://example.com/api/admin/listings?page=1&limit=20',
+      } as MockRequest as NextRequest;
       const response = await GET(request, { params: Promise.resolve({}) });
       const json = await response.json();
 
@@ -137,7 +141,9 @@ describe('/api/admin/listings', () => {
       mockFetch.mockResolvedValueOnce([]);
       mockFetch.mockResolvedValueOnce(0);
 
-      const request = { url: 'https://example.com/api/admin/listings?search=cafe' } as MockRequest as NextRequest;
+      const request = {
+        url: 'https://example.com/api/admin/listings?search=cafe',
+      } as MockRequest as NextRequest;
       const response = await GET(request, { params: Promise.resolve({}) });
       const json = await response.json();
 

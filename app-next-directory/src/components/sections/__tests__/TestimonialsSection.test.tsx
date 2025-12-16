@@ -51,13 +51,7 @@ jest.mock('lucide-react', () => ({
 }));
 
 jest.mock('@/components/ui/neo-card', () => ({
-  NeoCard: ({
-    children,
-    ...props
-  }: {
-    children: React.ReactNode;
-    [key: string]: unknown;
-  }) => (
+  NeoCard: ({ children, ...props }: { children: React.ReactNode; [key: string]: unknown }) => (
     <div data-testid="neo-card" {...props}>
       {children}
     </div>
@@ -76,13 +70,7 @@ jest.mock('@/components/ui/neo-card', () => ({
 }));
 
 jest.mock('@/components/ui/neo-badge', () => ({
-  NeoBadge: ({
-    children,
-    ...props
-  }: {
-    children: React.ReactNode;
-    [key: string]: unknown;
-  }) => (
+  NeoBadge: ({ children, ...props }: { children: React.ReactNode; [key: string]: unknown }) => (
     <span data-testid="neo-badge" {...props}>
       {children}
     </span>

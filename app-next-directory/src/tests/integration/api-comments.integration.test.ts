@@ -37,7 +37,8 @@ type SanityUser = {
   createdAt?: string;
 };
 
-const mockEnsureSanityUser: jest.Mock<(user: EnsureUserOptions) => Promise<SanityUser | null>> = jest.fn();
+const mockEnsureSanityUser: jest.Mock<(user: EnsureUserOptions) => Promise<SanityUser | null>> =
+  jest.fn();
 jest.mock('@/lib/sanity/user', () => ({
   __esModule: true,
   ensureSanityUser: mockEnsureSanityUser,
@@ -48,8 +49,12 @@ import { client } from '../../lib/sanity/client';
 
 // Get the actual mock instances created by the __mocks__/@sanity/client.ts mock
 const mockClientFetch = client.fetch as jest.MockedFunction<typeof client.fetch>;
-const mockClientCreate = client.create as jest.MockedFunction<(doc: Record<string, unknown>) => Promise<unknown>>;
-const mockClientGetDocument = client.getDocument as jest.MockedFunction<(id: string) => Promise<unknown>>;
+const mockClientCreate = client.create as jest.MockedFunction<
+  (doc: Record<string, unknown>) => Promise<unknown>
+>;
+const mockClientGetDocument = client.getDocument as jest.MockedFunction<
+  (id: string) => Promise<unknown>
+>;
 const parseJson = async (response: Response) => ({
   status: response.status,
   body: await response.json(),

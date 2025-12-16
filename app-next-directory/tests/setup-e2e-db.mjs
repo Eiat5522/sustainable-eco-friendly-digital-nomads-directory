@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 /**
  * E2E Test Setup Script
  *
@@ -10,8 +11,8 @@
  * Run before E2E tests to ensure a clean, consistent state.
  */
 
-import { MongoClient } from 'mongodb';
 import bcrypt from 'bcryptjs';
+import { MongoClient } from 'mongodb';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/e2e_test';
 const DB_NAME = 'e2e_test';
