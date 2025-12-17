@@ -14,7 +14,7 @@
     "NODE_ENV": "test"
   },
   "jest.monitorLongRun": 60000,
-  "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
+  "editor.defaultFormatter": "biomejs.biome",
   "editor.experimental.preferTreeSitter.typescript": true,
   "[json]": {
     "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
