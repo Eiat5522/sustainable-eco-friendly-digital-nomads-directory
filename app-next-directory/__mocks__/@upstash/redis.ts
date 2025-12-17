@@ -70,7 +70,14 @@ export const mockRedisClient = {
   zscore: jest.fn(),
 
   // Transaction support
-  multi: jest.fn().mockReturnValue({
+  multi: jest.fn<() => {
+    set: ReturnType<typeof jest.fn>;
+    get: ReturnType<typeof jest.fn>;
+    del: ReturnType<typeof jest.fn>;
+    incr: ReturnType<typeof jest.fn>;
+    expire: ReturnType<typeof jest.fn>;
+    exec: ReturnType<typeof jest.fn>;
+  }>().mockReturnValue({
     set: jest.fn().mockReturnThis(),
     get: jest.fn().mockReturnThis(),
     del: jest.fn().mockReturnThis(),
@@ -80,7 +87,14 @@ export const mockRedisClient = {
   }),
 
   // Pipeline support (similar to multi but without atomicity)
-  pipeline: jest.fn().mockReturnValue({
+  pipeline: jest.fn<() => {
+    set: ReturnType<typeof jest.fn>;
+    get: ReturnType<typeof jest.fn>;
+    del: ReturnType<typeof jest.fn>;
+    incr: ReturnType<typeof jest.fn>;
+    expire: ReturnType<typeof jest.fn>;
+    exec: ReturnType<typeof jest.fn>;
+  }>().mockReturnValue({
     set: jest.fn().mockReturnThis(),
     get: jest.fn().mockReturnThis(),
     del: jest.fn().mockReturnThis(),

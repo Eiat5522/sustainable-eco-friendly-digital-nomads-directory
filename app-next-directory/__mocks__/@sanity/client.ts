@@ -2,9 +2,7 @@ import { jest } from '@jest/globals';
 import {
   createTestData,
   getFavoritesForUser,
-  getListingBySlug,
   listCities,
-  listEcoTags,
 } from '@/tests/helpers/test-data';
 
 const data = createTestData();
@@ -14,7 +12,7 @@ const useMSWMode = process.env.SANITY_FETCH_MODE === 'msw';
 
 const mapListingToSanity = (slug: string | undefined) => {
   if (!slug) return null;
-  const listing = getListingBySlug(slug);
+  const listing = data.listings.find((l: { slug?: { current: string } }) => l.slug?.current === slug);
   if (!listing) return null;
   const city = listCities().find(entry => entry.slug === listing.city.slug?.current);
   return {
@@ -28,7 +26,7 @@ const mapListingToSanity = (slug: string | undefined) => {
           name: listing.city.name,
           slug: listing.city.slug?.current,
         },
-    ecoTags: listing.ecoFocusTags.map(tag => tag.name),
+    ecoTags: listing.ecoFocusTags.map((tag: { name: string }) => tag.name),
     nomadFeatures: listing.digitalNomadFeatures,
     website: listing.website,
     priceRange: listing.priceRange,
@@ -44,8 +42,12 @@ const fetch = jest.fn(async (query: string, params: Record<string, any> = {}) =>
   if (/_type\s*==\s*"userFavorite"/.test(query)) {
     const userId = params.userId ?? data.users[0]?.id;
     const favorites = getFavoritesForUser(userId);
-    return favorites.map(favorite => {
-      const listing = data.listings.find(item => item._id === favorite.listingId);
+    return favorites.map((favorite: {
+      id: string;
+      createdAt: string;
+      listingId: string;
+    }) => {
+      const listing = data.listings.find((item: { _id: string }) => item._id === favorite.listingId);
       return {
         _id: favorite.id,
         createdAt: favorite.createdAt,
@@ -92,7 +94,7 @@ const fetch = jest.fn(async (query: string, params: Record<string, any> = {}) =>
   }
 
   if (/_type\s*==\s*"ecoTag"/.test(query)) {
-    return listEcoTags().map(tag => ({
+    return data.ecoTags.map((tag: { _id: string; name: string; slug: { current: string }; description?: string }) => ({
       _id: tag._id,
       name: tag.name,
       slug: tag.slug.current,
@@ -101,7 +103,16 @@ const fetch = jest.fn(async (query: string, params: Record<string, any> = {}) =>
   }
 
   if (/moderation\.featured/.test(query)) {
-    return data.listings.map(listing => ({
+    return data.listings.map((listing: {
+      _id: string;
+      name: string;
+      slug?: { current: string };
+      primaryImage?: unknown;
+      galleryImages?: unknown[];
+      location?: unknown;
+      city: { slug?: { current: string }; name: string };
+      priceRange?: string;
+    }) => ({
       _id: listing._id,
       name: listing.name,
       slug: listing.slug?.current,

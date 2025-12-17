@@ -1,5 +1,6 @@
 'use client';
 
+import type React from 'react';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { getUserFacingMessage } from '@/lib/client-utils';
 import { fetchJsonWithRetry, getDefaultTimeout, RequestTimeoutError } from '@/lib/http/request';
@@ -39,9 +40,6 @@ type UsersResponse = {
 const ROLE_OPTIONS: { value: UserRole; label: string; description: string }[] = [
   { value: 'user', label: 'User', description: 'Basic user with limited permissions' },
   { value: 'venueOwner', label: 'Venue Owner', description: 'Can manage own listings' },
-  { value: 'editor', label: 'Editor', description: 'Can edit content and listings' },
-  { value: 'contentEditor', label: 'Content Editor', description: 'Can create and edit content' },
-  { value: 'moderator', label: 'Moderator', description: 'Can moderate content' },
   { value: 'admin', label: 'Admin', description: 'Full admin privileges' },
   { value: 'superAdmin', label: 'Super Admin', description: 'Highest level access' },
 ];
@@ -123,23 +121,15 @@ function RoleBadge({ role }: { role: UserRole }) {
   const roleColors: Record<UserRole, string> = {
     user: 'bg-gray-50 text-gray-700 border-gray-200',
     venueOwner: 'bg-blue-50 text-blue-700 border-blue-200',
-    editor: 'bg-green-50 text-green-700 border-green-200',
-    contentEditor: 'bg-teal-50 text-teal-700 border-teal-200',
-    moderator: 'bg-purple-50 text-purple-700 border-purple-200',
     admin: 'bg-red-50 text-red-700 border-red-200',
     superAdmin: 'bg-red-100 text-red-800 border-red-300',
-    unidentifiedUser: 'bg-gray-50 text-gray-500 border-gray-200',
   };
 
   const roleLabels: Record<UserRole, string> = {
     user: 'User',
     venueOwner: 'Venue Owner',
-    editor: 'Editor',
-    contentEditor: 'Content Editor',
-    moderator: 'Moderator',
     admin: 'Admin',
     superAdmin: 'Super Admin',
-    unidentifiedUser: 'Unidentified',
   };
 
   return (
@@ -310,7 +300,7 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
               id="search"
               placeholder="Search by name or email..."
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
               className="w-full sm:w-64 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
@@ -321,7 +311,7 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
             <select
               id="roleFilter"
               value={roleFilter}
-              onChange={e => setRoleFilter(e.target.value as UserRole | '')}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setRoleFilter(e.target.value as UserRole | '')}
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">All roles</option>
@@ -379,7 +369,7 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
                     </td>
                   </tr>
                 ) : (
-                  users.map(user => (
+                  users.map((user: UserListItem) => (
                     <tr key={user.id} data-testid={`user-row-${user.id}`}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
@@ -393,7 +383,7 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
                         {canChangeRoles ? (
                           <select
                             value={user.role}
-                            onChange={e => handleRoleChange(user.id, e.target.value as UserRole)}
+                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleRoleChange(user.id, e.target.value as UserRole)}
                             disabled={
                               isPending || (user.id === currentUserId && user.role === 'superAdmin')
                             }

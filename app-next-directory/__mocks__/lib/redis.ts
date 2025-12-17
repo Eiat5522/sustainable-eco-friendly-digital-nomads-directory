@@ -2,18 +2,18 @@ import { jest } from '@jest/globals';
 
 // Mock Redis client with common methods used in rate limiting
 const mockRedisClient = {
-  incr: jest.fn().mockResolvedValue(1),
-  expire: jest.fn().mockResolvedValue(1),
-  evalSha: jest.fn().mockResolvedValue(['1', '1']),
-  script: jest.fn().mockReturnValue({
-    load: jest.fn().mockResolvedValue('script-hash'),
+  incr: jest.fn<() => Promise<number>>().mockResolvedValue(1),
+  expire: jest.fn<() => Promise<number>>().mockResolvedValue(1),
+  evalSha: jest.fn<() => Promise<[string, string]>>().mockResolvedValue(['1', '1']),
+  script: jest.fn<() => { load: ReturnType<typeof jest.fn> }>().mockReturnValue({
+    load: jest.fn<() => Promise<string>>().mockResolvedValue('script-hash'),
   }),
-  get: jest.fn().mockResolvedValue(null),
-  set: jest.fn().mockResolvedValue('OK'),
-  del: jest.fn().mockResolvedValue(1),
-  exists: jest.fn().mockResolvedValue(0),
-  ttl: jest.fn().mockResolvedValue(-1),
-  ping: jest.fn().mockResolvedValue('PONG'),
+  get: jest.fn<() => Promise<null>>().mockResolvedValue(null),
+  set: jest.fn<() => Promise<string>>().mockResolvedValue('OK'),
+  del: jest.fn<() => Promise<number>>().mockResolvedValue(1),
+  exists: jest.fn<() => Promise<number>>().mockResolvedValue(0),
+  ttl: jest.fn<() => Promise<number>>().mockResolvedValue(-1),
+  ping: jest.fn<() => Promise<string>>().mockResolvedValue('PONG'),
 };
 
 // Track the current client so subscribers receive the current state
@@ -45,7 +45,7 @@ export function _notifyRedisClientChange(client: any) {
   }
 }
 
-export const getRedisClient = jest.fn(() => mockRedisClient);
+export const getRedisClient = jest.fn<() => typeof mockRedisClient>(() => mockRedisClient);
 
 // Provide test helper shims so tests can call mockGetRedisClient.mockClear()
 // and friends on the exported function. These helpers also update the
