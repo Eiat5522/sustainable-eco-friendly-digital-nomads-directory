@@ -53,7 +53,7 @@ class SchemaMock {
         this.paths[key] = {
           path: key,
           instance: this.getInstanceType(def),
-          options: def || {},
+          options: def?.options ?? def ?? {},
           isRequired: !!(def && def.required),
           enumValues: def?.enum,
         };
