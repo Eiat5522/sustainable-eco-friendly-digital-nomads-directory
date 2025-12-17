@@ -96,7 +96,12 @@ function getClientPromise(): Promise<MongoClient> {
             message,
           });
           globalWithMongo._mongoClientPromise = undefined;
-          process.exit(1);
+          // Only exit in production - throw in tests to allow Jest to continue
+          // Check for Jest environment to avoid killing test runner
+          if (typeof jest === 'undefined' && typeof global.jest === 'undefined') {
+            process.exit(1);
+          }
+          throw error;
         });
     }
     clientPromise = globalWithMongo._mongoClientPromise as Promise<MongoClient>;
@@ -111,7 +116,12 @@ function getClientPromise(): Promise<MongoClient> {
           component: 'mongodb',
           message,
         });
-        process.exit(1);
+        // Only exit in production - throw in tests to allow Jest to continue
+        // Check for Jest environment to avoid killing test runner
+        if (typeof jest === 'undefined' && typeof global.jest === 'undefined') {
+          process.exit(1);
+        }
+        throw error;
       });
   }
 

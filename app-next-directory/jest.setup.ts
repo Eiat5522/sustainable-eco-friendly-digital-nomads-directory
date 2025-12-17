@@ -67,19 +67,23 @@ let structuredLogger: {
   warn?: (...args: unknown[]) => void;
   info?: (...args: unknown[]) => void;
   debug?: (...args: unknown[]) => void;
-} = {};
-try {
-  // Import at runtime to avoid module resolution issues in certain test setups
-  const loggerModule = await import('./src/lib/logger');
-  structuredLogger = loggerModule.structuredLogger;
-} catch (_e) {
-  structuredLogger = {
-    error: () => {},
-    warn: () => {},
-    info: () => {},
-    debug: () => {},
-  };
-}
+} = {
+  error: () => {},
+  warn: () => {},
+  info: () => {},
+  debug: () => {},
+};
+
+// Load logger asynchronously in an IIFE to avoid top-level await issues
+(async () => {
+  try {
+    // Import at runtime to avoid module resolution issues in certain test setups
+    const loggerModule = await import('./src/lib/logger');
+    structuredLogger = loggerModule.structuredLogger;
+  } catch (_e) {
+    // Keep default no-op logger
+  }
+})();
 
 // ============================================================================
 // STOP! Do not add `jest.mock('mongoose')` calls in this file.

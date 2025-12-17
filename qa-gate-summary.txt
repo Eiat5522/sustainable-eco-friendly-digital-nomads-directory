@@ -1,0 +1,17 @@
+Lint
+app-next-directory/app/admin/settings/SettingsForm.tsx
+app-next-directory/app/api/admin/settings/route.ts
+app-next-directory/src/data/e2e/discovery-fixtures.ts
+app-next-directory/src/lib/dto-transformer.ts
+
+
+Errors  Files
+     5  app-next-directory/app/admin/users/UserManagementTable.tsx:42
+     1  app-next-directory/app/api/test-listings/route.ts:33
+     2  app-next-directory/src/lib/dbConnect.ts:31
+    22  app-next-directory/src/mocks/handlers/api.ts:49
+     6  app-next-directory/src/mocks/handlers/sanity.ts:60
+     9  app-next-directory/src/tests/fixtures/index.ts:4
+     1  app-next-directory/src/tests/fixtures/page.tsx:63
+
+     Found 46 errors in 7 files.
