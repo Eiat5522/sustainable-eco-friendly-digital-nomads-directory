@@ -24,6 +24,13 @@ function createJsonResponse(body: unknown, init: ResponseInit = {}): Response {
     // NextResponse.json internally calls Response.json which is missing in the test
     // environment. We guard the call so that unit tests fall back to the standard
     // Response constructor while production still benefits from Next.js helpers.
+    // If a non-200 status is requested, prefer the standard Response so the
+    // status is preserved reliably in test environments.
+    if (init.status && init.status !== 200) {
+      const payload = JSON.stringify(body ?? null);
+      return new Response(payload, { ...init, headers });
+    }
+
     return NextResponse.json(body, { ...init, headers });
   }
 

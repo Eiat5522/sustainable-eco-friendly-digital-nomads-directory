@@ -12,7 +12,7 @@ declare module 'next-auth/jwt' {
   }
 }
 
-export type UserRole = 'user' | 'venueOwner' | 'admin' | 'superAdmin';
+export type UserRole = 'user' | 'venueOwner' | 'editor' | 'admin' | 'superAdmin';
 
 // Define page access permissions
 export interface PagePermissions {
@@ -179,6 +179,90 @@ export const ACCESS_CONTROL_MATRIX: Record<
       deleteOwnComments: true,
       deleteAllComments: true,
       moderateComments: true,
+    },
+  },
+  editor: {
+    pages: {
+      home: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: false },
+      listings: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: false },
+      listingDetail: {
+        canView: true,
+        canCreate: true,
+        canEdit: true,
+        canDelete: false,
+        canManage: false,
+      },
+      createListing: {
+        canView: true,
+        canCreate: true,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      editListing: {
+        canView: true,
+        canCreate: false,
+        canEdit: true,
+        canDelete: false,
+        canManage: false,
+      },
+      manageListing: {
+        canView: true,
+        canCreate: false,
+        canEdit: true,
+        canDelete: false,
+        canManage: false,
+      },
+      reviews: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: false },
+      profile: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
+      admin: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      analytics: {
+        canView: false,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
+      settings: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      contact: { canView: true, canCreate: true, canEdit: false, canDelete: false, canManage: false },
+      about: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      blog: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: false },
+    },
+    features: {
+      submitListings: true,
+      editOwnListings: true,
+      editAllListings: false,
+      deleteOwnListings: false,
+      deleteAllListings: false,
+      moderateListings: false,
+      submitReviews: true,
+      editOwnReviews: true,
+      editAllReviews: false,
+      deleteOwnReviews: false,
+      deleteAllReviews: false,
+      moderateReviews: false,
+      viewUserProfiles: true,
+      editOwnProfile: true,
+      editAllProfiles: false,
+      deleteUsers: false,
+      manageUserRoles: false,
+      createContent: true,
+      editContent: true,
+      deleteContent: false,
+      publishContent: false,
+      accessAnalytics: false,
+      manageSettings: false,
+      viewAuditLogs: false,
+      exportData: false,
+      submitContactForms: true,
+      viewContactSubmissions: false,
+      respondToContact: false,
+      submitComments: true,
+      editOwnComments: true,
+      editAllComments: false,
+      deleteOwnComments: true,
+      deleteAllComments: false,
+      moderateComments: false,
     },
   },
   superAdmin: {
@@ -520,11 +604,13 @@ export const ACCESS_CONTROL_MATRIX: Record<
 };
 
 // Utility functions for permission checking
-export function getUserPermissions(role: UserRole): {
+export function getUserPermissions(role: string | UserRole): {
   pages: (typeof ACCESS_CONTROL_MATRIX)[UserRole]['pages'];
   features: FeaturePermissions;
 } {
-  return ACCESS_CONTROL_MATRIX[role];
+  // Return a safe fallback (user) for unknown roles to keep callers/tests robust.
+  const key = (role as UserRole) in ACCESS_CONTROL_MATRIX ? (role as UserRole) : 'user';
+  return ACCESS_CONTROL_MATRIX[key];
 }
 
 export function hasPagePermission(

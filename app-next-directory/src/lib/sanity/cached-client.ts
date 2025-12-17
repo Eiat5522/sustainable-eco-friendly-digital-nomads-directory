@@ -37,6 +37,14 @@ async function fetchAndCache<T>(
     try {
       const data = (await client.fetch<T | null>(query, params)) as T;
 
+      // In test/MSW mode, a mocked Sanity server returning a non-2xx status
+      // may result in `null` being returned by the client. Treat `null` as
+      // an error to ensure API routes surface a 500 instead of falling back
+      // to 'not found' semantics.
+      if (data === null && process.env.SANITY_FETCH_MODE === 'msw') {
+        throw new Error('Sanity returned null response');
+      }
+
       if (redis) {
         try {
           await redis.set(key, JSON.stringify(data), { ex: ttl });

@@ -144,6 +144,11 @@ module.exports = {
   // using --maxWorkers=<n> on the command line for specific runs.
   maxWorkers: 1,
 
+  // Automatically clear and reset mocks between tests for isolation
+  clearMocks: true,
+  resetMocks: true,
+  restoreMocks: true,
+
   setupFiles: ['<rootDir>/jest/setEnvVars.js', '<rootDir>/next.setup.ts'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
 

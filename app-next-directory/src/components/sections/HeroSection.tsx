@@ -57,7 +57,7 @@ export function HeroSection() {
           </p>
 
           {/* Search Bar */}
-          <search onSubmit={handleSubmit} className="relative max-w-2xl mx-auto mb-8">
+          <form onSubmit={handleSubmit} className="relative max-w-2xl mx-auto mb-8">
             <div className="relative">
               <Search
                 aria-hidden="true"
@@ -83,7 +83,7 @@ export function HeroSection() {
                 Search
               </NeoButton>
             </div>
-          </search>
+          </form>
         </div>
       </div>
 

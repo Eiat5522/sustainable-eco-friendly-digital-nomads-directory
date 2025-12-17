@@ -12,8 +12,8 @@ jest.mock('next/link', () => {
 
 // Mock next/image
 jest.mock('next/image', () => {
-  return ({ src, alt }) => {
-    return <div role="img" aria-label={alt} data-src={src} />;
+  return ({ src, alt, ...props }) => {
+    return <img src={src} alt={alt} {...props} />;
   };
 });
 
@@ -72,8 +72,10 @@ describe('VenueCard', () => {
     if (image) {
       fireEvent.error(image);
     }
-    // After the error, the placeholder image should be visible
-    const placeholderImage = container.querySelector('img[src="/placeholder_image.png"]');
+    // After the error, the placeholder image should be visible. Match by src suffix
+    const placeholderImage = Array.from(container.querySelectorAll('img')).find(img =>
+      (img.getAttribute('src') || '').endsWith('/placeholder_image.png')
+    );
     expect(placeholderImage).toBeInTheDocument();
   });
 });

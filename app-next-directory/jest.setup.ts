@@ -369,6 +369,8 @@ if (process.env.JEST_CONSOLE_NO_FILTER !== '1') {
 import { jest } from '@jest/globals';
 import '@testing-library/jest-dom';
 import { cleanup } from '@testing-library/react';
+// MSW server for request interception in unit/msw tests
+// MSW server is initialized dynamically later; avoid importing it eagerly here
 import { createTestData } from './src/tests/helpers/test-data';
 
 declare global {
@@ -418,6 +420,11 @@ afterEach(async () => {
   // Flush any pending promises to prevent memory leaks
   await new Promise(resolve => setTimeout(resolve, 0));
 });
+
+// MSW lifecycle hooks: ensure the request interception server is available
+// for tests that depend on mocked network responses.
+// MSW lifecycle is handled further down with a dynamic import so the setup
+// can be skipped for certain suites (e.g. real mongoose integration tests).
 
 // Ensure real mongoose never loads under jsdom/unit runs.
 // The Jest config maps `mongoose` to our manual implementation, so avoid calling
@@ -511,6 +518,17 @@ if (!skipMSW) {
     const server = await getServer();
     if (server) {
       server.listen({ onUnhandledRequest: 'bypass' });
+    }
+  });
+
+  // For tests that explicitly opt into `SANITY_FETCH_MODE='msw'`, reset the
+  // default handlers before each test so test-local `server.use(...)`
+  // overrides take effect reliably. This avoids a situation where the
+  // global default handlers mask per-test overrides.
+  beforeEach(async () => {
+    if (process.env.SANITY_FETCH_MODE === 'msw') {
+      const s = await getServer();
+      if (s) s.resetHandlers();
     }
   });
 
