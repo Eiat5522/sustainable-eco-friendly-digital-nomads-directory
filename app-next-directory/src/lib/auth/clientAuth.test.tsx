@@ -214,7 +214,7 @@ describe('clientAuth context and helpers', () => {
 
     it('renders children when permission helper returns true', async () => {
       useSessionMock.mockReturnValue({
-        data: { user: { role: 'editor' as UserRole } },
+        data: { user: { role: 'admin' as UserRole } },
         status: 'authenticated',
       });
 
@@ -228,7 +228,7 @@ describe('clientAuth context and helpers', () => {
         </AuthProvider>
       );
 
-      expect(hasFeaturePermissionMock).toHaveBeenCalledWith('editor', 'editContent');
+      expect(hasFeaturePermissionMock).toHaveBeenCalledWith('admin', 'editContent');
       expect(screen.getByTestId('permission-pass')).toBeInTheDocument();
     });
 

@@ -69,7 +69,7 @@ describe('withAuth HOC', () => {
       render(<WrappedComponent />);
 
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith('/login');
+        expect(mockPush).toHaveBeenCalledWith('/auth/login');
       });
       expect(screen.queryByText('Content')).not.toBeInTheDocument();
     });
@@ -157,7 +157,7 @@ describe('withAuth HOC', () => {
       rerender(<WrappedComponent />);
 
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith('/login');
+        expect(mockPush).toHaveBeenCalledWith('/auth/login');
       });
     });
   });
@@ -224,21 +224,21 @@ describe('withUserAuth HOC', () => {
     });
   });
 
-  it('redirects unauthenticated users', async () => {
-    mockUseSession.mockReturnValue({
-      data: null,
-      status: 'unauthenticated',
+    it('redirects unauthenticated users', async () => {
+      mockUseSession.mockReturnValue({
+        data: null,
+        status: 'unauthenticated',
+      });
+
+      const TestComponent = () => <div>User Content</div>;
+      const WrappedComponent = withUserAuth(TestComponent);
+
+      render(<WrappedComponent />);
+
+      await waitFor(() => {
+        expect(mockPush).toHaveBeenCalledWith('/auth/login');
+      });
     });
-
-    const TestComponent = () => <div>User Content</div>;
-    const WrappedComponent = withUserAuth(TestComponent);
-
-    render(<WrappedComponent />);
-
-    await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/login');
-    });
-  });
 
   it('accepts any authenticated user regardless of role', async () => {
     mockUseSession.mockReturnValue({

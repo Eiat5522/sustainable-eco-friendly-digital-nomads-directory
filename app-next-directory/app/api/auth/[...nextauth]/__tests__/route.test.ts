@@ -1,6 +1,22 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
-jest.mock('@/lib/logger');
+// Mock the logger module
+const mockStructuredLogger = {
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn(),
+};
+
+jest.mock('@/lib/logger', () => ({
+  structuredLogger: mockStructuredLogger,
+  logger: {
+    info: mockStructuredLogger.info,
+    warn: mockStructuredLogger.warn,
+    error: mockStructuredLogger.error,
+    debug: mockStructuredLogger.debug,
+  },
+}));
 
 // Mock the auth library
 const mockAuthGET = jest.fn();
@@ -19,7 +35,18 @@ let POST: PostHandler;
 
 describe('NextAuth Route Handler', () => {
   // Helper to get the mocked logger
-  const getMockLogger = () => jest.requireMock<typeof import('@/lib/logger')>('@/lib/logger');
+  const getMockLogger = () => {
+    const mockLogger = {
+      structuredLogger: mockStructuredLogger,
+      logger: {
+        info: mockStructuredLogger.info,
+        warn: mockStructuredLogger.warn,
+        error: mockStructuredLogger.error,
+        debug: mockStructuredLogger.debug,
+      },
+    };
+    return mockLogger;
+  };
 
   beforeEach(async () => {
     jest.clearAllMocks();

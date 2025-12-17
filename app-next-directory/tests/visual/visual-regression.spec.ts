@@ -188,41 +188,7 @@ test.describe('Visual Regression Testing', () => {
     });
   });
 
-  test.describe('Theme and Color Scheme Tests', () => {
-    test('dark mode visual consistency', async ({ page }) => {
-      await page.goto('/');
-
-      // Toggle dark mode
-      await page.click('[data-testid="theme-toggle"]');
-      await page.waitForTimeout(500); // Wait for theme transition
-
-      await expect(page).toHaveScreenshot('homepage-dark-mode.png', {
-        fullPage: true,
-        animations: 'disabled',
-      });
-    });
-
-    test('high contrast mode visual consistency', async ({ page }) => {
-      await page.goto('/');
-
-      // Simulate high contrast preference
-      await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' });
-
-      // Apply high contrast styles
-      await page.addStyleTag({
-        content: `
-          * {
-            filter: contrast(150%) !important;
-          }
-        `,
-      });
-
-      await expect(page).toHaveScreenshot('homepage-high-contrast.png', {
-        fullPage: true,
-        animations: 'disabled',
-      });
-    });
-  });
+  // Theme and color-scheme tests removed — project no longer uses theme toggling.
 
   test.describe('Cross-Browser Visual Consistency', () => {
     test('Chromium vs Firefox comparison', async ({ page, browserName }) => {

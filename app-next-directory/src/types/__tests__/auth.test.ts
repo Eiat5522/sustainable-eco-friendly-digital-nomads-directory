@@ -58,16 +58,7 @@ describe('auth types coverage', () => {
     expect(featurePerms.editAllListings).toBe(false);
   });
   it('should call getUserPermissions for all roles', () => {
-    const roles: UserRole[] = [
-      'admin',
-      'user',
-      'editor',
-      'venueOwner',
-      'superAdmin',
-      'moderator',
-      'unidentifiedUser',
-      'contentEditor',
-    ];
+    const roles: UserRole[] = ['admin', 'user', 'venueOwner', 'superAdmin'];
     for (const role of roles) {
       const perms = getUserPermissions(role);
       expect(perms).toHaveProperty('pages');
@@ -86,16 +77,7 @@ describe('auth types coverage', () => {
   });
 
   it('should check hasHigherRole for all role pairs', () => {
-    const roles: UserRole[] = [
-      'admin',
-      'user',
-      'editor',
-      'venueOwner',
-      'superAdmin',
-      'moderator',
-      'unidentifiedUser',
-      'contentEditor',
-    ];
+    const roles: UserRole[] = ['admin', 'user', 'venueOwner', 'superAdmin'];
     for (let i = 0; i < roles.length; i++) {
       for (let j = 0; j < roles.length; j++) {
         hasHigherRole(roles[i], roles[j]);

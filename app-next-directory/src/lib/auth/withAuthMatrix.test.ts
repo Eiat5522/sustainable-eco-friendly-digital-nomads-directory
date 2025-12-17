@@ -415,7 +415,7 @@ describe('withMinimumRole', () => {
       mockGetToken.mockResolvedValue({ role: 'admin' });
 
       const request = new NextRequest('http://localhost:3000/api/admin');
-      const response = await withMinimumRole(request, 'moderator' as any, true);
+      const response = await withMinimumRole(request, 'user' as any, true);
 
       expect(response).toBeInstanceOf(NextResponse);
       expect(response.status).not.toBe(403);
@@ -434,11 +434,11 @@ describe('withMinimumRole', () => {
       expect(location).toContain('/auth/signin');
     });
 
-    it('allows unauthenticated access for unidentifiedUser role', async () => {
+    it('allows unauthenticated access for public pages', async () => {
       mockGetToken.mockResolvedValue(null);
 
       const request = new NextRequest('http://localhost:3000/');
-      const response = await withMinimumRole(request, 'unidentifiedUser' as any, false);
+      const response = await withMinimumRole(request, 'user' as any, false);
 
       expect(response).toBeInstanceOf(NextResponse);
       expect(response.status).not.toBe(307);
@@ -554,15 +554,15 @@ describe('withAuth (legacy)', () => {
     expect(location).toContain('/auth/unauthorized');
   });
 
-  it('allows access when user role is in required roles', async () => {
-    mockGetToken.mockResolvedValue({ role: 'admin' });
+    it('allows access when user role is in required roles', async () => {
+      mockGetToken.mockResolvedValue({ role: 'admin' });
 
-    const request = new NextRequest('http://localhost:3000/admin');
-    const response = await withAuth(request, ['admin', 'moderator']);
+      const request = new NextRequest('http://localhost:3000/admin');
+      const response = await withAuth(request, ['admin', 'superAdmin']);
 
-    expect(response).toBeInstanceOf(NextResponse);
-    expect(response.status).toBe(200);
-  });
+      expect(response).toBeInstanceOf(NextResponse);
+      expect(response.status).toBe(200);
+    });
 
   it('allows access when no required roles specified', async () => {
     mockGetToken.mockResolvedValue({ role: 'user' });

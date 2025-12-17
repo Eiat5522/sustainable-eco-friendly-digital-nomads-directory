@@ -2,6 +2,16 @@ import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals
 
 import { register, resetInstrumentationForTests } from '../instrumentation';
 
+// Mock the logger
+jest.mock('@/lib/logger', () => ({
+  redirectConsoleToStructuredLogger: jest.fn(),
+  structuredLogger: {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+  },
+}));
+
 type ListenerMap = Record<string, ((...args: any[]) => void) | undefined>;
 
 describe('instrumentation register', () => {
@@ -14,12 +24,30 @@ describe('instrumentation register', () => {
   let consoleErrorSpy: jest.SpyInstance;
   let consoleWarnSpy: jest.SpyInstance;
   let consoleLogSpy: jest.SpyInstance;
+  let mockLogger: {
+    redirectConsoleToStructuredLogger: jest.Mock;
+    structuredLogger: {
+      info: jest.Mock;
+      warn: jest.Mock;
+      error: jest.Mock;
+    };
+  };
 
   beforeEach(() => {
     listeners = {};
     process.env.NEXT_RUNTIME = 'nodejs';
     process.env.NODE_ENV = 'development';
     resetInstrumentationForTests();
+
+    // Get the mocked logger
+    mockLogger = jest.requireMock('@/lib/logger') as {
+      redirectConsoleToStructuredLogger: jest.Mock;
+      structuredLogger: {
+        info: jest.Mock;
+        warn: jest.Mock;
+        error: jest.Mock;
+      };
+    };
 
     processOnSpy = jest.spyOn(process, 'on').mockImplementation((event: any, handler: any) => {
       listeners[event as string] = handler as (...args: any[]) => void;
@@ -48,8 +76,9 @@ describe('instrumentation register', () => {
 
     expect(processOnSpy).toHaveBeenCalledWith('unhandledRejection', expect.any(Function));
     expect(processOnSpy).toHaveBeenCalledWith('uncaughtException', expect.any(Function));
-    expect(consoleLogSpy).toHaveBeenCalledWith(
-      'Server instrumentation registered: Error handlers active'
+    expect(mockLogger.structuredLogger.info).toHaveBeenCalledWith(
+      'Server instrumentation registered: Error handlers active',
+      { component: 'instrumentation' }
     );
 
     const rejectionHandler = listeners.unhandledRejection;
@@ -58,8 +87,9 @@ describe('instrumentation register', () => {
     const rejectionError = new Error('MongoServerSelectionError: connection timeout');
     rejectionHandler?.(rejectionError, Promise.resolve());
 
-    expect(consoleWarnSpy).toHaveBeenCalledWith(
-      'MongoDB connection issue detected. The server will continue running and retry on next request.'
+    expect(mockLogger.structuredLogger.warn).toHaveBeenCalledWith(
+      'MongoDB connection issue detected. The server will continue running and retry on next request.',
+      { component: 'instrumentation' }
     );
     expect(processExitSpy).not.toHaveBeenCalled();
   });
@@ -91,8 +121,9 @@ describe('instrumentation register', () => {
     const rejectionHandler = listeners.unhandledRejection;
     rejectionHandler?.(new Error('Server selection timed out after 5000 ms'), Promise.resolve());
 
-    expect(consoleWarnSpy).toHaveBeenCalledWith(
-      'MongoDB connection issue detected. The server will continue running and retry on next request.'
+    expect(mockLogger.structuredLogger.warn).toHaveBeenCalledWith(
+      'MongoDB connection issue detected. The server will continue running and retry on next request.',
+      { component: 'instrumentation' }
     );
   });
 

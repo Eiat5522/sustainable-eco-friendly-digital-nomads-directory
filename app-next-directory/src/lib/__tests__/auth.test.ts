@@ -51,9 +51,12 @@ jest.mock('@/lib/auth/adapter', () => ({
   createAuthAdapter: jest.fn((...args: unknown[]) => createAuthAdapter(...args)),
 }));
 
+jest.mock('@/lib/auth/dal', () => ({
+  getUserById: jest.fn((...args: unknown[]) => getUserById(...args)),
+}));
+
 jest.mock('@/lib/auth/serverAuth', () => ({
   authenticateUser: jest.fn((...args: unknown[]) => authenticateUser(...args)),
-  getUserById: jest.fn((...args: unknown[]) => getUserById(...args)),
 }));
 
 jest.mock('@/lib/auth/rateLimit', () => ({
@@ -91,9 +94,11 @@ const importAuthModule = async () => {
   jest.doMock('@/lib/auth/adapter', () => ({
     createAuthAdapter: jest.fn((...args: unknown[]) => createAuthAdapter(...args)),
   }));
+  jest.doMock('@/lib/auth/dal', () => ({
+    getUserById: jest.fn((...args: unknown[]) => getUserById(...args)),
+  }));
   jest.doMock('@/lib/auth/serverAuth', () => ({
     authenticateUser: jest.fn((...args: unknown[]) => authenticateUser(...args)),
-    getUserById: jest.fn((...args: unknown[]) => getUserById(...args)),
   }));
   jest.doMock('@/lib/auth/rateLimit', () => ({
     enforceLoginRateLimit: jest.fn((...args: unknown[]) => enforceLoginRateLimit(...args)),
@@ -357,6 +362,7 @@ describe('auth module', () => {
       const token = await jwtCallback?.({
         token: { id: 'user-2', email: 'fetched@example.com' } as JWT,
         trigger: 'update',
+        user: undefined, // No user object
       } as any);
 
       expect(getUserById).toHaveBeenCalledWith('user-2');

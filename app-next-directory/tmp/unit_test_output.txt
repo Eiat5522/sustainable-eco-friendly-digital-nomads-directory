@@ -1,343 +1,721 @@
-PASS src/types/type-tests/strict-component-type-tests.test.ts (5.921 s)
-PASS app/api/search/__tests__/route.test.ts
-PASS src/components/sections/__tests__/CategoryFilters.test.tsx
-PASS src/components/layout/__tests__/Header.test.tsx
-PASS src/components/search/__tests__/DigitalNomadSearch.test.tsx
-PASS app/dashboard/components/__tests__/VenueListingForm.test.tsx
-PASS src/lib/__tests__/client.test.ts
-PASS src/lib/__tests__/api.test.ts
-PASS src/components/layout/__tests__/Footer.test.tsx
-PASS app/__tests__/error.test.tsx
-PASS app/admin/listings/__tests__/ListingsManagementTable.test.tsx
-PASS src/components/search/__tests__/SearchForm.unit.test.tsx
-PASS app/auth/login/__tests__/LoginForm.test.tsx
-PASS app/api/admin/bulk-operations/__tests__/route.test.ts
-PASS src/components/auth/__tests__/SocialAuthRow.test.tsx
-PASS src/components/__tests__/CommentForm.test.tsx
-PASS app/admin/settings/__tests__/SettingsForm.test.tsx
-PASS src/components/listings/__tests__/ListingDetailsCard.test.tsx
-PASS src/components/listings/__tests__/RelatedListings.test.tsx
-PASS src/components/listings/__tests__/ListingGrid.test.tsx
-PASS app/auth/signup/__tests__/SignupPageContent.test.tsx
-PASS src/components/listings/__tests__/ReviewsSection.test.tsx
-PASS src/components/listings/__tests__/NoListingsFound.test.tsx
-PASS src/components/search/__tests__/FiltersSidebar.test.tsx
-PASS src/components/ui/__tests__/filter-multi-select.test.tsx
-PASS src/mocks/__tests__/handlers-server.test.ts
-PASS src/components/favorites/__tests__/FavoriteButton.test.tsx
-PASS app/test/search/__tests__/page.test.tsx
-PASS src/components/sections/__tests__/TestimonialsSection.test.tsx
-PASS src/hooks/useAnalytics.test.ts
-PASS src/hooks/useCounter.test.ts
-PASS src/lib/auth/config.test.ts
-PASS app/api/contact/route.test.ts
-PASS app/api/digital-nomad-features/route.test.ts
-PASS app/admin/users/__tests__/UserManagementTable.test.tsx
-PASS src/components/search/__tests__/DigitalNomadSearchFilter.test.tsx
-PASS src/components/profile/__tests__/ProfileEditForm.component.test.tsx
-PASS src/components/sections/__tests__/CityCarousel.test.tsx
-PASS src/components/listings/__tests__/ListingDetailView.test.tsx
-PASS app/admin/dashboard/__tests__/ModerationActions.test.tsx
-PASS src/lib/__tests__/sanity-http-client.test.ts
-PASS src/components/city/__tests__/CityDetailView.test.tsx
-PASS app/api/admin/stats/__tests__/route.test.ts
-PASS src/lib/auth/clientAuth.test.tsx
-PASS src/components/ui/__tests__/StarRating.test.tsx
-PASS src/types/__tests__/filters.test.ts
-PASS app/dashboard/components/__tests__/VenueListingManagement.test.tsx
-PASS src/components/ui/__tests__/skip-link.test.tsx
-PASS app/contact-us/__tests__/page.test.tsx
-PASS src/components/ui/__tests__/city-carousel-wave.test.tsx
-PASS src/components/sections/__tests__/FeaturedListings.test.tsx
-PASS src/lib/auth/serverAuth.test.ts
-PASS app/listings/[slug]/__tests__/page.test.tsx
-PASS app/profile/__tests__/FavoriteListingsShowcase.test.tsx
-PASS src/components/__tests__/MswInit.test.tsx
-PASS app/__tests__/blog-page.test.tsx
-PASS src/components/sections/__tests__/HeroSection.test.tsx
-PASS src/models/__tests__/UserAnalytics.test.ts
-PASS src/lib/auth/withAuth.test.tsx
-PASS src/hooks/useSearch.test.ts
-PASS app/search/results/page.test.tsx
-PASS app/api/preview/exit/__tests__/route.test.ts
-PASS src/lib/__tests__/cache-strategy.test.ts
-PASS src/components/ui/__tests__/label.test.tsx
-PASS app/listings/__tests__/error.test.tsx
-PASS src/components/listings/__tests__/GalleryGrid.test.tsx
-PASS src/components/sections/__tests__/AboutSection.test.tsx
-PASS src/components/ui/__tests__/InteractiveMap.test.tsx
-PASS app/dashboard/listings/edit/[id]/__tests__/page.test.tsx
-PASS app/admin/__tests__/layout.test.tsx
-PASS app/__tests__/blog-slug-page.test.tsx
-PASS src/lib/auth/callbackUrl.test.ts
-PASS app/dashboard/listings/new/__tests__/page.test.tsx
-PASS app/api/auth/verify/__tests__/route.test.ts
-PASS src/utils/__tests__/tag-styles.test.ts
-PASS src/utils/__tests__/rate-limit.test.ts
-PASS app/api/user/favorites/[slug]/__tests__/route.test.ts
-PASS app/api/cities/[slug]/__tests__/route.msw.test.ts
-PASS app/profile/__tests__/error.test.tsx
-PASS src/lib/__tests__/sanity.utils.test.ts
-PASS app/__tests__/page.listingdetail.test.tsx
-PASS src/__tests__/instrumentation.test.ts
-PASS src/types/__tests__/ui.test.ts
-PASS src/lib/__tests__/sanity-image-uploader.test.ts
-PASS src/components/ui/__tests__/separator.test.tsx
-PASS src/components/listings/__tests__/ListingCategoryDetails.test.tsx
-PASS app/api/listings/manage/[id]/__tests__/route.test.ts
-PASS app/api/featured-listings/route.msw.test.ts
-PASS app/__tests__/profile-page.test.tsx
-PASS app/api/user/favorites/__tests__/route.test.ts
-PASS app/auth/login/__tests__/page.test.tsx
-PASS app/api/performance/web-vitals/__tests__/route.test.ts
-PASS src/data/e2e/__tests__/discovery-fixtures.test.ts
-PASS app/__tests__/listings-slug-page.test.tsx
-PASS src/components/listings/__tests__/HeroSection.test.tsx
-PASS src/components/ui/__tests__/select.test.tsx
-PASS app/api/revalidate/__tests__/route.test.ts
-PASS src/lib/queries/__tests__/index.test.ts
-PASS src/types/__tests__/listings.test.ts
-PASS app/newsletter/confirmed/__tests__/page.test.tsx
-PASS app/city/[slug]/__tests__/page.test.tsx
-PASS app/admin/dashboard/__tests__/page.test.tsx
-PASS src/components/ui/__tests__/ImageCarousel.test.tsx
-PASS app/admin/__tests__/error.test.tsx
-PASS src/components/__tests__/Providers.test.tsx
-PASS src/hooks/__tests__/useFilters.test.ts
-PASS src/components/ui/__tests__/VenueCard.test.tsx
-PASS app/admin/settings/__tests__/page.test.tsx
-PASS src/types/type-tests/__tests__/strict-component-type-tests.test.tsx
-PASS src/tests/fixtures/__tests__/page.test.tsx
-PASS src/tests/fixtures/index.test.ts
-PASS src/mocks/__tests__/handlers.test.ts
-PASS src/lib/performance/__tests__/web-vitals-reporter.minimal.test.ts
-PASS src/lib/__tests__/logger.test.ts
-PASS src/lib/__tests__/auth.test.ts
-PASS src/lib/analytics/__tests__/experiments.test.ts
-PASS app/api/revalidate-all/__tests__/route.test.ts
-PASS app/__tests__/dashboard-listings-page.test.tsx
-PASS src/lib/__tests__/error-handler.test.ts
-PASS src/lib/sanity/image.test.ts
-PASS app/test-gallery/page.test.tsx
+FAIL src/lib/admin/__tests__/analytics.test.ts
+  ● admin analytics helpers › returns aggregated analytics snapshot
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 1
+    + Received  + 0
+
+      Object {
+        "admin": 1,
+    -   "moderator": 3,
+        "user": 0,
+      }
+
+      209 |       pendingModeration: 3,
+      210 |     });
+    > 211 |     expect(snapshot.userRoles).toMatchObject({
+          |                                ^
+      212 |       admin: 1,
+      213 |       user: 0,
+      214 |       moderator: 3,
+
+      at Object.toMatchObject (src/lib/admin/__tests__/analytics.test.ts:211:32)
+
+FAIL src/lib/__tests__/auth.test.ts
+  ● auth module › callbacks.jwt › refreshes token details when user object is absent
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "user-2"
+
+    Number of calls: 0
+
+      361 |       } as any);
+      362 |
+    > 363 |       expect(getUserById).toHaveBeenCalledWith('user-2');
+          |                           ^
+      364 |       expect(token).toMatchObject({ name: 'Fetched User', role: 'admin', id: 'user-2' });
+      365 |     });
+      366 |   });
+
+      at Object.toHaveBeenCalledWith (src/lib/__tests__/auth.test.ts:363:27)
+
 PASS app/api/auth/[...nextauth]/__tests__/route.test.ts
-PASS app/api/newsletter/subscribe/route.test.ts
-PASS app/search/__tests__/page.test.tsx
-PASS src/hooks/useFilters.test.ts
-PASS app/api/cities/[slug]/__tests__/route.test.ts
-PASS src/components/ui/__tests__/checkbox.test.tsx
-PASS app/api/test-mongodb/__tests__/route.test.ts
-PASS src/lib/__tests__/mongodb.test.ts
-PASS src/tests/sanity-client.test.ts
-PASS app/city/[slug]/__tests__/error.test.tsx
-PASS src/utils/__tests__/navigation.test.ts
-PASS src/components/search/__tests__/SearchFiltersForm.test.tsx
-PASS src/middleware/__tests__/cache.test.ts
-PASS app/api/blog/[slug]/route.test.ts
-PASS app/api/auth/register/route.test.ts
-PASS app/api/featured-listings/route.test.ts
-PASS app/api/test-listings/__tests__/route.test.ts
-PASS app/__tests__/test-listing-detail-page.test.tsx
-PASS app/__tests__/test-reviews-page.test.tsx
-PASS src/types/__tests__/moderator.test.ts
-PASS src/lib/auth/withAuthMatrix.test.ts
-PASS src/hooks/useSearchListings.test.ts
-PASS src/utils/__tests__/auth-helpers.test.ts
-PASS src/lib/__tests__/search.test.ts
-PASS app/__tests__/sitemap.test.ts
-PASS src/lib/data/__tests__/city.test.ts
-PASS src/components/city/__tests__/cityDetailMockData.test.ts
-PASS app/__tests__/dashboard-page.test.tsx
-PASS src/hooks/useClickOutside.test.tsx
-PASS app/api/listings/route.test.ts
-PASS src/types/__tests__/api-responses.test.ts
-PASS app/__tests__/robots.test.ts
-PASS app/api/search/__tests__/route.msw.test.ts
-PASS src/lib/analytics/__tests__/useExperiment.test.tsx
-PASS app/api/search/suggestions/__tests__/route.test.ts
-PASS src/lib/auth/userService.test.ts
-PASS app/__tests__/cities-slug-page.test.tsx
-PASS app/dashboard/__tests__/error.test.tsx
-PASS src/utils/__tests__/helpers.test.ts
-PASS src/lib/performance/__tests__/monitoring-config.test.ts
-PASS app/search/page.test.tsx
-PASS app/api/eco-tags/route.test.ts
-PASS app/api/city/[slug]/__tests__/route.test.ts
-PASS src/lib/analytics/__tests__/config.test.ts
-PASS src/components/profile/__tests__/ProfileEditForm.test.tsx
-PASS src/test-helpers/__tests__/msw-server-bridge.test.ts
-PASS src/types/auth-types.test.ts
-PASS src/utils/__tests__/api-response.test.ts
-PASS app/api/auth/update-profile/route.test.ts
-PASS app/admin/listings/__tests__/page.test.tsx
-PASS app/api/amenities/route.test.ts
-PASS app/api/reviews/[reviewId]/vote/route.test.ts
-PASS src/lib/analytics/plausible/__tests__/index.test.ts
-PASS src/components/ui/__tests__/SectionHeader.test.tsx
-PASS src/types/__tests__/city.test.ts
-PASS src/components/__tests__/CommentList.test.tsx
-PASS src/lib/__tests__/dto-transformer.test.ts
-PASS src/components/listings/__tests__/ListingContactInfo.test.tsx
-PASS app/listings/[slug]/__tests__/layout.test.tsx
-PASS src/lib/mongodb/__tests__/testDbConnector.test.ts
-PASS app/test/listing-detail/page.test.tsx
-PASS app/api/listings/city/[id]/__tests__/route.msw.test.ts
-PASS app/api/preview/__tests__/route.test.ts
-PASS app/__tests__/page.test.tsx
-PASS app/api/user/profile/route.test.ts
-PASS app/__tests__/layout-utils.test.ts
-PASS src/components/ui/__tests__/neo-badge.test.tsx
-PASS src/lib/__tests__/utils.test.ts
-PASS app/api/user/reviews/__tests__/route.test.ts
+FAIL app/api/reviews/route.test.ts
+  ● API /api/reviews POST › rejects users without review permissions
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 201
+    Received: 400
+
+      266 |     );
+      267 |
+    > 268 |     expect(res.status).toBe(201); // Should succeed since user role has submitReviews: true
+          |                        ^
+      269 |     const json = await res.json();
+      270 |     expect(json.success).toBe(true);
+      271 |   });
+
+      at Object.toBe (app/api/reviews/route.test.ts:268:24)
+
+PASS app/api/cities/[slug]/__tests__/route.msw.test.ts
+FAIL app/api/admin/users/__tests__/route.test.ts
+  ● /api/admin/users › updates users with valid payloads
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 400
+
+      229 |     const json = await response.json();
+      230 |
+    > 231 |     expect(response.status).toBe(200);
+          |                             ^
+      232 |     expect(json).toMatchObject({
+      233 |       message: 'User updated successfully',
+      234 |       userId: 'user-123',
+
+      at Object.toBe (app/api/admin/users/__tests__/route.test.ts:231:29)
+
+  ● /api/admin/users › handles errors when updating users
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 500
+    Received: 400
+
+      251 |     const json = await response.json();
+      252 |
+    > 253 |     expect(response.status).toBe(500);
+          |                             ^
+      254 |     expect(json.error).toBe('Failed to update user');
+      255 |     expect(mockLogger.error).toHaveBeenCalledWith('Admin users PATCH error', expect.any(Error), {
+      256 |       method: 'PATCH',
+
+      at Object.toBe (app/api/admin/users/__tests__/route.test.ts:253:29)
+
+FAIL app/api/comments/route.test.ts
+  ● API /api/comments › POST › rejects users without comment permissions
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 201
+    Received: 400
+
+      147 |
+      148 |       const res = await POST(req);
+    > 149 |       expect(res.status).toBe(201); // Should succeed since user role has submitComments: true
+          |                          ^
+      150 |       const json = await res.json();
+      151 |       expect(json.success).toBe(true);
+      152 |       expect(client.create).toHaveBeenCalled();
+
+      at Object.toBe (app/api/comments/route.test.ts:149:26)
+
+FAIL app/api/listings/city/[id]/__tests__/route.msw.test.ts
+  ● Listings/city/[id] API (MSW) › returns listings via Sanity MSW handler
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 1
+    + Received  + 0
+
+      Object {
+    -   "id": "listing-green-cowork-bangkok",
+        "name": "Green Cowork Bangkok",
+      }
+
+      84 |     expect(json.success).toBe(true);
+      85 |     expect(Array.isArray(json.data?.listings)).toBe(true);
+    > 86 |     expect(json.data.listings[0]).toMatchObject({
+         |                                   ^
+      87 |       id: sampleListing._id,
+      88 |       name: sampleListing.name,
+      89 |     });
+
+      at Object.toMatchObject (app/api/listings/city/[id]/__tests__/route.msw.test.ts:86:35)
+
+FAIL src/lib/performance/__tests__/withPerformanceTracking.test.tsx
+  ● withPerformanceTracking › logs debug output in development mode
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 2
+    Received:    0
+
+      151 |     const body = fetchMock.mock.calls[0][1]?.body as string;
+      152 |     expect(JSON.parse(body)).toMatchObject({ value: 0 });
+    > 153 |     expect(nowMock.mock.calls.length).toBeGreaterThanOrEqual(2);
+          |                                       ^
+      154 |   });
+      155 |
+      156 |   it('falls back to Date.now when the Performance API is unavailable', async () => {
+
+      at Object.toBeGreaterThanOrEqual (src/lib/performance/__tests__/withPerformanceTracking.test.tsx:153:39)
+
+  ● withPerformanceTracking › falls back to Date.now when the Performance API is unavailable
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 1
+    + Received  + 1
+
+      Object {
+    -   "value": 80,
+    +   "value": 0,
+      }
+
+      182 |     });
+      183 |     const body = fetchMock.mock.calls[0][1]?.body as string;
+    > 184 |     expect(JSON.parse(body)).toMatchObject({ value: 80 });
+          |                              ^
+      185 |
+      186 |     dateSpy.mockRestore();
+      187 |   });
+
+      at Object.toMatchObject (src/lib/performance/__tests__/withPerformanceTracking.test.tsx:184:30)
+
+  ● withPerformanceTracking › does not send duplicate metrics when the component rerenders
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 3
+    Received:    0
+
+      200 |       expect(fetchMock).toHaveBeenCalledTimes(1);
+      201 |     });
+    > 202 |     expect(nowMock.mock.calls.length).toBeGreaterThanOrEqual(3);
+          |                                       ^
+      203 |
+      204 |     const body = fetchMock.mock.calls[0][1]?.body as string;
+      205 |     expect(JSON.parse(body)).toMatchObject({
+
+      at Object.toBeGreaterThanOrEqual (src/lib/performance/__tests__/withPerformanceTracking.test.tsx:202:39)
+
+  ● withPerformanceTracking › suppresses debug logging outside of development mode
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 2
+    Received:    0
+
+      236 |       value: 0,
+      237 |     });
+    > 238 |     expect(nowMock.mock.calls.length).toBeGreaterThanOrEqual(2);
+          |                                       ^
+      239 |   });
+      240 | });
+      241 |
+
+      at Object.toBeGreaterThanOrEqual (src/lib/performance/__tests__/withPerformanceTracking.test.tsx:238:39)
+
+FAIL src/hooks/useAuth.test.ts
+  ● useAuth › falls back to anonymous defaults when the user is loading or missing
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "unidentifiedUser"
+    Received: "user"
+
+      58 |     expect(result.current.isLoading).toBe(true);
+      59 |     expect(result.current.user).toBeUndefined();
+    > 60 |     expect(result.current.userRole).toBe('unidentifiedUser');
+         |                                     ^
+      61 |     expect(result.current.status).toBe('loading');
+      62 |
+      63 |     result.current.hasPagePermission('home', 'view');
+
+      at Object.toBe (src/hooks/useAuth.test.ts:60:37)
+
+FAIL src/lib/performance/__tests__/web-vitals-reporter.test.ts
+  ● WebVitalsReporter › falls back to fetch when sendBeacon returns false
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "/api/performance/web-vitals", {"body": "{\"id\":\"2\",\"name\":\"LCP\",\"value\":123,\"entries\":[{\"entryType\":\"paint\"}]}", "keepalive": true, "method": "POST"}
+
+    Number of calls: 0
+
+      92 |     });
+      93 |
+    > 94 |     expect(fetchMock).toHaveBeenCalledWith('/api/performance/web-vitals', {
+         |                       ^
+      95 |       body: JSON.stringify({ id: '2', name: 'LCP', value: 123, entries: [{ entryType: 'paint' }] }),
+      96 |       keepalive: true,
+      97 |       method: 'POST',
+
+      at Object.toHaveBeenCalledWith (src/lib/performance/__tests__/web-vitals-reporter.test.ts:94:23)
+
+  ● WebVitalsReporter › falls back to fetch when sendBeacon throws
+
+    expect(jest.fn()).toHaveBeenCalled()
+
+    Expected number of calls: >= 1
+    Received number of calls:    0
+
+      120 |
+      121 |     expect(() => WebVitalsReporter({ id: '3', name: 'FID', value: 45 })).not.toThrow();
+    > 122 |     expect(fetchMock).toHaveBeenCalled();
+          |                       ^
+      123 |   });
+      124 |
+      125 |   it('falls back to fetch when navigator is unavailable', () => {
+
+      at Object.toHaveBeenCalled (src/lib/performance/__tests__/web-vitals-reporter.test.ts:122:23)
+
+  ● WebVitalsReporter › falls back to fetch when navigator is unavailable
+
+    expect(jest.fn()).toHaveBeenCalled()
+
+    Expected number of calls: >= 1
+    Received number of calls:    0
+
+      140 |
+      141 |     expect(() => WebVitalsReporter({ id: 'missing-nav', name: 'FCP', value: 222 })).not.toThrow();
+    > 142 |     expect(fetchMock).toHaveBeenCalled();
+          |                       ^
+      143 |   });
+      144 |
+      145 |   it('does nothing when fetch is unavailable', () => {
+
+      at Object.toHaveBeenCalled (src/lib/performance/__tests__/web-vitals-reporter.test.ts:142:23)
+
+  ● WebVitalsReporter › swallows fetch errors using the catch handler
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      179 |
+      180 |     expect(() => WebVitalsReporter({ id: '5', name: 'INP', value: 250 })).not.toThrow();
+    > 181 |     expect(catchExecuted).toBe(true);
+          |                           ^
+      182 |   });
+      183 |
+      184 |   it('exposes reportWebVitals alias that delegates to the reporter', () => {
+
+      at Object.toBe (src/lib/performance/__tests__/web-vitals-reporter.test.ts:181:27)
+
+  ● WebVitalsReporter › exposes reportWebVitals alias that delegates to the reporter
+
+    expect(jest.fn()).toHaveBeenCalled()
+
+    Expected number of calls: >= 1
+    Received number of calls:    0
+
+      191 |     reportWebVitals({ id: 'alias', name: 'TTI', value: 3200 });
+      192 |
+    > 193 |     expect(sendBeacon).toHaveBeenCalled();
+          |                        ^
+      194 |   });
+      195 | });
+      196 |
+
+      at Object.toHaveBeenCalled (src/lib/performance/__tests__/web-vitals-reporter.test.ts:193:24)
+
+  ● measureFunctionTime › falls back to Date.now when performance API is unavailable
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 2
+    Received number of calls: 0
+
+      246 |
+      247 |     expect(result).toBe(42);
+    > 248 |     expect(Date.now).toHaveBeenCalledTimes(2);
+          |                      ^
+      249 |   });
+      250 |
+      251 |   it('uses raw execution time when toFixed is unavailable', () => {
+
+      at Object.toHaveBeenCalledTimes (src/lib/performance/__tests__/web-vitals-reporter.test.ts:248:22)
+
+FAIL src/__tests__/instrumentation.test.ts
+  ● instrumentation register › prevents process exit for Mongo related uncaught exceptions
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "MongoDB connection issue detected. Continuing..."
+
+    Number of calls: 0
+
+      153 |
+      154 |     expect(processExitSpy).not.toHaveBeenCalled();
+    > 155 |     expect(consoleWarnSpy).toHaveBeenCalledWith('MongoDB connection issue detected. Continuing...');
+          |                            ^
+      156 |   });
+      157 |
+      158 |   it('logs the failure context and exits the process for critical production errors', async () => {
+
+      at Object.toHaveBeenCalledWith (src/__tests__/instrumentation.test.ts:155:28)
+
+FAIL src/lib/performance/__tests__/web-vitals-reporter.test.fixed.ts
+  ● WebVitalsReporter (fixed) › falls back to fetch when sendBeacon exists but returns false
+
+    expect(jest.fn()).toHaveBeenCalled()
+
+    Expected number of calls: >= 1
+    Received number of calls:    0
+
+      53 |     WebVitalsReporter(metric);
+      54 |
+    > 55 |     expect(sendBeacon).toHaveBeenCalled();
+         |                        ^
+      56 |     expect(fetchMock).toHaveBeenCalled();
+      57 |     const [url, opts] = fetchMock.mock.calls[0];
+      58 |     expect(url).toBe('/api/performance/web-vitals');
+
+      at Object.toHaveBeenCalled (src/lib/performance/__tests__/web-vitals-reporter.test.fixed.ts:55:24)
+
+PASS src/types/type-tests/strict-component-type-tests.test.ts (45.797 s)
+PASS app/admin/users/__tests__/UserManagementTable.test.tsx (10.373 s)
+PASS src/components/search/__tests__/DigitalNomadSearch.test.tsx (17.941 s)
+PASS app/profile/__tests__/FavoriteListingsShowcase.test.tsx
+PASS src/components/layout/__tests__/Header.test.tsx (13.769 s)
+PASS src/components/listings/__tests__/ListingDetailsCard.test.tsx (7.748 s)
+PASS src/lib/auth/serverAuth.test.ts (5.679 s)
+PASS app/admin/listings/__tests__/ListingsManagementTable.test.tsx (14.052 s)
 PASS src/lib/performance/__tests__/alert-service.test.ts
-PASS app/api/listings/[slug]/views/__tests__/route.test.ts
-PASS src/types/__tests__/appView.test.ts
-PASS src/lib/sanity/user.test.ts
-PASS src/lib/auth/rateLimit.test.ts
-PASS app/api/comments/route.test.ts
-PASS src/mocks/__tests__/api-response.test.ts
-PASS src/lib/__tests__/newsletterTokens.test.ts
+PASS app/test/search/__tests__/page.test.tsx (10.9 s)
+PASS app/api/search/__tests__/route.test.ts (19.596 s)
+PASS src/components/search/__tests__/FiltersSidebar.test.tsx (5.982 s)
+PASS app/auth/login/__tests__/LoginForm.test.tsx (25.569 s)
+PASS src/lib/sanity/image.test.ts
+PASS src/components/ui/__tests__/InteractiveMap.test.tsx
+PASS src/components/layout/__tests__/Footer.test.tsx (35.196 s)
+PASS app/api/listings/route.test.ts
+PASS src/components/search/__tests__/SearchForm.unit.test.tsx (7.648 s)
+PASS src/lib/__tests__/sanity-http-client.test.ts (7.706 s)
+PASS app/dashboard/components/__tests__/VenueListingForm.test.tsx (7.091 s)
+PASS src/components/favorites/__tests__/FavoriteButton.test.tsx
+PASS src/components/ui/__tests__/filter-multi-select.test.tsx (6.134 s)
+PASS src/components/listings/__tests__/RelatedListings.test.tsx (24.542 s)
+PASS src/lib/__tests__/api.test.ts (32 s)
+PASS src/lib/performance/__tests__/baseline-testing.test.ts (47.185 s)
+PASS app/listings/[slug]/__tests__/page.test.tsx (15.25 s)
 PASS src/components/ui/__tests__/scroll-down-arrow.test.tsx
-PASS src/scripts/__tests__/analyze-content.test.ts
-PASS src/lib/sanity/queries.test.ts
-PASS src/hooks/useAuth.test.ts
-PASS src/types/__tests__/api.test.ts
-PASS src/lib/sanity/data.test.ts
-PASS app/__tests__/test-gallery-page.test.tsx
-PASS app/api/revalidate-all/__tests__/route.clean.test.ts
-PASS app/api/events/route.test.ts
-PASS app/cities/[slug]/page.test.tsx
-PASS app/api/admin/listings/__tests__/route.test.ts
-PASS src/components/blog/__tests__/portableTextComponents.test.tsx
-PASS app/__tests__/auth-login-page.test.tsx
-PASS app/api/admin/analytics/__tests__/route.test.ts
-PASS app/api/user/dashboard/route.test.ts
-PASS app/api/upload/__tests__/route.test.ts
-PASS src/models/__tests__/mongoose-mock.guard.test.ts
-PASS app/test-reviews/page.test.tsx
-PASS app/api/reviews/route.test.ts
-PASS src/utils/__tests__/priceRange.test.ts
-PASS src/lib/__tests__/tokens.test.ts
-PASS src/middleware/__tests__/authCallbackHandler.test.ts
-PASS src/middleware/__tests__/session.test.ts
-PASS src/mocks/__tests__/browser.test.ts
-PASS src/lib/auth/serverAuth-simplified.test.ts
-PASS src/lib/__tests__/absolute-url.test.ts
-PASS src/lib/utils/__tests__/slug.test.ts
-PASS app/sitemap.test.ts
-PASS app/api/exit-preview/route.test.ts
-PASS app/__tests__/ClientRootLayout.test.tsx
-PASS src/lib/performance/__tests__/performance-budgets.test.ts
-PASS src/lib/performance/__tests__/alerting-thresholds.test.ts
-PASS src/models/__tests__/User.test.ts
-PASS src/components/__tests__/AnimatedNumber.test.tsx
-PASS app/api/reviews/moderation/__tests__/route.test.ts
-PASS src/types/__tests__/sanity-compatible-json.test.ts
-PASS src/lib/analytics/plausible/__tests__/hooks.test.tsx
-PASS app/api/mock-env/__tests__/route.test.ts
-PASS src/lib/__tests__/geocode.test.ts
-PASS app/api/admin/settings/__tests__/route.test.ts
-PASS src/lib/performance/__tests__/plausible.test.ts
-PASS src/types/__tests__/enums.test.ts
-PASS app/api/auth/request-password-reset/__tests__/route.test.ts
-PASS app/api/revalidate-all/__tests__/route.repair.test.ts
-PASS app/api/blog/route.test.ts
-PASS src/utils/__tests__/sanitize.test.ts
-PASS app/api/listings/city/[id]/__tests__/route.test.ts
-PASS src/lib/analytics/plausible/__tests__/provider.test.tsx
-PASS src/lib/performance/__tests__/budgets.test.ts
-PASS app/profile/__tests__/utils.test.ts
-PASS src/lib/admin/__tests__/analytics.test.ts
-PASS src/lib/http/__tests__/request-json-helpers.test.ts
-PASS src/test-helpers/__tests__/createMongoMemoryServer.test.ts
-PASS src/lib/__tests__/sanity-batch-processor.test.ts
-PASS src/lib/viewCountPersistence.test.ts
-PASS app/api/user/analytics/route.test.ts
-PASS src/lib/performance/__tests__/web-vitals-reporter.test.ts
-PASS src/utils/__tests__/revalidation-token.test.ts
-PASS app/admin/users/__tests__/page.test.tsx
-PASS src/utils/__tests__/db-helpers.test.ts
-PASS app/__tests__/page.featuredvenues.test.tsx
-PASS src/lib/__tests__/rate-limit.test.ts
-PASS app/api/reviews/analytics/route.test.ts
-PASS src/lib/mongodb/__tests__/init.test.ts
-PASS src/lib/auth/adapter.test.ts
-PASS app/api/cities/__tests__/route.test.ts
-PASS src/lib/performance/__tests__/withPerformanceTracking.test.tsx
-PASS src/models/__tests__/LoginAttempt.test.ts
-PASS src/models/__tests__/AnalyticsEvent.test.ts
-PASS app/auth/signup/__tests__/page.test.tsx
-PASS app/api/sanity-test/__tests__/route.test.ts
 PASS src/components/search/__tests__/SearchBox.test.tsx
+PASS src/middleware/__tests__/session.test.ts
+PASS src/components/search/__tests__/DigitalNomadSearchFilter.test.tsx
+PASS src/types/auth-types.test.ts
+PASS app/api/blog/[slug]/route.test.ts
+PASS src/components/listings/__tests__/ListingGrid.test.tsx
+PASS src/components/__tests__/CommentForm.test.tsx (5.156 s)
+PASS src/types/__tests__/moderation.test.ts
+PASS app/api/search/__tests__/route.msw.test.ts
+PASS src/types/__tests__/auth.test.ts
+PASS src/components/listings/__tests__/ReviewsSection.test.tsx
+PASS src/lib/__tests__/listings.test.ts (6.536 s)
+PASS src/components/sections/__tests__/CategoryFilters.test.tsx (9.855 s)
+PASS src/components/favorites/__tests__/FavoriteButton.navigation.test.tsx (13.2 s)
+PASS src/components/listings/__tests__/ListingDetailView.test.tsx (10.304 s)
+PASS src/utils/__tests__/ecoRatingCalculator.test.ts (6.867 s)
+PASS app/admin/settings/__tests__/SettingsForm.test.tsx (7.324 s)
+PASS src/components/sections/__tests__/HeroSection.test.tsx
+PASS src/tests/mocks/factories.test.ts
+PASS src/lib/analytics/plausible/__tests__/hooks.test.tsx
+PASS src/components/ui/__tests__/StarRating.test.tsx
+PASS app/api/admin/stats/__tests__/route.test.ts
+PASS src/lib/__tests__/client.test.ts
+PASS app/__tests__/test-listing-detail-page.test.tsx
+PASS src/lib/__tests__/rate-limit.test.ts
+PASS src/components/listings/__tests__/ListingContactInfo.test.tsx
+PASS app/__tests__/listings-slug-page.test.tsx
+PASS app/auth/signup/__tests__/SignupPageContent.test.tsx
+PASS src/mocks/__tests__/handlers-server.test.ts
+PASS src/types/__tests__/components.test.ts
+PASS app/api/user/favorites/__tests__/route.test.ts
+PASS app/api/user/favorites/[slug]/__tests__/route.test.ts
+PASS src/hooks/useFilters.test.ts
+PASS app/api/contact/route.test.ts
+PASS app/admin/dashboard/__tests__/ModerationActions.test.tsx (5.654 s)
+PASS app/api/auth/request-password-reset/__tests__/route.test.ts
+PASS src/middleware/__tests__/cache.test.ts
+PASS app/api/listings/[slug]/route.test.ts
+PASS src/components/auth/__tests__/SocialAuthRow.test.tsx
+PASS src/lib/performance/__tests__/alerting-thresholds.test.ts
+PASS src/types/__tests__/query-types.test.ts
+PASS src/types/__tests__/dto-schemas.test.ts
+PASS src/components/ui/__tests__/select.test.tsx
+PASS src/lib/__tests__/cache-strategy.test.ts (10.141 s)
+PASS app/api/user/reviews/__tests__/route.test.ts (9.008 s)
+PASS src/types/__tests__/api.test.ts (6.622 s)
+PASS src/models/__tests__/AnalyticsEvent.test.ts (6.304 s)
+PASS app/__tests__/error.test.tsx (6.354 s)
+PASS src/lib/auth/clientAuth.test.tsx (6.935 s)
+PASS app/dashboard/components/__tests__/VenueListingManagement.test.tsx (8.476 s)
+PASS app/api/user/dashboard/route.test.ts (7.712 s)
+PASS app/contact-us/__tests__/page.test.tsx (19.32 s)
+PASS app/api/events/route.test.ts (13.795 s)
+PASS app/cities/[slug]/page.test.tsx (6.234 s)
+PASS app/api/preview/exit/__tests__/route.test.ts (5.133 s)
+PASS app/api/cities/__tests__/route.test.ts (10.353 s)
+PASS app/api/newsletter/subscribe/route.test.ts (30.678 s)
+PASS app/api/admin/listings/stats/__tests__/route.test.ts (9.146 s)
+PASS src/components/sections/__tests__/CityCarousel.test.tsx (16.523 s)
+PASS src/lib/__tests__/newsletterTokens.test.ts (5.513 s)
+PASS src/components/__tests__/MswInit.test.tsx
+PASS src/lib/auth/rateLimit.test.ts
+PASS src/lib/__tests__/landmark-coordinates.test.ts
+PASS src/lib/auth/withAuthMatrix.test.ts
+PASS app/search/page.test.tsx (6.13 s)
+PASS app/__tests__/blog-slug-page.test.tsx (7.529 s)
+PASS src/types/__tests__/search.test.ts
+PASS src/utils/__tests__/api-response.test.ts
+PASS app/__tests__/profile-page.test.tsx (7.762 s)
+PASS src/lib/__tests__/sanity.utils.test.ts (6.596 s)
+PASS app/api/eco-tags/route.test.ts (6.793 s)
+PASS src/models/__tests__/UserFavorite.test.ts (7.16 s)
+PASS src/middleware/__tests__/authCallbackHandler.test.ts (6.19 s)
+PASS src/types/__tests__/ui.test.ts (7.09 s)
+PASS src/models/__tests__/PasswordResetToken.test.ts (7.769 s)
+PASS app/api/listings/[slug]/views/__tests__/route.test.ts (6.404 s)
+PASS src/types/__tests__/moderator.test.ts
+PASS src/components/ui/__tests__/city-carousel-wave.test.tsx
+PASS src/components/listings/__tests__/HeroSection.test.tsx
+PASS app/api/featured-listings/route.test.ts
+PASS src/utils/__tests__/db-helpers.test.ts
+PASS src/lib/__tests__/logger.test.ts
+PASS src/utils/__tests__/sanitize.test.ts (7.517 s)
+PASS src/components/search/__tests__/SearchFiltersForm.test.tsx (15.691 s)
+PASS app/api/auth/reset-password/__tests__/route.test.ts (10.59 s)
+PASS src/lib/highlight.test.tsx (5.68 s)
+PASS src/tests/helpers/test-data.test.ts (10.883 s)
+PASS app/test-gallery/page.test.tsx (11.247 s)
+PASS app/api/revalidate-all/__tests__/route.repair.test.ts (7.759 s)
+PASS src/lib/dashboard/__tests__/user-dashboard.test.ts
+PASS app/search/results/page.test.tsx (7.628 s)
+PASS app/api/categories/route.test.ts
+PASS src/components/listings/__tests__/GalleryGrid.test.tsx (5.726 s)
+PASS app/api/user/analytics/route.test.ts (7.408 s)
+PASS app/__tests__/dashboard-listings-page.test.tsx (9.851 s)
+PASS src/mocks/__tests__/handlers.test.ts (14.885 s)
+PASS app/api/admin/bulk-operations/__tests__/route.test.ts (10.501 s)
+PASS src/components/sections/__tests__/TestimonialsSection.test.tsx (8.453 s)
+PASS src/utils/__tests__/revalidation-token.test.ts (12.707 s)
+PASS src/models/__tests__/User.test.ts (13.985 s)
+PASS app/api/test-mongodb/__tests__/route.test.ts
+PASS src/components/ui/__tests__/ImageCarousel.test.tsx (8.187 s)
+PASS src/components/listings/__tests__/ReviewsSection.navigation.test.tsx (16.402 s)
+PASS src/utils/__tests__/auth-helpers.test.ts (16.231 s)
+PASS src/lib/auth/userService.test.ts (10.73 s)
+PASS app/dashboard/listings/edit/[id]/__tests__/page.test.tsx (13.848 s)
+PASS src/components/ui/__tests__/VenueCard.test.tsx (10.022 s)
+PASS src/lib/__tests__/email.test.ts
+PASS src/models/__tests__/LoginAttempt.test.ts
+PASS app/api/user/profile/route.test.ts (5.749 s)
+PASS src/lib/auth/serverAuth-simplified.test.ts (9.426 s)
+PASS app/api/revalidate/__tests__/route.test.ts (31.277 s)
+PASS app/__tests__/cities-slug-page.test.tsx (12.207 s)
+PASS app/api/admin/listings/__tests__/route.test.ts (8.118 s)
+PASS src/components/sections/__tests__/FeaturedListings.test.tsx (8.212 s)
+PASS src/lib/__tests__/mongoose-cache.test.ts (5.746 s)
+PASS src/components/profile/__tests__/ProfileEditForm.component.test.tsx (11.597 s)
+PASS app/dashboard/__tests__/error.test.tsx (8.567 s)
+PASS app/listings/__tests__/error.test.tsx (13.559 s)
+PASS src/lib/performance/__tests__/collector.test.ts (23.884 s)
+PASS src/lib/mongodb/__tests__/sessionSchema.test.ts (28.391 s)
+PASS app/profile/__tests__/error.test.tsx (47.108 s)
+PASS app/api/performance/web-vitals/__tests__/route.test.ts (15.265 s)
+PASS app/admin/__tests__/error.test.tsx (6.032 s)
+PASS src/lib/auth/callbackUrl.test.ts
+PASS app/api/admin/analyze-content/__tests__/route.test.ts
+PASS app/api/amenities/route.test.ts
+PASS app/api/test-listings/__tests__/route.test.ts
+PASS src/lib/__tests__/search.test.ts (6.058 s)
+PASS app/api/listings/featured/route.test.ts
+PASS app/search/__tests__/page.test.tsx (12.552 s)
+PASS src/utils/__tests__/priceRange.test.ts (5.032 s)
+PASS app/__tests__/auth-login-page.test.tsx (7.28 s)
+PASS app/api/preview/__tests__/route.test.ts (14.607 s)
+PASS app/__tests__/layout-utils.test.ts (10.962 s)
+PASS app/listings/[slug]/__tests__/layout.test.tsx (28.745 s)
+PASS app/auth/login/__tests__/page.test.tsx (29.295 s)
+PASS app/api/reviews/[reviewId]/vote/route.test.ts (6.315 s)
+PASS src/components/sections/__tests__/AboutSection.test.tsx (18.659 s)
+PASS src/utils/__tests__/rate-limit.test.ts (11.417 s)
+PASS app/__tests__/dashboard-page.test.tsx (7.64 s)
+PASS app/dashboard/listings/new/__tests__/page.test.tsx (16.298 s)
+PASS src/components/ui/__tests__/skip-link.test.tsx (27.365 s)
+PASS app/__tests__/page.test.tsx (15.546 s)
+PASS app/api/auth/verify/__tests__/route.test.ts
+PASS src/types/__tests__/enums.test.ts (5.561 s)
+PASS app/api/session/__tests__/route.test.ts (7.507 s)
+PASS src/types/__tests__/listing.test.ts (10.947 s)
+PASS app/api/featured-listings/route.msw.test.ts (11.51 s)
+PASS src/components/__tests__/CommentList.test.tsx (9.331 s)
+PASS app/api/listings/manage/[id]/__tests__/route.test.ts
+PASS app/admin/dashboard/__tests__/page.test.tsx
+PASS src/lib/sanity/cached-client.test.ts
+PASS src/lib/analytics/__tests__/config.test.ts
+PASS src/lib/__tests__/tokens.test.ts
 PASS app/search/results/helpers.test.ts
 PASS src/lib/__tests__/redis.test.ts
-PASS app/api/admin/moderation/__tests__/route.test.ts
-PASS src/lib/sanity/cached-client.test.ts
-PASS src/middleware/__tests__/main-middleware.test.ts
-PASS src/lib/mongodb/__tests__/sessionSchema.test.ts
-PASS src/types/__tests__/auth.test.ts
-PASS src/lib/__tests__/email.test.ts
-PASS app/api/listings/[slug]/route.test.ts
-PASS src/lib/sanity/client.test.ts
-PASS src/lib/image-utils/getImageDimensions.test.ts
-PASS src/types/__tests__/dto-schemas.test.ts
-PASS app/api/auth/reset-password/__tests__/route.test.ts
-PASS src/middleware/__tests__/server-timing.test.ts
-PASS src/tests/sanity-generated-types.test.ts
-PASS app/api/admin/analyze-content/__tests__/route.test.ts
-PASS src/lib/__tests__/listings.test.ts
-PASS app/api/reviews/listing/[slug]/route.test.ts
-PASS src/components/listings/__tests__/listingDetailMockData.test.ts
-PASS src/components/ui/__tests__/textarea.test.tsx
-PASS src/lib/__tests__/landmark-coordinates.test.ts
-PASS src/types/__tests__/query-types.test.ts
-PASS src/types/__tests__/dto.test.ts
-PASS app/api/newsletter/confirm/__tests__/route.test.ts
-PASS src/lib/dashboard/__tests__/user-dashboard.test.ts
-PASS src/lib/performance/__tests__/web-vitals-reporter.test.fixed.ts
-PASS src/utils/__tests__/ecoRatingCalculator.test.ts
-PASS src/tests/helpers/test-data.test.ts
-PASS src/tests/helpers/assertions.test.ts
-PASS src/types/__tests__/search.test.ts
-PASS src/models/__tests__/ContactSubmission.test.ts
-PASS app/api/admin/users/__tests__/route.test.ts
-PASS src/types/__tests__/moderation.test.ts
-PASS src/types/__tests__/sanity.test.ts
-PASS src/types/__tests__/listing.test.ts
-PASS src/lib/highlight.test.tsx
-PASS src/lib/__tests__/envLoader.test.ts
-PASS app/api/listings/featured/route.test.ts
-PASS src/models/__tests__/NewsletterSubscriber.test.ts
-PASS src/lib/__tests__/mongoose-cache.test.ts
-PASS src/lib/performance/__tests__/collector.test.ts
-PASS src/tests/mocks/factories.test.ts
-PASS src/models/__tests__/UserFavorite.test.ts
-PASS src/lib/performance/__tests__/bundle-analyzer.test.ts
-PASS src/models/__tests__/EmailVerificationToken.test.ts
-PASS src/tests/fixtures/__tests__/index.test.ts
-PASS src/types/__tests__/sort.test.ts
-PASS src/types/__tests__/components.test.ts
-PASS src/__tests__/require-react-fc-type-parameters.test.ts
-PASS src/lib/__tests__/image-optimizer.test.ts
-PASS src/lib/__tests__/sanity.test.js
-PASS src/lib/__tests__/listing-views.test.ts
-PASS src/lib/sanity/__tests__/env.test.ts
-PASS src/lib/__tests__/dbConnect-simplified.test.ts
-PASS app/api/admin/listings/stats/__tests__/route.test.ts
-PASS app/api/categories/route.test.ts
-PASS src/lib/analytics/__tests__/analytics-manager.test.ts
-PASS src/models/__tests__/PasswordResetToken.test.ts
-PASS app/api/session/__tests__/route.test.ts
+PASS src/lib/__tests__/sanity-batch-processor.test.ts
 PASS src/lib/__tests__/adapters.test.ts
-PASS src/lib/performance/__tests__/baseline-testing.test.ts
+PASS src/types/__tests__/appView.test.ts
+PASS src/components/city/__tests__/cityDetailMockData.test.ts
+PASS app/city/[slug]/__tests__/error.test.tsx
+PASS app/api/digital-nomad-features/route.test.ts
+PASS app/__tests__/robots.test.ts
+PASS src/tests/fixtures/__tests__/page.test.tsx
+PASS src/lib/performance/__tests__/plausible.test.ts
+PASS src/lib/__tests__/absolute-url.test.ts
+PASS app/api/upload/__tests__/route.test.ts
+PASS src/components/__tests__/AnimatedNumber.test.tsx
+PASS src/tests/helpers/assertions.test.ts
+PASS src/lib/analytics/__tests__/analytics-manager.test.ts
+PASS src/lib/auth/withAuth.test.tsx
+PASS src/components/listings/__tests__/listingDetailMockData.test.ts
+PASS src/hooks/useCounter.test.ts
+PASS app/admin/users/__tests__/page.test.tsx
+PASS src/models/__tests__/ContactSubmission.test.ts
+PASS src/components/ui/__tests__/textarea.test.tsx
+PASS src/utils/__tests__/tag-styles.test.ts (6.947 s)
+PASS app/__tests__/blog-page.test.tsx (16.126 s)
+PASS src/lib/__tests__/geocode.test.ts (11.209 s)
+PASS src/types/__tests__/dto.test.ts (13.816 s)
+PASS src/components/ui/__tests__/SectionHeader.test.tsx (6.865 s)
+PASS src/middleware/__tests__/main-middleware.test.ts
+PASS app/__tests__/test-gallery-page.test.tsx
+PASS app/listings/[slug]/__tests__/not-found.test.tsx
+PASS src/lib/__tests__/sanity.test.js
+PASS src/lib/auth/adapter.test.ts
+PASS app/api/admin/moderation/__tests__/route.test.ts
+PASS src/lib/performance/__tests__/budgets.test.ts
+PASS src/hooks/useAnalytics.test.ts
+PASS src/models/__tests__/EmailVerificationToken.test.ts
+PASS src/components/ui/__tests__/neo-badge.test.tsx
+PASS app/api/admin/settings/__tests__/route.test.ts
+PASS app/api/admin/analytics/__tests__/route.test.ts
+PASS src/lib/analytics/plausible/__tests__/provider.test.tsx
+PASS src/components/ui/__tests__/label.test.tsx
+PASS src/components/ui/__tests__/separator.test.tsx
+PASS src/components/city/__tests__/CityDetailView.test.tsx
+PASS app/api/auth/register/route.test.ts
+PASS app/api/exit-preview/route.test.ts
+PASS src/hooks/__tests__/useFilters.test.ts
+PASS src/models/__tests__/mongoose-mock.guard.test.ts
+PASS src/tests/sanity-client.test.ts
+PASS src/lib/__tests__/envLoader.test.ts
+PASS app/sitemap.test.ts
+PASS src/hooks/useSearch.test.ts
+PASS src/lib/mongodb/__tests__/init.test.ts
+PASS src/mocks/__tests__/browser.test.ts
+PASS app/api/revalidate-all/__tests__/route.test.ts (9.231 s)
+PASS src/lib/__tests__/mongodb.test.ts
+PASS src/lib/analytics/plausible/__tests__/index.test.ts
+PASS src/lib/__tests__/dto-transformer.test.ts
+PASS app/test/listing-detail/page.test.tsx
+PASS src/models/__tests__/NewsletterSubscriber.test.ts
+PASS app/api/city/[slug]/__tests__/route.test.ts
+PASS app/__tests__/test-reviews-page.test.tsx
+PASS app/api/reviews/analytics/route.test.ts
+PASS src/components/listings/__tests__/NoListingsFound.test.tsx
+PASS app/api/sanity-test/__tests__/route.test.ts
+PASS src/types/__tests__/listings.test.ts
+PASS src/lib/viewCountPersistence.test.ts (5.016 s)
+PASS src/lib/utils/__tests__/slug.test.ts
+PASS src/components/listings/__tests__/ListingCategoryDetails.test.tsx
+PASS src/lib/sanity/__tests__/env.test.ts
+PASS src/utils/__tests__/helpers.test.ts
+PASS src/utils/__tests__/navigation.test.ts
+PASS app/admin/settings/__tests__/page.test.tsx
+PASS app/api/newsletter/confirm/__tests__/route.test.ts
+PASS app/api/mock-env/__tests__/route.test.ts
+PASS src/lib/sanity/client.test.ts
+PASS app/api/auth/update-profile/route.test.ts
+PASS app/__tests__/sitemap.test.ts
+PASS src/lib/auth/config.test.ts
+PASS src/types/type-tests/__tests__/strict-component-type-tests.test.tsx
+PASS app/test-reviews/page.test.tsx
+PASS src/lib/mongodb/__tests__/testDbConnector.test.ts
+PASS app/admin/listings/__tests__/page.test.tsx
+PASS src/components/__tests__/Providers.test.tsx
+PASS src/lib/sanity/data.test.ts
+PASS app/profile/__tests__/utils.test.ts
+PASS src/scripts/__tests__/analyze-content.test.ts
+PASS src/types/__tests__/sanity.test.ts
+PASS src/tests/fixtures/index.test.ts (10.044 s)
+PASS src/lib/performance/__tests__/monitoring-config.test.ts (14.703 s)
+PASS src/lib/http/__tests__/request-json-helpers.test.ts (6.128 s)
+PASS src/lib/analytics/__tests__/useExperiment.test.tsx
+PASS src/lib/data/__tests__/city.test.ts
+PASS src/lib/__tests__/error-handler.test.ts
+PASS src/components/ui/__tests__/checkbox.test.tsx
+PASS src/test-helpers/__tests__/createMongoMemoryServer.test.ts
+PASS app/__tests__/page.featuredvenues.test.tsx
+PASS src/lib/__tests__/listing-views.test.ts
+PASS src/lib/performance/__tests__/bundle-analyzer.test.ts
+PASS app/api/reviews/listing/[slug]/route.test.ts
+PASS src/data/e2e/__tests__/discovery-fixtures.test.ts
+PASS src/models/__tests__/UserAnalytics.test.ts
+PASS src/hooks/useClickOutside.test.tsx
+PASS app/api/listings/city/[id]/__tests__/route.test.ts
+PASS app/api/revalidate-all/__tests__/route.clean.test.ts
+PASS src/hooks/useSearchListings.test.ts
+PASS app/admin/__tests__/layout.test.tsx
+PASS app/api/cities/[slug]/__tests__/route.test.ts
+PASS app/auth/signup/__tests__/page.test.tsx
+PASS src/lib/sanity/queries.test.ts
+PASS src/lib/__tests__/sanity-image-uploader.test.ts
+PASS src/lib/__tests__/utils.test.ts
+PASS src/lib/sanity/user.test.ts
+PASS src/test-helpers/__tests__/msw-server-bridge.test.ts
+PASS src/components/profile/__tests__/ProfileEditForm.test.tsx
+PASS src/lib/performance/__tests__/web-vitals-reporter.minimal.test.ts
+PASS src/lib/performance/__tests__/performance-budgets.test.ts
+PASS src/types/__tests__/filters.test.ts
+PASS app/__tests__/ClientRootLayout.test.tsx
+PASS src/mocks/__tests__/api-response.test.ts
+PASS app/newsletter/confirmed/__tests__/page.test.tsx
+PASS app/api/search/suggestions/__tests__/route.test.ts (5.973 s)
+PASS app/city/[slug]/__tests__/page.test.tsx
+PASS src/lib/queries/__tests__/index.test.ts
+PASS src/lib/__tests__/dbConnect-simplified.test.ts
+PASS src/lib/analytics/__tests__/experiments.test.ts
+PASS src/lib/__tests__/image-optimizer.test.ts
+PASS src/tests/fixtures/__tests__/index.test.ts
+PASS src/types/__tests__/sanity-compatible-json.test.ts
+PASS app/api/blog/route.test.ts
+PASS src/types/__tests__/api-responses.test.ts (7.609 s)
+PASS src/tests/sanity-generated-types.test.ts
+PASS src/components/blog/__tests__/portableTextComponents.test.tsx
+PASS app/__tests__/page.listingdetail.test.tsx
+PASS src/__tests__/require-react-fc-type-parameters.test.ts
+PASS src/types/__tests__/city.test.ts
+PASS src/types/__tests__/sort.test.ts
+PASS app/api/reviews/moderation/__tests__/route.test.ts
+PASS src/middleware/__tests__/server-timing.test.ts
+PASS src/lib/image-utils/getImageDimensions.test.ts
+Failed to collect coverage from /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/src/utils/theme.ts
+ERROR: ENOENT: no such file or directory, open '/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/src/utils/theme.ts'
+STACK: Error: ENOENT: no such file or directory, open '/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/src/utils/theme.ts'
+    at Object.openSync (node:fs:596:3)
+    at Object.readFileSync (node:fs:464:35)
+    at Object.worker (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/@jest+reporters@29.7.0/node_modules/@jest/reporters/build/CoverageWorker.js:81:10)
+    at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/@jest+reporters@29.7.0/node_modules/@jest/reporters/build/CoverageReporter.js:257:39
+    at Array.map (<anonymous>)
+    at CoverageReporter._addUntestedFiles (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/@jest+reporters@29.7.0/node_modules/@jest/reporters/build/CoverageReporter.js:245:35)
+    at CoverageReporter.onRunComplete (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/@jest+reporters@29.7.0/node_modules/@jest/reporters/build/CoverageReporter.js:171:16)
+    at ReporterDispatcher.onRunComplete (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/ReporterDispatcher.js:71:24)
+    at TestScheduler.scheduleTests (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:306:5)
+    at runJest (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/runJest.js:367:19)
+    at _run10000 (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/cli/index.js:343:7)
+    at runCLI (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/cli/index.js:198:3)
+    at Object.run (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/jest-cli@29.7.0_@types+node@22.19.1_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/jest-cli/build/run.js:130:37)
 -------------------------------------|---------|----------|---------|---------|---------------------------------------------------------------------------------------------------------------------------
 File                                 | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                         
 -------------------------------------|---------|----------|---------|---------|---------------------------------------------------------------------------------------------------------------------------
-All files                            |   89.83 |    76.87 |   86.22 |   91.15 |                                                                                                                           
- app                                 |   90.74 |    82.35 |   83.33 |   90.19 |                                                                                                                           
+All files                            |   90.08 |    77.25 |   86.28 |   91.38 |                                                                                                                           
+ app                                 |      96 |    81.25 |   82.35 |   95.74 |                                                                                                                           
   ClientRootLayout.tsx               |     100 |      100 |     100 |     100 |                                                                                                                           
   error.tsx                          |    87.5 |      100 |      75 |    87.5 | 39                                                                                                                        
   layout.metadata.ts                 |     100 |      100 |     100 |     100 |                                                                                                                           
-  layout.tsx                         |       0 |      100 |       0 |       0 | 10-19                                                                                                                     
+  layout.tsx                         |       0 |      100 |       0 |       0 | 9                                                                                                                         
   not-found.tsx                      |       0 |        0 |       0 |       0 |                                                                                                                           
   page.featuredvenues.tsx            |     100 |      100 |     100 |     100 |                                                                                                                           
   page.listingdetail.tsx             |     100 |      100 |     100 |     100 |                                                                                                                           
@@ -352,8 +730,8 @@ All files                            |   89.83 |    76.87 |   86.22 |   91.15 |
   AdminDashboardClient.tsx           |     100 |      100 |     100 |     100 |                                                                                                                           
   ModerationActions.tsx              |   86.84 |    76.92 |   76.92 |   88.88 | 63,147-156                                                                                                                
   page.tsx                           |      80 |      100 |     100 |     100 |                                                                                                                           
- app/admin/listings                  |   85.31 |    80.95 |      80 |    90.4 |                                                                                                                           
-  ListingsManagementTable.tsx        |   84.92 |       80 |   79.06 |    89.9 | 209,265-269,277,293-297,321,485-513                                                                                       
+ app/admin/listings                  |   86.71 |    80.95 |   84.44 |    90.4 |                                                                                                                           
+  ListingsManagementTable.tsx        |    86.5 |       80 |   83.72 |    89.9 | 209,265-269,277,293-297,321,485-513                                                                                       
   page.tsx                           |   88.23 |      100 |     100 |   93.75 | 32                                                                                                                        
  app/admin/settings                  |   90.09 |       74 |   78.57 |   95.74 |                                                                                                                           
   SettingsForm.tsx                   |   90.47 |    72.34 |      75 |   96.15 | 69,140,215                                                                                                                
@@ -379,8 +757,8 @@ All files                            |   89.83 |    76.87 |   86.22 |   91.15 |
   route.ts                           |     100 |      100 |     100 |     100 |                                                                                                                           
  app/api/admin/stats                 |   83.33 |    45.45 |     100 |   83.33 |                                                                                                                           
   route.ts                           |   83.33 |    45.45 |     100 |   83.33 | 22-29                                                                                                                     
- app/api/admin/users                 |   92.23 |    89.55 |    87.5 |   92.85 |                                                                                                                           
-  route.ts                           |   92.23 |    89.55 |    87.5 |   92.85 | 38-45,120,215                                                                                                             
+ app/api/admin/users                 |   64.03 |    47.82 |      75 |   66.05 |                                                                                                                           
+  route.ts                           |   64.03 |    47.82 |      75 |   66.05 | 47-54,161,171,178-238,249,260,264,274                                                                                     
  app/api/amenities                   |     100 |       50 |     100 |     100 |                                                                                                                           
   route.ts                           |     100 |       50 |     100 |     100 | 19                                                                                                                        
  app/api/auth/[...nextauth]          |     100 |       50 |     100 |     100 |                                                                                                                           
@@ -409,8 +787,8 @@ All files                            |   89.83 |    76.87 |   86.22 |   91.15 |
   route.ts                           |   94.11 |       60 |     100 |   94.11 | 17                                                                                                                        
  app/api/city/[slug]                 |     100 |      100 |     100 |     100 |                                                                                                                           
   route.ts                           |     100 |      100 |     100 |     100 |                                                                                                                           
- app/api/comments                    |   98.19 |    87.93 |     100 |   98.16 |                                                                                                                           
-  route.ts                           |   98.19 |    87.93 |     100 |   98.16 | 72,250                                                                                                                    
+ app/api/comments                    |   97.29 |     86.2 |     100 |   97.24 |                                                                                                                           
+  route.ts                           |   97.29 |     86.2 |     100 |   97.24 | 72,187,250                                                                                                                
  app/api/contact                     |   97.72 |    84.61 |     100 |   97.67 |                                                                                                                           
   route.ts                           |   97.72 |    84.61 |     100 |   97.67 | 79,327                                                                                                                    
  app/api/digital-nomad-features      |     100 |      100 |     100 |     100 |                                                                                                                           
@@ -451,8 +829,8 @@ All files                            |   89.83 |    76.87 |   86.22 |   91.15 |
   route.ts                           |     100 |    88.88 |     100 |     100 | 46                                                                                                                        
  app/api/revalidate-all              |   90.47 |    66.66 |     100 |   90.47 |                                                                                                                           
   route.ts                           |   90.47 |    66.66 |     100 |   90.47 | 52-56                                                                                                                     
- app/api/reviews                     |     100 |    89.36 |     100 |     100 |                                                                                                                           
-  route.ts                           |     100 |    89.36 |     100 |     100 | 29-32,40,146,224                                                                                                          
+ app/api/reviews                     |   98.82 |    87.23 |     100 |   98.78 |                                                                                                                           
+  route.ts                           |   98.82 |    87.23 |     100 |   98.78 | 137                                                                                                                       
  app/api/reviews/[reviewId]/vote     |     100 |    88.88 |     100 |     100 |                                                                                                                           
   route.ts                           |     100 |    88.88 |     100 |     100 | 70,93-94                                                                                                                  
  app/api/reviews/analytics           |     100 |    82.97 |     100 |     100 |                                                                                                                           
@@ -463,8 +841,8 @@ All files                            |   89.83 |    76.87 |   86.22 |   91.15 |
   route.ts                           |     100 |      100 |     100 |     100 |                                                                                                                           
  app/api/sanity-test                 |     100 |       80 |     100 |     100 |                                                                                                                           
   route.ts                           |     100 |       80 |     100 |     100 | 14,28                                                                                                                     
- app/api/search                      |   96.77 |    82.41 |   95.23 |    99.3 |                                                                                                                           
-  route.ts                           |   96.77 |    82.41 |   95.23 |    99.3 | 95                                                                                                                        
+ app/api/search                      |   96.77 |    81.31 |   95.23 |    99.3 |                                                                                                                           
+  route.ts                           |   96.77 |    81.31 |   95.23 |    99.3 | 95                                                                                                                        
  app/api/search/suggestions          |     100 |    84.61 |     100 |     100 |                                                                                                                           
   route.ts                           |     100 |    84.61 |     100 |     100 | 10,42                                                                                                                     
  app/api/session                     |     100 |      100 |     100 |     100 |                                                                                                                           
@@ -533,9 +911,9 @@ All files                            |   89.83 |    76.87 |   86.22 |   91.15 |
  app/listings                        |     100 |      100 |   66.66 |     100 |                                                                                                                           
   error.tsx                          |     100 |      100 |     100 |     100 |                                                                                                                           
   loading.tsx                        |       0 |        0 |       0 |       0 |                                                                                                                           
- app/listings/[slug]                 |   86.11 |       64 |   93.75 |   89.47 |                                                                                                                           
+ app/listings/[slug]                 |   86.48 |       64 |     100 |   89.78 |                                                                                                                           
   layout.tsx                         |     100 |      100 |     100 |     100 |                                                                                                                           
-  not-found.tsx                      |       0 |        0 |       0 |       0 |                                                                                                                           
+  not-found.tsx                      |     100 |      100 |     100 |     100 |                                                                                                                           
   page.tsx                           |   85.91 |       64 |     100 |   89.31 | 105,111,129-130,148,209,255,276,287-289,298,358,393                                                                       
  app/newsletter                      |       0 |        0 |       0 |       0 |                                                                                                                           
   loading.tsx                        |       0 |        0 |       0 |       0 |                                                                                                                           
@@ -550,10 +928,10 @@ All files                            |   89.83 |    76.87 |   86.22 |   91.15 |
  app/search                          |   96.29 |    72.97 |   83.33 |     100 |                                                                                                                           
   loading.tsx                        |       0 |        0 |       0 |       0 |                                                                                                                           
   page.tsx                           |   96.29 |    72.97 |     100 |     100 | 19,21,53,107,146-147                                                                                                      
- app/search/results                  |   84.07 |    60.28 |   83.33 |   85.81 |                                                                                                                           
-  helpers.ts                         |     100 |    57.77 |     100 |     100 | 73-97                                                                                                                     
+ app/search/results                  |   85.98 |     61.7 |   88.88 |   87.94 |                                                                                                                           
+  helpers.ts                         |     100 |    62.22 |     100 |     100 | 73-96                                                                                                                     
   page.tsx                           |   96.42 |    83.33 |     100 |     100 | 14-18,31,70,124                                                                                                           
-  server.ts                          |    82.5 |    45.94 |   33.33 |    82.5 | 65,85-90,122,134                                                                                                          
+  server.ts                          |      90 |    45.94 |   66.66 |      90 | 65,88,122,134                                                                                                             
   shared.ts                          |   71.18 |    52.17 |    87.5 |   72.34 | 14,64-83                                                                                                                  
  app/test-gallery                    |     100 |      100 |     100 |     100 |                                                                                                                           
   page.tsx                           |     100 |      100 |     100 |     100 |                                                                                                                           
@@ -564,14 +942,13 @@ All files                            |   89.83 |    76.87 |   86.22 |   91.15 |
   page.tsx                           |     100 |      100 |     100 |     100 |                                                                                                                           
  app/test/search                     |   98.14 |    94.28 |     100 |   98.88 |                                                                                                                           
   page.tsx                           |   98.14 |    94.28 |     100 |   98.88 | 42                                                                                                                        
- src                                 |   31.54 |    18.94 |   38.09 |   31.25 |                                                                                                                           
-  instrumentation.ts                 |   94.64 |    85.71 |     100 |   94.33 | 29,37,115                                                                                                                 
-  proxy.ts                           |       0 |        0 |       0 |       0 | 5-299                                                                                                                     
- src/components                      |     100 |    97.29 |     100 |     100 |                                                                                                                           
+ src                                 |   87.09 |    81.81 |    87.5 |   88.13 |                                                                                                                           
+  instrumentation.ts                 |   87.09 |    81.81 |    87.5 |   88.13 | 34,43,114-125,154                                                                                                         
+ src/components                      |   98.82 |    91.89 |     100 |     100 |                                                                                                                           
   AnimatedNumber.tsx                 |     100 |      100 |     100 |     100 |                                                                                                                           
   CommentForm.tsx                    |     100 |      100 |     100 |     100 |                                                                                                                           
   CommentList.tsx                    |     100 |      100 |     100 |     100 |                                                                                                                           
-  MswInit.tsx                        |     100 |       80 |     100 |     100 | 23                                                                                                                        
+  MswInit.tsx                        |   93.33 |       40 |     100 |     100 | 10-23                                                                                                                     
   Providers.tsx                      |     100 |      100 |     100 |     100 |                                                                                                                           
  src/components/auth                 |     100 |      100 |     100 |     100 |                                                                                                                           
   SocialAuthRow.tsx                  |     100 |      100 |     100 |     100 |                                                                                                                           
@@ -580,13 +957,13 @@ All files                            |   89.83 |    76.87 |   86.22 |   91.15 |
  src/components/city                 |   90.19 |    90.14 |     100 |   93.18 |                                                                                                                           
   CityDetailView.tsx                 |   89.36 |    90.14 |     100 |   92.85 | 47,73-74                                                                                                                  
   cityDetailMockData.ts              |     100 |      100 |     100 |     100 |                                                                                                                           
- src/components/favorites            |      92 |     87.3 |     100 |   93.24 |                                                                                                                           
-  FavoriteButton.tsx                 |      92 |     87.3 |     100 |   93.24 | 123-126,151,156                                                                                                           
+ src/components/favorites            |      92 |    88.88 |     100 |   93.24 |                                                                                                                           
+  FavoriteButton.tsx                 |      92 |    88.88 |     100 |   93.24 | 123-126,151,156                                                                                                           
  src/components/layout               |   98.57 |    95.65 |   92.85 |     100 |                                                                                                                           
   Footer.tsx                         |     100 |      100 |     100 |     100 |                                                                                                                           
   Header.tsx                         |   97.67 |    97.29 |     100 |     100 | 55                                                                                                                        
   PageLayout.tsx                     |       0 |        0 |       0 |       0 |                                                                                                                           
- src/components/listings             |   95.78 |    83.82 |   93.33 |   97.47 |                                                                                                                           
+ src/components/listings             |   95.78 |    85.14 |   93.33 |   97.47 |                                                                                                                           
   GalleryGrid.tsx                    |   94.73 |    82.97 |   95.23 |   98.43 | 153                                                                                                                       
   HeroSection.tsx                    |     100 |      100 |     100 |     100 |                                                                                                                           
   ListingCategoryDetails.tsx         |   94.73 |    72.72 |     100 |   93.93 | 70,289                                                                                                                    
@@ -596,14 +973,14 @@ All files                            |   89.83 |    76.87 |   86.22 |   91.15 |
   ListingGrid.tsx                    |     100 |      100 |     100 |     100 |                                                                                                                           
   NoListingsFound.tsx                |     100 |      100 |     100 |     100 |                                                                                                                           
   RelatedListings.tsx                |   93.93 |    95.45 |   83.33 |   93.54 | 77,179                                                                                                                    
-  ReviewsSection.tsx                 |   99.08 |    80.24 |   94.73 |     100 | 124,204-223,276,326,406                                                                                                   
+  ReviewsSection.tsx                 |   99.08 |    85.18 |   94.73 |     100 | 124,214-223,276,326,406                                                                                                   
   listingDetailMockData.ts           |     100 |      100 |     100 |     100 |                                                                                                                           
  src/components/profile              |     100 |    94.73 |     100 |     100 |                                                                                                                           
   ProfileEditForm.tsx                |     100 |    94.73 |     100 |     100 | 63                                                                                                                        
- src/components/search               |   87.27 |    64.36 |   86.95 |   91.28 |                                                                                                                           
+ src/components/search               |   83.04 |     61.8 |   79.59 |      87 |                                                                                                                           
   DigitalNomadSearch.tsx             |     100 |      100 |     100 |     100 |                                                                                                                           
   DigitalNomadSearchFilter.tsx       |     100 |      100 |     100 |     100 |                                                                                                                           
-  FiltersSidebar.tsx                 |   92.73 |    69.49 |     100 |   95.54 | 126,211-213,287-288,330                                                                                                   
+  FiltersSidebar.tsx                 |   81.01 |       60 |      80 |   82.08 | 14-22,50-57,138-140                                                                                                       
   SearchBox.tsx                      |     100 |      100 |     100 |     100 |                                                                                                                           
   SearchFiltersForm.tsx              |   75.67 |    47.05 |   67.44 |   81.88 | 20-22,71-75,124-138,155,177,200,218,246,249                                                                               
   SearchForm.tsx                     |      90 |    88.23 |      95 |    94.2 | 166-169                                                                                                                   
@@ -636,8 +1013,8 @@ All files                            |   89.83 |    76.87 |   86.22 |   91.15 |
   separator.tsx                      |     100 |      100 |     100 |     100 |                                                                                                                           
   skip-link.tsx                      |     100 |      100 |     100 |     100 |                                                                                                                           
   textarea.tsx                       |     100 |      100 |     100 |     100 |                                                                                                                           
- src/data/e2e                        |   88.46 |    56.09 |   96.96 |    97.5 |                                                                                                                           
-  discovery-fixtures.ts              |   88.46 |    56.09 |   96.96 |    97.5 | 293-294                                                                                                                   
+ src/data/e2e                        |   90.38 |    60.97 |   96.96 |    97.5 |                                                                                                                           
+  discovery-fixtures.ts              |   90.38 |    60.97 |   96.96 |    97.5 | 293-294                                                                                                                   
  src/hooks                           |   96.65 |    84.53 |   98.33 |   97.68 |                                                                                                                           
   useAnalytics.ts                    |     100 |    83.33 |     100 |     100 | 20                                                                                                                        
   useAuth.ts                         |     100 |      100 |     100 |     100 |                                                                                                                           
@@ -646,11 +1023,11 @@ All files                            |   89.83 |    76.87 |   86.22 |   91.15 |
   useFilters.ts                      |     100 |      100 |     100 |     100 |                                                                                                                           
   useSearch.ts                       |      96 |    72.72 |     100 |   98.43 | 131                                                                                                                       
   useSearchListings.ts               |   90.19 |    81.25 |   83.33 |   91.66 | 51,60,129-130                                                                                                             
- src/lib                             |   86.83 |     73.3 |   79.87 |   88.36 |                                                                                                                           
+ src/lib                             |   86.69 |    73.47 |   79.57 |   88.15 |                                                                                                                           
   absolute-url.ts                    |   52.38 |       44 |   33.33 |   61.11 | 16-23,35                                                                                                                  
   adapters.ts                        |   87.09 |    71.79 |     100 |   87.09 | 81-87                                                                                                                     
   api.ts                             |    90.9 |    66.66 |     100 |    90.9 | 35,42                                                                                                                     
-  auth.ts                            |   80.16 |    67.07 |   61.53 |   83.17 | 194,220-235,264-287,309-312                                                                                               
+  auth.ts                            |   78.68 |    67.07 |   61.53 |   81.48 | 166-167,195,221-236,265-288,310-313                                                                                       
   cache-strategy.ts                  |   91.01 |    78.37 |    87.5 |   93.75 | 120,180,207,294-295                                                                                                       
   client-utils.ts                    |      50 |       60 |     100 |      50 | 16-19                                                                                                                     
   client.ts                          |     100 |      100 |     100 |     100 |                                                                                                                           
@@ -664,10 +1041,10 @@ All files                            |   89.83 |    76.87 |   86.22 |   91.15 |
   image-optimizer.ts                 |     100 |      100 |     100 |     100 |                                                                                                                           
   landmark-coordinates.ts            |     100 |      100 |     100 |     100 |                                                                                                                           
   listings.ts                        |    90.9 |    72.72 |     100 |     100 | 20-23,89-96,118-155,166-168,171-174,186-191                                                                               
-  logger.ts                          |   63.54 |    54.79 |   47.05 |   62.82 | 84,107-109,134-169,196-207,230,256,316-364,373,393-398,410-440,458,474,506,516,521,539-566,573                            
+  logger.ts                          |   62.56 |    54.79 |   44.11 |   61.78 | 84,107-109,134-169,196-207,230,256,316-364,373,393-398,410-440,458,474,506,516,521,535-566,573                            
   mongodb.ts                         |      92 |    83.33 |   82.35 |   91.83 | 32,40,45-46                                                                                                               
   mongoose-cache.ts                  |     100 |      100 |     100 |     100 |                                                                                                                           
-  newsletter-utils.ts                |   84.21 |    85.71 |      90 |   86.11 | 18-19,71-73,88,113,126-127,144                                                                                            
+  newsletter-utils.ts                |   85.71 |    90.32 |      90 |    86.3 | 18-19,72-74,90,115,128-129,146                                                                                            
   newsletterTokens.ts                |     100 |      100 |     100 |     100 |                                                                                                                           
   rate-limit.ts                      |   94.73 |    78.57 |     100 |   94.33 | 6-9,87                                                                                                                    
   redis.ts                           |   93.05 |    82.35 |     100 |   92.64 | 48,55,66-69,86                                                                                                            
@@ -682,7 +1059,7 @@ All files                            |   89.83 |    76.87 |   86.22 |   91.15 |
   utils.ts                           |   97.77 |    80.76 |     100 |   97.77 | 6                                                                                                                         
   viewCountPersistence.ts            |   95.12 |       80 |     100 |   95.12 | 51,58                                                                                                                     
  src/lib/admin                       |   96.12 |    88.73 |     100 |   96.57 |                                                                                                                           
-  analytics.ts                       |   96.12 |    88.73 |     100 |   96.57 | 107,275,292,381,399                                                                                                       
+  analytics.ts                       |   96.12 |    88.73 |     100 |   96.57 | 103,271,288,377,395                                                                                                       
  src/lib/analytics                   |   92.45 |    82.75 |   83.33 |    95.5 |                                                                                                                           
   AnalyticsProvider.tsx              |       0 |        0 |       0 |       0 |                                                                                                                           
   analytics.ts                       |     100 |      100 |     100 |     100 |                                                                                                                           
@@ -695,13 +1072,14 @@ All files                            |   89.83 |    76.87 |   86.22 |   91.15 |
   hooks.ts                           |     100 |      100 |     100 |     100 |                                                                                                                           
   index.ts                           |     100 |      100 |     100 |     100 |                                                                                                                           
   provider.tsx                       |     100 |      100 |     100 |     100 |                                                                                                                           
- src/lib/auth                        |    98.1 |    94.51 |   91.93 |   98.61 |                                                                                                                           
+ src/lib/auth                        |   93.26 |    92.27 |    88.4 |    93.5 |                                                                                                                           
   adapter.ts                         |   89.47 |       80 |     100 |   94.44 | 11                                                                                                                        
   callbackUrl.ts                     |     100 |      100 |     100 |     100 |                                                                                                                           
   clientAuth.tsx                     |     100 |      100 |     100 |     100 |                                                                                                                           
   config.ts                          |     100 |      100 |     100 |     100 |                                                                                                                           
+  dal.ts                             |   60.81 |     64.7 |   57.14 |   60.81 | 62-84,166,196-251                                                                                                         
   rateLimit.ts                       |   99.33 |    97.95 |     100 |     100 | 38                                                                                                                        
-  serverAuth.ts                      |   98.79 |      100 |     100 |   98.78 | 184                                                                                                                       
+  serverAuth.ts                      |   98.33 |      100 |     100 |   98.21 | 119                                                                                                                       
   userService.ts                     |   91.78 |    91.66 |   58.33 |   92.53 | 19-23                                                                                                                     
   withAuth.tsx                       |     100 |      100 |     100 |     100 |                                                                                                                           
   withAuthMatrix.ts                  |     100 |    88.33 |     100 |     100 | 25-27,108,140,165,214,298                                                                                                 
@@ -722,7 +1100,7 @@ All files                            |   89.83 |    76.87 |   86.22 |   91.15 |
   testDbConnector.ts                 |     100 |      100 |     100 |     100 |                                                                                                                           
  src/lib/mongodb/schemas             |     100 |      100 |     100 |     100 |                                                                                                                           
   session.ts                         |     100 |      100 |     100 |     100 |                                                                                                                           
- src/lib/performance                 |   91.41 |    75.09 |   94.66 |   93.97 |                                                                                                                           
+ src/lib/performance                 |   91.41 |    73.51 |   93.33 |   93.97 |                                                                                                                           
   alert-service.ts                   |      88 |     77.5 |     100 |   88.57 | 120,122,135,192,208,219,224-228                                                                                           
   alerting-thresholds.ts             |   91.93 |    77.77 |     100 |   92.98 | 71,243,249,287                                                                                                            
   baseline-testing.ts                |   92.95 |    48.71 |    90.9 |   95.58 | 210,309,320                                                                                                               
@@ -732,8 +1110,8 @@ All files                            |   89.83 |    76.87 |   86.22 |   91.15 |
   monitoring-config.ts               |    92.3 |       50 |     100 |     100 | 64                                                                                                                        
   performance-budgets.ts             |     100 |      100 |     100 |     100 |                                                                                                                           
   plausible-integration.ts           |   88.23 |    73.07 |     100 |   89.36 | 27-31,45-46                                                                                                               
-  web-vitals-reporter.ts             |   89.55 |    83.78 |      90 |   94.73 | 33-34,51                                                                                                                  
-  withPerformanceTracking.tsx        |   92.85 |    85.71 |     100 |     100 | 27                                                                                                                        
+  web-vitals-reporter.ts             |   89.55 |    78.37 |      80 |   94.73 | 33-34,51                                                                                                                  
+  withPerformanceTracking.tsx        |   92.85 |    57.14 |     100 |     100 | 14-18,27                                                                                                                  
  src/lib/queries                     |     100 |      100 |     100 |     100 |                                                                                                                           
   index.ts                           |     100 |      100 |     100 |     100 |                                                                                                                           
  src/lib/sanity                      |   86.69 |    88.23 |   56.25 |   86.41 |                                                                                                                           
@@ -762,14 +1140,14 @@ All files                            |   89.83 |    76.87 |   86.22 |   91.15 |
   index.ts                           |   53.33 |      100 |     100 |      75 | 31,37                                                                                                                     
   redis.ts                           |   15.15 |        0 |       0 |   14.75 | 24-30,42-165,173-174,181-182,190                                                                                          
   sanity.ts                          |   29.03 |    29.72 |   42.85 |   28.07 | 39-46,96-216                                                                                                              
- src/models                          |   96.73 |    89.47 |   95.45 |   96.53 |                                                                                                                           
+ src/models                          |   96.35 |    89.47 |   95.45 |   96.55 |                                                                                                                           
   AnalyticsEvent.ts                  |     100 |      100 |     100 |     100 |                                                                                                                           
   ContactSubmission.ts               |     100 |      100 |     100 |     100 |                                                                                                                           
   EmailVerificationToken.ts          |     100 |      100 |     100 |     100 |                                                                                                                           
   LoginAttempt.ts                    |   95.37 |    84.81 |     100 |   95.32 | 144,161,165-166,184                                                                                                       
   NewsletterSubscriber.ts            |   95.74 |       92 |     100 |   95.55 | 21,55                                                                                                                     
   PasswordResetToken.ts              |     100 |      100 |     100 |     100 |                                                                                                                           
-  User.ts                            |   95.45 |      100 |      50 |   94.44 | 54                                                                                                                        
+  User.ts                            |   91.66 |      100 |      50 |   94.73 | 60                                                                                                                        
   UserAnalytics.ts                   |     100 |      100 |     100 |     100 |                                                                                                                           
   UserFavorite.ts                    |     100 |      100 |     100 |     100 |                                                                                                                           
  src/scripts                         |   97.61 |       68 |     100 |     100 |                                                                                                                           
@@ -803,22 +1181,393 @@ All files                            |   89.83 |    76.87 |   86.22 |   91.15 |
   sort.ts                            |     100 |      100 |     100 |     100 |                                                                                                                           
  src/types/type-tests                |     100 |      100 |     100 |     100 |                                                                                                                           
   strict-component-type-tests.tsx    |     100 |      100 |     100 |     100 |                                                                                                                           
- src/utils                           |   87.92 |    77.03 |   97.91 |   87.89 |                                                                                                                           
+ src/utils                           |   87.79 |    76.24 |   97.87 |   87.77 |                                                                                                                           
   api-response.ts                    |     100 |    94.73 |     100 |     100 | 30                                                                                                                        
   auth-helpers.ts                    |     100 |    94.44 |     100 |     100 | 38                                                                                                                        
   db-helpers.ts                      |   87.05 |    70.38 |     100 |   87.71 | 76-84,111,116-117,154,218,236,238,257,276,281-282,316,337-338,349,397,430-431,446,455,493,508,515,526,545-548,561,569,584 
   ecoRatingCalculator.ts             |   93.75 |       75 |     100 |   93.33 | 37                                                                                                                        
   navigation.ts                      |   88.88 |       50 |     100 |   85.71 | 3                                                                                                                         
   priceRange.ts                      |     100 |      100 |     100 |     100 |                                                                                                                           
-  rate-limit.ts                      |   63.07 |       50 |   71.42 |   63.49 | 20-23,41-62,131-153                                                                                                       
+  rate-limit.ts                      |   63.63 |       50 |   71.42 |   64.06 | 23-26,43-64,133-155                                                                                                       
   revalidation-token.ts              |   96.15 |    86.66 |     100 |   96.15 | 30                                                                                                                        
   sanitize.ts                        |     100 |      100 |     100 |     100 |                                                                                                                           
   tag-styles.ts                      |     100 |      100 |     100 |     100 |                                                                                                                           
-  theme.ts                           |     100 |      100 |     100 |     100 |                                                                                                                           
 -------------------------------------|---------|----------|---------|---------|---------------------------------------------------------------------------------------------------------------------------
 
-Test Suites: 331 passed, 331 total
-Tests:       4120 passed, 4120 total
+Summary of all failing tests
+FAIL src/lib/admin/__tests__/analytics.test.ts
+  ● admin analytics helpers › returns aggregated analytics snapshot
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 1
+    + Received  + 0
+
+      Object {
+        "admin": 1,
+    -   "moderator": 3,
+        "user": 0,
+      }
+
+      209 |       pendingModeration: 3,
+      210 |     });
+    > 211 |     expect(snapshot.userRoles).toMatchObject({
+          |                                ^
+      212 |       admin: 1,
+      213 |       user: 0,
+      214 |       moderator: 3,
+
+      at Object.toMatchObject (src/lib/admin/__tests__/analytics.test.ts:211:32)
+
+FAIL src/lib/__tests__/auth.test.ts
+  ● auth module › callbacks.jwt › refreshes token details when user object is absent
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "user-2"
+
+    Number of calls: 0
+
+      361 |       } as any);
+      362 |
+    > 363 |       expect(getUserById).toHaveBeenCalledWith('user-2');
+          |                           ^
+      364 |       expect(token).toMatchObject({ name: 'Fetched User', role: 'admin', id: 'user-2' });
+      365 |     });
+      366 |   });
+
+      at Object.toHaveBeenCalledWith (src/lib/__tests__/auth.test.ts:363:27)
+
+FAIL app/api/reviews/route.test.ts
+  ● API /api/reviews POST › rejects users without review permissions
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 201
+    Received: 400
+
+      266 |     );
+      267 |
+    > 268 |     expect(res.status).toBe(201); // Should succeed since user role has submitReviews: true
+          |                        ^
+      269 |     const json = await res.json();
+      270 |     expect(json.success).toBe(true);
+      271 |   });
+
+      at Object.toBe (app/api/reviews/route.test.ts:268:24)
+
+FAIL app/api/admin/users/__tests__/route.test.ts
+  ● /api/admin/users › updates users with valid payloads
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 400
+
+      229 |     const json = await response.json();
+      230 |
+    > 231 |     expect(response.status).toBe(200);
+          |                             ^
+      232 |     expect(json).toMatchObject({
+      233 |       message: 'User updated successfully',
+      234 |       userId: 'user-123',
+
+      at Object.toBe (app/api/admin/users/__tests__/route.test.ts:231:29)
+
+  ● /api/admin/users › handles errors when updating users
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 500
+    Received: 400
+
+      251 |     const json = await response.json();
+      252 |
+    > 253 |     expect(response.status).toBe(500);
+          |                             ^
+      254 |     expect(json.error).toBe('Failed to update user');
+      255 |     expect(mockLogger.error).toHaveBeenCalledWith('Admin users PATCH error', expect.any(Error), {
+      256 |       method: 'PATCH',
+
+      at Object.toBe (app/api/admin/users/__tests__/route.test.ts:253:29)
+
+FAIL app/api/comments/route.test.ts
+  ● API /api/comments › POST › rejects users without comment permissions
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 201
+    Received: 400
+
+      147 |
+      148 |       const res = await POST(req);
+    > 149 |       expect(res.status).toBe(201); // Should succeed since user role has submitComments: true
+          |                          ^
+      150 |       const json = await res.json();
+      151 |       expect(json.success).toBe(true);
+      152 |       expect(client.create).toHaveBeenCalled();
+
+      at Object.toBe (app/api/comments/route.test.ts:149:26)
+
+FAIL app/api/listings/city/[id]/__tests__/route.msw.test.ts
+  ● Listings/city/[id] API (MSW) › returns listings via Sanity MSW handler
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 1
+    + Received  + 0
+
+      Object {
+    -   "id": "listing-green-cowork-bangkok",
+        "name": "Green Cowork Bangkok",
+      }
+
+      84 |     expect(json.success).toBe(true);
+      85 |     expect(Array.isArray(json.data?.listings)).toBe(true);
+    > 86 |     expect(json.data.listings[0]).toMatchObject({
+         |                                   ^
+      87 |       id: sampleListing._id,
+      88 |       name: sampleListing.name,
+      89 |     });
+
+      at Object.toMatchObject (app/api/listings/city/[id]/__tests__/route.msw.test.ts:86:35)
+
+FAIL src/lib/performance/__tests__/withPerformanceTracking.test.tsx
+  ● withPerformanceTracking › logs debug output in development mode
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 2
+    Received:    0
+
+      151 |     const body = fetchMock.mock.calls[0][1]?.body as string;
+      152 |     expect(JSON.parse(body)).toMatchObject({ value: 0 });
+    > 153 |     expect(nowMock.mock.calls.length).toBeGreaterThanOrEqual(2);
+          |                                       ^
+      154 |   });
+      155 |
+      156 |   it('falls back to Date.now when the Performance API is unavailable', async () => {
+
+      at Object.toBeGreaterThanOrEqual (src/lib/performance/__tests__/withPerformanceTracking.test.tsx:153:39)
+
+  ● withPerformanceTracking › falls back to Date.now when the Performance API is unavailable
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 1
+    + Received  + 1
+
+      Object {
+    -   "value": 80,
+    +   "value": 0,
+      }
+
+      182 |     });
+      183 |     const body = fetchMock.mock.calls[0][1]?.body as string;
+    > 184 |     expect(JSON.parse(body)).toMatchObject({ value: 80 });
+          |                              ^
+      185 |
+      186 |     dateSpy.mockRestore();
+      187 |   });
+
+      at Object.toMatchObject (src/lib/performance/__tests__/withPerformanceTracking.test.tsx:184:30)
+
+  ● withPerformanceTracking › does not send duplicate metrics when the component rerenders
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 3
+    Received:    0
+
+      200 |       expect(fetchMock).toHaveBeenCalledTimes(1);
+      201 |     });
+    > 202 |     expect(nowMock.mock.calls.length).toBeGreaterThanOrEqual(3);
+          |                                       ^
+      203 |
+      204 |     const body = fetchMock.mock.calls[0][1]?.body as string;
+      205 |     expect(JSON.parse(body)).toMatchObject({
+
+      at Object.toBeGreaterThanOrEqual (src/lib/performance/__tests__/withPerformanceTracking.test.tsx:202:39)
+
+  ● withPerformanceTracking › suppresses debug logging outside of development mode
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 2
+    Received:    0
+
+      236 |       value: 0,
+      237 |     });
+    > 238 |     expect(nowMock.mock.calls.length).toBeGreaterThanOrEqual(2);
+          |                                       ^
+      239 |   });
+      240 | });
+      241 |
+
+      at Object.toBeGreaterThanOrEqual (src/lib/performance/__tests__/withPerformanceTracking.test.tsx:238:39)
+
+FAIL src/hooks/useAuth.test.ts
+  ● useAuth › falls back to anonymous defaults when the user is loading or missing
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "unidentifiedUser"
+    Received: "user"
+
+      58 |     expect(result.current.isLoading).toBe(true);
+      59 |     expect(result.current.user).toBeUndefined();
+    > 60 |     expect(result.current.userRole).toBe('unidentifiedUser');
+         |                                     ^
+      61 |     expect(result.current.status).toBe('loading');
+      62 |
+      63 |     result.current.hasPagePermission('home', 'view');
+
+      at Object.toBe (src/hooks/useAuth.test.ts:60:37)
+
+FAIL src/lib/performance/__tests__/web-vitals-reporter.test.ts
+  ● WebVitalsReporter › falls back to fetch when sendBeacon returns false
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "/api/performance/web-vitals", {"body": "{\"id\":\"2\",\"name\":\"LCP\",\"value\":123,\"entries\":[{\"entryType\":\"paint\"}]}", "keepalive": true, "method": "POST"}
+
+    Number of calls: 0
+
+      92 |     });
+      93 |
+    > 94 |     expect(fetchMock).toHaveBeenCalledWith('/api/performance/web-vitals', {
+         |                       ^
+      95 |       body: JSON.stringify({ id: '2', name: 'LCP', value: 123, entries: [{ entryType: 'paint' }] }),
+      96 |       keepalive: true,
+      97 |       method: 'POST',
+
+      at Object.toHaveBeenCalledWith (src/lib/performance/__tests__/web-vitals-reporter.test.ts:94:23)
+
+  ● WebVitalsReporter › falls back to fetch when sendBeacon throws
+
+    expect(jest.fn()).toHaveBeenCalled()
+
+    Expected number of calls: >= 1
+    Received number of calls:    0
+
+      120 |
+      121 |     expect(() => WebVitalsReporter({ id: '3', name: 'FID', value: 45 })).not.toThrow();
+    > 122 |     expect(fetchMock).toHaveBeenCalled();
+          |                       ^
+      123 |   });
+      124 |
+      125 |   it('falls back to fetch when navigator is unavailable', () => {
+
+      at Object.toHaveBeenCalled (src/lib/performance/__tests__/web-vitals-reporter.test.ts:122:23)
+
+  ● WebVitalsReporter › falls back to fetch when navigator is unavailable
+
+    expect(jest.fn()).toHaveBeenCalled()
+
+    Expected number of calls: >= 1
+    Received number of calls:    0
+
+      140 |
+      141 |     expect(() => WebVitalsReporter({ id: 'missing-nav', name: 'FCP', value: 222 })).not.toThrow();
+    > 142 |     expect(fetchMock).toHaveBeenCalled();
+          |                       ^
+      143 |   });
+      144 |
+      145 |   it('does nothing when fetch is unavailable', () => {
+
+      at Object.toHaveBeenCalled (src/lib/performance/__tests__/web-vitals-reporter.test.ts:142:23)
+
+  ● WebVitalsReporter › swallows fetch errors using the catch handler
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      179 |
+      180 |     expect(() => WebVitalsReporter({ id: '5', name: 'INP', value: 250 })).not.toThrow();
+    > 181 |     expect(catchExecuted).toBe(true);
+          |                           ^
+      182 |   });
+      183 |
+      184 |   it('exposes reportWebVitals alias that delegates to the reporter', () => {
+
+      at Object.toBe (src/lib/performance/__tests__/web-vitals-reporter.test.ts:181:27)
+
+  ● WebVitalsReporter › exposes reportWebVitals alias that delegates to the reporter
+
+    expect(jest.fn()).toHaveBeenCalled()
+
+    Expected number of calls: >= 1
+    Received number of calls:    0
+
+      191 |     reportWebVitals({ id: 'alias', name: 'TTI', value: 3200 });
+      192 |
+    > 193 |     expect(sendBeacon).toHaveBeenCalled();
+          |                        ^
+      194 |   });
+      195 | });
+      196 |
+
+      at Object.toHaveBeenCalled (src/lib/performance/__tests__/web-vitals-reporter.test.ts:193:24)
+
+  ● measureFunctionTime › falls back to Date.now when performance API is unavailable
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 2
+    Received number of calls: 0
+
+      246 |
+      247 |     expect(result).toBe(42);
+    > 248 |     expect(Date.now).toHaveBeenCalledTimes(2);
+          |                      ^
+      249 |   });
+      250 |
+      251 |   it('uses raw execution time when toFixed is unavailable', () => {
+
+      at Object.toHaveBeenCalledTimes (src/lib/performance/__tests__/web-vitals-reporter.test.ts:248:22)
+
+FAIL src/__tests__/instrumentation.test.ts
+  ● instrumentation register › prevents process exit for Mongo related uncaught exceptions
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "MongoDB connection issue detected. Continuing..."
+
+    Number of calls: 0
+
+      153 |
+      154 |     expect(processExitSpy).not.toHaveBeenCalled();
+    > 155 |     expect(consoleWarnSpy).toHaveBeenCalledWith('MongoDB connection issue detected. Continuing...');
+          |                            ^
+      156 |   });
+      157 |
+      158 |   it('logs the failure context and exits the process for critical production errors', async () => {
+
+      at Object.toHaveBeenCalledWith (src/__tests__/instrumentation.test.ts:155:28)
+
+FAIL src/lib/performance/__tests__/web-vitals-reporter.test.fixed.ts
+  ● WebVitalsReporter (fixed) › falls back to fetch when sendBeacon exists but returns false
+
+    expect(jest.fn()).toHaveBeenCalled()
+
+    Expected number of calls: >= 1
+    Received number of calls:    0
+
+      53 |     WebVitalsReporter(metric);
+      54 |
+    > 55 |     expect(sendBeacon).toHaveBeenCalled();
+         |                        ^
+      56 |     expect(fetchMock).toHaveBeenCalled();
+      57 |     const [url, opts] = fetchMock.mock.calls[0];
+      58 |     expect(url).toBe('/api/performance/web-vitals');
+
+      at Object.toHaveBeenCalled (src/lib/performance/__tests__/web-vitals-reporter.test.fixed.ts:55:24)
+
+
+Test Suites: 11 failed, 323 passed, 334 total
+Tests:       20 failed, 4074 passed, 4094 total
 Snapshots:   0 total
-Time:        162.162 s
+Time:        2197.704 s
 Ran all test suites.

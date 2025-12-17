@@ -229,13 +229,6 @@ describe('Test Data Utilities', () => {
       expect(admin?.email).toContain('admin');
     });
 
-    it('should get editor user', () => {
-      const editor = getTestUser('editor');
-
-      expect(editor).toBeDefined();
-      expect(editor?.role).toBe('editor');
-    });
-
     it('should get venue owner user', () => {
       const venueOwner = getTestUser('venueOwner');
 
@@ -277,11 +270,11 @@ describe('Test Data Utilities', () => {
       expect(session?.token).toBe(session?.user.sessionToken);
     });
 
-    it('should get session for editor role', () => {
-      const session = getSessionForRole('editor');
+    it('should get session for super admin role', () => {
+      const session = getSessionForRole('superAdmin');
 
       expect(session).toBeDefined();
-      expect(session?.user.role).toBe('editor');
+      expect(session?.user.role).toBe('superAdmin');
     });
 
     it('should get session for venue owner role', () => {

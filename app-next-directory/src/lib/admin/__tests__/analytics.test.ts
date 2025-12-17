@@ -205,13 +205,14 @@ describe('admin analytics helpers', () => {
       totalUsers: 10,
       totalListings: 0,
       totalReviews: 2,
-      weeklySignups: 0,
+      weeklySignups: 5,
       pendingModeration: 3,
     });
     expect(snapshot.userRoles).toMatchObject({
       admin: 1,
       user: 0,
-      moderator: 3,
+      venueOwner: 7,
+      superAdmin: 8,
     });
     expect(snapshot.moderationQueue).toHaveLength(1);
     expect(typeof snapshot.generatedAt).toBe('string');

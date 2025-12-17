@@ -92,9 +92,8 @@ test.describe('API Integration Testing - Workstream E.1', () => {
     test('PUT /api/user/profile - Update User Profile', async ({ request }) => {
       const updateData = {
         name: 'Updated Test User',
-        preferences: {
-          theme: 'dark',
-          notifications: false,
+          preferences: {
+            notifications: false,
         },
       };
 
@@ -109,7 +108,6 @@ test.describe('API Integration Testing - Workstream E.1', () => {
       expect(response.status()).toBe(200);
       const data = await response.json();
       expect(data.name).toBe(updateData.name);
-      expect(data.preferences.theme).toBe('dark');
     });
   });
 
@@ -204,9 +202,8 @@ test.describe('API Integration Testing - Workstream E.1', () => {
     });
 
     test('PUT /api/user/preferences - Update User Preferences', async ({ request }) => {
-      const newPreferences = {
-        theme: 'light',
-        language: 'en',
+        const newPreferences = {
+          language: 'en',
         notifications: {
           email: true,
           push: false,
@@ -229,7 +226,6 @@ test.describe('API Integration Testing - Workstream E.1', () => {
       expect(response.status()).toBe(200);
       const data = await response.json();
       expect(data.success).toBe(true);
-      expect(data.preferences.theme).toBe('light');
     });
 
     test('GET /api/user/analytics - Get User Analytics', async ({ request }) => {

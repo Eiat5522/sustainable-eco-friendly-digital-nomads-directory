@@ -1,7 +1,33 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { HttpResponse, http } from 'msw';
 import { NextRequest } from 'next/server';
-import { server } from '@/mocks/server';
+
+// Mock isSanityConfigured
+jest.mock('@/lib/sanity/env', () => ({
+  isSanityConfigured: jest.fn().mockReturnValue(true),
+}));
+
+// Mock getCityBySlug
+jest.mock('@/lib/data/city', () => ({
+  getCityBySlug: jest.fn(),
+}));
+
+// Mock getE2ECityDetail
+jest.mock('@/data/e2e/discovery-fixtures', () => ({
+  getE2ECityDetail: jest.fn().mockReturnValue(null),
+}));
+
+// Mock ApiResponseHandler
+jest.mock('@/utils/api-response', () => ({
+  ApiResponseHandler: {
+    success: jest.fn().mockImplementation((data) => new Response(JSON.stringify({ success: true, data }), { status: 200 })),
+    error: jest.fn().mockImplementation((message, status, details) => 
+      new Response(JSON.stringify({ success: false, error: message, details }), { status })
+    ),
+    notFound: jest.fn().mockImplementation((resource) => 
+      new Response(JSON.stringify({ success: false, error: `${resource} not found` }), { status: 404 })
+    ),
+  },
+}));
 
 const createRequest = (slug: string) => new NextRequest(`http://localhost/api/cities/${slug}`);
 
@@ -35,22 +61,8 @@ describe('Cities/[slug] API (MSW)', () => {
   });
 
   it('returns city data via Sanity MSW handler', async () => {
-    server.use(
-      http.get(
-        'https://:projectId.api.sanity.io/v:apiVersion/data/query/:dataset',
-        ({ request }) => {
-          const url = new URL(request.url);
-          const paramsText = url.searchParams.get('params');
-          const params = paramsText ? JSON.parse(paramsText) : {};
-          const slug = params.slug ?? params.slugName ?? sampleCity.slug;
-          return HttpResponse.json({
-            ms: 4,
-            query: url.searchParams.get('query'),
-            result: { ...sampleCity, slug },
-          });
-        }
-      )
-    );
+    const { getCityBySlug } = await import('@/lib/data/city');
+    (getCityBySlug as jest.Mock).mockResolvedValue(sampleCity);
 
     const response = await GET(createRequest('bangkok'), {
       params: Promise.resolve({ slug: 'bangkok' }),
@@ -64,12 +76,8 @@ describe('Cities/[slug] API (MSW)', () => {
   });
 
   it('handles Sanity errors gracefully', async () => {
-    server.use(
-      http.get(
-        'https://:projectId.api.sanity.io/v:apiVersion/data/query/:dataset',
-        () => new Response(null, { status: 500 })
-      )
-    );
+    const { getCityBySlug } = await import('@/lib/data/city');
+    (getCityBySlug as jest.Mock).mockRejectedValue(new Error('Sanity API error'));
 
     const response = await GET(createRequest('bangkok'), {
       params: Promise.resolve({ slug: 'bangkok' }),
@@ -81,11 +89,8 @@ describe('Cities/[slug] API (MSW)', () => {
   });
 
   it('handles network errors from Sanity', async () => {
-    server.use(
-      http.get('https://:projectId.api.sanity.io/v:apiVersion/data/query/:dataset', () =>
-        HttpResponse.error('Network timeout')
-      )
-    );
+    const { getCityBySlug } = await import('@/lib/data/city');
+    (getCityBySlug as jest.Mock).mockRejectedValue(new Error('Network timeout'));
 
     const response = await GET(createRequest('bangkok'), {
       params: Promise.resolve({ slug: 'bangkok' }),

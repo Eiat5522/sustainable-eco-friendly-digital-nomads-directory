@@ -18,9 +18,9 @@ const expectedListingIds = [
 
 const expectedUserIds = [
   'user-riley-regular',
-  'user-erin-editor',
   'user-vera-venue',
   'user-ada-admin',
+  'user-sam-superadmin',
 ];
 
 const expectedCityIds = ['city-bangkok', 'city-chiang-mai', 'city-lisbon'];

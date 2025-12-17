@@ -57,7 +57,7 @@ describe('useAuth', () => {
     expect(result.current.isAuthenticated).toBe(false);
     expect(result.current.isLoading).toBe(true);
     expect(result.current.user).toBeUndefined();
-    expect(result.current.userRole).toBe('unidentifiedUser');
+    expect(result.current.userRole).toBe('user');
     expect(result.current.status).toBe('loading');
 
     result.current.hasPagePermission('home', 'view');
