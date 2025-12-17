@@ -152,7 +152,10 @@ describe('instrumentation register', () => {
     exceptionHandler?.(new Error('MongoServerSelectionError: primary down'));
 
     expect(processExitSpy).not.toHaveBeenCalled();
-    expect(consoleWarnSpy).toHaveBeenCalledWith('MongoDB connection issue detected. Continuing...');
+    expect(mockLogger.structuredLogger.warn).toHaveBeenCalledWith(
+      'MongoDB connection issue detected. Continuing...',
+      { component: 'instrumentation' }
+    );
   });
 
   it('logs the failure context and exits the process for critical production errors', async () => {

@@ -1,15 +1,19 @@
+PASS src/lib/performance/__tests__/web-vitals-reporter.test.ts
 FAIL src/lib/admin/__tests__/analytics.test.ts
   ● admin analytics helpers › returns aggregated analytics snapshot
 
     expect(received).toMatchObject(expected)
 
-    - Expected  - 1
-    + Received  + 0
+    - Expected  - 2
+    + Received  + 2
 
       Object {
         "admin": 1,
-    -   "moderator": 3,
+    -   "superAdmin": 8,
+    +   "superAdmin": 4,
         "user": 0,
+    -   "venueOwner": 7,
+    +   "venueOwner": 3,
       }
 
       209 |       pendingModeration: 3,
@@ -18,182 +22,11 @@ FAIL src/lib/admin/__tests__/analytics.test.ts
           |                                ^
       212 |       admin: 1,
       213 |       user: 0,
-      214 |       moderator: 3,
+      214 |       venueOwner: 7,
 
       at Object.toMatchObject (src/lib/admin/__tests__/analytics.test.ts:211:32)
 
-FAIL src/lib/__tests__/auth.test.ts
-  ● auth module › callbacks.jwt › refreshes token details when user object is absent
-
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-    Expected: "user-2"
-
-    Number of calls: 0
-
-      361 |       } as any);
-      362 |
-    > 363 |       expect(getUserById).toHaveBeenCalledWith('user-2');
-          |                           ^
-      364 |       expect(token).toMatchObject({ name: 'Fetched User', role: 'admin', id: 'user-2' });
-      365 |     });
-      366 |   });
-
-      at Object.toHaveBeenCalledWith (src/lib/__tests__/auth.test.ts:363:27)
-
-PASS app/api/auth/[...nextauth]/__tests__/route.test.ts
-FAIL app/api/reviews/route.test.ts
-  ● API /api/reviews POST › rejects users without review permissions
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 201
-    Received: 400
-
-      266 |     );
-      267 |
-    > 268 |     expect(res.status).toBe(201); // Should succeed since user role has submitReviews: true
-          |                        ^
-      269 |     const json = await res.json();
-      270 |     expect(json.success).toBe(true);
-      271 |   });
-
-      at Object.toBe (app/api/reviews/route.test.ts:268:24)
-
-PASS app/api/cities/[slug]/__tests__/route.msw.test.ts
-FAIL app/api/admin/users/__tests__/route.test.ts
-  ● /api/admin/users › updates users with valid payloads
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 200
-    Received: 400
-
-      229 |     const json = await response.json();
-      230 |
-    > 231 |     expect(response.status).toBe(200);
-          |                             ^
-      232 |     expect(json).toMatchObject({
-      233 |       message: 'User updated successfully',
-      234 |       userId: 'user-123',
-
-      at Object.toBe (app/api/admin/users/__tests__/route.test.ts:231:29)
-
-  ● /api/admin/users › handles errors when updating users
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 500
-    Received: 400
-
-      251 |     const json = await response.json();
-      252 |
-    > 253 |     expect(response.status).toBe(500);
-          |                             ^
-      254 |     expect(json.error).toBe('Failed to update user');
-      255 |     expect(mockLogger.error).toHaveBeenCalledWith('Admin users PATCH error', expect.any(Error), {
-      256 |       method: 'PATCH',
-
-      at Object.toBe (app/api/admin/users/__tests__/route.test.ts:253:29)
-
-FAIL app/api/comments/route.test.ts
-  ● API /api/comments › POST › rejects users without comment permissions
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 201
-    Received: 400
-
-      147 |
-      148 |       const res = await POST(req);
-    > 149 |       expect(res.status).toBe(201); // Should succeed since user role has submitComments: true
-          |                          ^
-      150 |       const json = await res.json();
-      151 |       expect(json.success).toBe(true);
-      152 |       expect(client.create).toHaveBeenCalled();
-
-      at Object.toBe (app/api/comments/route.test.ts:149:26)
-
-FAIL app/api/listings/city/[id]/__tests__/route.msw.test.ts
-  ● Listings/city/[id] API (MSW) › returns listings via Sanity MSW handler
-
-    expect(received).toMatchObject(expected)
-
-    - Expected  - 1
-    + Received  + 0
-
-      Object {
-    -   "id": "listing-green-cowork-bangkok",
-        "name": "Green Cowork Bangkok",
-      }
-
-      84 |     expect(json.success).toBe(true);
-      85 |     expect(Array.isArray(json.data?.listings)).toBe(true);
-    > 86 |     expect(json.data.listings[0]).toMatchObject({
-         |                                   ^
-      87 |       id: sampleListing._id,
-      88 |       name: sampleListing.name,
-      89 |     });
-
-      at Object.toMatchObject (app/api/listings/city/[id]/__tests__/route.msw.test.ts:86:35)
-
 FAIL src/lib/performance/__tests__/withPerformanceTracking.test.tsx
-  ● withPerformanceTracking › logs debug output in development mode
-
-    expect(received).toBeGreaterThanOrEqual(expected)
-
-    Expected: >= 2
-    Received:    0
-
-      151 |     const body = fetchMock.mock.calls[0][1]?.body as string;
-      152 |     expect(JSON.parse(body)).toMatchObject({ value: 0 });
-    > 153 |     expect(nowMock.mock.calls.length).toBeGreaterThanOrEqual(2);
-          |                                       ^
-      154 |   });
-      155 |
-      156 |   it('falls back to Date.now when the Performance API is unavailable', async () => {
-
-      at Object.toBeGreaterThanOrEqual (src/lib/performance/__tests__/withPerformanceTracking.test.tsx:153:39)
-
-  ● withPerformanceTracking › falls back to Date.now when the Performance API is unavailable
-
-    expect(received).toMatchObject(expected)
-
-    - Expected  - 1
-    + Received  + 1
-
-      Object {
-    -   "value": 80,
-    +   "value": 0,
-      }
-
-      182 |     });
-      183 |     const body = fetchMock.mock.calls[0][1]?.body as string;
-    > 184 |     expect(JSON.parse(body)).toMatchObject({ value: 80 });
-          |                              ^
-      185 |
-      186 |     dateSpy.mockRestore();
-      187 |   });
-
-      at Object.toMatchObject (src/lib/performance/__tests__/withPerformanceTracking.test.tsx:184:30)
-
-  ● withPerformanceTracking › does not send duplicate metrics when the component rerenders
-
-    expect(received).toBeGreaterThanOrEqual(expected)
-
-    Expected: >= 3
-    Received:    0
-
-      200 |       expect(fetchMock).toHaveBeenCalledTimes(1);
-      201 |     });
-    > 202 |     expect(nowMock.mock.calls.length).toBeGreaterThanOrEqual(3);
-          |                                       ^
-      203 |
-      204 |     const body = fetchMock.mock.calls[0][1]?.body as string;
-      205 |     expect(JSON.parse(body)).toMatchObject({
-
-      at Object.toBeGreaterThanOrEqual (src/lib/performance/__tests__/withPerformanceTracking.test.tsx:202:39)
-
   ● withPerformanceTracking › suppresses debug logging outside of development mode
 
     expect(received).toBeGreaterThanOrEqual(expected)
@@ -211,147 +44,322 @@ FAIL src/lib/performance/__tests__/withPerformanceTracking.test.tsx
 
       at Object.toBeGreaterThanOrEqual (src/lib/performance/__tests__/withPerformanceTracking.test.tsx:238:39)
 
-FAIL src/hooks/useAuth.test.ts
+PASS src/lib/__tests__/auth.test.ts (7.774 s)
+PASS app/api/reviews/route.test.ts (10.777 s)
+FAIL src/hooks/useAuth.test.ts (5.083 s)
   ● useAuth › falls back to anonymous defaults when the user is loading or missing
 
-    expect(received).toBe(expected) // Object.is equality
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
 
-    Expected: "unidentifiedUser"
-    Received: "user"
+    Expected: "unidentifiedUser", "home", "view"
+    Received: "user", "home", "view"
 
-      58 |     expect(result.current.isLoading).toBe(true);
-      59 |     expect(result.current.user).toBeUndefined();
-    > 60 |     expect(result.current.userRole).toBe('unidentifiedUser');
-         |                                     ^
-      61 |     expect(result.current.status).toBe('loading');
+    Number of calls: 1
+
       62 |
       63 |     result.current.hasPagePermission('home', 'view');
+    > 64 |     expect(hasPagePermissionMock).toHaveBeenCalledWith('unidentifiedUser', 'home', 'view');
+         |                                   ^
+      65 |
+      66 |     result.current.hasFeaturePermission('anyFeature');
+      67 |     expect(hasFeaturePermissionMock).toHaveBeenCalledWith('unidentifiedUser', 'anyFeature');
 
-      at Object.toBe (src/hooks/useAuth.test.ts:60:37)
+      at Object.toHaveBeenCalledWith (src/hooks/useAuth.test.ts:64:35)
 
-FAIL src/lib/performance/__tests__/web-vitals-reporter.test.ts
-  ● WebVitalsReporter › falls back to fetch when sendBeacon returns false
-
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-    Expected: "/api/performance/web-vitals", {"body": "{\"id\":\"2\",\"name\":\"LCP\",\"value\":123,\"entries\":[{\"entryType\":\"paint\"}]}", "keepalive": true, "method": "POST"}
-
-    Number of calls: 0
-
-      92 |     });
-      93 |
-    > 94 |     expect(fetchMock).toHaveBeenCalledWith('/api/performance/web-vitals', {
-         |                       ^
-      95 |       body: JSON.stringify({ id: '2', name: 'LCP', value: 123, entries: [{ entryType: 'paint' }] }),
-      96 |       keepalive: true,
-      97 |       method: 'POST',
-
-      at Object.toHaveBeenCalledWith (src/lib/performance/__tests__/web-vitals-reporter.test.ts:94:23)
-
-  ● WebVitalsReporter › falls back to fetch when sendBeacon throws
-
-    expect(jest.fn()).toHaveBeenCalled()
-
-    Expected number of calls: >= 1
-    Received number of calls:    0
-
-      120 |
-      121 |     expect(() => WebVitalsReporter({ id: '3', name: 'FID', value: 45 })).not.toThrow();
-    > 122 |     expect(fetchMock).toHaveBeenCalled();
-          |                       ^
-      123 |   });
-      124 |
-      125 |   it('falls back to fetch when navigator is unavailable', () => {
-
-      at Object.toHaveBeenCalled (src/lib/performance/__tests__/web-vitals-reporter.test.ts:122:23)
-
-  ● WebVitalsReporter › falls back to fetch when navigator is unavailable
-
-    expect(jest.fn()).toHaveBeenCalled()
-
-    Expected number of calls: >= 1
-    Received number of calls:    0
-
-      140 |
-      141 |     expect(() => WebVitalsReporter({ id: 'missing-nav', name: 'FCP', value: 222 })).not.toThrow();
-    > 142 |     expect(fetchMock).toHaveBeenCalled();
-          |                       ^
-      143 |   });
-      144 |
-      145 |   it('does nothing when fetch is unavailable', () => {
-
-      at Object.toHaveBeenCalled (src/lib/performance/__tests__/web-vitals-reporter.test.ts:142:23)
-
-  ● WebVitalsReporter › swallows fetch errors using the catch handler
+PASS app/api/listings/city/[id]/__tests__/route.msw.test.ts
+PASS app/api/comments/route.test.ts (8.308 s)
+FAIL app/api/admin/users/__tests__/route.test.ts
+  ● /api/admin/users › updates users with valid payloads
 
     expect(received).toBe(expected) // Object.is equality
 
-    Expected: true
-    Received: false
+    Expected: 200
+    Received: 400
 
-      179 |
-      180 |     expect(() => WebVitalsReporter({ id: '5', name: 'INP', value: 250 })).not.toThrow();
-    > 181 |     expect(catchExecuted).toBe(true);
-          |                           ^
-      182 |   });
-      183 |
-      184 |   it('exposes reportWebVitals alias that delegates to the reporter', () => {
+      232 |     const json = await response.json();
+      233 |
+    > 234 |     expect(response.status).toBe(200);
+          |                             ^
+      235 |     expect(json).toMatchObject({
+      236 |       message: 'User updated successfully',
+      237 |       userId: 'user-123',
 
-      at Object.toBe (src/lib/performance/__tests__/web-vitals-reporter.test.ts:181:27)
+      at Object.toBe (app/api/admin/users/__tests__/route.test.ts:234:29)
 
-  ● WebVitalsReporter › exposes reportWebVitals alias that delegates to the reporter
+  ● /api/admin/users › handles errors when updating users
 
-    expect(jest.fn()).toHaveBeenCalled()
+    expect(received).toBe(expected) // Object.is equality
 
-    Expected number of calls: >= 1
-    Received number of calls:    0
+    Expected: 500
+    Received: 400
 
-      191 |     reportWebVitals({ id: 'alias', name: 'TTI', value: 3200 });
-      192 |
-    > 193 |     expect(sendBeacon).toHaveBeenCalled();
-          |                        ^
-      194 |   });
-      195 | });
-      196 |
+      254 |     const json = await response.json();
+      255 |
+    > 256 |     expect(response.status).toBe(500);
+          |                             ^
+      257 |     expect(json.error).toBe('Failed to update user');
+      258 |     expect(mockLogger.error).toHaveBeenCalledWith('Admin users PATCH error', expect.any(Error), {
+      259 |       method: 'PATCH',
 
-      at Object.toHaveBeenCalled (src/lib/performance/__tests__/web-vitals-reporter.test.ts:193:24)
+      at Object.toBe (app/api/admin/users/__tests__/route.test.ts:256:29)
 
-  ● measureFunctionTime › falls back to Date.now when performance API is unavailable
-
-    expect(jest.fn()).toHaveBeenCalledTimes(expected)
-
-    Expected number of calls: 2
-    Received number of calls: 0
-
-      246 |
-      247 |     expect(result).toBe(42);
-    > 248 |     expect(Date.now).toHaveBeenCalledTimes(2);
-          |                      ^
-      249 |   });
-      250 |
-      251 |   it('uses raw execution time when toFixed is unavailable', () => {
-
-      at Object.toHaveBeenCalledTimes (src/lib/performance/__tests__/web-vitals-reporter.test.ts:248:22)
-
-FAIL src/__tests__/instrumentation.test.ts
-  ● instrumentation register › prevents process exit for Mongo related uncaught exceptions
-
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-    Expected: "MongoDB connection issue detected. Continuing..."
-
-    Number of calls: 0
-
-      153 |
-      154 |     expect(processExitSpy).not.toHaveBeenCalled();
-    > 155 |     expect(consoleWarnSpy).toHaveBeenCalledWith('MongoDB connection issue detected. Continuing...');
-          |                            ^
-      156 |   });
-      157 |
-      158 |   it('logs the failure context and exits the process for critical production errors', async () => {
-
-      at Object.toHaveBeenCalledWith (src/__tests__/instrumentation.test.ts:155:28)
-
+PASS src/types/type-tests/strict-component-type-tests.test.ts (48.647 s)
+PASS src/lib/http/__tests__/request-json-helpers.test.ts
+PASS src/components/ui/__tests__/filter-multi-select.test.tsx (7.98 s)
+PASS src/__tests__/instrumentation.test.ts
+PASS src/components/listings/__tests__/ListingDetailsCard.test.tsx (11.591 s)
+PASS src/lib/__tests__/api.test.ts (11.259 s)
+PASS src/components/listings/__tests__/HeroSection.test.tsx
+PASS src/components/ui/__tests__/InteractiveMap.test.tsx (27.109 s)
+PASS src/components/search/__tests__/FiltersSidebar.test.tsx
+PASS src/components/auth/__tests__/SocialAuthRow.test.tsx
+PASS src/components/search/__tests__/DigitalNomadSearch.test.tsx (15.681 s)
+PASS app/admin/settings/__tests__/SettingsForm.test.tsx (7.771 s)
+PASS src/components/search/__tests__/SearchForm.unit.test.tsx
+PASS src/mocks/__tests__/handlers-server.test.ts
+PASS app/api/user/favorites/[slug]/__tests__/route.test.ts
+PASS src/components/ui/__tests__/separator.test.tsx
+PASS app/dashboard/components/__tests__/VenueListingForm.test.tsx (5.661 s)
+PASS src/components/layout/__tests__/Header.test.tsx (19.188 s)
+PASS app/api/reviews/listing/[slug]/route.test.ts
+PASS src/models/__tests__/UserAnalytics.test.ts
+PASS app/api/user/profile/route.test.ts (6.907 s)
+PASS app/api/admin/stats/__tests__/route.test.ts (5.104 s)
+PASS src/components/ui/__tests__/textarea.test.tsx (10.126 s)
+PASS src/components/sections/__tests__/FeaturedListings.test.tsx
+PASS src/lib/sanity/image.test.ts
+PASS app/api/search/__tests__/route.test.ts (20.634 s)
+PASS app/api/contact/route.test.ts (7.789 s)
+PASS src/components/sections/__tests__/TestimonialsSection.test.tsx
+PASS app/api/events/route.test.ts
+PASS app/admin/listings/__tests__/ListingsManagementTable.test.tsx (11.02 s)
+PASS src/lib/auth/rateLimit.test.ts (5.047 s)
+PASS app/auth/signup/__tests__/SignupPageContent.test.tsx (5.629 s)
+PASS src/components/__tests__/CommentForm.test.tsx (9.702 s)
+PASS app/admin/__tests__/error.test.tsx
+PASS app/__tests__/profile-page.test.tsx
+PASS app/auth/login/__tests__/LoginForm.test.tsx (8.972 s)
+PASS src/components/ui/__tests__/city-carousel-wave.test.tsx (16.767 s)
+PASS app/search/page.test.tsx (8.472 s)
+PASS src/components/favorites/__tests__/FavoriteButton.test.tsx (18.587 s)
+PASS src/components/listings/__tests__/ListingGrid.test.tsx (10.657 s)
+PASS src/models/__tests__/PasswordResetToken.test.ts
+PASS src/components/ui/__tests__/ImageCarousel.test.tsx
+PASS app/api/admin/listings/__tests__/route.test.ts
+PASS src/components/ui/__tests__/SectionHeader.test.tsx
+PASS app/api/admin/analytics/__tests__/route.test.ts
+PASS app/api/reviews/[reviewId]/vote/route.test.ts
+PASS src/lib/__tests__/image-optimizer.test.ts
+PASS src/lib/__tests__/logger.test.ts
+PASS src/components/city/__tests__/CityDetailView.test.tsx
+PASS app/__tests__/error.test.tsx
+PASS app/api/listings/[slug]/views/__tests__/route.test.ts
+PASS app/api/auth/verify/__tests__/route.test.ts (7.266 s)
+PASS src/tests/mocks/factories.test.ts
+PASS src/lib/auth/withAuthMatrix.test.ts
+PASS src/components/listings/__tests__/RelatedListings.test.tsx (8.076 s)
+PASS src/models/__tests__/AnalyticsEvent.test.ts
+PASS app/api/user/favorites/__tests__/route.test.ts
+PASS src/components/listings/__tests__/GalleryGrid.test.tsx
+PASS src/lib/__tests__/email.test.ts (9.413 s)
+PASS src/lib/__tests__/search.test.ts (6.699 s)
+PASS src/lib/auth/serverAuth.test.ts (26.593 s)
+PASS app/__tests__/listings-slug-page.test.tsx
+PASS app/api/auth/register/route.test.ts
+PASS app/dashboard/components/__tests__/VenueListingManagement.test.tsx
+PASS src/types/type-tests/__tests__/strict-component-type-tests.test.tsx
+PASS src/lib/auth/callbackUrl.test.ts
+PASS src/lib/dashboard/__tests__/user-dashboard.test.ts (5.259 s)
+PASS app/api/search/suggestions/__tests__/route.test.ts
+PASS src/components/ui/__tests__/scroll-down-arrow.test.tsx (5.51 s)
+PASS src/types/__tests__/api.test.ts
+PASS src/models/__tests__/LoginAttempt.test.ts
+PASS app/api/revalidate-all/__tests__/route.repair.test.ts
+PASS src/lib/analytics/__tests__/experiments.test.ts (6.13 s)
+PASS src/utils/__tests__/api-response.test.ts
+PASS src/lib/__tests__/sanity-http-client.test.ts (5.335 s)
+PASS src/types/__tests__/sanity.test.ts
+PASS app/cities/[slug]/page.test.tsx
+PASS src/components/listings/__tests__/ReviewsSection.test.tsx (11.6 s)
+PASS src/components/search/__tests__/SearchBox.test.tsx (6.654 s)
+PASS src/lib/__tests__/client.test.ts (5.295 s)
+PASS src/components/layout/__tests__/Footer.test.tsx (9.164 s)
+PASS app/admin/users/__tests__/page.test.tsx (8.106 s)
+PASS src/scripts/__tests__/analyze-content.test.ts (18.639 s)
+PASS src/utils/__tests__/db-helpers.test.ts
+PASS app/__tests__/test-reviews-page.test.tsx
+PASS app/admin/settings/__tests__/page.test.tsx
+PASS src/lib/__tests__/listings.test.ts
+PASS src/types/__tests__/moderation.test.ts
+PASS src/lib/__tests__/mongoose-cache.test.ts
+PASS src/hooks/useSearchListings.test.ts
+PASS src/lib/auth/clientAuth.test.tsx (9.761 s)
+PASS src/lib/auth/adapter.test.ts (5.774 s)
+PASS src/lib/performance/__tests__/plausible.test.ts (10.228 s)
+PASS src/lib/performance/__tests__/budgets.test.ts
+PASS src/utils/__tests__/ecoRatingCalculator.test.ts
+PASS app/admin/dashboard/__tests__/page.test.tsx
+PASS src/lib/performance/__tests__/alert-service.test.ts
+PASS src/components/__tests__/AnimatedNumber.test.tsx
+PASS app/city/[slug]/__tests__/error.test.tsx
+PASS src/tests/helpers/assertions.test.ts
+PASS src/lib/__tests__/rate-limit.test.ts (5.499 s)
+PASS app/api/reviews/analytics/route.test.ts (9.335 s)
+PASS app/admin/dashboard/__tests__/ModerationActions.test.tsx
+PASS src/utils/__tests__/tag-styles.test.ts
+PASS src/__tests__/require-react-fc-type-parameters.test.ts
+PASS app/api/upload/__tests__/route.test.ts
+PASS src/lib/__tests__/mongodb.test.ts
+PASS src/middleware/__tests__/authCallbackHandler.test.ts
+PASS src/lib/queries/__tests__/index.test.ts
+PASS src/lib/mongodb/__tests__/testDbConnector.test.ts
+PASS app/api/eco-tags/route.test.ts (6.122 s)
+PASS app/api/sanity-test/__tests__/route.test.ts
+PASS app/search/results/helpers.test.ts
+PASS app/api/auth/update-profile/route.test.ts
+PASS app/test-reviews/page.test.tsx
+PASS src/components/__tests__/Providers.test.tsx
+PASS src/components/ui/__tests__/skip-link.test.tsx
+PASS src/components/ui/__tests__/select.test.tsx
+PASS src/lib/image-utils/getImageDimensions.test.ts
+PASS app/api/admin/analyze-content/__tests__/route.test.ts
+PASS app/__tests__/page.listingdetail.test.tsx
+PASS app/api/cities/[slug]/__tests__/route.test.ts
+PASS src/hooks/__tests__/useFilters.test.ts (5.056 s)
+PASS src/lib/__tests__/sanity.utils.test.ts
+PASS app/search/results/page.test.tsx
+PASS src/lib/__tests__/sanity.test.js
+PASS app/api/listings/route.test.ts
+PASS app/test/search/__tests__/page.test.tsx
+PASS src/tests/sanity-client.test.ts
+PASS src/components/ui/__tests__/label.test.tsx
+PASS src/components/sections/__tests__/CategoryFilters.test.tsx
+PASS src/lib/sanity/user.test.ts
+PASS src/test-helpers/__tests__/createMongoMemoryServer.test.ts (5.64 s)
+PASS src/lib/__tests__/absolute-url.test.ts
+PASS app/api/categories/route.test.ts
+PASS src/lib/analytics/plausible/__tests__/hooks.test.tsx
+PASS src/lib/__tests__/sanity-batch-processor.test.ts
+PASS app/sitemap.test.ts (6.337 s)
+PASS app/__tests__/sitemap.test.ts
+PASS app/profile/__tests__/utils.test.ts (6.775 s)
+PASS src/lib/data/__tests__/city.test.ts (6.428 s)
+PASS src/hooks/useSearch.test.ts
+PASS src/components/sections/__tests__/HeroSection.test.tsx
+PASS src/lib/__tests__/redis.test.ts
+PASS app/api/admin/moderation/__tests__/route.test.ts
+PASS src/hooks/useFilters.test.ts
+PASS app/admin/listings/__tests__/page.test.tsx (5.682 s)
+PASS src/models/__tests__/NewsletterSubscriber.test.ts
+PASS src/types/__tests__/components.test.ts (5.66 s)
+PASS app/api/newsletter/confirm/__tests__/route.test.ts
+PASS src/components/search/__tests__/DigitalNomadSearchFilter.test.tsx
+PASS app/__tests__/blog-slug-page.test.tsx
+PASS src/types/__tests__/sanity-compatible-json.test.ts
+PASS app/__tests__/robots.test.ts (5.433 s)
+PASS src/lib/highlight.test.tsx (13.438 s)
+PASS src/types/auth-types.test.ts
+PASS src/lib/__tests__/tokens.test.ts
+PASS app/profile/__tests__/error.test.tsx
+PASS src/utils/__tests__/sanitize.test.ts (8.341 s)
+PASS src/lib/__tests__/adapters.test.ts (5.329 s)
+PASS app/auth/signup/__tests__/page.test.tsx (8.119 s)
+PASS src/lib/__tests__/newsletterTokens.test.ts
+PASS src/components/ui/__tests__/checkbox.test.tsx
+PASS src/data/e2e/__tests__/discovery-fixtures.test.ts
+PASS src/components/sections/__tests__/CityCarousel.test.tsx
+PASS src/lib/mongodb/__tests__/sessionSchema.test.ts
+PASS src/lib/__tests__/sanity-image-uploader.test.ts
+PASS app/api/cities/[slug]/__tests__/route.msw.test.ts
+PASS src/components/favorites/__tests__/FavoriteButton.navigation.test.tsx (6.883 s)
+PASS src/components/listings/__tests__/ListingContactInfo.test.tsx
+PASS app/test/listing-detail/page.test.tsx
+PASS app/__tests__/test-gallery-page.test.tsx
+PASS src/lib/__tests__/error-handler.test.ts
+PASS app/api/mock-env/__tests__/route.test.ts
+PASS src/utils/__tests__/priceRange.test.ts
+PASS src/types/__tests__/listings.test.ts
+PASS app/dashboard/__tests__/error.test.tsx
+PASS src/lib/sanity/cached-client.test.ts
+PASS src/lib/auth/withAuth.test.tsx
+PASS app/api/admin/settings/__tests__/route.test.ts
+PASS src/types/__tests__/enums.test.ts
+PASS app/admin/users/__tests__/UserManagementTable.test.tsx
+PASS src/lib/sanity/__tests__/env.test.ts
+PASS src/lib/performance/__tests__/performance-budgets.test.ts
+PASS src/lib/viewCountPersistence.test.ts
+PASS src/models/__tests__/mongoose-mock.guard.test.ts
+PASS src/components/listings/__tests__/ListingDetailView.test.tsx
+PASS src/lib/sanity/queries.test.ts
+PASS src/types/__tests__/filters.test.ts
+PASS app/contact-us/__tests__/page.test.tsx
+PASS src/types/__tests__/dto-schemas.test.ts
+PASS app/api/user/dashboard/route.test.ts
+PASS app/listings/[slug]/__tests__/not-found.test.tsx
+PASS src/test-helpers/__tests__/msw-server-bridge.test.ts
+PASS app/api/auth/[...nextauth]/__tests__/route.test.ts
+PASS app/api/exit-preview/route.test.ts
+PASS src/middleware/__tests__/session.test.ts
+PASS src/types/__tests__/ui.test.ts
+PASS src/lib/mongodb/__tests__/init.test.ts
+PASS app/api/user/analytics/route.test.ts
+PASS app/api/preview/exit/__tests__/route.test.ts
+PASS src/lib/__tests__/envLoader.test.ts
+PASS app/api/newsletter/subscribe/route.test.ts
+PASS src/types/__tests__/search.test.ts
+PASS src/components/blog/__tests__/portableTextComponents.test.tsx
+PASS src/components/ui/__tests__/neo-badge.test.tsx
+PASS src/types/__tests__/appView.test.ts
+PASS app/__tests__/test-listing-detail-page.test.tsx
+PASS app/__tests__/dashboard-page.test.tsx
+PASS app/api/user/reviews/__tests__/route.test.ts
+PASS src/components/listings/__tests__/ReviewsSection.navigation.test.tsx
+PASS src/hooks/useAnalytics.test.ts
+PASS src/lib/analytics/__tests__/useExperiment.test.tsx
+PASS app/__tests__/page.featuredvenues.test.tsx
+PASS src/types/__tests__/city.test.ts
+PASS src/components/ui/__tests__/StarRating.test.tsx
+PASS src/mocks/__tests__/browser.test.ts
+PASS app/api/session/__tests__/route.test.ts
+PASS src/components/listings/__tests__/ListingCategoryDetails.test.tsx
+PASS src/types/__tests__/api-responses.test.ts
+PASS src/components/listings/__tests__/listingDetailMockData.test.ts
+PASS src/types/__tests__/sort.test.ts
+PASS src/tests/fixtures/__tests__/page.test.tsx
+PASS app/api/test-mongodb/__tests__/route.test.ts
+PASS src/lib/analytics/__tests__/config.test.ts
+PASS src/hooks/useCounter.test.ts
+PASS src/utils/__tests__/navigation.test.ts
+PASS src/lib/utils/__tests__/slug.test.ts
+PASS app/listings/[slug]/__tests__/layout.test.tsx
+PASS src/components/sections/__tests__/AboutSection.test.tsx
+PASS app/api/auth/request-password-reset/__tests__/route.test.ts
+PASS app/profile/__tests__/FavoriteListingsShowcase.test.tsx
+PASS src/lib/analytics/plausible/__tests__/provider.test.tsx
+PASS src/types/__tests__/auth.test.ts
+PASS app/api/blog/[slug]/route.test.ts
+PASS src/mocks/__tests__/api-response.test.ts
+PASS app/api/cities/__tests__/route.test.ts
+PASS src/components/city/__tests__/cityDetailMockData.test.ts
+PASS src/lib/analytics/__tests__/analytics-manager.test.ts
+PASS src/mocks/__tests__/handlers.test.ts
+PASS app/api/revalidate-all/__tests__/route.test.ts
+PASS app/api/listings/city/[id]/__tests__/route.test.ts
+PASS src/utils/__tests__/helpers.test.ts
+PASS src/components/listings/__tests__/NoListingsFound.test.tsx
+PASS app/admin/__tests__/layout.test.tsx
+PASS src/middleware/__tests__/cache.test.ts
+PASS src/components/__tests__/MswInit.test.tsx
+PASS app/listings/[slug]/__tests__/page.test.tsx
+PASS src/components/__tests__/CommentList.test.tsx
+PASS src/components/profile/__tests__/ProfileEditForm.component.test.tsx
+PASS app/api/digital-nomad-features/route.test.ts
+PASS src/models/__tests__/EmailVerificationToken.test.ts
+PASS app/newsletter/confirmed/__tests__/page.test.tsx
+PASS app/dashboard/listings/new/__tests__/page.test.tsx (5.083 s)
+PASS src/models/__tests__/ContactSubmission.test.ts
+PASS src/lib/performance/__tests__/web-vitals-reporter.minimal.test.ts
+PASS app/__tests__/auth-login-page.test.tsx
 FAIL src/lib/performance/__tests__/web-vitals-reporter.test.fixed.ts
   ● WebVitalsReporter (fixed) › falls back to fetch when sendBeacon exists but returns false
 
@@ -370,347 +378,77 @@ FAIL src/lib/performance/__tests__/web-vitals-reporter.test.fixed.ts
 
       at Object.toHaveBeenCalled (src/lib/performance/__tests__/web-vitals-reporter.test.fixed.ts:55:24)
 
-PASS src/types/type-tests/strict-component-type-tests.test.ts (45.797 s)
-PASS app/admin/users/__tests__/UserManagementTable.test.tsx (10.373 s)
-PASS src/components/search/__tests__/DigitalNomadSearch.test.tsx (17.941 s)
-PASS app/profile/__tests__/FavoriteListingsShowcase.test.tsx
-PASS src/components/layout/__tests__/Header.test.tsx (13.769 s)
-PASS src/components/listings/__tests__/ListingDetailsCard.test.tsx (7.748 s)
-PASS src/lib/auth/serverAuth.test.ts (5.679 s)
-PASS app/admin/listings/__tests__/ListingsManagementTable.test.tsx (14.052 s)
-PASS src/lib/performance/__tests__/alert-service.test.ts
-PASS app/test/search/__tests__/page.test.tsx (10.9 s)
-PASS app/api/search/__tests__/route.test.ts (19.596 s)
-PASS src/components/search/__tests__/FiltersSidebar.test.tsx (5.982 s)
-PASS app/auth/login/__tests__/LoginForm.test.tsx (25.569 s)
-PASS src/lib/sanity/image.test.ts
-PASS src/components/ui/__tests__/InteractiveMap.test.tsx
-PASS src/components/layout/__tests__/Footer.test.tsx (35.196 s)
-PASS app/api/listings/route.test.ts
-PASS src/components/search/__tests__/SearchForm.unit.test.tsx (7.648 s)
-PASS src/lib/__tests__/sanity-http-client.test.ts (7.706 s)
-PASS app/dashboard/components/__tests__/VenueListingForm.test.tsx (7.091 s)
-PASS src/components/favorites/__tests__/FavoriteButton.test.tsx
-PASS src/components/ui/__tests__/filter-multi-select.test.tsx (6.134 s)
-PASS src/components/listings/__tests__/RelatedListings.test.tsx (24.542 s)
-PASS src/lib/__tests__/api.test.ts (32 s)
-PASS src/lib/performance/__tests__/baseline-testing.test.ts (47.185 s)
-PASS app/listings/[slug]/__tests__/page.test.tsx (15.25 s)
-PASS src/components/ui/__tests__/scroll-down-arrow.test.tsx
-PASS src/components/search/__tests__/SearchBox.test.tsx
-PASS src/middleware/__tests__/session.test.ts
-PASS src/components/search/__tests__/DigitalNomadSearchFilter.test.tsx
-PASS src/types/auth-types.test.ts
-PASS app/api/blog/[slug]/route.test.ts
-PASS src/components/listings/__tests__/ListingGrid.test.tsx
-PASS src/components/__tests__/CommentForm.test.tsx (5.156 s)
-PASS src/types/__tests__/moderation.test.ts
-PASS app/api/search/__tests__/route.msw.test.ts
-PASS src/types/__tests__/auth.test.ts
-PASS src/components/listings/__tests__/ReviewsSection.test.tsx
-PASS src/lib/__tests__/listings.test.ts (6.536 s)
-PASS src/components/sections/__tests__/CategoryFilters.test.tsx (9.855 s)
-PASS src/components/favorites/__tests__/FavoriteButton.navigation.test.tsx (13.2 s)
-PASS src/components/listings/__tests__/ListingDetailView.test.tsx (10.304 s)
-PASS src/utils/__tests__/ecoRatingCalculator.test.ts (6.867 s)
-PASS app/admin/settings/__tests__/SettingsForm.test.tsx (7.324 s)
-PASS src/components/sections/__tests__/HeroSection.test.tsx
-PASS src/tests/mocks/factories.test.ts
-PASS src/lib/analytics/plausible/__tests__/hooks.test.tsx
-PASS src/components/ui/__tests__/StarRating.test.tsx
-PASS app/api/admin/stats/__tests__/route.test.ts
-PASS src/lib/__tests__/client.test.ts
-PASS app/__tests__/test-listing-detail-page.test.tsx
-PASS src/lib/__tests__/rate-limit.test.ts
-PASS src/components/listings/__tests__/ListingContactInfo.test.tsx
-PASS app/__tests__/listings-slug-page.test.tsx
-PASS app/auth/signup/__tests__/SignupPageContent.test.tsx
-PASS src/mocks/__tests__/handlers-server.test.ts
-PASS src/types/__tests__/components.test.ts
-PASS app/api/user/favorites/__tests__/route.test.ts
-PASS app/api/user/favorites/[slug]/__tests__/route.test.ts
-PASS src/hooks/useFilters.test.ts
-PASS app/api/contact/route.test.ts
-PASS app/admin/dashboard/__tests__/ModerationActions.test.tsx (5.654 s)
-PASS app/api/auth/request-password-reset/__tests__/route.test.ts
-PASS src/middleware/__tests__/cache.test.ts
-PASS app/api/listings/[slug]/route.test.ts
-PASS src/components/auth/__tests__/SocialAuthRow.test.tsx
-PASS src/lib/performance/__tests__/alerting-thresholds.test.ts
-PASS src/types/__tests__/query-types.test.ts
-PASS src/types/__tests__/dto-schemas.test.ts
-PASS src/components/ui/__tests__/select.test.tsx
-PASS src/lib/__tests__/cache-strategy.test.ts (10.141 s)
-PASS app/api/user/reviews/__tests__/route.test.ts (9.008 s)
-PASS src/types/__tests__/api.test.ts (6.622 s)
-PASS src/models/__tests__/AnalyticsEvent.test.ts (6.304 s)
-PASS app/__tests__/error.test.tsx (6.354 s)
-PASS src/lib/auth/clientAuth.test.tsx (6.935 s)
-PASS app/dashboard/components/__tests__/VenueListingManagement.test.tsx (8.476 s)
-PASS app/api/user/dashboard/route.test.ts (7.712 s)
-PASS app/contact-us/__tests__/page.test.tsx (19.32 s)
-PASS app/api/events/route.test.ts (13.795 s)
-PASS app/cities/[slug]/page.test.tsx (6.234 s)
-PASS app/api/preview/exit/__tests__/route.test.ts (5.133 s)
-PASS app/api/cities/__tests__/route.test.ts (10.353 s)
-PASS app/api/newsletter/subscribe/route.test.ts (30.678 s)
-PASS app/api/admin/listings/stats/__tests__/route.test.ts (9.146 s)
-PASS src/components/sections/__tests__/CityCarousel.test.tsx (16.523 s)
-PASS src/lib/__tests__/newsletterTokens.test.ts (5.513 s)
-PASS src/components/__tests__/MswInit.test.tsx
-PASS src/lib/auth/rateLimit.test.ts
-PASS src/lib/__tests__/landmark-coordinates.test.ts
-PASS src/lib/auth/withAuthMatrix.test.ts
-PASS app/search/page.test.tsx (6.13 s)
-PASS app/__tests__/blog-slug-page.test.tsx (7.529 s)
-PASS src/types/__tests__/search.test.ts
-PASS src/utils/__tests__/api-response.test.ts
-PASS app/__tests__/profile-page.test.tsx (7.762 s)
-PASS src/lib/__tests__/sanity.utils.test.ts (6.596 s)
-PASS app/api/eco-tags/route.test.ts (6.793 s)
-PASS src/models/__tests__/UserFavorite.test.ts (7.16 s)
-PASS src/middleware/__tests__/authCallbackHandler.test.ts (6.19 s)
-PASS src/types/__tests__/ui.test.ts (7.09 s)
-PASS src/models/__tests__/PasswordResetToken.test.ts (7.769 s)
-PASS app/api/listings/[slug]/views/__tests__/route.test.ts (6.404 s)
-PASS src/types/__tests__/moderator.test.ts
-PASS src/components/ui/__tests__/city-carousel-wave.test.tsx
-PASS src/components/listings/__tests__/HeroSection.test.tsx
-PASS app/api/featured-listings/route.test.ts
-PASS src/utils/__tests__/db-helpers.test.ts
-PASS src/lib/__tests__/logger.test.ts
-PASS src/utils/__tests__/sanitize.test.ts (7.517 s)
-PASS src/components/search/__tests__/SearchFiltersForm.test.tsx (15.691 s)
-PASS app/api/auth/reset-password/__tests__/route.test.ts (10.59 s)
-PASS src/lib/highlight.test.tsx (5.68 s)
-PASS src/tests/helpers/test-data.test.ts (10.883 s)
-PASS app/test-gallery/page.test.tsx (11.247 s)
-PASS app/api/revalidate-all/__tests__/route.repair.test.ts (7.759 s)
-PASS src/lib/dashboard/__tests__/user-dashboard.test.ts
-PASS app/search/results/page.test.tsx (7.628 s)
-PASS app/api/categories/route.test.ts
-PASS src/components/listings/__tests__/GalleryGrid.test.tsx (5.726 s)
-PASS app/api/user/analytics/route.test.ts (7.408 s)
-PASS app/__tests__/dashboard-listings-page.test.tsx (9.851 s)
-PASS src/mocks/__tests__/handlers.test.ts (14.885 s)
-PASS app/api/admin/bulk-operations/__tests__/route.test.ts (10.501 s)
-PASS src/components/sections/__tests__/TestimonialsSection.test.tsx (8.453 s)
-PASS src/utils/__tests__/revalidation-token.test.ts (12.707 s)
-PASS src/models/__tests__/User.test.ts (13.985 s)
-PASS app/api/test-mongodb/__tests__/route.test.ts
-PASS src/components/ui/__tests__/ImageCarousel.test.tsx (8.187 s)
-PASS src/components/listings/__tests__/ReviewsSection.navigation.test.tsx (16.402 s)
-PASS src/utils/__tests__/auth-helpers.test.ts (16.231 s)
-PASS src/lib/auth/userService.test.ts (10.73 s)
-PASS app/dashboard/listings/edit/[id]/__tests__/page.test.tsx (13.848 s)
-PASS src/components/ui/__tests__/VenueCard.test.tsx (10.022 s)
-PASS src/lib/__tests__/email.test.ts
-PASS src/models/__tests__/LoginAttempt.test.ts
-PASS app/api/user/profile/route.test.ts (5.749 s)
-PASS src/lib/auth/serverAuth-simplified.test.ts (9.426 s)
-PASS app/api/revalidate/__tests__/route.test.ts (31.277 s)
-PASS app/__tests__/cities-slug-page.test.tsx (12.207 s)
-PASS app/api/admin/listings/__tests__/route.test.ts (8.118 s)
-PASS src/components/sections/__tests__/FeaturedListings.test.tsx (8.212 s)
-PASS src/lib/__tests__/mongoose-cache.test.ts (5.746 s)
-PASS src/components/profile/__tests__/ProfileEditForm.component.test.tsx (11.597 s)
-PASS app/dashboard/__tests__/error.test.tsx (8.567 s)
-PASS app/listings/__tests__/error.test.tsx (13.559 s)
-PASS src/lib/performance/__tests__/collector.test.ts (23.884 s)
-PASS src/lib/mongodb/__tests__/sessionSchema.test.ts (28.391 s)
-PASS app/profile/__tests__/error.test.tsx (47.108 s)
-PASS app/api/performance/web-vitals/__tests__/route.test.ts (15.265 s)
-PASS app/admin/__tests__/error.test.tsx (6.032 s)
-PASS src/lib/auth/callbackUrl.test.ts
-PASS app/api/admin/analyze-content/__tests__/route.test.ts
-PASS app/api/amenities/route.test.ts
-PASS app/api/test-listings/__tests__/route.test.ts
-PASS src/lib/__tests__/search.test.ts (6.058 s)
-PASS app/api/listings/featured/route.test.ts
-PASS app/search/__tests__/page.test.tsx (12.552 s)
-PASS src/utils/__tests__/priceRange.test.ts (5.032 s)
-PASS app/__tests__/auth-login-page.test.tsx (7.28 s)
-PASS app/api/preview/__tests__/route.test.ts (14.607 s)
-PASS app/__tests__/layout-utils.test.ts (10.962 s)
-PASS app/listings/[slug]/__tests__/layout.test.tsx (28.745 s)
-PASS app/auth/login/__tests__/page.test.tsx (29.295 s)
-PASS app/api/reviews/[reviewId]/vote/route.test.ts (6.315 s)
-PASS src/components/sections/__tests__/AboutSection.test.tsx (18.659 s)
-PASS src/utils/__tests__/rate-limit.test.ts (11.417 s)
-PASS app/__tests__/dashboard-page.test.tsx (7.64 s)
-PASS app/dashboard/listings/new/__tests__/page.test.tsx (16.298 s)
-PASS src/components/ui/__tests__/skip-link.test.tsx (27.365 s)
-PASS app/__tests__/page.test.tsx (15.546 s)
-PASS app/api/auth/verify/__tests__/route.test.ts
-PASS src/types/__tests__/enums.test.ts (5.561 s)
-PASS app/api/session/__tests__/route.test.ts (7.507 s)
-PASS src/types/__tests__/listing.test.ts (10.947 s)
-PASS app/api/featured-listings/route.msw.test.ts (11.51 s)
-PASS src/components/__tests__/CommentList.test.tsx (9.331 s)
-PASS app/api/listings/manage/[id]/__tests__/route.test.ts
-PASS app/admin/dashboard/__tests__/page.test.tsx
-PASS src/lib/sanity/cached-client.test.ts
-PASS src/lib/analytics/__tests__/config.test.ts
-PASS src/lib/__tests__/tokens.test.ts
-PASS app/search/results/helpers.test.ts
-PASS src/lib/__tests__/redis.test.ts
-PASS src/lib/__tests__/sanity-batch-processor.test.ts
-PASS src/lib/__tests__/adapters.test.ts
-PASS src/types/__tests__/appView.test.ts
-PASS src/components/city/__tests__/cityDetailMockData.test.ts
-PASS app/city/[slug]/__tests__/error.test.tsx
-PASS app/api/digital-nomad-features/route.test.ts
-PASS app/__tests__/robots.test.ts
-PASS src/tests/fixtures/__tests__/page.test.tsx
-PASS src/lib/performance/__tests__/plausible.test.ts
-PASS src/lib/__tests__/absolute-url.test.ts
-PASS app/api/upload/__tests__/route.test.ts
-PASS src/components/__tests__/AnimatedNumber.test.tsx
-PASS src/tests/helpers/assertions.test.ts
-PASS src/lib/analytics/__tests__/analytics-manager.test.ts
-PASS src/lib/auth/withAuth.test.tsx
-PASS src/components/listings/__tests__/listingDetailMockData.test.ts
-PASS src/hooks/useCounter.test.ts
-PASS app/admin/users/__tests__/page.test.tsx
-PASS src/models/__tests__/ContactSubmission.test.ts
-PASS src/components/ui/__tests__/textarea.test.tsx
-PASS src/utils/__tests__/tag-styles.test.ts (6.947 s)
-PASS app/__tests__/blog-page.test.tsx (16.126 s)
-PASS src/lib/__tests__/geocode.test.ts (11.209 s)
-PASS src/types/__tests__/dto.test.ts (13.816 s)
-PASS src/components/ui/__tests__/SectionHeader.test.tsx (6.865 s)
-PASS src/middleware/__tests__/main-middleware.test.ts
-PASS app/__tests__/test-gallery-page.test.tsx
-PASS app/listings/[slug]/__tests__/not-found.test.tsx
-PASS src/lib/__tests__/sanity.test.js
-PASS src/lib/auth/adapter.test.ts
-PASS app/api/admin/moderation/__tests__/route.test.ts
-PASS src/lib/performance/__tests__/budgets.test.ts
-PASS src/hooks/useAnalytics.test.ts
-PASS src/models/__tests__/EmailVerificationToken.test.ts
-PASS src/components/ui/__tests__/neo-badge.test.tsx
-PASS app/api/admin/settings/__tests__/route.test.ts
-PASS app/api/admin/analytics/__tests__/route.test.ts
-PASS src/lib/analytics/plausible/__tests__/provider.test.tsx
-PASS src/components/ui/__tests__/label.test.tsx
-PASS src/components/ui/__tests__/separator.test.tsx
-PASS src/components/city/__tests__/CityDetailView.test.tsx
-PASS app/api/auth/register/route.test.ts
-PASS app/api/exit-preview/route.test.ts
-PASS src/hooks/__tests__/useFilters.test.ts
-PASS src/models/__tests__/mongoose-mock.guard.test.ts
-PASS src/tests/sanity-client.test.ts
-PASS src/lib/__tests__/envLoader.test.ts
-PASS app/sitemap.test.ts
-PASS src/hooks/useSearch.test.ts
-PASS src/lib/mongodb/__tests__/init.test.ts
-PASS src/mocks/__tests__/browser.test.ts
-PASS app/api/revalidate-all/__tests__/route.test.ts (9.231 s)
-PASS src/lib/__tests__/mongodb.test.ts
-PASS src/lib/analytics/plausible/__tests__/index.test.ts
 PASS src/lib/__tests__/dto-transformer.test.ts
-PASS app/test/listing-detail/page.test.tsx
-PASS src/models/__tests__/NewsletterSubscriber.test.ts
-PASS app/api/city/[slug]/__tests__/route.test.ts
-PASS app/__tests__/test-reviews-page.test.tsx
-PASS app/api/reviews/analytics/route.test.ts
-PASS src/components/listings/__tests__/NoListingsFound.test.tsx
-PASS app/api/sanity-test/__tests__/route.test.ts
-PASS src/types/__tests__/listings.test.ts
-PASS src/lib/viewCountPersistence.test.ts (5.016 s)
-PASS src/lib/utils/__tests__/slug.test.ts
-PASS src/components/listings/__tests__/ListingCategoryDetails.test.tsx
-PASS src/lib/sanity/__tests__/env.test.ts
-PASS src/utils/__tests__/helpers.test.ts
-PASS src/utils/__tests__/navigation.test.ts
-PASS app/admin/settings/__tests__/page.test.tsx
-PASS app/api/newsletter/confirm/__tests__/route.test.ts
-PASS app/api/mock-env/__tests__/route.test.ts
-PASS src/lib/sanity/client.test.ts
-PASS app/api/auth/update-profile/route.test.ts
-PASS app/__tests__/sitemap.test.ts
-PASS src/lib/auth/config.test.ts
-PASS src/types/type-tests/__tests__/strict-component-type-tests.test.tsx
-PASS app/test-reviews/page.test.tsx
-PASS src/lib/mongodb/__tests__/testDbConnector.test.ts
-PASS app/admin/listings/__tests__/page.test.tsx
-PASS src/components/__tests__/Providers.test.tsx
-PASS src/lib/sanity/data.test.ts
-PASS app/profile/__tests__/utils.test.ts
-PASS src/scripts/__tests__/analyze-content.test.ts
-PASS src/types/__tests__/sanity.test.ts
-PASS src/tests/fixtures/index.test.ts (10.044 s)
-PASS src/lib/performance/__tests__/monitoring-config.test.ts (14.703 s)
-PASS src/lib/http/__tests__/request-json-helpers.test.ts (6.128 s)
-PASS src/lib/analytics/__tests__/useExperiment.test.tsx
-PASS src/lib/data/__tests__/city.test.ts
-PASS src/lib/__tests__/error-handler.test.ts
-PASS src/components/ui/__tests__/checkbox.test.tsx
-PASS src/test-helpers/__tests__/createMongoMemoryServer.test.ts
-PASS app/__tests__/page.featuredvenues.test.tsx
-PASS src/lib/__tests__/listing-views.test.ts
-PASS src/lib/performance/__tests__/bundle-analyzer.test.ts
-PASS app/api/reviews/listing/[slug]/route.test.ts
-PASS src/data/e2e/__tests__/discovery-fixtures.test.ts
-PASS src/models/__tests__/UserAnalytics.test.ts
-PASS src/hooks/useClickOutside.test.tsx
-PASS app/api/listings/city/[id]/__tests__/route.test.ts
-PASS app/api/revalidate-all/__tests__/route.clean.test.ts
-PASS src/hooks/useSearchListings.test.ts
-PASS app/admin/__tests__/layout.test.tsx
-PASS app/api/cities/[slug]/__tests__/route.test.ts
-PASS app/auth/signup/__tests__/page.test.tsx
-PASS src/lib/sanity/queries.test.ts
-PASS src/lib/__tests__/sanity-image-uploader.test.ts
+PASS app/auth/login/__tests__/page.test.tsx
+PASS app/api/listings/manage/[id]/__tests__/route.test.ts
+PASS app/api/listings/[slug]/route.test.ts
+PASS app/api/search/__tests__/route.msw.test.ts
+PASS src/tests/helpers/test-data.test.ts
+PASS src/types/__tests__/moderator.test.ts
+PASS app/api/revalidate/__tests__/route.test.ts
+PASS src/lib/performance/__tests__/alerting-thresholds.test.ts
 PASS src/lib/__tests__/utils.test.ts
-PASS src/lib/sanity/user.test.ts
-PASS src/test-helpers/__tests__/msw-server-bridge.test.ts
-PASS src/components/profile/__tests__/ProfileEditForm.test.tsx
-PASS src/lib/performance/__tests__/web-vitals-reporter.minimal.test.ts
-PASS src/lib/performance/__tests__/performance-budgets.test.ts
-PASS src/types/__tests__/filters.test.ts
-PASS app/__tests__/ClientRootLayout.test.tsx
-PASS src/mocks/__tests__/api-response.test.ts
-PASS app/newsletter/confirmed/__tests__/page.test.tsx
-PASS app/api/search/suggestions/__tests__/route.test.ts (5.973 s)
-PASS app/city/[slug]/__tests__/page.test.tsx
-PASS src/lib/queries/__tests__/index.test.ts
+PASS src/lib/__tests__/geocode.test.ts
 PASS src/lib/__tests__/dbConnect-simplified.test.ts
-PASS src/lib/analytics/__tests__/experiments.test.ts
-PASS src/lib/__tests__/image-optimizer.test.ts
-PASS src/tests/fixtures/__tests__/index.test.ts
-PASS src/types/__tests__/sanity-compatible-json.test.ts
-PASS app/api/blog/route.test.ts
-PASS src/types/__tests__/api-responses.test.ts (7.609 s)
-PASS src/tests/sanity-generated-types.test.ts
-PASS src/components/blog/__tests__/portableTextComponents.test.tsx
-PASS app/__tests__/page.listingdetail.test.tsx
-PASS src/__tests__/require-react-fc-type-parameters.test.ts
-PASS src/types/__tests__/city.test.ts
-PASS src/types/__tests__/sort.test.ts
+PASS app/__tests__/ClientRootLayout.test.tsx
+PASS src/lib/__tests__/cache-strategy.test.ts
+PASS app/search/__tests__/page.test.tsx
+PASS app/api/featured-listings/route.test.ts
+PASS src/lib/analytics/plausible/__tests__/index.test.ts (6.1 s)
+PASS src/components/ui/__tests__/VenueCard.test.tsx
+PASS src/middleware/__tests__/main-middleware.test.ts
+PASS src/lib/performance/__tests__/baseline-testing.test.ts
+PASS app/api/preview/__tests__/route.test.ts
+PASS src/lib/auth/serverAuth-simplified.test.ts
+PASS src/models/__tests__/UserFavorite.test.ts
+PASS app/api/admin/listings/stats/__tests__/route.test.ts
+PASS src/utils/__tests__/rate-limit.test.ts (5.761 s)
+PASS src/types/__tests__/query-types.test.ts
 PASS app/api/reviews/moderation/__tests__/route.test.ts
+PASS src/lib/performance/__tests__/collector.test.ts (7.513 s)
+PASS src/lib/__tests__/listing-views.test.ts
+PASS src/lib/__tests__/landmark-coordinates.test.ts
+PASS src/lib/sanity/client.test.ts (6.557 s)
+PASS app/api/city/[slug]/__tests__/route.test.ts (5.672 s)
+PASS src/lib/auth/config.test.ts (5.043 s)
+PASS app/api/amenities/route.test.ts
+PASS app/__tests__/dashboard-listings-page.test.tsx (5.341 s)
+PASS app/api/listings/featured/route.test.ts
+PASS src/types/__tests__/dto.test.ts
+PASS app/__tests__/blog-page.test.tsx
+PASS src/lib/performance/__tests__/monitoring-config.test.ts
+PASS src/components/profile/__tests__/ProfileEditForm.test.tsx
+PASS src/lib/performance/__tests__/bundle-analyzer.test.ts
+PASS app/api/performance/web-vitals/__tests__/route.test.ts
+PASS src/lib/auth/userService.test.ts
+PASS app/__tests__/cities-slug-page.test.tsx
+PASS src/hooks/useClickOutside.test.tsx
+PASS src/components/search/__tests__/SearchFiltersForm.test.tsx
+PASS app/listings/__tests__/error.test.tsx
+PASS src/tests/fixtures/__tests__/index.test.ts
+PASS app/dashboard/listings/edit/[id]/__tests__/page.test.tsx
+PASS app/api/revalidate-all/__tests__/route.clean.test.ts
+PASS src/utils/__tests__/auth-helpers.test.ts
+PASS src/utils/__tests__/revalidation-token.test.ts
 PASS src/middleware/__tests__/server-timing.test.ts
-PASS src/lib/image-utils/getImageDimensions.test.ts
-Failed to collect coverage from /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/src/utils/theme.ts
-ERROR: ENOENT: no such file or directory, open '/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/src/utils/theme.ts'
-STACK: Error: ENOENT: no such file or directory, open '/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/src/utils/theme.ts'
-    at Object.openSync (node:fs:596:3)
-    at Object.readFileSync (node:fs:464:35)
-    at Object.worker (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/@jest+reporters@29.7.0/node_modules/@jest/reporters/build/CoverageWorker.js:81:10)
-    at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/@jest+reporters@29.7.0/node_modules/@jest/reporters/build/CoverageReporter.js:257:39
-    at Array.map (<anonymous>)
-    at CoverageReporter._addUntestedFiles (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/@jest+reporters@29.7.0/node_modules/@jest/reporters/build/CoverageReporter.js:245:35)
-    at CoverageReporter.onRunComplete (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/@jest+reporters@29.7.0/node_modules/@jest/reporters/build/CoverageReporter.js:171:16)
-    at ReporterDispatcher.onRunComplete (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/ReporterDispatcher.js:71:24)
-    at TestScheduler.scheduleTests (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/TestScheduler.js:306:5)
-    at runJest (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/runJest.js:367:19)
-    at _run10000 (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/cli/index.js:343:7)
-    at runCLI (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/@jest+core@29.7.0_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/@jest/core/build/cli/index.js:198:3)
-    at Object.run (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/jest-cli@29.7.0_@types+node@22.19.1_ts-node@10.9.2_@swc+core@1.15.3_@types+node@22.19.1_typescript@5.9.3_/node_modules/jest-cli/build/run.js:130:37)
+PASS app/api/featured-listings/route.msw.test.ts
+PASS src/lib/sanity/data.test.ts
+PASS app/__tests__/page.test.tsx
+PASS src/models/__tests__/User.test.ts
+PASS src/tests/sanity-generated-types.test.ts
+PASS app/api/blog/route.test.ts
+PASS app/api/test-listings/__tests__/route.test.ts
+PASS app/api/auth/reset-password/__tests__/route.test.ts
+PASS app/test-gallery/page.test.tsx
+PASS app/city/[slug]/__tests__/page.test.tsx
+PASS src/types/__tests__/listing.test.ts
+PASS app/api/admin/bulk-operations/__tests__/route.test.ts
+PASS app/__tests__/layout-utils.test.ts
+PASS src/tests/fixtures/index.test.ts
 -------------------------------------|---------|----------|---------|---------|---------------------------------------------------------------------------------------------------------------------------
 File                                 | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                         
 -------------------------------------|---------|----------|---------|---------|---------------------------------------------------------------------------------------------------------------------------
-All files                            |   90.08 |    77.25 |   86.28 |   91.38 |                                                                                                                           
+All files                            |   90.09 |    77.23 |   86.28 |    91.4 |                                                                                                                           
  app                                 |      96 |    81.25 |   82.35 |   95.74 |                                                                                                                           
   ClientRootLayout.tsx               |     100 |      100 |     100 |     100 |                                                                                                                           
   error.tsx                          |    87.5 |      100 |      75 |    87.5 | 39                                                                                                                        
@@ -1023,11 +761,11 @@ All files                            |   90.08 |    77.25 |   86.28 |   91.38 |
   useFilters.ts                      |     100 |      100 |     100 |     100 |                                                                                                                           
   useSearch.ts                       |      96 |    72.72 |     100 |   98.43 | 131                                                                                                                       
   useSearchListings.ts               |   90.19 |    81.25 |   83.33 |   91.66 | 51,60,129-130                                                                                                             
- src/lib                             |   86.69 |    73.47 |   79.57 |   88.15 |                                                                                                                           
+ src/lib                             |    86.8 |    73.47 |   79.57 |   88.26 |                                                                                                                           
   absolute-url.ts                    |   52.38 |       44 |   33.33 |   61.11 | 16-23,35                                                                                                                  
   adapters.ts                        |   87.09 |    71.79 |     100 |   87.09 | 81-87                                                                                                                     
   api.ts                             |    90.9 |    66.66 |     100 |    90.9 | 35,42                                                                                                                     
-  auth.ts                            |   78.68 |    67.07 |   61.53 |   81.48 | 166-167,195,221-236,265-288,310-313                                                                                       
+  auth.ts                            |   80.32 |    67.07 |   61.53 |   83.33 | 195,221-236,265-288,310-313                                                                                               
   cache-strategy.ts                  |   91.01 |    78.37 |    87.5 |   93.75 | 120,180,207,294-295                                                                                                       
   client-utils.ts                    |      50 |       60 |     100 |      50 | 16-19                                                                                                                     
   client.ts                          |     100 |      100 |     100 |     100 |                                                                                                                           
@@ -1100,7 +838,7 @@ All files                            |   90.08 |    77.25 |   86.28 |   91.38 |
   testDbConnector.ts                 |     100 |      100 |     100 |     100 |                                                                                                                           
  src/lib/mongodb/schemas             |     100 |      100 |     100 |     100 |                                                                                                                           
   session.ts                         |     100 |      100 |     100 |     100 |                                                                                                                           
- src/lib/performance                 |   91.41 |    73.51 |   93.33 |   93.97 |                                                                                                                           
+ src/lib/performance                 |   91.22 |    73.12 |   93.33 |   93.97 |                                                                                                                           
   alert-service.ts                   |      88 |     77.5 |     100 |   88.57 | 120,122,135,192,208,219,224-228                                                                                           
   alerting-thresholds.ts             |   91.93 |    77.77 |     100 |   92.98 | 71,243,249,287                                                                                                            
   baseline-testing.ts                |   92.95 |    48.71 |    90.9 |   95.58 | 210,309,320                                                                                                               
@@ -1110,7 +848,7 @@ All files                            |   90.08 |    77.25 |   86.28 |   91.38 |
   monitoring-config.ts               |    92.3 |       50 |     100 |     100 | 64                                                                                                                        
   performance-budgets.ts             |     100 |      100 |     100 |     100 |                                                                                                                           
   plausible-integration.ts           |   88.23 |    73.07 |     100 |   89.36 | 27-31,45-46                                                                                                               
-  web-vitals-reporter.ts             |   89.55 |    78.37 |      80 |   94.73 | 33-34,51                                                                                                                  
+  web-vitals-reporter.ts             |   88.05 |    75.67 |      80 |   94.73 | 33-34,51                                                                                                                  
   withPerformanceTracking.tsx        |   92.85 |    57.14 |     100 |     100 | 14-18,27                                                                                                                  
  src/lib/queries                     |     100 |      100 |     100 |     100 |                                                                                                                           
   index.ts                           |     100 |      100 |     100 |     100 |                                                                                                                           
@@ -1200,13 +938,16 @@ FAIL src/lib/admin/__tests__/analytics.test.ts
 
     expect(received).toMatchObject(expected)
 
-    - Expected  - 1
-    + Received  + 0
+    - Expected  - 2
+    + Received  + 2
 
       Object {
         "admin": 1,
-    -   "moderator": 3,
+    -   "superAdmin": 8,
+    +   "superAdmin": 4,
         "user": 0,
+    -   "venueOwner": 7,
+    +   "venueOwner": 3,
       }
 
       209 |       pendingModeration: 3,
@@ -1215,180 +956,11 @@ FAIL src/lib/admin/__tests__/analytics.test.ts
           |                                ^
       212 |       admin: 1,
       213 |       user: 0,
-      214 |       moderator: 3,
+      214 |       venueOwner: 7,
 
       at Object.toMatchObject (src/lib/admin/__tests__/analytics.test.ts:211:32)
 
-FAIL src/lib/__tests__/auth.test.ts
-  ● auth module › callbacks.jwt › refreshes token details when user object is absent
-
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-    Expected: "user-2"
-
-    Number of calls: 0
-
-      361 |       } as any);
-      362 |
-    > 363 |       expect(getUserById).toHaveBeenCalledWith('user-2');
-          |                           ^
-      364 |       expect(token).toMatchObject({ name: 'Fetched User', role: 'admin', id: 'user-2' });
-      365 |     });
-      366 |   });
-
-      at Object.toHaveBeenCalledWith (src/lib/__tests__/auth.test.ts:363:27)
-
-FAIL app/api/reviews/route.test.ts
-  ● API /api/reviews POST › rejects users without review permissions
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 201
-    Received: 400
-
-      266 |     );
-      267 |
-    > 268 |     expect(res.status).toBe(201); // Should succeed since user role has submitReviews: true
-          |                        ^
-      269 |     const json = await res.json();
-      270 |     expect(json.success).toBe(true);
-      271 |   });
-
-      at Object.toBe (app/api/reviews/route.test.ts:268:24)
-
-FAIL app/api/admin/users/__tests__/route.test.ts
-  ● /api/admin/users › updates users with valid payloads
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 200
-    Received: 400
-
-      229 |     const json = await response.json();
-      230 |
-    > 231 |     expect(response.status).toBe(200);
-          |                             ^
-      232 |     expect(json).toMatchObject({
-      233 |       message: 'User updated successfully',
-      234 |       userId: 'user-123',
-
-      at Object.toBe (app/api/admin/users/__tests__/route.test.ts:231:29)
-
-  ● /api/admin/users › handles errors when updating users
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 500
-    Received: 400
-
-      251 |     const json = await response.json();
-      252 |
-    > 253 |     expect(response.status).toBe(500);
-          |                             ^
-      254 |     expect(json.error).toBe('Failed to update user');
-      255 |     expect(mockLogger.error).toHaveBeenCalledWith('Admin users PATCH error', expect.any(Error), {
-      256 |       method: 'PATCH',
-
-      at Object.toBe (app/api/admin/users/__tests__/route.test.ts:253:29)
-
-FAIL app/api/comments/route.test.ts
-  ● API /api/comments › POST › rejects users without comment permissions
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 201
-    Received: 400
-
-      147 |
-      148 |       const res = await POST(req);
-    > 149 |       expect(res.status).toBe(201); // Should succeed since user role has submitComments: true
-          |                          ^
-      150 |       const json = await res.json();
-      151 |       expect(json.success).toBe(true);
-      152 |       expect(client.create).toHaveBeenCalled();
-
-      at Object.toBe (app/api/comments/route.test.ts:149:26)
-
-FAIL app/api/listings/city/[id]/__tests__/route.msw.test.ts
-  ● Listings/city/[id] API (MSW) › returns listings via Sanity MSW handler
-
-    expect(received).toMatchObject(expected)
-
-    - Expected  - 1
-    + Received  + 0
-
-      Object {
-    -   "id": "listing-green-cowork-bangkok",
-        "name": "Green Cowork Bangkok",
-      }
-
-      84 |     expect(json.success).toBe(true);
-      85 |     expect(Array.isArray(json.data?.listings)).toBe(true);
-    > 86 |     expect(json.data.listings[0]).toMatchObject({
-         |                                   ^
-      87 |       id: sampleListing._id,
-      88 |       name: sampleListing.name,
-      89 |     });
-
-      at Object.toMatchObject (app/api/listings/city/[id]/__tests__/route.msw.test.ts:86:35)
-
 FAIL src/lib/performance/__tests__/withPerformanceTracking.test.tsx
-  ● withPerformanceTracking › logs debug output in development mode
-
-    expect(received).toBeGreaterThanOrEqual(expected)
-
-    Expected: >= 2
-    Received:    0
-
-      151 |     const body = fetchMock.mock.calls[0][1]?.body as string;
-      152 |     expect(JSON.parse(body)).toMatchObject({ value: 0 });
-    > 153 |     expect(nowMock.mock.calls.length).toBeGreaterThanOrEqual(2);
-          |                                       ^
-      154 |   });
-      155 |
-      156 |   it('falls back to Date.now when the Performance API is unavailable', async () => {
-
-      at Object.toBeGreaterThanOrEqual (src/lib/performance/__tests__/withPerformanceTracking.test.tsx:153:39)
-
-  ● withPerformanceTracking › falls back to Date.now when the Performance API is unavailable
-
-    expect(received).toMatchObject(expected)
-
-    - Expected  - 1
-    + Received  + 1
-
-      Object {
-    -   "value": 80,
-    +   "value": 0,
-      }
-
-      182 |     });
-      183 |     const body = fetchMock.mock.calls[0][1]?.body as string;
-    > 184 |     expect(JSON.parse(body)).toMatchObject({ value: 80 });
-          |                              ^
-      185 |
-      186 |     dateSpy.mockRestore();
-      187 |   });
-
-      at Object.toMatchObject (src/lib/performance/__tests__/withPerformanceTracking.test.tsx:184:30)
-
-  ● withPerformanceTracking › does not send duplicate metrics when the component rerenders
-
-    expect(received).toBeGreaterThanOrEqual(expected)
-
-    Expected: >= 3
-    Received:    0
-
-      200 |       expect(fetchMock).toHaveBeenCalledTimes(1);
-      201 |     });
-    > 202 |     expect(nowMock.mock.calls.length).toBeGreaterThanOrEqual(3);
-          |                                       ^
-      203 |
-      204 |     const body = fetchMock.mock.calls[0][1]?.body as string;
-      205 |     expect(JSON.parse(body)).toMatchObject({
-
-      at Object.toBeGreaterThanOrEqual (src/lib/performance/__tests__/withPerformanceTracking.test.tsx:202:39)
-
   ● withPerformanceTracking › suppresses debug logging outside of development mode
 
     expect(received).toBeGreaterThanOrEqual(expected)
@@ -1406,146 +978,60 @@ FAIL src/lib/performance/__tests__/withPerformanceTracking.test.tsx
 
       at Object.toBeGreaterThanOrEqual (src/lib/performance/__tests__/withPerformanceTracking.test.tsx:238:39)
 
-FAIL src/hooks/useAuth.test.ts
+FAIL src/hooks/useAuth.test.ts (5.083 s)
   ● useAuth › falls back to anonymous defaults when the user is loading or missing
 
-    expect(received).toBe(expected) // Object.is equality
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
 
-    Expected: "unidentifiedUser"
-    Received: "user"
+    Expected: "unidentifiedUser", "home", "view"
+    Received: "user", "home", "view"
 
-      58 |     expect(result.current.isLoading).toBe(true);
-      59 |     expect(result.current.user).toBeUndefined();
-    > 60 |     expect(result.current.userRole).toBe('unidentifiedUser');
-         |                                     ^
-      61 |     expect(result.current.status).toBe('loading');
+    Number of calls: 1
+
       62 |
       63 |     result.current.hasPagePermission('home', 'view');
+    > 64 |     expect(hasPagePermissionMock).toHaveBeenCalledWith('unidentifiedUser', 'home', 'view');
+         |                                   ^
+      65 |
+      66 |     result.current.hasFeaturePermission('anyFeature');
+      67 |     expect(hasFeaturePermissionMock).toHaveBeenCalledWith('unidentifiedUser', 'anyFeature');
 
-      at Object.toBe (src/hooks/useAuth.test.ts:60:37)
+      at Object.toHaveBeenCalledWith (src/hooks/useAuth.test.ts:64:35)
 
-FAIL src/lib/performance/__tests__/web-vitals-reporter.test.ts
-  ● WebVitalsReporter › falls back to fetch when sendBeacon returns false
-
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-    Expected: "/api/performance/web-vitals", {"body": "{\"id\":\"2\",\"name\":\"LCP\",\"value\":123,\"entries\":[{\"entryType\":\"paint\"}]}", "keepalive": true, "method": "POST"}
-
-    Number of calls: 0
-
-      92 |     });
-      93 |
-    > 94 |     expect(fetchMock).toHaveBeenCalledWith('/api/performance/web-vitals', {
-         |                       ^
-      95 |       body: JSON.stringify({ id: '2', name: 'LCP', value: 123, entries: [{ entryType: 'paint' }] }),
-      96 |       keepalive: true,
-      97 |       method: 'POST',
-
-      at Object.toHaveBeenCalledWith (src/lib/performance/__tests__/web-vitals-reporter.test.ts:94:23)
-
-  ● WebVitalsReporter › falls back to fetch when sendBeacon throws
-
-    expect(jest.fn()).toHaveBeenCalled()
-
-    Expected number of calls: >= 1
-    Received number of calls:    0
-
-      120 |
-      121 |     expect(() => WebVitalsReporter({ id: '3', name: 'FID', value: 45 })).not.toThrow();
-    > 122 |     expect(fetchMock).toHaveBeenCalled();
-          |                       ^
-      123 |   });
-      124 |
-      125 |   it('falls back to fetch when navigator is unavailable', () => {
-
-      at Object.toHaveBeenCalled (src/lib/performance/__tests__/web-vitals-reporter.test.ts:122:23)
-
-  ● WebVitalsReporter › falls back to fetch when navigator is unavailable
-
-    expect(jest.fn()).toHaveBeenCalled()
-
-    Expected number of calls: >= 1
-    Received number of calls:    0
-
-      140 |
-      141 |     expect(() => WebVitalsReporter({ id: 'missing-nav', name: 'FCP', value: 222 })).not.toThrow();
-    > 142 |     expect(fetchMock).toHaveBeenCalled();
-          |                       ^
-      143 |   });
-      144 |
-      145 |   it('does nothing when fetch is unavailable', () => {
-
-      at Object.toHaveBeenCalled (src/lib/performance/__tests__/web-vitals-reporter.test.ts:142:23)
-
-  ● WebVitalsReporter › swallows fetch errors using the catch handler
+FAIL app/api/admin/users/__tests__/route.test.ts
+  ● /api/admin/users › updates users with valid payloads
 
     expect(received).toBe(expected) // Object.is equality
 
-    Expected: true
-    Received: false
+    Expected: 200
+    Received: 400
 
-      179 |
-      180 |     expect(() => WebVitalsReporter({ id: '5', name: 'INP', value: 250 })).not.toThrow();
-    > 181 |     expect(catchExecuted).toBe(true);
-          |                           ^
-      182 |   });
-      183 |
-      184 |   it('exposes reportWebVitals alias that delegates to the reporter', () => {
+      232 |     const json = await response.json();
+      233 |
+    > 234 |     expect(response.status).toBe(200);
+          |                             ^
+      235 |     expect(json).toMatchObject({
+      236 |       message: 'User updated successfully',
+      237 |       userId: 'user-123',
 
-      at Object.toBe (src/lib/performance/__tests__/web-vitals-reporter.test.ts:181:27)
+      at Object.toBe (app/api/admin/users/__tests__/route.test.ts:234:29)
 
-  ● WebVitalsReporter › exposes reportWebVitals alias that delegates to the reporter
+  ● /api/admin/users › handles errors when updating users
 
-    expect(jest.fn()).toHaveBeenCalled()
+    expect(received).toBe(expected) // Object.is equality
 
-    Expected number of calls: >= 1
-    Received number of calls:    0
+    Expected: 500
+    Received: 400
 
-      191 |     reportWebVitals({ id: 'alias', name: 'TTI', value: 3200 });
-      192 |
-    > 193 |     expect(sendBeacon).toHaveBeenCalled();
-          |                        ^
-      194 |   });
-      195 | });
-      196 |
+      254 |     const json = await response.json();
+      255 |
+    > 256 |     expect(response.status).toBe(500);
+          |                             ^
+      257 |     expect(json.error).toBe('Failed to update user');
+      258 |     expect(mockLogger.error).toHaveBeenCalledWith('Admin users PATCH error', expect.any(Error), {
+      259 |       method: 'PATCH',
 
-      at Object.toHaveBeenCalled (src/lib/performance/__tests__/web-vitals-reporter.test.ts:193:24)
-
-  ● measureFunctionTime › falls back to Date.now when performance API is unavailable
-
-    expect(jest.fn()).toHaveBeenCalledTimes(expected)
-
-    Expected number of calls: 2
-    Received number of calls: 0
-
-      246 |
-      247 |     expect(result).toBe(42);
-    > 248 |     expect(Date.now).toHaveBeenCalledTimes(2);
-          |                      ^
-      249 |   });
-      250 |
-      251 |   it('uses raw execution time when toFixed is unavailable', () => {
-
-      at Object.toHaveBeenCalledTimes (src/lib/performance/__tests__/web-vitals-reporter.test.ts:248:22)
-
-FAIL src/__tests__/instrumentation.test.ts
-  ● instrumentation register › prevents process exit for Mongo related uncaught exceptions
-
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-    Expected: "MongoDB connection issue detected. Continuing..."
-
-    Number of calls: 0
-
-      153 |
-      154 |     expect(processExitSpy).not.toHaveBeenCalled();
-    > 155 |     expect(consoleWarnSpy).toHaveBeenCalledWith('MongoDB connection issue detected. Continuing...');
-          |                            ^
-      156 |   });
-      157 |
-      158 |   it('logs the failure context and exits the process for critical production errors', async () => {
-
-      at Object.toHaveBeenCalledWith (src/__tests__/instrumentation.test.ts:155:28)
+      at Object.toBe (app/api/admin/users/__tests__/route.test.ts:256:29)
 
 FAIL src/lib/performance/__tests__/web-vitals-reporter.test.fixed.ts
   ● WebVitalsReporter (fixed) › falls back to fetch when sendBeacon exists but returns false
@@ -1566,8 +1052,8 @@ FAIL src/lib/performance/__tests__/web-vitals-reporter.test.fixed.ts
       at Object.toHaveBeenCalled (src/lib/performance/__tests__/web-vitals-reporter.test.fixed.ts:55:24)
 
 
-Test Suites: 11 failed, 323 passed, 334 total
-Tests:       20 failed, 4074 passed, 4094 total
+Test Suites: 5 failed, 329 passed, 334 total
+Tests:       6 failed, 6 skipped, 4082 passed, 4094 total
 Snapshots:   0 total
-Time:        2197.704 s
+Time:        1344.879 s
 Ran all test suites.

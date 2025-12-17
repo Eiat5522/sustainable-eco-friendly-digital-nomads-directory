@@ -61,10 +61,10 @@ describe('useAuth', () => {
     expect(result.current.status).toBe('loading');
 
     result.current.hasPagePermission('home', 'view');
-    expect(hasPagePermissionMock).toHaveBeenCalledWith('unidentifiedUser', 'home', 'view');
+    expect(hasPagePermissionMock).toHaveBeenCalledWith('user', 'home', 'view');
 
     result.current.hasFeaturePermission('anyFeature');
-    expect(hasFeaturePermissionMock).toHaveBeenCalledWith('unidentifiedUser', 'anyFeature');
+    expect(hasFeaturePermissionMock).toHaveBeenCalledWith('user', 'anyFeature');
   });
 
   it('derives additional helpers from the computed role', () => {
