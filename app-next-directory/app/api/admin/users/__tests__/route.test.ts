@@ -74,7 +74,7 @@ describe('/api/admin/users', () => {
     mockUpdateUserRole.mockReset();
     mockUpdateUserStatus.mockReset();
     mockLogger.error.mockReset();
-    
+
     // Default mock implementations
     mockFind.mockReturnValue({
       select: jest.fn().mockReturnValue({
@@ -118,7 +118,7 @@ describe('/api/admin/users', () => {
         status: 'active',
       },
     ];
-    
+
     mockFind.mockReturnValue({
       select: jest.fn().mockReturnValue({
         sort: jest.fn().mockReturnValue({
@@ -213,7 +213,7 @@ describe('/api/admin/users', () => {
   });
 
   it('updates users with valid payloads', async () => {
-    // @ts-ignore - Type assertion to bypass TypeScript strict typing for mock
+    // @ts-expect-error - Type assertion to bypass TypeScript strict typing for mock
     mockAuth.mockResolvedValue({ user: { role: 'admin', id: 'admin-1' } });
     mockUpdateUserRole.mockResolvedValue(true);
     mockUpdateUserStatus.mockResolvedValue(true);
@@ -272,7 +272,7 @@ describe('/api/admin/users', () => {
 
     const response = await DELETE(request, { params: Promise.resolve({}) });
     const json = await response.json();
-    
+
     expect(response.status).toBe(200);
     expect(json).toEqual({
       message: 'User deleted successfully',
@@ -292,7 +292,7 @@ describe('/api/admin/users', () => {
 
     const response = await DELETE(request, { params: Promise.resolve({}) });
     const json = await response.json();
-    
+
     expect(response.status).toBe(500);
     expect(json.error).toBe('Failed to delete user');
     expect(mockLogger.error).toHaveBeenCalledWith('Admin users DELETE error', expect.any(Error), {

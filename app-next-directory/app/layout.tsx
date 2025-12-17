@@ -15,9 +15,7 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        {/* Theme support removed: no script injected here anymore */}
-      </head>
+      <head>{/* Theme support removed: no script injected here anymore */}</head>
       <body className={BODY_FONT_CLASS}>
         <ClientRootLayout>{children}</ClientRootLayout>
       </body>

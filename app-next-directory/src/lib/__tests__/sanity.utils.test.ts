@@ -85,9 +85,9 @@ describe('sanity utils', () => {
     const mod = await loadModule();
     mod.getClient(true); // Ensure preview client is initialized
     // Debug: verify createClientMock calls
-     
+
     // Debug: validate the returned preview client instance
-     
+
     console.log('preview returned equals previewClient?', mod.getClient(true) === previewClient);
     console.log('createClientMock calls:', createClientMock.mock.calls.length);
     previewClient.fetch.mockResolvedValueOnce({ slug: 'preview' });

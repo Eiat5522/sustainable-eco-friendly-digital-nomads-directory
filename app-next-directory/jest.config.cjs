@@ -1,4 +1,3 @@
- 
 /**
  * jest.config.cjs
  * Jest config for TypeScript + ESM + React 18/19 compatible unit tests

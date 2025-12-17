@@ -2,11 +2,11 @@ import { expect, type Page, test } from '@playwright/test';
 
 /**
  * Favorites UI Toggle E2E Tests
- * 
+ *
  * Note: Deterministic auth gating and navigation cases have been migrated to Jest/RTL
  * for faster, more reliable testing. See:
  * - src/components/favorites/__tests__/FavoriteButton.navigation.test.tsx
- * 
+ *
  * This E2E suite now focuses on true end-to-end user interaction scenarios that require
  * a browser environment, such as toggling favorites and UI state management.
  */
@@ -99,7 +99,9 @@ test.describe('[E2E] Favorites UI toggle - Authenticated', () => {
 });
 
 test.describe('[E2E] Favorites UI toggle - Unauthenticated', () => {
-  test.skip('prompts login when unauthenticated user tries to favorite (covered by Jest)', async ({ page }) => {
+  test.skip('prompts login when unauthenticated user tries to favorite (covered by Jest)', async ({
+    page,
+  }) => {
     await page.route('**/api/auth/session', async route => {
       await route.fulfill({
         status: 200,

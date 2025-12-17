@@ -8,8 +8,8 @@ import Google from 'next-auth/providers/google';
 // Additional OAuth providers can be added here when their credentials are available.
 import { createAuthAdapter } from '@/lib/auth/adapter';
 import { isAdminEmail } from '@/lib/auth/config';
-import { enforceLoginRateLimit, recordLoginAttempt } from '@/lib/auth/rateLimit';
 import { getUserById } from '@/lib/auth/dal';
+import { enforceLoginRateLimit, recordLoginAttempt } from '@/lib/auth/rateLimit';
 import { authenticateUser } from '@/lib/auth/serverAuth';
 import dbConnect from '@/lib/dbConnect';
 import { structuredLogger } from '@/lib/logger';
@@ -235,7 +235,10 @@ const nextAuthInstance = (() => {
       },
       auth: async () => null,
     } as {
-      handlers: { GET: (request: Request) => Promise<Response>; POST: (request: Request) => Promise<Response> };
+      handlers: {
+        GET: (request: Request) => Promise<Response>;
+        POST: (request: Request) => Promise<Response>;
+      };
       auth: () => Promise<null>;
     };
   }
@@ -244,7 +247,10 @@ const nextAuthInstance = (() => {
 export const {
   handlers: { GET, POST },
 } = nextAuthInstance as {
-  handlers: { GET: (request: Request) => Promise<Response>; POST: (request: Request) => Promise<Response> };
+  handlers: {
+    GET: (request: Request) => Promise<Response>;
+    POST: (request: Request) => Promise<Response>;
+  };
 };
 
 // Wrap the original `auth` export to guard against `headers()` rejections

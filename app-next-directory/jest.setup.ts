@@ -328,9 +328,8 @@ type GlobalConsoleFilterRegistry = typeof globalThis & {
 (globalThis as GlobalConsoleFilterRegistry).withDefaultConsoleFilters = withDefaultConsoleFilters;
 
 declare global {
-   
   var withConsoleFilters: typeof withConsoleFilters;
-   
+
   var withDefaultConsoleFilters: typeof withDefaultConsoleFilters;
 }
 
@@ -377,7 +376,7 @@ afterEach(async () => {
   jest.clearAllTimers();
   // Clear all mocks to release references
   jest.clearAllMocks();
-  
+
   // Clean up BroadcastChannel instances
   try {
     const bcModule = await import('broadcast-channel');
@@ -388,12 +387,12 @@ afterEach(async () => {
   } catch (e) {
     // Ignore if broadcast-channel is not loaded
   }
-  
+
   // Run garbage collection if available (with --expose-gc flag)
   if (global.gc) {
     global.gc();
   }
-  
+
   // Flush any pending promises to prevent memory leaks
   await new Promise(resolve => setTimeout(resolve, 0));
 });
@@ -456,7 +455,11 @@ if (process.env.JEST_RUN_INTEGRATION === '1' && process.env.JEST_USE_REAL_MONGOO
 const skipMSW = process.env.JEST_USE_REAL_MONGOOSE === '1';
 if (!skipMSW) {
   // Store server in a way that allows cleanup without holding references
-  let serverInstance: { listen: (opts: unknown) => void; resetHandlers: () => void; close: () => void } | null = null;
+  let serverInstance: {
+    listen: (opts: unknown) => void;
+    resetHandlers: () => void;
+    close: () => void;
+  } | null = null;
   let serverPromise: Promise<typeof serverInstance> | null = null;
 
   const getServer = () => {

@@ -308,8 +308,6 @@ describe('FiltersSidebar', () => {
     });
   });
 
-
-
   describe('Multi-value Filter Handling', () => {
     it('should handle multiple values for same filter', async () => {
       const user = userEvent.setup();

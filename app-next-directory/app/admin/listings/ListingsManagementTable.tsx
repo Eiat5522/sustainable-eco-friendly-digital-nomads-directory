@@ -213,7 +213,6 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
   useEffect(() => {
     void loadListings(1, '', null, null);
     void loadStats();
-     
   }, [loadListings, loadStats]);
 
   const handleSearch = (searchValue: string) => {

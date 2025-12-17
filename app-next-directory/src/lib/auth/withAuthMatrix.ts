@@ -86,7 +86,7 @@ export async function withAuthMatrix(
 
   // If no token and accessing protected routes
   if (!token && page && action) {
-    const hasPermission = hasPagePermissionFn(('user' as UserRole), page, action);
+    const hasPermission = hasPagePermissionFn('user' as UserRole, page, action);
 
     if (!hasPermission) {
       // Create redirect URL with return path

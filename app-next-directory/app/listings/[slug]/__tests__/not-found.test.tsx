@@ -17,4 +17,3 @@ describe('app/listings/[slug]/not-found', () => {
     expect(screen.getByRole('link', { name: /go home/i })).toHaveAttribute('href', '/');
   });
 });
-

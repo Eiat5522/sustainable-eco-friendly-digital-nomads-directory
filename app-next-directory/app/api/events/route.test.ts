@@ -21,7 +21,7 @@ describe('Events API - GET /api/events', () => {
   beforeEach(() => {
     jest.resetModules();
     fetchMock.mockReset();
-     
+
     GET = require('./route').GET;
   });
 

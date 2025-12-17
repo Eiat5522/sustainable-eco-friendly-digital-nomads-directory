@@ -1,7 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { HttpResponse, http } from 'msw';
 import { NextRequest } from 'next/server';
-import { server } from '@/mocks/server';
 
 // Mock isSanityConfigured
 jest.mock('@/lib/sanity/env', () => ({
@@ -21,13 +19,25 @@ jest.mock('@/data/e2e/discovery-fixtures', () => ({
 // Mock ApiResponseHandler
 jest.mock('@/utils/api-response', () => ({
   ApiResponseHandler: {
-    success: jest.fn().mockImplementation((data) => new Response(JSON.stringify({ success: true, data }), { status: 200 })),
-    error: jest.fn().mockImplementation((message, status, details) => 
-      new Response(JSON.stringify({ success: false, error: message, details }), { status })
-    ),
-    notFound: jest.fn().mockImplementation((resource) => 
-      new Response(JSON.stringify({ success: false, error: `${resource} not found` }), { status: 404 })
-    ),
+    success: jest
+      .fn()
+      .mockImplementation(
+        data => new Response(JSON.stringify({ success: true, data }), { status: 200 })
+      ),
+    error: jest
+      .fn()
+      .mockImplementation(
+        (message, status, details) =>
+          new Response(JSON.stringify({ success: false, error: message, details }), { status })
+      ),
+    notFound: jest
+      .fn()
+      .mockImplementation(
+        resource =>
+          new Response(JSON.stringify({ success: false, error: `${resource} not found` }), {
+            status: 404,
+          })
+      ),
   },
 }));
 

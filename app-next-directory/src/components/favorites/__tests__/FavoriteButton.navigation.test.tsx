@@ -1,9 +1,9 @@
 /**
  * FavoriteButton Navigation Tests
- * 
+ *
  * This file contains Jest/RTL tests for deterministic navigation flows in FavoriteButton.
  * These tests verify auth gating and redirect behavior that was previously tested via Playwright E2E.
- * 
+ *
  * Covered E2E scenarios:
  * - Unauthenticated user favorites attempt triggers sign-in with callbackUrl
  * - 401 response from favorites API triggers authentication redirect
@@ -47,7 +47,7 @@ describe('FavoriteButton - Deterministic Navigation Flows', () => {
   describe('Unauthenticated User Auth Gating', () => {
     it('triggers sign-in with current page as callbackUrl when unauthenticated user clicks favorite', async () => {
       const originalHref = window.location.href;
-      
+
       mockUseSession.mockReturnValue({
         data: null,
         status: 'unauthenticated',
@@ -84,9 +84,7 @@ describe('FavoriteButton - Deterministic Navigation Flows', () => {
       });
 
       // Verify no API call was made (only status check on mount, no POST)
-      const postCalls = mockFetch.mock.calls.filter(
-        call => call[1]?.method === 'POST'
-      );
+      const postCalls = mockFetch.mock.calls.filter(call => call[1]?.method === 'POST');
       expect(postCalls).toHaveLength(0);
     });
   });

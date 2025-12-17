@@ -224,21 +224,21 @@ describe('withUserAuth HOC', () => {
     });
   });
 
-    it('redirects unauthenticated users', async () => {
-      mockUseSession.mockReturnValue({
-        data: null,
-        status: 'unauthenticated',
-      });
-
-      const TestComponent = () => <div>User Content</div>;
-      const WrappedComponent = withUserAuth(TestComponent);
-
-      render(<WrappedComponent />);
-
-      await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith('/auth/login');
-      });
+  it('redirects unauthenticated users', async () => {
+    mockUseSession.mockReturnValue({
+      data: null,
+      status: 'unauthenticated',
     });
+
+    const TestComponent = () => <div>User Content</div>;
+    const WrappedComponent = withUserAuth(TestComponent);
+
+    render(<WrappedComponent />);
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/auth/login');
+    });
+  });
 
   it('accepts any authenticated user regardless of role', async () => {
     mockUseSession.mockReturnValue({

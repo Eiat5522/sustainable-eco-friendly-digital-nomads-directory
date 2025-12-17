@@ -1,9 +1,9 @@
 /**
  * Auth Data Access Layer (DAL)
- * 
+ *
  * Provides a narrow, focused interface for auth-related database operations.
  * This layer encapsulates MongoDB User model access for authentication and authorization.
- * 
+ *
  * Design principles:
  * - Single source of truth for user identity and role lookups
  * - Type-safe: no `any` types

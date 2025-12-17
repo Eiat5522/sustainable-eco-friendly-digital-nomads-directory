@@ -92,8 +92,8 @@ test.describe('API Integration Testing - Workstream E.1', () => {
     test('PUT /api/user/profile - Update User Profile', async ({ request }) => {
       const updateData = {
         name: 'Updated Test User',
-          preferences: {
-            notifications: false,
+        preferences: {
+          notifications: false,
         },
       };
 
@@ -202,8 +202,8 @@ test.describe('API Integration Testing - Workstream E.1', () => {
     });
 
     test('PUT /api/user/preferences - Update User Preferences', async ({ request }) => {
-        const newPreferences = {
-          language: 'en',
+      const newPreferences = {
+        language: 'en',
         notifications: {
           email: true,
           push: false,

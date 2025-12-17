@@ -57,7 +57,6 @@ function filterToAllowedValues(
   return sanitized;
 }
 
-
 const defaultDefinitions: FilterDefinition[] = [
   {
     id: 'category',
@@ -173,8 +172,6 @@ export function FiltersSidebar({ definitions = defaultDefinitions }: FiltersSide
     },
     [applyFilters]
   );
-
-  
 
   return (
     <div className="space-y-4">

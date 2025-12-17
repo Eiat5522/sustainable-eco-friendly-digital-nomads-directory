@@ -31,7 +31,7 @@ describe('/api/search', () => {
     mockedBuildE2EResponse.mockReset();
 
     mockedIsE2ERun.mockReturnValue(false);
-     
+
     ({ GET, POST, _testControl: routeTestControl } = require('../route'));
   });
 

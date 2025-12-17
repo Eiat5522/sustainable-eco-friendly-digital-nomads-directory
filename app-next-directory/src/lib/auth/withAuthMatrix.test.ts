@@ -554,15 +554,15 @@ describe('withAuth (legacy)', () => {
     expect(location).toContain('/auth/unauthorized');
   });
 
-    it('allows access when user role is in required roles', async () => {
-      mockGetToken.mockResolvedValue({ role: 'admin' });
+  it('allows access when user role is in required roles', async () => {
+    mockGetToken.mockResolvedValue({ role: 'admin' });
 
-      const request = new NextRequest('http://localhost:3000/admin');
-      const response = await withAuth(request, ['admin', 'superAdmin']);
+    const request = new NextRequest('http://localhost:3000/admin');
+    const response = await withAuth(request, ['admin', 'superAdmin']);
 
-      expect(response).toBeInstanceOf(NextResponse);
-      expect(response.status).toBe(200);
-    });
+    expect(response).toBeInstanceOf(NextResponse);
+    expect(response.status).toBe(200);
+  });
 
   it('allows access when no required roles specified', async () => {
     mockGetToken.mockResolvedValue({ role: 'user' });

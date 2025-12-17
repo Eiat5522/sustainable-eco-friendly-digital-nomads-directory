@@ -141,9 +141,12 @@ describe('API /api/comments', () => {
         user: { id: 'user1', role: 'user', name: 'User' },
       });
       mockEnsureSanityUser.mockResolvedValueOnce({ _id: 'sanityUser1', _type: 'user' });
-      (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'p1', slug: { current: 'post-slug' } });
+      (client.getDocument as jest.Mock).mockResolvedValueOnce({
+        _id: 'p1',
+        slug: { current: 'post-slug' },
+      });
       (client.create as jest.Mock).mockResolvedValueOnce({ _id: 'comment1', _type: 'comment' });
-      
+
       const req = new Request('http://localhost/api/comments', {
         method: 'POST',
         body: JSON.stringify({ content: 'Permission check', postId: 'p1' }),

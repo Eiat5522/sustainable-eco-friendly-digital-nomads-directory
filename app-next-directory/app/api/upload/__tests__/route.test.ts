@@ -31,7 +31,7 @@ describe('/api/upload', () => {
     mockedAuth.mockReset();
     mockUpload.mockReset();
     // require after mocks
-     
+
     ({ POST, _testControl: routeTestControl } = require('../route'));
     routeTestControl.formDataOverride = undefined;
     // set upload override to our mock

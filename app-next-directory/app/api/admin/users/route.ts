@@ -1,11 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import {
-  getUserById,
-  updateUserRole,
-  updateUserStatus,
-  type AuthUser,
-} from '@/lib/auth/dal';
+import { updateUserRole, updateUserStatus } from '@/lib/auth/dal';
 import dbConnect from '@/lib/dbConnect';
 import { structuredLogger } from '@/lib/logger';
 import User, { type IUser } from '@/models/User';
@@ -75,7 +70,7 @@ export async function GET(request: NextRequest, _context: RouteContext) {
 
     // Build MongoDB query
     const query: Record<string, unknown> = {};
-    
+
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },

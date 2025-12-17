@@ -253,7 +253,10 @@ describe('API /api/reviews POST', () => {
     // Note: All defined roles have submitReviews: true, so this test validates
     // that the permission system is working by testing an edge case
     mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
-    (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'listing-1', slug: { current: 'listing-slug' } });
+    (client.getDocument as jest.Mock).mockResolvedValueOnce({
+      _id: 'listing-1',
+      slug: { current: 'listing-slug' },
+    });
     (ensureSanityUser as jest.Mock).mockResolvedValueOnce({ _id: 'sanity-user-1' });
     (client.fetch as jest.Mock).mockResolvedValueOnce(null); // No existing review
     (client.create as jest.Mock).mockResolvedValueOnce({ _id: 'review-1', approved: false });

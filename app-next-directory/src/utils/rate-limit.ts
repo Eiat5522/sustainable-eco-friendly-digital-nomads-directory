@@ -19,14 +19,17 @@ const rateLimitStore = new Map<string, RateLimitInfo>();
 // outside of test environments so tests can run leak-free.
 const shouldStartCleanup = process.env.NODE_ENV !== 'test' && !process.env.JEST_WORKER_ID;
 const cleanupInterval = shouldStartCleanup
-  ? setInterval(() => {
-      const now = Date.now();
-      for (const [key, info] of rateLimitStore.entries()) {
-        if (now > info.resetTime) {
-          rateLimitStore.delete(key);
+  ? setInterval(
+      () => {
+        const now = Date.now();
+        for (const [key, info] of rateLimitStore.entries()) {
+          if (now > info.resetTime) {
+            rateLimitStore.delete(key);
+          }
         }
-      }
-    }, 10 * 60 * 1000)
+      },
+      10 * 60 * 1000
+    )
   : null;
 
 cleanupInterval?.unref?.();

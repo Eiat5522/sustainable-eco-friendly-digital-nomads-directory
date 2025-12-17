@@ -66,7 +66,6 @@ describe('withPerformanceTracking', () => {
         value: originalPerformance,
       });
     } else {
-       
       delete (global as Record<string, unknown>).performance;
     }
     if (typeof window !== 'undefined') {
@@ -83,7 +82,6 @@ describe('withPerformanceTracking', () => {
     if (originalFetch) {
       global.fetch = originalFetch;
     } else {
-       
       delete (global as Record<string, unknown>).fetch;
     }
   });
