@@ -16,6 +16,8 @@ RUN apk add --no-cache \
 # Set Playwright to use system chromium
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 ENV PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium-browser
+# Ensure production build mode inside the image
+ENV NODE_ENV=production
 
 # Create app directory
 WORKDIR /app
@@ -23,6 +25,7 @@ WORKDIR /app
 # Copy package files
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY app-next-directory/package.json ./app-next-directory/
+COPY app-next-directory/scripts ./app-next-directory/scripts
 
 # Install dependencies
 RUN pnpm install --frozen-lockfile
@@ -32,7 +35,8 @@ COPY . .
 
 # Build the application
 WORKDIR /app/app-next-directory
-RUN pnpm build
+RUN mkdir -p /app/app-next-directory/test-results /app/app-next-directory/playwright-report \
+    && pnpm build
 
 # Expose port for the application
 EXPOSE 3000

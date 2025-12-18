@@ -49,10 +49,28 @@ echo ""
 echo "📦 Setting up test database..."
 docker-compose -f docker-compose.e2e.yml run --rm app-e2e node tests/setup-e2e-db.mjs
 
-# Run E2E tests
+# Verify seed completed (exit non-zero if seed not found)
 echo ""
-echo "🧪 Running E2E tests..."
-docker-compose -f docker-compose.e2e.yml run --rm app-e2e pnpm test:e2e
+echo "🔬 Verifying DB seed..."
+docker-compose -f docker-compose.e2e.yml run --rm app-e2e node tests/check-e2e-seed.mjs || {
+    echo -e "${YELLOW}Seed verification failed. See app-next-directory/test-results for details.${NC}"
+    docker-compose -f docker-compose.e2e.yml down
+    exit 2
+}
+
+# Verify built static assets exist inside image (helps catch missing assets early)
+echo ""
+echo "🔎 Verifying built static assets inside image..."
+mkdir -p app-next-directory/test-results
+docker-compose -f docker-compose.e2e.yml run --rm app-e2e sh -c "ls -la /app/app-next-directory/.next/static/chunks > /app/app-next-directory/test-results/static-listing.txt || true"
+
+# Start the Next server inside the container (capture logs) and run Playwright against it.
+echo ""
+echo "🧪 Starting server and running E2E tests (capturing server logs)..."
+docker-compose -f docker-compose.e2e.yml run --rm app-e2e sh -c "pnpm build && \ 
+    mkdir -p /app/app-next-directory/test-results && \ 
+    E2E=1 NEXT_PUBLIC_E2E=1 pnpm start > /app/app-next-directory/test-results/server-start.log 2>&1 & \ 
+    SERVER_PID=$!; sleep 8; pnpm exec playwright test --config=playwright.config.ts; EXIT_CODE=$?; kill -TERM $SERVER_PID || true; exit $EXIT_CODE" 2>&1 | tee app-next-directory/test-results/test-e2e-output.log
 
 # Capture exit code
 EXIT_CODE=$?

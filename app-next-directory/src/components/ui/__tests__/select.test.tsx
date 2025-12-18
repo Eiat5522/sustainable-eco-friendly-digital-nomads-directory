@@ -48,10 +48,12 @@ jest.mock('@radix-ui/react-select', () => ({
       {children}
     </div>
   )),
-  Item: jest.fn(({ children, disabled, ...props }) => (
+  Item: jest.fn(({ children, disabled, 'aria-selected': ariaSelected, ...props }) => (
     <div
       data-testid="select-item"
       role="option"
+      aria-selected={ariaSelected ?? false}
+      tabIndex={disabled ? undefined : -1}
       aria-disabled={disabled || undefined}
       data-disabled={disabled ? '' : undefined}
       {...props}

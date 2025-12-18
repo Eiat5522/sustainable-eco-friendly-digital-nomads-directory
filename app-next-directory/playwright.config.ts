@@ -47,7 +47,8 @@ export default defineConfig({
   reporter: [
     ['list'],
     ['html', { outputFolder: 'playwright-report' }],
-    ['json', { outputFile: 'test-results/test-results.json' }],
+    // Write JSON and last-run files to tmp/test-results to avoid permission issues
+    ['json', { outputFile: 'tmp/test-results/test-results.json' }],
   ],
   use: {
     baseURL: resolvedBaseURL,
@@ -67,8 +68,10 @@ export default defineConfig({
     ? {
         command: 'E2E=1 pnpm start',
         url: serverWaitURL.toString(),
-        timeout: 60_000,
-        reuseExistingServer: !process.env.CI,
+          // Increase timeout for containerized environments (build + startup can take longer)
+          timeout: 180_000,
+          // In CI/E2E/Docker runs we should NOT reuse an existing server to avoid stale processes
+          reuseExistingServer: !(process.env.CI || process.env.E2E || process.env.NEXT_PUBLIC_E2E),
         env: {
           // Load .env.e2e file for isolated test environment
           NODE_ENV: 'production',

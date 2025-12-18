@@ -8,5 +8,6 @@
     "esModuleInterop": true,
     "types": ["jest", "@testing-library/jest-dom"]
   },
+  "exclude": ["node_modules", ".next", "dist", "coverage", "tmp"],
   "include": ["app", "src", "**/*.ts", "**/*.tsx", "jest.setup.ts"]
 }
