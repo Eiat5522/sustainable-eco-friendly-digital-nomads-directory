@@ -241,3 +241,5 @@ playwright-report-app-next.zip
 !.vscode/tasks.json
 !app-next-directory/.vscode/tasks.json
 !app-next-directory/tmp/unit_test_output**
+!.github/chatmodes/**
+!app-next-directory/.github/chatmodes/**
