@@ -53,9 +53,9 @@ class SchemaMock {
         this.paths[key] = {
           path: key,
           instance: this.getInstanceType(def),
-          options: def,
-          isRequired: !!def.required,
-          enumValues: def.enum,
+          options: def?.options ?? def ?? {},
+          isRequired: !!(def && def.required),
+          enumValues: def?.enum,
         };
       });
     }
@@ -231,9 +231,9 @@ const createModelMock = (modelName: string, schema?: SchemaMock) => {
       // ignore
     }
 
-    (instance as any).save = jest.fn().mockResolvedValue(instance);
-    (instance as any).validate = jest.fn().mockResolvedValue(undefined);
-    (instance as any).isModified = jest.fn(() => false);
+    (instance as any).save = jest.fn<() => Promise<unknown>>().mockResolvedValue(instance);
+    (instance as any).validate = jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined);
+    (instance as any).isModified = jest.fn<() => boolean>(() => false);
 
     // Set the prototype to make `instanceof` checks work
     Object.setPrototypeOf(instance, modelMock.prototype);
@@ -244,14 +244,14 @@ const createModelMock = (modelName: string, schema?: SchemaMock) => {
   // attach some runtime helpers that tests may use
   (modelMock as any).modelName = modelName;
   (modelMock as any).schema = schema;
-  (modelMock as any).findOne = jest.fn();
-  (modelMock as any).create = jest.fn();
-  (modelMock as any).findById = jest.fn();
-  (modelMock as any).findByIdAndUpdate = jest.fn();
-  (modelMock as any).updateOne = jest.fn();
-  (modelMock as any).exists = jest.fn();
-  (modelMock as any).find = jest.fn();
-  (modelMock as any).countDocuments = jest.fn();
+  (modelMock as any).findOne = jest.fn<() => Promise<unknown>>();
+  (modelMock as any).create = jest.fn<() => Promise<unknown>>();
+  (modelMock as any).findById = jest.fn<() => Promise<unknown>>();
+  (modelMock as any).findByIdAndUpdate = jest.fn<() => Promise<unknown>>();
+  (modelMock as any).updateOne = jest.fn<() => Promise<unknown>>();
+  (modelMock as any).exists = jest.fn<() => Promise<unknown>>();
+  (modelMock as any).find = jest.fn<() => Promise<unknown>>();
+  (modelMock as any).countDocuments = jest.fn<() => Promise<number>>();
 
   return modelMock as unknown as (...args: unknown[]) => Record<string, unknown>;
 };
@@ -296,21 +296,27 @@ const mongoose = {
       return modelsCache[key];
     },
   }),
-  connect: jest.fn().mockResolvedValue({ readyState: 1, connection: { readyState: 1 } }),
+  connect: jest.fn<() => Promise<{ readyState: number; connection: { readyState: number } }>>().mockResolvedValue({ readyState: 1, connection: { readyState: 1 } }),
   connection: {
     on: noop,
     once: noop,
     readyState: 1,
-    collection: jest.fn((_name: string) => ({
-      insertOne: jest.fn(async (doc: Record<string, unknown>) => {
+    collection: jest.fn<(_name: string) => {
+      insertOne: ReturnType<typeof jest.fn>;
+      createIndexes: ReturnType<typeof jest.fn>;
+      findOne: ReturnType<typeof jest.fn>;
+      updateOne: ReturnType<typeof jest.fn>;
+      deleteOne: ReturnType<typeof jest.fn>;
+    }>((_name: string) => ({
+      insertOne: jest.fn<(doc: Record<string, unknown>) => Promise<{ acknowledged: boolean }>>(async (doc: Record<string, unknown>) => {
         collectionStore[_name] = collectionStore[_name] || [];
         collectionStore[_name].push(doc);
         return { acknowledged: true };
       }),
-      createIndexes: jest.fn().mockResolvedValue({}),
-      findOne: jest.fn().mockResolvedValue(null),
-      updateOne: jest.fn().mockResolvedValue({ matchedCount: 1 }),
-      deleteOne: jest.fn().mockResolvedValue({ deletedCount: 1 }),
+      createIndexes: jest.fn<() => Promise<Record<string, unknown>>>().mockResolvedValue({}),
+      findOne: jest.fn<() => Promise<null>>().mockResolvedValue(null),
+      updateOne: jest.fn<() => Promise<{ matchedCount: number }>>().mockResolvedValue({ matchedCount: 1 }),
+      deleteOne: jest.fn<() => Promise<{ deletedCount: number }>>().mockResolvedValue({ deletedCount: 1 }),
     })),
   },
   isValidObjectId,
