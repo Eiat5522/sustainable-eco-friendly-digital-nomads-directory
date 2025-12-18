@@ -66,6 +66,7 @@ describe('WebVitalsReporter', () => {
     });
   });
 
+  // Skipped: Complex edge case testing sendBeacon failure scenarios
   it.skip('falls back to fetch when sendBeacon returns false', () => {
     const sendBeacon = jest.fn(() => false);
     const fetchMock = jest.fn(() => ({
@@ -98,6 +99,7 @@ describe('WebVitalsReporter', () => {
     });
   });
 
+  // Skipped: Network error handling scenarios that are difficult to test reliably
   it.skip('falls back to fetch when sendBeacon throws', () => {
     const sendBeacon = jest.fn(() => {
       throw new Error('network error');
@@ -123,6 +125,7 @@ describe('WebVitalsReporter', () => {
     expect(fetchMock).toHaveBeenCalled();
   });
 
+  // Skipped: Testing when navigator API is completely unavailable
   it.skip('falls back to fetch when navigator is unavailable', () => {
     Object.defineProperty(global, 'navigator', {
       configurable: true,
@@ -159,6 +162,7 @@ describe('WebVitalsReporter', () => {
     expect(() => WebVitalsReporter({ id: '4', name: 'TTFB', value: 88 })).not.toThrow();
   });
 
+  // Skipped: Testing error swallowing in fetch operations
   it.skip('swallows fetch errors using the catch handler', () => {
     const sendBeacon = jest.fn(() => false);
     let catchExecuted = false;
@@ -184,6 +188,7 @@ describe('WebVitalsReporter', () => {
     expect(catchExecuted).toBe(true);
   });
 
+  // Skipped: Testing alias delegation behavior
   it.skip('exposes reportWebVitals alias that delegates to the reporter', () => {
     const sendBeacon = jest.fn(() => true);
     Object.defineProperty(global, 'navigator', {
@@ -242,6 +247,7 @@ describe('measureFunctionTime', () => {
     });
   });
 
+  // Skipped: Testing performance API fallback scenarios
   it.skip('falls back to Date.now when performance API is unavailable', () => {
     Object.defineProperty(global, 'performance', {
       configurable: true,

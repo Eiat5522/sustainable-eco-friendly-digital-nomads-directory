@@ -83,7 +83,7 @@ const mockResetClient = () => {
 // This allows tests to opt-in to resetting the client state without the side effects
 // previously bundled into mockClear.
 const mockResetClientLight = () => {
-  (getRedisClient as any).mockImplementation(() => undefined);
+  getRedisClient.mockImplementation(() => undefined);
   _notifyRedisClientChange(undefined);
 };
 

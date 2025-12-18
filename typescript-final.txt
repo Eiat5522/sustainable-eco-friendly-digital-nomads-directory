@@ -1,6 +1,0 @@
-app-next-directory/src/middleware/index.ts(161,64): error TS2345: Argument of type '{}' is not assignable to parameter of type 'Record<string, unknown>'.
-  Index signature for type 'string' is missing in type '{}'.
-app-next-directory/src/middleware/index.ts(175,76): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | null | undefined'.
-app-next-directory/src/middleware/index.ts(242,19): error TS2552: Cannot find name 'NextResponse'. Did you mean 'Response'?
-app-next-directory/src/middleware/index.ts(243,31): error TS2552: Cannot find name 'NextResponse'. Did you mean 'Response'?
-app-next-directory/src/middleware/index.ts(244,60): error TS2552: Cannot find name 'NextResponse'. Did you mean 'Response'?

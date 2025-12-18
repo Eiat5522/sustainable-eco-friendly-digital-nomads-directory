@@ -28,11 +28,8 @@ type UserDoc = {
   emailVerified?: Date | null;
   favorites?: Array<Types.ObjectId | string>;
 };
-// Narrowed fields used when authenticating a user
-type SelectedAuthDoc = Pick<
-  UserDoc,
-  '_id' | 'name' | 'email' | 'image' | 'role' | 'password' | 'emailVerified'
->;
+// Narrowed fields used when authenticating a user (deprecated - moved to DAL)
+// type SelectedAuthDoc = Pick<UserDoc, '_id' | 'name' | 'email' | 'image' | 'role' | 'password' | 'emailVerified'>;
 const UserModel = User as unknown as import('mongoose').Model<UserDoc>;
 export interface AuthenticatedUser {
   id: string;

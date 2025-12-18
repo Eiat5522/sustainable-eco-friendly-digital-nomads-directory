@@ -425,16 +425,16 @@ export function getE2ECitySummary(slug: string): CityDTO | null {
   const detail = discoveryCities.find(city => city.slug === slug);
   if (!detail) return null;
   const {
-    galleryImages: ignored_gallery,
-    digitalNomadFeatures: ignored_dn,
-    sustainabilityInitiatives: ignored_si,
-    shortDescription: ignored_sd,
-    airQuality: ignored_aq,
-    internetSpeed: ignored_is,
-    costOfLiving: ignored_cl,
-    climate: ignored_climate,
-    safety: ignored_safety,
-    walkability: ignored_walk,
+    galleryImages: ignoredGallery,
+    digitalNomadFeatures: ignoredDn,
+    sustainabilityInitiatives: ignoredSi,
+    shortDescription: ignoredSd,
+    airQuality: ignoredAq,
+    internetSpeed: ignoredIs,
+    costOfLiving: ignoredCl,
+    climate: ignoredClimate,
+    safety: ignoredSafety,
+    walkability: ignoredWalk,
     ...rest
   } = detail;
   return { ...rest };
