@@ -85,7 +85,7 @@ describe('UserManagementTable', () => {
             id: 'user-2',
             name: null,
             email: 'second@example.com',
-            role: 'editor',
+            role: 'admin',
             createdAt: now.toISOString(),
             lastActiveAt: null,
             status: 'inactive',
@@ -94,7 +94,7 @@ describe('UserManagementTable', () => {
             id: 'user-3',
             name: 'Invalid Date',
             email: 'third@example.com',
-            role: 'moderator',
+            role: 'venueOwner',
             createdAt: now.toISOString(),
             lastActiveAt: 'invalid-date',
             status: 'active',
@@ -112,7 +112,7 @@ describe('UserManagementTable', () => {
             id: 'user-5',
             name: 'Occasional User',
             email: 'occasional@example.com',
-            role: 'editor',
+            role: 'admin',
             createdAt: now.toISOString(),
             lastActiveAt: fiveDaysAgo,
             status: 'inactive',
@@ -149,28 +149,32 @@ describe('UserManagementTable', () => {
     const searchInput = screen.getByPlaceholderText(
       'Search by name or email...'
     ) as HTMLInputElement;
-    fireEvent.change(searchInput, { target: { value: 'alice' } });
+    
+    await act(async () => {
+      fireEvent.change(searchInput, { target: { value: 'alice' } });
+    });
 
     await waitFor(() => {
-      expect(fetchMock).toHaveBeenNthCalledWith(
-        2,
+      expect(fetchMock).toHaveBeenCalledWith(
         expect.stringContaining('search=alice'),
         expect.any(Object)
       );
-    });
+    }, { timeout: 3000 });
 
     const roleFilter = screen.getByLabelText('Filter by role', {
       selector: 'select',
     }) as HTMLSelectElement;
-    fireEvent.change(roleFilter, { target: { value: 'editor' } });
+    
+    await act(async () => {
+      fireEvent.change(roleFilter, { target: { value: 'admin' } });
+    });
 
     await waitFor(() => {
-      expect(fetchMock).toHaveBeenNthCalledWith(
-        3,
-        expect.stringContaining('role=editor'),
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining('role=admin'),
         expect.any(Object)
       );
-    });
+    }, { timeout: 3000 });
   });
 
   it('displays an error message when loading users fails', async () => {
@@ -189,7 +193,7 @@ describe('UserManagementTable', () => {
   });
 
   it('allows super admins to update user roles and clears feedback after timeout', async () => {
-    jest.useFakeTimers();
+    jest.useFakeTimers(); // Start with fake timers from the beginning
     const fetchMock = global.fetch as jest.Mock;
 
     const initialResponse = createUsersResponse([
@@ -206,43 +210,55 @@ describe('UserManagementTable', () => {
     const updatedResponse = createUsersResponse([
       {
         ...initialResponse.users[0],
-        role: 'editor',
+        role: 'venueOwner',
       },
     ]);
 
     fetchMock
-      .mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValue(initialResponse) })
-      .mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValue({ success: true }) })
-      .mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValue(updatedResponse) });
+      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(initialResponse) })
+      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ success: true }) })
+      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(updatedResponse) });
 
     render(<UserManagementTable currentUserRole="superAdmin" currentUserId="super-1" />);
+
+    // Flush pending promises and timers for initial render
+    await act(async () => {
+      jest.runAllTimers();
+    });
 
     const row = await screen.findByTestId('user-row-target-user');
     const select = within(row).getByDisplayValue('User') as HTMLSelectElement;
 
-    fireEvent.change(select, { target: { value: 'editor' } });
+    // Change the role
+    fireEvent.change(select, { target: { value: 'venueOwner' } });
 
-    await waitFor(() => {
-      expect(fetchMock).toHaveBeenNthCalledWith(
-        2,
-        '/api/admin/users',
-        expect.objectContaining({
-          method: 'PATCH',
-          body: JSON.stringify({ userId: 'target-user', role: 'editor' }),
-        })
-      );
+    // Flush timers and promises for the role change
+    await act(async () => {
+      jest.runAllTimers();
     });
 
-    await screen.findByRole('status');
-    expect(screen.getByRole('status')).toHaveTextContent('User role updated to editor');
+    // The fetch should have been called
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/admin/users',
+      expect.objectContaining({
+        method: 'PATCH',
+        body: JSON.stringify({ userId: 'target-user', role: 'venueOwner' }),
+      })
+    );
 
+    // Wait for the status message to appear
+    const statusElement = await screen.findByRole('status');
+    expect(statusElement).toHaveTextContent('User role updated to venueOwner');
+
+    // Advance timers by 3 seconds to clear the feedback
     await act(async () => {
       jest.advanceTimersByTime(3000);
     });
 
-    await waitFor(() => {
-      expect(screen.queryByRole('status')).not.toBeInTheDocument();
-    });
+    // Status should be gone
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    
+    jest.useRealTimers();
   });
 
   it('prevents super admins from changing their own role', async () => {

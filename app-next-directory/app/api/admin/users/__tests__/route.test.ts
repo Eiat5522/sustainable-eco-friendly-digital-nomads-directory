@@ -223,7 +223,7 @@ describe('/api/admin/users', () => {
         Promise.resolve({
           userId: 'user-123',
           role: 'user',
-          status: 'inactive',
+          status: 'suspended', // Changed from 'inactive' to valid status
         }),
       headers: new Headers(),
     };
@@ -238,7 +238,7 @@ describe('/api/admin/users', () => {
     });
 
     expect(mockUpdateUserRole).toHaveBeenCalledWith('user-123', 'user');
-    expect(mockUpdateUserStatus).toHaveBeenCalledWith('user-123', 'inactive');
+    expect(mockUpdateUserStatus).toHaveBeenCalledWith('user-123', 'suspended');
   });
 
   it('handles errors when updating users', async () => {
@@ -246,7 +246,7 @@ describe('/api/admin/users', () => {
     mockUpdateUserStatus.mockRejectedValueOnce(new Error('update failed'));
 
     const request = {
-      json: () => Promise.resolve({ userId: 'user-1', status: 'inactive' }),
+      json: () => Promise.resolve({ userId: 'user-1', status: 'suspended' }), // Changed from 'inactive' to valid status
       headers: new Headers(),
     } as any;
 
