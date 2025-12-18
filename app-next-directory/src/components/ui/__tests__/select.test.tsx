@@ -48,8 +48,14 @@ jest.mock('@radix-ui/react-select', () => ({
       {children}
     </div>
   )),
-  Item: jest.fn(({ children, ...props }) => (
-    <div data-testid="select-item" {...props}>
+  Item: jest.fn(({ children, disabled, ...props }) => (
+    <div
+      data-testid="select-item"
+      role="option"
+      aria-disabled={disabled || undefined}
+      data-disabled={disabled ? '' : undefined}
+      {...props}
+    >
       {children}
     </div>
   )),
@@ -379,7 +385,8 @@ describe('Select Components', () => {
       );
 
       const item = screen.getByTestId('select-item');
-      expect(item).toBeDisabled();
+      expect(item).toHaveAttribute('aria-disabled', 'true');
+      expect(item).toHaveAttribute('data-disabled');
     });
   });
 
