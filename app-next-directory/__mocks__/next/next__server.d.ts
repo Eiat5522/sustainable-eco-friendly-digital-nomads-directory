@@ -1,16 +1,16 @@
 // Match the import path used in tests
 declare module '../../../../__mocks__/next/server' {
-  export function createMocks(options: any): { req: MockNextRequest; res: any };
+  export function createMocks(_options: unknown): { req: MockNextRequest; res: unknown };
   export class MockNextRequest {
-    constructor(options: { method: string; json?: any });
+    constructor(_options: { method: string; json?: unknown });
     method: string;
-    json(): Promise<any>;
+    json(): Promise<unknown>;
   }
   export class MockNextResponse {
-    constructor(body: string, init?: { status?: number; headers?: Record<string, string> });
+    constructor(body: string, _init?: { status?: number; headers?: Record<string, string> });
     body: string;
     status: number;
     headers: Record<string, string>;
-    json(): Promise<any>;
+    json(): Promise<unknown>;
   }
 }

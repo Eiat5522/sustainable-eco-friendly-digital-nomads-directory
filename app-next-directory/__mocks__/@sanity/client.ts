@@ -38,7 +38,7 @@ const mapListingToSanity = (slug: string | undefined) => {
   };
 };
 
-const fetch = jest.fn(async (query: string, params: Record<string, any> = {}) => {
+const fetch = jest.fn(async (query: string, params: Record<string, unknown> = {}) => {
   if (/_type\s*==\s*"userFavorite"/.test(query)) {
     const userId = params.userId ?? data.users[0]?.id;
     const favorites = getFavoritesForUser(userId);
@@ -132,7 +132,7 @@ const fetch = jest.fn(async (query: string, params: Record<string, any> = {}) =>
 });
 
 // Real fetch function that makes HTTP requests (for MSW interception)
-const realFetch = async (query: string, params: Record<string, any> = {}) => {
+const realFetch = async (query: string, params: Record<string, unknown> = {}) => {
   const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'test-project';
   const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'test-dataset';
   const apiVersion = '2024-01-01';

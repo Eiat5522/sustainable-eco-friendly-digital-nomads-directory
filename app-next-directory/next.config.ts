@@ -53,7 +53,7 @@ const nextConfig: NextConfig = {
   // Webpack config for non-Turbopack builds only
   // Note: For SVG imports, use next-image or inline SVG components instead
   // This is only applied when not using Turbopack
-  webpack(config, { webpack }) {
+  webpack(config, _options) {
     // Ensure @ alias resolves to this app's src directory
     config.resolve = config.resolve || {};
     config.resolve.alias = {

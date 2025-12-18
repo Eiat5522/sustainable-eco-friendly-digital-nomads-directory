@@ -312,7 +312,7 @@ describe('SocialAuthRow', () => {
 
       await waitFor(() => {
         expect(googleButton).toBeDisabled();
-        expect(facebookButton).not.toBeDisabled();
+        expect(facebookButton).toBeEnabled();
       });
     });
 
@@ -339,7 +339,7 @@ describe('SocialAuthRow', () => {
 
       // After sign in completes, button should be re-enabled (though user may navigate away)
       await waitFor(() => {
-        expect(button).not.toBeDisabled();
+        expect(button).toBeEnabled();
       });
     });
   });

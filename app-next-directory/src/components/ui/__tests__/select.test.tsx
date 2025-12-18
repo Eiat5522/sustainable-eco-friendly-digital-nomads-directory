@@ -202,7 +202,7 @@ describe('Select Components', () => {
       );
 
       const trigger = screen.getByTestId('select-trigger');
-      expect(trigger).toHaveAttribute('disabled');
+      expect(trigger).toBeDisabled();
       expect(trigger).toHaveAttribute('aria-label', 'Select option');
     });
   });
@@ -379,7 +379,7 @@ describe('Select Components', () => {
       );
 
       const item = screen.getByTestId('select-item');
-      expect(item).toHaveAttribute('disabled');
+      expect(item).toBeDisabled();
     });
   });
 

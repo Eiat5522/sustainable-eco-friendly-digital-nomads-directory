@@ -17,29 +17,29 @@ const mockRedisClient = {
 };
 
 // Track the current client so subscribers receive the current state
-let currentClient: any = mockRedisClient;
+let currentClient: typeof mockRedisClient | undefined = mockRedisClient;
 
 // Listener registry for onRedisClientChange
-const listeners: Set<(client: any) => void> = new Set();
+const listeners: Set<(client: typeof mockRedisClient | undefined) => void> = new Set();
 
-export function onRedisClientChange(fn: (client: any) => void) {
+export function onRedisClientChange(fn: (client: typeof mockRedisClient | undefined) => void) {
   listeners.add(fn);
   // Immediately notify subscriber of current client to match runtime behaviour
   try {
     fn(currentClient);
-  } catch (e) {
+  } catch (_e) {
     // best-effort
   }
 
   return () => listeners.delete(fn);
 }
 
-export function _notifyRedisClientChange(client: any) {
+export function _notifyRedisClientChange(client: typeof mockRedisClient | undefined) {
   currentClient = client;
   for (const l of Array.from(listeners)) {
     try {
       l(client);
-    } catch (e) {
+    } catch (_e) {
       // Listener errors should not break the emitter
     }
   }
@@ -47,13 +47,23 @@ export function _notifyRedisClientChange(client: any) {
 
 export const getRedisClient = jest.fn<() => typeof mockRedisClient>(() => mockRedisClient);
 
+// Type-safe mock helpers
+interface MockFunctionExtensions {
+  mockClear: () => void;
+  mockResetClient: () => void;
+  mockClearAndReset: () => void;
+}
+
+// Extend the jest function type
+type ExtendedMockFunction = typeof getRedisClient & MockFunctionExtensions;
+
 // Provide test helper shims so tests can call mockGetRedisClient.mockClear()
 // and friends on the exported function. These helpers also update the
 // `currentClient` and notify listeners to mimic the real `src/lib/redis.ts`.
-(getRedisClient as any).mockClear = () => {
+const mockClear = () => {
   // Only clear recorded calls to align with Jest's mockClear semantics in our shim
   // Do not alter implementation or notify listeners here.
-  (getRedisClient as any).mock.calls = [];
+  getRedisClient.mock.calls = [];
 };
 
 /**
@@ -63,31 +73,30 @@ export const getRedisClient = jest.fn<() => typeof mockRedisClient>(() => mockRe
  *
  * Use mockClear for normal test isolation. Use mockResetClient if you need to simulate client disconnect/reset.
  */
-(getRedisClient as any).mockClear = () => {
+const mockResetClient = () => {
   // Only clear recorded calls to align with Jest's mockClear semantics in our shim
-  (getRedisClient as any).mock.calls = [];
+  getRedisClient.mock.calls = [];
 };
-
-(getRedisClient as any).mockResetClient = () => {
-  (getRedisClient as any).mockImplementation(() => undefined);
-  _notifyRedisClientChange(undefined);
-  listeners.clear();
-  // Optionally, reset internal mock implementations on the mock client if needed
-};
-
-// Alias for legacy usage
-(getRedisClient as any).mockClearAndReset = (getRedisClient as any).mockResetClient;
 
 // Provide an explicit, lighter reset that only changes the return implementation
 // and notifies listeners, without clearing other internal mocks or listeners.
 // This allows tests to opt-in to resetting the client state without the side effects
 // previously bundled into mockClear.
-(getRedisClient as any).mockResetClient = () => {
+const mockResetClientLight = () => {
   (getRedisClient as any).mockImplementation(() => undefined);
   _notifyRedisClientChange(undefined);
 };
 
 // Back-compat alias with a descriptive name if tests expect a combined action
-(getRedisClient as any).mockClearAndReset = (getRedisClient as any).mockResetClient;
+const mockClearAndReset = mockResetClientLight;
+
+// Apply the extensions
+const extendedGetRedisClient = getRedisClient as ExtendedMockFunction;
+extendedGetRedisClient.mockClear = mockClear;
+extendedGetRedisClient.mockResetClient = mockResetClientLight;
+extendedGetRedisClient.mockClearAndReset = mockClearAndReset;
+
+// Re-export with the extended interface
+export { mockClear, mockResetClient, mockClearAndReset };
 
 export default getRedisClient;

@@ -54,7 +54,7 @@ class SchemaMock {
           path: key,
           instance: this.getInstanceType(def),
           options: def?.options ?? def ?? {},
-          isRequired: !!(def && def.required),
+          isRequired: !!(def?.required),
           enumValues: def?.enum,
         };
       });
@@ -70,10 +70,10 @@ class SchemaMock {
     if (fieldDef.type === Date) return 'Date';
     if (
       fieldDef.type === ObjectIdMock ||
-      (fieldDef.type && (fieldDef.type as any).name === 'ObjectId')
+      (fieldDef.type && typeof fieldDef.type === 'object' && (fieldDef.type as { name?: string }).name === 'ObjectId')
     )
       return 'ObjectId';
-    if (Array.isArray((fieldDef as any).type)) return 'Array';
+    if (Array.isArray(fieldDef.type)) return 'Array';
     return 'Mixed';
   }
 
@@ -125,7 +125,7 @@ const createModelMock = (modelName: string, schema?: SchemaMock) => {
     const instance: Record<string, unknown> = { ...(doc || {}) };
     instance._id = instance._id || new ObjectIdMock();
     instance.isNew = true;
-    if (schema) (instance as any).schema = schema; // keep runtime shape for code that expects .schema
+    if (schema) Object.defineProperty(instance, 'schema', { value: schema, writable: true, configurable: true }); // keep runtime shape for code that expects .schema
 
     const _store: Record<string, unknown> = {};
 
@@ -231,9 +231,12 @@ const createModelMock = (modelName: string, schema?: SchemaMock) => {
       // ignore
     }
 
-    (instance as any).save = jest.fn<() => Promise<unknown>>().mockResolvedValue(instance);
-    (instance as any).validate = jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined);
-    (instance as any).isModified = jest.fn<() => boolean>(() => false);
+    // Add mock methods to the instance
+    Object.defineProperties(instance, {
+      save: { value: jest.fn<() => Promise<unknown>>().mockResolvedValue(instance), writable: true, configurable: true },
+      validate: { value: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined), writable: true, configurable: true },
+      isModified: { value: jest.fn<() => boolean>(() => false), writable: true, configurable: true }
+    });
 
     // Set the prototype to make `instanceof` checks work
     Object.setPrototypeOf(instance, modelMock.prototype);
@@ -242,16 +245,18 @@ const createModelMock = (modelName: string, schema?: SchemaMock) => {
   }
 
   // attach some runtime helpers that tests may use
-  (modelMock as any).modelName = modelName;
-  (modelMock as any).schema = schema;
-  (modelMock as any).findOne = jest.fn<() => Promise<unknown>>();
-  (modelMock as any).create = jest.fn<() => Promise<unknown>>();
-  (modelMock as any).findById = jest.fn<() => Promise<unknown>>();
-  (modelMock as any).findByIdAndUpdate = jest.fn<() => Promise<unknown>>();
-  (modelMock as any).updateOne = jest.fn<() => Promise<unknown>>();
-  (modelMock as any).exists = jest.fn<() => Promise<unknown>>();
-  (modelMock as any).find = jest.fn<() => Promise<unknown>>();
-  (modelMock as any).countDocuments = jest.fn<() => Promise<number>>();
+  Object.assign(modelMock, {
+    modelName,
+    schema,
+    findOne: jest.fn<() => Promise<unknown>>(),
+    create: jest.fn<() => Promise<unknown>>(),
+    findById: jest.fn<() => Promise<unknown>>(),
+    findByIdAndUpdate: jest.fn<() => Promise<unknown>>(),
+    updateOne: jest.fn<() => Promise<unknown>>(),
+    exists: jest.fn<() => Promise<unknown>>(),
+    find: jest.fn<() => Promise<unknown>>(),
+    countDocuments: jest.fn<() => Promise<number>>()
+  });
 
   return modelMock as unknown as (...args: unknown[]) => Record<string, unknown>;
 };

@@ -139,7 +139,7 @@ export const mockRedisClient = {
 };
 
 // Mock Redis class - returns the mock client instance
-export function Redis(config?: any) {
+export function Redis(_config?: unknown) {
   return mockRedisClient;
 }
 
