@@ -49,5 +49,12 @@
     "astGrep.configPath": "/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/sgconfig.yml",
     "astGrep.serverPath": "/home/eiat/.nvm/versions/node/v22.21.0/bin/typescript-language-server",
     "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
+  },
+  "extensions": {
+    "recommendations": [
+      "biomejs.biome",
+      "dbaeumer.vscode-eslint",
+      "prettier.prettier-vscode"
+    ]
   }
 }

@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Run linting checks before committing
+pnpm run lint:biome
+pnpm run lint
+
+# Run type checking
+pnpm run type-check

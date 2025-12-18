@@ -4,5 +4,6 @@
     "types": ["jest", "node"],
     "noEmit": true
   },
-  "include": ["./collector.test.ts"]
+  "include": ["./**/*.ts", "./**/*.tsx"],
+  "exclude": []
 }

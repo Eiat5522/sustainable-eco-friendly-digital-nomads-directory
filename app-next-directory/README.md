@@ -26,6 +26,59 @@ Key directories:
 - `src/lib/` – Integrations (Sanity, MongoDB, Redis), DTO transformers, and analytics services. 【F:app-next-directory/src/lib/sanity/client.ts†L1-L28】【F:app-next-directory/src/lib/dbConnect.ts†L1-L34】
 - `src/models/` – Mongoose models with comprehensive Jest coverage. 【F:app-next-directory/src/models/User.ts†L1-L43】
 
+## Code Quality & Linting
+
+This project maintains high code quality through a comprehensive linting and formatting setup using **ESLint**, **Prettier**, and **Biome**. The configuration ensures consistent code style, catches potential bugs, and enforces TypeScript best practices.
+
+### Linting Tools
+
+- **ESLint**: JavaScript/TypeScript linting with React and Next.js rules
+- **Prettier**: Code formatting for consistent style
+- **Biome**: Additional linting and formatting checks
+- **TypeScript**: Type checking via `tsc --noEmit`
+
+### Development Setup
+
+1. **Install Dependencies**
+   ```bash
+   pnpm install
+   ```
+
+2. **VSCode Extensions**
+   - ESLint, Prettier, and Biome extensions are recommended in workspace settings
+   - Extensions provide real-time linting and auto-fix capabilities
+
+3. **Run Linting Commands**
+   ```bash
+   pnpm lint          # Run ESLint (includes auto-fixes)
+   pnpm lint:strict   # Run ESLint with zero warnings allowed
+   pnpm format        # Run Biome formatting (writes changes)
+   pnpm format:check  # Check formatting without changes
+   pnpm lint:biome    # Run Biome linting
+   pnpm type-check    # Run TypeScript type checking
+   ```
+
+### Automated Quality Checks
+
+- **Pre-commit Hooks**: Husky runs linting on staged files before commits
+- **Lint-staged**: Automatically fixes and formats only changed files
+- **CI/CD**: GitHub Actions run comprehensive linting on every push/PR
+- **IDE Integration**: VSCode provides real-time feedback and auto-fixes
+
+### Configuration Files
+
+- `eslint.config.mjs` - ESLint rules and configurations
+- `.prettierrc` - Prettier formatting options
+- `.lintstagedrc.json` - Lint-staged file patterns
+- `package.json` - Linting scripts and dependencies
+
+### Best Practices
+
+- Commit messages trigger pre-commit hooks that may block commits with lint violations
+- Use `pnpm lint --fix` to auto-resolve most issues
+- Run `pnpm format` before committing to ensure consistent formatting
+- CI will fail if any linting issues are found in pull requests
+
 ## Documentation
 
 - Workspace documentation lives under [`docs/app-next-directory/`](../docs/app-next-directory/).
