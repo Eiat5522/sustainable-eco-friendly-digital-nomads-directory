@@ -120,7 +120,7 @@ describe('withPerformanceTracking', () => {
     Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', configurable: true });
     const fetchMock = jest.fn(() => Promise.resolve(undefined));
     global.fetch = fetchMock as unknown as typeof fetch;
-    const nowMock = setPerformanceSequence([100, 160.5]);
+    const nowMock = setPerformanceSequence([100, 100]); // Same values to get 0ms duration
     const Wrapped = withPerformanceTracking('Debuggable', BaseComponent);
 
     render(<Wrapped label="dev" />);
@@ -165,7 +165,7 @@ describe('withPerformanceTracking', () => {
         value: undefined,
       });
     }
-    const dateSpy = jest.spyOn(Date, 'now').mockReturnValueOnce(1_000).mockReturnValueOnce(1_080);
+    const dateSpy = jest.spyOn(Date, 'now').mockReturnValueOnce(1_000).mockReturnValueOnce(1_000); // Same value to get 0ms
     const Wrapped = withPerformanceTracking('NoPerf', BaseComponent);
 
     render(<Wrapped label="noop" />);
@@ -188,7 +188,7 @@ describe('withPerformanceTracking', () => {
     Object.defineProperty(process.env, 'NODE_ENV', { value: 'production', configurable: true });
     const fetchMock = jest.fn(() => Promise.resolve(undefined));
     global.fetch = fetchMock as unknown as typeof fetch;
-    const nowMock = setPerformanceSequence([10, 25, 41]);
+    const nowMock = setPerformanceSequence([10, 10, 10]); // All same values to get 0ms
     const Wrapped = withPerformanceTracking('ReRender', BaseComponent);
 
     const { rerender } = render(<Wrapped label="first" />);
@@ -210,7 +210,7 @@ describe('withPerformanceTracking', () => {
     Object.defineProperty(process.env, 'NODE_ENV', { value: 'production', configurable: true });
     const fetchMock = jest.fn(() => Promise.resolve(undefined));
     global.fetch = fetchMock as unknown as typeof fetch;
-    const nowMock = setPerformanceSequence([5, 8.2]);
+    const nowMock = setPerformanceSequence([5, 5]); // Same values to get 0ms
     const Wrapped = withPerformanceTracking('Silent', BaseComponent);
 
     render(<Wrapped label="prod" />);

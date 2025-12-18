@@ -17,6 +17,7 @@ type ListenerMap = Record<string, ((...args: any[]) => void) | undefined>;
 describe('instrumentation register', () => {
   const originalNextRuntime = process.env.NEXT_RUNTIME;
   const originalNodeEnv = process.env.NODE_ENV;
+  const originalE2E = process.env.E2E;
 
   let listeners: ListenerMap;
   let processOnSpy: jest.SpyInstance;
@@ -68,6 +69,7 @@ describe('instrumentation register', () => {
     consoleLogSpy.mockRestore();
     process.env.NEXT_RUNTIME = originalNextRuntime;
     process.env.NODE_ENV = originalNodeEnv;
+    process.env.E2E = originalE2E;
     resetInstrumentationForTests();
   });
 
@@ -160,6 +162,7 @@ describe('instrumentation register', () => {
 
   it('logs the failure context and exits the process for critical production errors', async () => {
     process.env.NODE_ENV = 'production';
+    process.env.E2E = '1'; // Skip strict validation in production
     await register();
 
     const exceptionHandler = listeners.uncaughtException;

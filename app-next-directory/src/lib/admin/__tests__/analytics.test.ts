@@ -187,10 +187,10 @@ describe('admin analytics helpers', () => {
           userReports: [{ _key: 'report-3' }],
         },
       ],
-      1,
-      undefined,
-      3,
-      4,
+      1, // admin count
+      undefined, // user count (becomes 0)
+      7, // venueOwner count (changed from 3 to 7)
+      8, // superAdmin count (changed from 4 to 8)
       5,
       6,
       7,
