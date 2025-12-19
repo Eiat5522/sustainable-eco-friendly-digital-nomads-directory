@@ -62,38 +62,64 @@ async function setupE2EDatabase() {
     // Seed test data
     console.log('🌱 Seeding test data...');
 
-    // Create a test user
-    const testUser = {
-      email: 'e2e-test@example.com',
-      name: 'E2E Test User',
-      password: '$2a$10$test.hash.for.Test123!@#SecurePassword', // Bcrypt hash
-      role: 'user',
-      emailVerified: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+    // Password hashes (bcrypt cost=10):
+    // TestSecurePass123! -> $2b$10$Iv8szMeMBMy9ccAn3w2fmeO4Er6mBngxBTWczfzCvHy79rHxXqtDO
+    // password123 -> $2b$10$yLvheTCz2tSBjfGEE2wZueQdJqcGTlCxNZJuGZYng3AlalOF6myNO
 
-    await db.collection('users').insertOne(testUser);
-    console.log('  - Created test user: e2e-test@example.com');
+    const testUsers = [
+      {
+        email: 'e2e-test@example.com',
+        name: 'E2E Test User',
+        password: '$2b$10$Iv8szMeMBMy9ccAn3w2fmeO4Er6mBngxBTWczfzCvHy79rHxXqtDO', // TestSecurePass123!
+        role: 'user',
+        status: 'active',
+        emailVerified: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        email: 'admin@example.com',
+        name: 'E2E Admin User',
+        password: '$2b$10$Iv8szMeMBMy9ccAn3w2fmeO4Er6mBngxBTWczfzCvHy79rHxXqtDO', // TestSecurePass123!
+        role: 'admin',
+        status: 'active',
+        emailVerified: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        email: 'venue@example.com',
+        name: 'E2E Venue Owner',
+        password: '$2b$10$Iv8szMeMBMy9ccAn3w2fmeO4Er6mBngxBTWczfzCvHy79rHxXqtDO', // TestSecurePass123!
+        role: 'venue_owner',
+        status: 'active',
+        emailVerified: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        email: 'user@example.com',
+        name: 'E2E Regular User',
+        password: '$2b$10$yLvheTCz2tSBjfGEE2wZueQdJqcGTlCxNZJuGZYng3AlalOF6myNO', // password123
+        role: 'user',
+        status: 'active',
+        emailVerified: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ];
 
-    // Create an admin test user
-    const adminUser = {
-      email: 'e2e-admin@example.com',
-      name: 'E2E Admin User',
-      password: '$2a$10$test.hash.for.Admin123!@#SecurePassword',
-      role: 'admin',
-      emailVerified: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    await db.collection('users').insertOne(adminUser);
-    console.log('  - Created admin user: e2e-admin@example.com');
+    for (const user of testUsers) {
+      await db.collection('users').insertOne(user);
+      console.log(`  - Created ${user.role} user: ${user.email}`);
+    }
 
     console.log('\n✨ E2E database setup complete!\n');
     console.log('Database:', DB_NAME);
-    console.log('Test User:', testUser.email);
-    console.log('Admin User:', adminUser.email);
+    console.log('Test users created:');
+    testUsers.forEach(u => {
+      console.log(`  - ${u.email} (role: ${u.role})`);
+    });
     console.log('');
   } catch (error) {
     console.error('❌ Error setting up E2E database:', error);
