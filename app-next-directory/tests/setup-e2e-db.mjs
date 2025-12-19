@@ -5,9 +5,15 @@
  * This script prepares the isolated E2E test environment:
  * 1. Cleans up any existing test data
  * 2. Seeds the database with test fixtures
- * 3. Creates test user accounts
+ * 3. Creates test user accounts with valid bcrypt hashes
  *
  * Run before E2E tests to ensure a clean, consistent state.
+ *
+ * Test Credentials (see tmp/playwright-local.env):
+ * - admin@example.com / TestSecurePass123! (admin role)
+ * - e2e-test@example.com / TestSecurePass123! (user role)
+ * - venue@example.com / TestSecurePass123! (venue_owner role)
+ * - user@example.com / password123 (user role)
  */
 
 import { MongoClient } from 'mongodb';

@@ -89,15 +89,29 @@ pnpm e2e:clean
 
 ## Test Users
 
-### Regular User
-- **Email**: `e2e-test@example.com`
-- **Password**: `Test123!@#SecurePassword`
-- **Role**: `user`
+The following test users are created by `tests/setup-e2e-db.mjs` with valid bcrypt-hashed passwords:
 
 ### Admin User
-- **Email**: `e2e-admin@example.com`
-- **Password**: `Admin123!@#SecurePassword`
+- **Email**: `admin@example.com`
+- **Password**: `TestSecurePass123!`
 - **Role**: `admin`
+
+### Regular User  
+- **Email**: `e2e-test@example.com`
+- **Password**: `TestSecurePass123!`
+- **Role**: `user`
+
+### Venue Owner
+- **Email**: `venue@example.com`
+- **Password**: `TestSecurePass123!`
+- **Role**: `venue_owner`
+
+### Additional Test User
+- **Email**: `user@example.com`
+- **Password**: `password123`
+- **Role**: `user`
+
+> **Note**: These credentials are configured in `tmp/playwright-local.env` via `E2E_ADMIN_EMAIL`, `E2E_USER_EMAIL`, etc.
 
 ## How It Works
 
