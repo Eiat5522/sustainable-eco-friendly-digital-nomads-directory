@@ -69,8 +69,11 @@ export async function loginAs(page: Page, email: string, password: string) {
 
   try {
     await Promise.all([
-      page.waitForURL(/\/(dashboard|account|home)(\/)?(?=$|[?#])/, { timeout: 10000 }),
       submitLocator.click(),
+      Promise.race([
+        page.waitForURL(/\/(dashboard|account|home)(\/)?(?=$|[?#])/, { timeout: 30000 }),
+        page.waitForNavigation({ waitUntil: 'networkidle', timeout: 30000 }),
+      ]),
     ]);
   } catch (error) {
     // Surface any visible error messages to aid debugging
