@@ -243,3 +243,4 @@ playwright-report-app-next.zip
 !app-next-directory/tmp/unit_test_output**
 !.github/chatmodes/**
 !app-next-directory/.github/chatmodes/**
+!e2e-output.txt

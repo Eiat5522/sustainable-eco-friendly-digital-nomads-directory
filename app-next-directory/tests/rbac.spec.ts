@@ -146,7 +146,7 @@ test.describe('Role-Based Access Control (RBAC)', () => {
       // Test that higher roles can perform lower role actions
       await page.goto('/login');
       await page.fill('input[name="email"]', 'admin@example.com');
-      await page.fill('input[name="password"]', 'password123');
+      await page.fill('input[name="password"]', 'TestSecurePass123!');
       await page.click('button[type="submit"]');
 
       // Admin should be able to do editor tasks

@@ -1,0 +1,221 @@
+Running 7 tests using 1 worker
+
+  ✘  1 ….spec.ts:8:5 › Admin Dashboard Integration › Access Control › regular user cannot access admin dashboard (1.5m)
+  ✓  2 …spec.ts:19:5 › Admin Dashboard Integration › Access Control › venue owner cannot access admin dashboard (27.9s)
+  ✓  3 …pec.ts:30:5 › Admin Dashboard Integration › Access Control › unauthenticated user is redirected to login (4.3s)
+  ✘  4 …5 › Admin Dashboard Integration › Admin Dashboard Functionality › loads simplified admin dashboard page (50.5s)
+  ✘  5 ….ts:54:5 › Admin Dashboard Integration › Admin Dashboard Functionality › displays admin navigation links (2.0m)
+  ✘  6 … Admin Dashboard Integration › Admin Dashboard Functionality › admin navigation links have correct hrefs (1.4m)
+  ✘  7 ….ts:68:5 › Admin Dashboard Integration › Admin Dashboard Functionality › page has proper SEO protection (26.7s)
+
+
+  1) [chromium] › tests/e2e/admin-dashboard.spec.ts:8:5 › Admin Dashboard Integration › Access Control › regular user cannot access admin dashboard
+
+    Test timeout of 60000ms exceeded.
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-admin-dashboard-Admin--9dfa7-nnot-access-admin-dashboard-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-admin-dashboard-Admin--9dfa7-nnot-access-admin-dashboard-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-admin-dashboard-Admin--9dfa7-nnot-access-admin-dashboard-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-admin-dashboard-Admin--9dfa7-nnot-access-admin-dashboard-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests/e2e/admin-dashboard.spec.ts:46:5 › Admin Dashboard Integration › Admin Dashboard Functionality
+› loads simplified admin dashboard page
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('admin-dashboard')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for getByTestId('admin-dashboard')
+        2 × waiting for" http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard" navigation to finish...
+          - navigated to "http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard"
+
+
+      45 |
+      46 |     test('loads simplified admin dashboard page', async ({ page }) => {
+    > 47 |       await expect(page.getByTestId('admin-dashboard')).toBeVisible({ timeout: 10000 });
+         |                                                         ^
+      48 |       await expect(page.getByTestId('admin-dashboard-title')).toHaveText('Admin Dashboard');
+      49 |       await expect(
+      50 |         page.getByText('The admin dashboard is temporarily simplified')
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/admin-dashboard.spec.ts:47:57
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-admin-dashboard-Admin--d0324-lified-admin-dashboard-page-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-admin-dashboard-Admin--d0324-lified-admin-dashboard-page-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-admin-dashboard-Admin--d0324-lified-admin-dashboard-page-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-admin-dashboard-Admin--d0324-lified-admin-dashboard-page-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › tests/e2e/admin-dashboard.spec.ts:54:5 › Admin Dashboard Integration › Admin Dashboard Functionality
+› displays admin navigation links
+
+    Test timeout of 60000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('link', { name: 'Manage Users' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('link', { name: 'Manage Users' })
+        - waiting for navigation to finish...
+        - navigated to "http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard"
+        - waiting for" http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard" navigation to finish...
+        - navigated to "http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard"
+
+
+      53 |
+      54 |     test('displays admin navigation links', async ({ page }) => {
+    > 55 |       await expect(page.getByRole('link', { name: 'Manage Users' })).toBeVisible();
+         |                                                                      ^
+      56 |       await expect(page.getByRole('link', { name: 'Manage Listings' })).toBeVisible();
+      57 |       await expect(page.getByRole('link', { name: 'Settings' })).toBeVisible();
+      58 |       await expect(page.getByRole('link', { name: 'Back to Site' })).toBeVisible();
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/admin-dashboard.spec.ts:55:70
+
+    Tearing down "context" exceeded the test timeout of 60000ms.
+
+    Error Context: test-results/e2e-admin-dashboard-Admin--ccc64-lays-admin-navigation-links-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-admin-dashboard-Admin--ccc64-lays-admin-navigation-links-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-admin-dashboard-Admin--ccc64-lays-admin-navigation-links-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [chromium] › tests/e2e/admin-dashboard.spec.ts:61:5 › Admin Dashboard Integration › Admin Dashboard Functionality
+› admin navigation links have correct hrefs
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('link', { name: 'Manage Users' })
+    Expected: "/admin/users"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" with timeout 5000ms
+      - waiting for getByRole('link', { name: 'Manage Users' })
+        - waiting for navigation to finish...
+        - navigated to "http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard"
+        - waiting for" http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard" navigation to finish...
+        - navigated to "http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard"
+
+
+      60 |
+      61 |     test('admin navigation links have correct hrefs', async ({ page }) => {
+    > 62 |       await expect(page.getByRole('link', { name: 'Manage Users' })).toHaveAttribute('href', '/admin/users');
+         |                                                                      ^
+      63 |       await expect(page.getByRole('link', { name: 'Manage Listings' })).toHaveAttribute('href', '/admin/listings');
+      64 |       await expect(page.getByRole('link', { name: 'Settings' })).toHaveAttribute('href', '/admin/settings');
+      65 |       await expect(page.getByRole('link', { name: 'Back to Site' })).toHaveAttribute('href', '/');
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/admin-dashboard.spec.ts:62:70
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-admin-dashboard-Admin--6b589-on-links-have-correct-hrefs-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-admin-dashboard-Admin--6b589-on-links-have-correct-hrefs-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-admin-dashboard-Admin--6b589-on-links-have-correct-hrefs-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-admin-dashboard-Admin--6b589-on-links-have-correct-hrefs-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [chromium] › tests/e2e/admin-dashboard.spec.ts:68:5 › Admin Dashboard Integration › Admin Dashboard Functionality
+› page has proper SEO protection
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('meta[name="robots"]')
+    Expected: "noindex, nofollow"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" with timeout 5000ms
+      - waiting for locator('meta[name="robots"]')
+        - waiting for" http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard" navigation to finish...
+        2 × navigated to "http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard"
+          - waiting for" http://localhost:3000/admin/dashboard" navigation to finish...
+        - navigated to "http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard"
+        - waiting for" http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard" navigation to finish...
+        - navigated to "http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard"
+
+
+      68 |     test('page has proper SEO protection', async ({ page }) => {
+      69 |       const robotsMeta = page.locator('meta[name="robots"]');
+    > 70 |       await expect(robotsMeta).toHaveAttribute('content', 'noindex, nofollow');
+         |                                ^
+      71 |     });
+      72 |   });
+      73 | });
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/admin-dashboard.spec.ts:70:32
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-admin-dashboard-Admin--eacb3-e-has-proper-SEO-protection-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-admin-dashboard-Admin--eacb3-e-has-proper-SEO-protection-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-admin-dashboard-Admin--eacb3-e-has-proper-SEO-protection-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    [chromium] › tests/e2e/admin-dashboard.spec.ts:8:5 › Admin Dashboard Integration › Access Control › regular user cannot access admin dashboard
+    [chromium] › tests/e2e/admin-dashboard.spec.ts:46:5 › Admin Dashboard Integration › Admin Dashboard Functionality › loads simplified admin dashboard page
+    [chromium] › tests/e2e/admin-dashboard.spec.ts:54:5 › Admin Dashboard Integration › Admin Dashboard Functionality › displays admin navigation links
+    [chromium] › tests/e2e/admin-dashboard.spec.ts:61:5 › Admin Dashboard Integration › Admin Dashboard Functionality › admin navigation links have correct hrefs
+    [chromium] › tests/e2e/admin-dashboard.spec.ts:68:5 › Admin Dashboard Integration › Admin Dashboard Functionality › page has proper SEO protection
+  2 passed (11.8m)
+Error in reporter Error: EACCES: permission denied, copyfile '/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/playwright-core@1.56.1/node_modules/playwright-core/lib/vite/traceViewer/codeMirrorModule.C3UTv-Ge.css' -> '/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/playwright-report/trace/codeMirrorModule.C3UTv-Ge.css'
+    at Object.copyFile (node:internal/fs/promises:623:10)
+    at copyFileAndMakeWritable (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/playwright-core@1.56.1/node_modules/playwright-core/lib/server/utils/fileUtils.js:66:3)
+    at HtmlBuilder.build (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/playwright@1.56.1/node_modules/playwright/lib/reporters/html.js:306:9)
+    at HtmlReporter.onEnd (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/playwright@1.56.1/node_modules/playwright/lib/reporters/html.js:127:25)
+    at wrapAsync (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/playwright@1.56.1/node_modules/playwright/lib/reporters/multiplexer.js:89:12)
+    at Multiplexer.onEnd (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/playwright@1.56.1/node_modules/playwright/lib/reporters/multiplexer.js:57:25)
+    at InternalReporter.onEnd (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/playwright@1.56.1/node_modules/playwright/lib/reporters/internalReporter.js:76:12)
+    at finishTaskRun (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/playwright@1.56.1/node_modules/playwright/lib/runner/tasks.js:94:26)
+    at runTasks (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/playwright@1.56.1/node_modules/playwright/lib/runner/tasks.js:81:10)
+    at runAllTestsWithConfig (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/playwright@1.56.1/node_modules/playwright/lib/runner/testRunner.js:380:18)
+    at runTests (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/playwright@1.56.1/node_modules/playwright/lib/program.js:251:18)
+    at i.<anonymous> (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/playwright@1.56.1/node_modules/playwright/lib/program.js:71:7) {
+  errno: -13,
+  code: 'EACCES',
+  syscall: 'copyfile',
+  path: '/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/playwright-core@1.56.1/node_modules/playwright-core/lib/vite/traceViewer/codeMirrorModule.C3UTv-Ge.css',
+  dest: '/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/playwright-report/trace/codeMirrorModule.C3UTv-Ge.css'
+}

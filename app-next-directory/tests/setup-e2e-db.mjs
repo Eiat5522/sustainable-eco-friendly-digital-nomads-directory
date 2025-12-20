@@ -13,7 +13,7 @@
  * - admin@example.com / TestSecurePass123! (admin role)
  * - e2e-test@example.com / TestSecurePass123! (user role)
  * - venue@example.com / TestSecurePass123! (venue_owner role)
- * - user@example.com / password123 (user role)
+ * - user@example.com / TestSecurePass123! (user role)
  */
 
 import { MongoClient } from 'mongodb';
@@ -70,8 +70,6 @@ async function setupE2EDatabase() {
 
     // Password hashes (bcrypt cost=10):
     // TestSecurePass123! -> $2b$10$Iv8szMeMBMy9ccAn3w2fmeO4Er6mBngxBTWczfzCvHy79rHxXqtDO
-    // password123 -> $2b$10$yLvheTCz2tSBjfGEE2wZueQdJqcGTlCxNZJuGZYng3AlalOF6myNO
-
     const testUsers = [
       {
         email: 'e2e-test@example.com',
@@ -106,7 +104,7 @@ async function setupE2EDatabase() {
       {
         email: 'user@example.com',
         name: 'E2E Regular User',
-        password: '$2b$10$yLvheTCz2tSBjfGEE2wZueQdJqcGTlCxNZJuGZYng3AlalOF6myNO', // password123
+        password: '$2b$10$Iv8szMeMBMy9ccAn3w2fmeO4Er6mBngxBTWczfzCvHy79rHxXqtDO', // TestSecurePass123!
         role: 'user',
         status: 'active',
         emailVerified: new Date(),

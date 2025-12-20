@@ -21,7 +21,7 @@ setup('create test users', async ({ request }) => {
     data: {
       name: 'Admin User',
       email: 'admin@example.com',
-      password: 'password123',
+      password: 'TestSecurePass123!',
       role: 'admin',
     },
   });
@@ -31,7 +31,7 @@ setup('create test users', async ({ request }) => {
     data: {
       name: 'Editor User',
       email: 'editor@example.com',
-      password: 'password123',
+      password: 'TestSecurePass123!',
       role: 'editor',
     },
   });
@@ -71,7 +71,7 @@ setup('authenticate admin', async ({ page }) => {
   await page.goto('/login');
   await page.waitForSelector('#email', { timeout: 5000 });
   await page.fill('#email', 'admin@example.com');
-  await page.fill('#password', 'password123');
+  await page.fill('#password', 'TestSecurePass123!');
   await page.click('button[type="submit"]');
 
   try {
@@ -88,7 +88,7 @@ setup('authenticate editor', async ({ page }) => {
   await page.goto('/login');
   await page.waitForSelector('#email', { timeout: 5000 });
   await page.fill('#email', 'editor@example.com');
-  await page.fill('#password', 'password123');
+  await page.fill('#password', 'TestSecurePass123!');
   await page.click('button[type="submit"]');
 
   try {

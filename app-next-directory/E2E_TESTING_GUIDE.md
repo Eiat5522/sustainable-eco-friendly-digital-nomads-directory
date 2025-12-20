@@ -2,6 +2,7 @@
 
 ## Overview
 This project uses **completely isolated E2E testing** to ensure:
+
 - ✅ No interference with development or production data
 - ✅ Consistent, repeatable test results
 - ✅ Safe to run locally and in CI/CD

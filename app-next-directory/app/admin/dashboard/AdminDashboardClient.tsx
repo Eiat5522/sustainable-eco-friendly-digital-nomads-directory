@@ -4,9 +4,9 @@ import Link from 'next/link';
 
 export default function AdminDashboardClient() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100" data-testid="admin-dashboard">
       <div className="p-8 bg-white shadow-md rounded-lg text-center max-w-2xl">
-        <h1 className="text-2xl font-semibold text-gray-800 mb-4">Admin Dashboard</h1>
+        <h1 className="text-2xl font-semibold text-gray-800 mb-4" data-testid="admin-dashboard-title">Admin Dashboard</h1>
         <p className="text-gray-600 mb-4">
           The admin dashboard is temporarily simplified during the Next.js 16 Cache Components
           migration.

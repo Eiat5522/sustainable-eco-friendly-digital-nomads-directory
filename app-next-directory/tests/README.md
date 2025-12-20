@@ -198,10 +198,10 @@ Call `getTestData()` when you need a fresh clone of the dataset, or read from th
 
 | Role | Email | Password | Description |
 | --- | --- | --- | --- |
-| Customer | `user@example.com` | `password123` | Standard browsing account used for public flows |
-| Venue Owner | `venue@example.com` | `password123` | Business owner profile with listing management access |
-| Editor | `editor@example.com` | `password123` | Content editor responsible for publishing reviews |
-| Admin | `admin@example.com` | `password123` | Administrator with elevated management capabilities |
+| Customer | `user@example.com` | `TestSecurePass123!` | Standard browsing account used for public flows |
+| Venue Owner | `venue@example.com` | `TestSecurePass123!` | Business owner profile with listing management access |
+| Editor | `editor@example.com` | `TestSecurePass123!` | Content editor responsible for publishing reviews |
+| Admin | `admin@example.com` | `TestSecurePass123!` | Administrator with elevated management capabilities |
 
 ## Writing Tests
 

@@ -161,7 +161,7 @@ test.describe('Authentication System', () => {
       // Login as regular user
       await page.goto('/login');
       await page.fill('input[name="email"]', 'user@example.com');
-      await page.fill('input[name="password"]', 'password123');
+      await page.fill('input[name="password"]', 'TestSecurePass123!');
       await page.click('button[type="submit"]');
 
       // Try to access admin route
@@ -175,7 +175,7 @@ test.describe('Authentication System', () => {
       // Login as admin user
       await page.goto('/login');
       await page.fill('input[name="email"]', 'admin@example.com');
-      await page.fill('input[name="password"]', 'password123');
+      await page.fill('input[name="password"]', 'TestSecurePass123!');
       await page.click('button[type="submit"]');
 
       // Access admin route
