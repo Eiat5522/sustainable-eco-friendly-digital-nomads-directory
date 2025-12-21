@@ -173,7 +173,7 @@ describe('withAuthMatrix', () => {
 
       expect(response.status).toBe(307); // Redirect status
       const location = response.headers.get('location');
-      expect(location).toContain('/auth/signin');
+      expect(location).toContain('/auth/login');
       expect(location).toContain('callbackUrl');
     });
 
@@ -431,7 +431,7 @@ describe('withMinimumRole', () => {
 
       expect(response.status).toBe(307);
       const location = response.headers.get('location');
-      expect(location).toContain('/auth/signin');
+      expect(location).toContain('/auth/login');
     });
 
     it('allows unauthenticated access for public pages', async () => {
@@ -540,7 +540,7 @@ describe('withAuth (legacy)', () => {
 
     expect(response.status).toBe(307);
     const location = response.headers.get('location');
-    expect(location).toContain('/auth/signin');
+    expect(location).toContain('/auth/login');
   });
 
   it('redirects when user role is not in required roles', async () => {

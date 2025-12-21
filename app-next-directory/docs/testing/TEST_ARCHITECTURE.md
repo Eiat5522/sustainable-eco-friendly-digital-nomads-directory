@@ -455,7 +455,7 @@ tests/utils/
 ```typescript
 export async function loginAsUser(page: Page, role: string) {
   const credentials = getTestCredentials(role);
-  await page.goto('/auth/signin');
+  await page.goto('/auth/login');
   await page.fill('[name="email"]', credentials.email);
   await page.fill('[name="password"]', credentials.password);
   await page.click('[type="submit"]');

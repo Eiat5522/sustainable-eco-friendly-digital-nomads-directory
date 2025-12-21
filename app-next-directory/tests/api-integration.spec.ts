@@ -79,7 +79,7 @@ test.describe('API Integration Testing - Workstream E.1', () => {
       const response = await request.get(`${BASE_URL}/api/user/profile`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
-          Cookie: 'next-auth.session-token=' + authToken, // Adjust for NextAuth
+          Cookie: 'authjs.session-token=' + authToken, // Adjust for NextAuth
         },
       });
 
@@ -101,7 +101,7 @@ test.describe('API Integration Testing - Workstream E.1', () => {
         data: updateData,
         headers: {
           Authorization: `Bearer ${authToken}`,
-          Cookie: 'next-auth.session-token=' + authToken,
+          Cookie: 'authjs.session-token=' + authToken,
         },
       });
 
@@ -126,7 +126,7 @@ test.describe('API Integration Testing - Workstream E.1', () => {
       const response = await request.get(`${BASE_URL}/api/user/dashboard`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
-          Cookie: 'next-auth.session-token=' + authToken,
+          Cookie: 'authjs.session-token=' + authToken,
         },
       });
 
@@ -147,7 +147,7 @@ test.describe('API Integration Testing - Workstream E.1', () => {
       const response = await request.get(`${BASE_URL}/api/user/favorites`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
-          Cookie: 'next-auth.session-token=' + authToken,
+          Cookie: 'authjs.session-token=' + authToken,
         },
       });
 
@@ -162,7 +162,7 @@ test.describe('API Integration Testing - Workstream E.1', () => {
         data: { listingId: 'test-listing-id' },
         headers: {
           Authorization: `Bearer ${authToken}`,
-          Cookie: 'next-auth.session-token=' + authToken,
+          Cookie: 'authjs.session-token=' + authToken,
         },
       });
 
@@ -177,7 +177,7 @@ test.describe('API Integration Testing - Workstream E.1', () => {
       const response = await request.delete(`${BASE_URL}/api/user/favorites/${listingSlug}`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
-          Cookie: 'next-auth.session-token=' + authToken,
+          Cookie: 'authjs.session-token=' + authToken,
         },
       });
 
@@ -191,7 +191,7 @@ test.describe('API Integration Testing - Workstream E.1', () => {
       const response = await request.get(`${BASE_URL}/api/user/preferences`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
-          Cookie: 'next-auth.session-token=' + authToken,
+          Cookie: 'authjs.session-token=' + authToken,
         },
       });
 
@@ -219,7 +219,7 @@ test.describe('API Integration Testing - Workstream E.1', () => {
         data: { preferences: newPreferences },
         headers: {
           Authorization: `Bearer ${authToken}`,
-          Cookie: 'next-auth.session-token=' + authToken,
+          Cookie: 'authjs.session-token=' + authToken,
         },
       });
 
@@ -232,7 +232,7 @@ test.describe('API Integration Testing - Workstream E.1', () => {
       const response = await request.get(`${BASE_URL}/api/user/analytics?timeRange=30d`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
-          Cookie: 'next-auth.session-token=' + authToken,
+          Cookie: 'authjs.session-token=' + authToken,
         },
       });
 
@@ -257,7 +257,7 @@ test.describe('API Integration Testing - Workstream E.1', () => {
         data: analyticsData,
         headers: {
           Authorization: `Bearer ${authToken}`,
-          Cookie: 'next-auth.session-token=' + authToken,
+          Cookie: 'authjs.session-token=' + authToken,
         },
       });
 
@@ -466,7 +466,7 @@ test.describe('API Integration Testing - Workstream E.1', () => {
         data: searchData,
         headers: {
           Authorization: `Bearer ${authToken}`,
-          Cookie: 'next-auth.session-token=' + authToken,
+          Cookie: 'authjs.session-token=' + authToken,
         },
       });
 
@@ -517,7 +517,7 @@ test.describe('API Integration Testing - Workstream E.1', () => {
         data: reviewData,
         headers: {
           Authorization: `Bearer ${authToken}`,
-          Cookie: 'next-auth.session-token=' + authToken,
+          Cookie: 'authjs.session-token=' + authToken,
         },
       });
 
@@ -549,7 +549,7 @@ test.describe('API Integration Testing - Workstream E.1', () => {
         },
         headers: {
           Authorization: `Bearer ${authToken}`,
-          Cookie: 'next-auth.session-token=' + authToken,
+          Cookie: 'authjs.session-token=' + authToken,
         },
       });
 
@@ -561,7 +561,7 @@ test.describe('API Integration Testing - Workstream E.1', () => {
       const response = await request.post(`${BASE_URL}/api/reviews/test-review-id/helpful`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
-          Cookie: 'next-auth.session-token=' + authToken,
+          Cookie: 'authjs.session-token=' + authToken,
         },
       });
 
@@ -803,11 +803,11 @@ test.describe('API Integration Testing - Workstream E.1', () => {
         await expect(page.locator('[data-testid="signup-success"]')).toBeVisible();
 
         // Verify redirect or next step
-        await page.waitForURL('**/auth/signin**');
+        await page.waitForURL('**/auth/login**');
       });
 
       test('Login flow: form → API → dashboard redirect', async ({ page }) => {
-        await page.goto(`${BASE_URL}/auth/signin`);
+        await page.goto(`${BASE_URL}/auth/login`);
 
         // Fill login form
         await page.fill('[data-testid="signin-email"]', testUser.email);
@@ -836,7 +836,7 @@ test.describe('API Integration Testing - Workstream E.1', () => {
     test.describe('User Dashboard Integration', () => {
       test.beforeEach(async ({ page }) => {
         // Login first
-        await page.goto(`${BASE_URL}/auth/signin`);
+        await page.goto(`${BASE_URL}/auth/login`);
         await page.fill('[data-testid="signin-email"]', testUser.email);
         await page.fill('[data-testid="signin-password"]', testUser.password);
         await page.click('[data-testid="signin-submit"]');

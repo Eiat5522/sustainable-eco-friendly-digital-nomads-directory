@@ -25,17 +25,17 @@ test.describe('Listing detail media & fallbacks', () => {
 
     const firstImage = lightbox.locator('img[alt="Preview 1"]');
     await expect(firstImage).toBeVisible();
-    await expect(firstImage).toHaveAttribute('src', /gallery-1\.svg/);
+    await expect(firstImage).toHaveAttribute('src', /test-images\/gallery-1\.svg/);
 
     await page.getByLabel('Next image').click();
 
     const secondImage = lightbox.locator('img[alt="Preview 2"]');
     await expect(secondImage).toBeVisible();
-    await expect(secondImage).toHaveAttribute('src', /gallery-2\.svg/);
+    await expect(secondImage).toHaveAttribute('src', /test-images\/gallery-2\.svg/);
 
     await page.getByLabel('Previous image').click();
     await expect(firstImage).toBeVisible();
-    await expect(firstImage).toHaveAttribute('src', /gallery-1\.svg/);
+    await expect(firstImage).toHaveAttribute('src', /test-images\/gallery-1\.svg/);
 
     await page.getByLabel('Close preview').click();
     await expect(lightbox).not.toBeVisible();

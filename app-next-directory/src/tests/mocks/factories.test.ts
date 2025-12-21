@@ -9,9 +9,9 @@ import { makeMockNextResponse, makeMockRequest, makeMockResponse } from './facto
 describe('Mock Factories', () => {
   describe('makeMockRequest', () => {
     it('should create a mock request with correct pathname', () => {
-      const mockRequest = makeMockRequest('/auth/signin');
+      const mockRequest = makeMockRequest('/auth/login');
 
-      expect(mockRequest.nextUrl.pathname).toBe('/auth/signin');
+      expect(mockRequest.nextUrl.pathname).toBe('/auth/login');
     });
 
     it('should create a mock request with full URL', () => {
@@ -169,7 +169,7 @@ describe('Mock Factories', () => {
     it('should return mock response from redirect', () => {
       const mockNextResponse = makeMockNextResponse();
 
-      const result = mockNextResponse.redirect('/auth/signin');
+      const result = mockNextResponse.redirect('/auth/login');
 
       expect(result.headers).toBeDefined();
       expect(result.headers.set).toBeDefined();

@@ -44,8 +44,6 @@
     "lint:biome:fix": "cd .. && biome lint --write .",
     "lint": "eslint .",
     "lint:strict": "eslint --max-warning=0 .",
-    "test:visual": "pnpm exec percy exec -- pnpm exec playwright test tests/visual",
-    "test:bs": "pnpm exec playwright test --config=playwright.browserstack.config.ts",
     "e2e:setup": "node tests/setup-e2e-db.mjs",
     "e2e:clean": "node tests/setup-e2e-db.mjs",
     "test:e2e:isolated": "pnpm e2e:setup && pnpm test:e2e",

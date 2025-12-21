@@ -13,8 +13,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const isServerTestMode = process.env.NEXT_PUBLIC_E2E === '1' || process.env.E2E === '1';
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning data-test-mode={isServerTestMode ? 'true' : undefined}>
       <head>{/* Theme support removed: no script injected here anymore */}</head>
       <body className={BODY_FONT_CLASS}>
         <ClientRootLayout>{children}</ClientRootLayout>

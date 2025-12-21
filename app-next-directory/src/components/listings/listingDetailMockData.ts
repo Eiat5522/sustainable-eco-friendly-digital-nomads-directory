@@ -64,7 +64,7 @@ export const mockRelatedListings = [
     id: 'eco-resort-koh-samui',
     name: 'Eco Resort Koh Samui',
     slug: 'eco-resort-koh-samui',
-    imageUrl: '/placeholder_image.png',
+    imageUrl: '',
     city: 'Koh Samui',
     priceRange: 'moderate' as const,
     ecoFocusTags: ['Organic Gardens', 'Solar Energy'],

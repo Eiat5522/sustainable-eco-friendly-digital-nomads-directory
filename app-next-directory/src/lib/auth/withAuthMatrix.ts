@@ -90,7 +90,7 @@ export async function withAuthMatrix(
 
     if (!hasPermission) {
       // Create redirect URL with return path
-      const url = new URL('/auth/signin', request.url);
+      const url = new URL('/auth/login', request.url);
       url.searchParams.set('callbackUrl', encodeURI(pathname));
       url.searchParams.set('error', 'Authentication required');
 
@@ -242,7 +242,7 @@ export async function withMinimumRole(
     }
   } else {
     if (!token && requiredRole !== ('user' as UserRole)) {
-      const url = new URL('/auth/signin', request.url);
+      const url = new URL('/auth/login', request.url);
       url.searchParams.set('callbackUrl', encodeURI(request.nextUrl.pathname));
       return NextResponse.redirect(url);
     }
@@ -290,7 +290,7 @@ export async function withAuth(request: NextRequest, requiredRoles?: string[]) {
   );
   const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
   if (!token) {
-    const url = new URL('/auth/signin', request.url);
+    const url = new URL('/auth/login', request.url);
     url.searchParams.set('callbackUrl', encodeURI(request.nextUrl.pathname));
     return NextResponse.redirect(url);
   }

@@ -1,5 +1,6 @@
 import type { Page } from '@playwright/test';
 import { test as base, expect } from '@playwright/test';
+import { encode } from 'next-auth/jwt';
 import {
   createTestData,
   getSessionForRole,
@@ -11,16 +12,45 @@ const baseUrl = new URL(
   process.env.BASE_URL ?? process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000'
 );
 
+const authSecret =
+  process.env.NEXTAUTH_SECRET ??
+  process.env.AUTH_SECRET ??
+  'e2e-test-secret-for-testing-only-not-production';
+
+async function buildSessionToken(user: {
+  id: string;
+  name: string;
+  email: string;
+  role: Role;
+  plan?: string;
+  image?: string;
+}) {
+  return encode({
+    token: {
+      sub: user.id,
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      plan: user.plan,
+      image: user.image ?? null,
+    },
+    secret: authSecret,
+    salt: TEST_SESSION_COOKIE_NAME,
+  });
+}
+
 async function applySession(page: Page, role: Role) {
   const session = getSessionForRole(role);
   if (!session) {
     throw new Error(`Test session not found for role: ${role}`);
   }
 
+  const encodedToken = await buildSessionToken(session.user);
   const cookie = {
     name: TEST_SESSION_COOKIE_NAME,
-    value: session.token,
-    domain: baseUrl.hostname,
+    value: encodedToken,
+    url: baseUrl.origin,
     path: '/',
     httpOnly: true,
     secure: baseUrl.protocol === 'https:',
@@ -45,7 +75,7 @@ async function applySession(page: Page, role: Role) {
       window.sessionStorage.setItem('token', token);
     },
     {
-      token: session.token,
+      token: encodedToken,
       user: serialisableUser,
     }
   );
@@ -58,13 +88,13 @@ async function applySession(page: Page, role: Role) {
     await page.reload({ waitUntil: 'domcontentloaded' }).catch(() => undefined);
   }
 
-  return session;
+  return { ...session, token: encodedToken };
 }
 
 async function loginViaForm(page: Page, email: string, password: string, redirectPattern: RegExp) {
-  await page.goto('/auth/signin');
-  await page.fill('input[name="email"]', email);
-  await page.fill('input[name="password"]', password);
+  await page.goto('/auth/login');
+  await page.getByRole('textbox', { name: /^email$/i }).fill(email);
+  await page.getByRole('textbox', { name: /^password$/i }).fill(password);
   const submit = page.locator('button[type="submit"]');
   await Promise.all([
     page.waitForURL(redirectPattern, { timeout: 10_000 }).catch(() => undefined),
@@ -142,10 +172,9 @@ export const TestHelpers = {
       ...data,
     };
 
-    await page.click('button[data-testid="write-review-button"]');
-    await page.fill('input[name="rating"]', String(defaultData.rating));
-    await page.fill('textarea[name="comment"]', defaultData.comment);
-    await page.click('button[type="submit"]');
+    await page.getByTestId(`rating-star-${defaultData.rating}`).click();
+    await page.getByTestId('review-comment-field').fill(defaultData.comment);
+    await page.getByTestId('submit-review-button').click();
   },
 
   async checkToast(page: Page, message: string) {

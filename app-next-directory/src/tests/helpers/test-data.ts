@@ -54,7 +54,7 @@ export interface TestSession {
   user: TestUser;
 }
 
-export const TEST_SESSION_COOKIE_NAME = 'next-auth.session-token';
+export const TEST_SESSION_COOKIE_NAME = 'authjs.session-token';
 
 function clone<T>(value: T): T {
   if (typeof structuredClone === 'function') {

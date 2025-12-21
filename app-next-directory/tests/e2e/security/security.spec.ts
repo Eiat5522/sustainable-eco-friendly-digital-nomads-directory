@@ -32,7 +32,7 @@ const TEST_CONFIG = {
   urls: {
     home: process.env.TEST_HOME_URL ?? '/',
     adminDashboard: process.env.TEST_ADMIN_DASHBOARD_URL ?? '/admin/dashboard',
-    signin: process.env.TEST_SIGNIN_URL ?? '/auth/signin',
+    signin: process.env.TEST_SIGNIN_URL ?? '/auth/login',
     signup: process.env.TEST_SIGNUP_URL ?? '/auth/signup',
     dashboard: process.env.TEST_DASHBOARD_URL ?? '/dashboard',
     createListing: process.env.TEST_CREATE_LISTING_URL ?? '/dashboard/create-listing',
@@ -111,7 +111,7 @@ const TEST_CONFIG = {
   content: {
     listingName: process.env.TEST_LISTING_NAME ?? 'Test Listing',
     listingDescription: process.env.TEST_LISTING_DESCRIPTION ?? 'Test Description',
-    sessionTokenKey: process.env.TEST_SESSION_TOKEN_KEY ?? 'next-auth.session-token',
+    sessionTokenKey: process.env.TEST_SESSION_TOKEN_KEY ?? 'authjs.session-token',
     inlineScriptMessage:
       process.env.TEST_INLINE_SCRIPT_MESSAGE ?? 'console.log("This should be blocked")',
     fileContent: process.env.TEST_FILE_CONTENT ?? 'This is a test file',

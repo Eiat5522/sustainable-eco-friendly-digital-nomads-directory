@@ -12,8 +12,8 @@ test.describe('Authentication System (Playwright)', () => {
     structuredLogger.debug('Cleaning up test users:', { testEmails });
   });
 
-  test('registers a new user and redirects to login', async ({ page }) => {
-    await page.goto(`${BASE_URL}/register`);
+  test('registers a new user and lands on the home page', async ({ page }) => {
+    await page.goto(`${BASE_URL}/auth/signup`);
 
     const email = `test+${Date.now()}@example.com`;
     testEmails.push(email);
@@ -23,10 +23,14 @@ test.describe('Authentication System (Playwright)', () => {
     await page.fill('input[name="password"]', 'password123');
 
     await Promise.all([
-      page.waitForURL('**/login', { waitUntil: 'domcontentloaded' }),
+      page.waitForURL('**/', { waitUntil: 'domcontentloaded' }),
       page.click('button[type="submit"]'),
     ]);
 
-    await expect(page).toHaveURL(/\/login$/);
+    await expect(
+      page.getByRole('heading', {
+        name: /A Curated Directory For Sustainable Digital Nomads/i,
+      })
+    ).toBeVisible();
   });
 });

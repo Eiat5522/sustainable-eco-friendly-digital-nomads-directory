@@ -39,10 +39,10 @@ describe('Assertion Helpers', () => {
 
     it('should extract and validate path from full URL', () => {
       mockRedirect.mockImplementation((url: string) => url);
-      mockRedirect('https://example.com/auth/signin?callbackUrl=/dashboard');
+      mockRedirect('https://example.com/auth/login?callbackUrl=/dashboard');
 
       expect(() => {
-        expectRedirectCalledWith(mockRedirect, '/auth/signin?callbackUrl=/dashboard');
+        expectRedirectCalledWith(mockRedirect, '/auth/login?callbackUrl=/dashboard');
       }).not.toThrow();
     });
 

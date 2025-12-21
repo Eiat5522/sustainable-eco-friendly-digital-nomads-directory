@@ -46,7 +46,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   reporter: [
     ['list'],
-    ['html', { outputFolder: 'playwright-report' }],
+    ['html', { outputFolder: 'tmp/playwright-report' }],
     // Write JSON and last-run files to tmp/test-results to avoid permission issues
     ['json', { outputFile: 'tmp/test-results/test-results.json' }],
   ],
@@ -78,6 +78,8 @@ export default defineConfig({
           PORT: String(resolvedPort),
           E2E: '1',
           NEXT_PUBLIC_E2E: '1',
+          ENABLE_TEST_PAGES: 'true',
+          USE_REAL_MONGODB_FOR_E2E: '1',
           // Use isolated test credentials
           NEXT_PUBLIC_SANITY_PROJECT_ID: 'test-project-id',
           NEXT_PUBLIC_SANITY_DATASET: 'test',

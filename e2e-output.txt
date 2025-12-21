@@ -1,221 +1,1053 @@
-Running 7 tests using 1 worker
-
-  ✘  1 ….spec.ts:8:5 › Admin Dashboard Integration › Access Control › regular user cannot access admin dashboard (1.5m)
-  ✓  2 …spec.ts:19:5 › Admin Dashboard Integration › Access Control › venue owner cannot access admin dashboard (27.9s)
-  ✓  3 …pec.ts:30:5 › Admin Dashboard Integration › Access Control › unauthenticated user is redirected to login (4.3s)
-  ✘  4 …5 › Admin Dashboard Integration › Admin Dashboard Functionality › loads simplified admin dashboard page (50.5s)
-  ✘  5 ….ts:54:5 › Admin Dashboard Integration › Admin Dashboard Functionality › displays admin navigation links (2.0m)
-  ✘  6 … Admin Dashboard Integration › Admin Dashboard Functionality › admin navigation links have correct hrefs (1.4m)
-  ✘  7 ….ts:68:5 › Admin Dashboard Integration › Admin Dashboard Functionality › page has proper SEO protection (26.7s)
+> app-next-directory@0.1.0 test:e2e /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory
+> playwright test --config=playwright.config.ts -- security
 
 
-  1) [chromium] › tests/e2e/admin-dashboard.spec.ts:8:5 › Admin Dashboard Integration › Access Control › regular user cannot access admin dashboard
+Running 15 tests using 1 worker
 
-    Test timeout of 60000ms exceeded.
+  ✘   1 …26:5 › Security Testing › Authentication & Authorization › prevents unauthorized access to admin routes (5.8s)
+  ✘   2 …rity.spec.ts:134:5 › Security Testing › Authentication & Authorization › prevents privilege escalation (16.5s)
+  ✘   3 …/security.spec.ts:146:5 › Security Testing › Authentication & Authorization › session timeout security (16.5s)
+  ✘   4 …ity.spec.ts:166:5 › Security Testing › Authentication & Authorization › password security requirements (518ms)
+  ✘   5 …s:186:5 › Security Testing › Input Validation & Injection Prevention › prevents SQL injection in search (6.8s)
+  ✘   6 … › Security Testing › Input Validation & Injection Prevention › prevents XSS in user-generated content (17.6s)
+  ✘   7 …ity.spec.ts:231:5 › Security Testing › Input Validation & Injection Prevention › prevents CSRF attacks (16.9s)
+  ✘   8 …rity.spec.ts:256:5 › Security Testing › Input Validation & Injection Prevention › file upload security (19.4s)
+  ✓   9 …5:5 › Security Testing › Data Privacy & Protection › sensitive data is not exposed in client-side code (544ms)
+  ✓  10 …10:5 › Security Testing › Data Privacy & Protection › user data is properly sanitized in API responses (144ms)
+  ✘  11 …c.ts:324:5 › Security Testing › Data Privacy & Protection › email validation prevents header injection (16.6s)
+  ✘  12 …curity.spec.ts:346:5 › Security Testing › Rate Limiting & DDoS Protection › contact form rate limiting (16.5s)
+  ✘  13 …curity.spec.ts:390:5 › Security Testing › Rate Limiting & DDoS Protection › API endpoint rate limiting (369ms)
+  ✘  14 …urity.spec.ts:417:5 › Security Testing › Content Security Policy › CSP headers are properly configured (482ms)
+  ✓  15 …security.spec.ts:437:5 › Security Testing › Content Security Policy › inline scripts are blocked by CSP (1.4s)
+
+
+  1) [chromium] › tests/e2e/security/security.spec.ts:126:5 › Security Testing › Authentication & Authorization › prevents unauthorized access to admin routes
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /.*\/auth\/signin/
+    Received string:  "http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 5000ms
+        - waiting for" http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard" navigation to finish...
+        - navigated to "http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard"
+        2 × unexpected value "http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard"
+        - waiting for navigation to finish...
+        - navigated to "http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard"
+        4 × unexpected value "http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard"
+
+
+      129 |
+      130 |       // Should redirect to login
+    > 131 |       await expect(page).toHaveURL(createUrlPattern(TEST_CONFIG.urls.signin));
+          |                          ^
+      132 |     });
+      133 |
+      134 |     test('prevents privilege escalation', async ({ page }) => {
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/security/security.spec.ts:131:26
 
     attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
-    test-results/e2e-admin-dashboard-Admin--9dfa7-nnot-access-admin-dashboard-chromium/video.webm
+    test-results/e2e-security-security-Secu-1bfe0-ized-access-to-admin-routes-chromium/video.webm
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-    Error Context: test-results/e2e-admin-dashboard-Admin--9dfa7-nnot-access-admin-dashboard-chromium/error-context.md
+    Error Context: test-results/e2e-security-security-Secu-1bfe0-ized-access-to-admin-routes-chromium/error-context.md
 
     attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
-    test-results/e2e-admin-dashboard-Admin--9dfa7-nnot-access-admin-dashboard-chromium/trace.zip
+    test-results/e2e-security-security-Secu-1bfe0-ized-access-to-admin-routes-chromium/trace.zip
     Usage:
 
-        pnpm exec playwright show-trace test-results/e2e-admin-dashboard-Admin--9dfa7-nnot-access-admin-dashboard-chromium/trace.zip
+        pnpm exec playwright show-trace test-results/e2e-security-security-Secu-1bfe0-ized-access-to-admin-routes-chromium/trace.zip
 
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-  2) [chromium] › tests/e2e/admin-dashboard.spec.ts:46:5 › Admin Dashboard Integration › Admin Dashboard Functionality
-› loads simplified admin dashboard page
+  2) [chromium] › tests/e2e/security/security.spec.ts:134:5 › Security Testing › Authentication & Authorization › prevents privilege escalation
 
-    Error: expect(locator).toBeVisible() failed
+    TimeoutError: page.fill: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for locator('input[name="email"]')
 
-    Locator: getByTestId('admin-dashboard')
-    Expected: visible
-    Timeout: 10000ms
+
+      135 |       // Login as regular user
+      136 |       await page.goto(TEST_CONFIG.urls.signin);
+    > 137 |       await page.fill('input[name="email"]', TEST_CONFIG.credentials.userEmail);
+          |                  ^
+      138 |       await page.fill('input[name="password"]', TEST_CONFIG.credentials.userPassword);
+      139 |       await page.click('button[type="submit"]');
+      140 |
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/security/security.spec.ts:137:18
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-security-security-Secu-f1408-events-privilege-escalation-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-security-security-Secu-f1408-events-privilege-escalation-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-security-security-Secu-f1408-events-privilege-escalation-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-security-security-Secu-f1408-events-privilege-escalation-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › tests/e2e/security/security.spec.ts:146:5 › Security Testing › Authentication & Authorization › session timeout security
+
+    TimeoutError: page.fill: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for locator('input[name="email"]')
+
+
+      147 |       // Login
+      148 |       await page.goto(TEST_CONFIG.urls.signin);
+    > 149 |       await page.fill('input[name="email"]', TEST_CONFIG.credentials.userEmail);
+          |                  ^
+      150 |       await page.fill('input[name="password"]', TEST_CONFIG.credentials.userPassword);
+      151 |       await page.click('button[type="submit"]');
+      152 |
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/security/security.spec.ts:149:18
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-security-security-Secu-3d5e9-on-session-timeout-security-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-security-security-Secu-3d5e9-on-session-timeout-security-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-security-security-Secu-3d5e9-on-session-timeout-security-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-security-security-Secu-3d5e9-on-session-timeout-security-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [chromium] › tests/e2e/security/security.spec.ts:166:5 › Security Testing › Authentication & Authorization › password security requirements
+
+    Error: page.goto: Navigation to "http://localhost:3000/auth/signup" is interrupted by another navigation to "http://localhost:3000/"
+    Call log:
+      - navigating to "http://localhost:3000/auth/signup", waiting until "load"
+
+
+      171 |
+      172 |       for (const weakPassword of weakPasswords) {
+    > 173 |         await page.goto(TEST_CONFIG.urls.signup);
+          |                    ^
+      174 |         await page.fill('input[name="email"]', TEST_CONFIG.credentials.genericEmail);
+      175 |         await page.fill('input[name="password"]', weakPassword);
+      176 |         await page.fill('input[name="confirmPassword"]', weakPassword);
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/security/security.spec.ts:173:20
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-security-security-Secu-f3370-sword-security-requirements-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-security-security-Secu-f3370-sword-security-requirements-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-security-security-Secu-f3370-sword-security-requirements-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-security-security-Secu-f3370-sword-security-requirements-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [chromium] › tests/e2e/security/security.spec.ts:186:5 › Security Testing › Input Validation & Injection Prevention › prevents SQL injection in search
+
+    Error: expect(locator).not.toContainText(expected) failed
+
+    Locator: locator('[data-testid="error-message"]')
+    Expected pattern: not /database|sql|mysql|postgres/i
+    Timeout: 5000ms
     Error: element(s) not found
 
     Call log:
-      - Expect "toBeVisible" with timeout 10000ms
-      - waiting for getByTestId('admin-dashboard')
-        2 × waiting for" http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard" navigation to finish...
-          - navigated to "http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard"
+      - Expect "not toContainText" with timeout 5000ms
+      - waiting for locator('[data-testid="error-message"]')
 
 
-      45 |
-      46 |     test('loads simplified admin dashboard page', async ({ page }) => {
-    > 47 |       await expect(page.getByTestId('admin-dashboard')).toBeVisible({ timeout: 10000 });
-         |                                                         ^
-      48 |       await expect(page.getByTestId('admin-dashboard-title')).toHaveText('Admin Dashboard');
-      49 |       await expect(
-      50 |         page.getByText('The admin dashboard is temporarily simplified')
-        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/admin-dashboard.spec.ts:47:57
+      191 |
+      192 |         // Should not cause database errors
+    > 193 |         await expect(page.locator('[data-testid="error-message"]')).not.toContainText(
+          |                                                                         ^
+      194 |           /database|sql|mysql|postgres/i
+      195 |         );
+      196 |
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/security/security.spec.ts:193:73
 
     attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
-    test-results/e2e-admin-dashboard-Admin--d0324-lified-admin-dashboard-page-chromium/video.webm
+    test-results/e2e-security-security-Secu-6abc7-nts-SQL-injection-in-search-chromium/video.webm
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-    Error Context: test-results/e2e-admin-dashboard-Admin--d0324-lified-admin-dashboard-page-chromium/error-context.md
+    Error Context: test-results/e2e-security-security-Secu-6abc7-nts-SQL-injection-in-search-chromium/error-context.md
 
     attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
-    test-results/e2e-admin-dashboard-Admin--d0324-lified-admin-dashboard-page-chromium/trace.zip
+    test-results/e2e-security-security-Secu-6abc7-nts-SQL-injection-in-search-chromium/trace.zip
     Usage:
 
-        pnpm exec playwright show-trace test-results/e2e-admin-dashboard-Admin--d0324-lified-admin-dashboard-page-chromium/trace.zip
+        pnpm exec playwright show-trace test-results/e2e-security-security-Secu-6abc7-nts-SQL-injection-in-search-chromium/trace.zip
 
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-  3) [chromium] › tests/e2e/admin-dashboard.spec.ts:54:5 › Admin Dashboard Integration › Admin Dashboard Functionality
-› displays admin navigation links
+  6) [chromium] › tests/e2e/security/security.spec.ts:205:5 › Security Testing › Input Validation & Injection Prevention › prevents XSS in user-generated content
+
+    TimeoutError: page.fill: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for locator('input[name="name"]')
+
+
+      210 |
+      211 |       for (const payload of xssPayloads) {
+    > 212 |         await page.fill('input[name="name"]', payload);
+          |                    ^
+      213 |         await page.fill('input[name="email"]', TEST_CONFIG.credentials.genericEmail);
+      214 |         await page.fill('input[name="subject"]', 'Security test subject');
+      215 |         await page.fill('textarea[name="enquiry"]', payload);
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/security/security.spec.ts:212:20
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-security-security-Secu-3a17a-S-in-user-generated-content-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-security-security-Secu-3a17a-S-in-user-generated-content-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-security-security-Secu-3a17a-S-in-user-generated-content-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-security-security-Secu-3a17a-S-in-user-generated-content-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [chromium] › tests/e2e/security/security.spec.ts:231:5 › Security Testing › Input Validation & Injection Prevention › prevents CSRF attacks
+
+    TimeoutError: page.fill: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for locator('input[name="email"]')
+
+
+      232 |       // Login and get session
+      233 |       await page.goto(TEST_CONFIG.urls.signin);
+    > 234 |       await page.fill('input[name="email"]', TEST_CONFIG.credentials.userEmail);
+          |                  ^
+      235 |       await page.fill('input[name="password"]', TEST_CONFIG.credentials.userPassword);
+      236 |       await page.click('button[type="submit"]');
+      237 |
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/security/security.spec.ts:234:18
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-security-security-Secu-78171-ntion-prevents-CSRF-attacks-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-security-security-Secu-78171-ntion-prevents-CSRF-attacks-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-security-security-Secu-78171-ntion-prevents-CSRF-attacks-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-security-security-Secu-78171-ntion-prevents-CSRF-attacks-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [chromium] › tests/e2e/security/security.spec.ts:256:5 › Security Testing › Input Validation & Injection Prevention › file upload security
+
+    TimeoutError: locator.setInputFiles: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for locator('input[type="file"]')
+        - waiting for" http://localhost:3000/auth/login?callbackUrl=%2Fdashboard%2Fcreate-listing" navigation to finish...
+        - navigated to "http://localhost:3000/auth/login?callbackUrl=%2Fdashboard%2Fcreate-listing"
+        - waiting for" http://localhost:3000/dashboard/create-listing" navigation to finish...
+        7 × navigated to "http://localhost:3000/auth/login?callbackUrl=%2Fdashboard%2Fcreate-listing"
+          - waiting for" http://localhost:3000/auth/login?callbackUrl=%2Fdashboard%2Fcreate-listing" navigation to finish...
+        - navigated to "http://localhost:3000/auth/login?callbackUrl=%2Fdashboard%2Fcreate-listing"
+
+
+      265 |
+      266 |         const fileInput = page.locator('input[type="file"]');
+    > 267 |         await fileInput.setInputFiles({
+          |         ^
+      268 |           name: filename,
+      269 |           mimeType: TEST_CONFIG.files.maliciousMimeType,
+      270 |           buffer: Buffer.from(fileContent),
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/security/security.spec.ts:267:9
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-security-security-Secu-1410b-ention-file-upload-security-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-security-security-Secu-1410b-ention-file-upload-security-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-security-security-Secu-1410b-ention-file-upload-security-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-security-security-Secu-1410b-ention-file-upload-security-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [chromium] › tests/e2e/security/security.spec.ts:324:5 › Security Testing › Data Privacy & Protection › email validation prevents header injection
+
+    TimeoutError: page.fill: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for locator('input[name="email"]')
+
+
+      329 |
+      330 |       for (const email of injectionEmails) {
+    > 331 |         await page.fill('input[name="email"]', email);
+          |                    ^
+      332 |         await page.fill('input[name="name"]', TEST_CONFIG.contactForm.standardName);
+      333 |         await page.fill('input[name="subject"]', 'Validate headers input');
+      334 |         await page.fill('textarea[name="enquiry"]', TEST_CONFIG.contactForm.standardMessage);
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/security/security.spec.ts:331:20
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-security-security-Secu-3551e-n-prevents-header-injection-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-security-security-Secu-3551e-n-prevents-header-injection-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-security-security-Secu-3551e-n-prevents-header-injection-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-security-security-Secu-3551e-n-prevents-header-injection-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [chromium] › tests/e2e/security/security.spec.ts:346:5 › Security Testing › Rate Limiting & DDoS Protection › contact form rate limiting
+
+    TimeoutError: page.fill: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for locator('input[name="name"]')
+
+
+      352 |
+      353 |       for (let i = 0; i < rapidSubmissions; i++) {
+    > 354 |         await page.fill('input[name="name"]', `${TEST_CONFIG.contactForm.namePrefix} ${i}`);
+          |                    ^
+      355 |         await page.fill(
+      356 |           'input[name="email"]',
+      357 |           `${TEST_CONFIG.contactForm.emailPrefix}${i}@${TEST_CONFIG.contactForm.emailDomain}`
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/security/security.spec.ts:354:20
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-security-security-Secu-5413f--contact-form-rate-limiting-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-security-security-Secu-5413f--contact-form-rate-limiting-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-security-security-Secu-5413f--contact-form-rate-limiting-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-security-security-Secu-5413f--contact-form-rate-limiting-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [chromium] › tests/e2e/security/security.spec.ts:390:5 › Security Testing › Rate Limiting & DDoS Protection › API endpoint rate limiting
+
+    Error: expect(received).toBeTruthy()
+
+    Received: false
+
+      410 |       }
+      411 |
+    > 412 |       expect(rateLimitHit).toBeTruthy();
+          |                            ^
+      413 |     });
+      414 |   });
+      415 |
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/security/security.spec.ts:412:28
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-security-security-Secu-52b2d--API-endpoint-rate-limiting-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-security-security-Secu-52b2d--API-endpoint-rate-limiting-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [chromium] › tests/e2e/security/security.spec.ts:417:5 › Security Testing › Content Security Policy › CSP headers are properly configured
+
+    Error: expect(received).toBeTruthy()
+
+    Received: undefined
+
+      422 |       const csp =
+      423 |         headers['content-security-policy'] || headers['content-security-policy-report-only'];
+    > 424 |       expect(csp).toBeTruthy();
+          |                   ^
+      425 |
+      426 |       // Should include essential CSP directives
+      427 |       expect(csp).toContain('default-src');
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/security/security.spec.ts:424:19
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-security-security-Secu-50d37-ers-are-properly-configured-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-security-security-Secu-50d37-ers-are-properly-configured-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-security-security-Secu-50d37-ers-are-properly-configured-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-security-security-Secu-50d37-ers-are-properly-configured-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12 failed
+    [chromium] › tests/e2e/security/security.spec.ts:126:5 › Security Testing › Authentication & Authorization › prevents unauthorized access to admin routes
+    [chromium] › tests/e2e/security/security.spec.ts:134:5 › Security Testing › Authentication & Authorization › prevents privilege escalation
+    [chromium] › tests/e2e/security/security.spec.ts:146:5 › Security Testing › Authentication & Authorization › session timeout security
+    [chromium] › tests/e2e/security/security.spec.ts:166:5 › Security Testing › Authentication & Authorization › password security requirements
+    [chromium] › tests/e2e/security/security.spec.ts:186:5 › Security Testing › Input Validation & Injection Prevention › prevents SQL injection in search
+    [chromium] › tests/e2e/security/security.spec.ts:205:5 › Security Testing › Input Validation & Injection Prevention › prevents XSS in user-generated content
+    [chromium] › tests/e2e/security/security.spec.ts:231:5 › Security Testing › Input Validation & Injection Prevention › prevents CSRF attacks
+    [chromium] › tests/e2e/security/security.spec.ts:256:5 › Security Testing › Input Validation & Injection Prevention › file upload security
+    [chromium] › tests/e2e/security/security.spec.ts:324:5 › Security Testing › Data Privacy & Protection › email validation prevents header injection
+    [chromium] › tests/e2e/security/security.spec.ts:346:5 › Security Testing › Rate Limiting & DDoS Protection › contact form rate limiting
+    [chromium] › tests/e2e/security/security.spec.ts:390:5 › Security Testing › Rate Limiting & DDoS Protection › API endpoint rate limiting
+    [chromium] › tests/e2e/security/security.spec.ts:417:5 › Security Testing › Content Security Policy › CSP headers are properly configured
+  3 passed (4.8m)
+
+  Serving HTML report at http://localhost:44118. Press Ctrl+C to quit.
+^C[ble: EOF][ble: elapsed 449.697s (CPU 20.6%)] pnpm --filter app-next-directory test:e2e -- security
+  󰊢  staging/ne…[ 29 󱅘 2] [⏱7m30s]                                                            [ v22.21.0][🔋100%]
+ ➜ pnpm --filter app-next-directory test:e2e -- UX specs                                                  [🕙09:04:04]
+
+> app-next-directory@0.1.0 test:e2e /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory
+> playwright test --config=playwright.config.ts -- UX specs
+
+
+Running 18 tests using 2 workers
+
+  ✘   1 … › Search discovery experience › submitting a query displays filtered results with preserved parameters (1.1m)
+  ✘   2 …› tests/e2e/ux/search.spec.ts:15:3 › Search & Filter UX › search interface is accessible and responsive (8.9s)
+  ✘   3 …um] › tests/e2e/ux/search.spec.ts:37:3 › Search & Filter UX › search with filters shows correct results (8.4s)
+  ✘   4 [chromium] › tests/e2e/ux/search.spec.ts:85:3 › Search & Filter UX › mobile responsive design (7.9s)
+  ✘   5 [chromium] › tests/e2e/ux/search.spec.ts:108:3 › Search & Filter UX › keyboard navigation (7.9s)
+  ✘   6 …rch.spec.ts:128:5 › Search & Filter UX › screen reader compatibility › has proper ARIA labels and roles (8.5s)
+  ✘   7 …ch.spec.ts:147:5 › Search & Filter UX › screen reader compatibility › announces dynamic content changes (7.9s)
+  ✘   8 …/ux/search.spec.ts:169:5 › Search & Filter UX › focus management › maintains focus after filter updates (9.1s)
+  ✓   9 …h-ux.spec.ts:29:3 › Search discovery experience › shows an empty state when nothing matches the filters (1.2s)
+  ✓  10 …ts:34:3 › Search discovery experience › navigates to the listing detail route when a result is selected (1.3s)
+  ✘  11 …arch.spec.ts:184:5 › Search & Filter UX › focus management › handles keyboard navigation within filters (8.1s)
+  ✘  12 …um] › tests/e2e/ux/search.spec.ts:200:5 › Search & Filter UX › focus management › traps focus in modals (8.1s)
+  ✘  13 …c.ts:224:5 › Search & Filter UX › loading states and empty results › shows loading states during search (9.0s)
+  ✘  14 …h.spec.ts:244:5 › Search & Filter UX › loading states and empty results › handles empty search results (10.2s)
+  ✘  15 …5 › Search & Filter UX › visual feedback and contrast › provides clear visual feedback for interactions (9.4s)
+  ✘  16 …spec.ts:290:5 › Search & Filter UX › visual feedback and contrast › maintains sufficient color contrast (9.2s)
+  ✘  17 …c.ts:384:5 › Search & Filter UX › responsive layout behavior › adapts layout for different screen sizes (8.4s)
+  ✘  18 ….spec.ts:403:5 › Search & Filter UX › responsive layout behavior › maintains usability on touch devices (8.7s)
+
+
+  1) [chromium] › tests/e2e/search/search-ux.spec.ts:9:3 › Search discovery experience › submitting a query displays filtered results with preserved parameters
 
     Test timeout of 60000ms exceeded.
 
+    Error: page.waitForURL: Test timeout of 60000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/search/results**" until "load"
+      navigated to "http://localhost:3000/search?q=cowork&page=1&limit=12&facets=1"
+    ============================================================
+
+      16 |     await page.getByRole('button', { name: 'Search' }).click();
+      17 |
+    > 18 |     await page.waitForURL('**/search/results**');
+         |                ^
+      19 |     await expect(page).toHaveURL(/q=cowork/i);
+      20 |
+      21 |     await expect(
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/search/search-ux.spec.ts:18:16
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-search-search-ux-Searc-8b7c3-s-with-preserved-parameters-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-search-search-ux-Searc-8b7c3-s-with-preserved-parameters-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-search-search-ux-Searc-8b7c3-s-with-preserved-parameters-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-search-search-ux-Searc-8b7c3-s-with-preserved-parameters-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests/e2e/ux/search.spec.ts:15:3 › Search & Filter UX › search interface is accessible and responsive
+
     Error: expect(locator).toBeVisible() failed
 
-    Locator: getByRole('link', { name: 'Manage Users' })
+    Locator: locator('[data-test-mode="true"]')
     Expected: visible
     Timeout: 5000ms
     Error: element(s) not found
 
     Call log:
       - Expect "toBeVisible" with timeout 5000ms
-      - waiting for getByRole('link', { name: 'Manage Users' })
-        - waiting for navigation to finish...
-        - navigated to "http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard"
-        - waiting for" http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard" navigation to finish...
-        - navigated to "http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard"
+      - waiting for locator('[data-test-mode="true"]')
 
 
-      53 |
-      54 |     test('displays admin navigation links', async ({ page }) => {
-    > 55 |       await expect(page.getByRole('link', { name: 'Manage Users' })).toBeVisible();
-         |                                                                      ^
-      56 |       await expect(page.getByRole('link', { name: 'Manage Listings' })).toBeVisible();
-      57 |       await expect(page.getByRole('link', { name: 'Settings' })).toBeVisible();
-      58 |       await expect(page.getByRole('link', { name: 'Back to Site' })).toBeVisible();
-        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/admin-dashboard.spec.ts:55:70
-
-    Tearing down "context" exceeded the test timeout of 60000ms.
-
-    Error Context: test-results/e2e-admin-dashboard-Admin--ccc64-lays-admin-navigation-links-chromium/error-context.md
-
-    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
-    test-results/e2e-admin-dashboard-Admin--ccc64-lays-admin-navigation-links-chromium/trace.zip
-    Usage:
-
-        pnpm exec playwright show-trace test-results/e2e-admin-dashboard-Admin--ccc64-lays-admin-navigation-links-chromium/trace.zip
-
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-  4) [chromium] › tests/e2e/admin-dashboard.spec.ts:61:5 › Admin Dashboard Integration › Admin Dashboard Functionality
-› admin navigation links have correct hrefs
-
-    Error: expect(locator).toHaveAttribute(expected) failed
-
-    Locator: getByRole('link', { name: 'Manage Users' })
-    Expected: "/admin/users"
-    Timeout: 5000ms
-    Error: element(s) not found
-
-    Call log:
-      - Expect "toHaveAttribute" with timeout 5000ms
-      - waiting for getByRole('link', { name: 'Manage Users' })
-        - waiting for navigation to finish...
-        - navigated to "http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard"
-        - waiting for" http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard" navigation to finish...
-        - navigated to "http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard"
-
-
-      60 |
-      61 |     test('admin navigation links have correct hrefs', async ({ page }) => {
-    > 62 |       await expect(page.getByRole('link', { name: 'Manage Users' })).toHaveAttribute('href', '/admin/users');
-         |                                                                      ^
-      63 |       await expect(page.getByRole('link', { name: 'Manage Listings' })).toHaveAttribute('href', '/admin/listings');
-      64 |       await expect(page.getByRole('link', { name: 'Settings' })).toHaveAttribute('href', '/admin/settings');
-      65 |       await expect(page.getByRole('link', { name: 'Back to Site' })).toHaveAttribute('href', '/');
-        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/admin-dashboard.spec.ts:62:70
+      10 |
+      11 |     // Ensure we're in a controlled test environment
+    > 12 |     await expect(page.locator('[data-test-mode="true"]')).toBeVisible();
+         |                                                           ^
+      13 |   });
+      14 |
+      15 |   test('search interface is accessible and responsive', async ({ page }) => {
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/ux/search.spec.ts:12:59
 
     attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
-    test-results/e2e-admin-dashboard-Admin--6b589-on-links-have-correct-hrefs-chromium/video.webm
+    test-results/e2e-ux-search-Search-Filte-ebeab-s-accessible-and-responsive-chromium/video.webm
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-    Error Context: test-results/e2e-admin-dashboard-Admin--6b589-on-links-have-correct-hrefs-chromium/error-context.md
+    Error Context: test-results/e2e-ux-search-Search-Filte-ebeab-s-accessible-and-responsive-chromium/error-context.md
 
     attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
-    test-results/e2e-admin-dashboard-Admin--6b589-on-links-have-correct-hrefs-chromium/trace.zip
+    test-results/e2e-ux-search-Search-Filte-ebeab-s-accessible-and-responsive-chromium/trace.zip
     Usage:
 
-        pnpm exec playwright show-trace test-results/e2e-admin-dashboard-Admin--6b589-on-links-have-correct-hrefs-chromium/trace.zip
+        pnpm exec playwright show-trace test-results/e2e-ux-search-Search-Filte-ebeab-s-accessible-and-responsive-chromium/trace.zip
 
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-  5) [chromium] › tests/e2e/admin-dashboard.spec.ts:68:5 › Admin Dashboard Integration › Admin Dashboard Functionality
-› page has proper SEO protection
+  3) [chromium] › tests/e2e/ux/search.spec.ts:37:3 › Search & Filter UX › search with filters shows correct results
 
-    Error: expect(locator).toHaveAttribute(expected) failed
+    Error: expect(locator).toBeVisible() failed
 
-    Locator: locator('meta[name="robots"]')
-    Expected: "noindex, nofollow"
+    Locator: locator('[data-test-mode="true"]')
+    Expected: visible
     Timeout: 5000ms
     Error: element(s) not found
 
     Call log:
-      - Expect "toHaveAttribute" with timeout 5000ms
-      - waiting for locator('meta[name="robots"]')
-        - waiting for" http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard" navigation to finish...
-        2 × navigated to "http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard"
-          - waiting for" http://localhost:3000/admin/dashboard" navigation to finish...
-        - navigated to "http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard"
-        - waiting for" http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard" navigation to finish...
-        - navigated to "http://localhost:3000/auth/login?callbackUrl=%2Fadmin%2Fdashboard"
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-test-mode="true"]')
 
 
-      68 |     test('page has proper SEO protection', async ({ page }) => {
-      69 |       const robotsMeta = page.locator('meta[name="robots"]');
-    > 70 |       await expect(robotsMeta).toHaveAttribute('content', 'noindex, nofollow');
-         |                                ^
-      71 |     });
-      72 |   });
-      73 | });
-        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/admin-dashboard.spec.ts:70:32
+      10 |
+      11 |     // Ensure we're in a controlled test environment
+    > 12 |     await expect(page.locator('[data-test-mode="true"]')).toBeVisible();
+         |                                                           ^
+      13 |   });
+      14 |
+      15 |   test('search interface is accessible and responsive', async ({ page }) => {
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/ux/search.spec.ts:12:59
 
     attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
-    test-results/e2e-admin-dashboard-Admin--eacb3-e-has-proper-SEO-protection-chromium/video.webm
+    test-results/e2e-ux-search-Search-Filte-758fa-lters-shows-correct-results-chromium/video.webm
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
-    test-results/e2e-admin-dashboard-Admin--eacb3-e-has-proper-SEO-protection-chromium/trace.zip
+    Error Context: test-results/e2e-ux-search-Search-Filte-758fa-lters-shows-correct-results-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-ux-search-Search-Filte-758fa-lters-shows-correct-results-chromium/trace.zip
     Usage:
 
-        pnpm exec playwright show-trace test-results/e2e-admin-dashboard-Admin--eacb3-e-has-proper-SEO-protection-chromium/trace.zip
+        pnpm exec playwright show-trace test-results/e2e-ux-search-Search-Filte-758fa-lters-shows-correct-results-chromium/trace.zip
 
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-  5 failed
-    [chromium] › tests/e2e/admin-dashboard.spec.ts:8:5 › Admin Dashboard Integration › Access Control › regular user cannot access admin dashboard
-    [chromium] › tests/e2e/admin-dashboard.spec.ts:46:5 › Admin Dashboard Integration › Admin Dashboard Functionality › loads simplified admin dashboard page
-    [chromium] › tests/e2e/admin-dashboard.spec.ts:54:5 › Admin Dashboard Integration › Admin Dashboard Functionality › displays admin navigation links
-    [chromium] › tests/e2e/admin-dashboard.spec.ts:61:5 › Admin Dashboard Integration › Admin Dashboard Functionality › admin navigation links have correct hrefs
-    [chromium] › tests/e2e/admin-dashboard.spec.ts:68:5 › Admin Dashboard Integration › Admin Dashboard Functionality › page has proper SEO protection
-  2 passed (11.8m)
-Error in reporter Error: EACCES: permission denied, copyfile '/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/playwright-core@1.56.1/node_modules/playwright-core/lib/vite/traceViewer/codeMirrorModule.C3UTv-Ge.css' -> '/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/playwright-report/trace/codeMirrorModule.C3UTv-Ge.css'
-    at Object.copyFile (node:internal/fs/promises:623:10)
-    at copyFileAndMakeWritable (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/playwright-core@1.56.1/node_modules/playwright-core/lib/server/utils/fileUtils.js:66:3)
-    at HtmlBuilder.build (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/playwright@1.56.1/node_modules/playwright/lib/reporters/html.js:306:9)
-    at HtmlReporter.onEnd (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/playwright@1.56.1/node_modules/playwright/lib/reporters/html.js:127:25)
-    at wrapAsync (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/playwright@1.56.1/node_modules/playwright/lib/reporters/multiplexer.js:89:12)
-    at Multiplexer.onEnd (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/playwright@1.56.1/node_modules/playwright/lib/reporters/multiplexer.js:57:25)
-    at InternalReporter.onEnd (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/playwright@1.56.1/node_modules/playwright/lib/reporters/internalReporter.js:76:12)
-    at finishTaskRun (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/playwright@1.56.1/node_modules/playwright/lib/runner/tasks.js:94:26)
-    at runTasks (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/playwright@1.56.1/node_modules/playwright/lib/runner/tasks.js:81:10)
-    at runAllTestsWithConfig (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/playwright@1.56.1/node_modules/playwright/lib/runner/testRunner.js:380:18)
-    at runTests (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/playwright@1.56.1/node_modules/playwright/lib/program.js:251:18)
-    at i.<anonymous> (/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/playwright@1.56.1/node_modules/playwright/lib/program.js:71:7) {
-  errno: -13,
-  code: 'EACCES',
-  syscall: 'copyfile',
-  path: '/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/node_modules/.pnpm/playwright-core@1.56.1/node_modules/playwright-core/lib/vite/traceViewer/codeMirrorModule.C3UTv-Ge.css',
-  dest: '/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/playwright-report/trace/codeMirrorModule.C3UTv-Ge.css'
-}
+  4) [chromium] › tests/e2e/ux/search.spec.ts:85:3 › Search & Filter UX › mobile responsive design ─
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-test-mode="true"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-test-mode="true"]')
+
+
+      10 |
+      11 |     // Ensure we're in a controlled test environment
+    > 12 |     await expect(page.locator('[data-test-mode="true"]')).toBeVisible();
+         |                                                           ^
+      13 |   });
+      14 |
+      15 |   test('search interface is accessible and responsive', async ({ page }) => {
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/ux/search.spec.ts:12:59
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-ux-search-Search-Filter-UX-mobile-responsive-design-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-ux-search-Search-Filter-UX-mobile-responsive-design-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-ux-search-Search-Filter-UX-mobile-responsive-design-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-ux-search-Search-Filter-UX-mobile-responsive-design-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [chromium] › tests/e2e/ux/search.spec.ts:108:3 › Search & Filter UX › keyboard navigation ─────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-test-mode="true"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-test-mode="true"]')
+
+
+      10 |
+      11 |     // Ensure we're in a controlled test environment
+    > 12 |     await expect(page.locator('[data-test-mode="true"]')).toBeVisible();
+         |                                                           ^
+      13 |   });
+      14 |
+      15 |   test('search interface is accessible and responsive', async ({ page }) => {
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/ux/search.spec.ts:12:59
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-ux-search-Search-Filter-UX-keyboard-navigation-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-ux-search-Search-Filter-UX-keyboard-navigation-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-ux-search-Search-Filter-UX-keyboard-navigation-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-ux-search-Search-Filter-UX-keyboard-navigation-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [chromium] › tests/e2e/ux/search.spec.ts:128:5 › Search & Filter UX › screen reader compatibility › has proper ARIA labels and roles
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-test-mode="true"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-test-mode="true"]')
+
+
+      10 |
+      11 |     // Ensure we're in a controlled test environment
+    > 12 |     await expect(page.locator('[data-test-mode="true"]')).toBeVisible();
+         |                                                           ^
+      13 |   });
+      14 |
+      15 |   test('search interface is accessible and responsive', async ({ page }) => {
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/ux/search.spec.ts:12:59
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-ux-search-Search-Filte-c7bb3-roper-ARIA-labels-and-roles-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-ux-search-Search-Filte-c7bb3-roper-ARIA-labels-and-roles-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-ux-search-Search-Filte-c7bb3-roper-ARIA-labels-and-roles-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-ux-search-Search-Filte-c7bb3-roper-ARIA-labels-and-roles-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [chromium] › tests/e2e/ux/search.spec.ts:147:5 › Search & Filter UX › screen reader compatibility › announces dynamic content changes
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-test-mode="true"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-test-mode="true"]')
+
+
+      10 |
+      11 |     // Ensure we're in a controlled test environment
+    > 12 |     await expect(page.locator('[data-test-mode="true"]')).toBeVisible();
+         |                                                           ^
+      13 |   });
+      14 |
+      15 |   test('search interface is accessible and responsive', async ({ page }) => {
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/ux/search.spec.ts:12:59
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-ux-search-Search-Filte-0eb7b-ces-dynamic-content-changes-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-ux-search-Search-Filte-0eb7b-ces-dynamic-content-changes-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-ux-search-Search-Filte-0eb7b-ces-dynamic-content-changes-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-ux-search-Search-Filte-0eb7b-ces-dynamic-content-changes-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [chromium] › tests/e2e/ux/search.spec.ts:169:5 › Search & Filter UX › focus management › maintains focus after filter updates
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-test-mode="true"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-test-mode="true"]')
+
+
+      10 |
+      11 |     // Ensure we're in a controlled test environment
+    > 12 |     await expect(page.locator('[data-test-mode="true"]')).toBeVisible();
+         |                                                           ^
+      13 |   });
+      14 |
+      15 |   test('search interface is accessible and responsive', async ({ page }) => {
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/ux/search.spec.ts:12:59
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-ux-search-Search-Filte-61819--focus-after-filter-updates-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-ux-search-Search-Filte-61819--focus-after-filter-updates-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-ux-search-Search-Filte-61819--focus-after-filter-updates-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-ux-search-Search-Filte-61819--focus-after-filter-updates-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [chromium] › tests/e2e/ux/search.spec.ts:184:5 › Search & Filter UX › focus management › handles keyboard navigation within filters
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-test-mode="true"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-test-mode="true"]')
+
+
+      10 |
+      11 |     // Ensure we're in a controlled test environment
+    > 12 |     await expect(page.locator('[data-test-mode="true"]')).toBeVisible();
+         |                                                           ^
+      13 |   });
+      14 |
+      15 |   test('search interface is accessible and responsive', async ({ page }) => {
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/ux/search.spec.ts:12:59
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-ux-search-Search-Filte-c0d6f-d-navigation-within-filters-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-ux-search-Search-Filte-c0d6f-d-navigation-within-filters-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-ux-search-Search-Filte-c0d6f-d-navigation-within-filters-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-ux-search-Search-Filte-c0d6f-d-navigation-within-filters-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [chromium] › tests/e2e/ux/search.spec.ts:200:5 › Search & Filter UX › focus management › traps focus in modals
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-test-mode="true"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-test-mode="true"]')
+
+
+      10 |
+      11 |     // Ensure we're in a controlled test environment
+    > 12 |     await expect(page.locator('[data-test-mode="true"]')).toBeVisible();
+         |                                                           ^
+      13 |   });
+      14 |
+      15 |   test('search interface is accessible and responsive', async ({ page }) => {
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/ux/search.spec.ts:12:59
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-ux-search-Search-Filte-88e3f-ement-traps-focus-in-modals-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-ux-search-Search-Filte-88e3f-ement-traps-focus-in-modals-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-ux-search-Search-Filte-88e3f-ement-traps-focus-in-modals-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-ux-search-Search-Filte-88e3f-ement-traps-focus-in-modals-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [chromium] › tests/e2e/ux/search.spec.ts:224:5 › Search & Filter UX › loading states and empty results › shows loading states during search
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-test-mode="true"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-test-mode="true"]')
+
+
+      10 |
+      11 |     // Ensure we're in a controlled test environment
+    > 12 |     await expect(page.locator('[data-test-mode="true"]')).toBeVisible();
+         |                                                           ^
+      13 |   });
+      14 |
+      15 |   test('search interface is accessible and responsive', async ({ page }) => {
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/ux/search.spec.ts:12:59
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-ux-search-Search-Filte-9e916-oading-states-during-search-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-ux-search-Search-Filte-9e916-oading-states-during-search-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-ux-search-Search-Filte-9e916-oading-states-during-search-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-ux-search-Search-Filte-9e916-oading-states-during-search-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [chromium] › tests/e2e/ux/search.spec.ts:244:5 › Search & Filter UX › loading states and empty results › handles
+empty search results
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-test-mode="true"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-test-mode="true"]')
+
+
+      10 |
+      11 |     // Ensure we're in a controlled test environment
+    > 12 |     await expect(page.locator('[data-test-mode="true"]')).toBeVisible();
+         |                                                           ^
+      13 |   });
+      14 |
+      15 |   test('search interface is accessible and responsive', async ({ page }) => {
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/ux/search.spec.ts:12:59
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-ux-search-Search-Filte-958ef-andles-empty-search-results-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-ux-search-Search-Filte-958ef-andles-empty-search-results-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-ux-search-Search-Filte-958ef-andles-empty-search-results-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-ux-search-Search-Filte-958ef-andles-empty-search-results-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) [chromium] › tests/e2e/ux/search.spec.ts:270:5 › Search & Filter UX › visual feedback and contrast › provides clear visual feedback for interactions
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-test-mode="true"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-test-mode="true"]')
+
+
+      10 |
+      11 |     // Ensure we're in a controlled test environment
+    > 12 |     await expect(page.locator('[data-test-mode="true"]')).toBeVisible();
+         |                                                           ^
+      13 |   });
+      14 |
+      15 |   test('search interface is accessible and responsive', async ({ page }) => {
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/ux/search.spec.ts:12:59
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-ux-search-Search-Filte-f7187-l-feedback-for-interactions-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-ux-search-Search-Filte-f7187-l-feedback-for-interactions-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-ux-search-Search-Filte-f7187-l-feedback-for-interactions-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-ux-search-Search-Filte-f7187-l-feedback-for-interactions-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) [chromium] › tests/e2e/ux/search.spec.ts:290:5 › Search & Filter UX › visual feedback and contrast › maintains sufficient color contrast
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-test-mode="true"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-test-mode="true"]')
+
+
+      10 |
+      11 |     // Ensure we're in a controlled test environment
+    > 12 |     await expect(page.locator('[data-test-mode="true"]')).toBeVisible();
+         |                                                           ^
+      13 |   });
+      14 |
+      15 |   test('search interface is accessible and responsive', async ({ page }) => {
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/ux/search.spec.ts:12:59
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-ux-search-Search-Filte-23318-s-sufficient-color-contrast-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-ux-search-Search-Filte-23318-s-sufficient-color-contrast-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-ux-search-Search-Filte-23318-s-sufficient-color-contrast-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-ux-search-Search-Filte-23318-s-sufficient-color-contrast-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) [chromium] › tests/e2e/ux/search.spec.ts:384:5 › Search & Filter UX › responsive layout behavior › adapts layout
+for different screen sizes
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-test-mode="true"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-test-mode="true"]')
+
+
+      10 |
+      11 |     // Ensure we're in a controlled test environment
+    > 12 |     await expect(page.locator('[data-test-mode="true"]')).toBeVisible();
+         |                                                           ^
+      13 |   });
+      14 |
+      15 |   test('search interface is accessible and responsive', async ({ page }) => {
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/ux/search.spec.ts:12:59
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-ux-search-Search-Filte-e2249--for-different-screen-sizes-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-ux-search-Search-Filte-e2249--for-different-screen-sizes-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-ux-search-Search-Filte-e2249--for-different-screen-sizes-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-ux-search-Search-Filte-e2249--for-different-screen-sizes-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) [chromium] › tests/e2e/ux/search.spec.ts:403:5 › Search & Filter UX › responsive layout behavior › maintains usability on touch devices
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-test-mode="true"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-test-mode="true"]')
+
+
+      10 |
+      11 |     // Ensure we're in a controlled test environment
+    > 12 |     await expect(page.locator('[data-test-mode="true"]')).toBeVisible();
+         |                                                           ^
+      13 |   });
+      14 |
+      15 |   test('search interface is accessible and responsive', async ({ page }) => {
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/ux/search.spec.ts:12:59
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-ux-search-Search-Filte-c7945--usability-on-touch-devices-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-ux-search-Search-Filte-c7945--usability-on-touch-devices-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-ux-search-Search-Filte-c7945--usability-on-touch-devices-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-ux-search-Search-Filte-c7945--usability-on-touch-devices-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16 failed
+    [chromium] › tests/e2e/search/search-ux.spec.ts:9:3 › Search discovery experience › submitting a query displays filtered results with preserved parameters
+    [chromium] › tests/e2e/ux/search.spec.ts:15:3 › Search & Filter UX › search interface is accessible and responsive
+    [chromium] › tests/e2e/ux/search.spec.ts:37:3 › Search & Filter UX › search with filters shows correct results
+    [chromium] › tests/e2e/ux/search.spec.ts:85:3 › Search & Filter UX › mobile responsive design ──
+    [chromium] › tests/e2e/ux/search.spec.ts:108:3 › Search & Filter UX › keyboard navigation ──────
+    [chromium] › tests/e2e/ux/search.spec.ts:128:5 › Search & Filter UX › screen reader compatibility › has proper ARIA labels and roles
+    [chromium] › tests/e2e/ux/search.spec.ts:147:5 › Search & Filter UX › screen reader compatibility › announces dynamic content changes
+    [chromium] › tests/e2e/ux/search.spec.ts:169:5 › Search & Filter UX › focus management › maintains focus after filter updates
+    [chromium] › tests/e2e/ux/search.spec.ts:184:5 › Search & Filter UX › focus management › handles keyboard navigation within filters
+    [chromium] › tests/e2e/ux/search.spec.ts:200:5 › Search & Filter UX › focus management › traps focus in modals
+    [chromium] › tests/e2e/ux/search.spec.ts:224:5 › Search & Filter UX › loading states and empty results › shows loading states during search
+    [chromium] › tests/e2e/ux/search.spec.ts:244:5 › Search & Filter UX › loading states and empty results › handles empty search results
+    [chromium] › tests/e2e/ux/search.spec.ts:270:5 › Search & Filter UX › visual feedback and contrast › provides clear visual feedback for interactions
+    [chromium] › tests/e2e/ux/search.spec.ts:290:5 › Search & Filter UX › visual feedback and contrast › maintains sufficient color contrast
+    [chromium] › tests/e2e/ux/search.spec.ts:384:5 › Search & Filter UX › responsive layout behavior › adapts layout for different screen sizes
+    [chromium] › tests/e2e/ux/search.spec.ts:403:5 › Search & Filter UX › responsive layout behavior › maintains usability on touch devices
+  2 passed (5.0m)

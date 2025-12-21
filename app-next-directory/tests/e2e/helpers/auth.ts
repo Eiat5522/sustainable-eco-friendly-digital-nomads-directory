@@ -1,6 +1,28 @@
 import type { Page } from '@playwright/test';
+import type { Role } from '@/models/User';
+import { loginAs as loginAsRole } from '@tests/utils/test-utils';
+
+const normalizeEmail = (value: string) => value.trim().toLowerCase();
+const roleByEmail = new Map<string, Role>();
+
+const registerRoleEmail = (email: string | undefined, role: Role) => {
+  if (!email) return;
+  roleByEmail.set(normalizeEmail(email), role);
+};
+
+registerRoleEmail(process.env.E2E_ADMIN_EMAIL ?? 'admin@example.com', 'admin');
+registerRoleEmail(process.env.E2E_VENUE_OWNER_EMAIL ?? 'venue@example.com', 'venueOwner');
+registerRoleEmail(process.env.E2E_USER_EMAIL ?? 'user@example.com', 'user');
+registerRoleEmail('e2e-test@example.com', 'user');
 
 export async function loginAs(page: Page, email: string, password: string) {
+  const isE2E = process.env.E2E === '1' || process.env.NEXT_PUBLIC_E2E === '1';
+  if (isE2E) {
+    const role = roleByEmail.get(normalizeEmail(email)) ?? 'user';
+    await loginAsRole(page, role);
+    return;
+  }
+
   // Try common login routes and stop on the first that exposes a recognizable input
   const loginPaths = ['/login', '/auth/login', '/auth/signin', '/signin'];
 

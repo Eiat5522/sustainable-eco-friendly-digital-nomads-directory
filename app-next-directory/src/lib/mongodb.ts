@@ -22,7 +22,11 @@ type MockDb = {
 // FORTEST: Lazy initialization to prevent module-scope network calls during build
 let clientPromise: Promise<MongoClient> | null = null;
 
-const shouldMockMongo = process.env.NODE_ENV === 'test' || process.env.E2E === '1';
+const useRealMongoForTests =
+  process.env.USE_REAL_MONGODB_FOR_TESTS === '1' ||
+  process.env.USE_REAL_MONGODB_FOR_E2E === '1';
+const shouldMockMongo =
+  process.env.NODE_ENV === 'test' || (process.env.E2E === '1' && !useRealMongoForTests);
 const disableMongoDuringBuild =
   process.env.DISABLE_MONGODB_DURING_BUILD === '1' ||
   process.env.DISABLE_MONGODB_DURING_BUILD === 'true';

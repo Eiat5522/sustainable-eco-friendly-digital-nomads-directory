@@ -40,7 +40,7 @@ test.describe('[E2E] Listing detail page', () => {
     await page.goto(`/listings/${ERROR_SLUG}`);
     await waitForPageStable(page);
 
-    await expect(page.getByRole('heading', { name: 'Unexpected error' })).toBeVisible();
-    await expect(page.getByText('Something went wrong. Try again')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Something went wrong!' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Try again' })).toBeVisible();
   });
 });

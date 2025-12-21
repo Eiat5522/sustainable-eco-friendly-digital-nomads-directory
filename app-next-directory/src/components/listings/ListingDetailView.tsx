@@ -101,6 +101,12 @@ export function ListingDetailView({
       return;
     }
 
+    if (isTogglingFavorite) return;
+    const previousFavorited = favorited;
+    setIsTogglingFavorite(true);
+    // Optimistically flip the UI so the button feels responsive.
+    setFavorited(!previousFavorited);
+
     try {
       // Use slug for favorite toggles to keep the dynamic path consistent
       const res = await fetch(`/api/user/favorites/${listing.slug}`, jsonPostOptions({}));
@@ -115,18 +121,20 @@ export function ListingDetailView({
           // Unauthorized - redirect to login
           const href = getCurrentHref();
           redirectTo(`/auth/login?callbackUrl=${encodeURIComponent(href)}`);
-          return;
         }
+        setFavorited(previousFavorited);
         return;
       }
 
-      // Prevent double-clicks
-      if (isTogglingFavorite) return;
-      setIsTogglingFavorite(true);
       const data = await res.json();
-      setFavorited(Boolean(data?.favorited));
+      if (typeof data?.favorited === 'boolean') {
+        setFavorited(data.favorited);
+      }
     } catch (err) {
+      setFavorited(previousFavorited);
       structuredLogger.error('Failed to toggle favorite', err, { component: 'listings' });
+    } finally {
+      setIsTogglingFavorite(false);
     }
   };
 

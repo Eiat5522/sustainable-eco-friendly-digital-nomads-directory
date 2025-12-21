@@ -1,4 +1,5 @@
 import 'leaflet/dist/leaflet.css';
+import { headers } from 'next/headers';
 import { ListingDetailView } from '@/components/listings/ListingDetailView';
 import {
   mockListingDetail,
@@ -8,8 +9,13 @@ import {
 
 // Dev-only route for exercising `ListingDetailView`. Enable locally via `ENABLE_TEST_PAGES=true`.
 export default function ListingDetailTestPage() {
+  headers();
+
   const isTestPageEnabled =
-    process.env.NODE_ENV !== 'production' || process.env.ENABLE_TEST_PAGES === 'true';
+    process.env.NODE_ENV !== 'production' ||
+    process.env.ENABLE_TEST_PAGES === 'true' ||
+    process.env.NEXT_PUBLIC_E2E === '1' ||
+    process.env.E2E === '1';
 
   if (!isTestPageEnabled) {
     return (
@@ -21,11 +27,20 @@ export default function ListingDetailTestPage() {
     );
   }
 
+  const listingWithGallery = {
+    ...mockListingDetail,
+    galleryImages: [
+      '/test-images/gallery-1.svg',
+      '/test-images/gallery-2.svg',
+      '/test-images/gallery-3.svg',
+    ],
+  };
+
   return (
     <main className="min-h-screen bg-background px-6 py-8">
       <div className="mx-auto max-w-6xl">
         <ListingDetailView
-          listing={mockListingDetail}
+          listing={listingWithGallery}
           reviews={mockReviews}
           relatedListings={mockRelatedListings}
           isSignedIn={false}

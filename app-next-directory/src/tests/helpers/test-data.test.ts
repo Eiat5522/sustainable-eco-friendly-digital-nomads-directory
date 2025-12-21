@@ -22,7 +22,7 @@ import {
 describe('Test Data Utilities', () => {
   describe('TEST_SESSION_COOKIE_NAME', () => {
     it('should export the correct session cookie name', () => {
-      expect(TEST_SESSION_COOKIE_NAME).toBe('next-auth.session-token');
+      expect(TEST_SESSION_COOKIE_NAME).toBe('authjs.session-token');
     });
   });
 

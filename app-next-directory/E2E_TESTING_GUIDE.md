@@ -1,6 +1,9 @@
 # E2E Testing Setup - Isolated Environment
 
+/*cSpell:disable*/
+
 ## Overview
+
 This project uses **completely isolated E2E testing** to ensure:
 
 - ✅ No interference with development or production data
@@ -12,7 +15,7 @@ This project uses **completely isolated E2E testing** to ensure:
 
 ### Test Environment Isolation
 
-```
+```text
 Production Environment     Development Environment     E2E Test Environment
 ==================        ======================      ====================
 MongoDB Atlas (Prod)      MongoDB Atlas (Dev)         Local MongoDB
@@ -36,19 +39,23 @@ Production Build          Development Build           Production Build (Local)
 ## Configuration Files
 
 ### `.env.e2e` - E2E Environment Variables
+
 Isolated test configuration with:
+
 - Local MongoDB connection
 - Test-only authentication secrets
 - Disabled external services
 - Mock Sanity CMS project
 
 ### `playwright.config.ts` - Test Runner Config
+
 - Uses **production build** for realistic testing
 - Starts local server with E2E environment
 - 180-second timeout for build + startup
 - Headless browser testing
 
 ### `tests/setup-e2e-db.mjs` - Database Setup Script
+
 - Drops all existing collections
 - Creates fresh indexes
 - Seeds test users (regular + admin)
@@ -57,6 +64,7 @@ Isolated test configuration with:
 ## Quick Start
 
 ### 1. Run E2E Tests with Full Setup
+
 ```bash
 # This will:
 # 1. Clean/setup the database
@@ -66,23 +74,27 @@ pnpm test:e2e:isolated
 ```
 
 ### 2. Run E2E Tests Only (Database Already Set Up)
+
 ```bash
 pnpm test:e2e
 ```
 
 ### 3. Debug E2E Tests Interactively
+
 ```bash
 # Opens Playwright Inspector for step-by-step debugging
 pnpm test:e2e:debug
 ```
 
 ### 4. Use Playwright UI Mode
+
 ```bash
 # Opens Playwright's UI for visual test running
 pnpm test:e2e:ui
 ```
 
 ### 5. Clean E2E Database
+
 ```bash
 # Wipe and reseed the database
 pnpm e2e:clean
@@ -93,21 +105,25 @@ pnpm e2e:clean
 The following test users are created by `tests/setup-e2e-db.mjs` with valid bcrypt-hashed passwords:
 
 ### Admin User
+
 - **Email**: `admin@example.com`
 - **Password**: `TestSecurePass123!`
 - **Role**: `admin`
 
 ### Regular User  
+
 - **Email**: `e2e-test@example.com`
 - **Password**: `TestSecurePass123!`
 - **Role**: `user`
 
 ### Venue Owner
+
 - **Email**: `venue@example.com`
 - **Password**: `TestSecurePass123!`
 - **Role**: `venue_owner`
 
 ### Additional Test User
+
 - **Email**: `user@example.com`
 - **Password**: `password123`
 - **Role**: `user`
@@ -117,6 +133,7 @@ The following test users are created by `tests/setup-e2e-db.mjs` with valid bcry
 ## How It Works
 
 ### 1. Initial Setup (One Time)
+
 ```bash
 # Ensure MongoDB is running locally
 # Or tests will use in-memory MongoDB
@@ -124,6 +141,7 @@ pnpm e2e:setup
 ```
 
 ### 2. Running Tests
+
 ```mermaid
 graph TD
     A[Run pnpm test:e2e:isolated] --> B[Setup Script Runs]
@@ -138,7 +156,9 @@ graph TD
 ```
 
 ### 3. What Gets Tested
+
 The E2E tests cover 200+ scenarios across:
+
 - Authentication & Authorization (Login, Registration, RBAC)
 - Admin Dashboard (Analytics, Moderation)
 - API Endpoints (REST APIs, Error Handling)
@@ -152,9 +172,11 @@ The E2E tests cover 200+ scenarios across:
 ## Common Issues & Solutions
 
 ### Issue: MongoDB Connection Error
+
 **Symptom**: `ECONNREFUSED 127.0.0.1:27017`
 
 **Solution**: Ensure MongoDB is running locally:
+
 ```bash
 # macOS (Homebrew)
 brew services start mongodb-community
@@ -167,26 +189,32 @@ docker run -d -p 27017:27017 mongo:latest
 ```
 
 ### Issue: Port 3000 Already in Use
+
 **Symptom**: `EADDRINUSE :::3000`
 
 **Solution**: Kill the process using port 3000:
+
 ```bash
 lsof -ti:3000 | xargs kill -9
 ```
 
 ### Issue: Build Fails
+
 **Symptom**: Webpack/TypeScript errors during `pnpm build`
 
 **Solution**: Ensure dependencies are installed:
+
 ```bash
 pnpm install
 pnpm build
 ```
 
 ### Issue: Tests Timeout
+
 **Symptom**: Tests fail with timeout errors
 
 **Solution**: The first run builds the app (takes ~30s). Subsequent runs reuse the build:
+
 ```bash
 # First run - slow (builds app)
 pnpm test:e2e  # Takes ~2 minutes
@@ -198,6 +226,7 @@ pnpm test:e2e  # Takes ~30 seconds
 ## CI/CD Integration
 
 ### GitHub Actions Example
+
 ```yaml
 name: E2E Tests
 
@@ -241,6 +270,7 @@ jobs:
 ## Best Practices
 
 ### 1. Always Use Isolated Setup
+
 ```bash
 # Good - Ensures clean state
 pnpm test:e2e:isolated
@@ -250,20 +280,25 @@ pnpm test:e2e
 ```
 
 ### 2. Never Use Real Credentials
+
 The `.env.e2e` file has test-only credentials. Never put production secrets here.
 
 ### 3. Keep Tests Independent
+
 Each test should:
+
 - Set up its own data
 - Clean up after itself
 - Not depend on other tests' state
 
 ### 4. Use Page Objects
+
 Structure tests using the Page Object pattern for maintainability.
 
 ## Maintenance
 
 ### Adding New Test Data
+
 Edit `tests/setup-e2e-db.mjs` to add new seed data:
 
 ```javascript
@@ -277,6 +312,7 @@ await db.collection('listings').insertOne({
 ```
 
 ### Updating Test Users
+
 Modify the user seeds in `setup-e2e-db.mjs`:
 
 ```javascript
@@ -298,6 +334,7 @@ const testUser = {
 ## Troubleshooting
 
 ### View Detailed Logs
+
 ```bash
 # Show server output
 DEBUG=pw:webserver pnpm test:e2e
@@ -307,11 +344,13 @@ DEBUG=pw:api pnpm test:e2e
 ```
 
 ### Run Single Test File
+
 ```bash
 pnpm exec playwright test tests/e2e/auth.spec.ts
 ```
 
 ### Run Specific Test
+
 ```bash
 pnpm exec playwright test -g "login with valid credentials"
 ```
