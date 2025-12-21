@@ -1,9 +1,12 @@
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
 import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 import { UserManagementTable } from './UserManagementTable';
+
+
 
 export const metadata: Metadata = {
   title: 'User Management - Admin Dashboard',
@@ -40,19 +43,21 @@ export default async function AdminUsersPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50" data-testid="admin-users-page">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900" data-testid="admin-users-title">
-            User Management
-          </h1>
-          <p className="mt-2 text-gray-600">Manage user accounts, roles, and permissions.</p>
-        </div>
+    <Suspense fallback={<div>Loading user management...</div>}>
+      <main className="min-h-screen bg-gray-50" data-testid="admin-users-page">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900" data-testid="admin-users-title">
+              User Management
+            </h1>
+            <p className="mt-2 text-gray-600">Manage user accounts, roles, and permissions.</p>
+          </div>
 
-        <div className="bg-white shadow-sm rounded-lg border border-gray-200">
-          <UserManagementTable currentUserRole={sessionUser.role} currentUserId={sessionUser.id} />
+          <div className="bg-white shadow-sm rounded-lg border border-gray-200">
+            <UserManagementTable currentUserRole={sessionUser.role} currentUserId={sessionUser.id} />
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </Suspense>
   );
 }

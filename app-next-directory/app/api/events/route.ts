@@ -1,3 +1,5 @@
+
+
 import { structuredLogger } from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
 
@@ -42,13 +44,13 @@ export async function GET(_request: Request) {
     const events = await fetchFn(query, { now });
 
     return new Response(JSON.stringify({ success: true, data: events }), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
     });
   } catch (error) {
     structuredLogger.error('Events API Error', error, { component: 'events-api' });
     return new Response(JSON.stringify({ success: false, error: 'Failed to fetch events' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
     });
   }
 }

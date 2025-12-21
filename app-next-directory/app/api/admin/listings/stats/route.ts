@@ -1,3 +1,6 @@
+
+
+import { headers } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { getDefaultTimeout, RequestTimeoutError, withRequestTimeout } from '@/lib/http/request';
@@ -26,25 +29,7 @@ function ensureAdmin(sessionUser: SessionUser): boolean {
 
 export async function GET(request: NextRequest, _context: RouteContext) {
   try {
-    // FORTEST: guard for prerender - handle headers() unavailability
-    let session: Awaited<ReturnType<typeof auth>> | null = null;
-    try {
-      session = await auth(request?.headers);
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : String(error);
-      if (msg.includes('headers()') || msg.includes('During prerendering')) {
-        structuredLogger.warn(
-          '[api/admin/listings/stats] headers() unavailable during prerender',
-          error,
-          {
-            route: '/api/admin/listings/stats',
-          }
-        );
-        return new Response(null, { status: 204 });
-      }
-      throw error;
-    }
-
+    const session = await auth(headers());
     const sessionUser = session?.user as SessionUser;
 
     if (!ensureAdmin(sessionUser)) {

@@ -1,9 +1,12 @@
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
 import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 import { ListingsManagementTable } from './ListingsManagementTable';
+
+
 
 export const metadata: Metadata = {
   title: 'Listing Management - Admin Dashboard',
@@ -40,24 +43,26 @@ export default async function AdminListingsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50" data-testid="admin-listings-page">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900" data-testid="admin-listings-title">
-            Listing Management
-          </h1>
-          <p className="mt-2 text-gray-600">
-            Manage listings, approve submissions, and feature content.
-          </p>
-        </div>
+    <Suspense fallback={<div>Loading listings management...</div>}>
+      <main className="min-h-screen bg-gray-50" data-testid="admin-listings-page">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900" data-testid="admin-listings-title">
+              Listing Management
+            </h1>
+            <p className="mt-2 text-gray-600">
+              Manage listings, approve submissions, and feature content.
+            </p>
+          </div>
 
-        <div className="bg-white shadow-sm rounded-lg border border-gray-200">
-          <ListingsManagementTable
-            currentUserRole={sessionUser.role}
-            currentUserId={sessionUser.id}
-          />
+          <div className="bg-white shadow-sm rounded-lg border border-gray-200">
+            <ListingsManagementTable
+              currentUserRole={sessionUser.role}
+              currentUserId={sessionUser.id}
+            />
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </Suspense>
   );
 }

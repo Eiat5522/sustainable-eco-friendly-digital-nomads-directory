@@ -1,3 +1,5 @@
+
+
 // PATCH: Align GROQ query and DTO mapping with appView.ts
 import { structuredLogger } from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
@@ -186,7 +188,7 @@ export async function GET() {
       startedAt: requestStartTimestamp,
     });
 
-    return ApiResponseHandler.success({ listings: dtoListings });
+    return ApiResponseHandler.success({ listings: dtoListings }, { 'Cache-Control': 'no-store' });
   } catch (error) {
     const endTime = performance.now();
 
@@ -202,6 +204,6 @@ export async function GET() {
       performance: {
         totalTimeMs: (endTime - startTime).toFixed(2),
       },
-    });
+    }, { 'Cache-Control': 'no-store' });
   }
 }

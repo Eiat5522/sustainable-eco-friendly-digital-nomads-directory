@@ -48,8 +48,11 @@
     "typescript.tsdk": "app-next-directory/node_modules/typescript/lib",
     "astGrep.configPath": "/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/sgconfig.yml",
     "astGrep.serverPath": "/home/eiat/.nvm/versions/node/v22.21.0/bin/typescript-language-server",
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
-    "chat.useClaudeSkills": true
+    "editor.defaultFormatter": "biomejs.biome",
+    "chat.useClaudeSkills": true,
+    "playwright.pickLocatorCopyToClipboard": true,
+    "playwright.reuseBrowser": true,
+    "playwright.runGlobalSetupOnEachRun": true
   },
   "extensions": {
     "recommendations": [

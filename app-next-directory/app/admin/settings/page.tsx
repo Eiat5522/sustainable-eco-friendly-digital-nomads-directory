@@ -1,9 +1,12 @@
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
 import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 import { SettingsForm } from './SettingsForm';
+
+
 
 // MIGRATED: Removed `export const dynamic = 'force-dynamic'` to be compatible
 // with `cacheComponents`. This route is dynamic-by-default under Cache Components.
@@ -49,19 +52,21 @@ export default async function AdminSettingsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50" data-testid="admin-settings-page">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900" data-testid="admin-settings-title">
-            Admin Settings
-          </h1>
-          <p className="mt-2 text-gray-600">Configure application settings and preferences.</p>
-        </div>
+    <Suspense fallback={<div>Loading admin settings...</div>}>
+      <main className="min-h-screen bg-gray-50" data-testid="admin-settings-page">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900" data-testid="admin-settings-title">
+              Admin Settings
+            </h1>
+            <p className="mt-2 text-gray-600">Configure application settings and preferences.</p>
+          </div>
 
-        <div className="bg-white shadow-sm rounded-lg border border-gray-200">
-          <SettingsForm />
+          <div className="bg-white shadow-sm rounded-lg border border-gray-200">
+            <SettingsForm />
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </Suspense>
   );
 }
