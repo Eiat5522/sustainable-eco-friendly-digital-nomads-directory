@@ -316,10 +316,16 @@ export async function getAllCitySlugs(): Promise<string[]> {
     return cities.map(city => city.slug);
   }
 
-  const getAllCitySlugsQuery = groq`*[_type == "city"].slug.current`;
+  try {
+    const getAllCitySlugsQuery = groq`*[_type == "city"].slug.current`;
 
-  const slugs = await cachedClient.fetch<string[]>(getAllCitySlugsQuery);
-  return Array.isArray(slugs)
-    ? slugs.filter((slug): slug is string => typeof slug === 'string' && slug.length > 0)
-    : [];
+    const slugs = await cachedClient.fetch<string[]>(getAllCitySlugsQuery);
+    return Array.isArray(slugs)
+      ? slugs.filter((slug): slug is string => typeof slug === 'string' && slug.length > 0)
+      : [];
+  } catch (error) {
+    // During build time, Sanity may not be available
+    // Return empty array to allow build to proceed with fallback params
+    return [];
+  }
 }
