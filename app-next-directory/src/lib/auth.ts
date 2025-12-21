@@ -279,9 +279,9 @@ export async function auth(
     try {
       const msg = error instanceof Error ? error.message : String(error);
       if (msg.includes('headers()') || msg.includes('During prerendering')) {
+        // Log at info level since this is expected behavior during prerendering
         structuredLogger.info(
           '[auth] headers() unavailable during prerender, returning null',
-          error,
           {
             component: 'auth',
           }

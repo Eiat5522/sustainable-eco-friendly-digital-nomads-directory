@@ -121,7 +121,18 @@ function getClientPromise(): Promise<MongoClient> {
 
 // FORTEST: Export a proper Promise that delegates to getClientPromise()
 // This ensures full Promise compatibility including Symbol.toStringTag
-const clientPromiseExport = new Promise<MongoClient>((resolve, reject) => {
-  getClientPromise().then(resolve, reject);
-});
+// Lazy initialization to prevent errors during build when MongoDB is not configured
+const clientPromiseExport: Promise<MongoClient> = {
+  then(onfulfilled, onrejected) {
+    return getClientPromise().then(onfulfilled, onrejected);
+  },
+  catch(onrejected) {
+    return getClientPromise().catch(onrejected);
+  },
+  finally(onfinally) {
+    return getClientPromise().finally(onfinally);
+  },
+  [Symbol.toStringTag]: 'Promise',
+} as Promise<MongoClient>;
+
 export default clientPromiseExport;
