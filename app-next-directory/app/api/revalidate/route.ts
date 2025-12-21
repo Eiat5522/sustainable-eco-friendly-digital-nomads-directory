@@ -1,4 +1,5 @@
 import { revalidatePath } from 'next/cache';
+import { connection } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { structuredLogger } from '@/lib/logger';
 import { ApiResponseHandler } from '@/utils/api-response';
@@ -9,6 +10,9 @@ import { validateRevalidationToken } from '@/utils/revalidation-token';
 // or server-only handlers for dynamic behaviors where needed.
 
 export async function GET(request: NextRequest) {
+  // Signal that this route should be dynamically rendered at request time
+  await connection();
+  
   let pathParam: string | null = null;
   try {
     // Parse search params from request URL to avoid nextUrl.searchParams prerender bailout

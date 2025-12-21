@@ -279,7 +279,7 @@ export async function auth(
     try {
       const msg = error instanceof Error ? error.message : String(error);
       if (msg.includes('headers()') || msg.includes('During prerendering')) {
-        structuredLogger.warn(
+        structuredLogger.info(
           '[auth] headers() unavailable during prerender, returning null',
           error,
           {

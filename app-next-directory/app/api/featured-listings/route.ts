@@ -63,7 +63,7 @@ export async function GET() {
   });
 
   if (!isSanityConfigured()) {
-    structuredLogger.warn('Sanity configuration missing, returning mock featured venues', {
+    structuredLogger.info('Sanity configuration missing, returning mock featured venues', {
       component: 'api/featured-listings',
     });
     return ApiResponseHandler.success({ listings: mockFeaturedVenues });

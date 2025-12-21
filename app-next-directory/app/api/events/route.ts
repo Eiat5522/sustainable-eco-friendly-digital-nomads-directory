@@ -1,5 +1,6 @@
 
 
+import { connection } from 'next/server';
 import { structuredLogger } from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
 
@@ -22,6 +23,10 @@ if (process.env.NODE_ENV === 'test') {
 }
 
 export async function GET(_request: Request) {
+  // Signal that this route should be dynamically rendered at request time
+  // This prevents HANGING_PROMISE_REJECTION errors during prerendering
+  await connection();
+  
   try {
     const now = new Date().toISOString();
 

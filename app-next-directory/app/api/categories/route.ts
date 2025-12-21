@@ -1,3 +1,4 @@
+import { connection } from 'next/server';
 import { groq } from 'next-sanity';
 import { cacheHelpers } from '@/lib/cache-strategy';
 import { DEFAULT_CATEGORIES } from '@/lib/constants/categories';
@@ -5,6 +6,10 @@ import { structuredLogger } from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
 import { ApiResponseHandler } from '@/utils/api-response';
 export async function GET() {
+  // Signal that this route should be dynamically rendered at request time
+  // This prevents HANGING_PROMISE_REJECTION errors during prerendering
+  await connection();
+  
   try {
     const categories = (await cacheHelpers.categories(async () => {
       return await client.fetch(
