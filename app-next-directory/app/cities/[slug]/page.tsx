@@ -1,5 +1,4 @@
 import { connection } from 'next/server';
-import { Suspense } from 'react';
 import { CityDetailView } from '@/components/city/CityDetailView';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';

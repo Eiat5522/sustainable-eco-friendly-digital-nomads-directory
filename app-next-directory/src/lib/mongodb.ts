@@ -119,20 +119,27 @@ function getClientPromise(): Promise<MongoClient> {
   return clientPromise;
 }
 
-// FORTEST: Export a proper Promise that delegates to getClientPromise()
-// This ensures full Promise compatibility including Symbol.toStringTag
-// Lazy initialization to prevent errors during build when MongoDB is not configured
-const clientPromiseExport: Promise<MongoClient> = {
-  then(onfulfilled, onrejected) {
-    return getClientPromise().then(onfulfilled, onrejected);
-  },
-  catch(onrejected) {
-    return getClientPromise().catch(onrejected);
-  },
-  finally(onfinally) {
-    return getClientPromise().finally(onfinally);
-  },
-  [Symbol.toStringTag]: 'Promise',
-} as Promise<MongoClient>;
+// FORTEST: Export a proper Promise proxy that delegates to getClientPromise().
+// Lazy initialization prevents build-time errors when MongoDB is not configured.
+const clientPromiseExport: Promise<MongoClient> = new Proxy(
+  Promise.resolve(null as unknown as MongoClient),
+  {
+    get(target, prop, receiver) {
+      if (prop === 'then') {
+        return (...args: Parameters<Promise<MongoClient>['then']>) =>
+          getClientPromise().then(...args);
+      }
+      if (prop === 'catch') {
+        return (...args: Parameters<Promise<MongoClient>['catch']>) =>
+          getClientPromise().catch(...args);
+      }
+      if (prop === 'finally') {
+        return (...args: Parameters<Promise<MongoClient>['finally']>) =>
+          getClientPromise().finally(...args);
+      }
+      return Reflect.get(target, prop, receiver);
+    },
+  }
+);
 
 export default clientPromiseExport;

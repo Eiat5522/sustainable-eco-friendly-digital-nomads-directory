@@ -323,7 +323,7 @@ export async function getAllCitySlugs(): Promise<string[]> {
     return Array.isArray(slugs)
       ? slugs.filter((slug): slug is string => typeof slug === 'string' && slug.length > 0)
       : [];
-  } catch (error) {
+  } catch (_error) {
     // During build time, Sanity may not be available
     // Return empty array to allow build to proceed with fallback params
     return [];
