@@ -253,7 +253,6 @@ describe('measureFunctionTime', () => {
       configurable: true,
       value: undefined,
     });
-    (global as any).performance = undefined;
     Date.now = jest.fn().mockReturnValueOnce(1000).mockReturnValueOnce(1033);
     (global as any).Date = Date;
 

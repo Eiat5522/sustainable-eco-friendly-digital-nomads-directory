@@ -215,4 +215,5 @@ jest.mock('next/server', () => ({
   __esModule: true,
   NextResponse: MockNextResponse,
   NextRequest: MockNextRequest,
+  connection: jest.fn(async () => undefined),
 }));

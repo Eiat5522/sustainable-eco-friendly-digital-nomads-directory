@@ -125,17 +125,19 @@ const clientPromiseExport: Promise<MongoClient> = new Proxy(
   Promise.resolve(null as unknown as MongoClient),
   {
     get(target, prop, receiver) {
+      const getSafePromise = () => Promise.resolve().then(() => getClientPromise());
+
       if (prop === 'then') {
         return (...args: Parameters<Promise<MongoClient>['then']>) =>
-          getClientPromise().then(...args);
+          getSafePromise().then(...args);
       }
       if (prop === 'catch') {
         return (...args: Parameters<Promise<MongoClient>['catch']>) =>
-          getClientPromise().catch(...args);
+          getSafePromise().catch(...args);
       }
       if (prop === 'finally') {
         return (...args: Parameters<Promise<MongoClient>['finally']>) =>
-          getClientPromise().finally(...args);
+          getSafePromise().finally(...args);
       }
       return Reflect.get(target, prop, receiver);
     },

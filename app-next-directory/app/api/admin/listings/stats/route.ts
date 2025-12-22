@@ -29,7 +29,7 @@ function ensureAdmin(sessionUser: SessionUser): boolean {
 
 export async function GET(_request: NextRequest, _context: RouteContext) {
   try {
-    const session = await auth(headers());
+    const session = await auth(await headers());
     const sessionUser = session?.user as SessionUser;
 
     if (!ensureAdmin(sessionUser)) {

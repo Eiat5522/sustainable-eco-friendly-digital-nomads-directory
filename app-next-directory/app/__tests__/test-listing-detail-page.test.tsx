@@ -33,6 +33,11 @@ jest.mock('@/components/listings/listingDetailMockData', () => ({
 
 describe('ListingDetailTestPage', () => {
   const ORIGINAL_ENV = { ...process.env };
+  const expectedGalleryImages = [
+    '/test-images/gallery-1.svg',
+    '/test-images/gallery-2.svg',
+    '/test-images/gallery-3.svg',
+  ];
 
   beforeEach(() => {
     jest.resetModules();
@@ -64,7 +69,10 @@ describe('ListingDetailTestPage', () => {
       ]
     >;
 
-    expect(callArgs[0].listing).toBe(mockListingDetailData);
+    expect(callArgs[0].listing).toEqual({
+      ...mockListingDetailData,
+      galleryImages: expectedGalleryImages,
+    });
     expect(callArgs[0].reviews).toBe(mockReviewsData);
     expect(callArgs[0].relatedListings).toBe(mockRelatedListingsData);
     expect(callArgs[0].isSignedIn).toBe(false);
@@ -77,6 +85,8 @@ describe('ListingDetailTestPage', () => {
   it('hides the detail view when running in production without overrides', async () => {
     process.env.NODE_ENV = 'production';
     delete process.env.ENABLE_TEST_PAGES;
+    delete process.env.NEXT_PUBLIC_E2E;
+    delete process.env.E2E;
 
     const { default: ListingDetailTestPage } = await import('../test/listing-detail/page');
 
@@ -89,6 +99,8 @@ describe('ListingDetailTestPage', () => {
   it('allows enabling the page explicitly in production', async () => {
     process.env.NODE_ENV = 'production';
     process.env.ENABLE_TEST_PAGES = 'true';
+    delete process.env.NEXT_PUBLIC_E2E;
+    delete process.env.E2E;
 
     const { default: ListingDetailTestPage } = await import('../test/listing-detail/page');
 

@@ -188,7 +188,9 @@ export async function GET() {
       startedAt: requestStartTimestamp,
     });
 
-    return ApiResponseHandler.success({ listings: dtoListings }, { 'Cache-Control': 'no-store' });
+    const response = ApiResponseHandler.success({ listings: dtoListings });
+    response.headers.set('Cache-Control', 'no-store');
+    return response;
   } catch (error) {
     const endTime = performance.now();
 
@@ -198,12 +200,14 @@ export async function GET() {
       startedAt: requestStartTimestamp,
     });
 
-    return ApiResponseHandler.error('Failed to fetch listings', 500, {
+    const response = ApiResponseHandler.error('Failed to fetch listings', 500, {
       details: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString(),
       performance: {
         totalTimeMs: (endTime - startTime).toFixed(2),
       },
-    }, { 'Cache-Control': 'no-store' });
+    });
+    response.headers.set('Cache-Control', 'no-store');
+    return response;
   }
 }

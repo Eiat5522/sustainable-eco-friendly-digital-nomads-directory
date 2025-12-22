@@ -20,6 +20,11 @@ jest.mock('@/components/listings/listingDetailMockData', () => ({
 
 describe('ListingDetailTestPage', () => {
   const originalEnv = process.env;
+  const expectedGalleryImages = [
+    '/test-images/gallery-1.svg',
+    '/test-images/gallery-2.svg',
+    '/test-images/gallery-3.svg',
+  ];
 
   beforeEach(() => {
     jest.resetModules();
@@ -37,6 +42,8 @@ describe('ListingDetailTestPage', () => {
       configurable: true,
     });
     delete process.env.ENABLE_TEST_PAGES;
+    delete process.env.NEXT_PUBLIC_E2E;
+    delete process.env.E2E;
 
     const { default: ListingDetailTestPage } = await import('./page');
     render(<ListingDetailTestPage />);
@@ -52,13 +59,15 @@ describe('ListingDetailTestPage', () => {
       configurable: true,
     });
     process.env.ENABLE_TEST_PAGES = 'false';
+    delete process.env.NEXT_PUBLIC_E2E;
+    delete process.env.E2E;
 
     const { default: ListingDetailTestPage } = await import('./page');
     render(<ListingDetailTestPage />);
 
     expect(screen.getByTestId('listing-detail-view')).toBeInTheDocument();
     expect(screen.getByTestId('listing-detail-listing').textContent).toBe(
-      JSON.stringify({ id: 'listing-123' })
+      JSON.stringify({ id: 'listing-123', galleryImages: expectedGalleryImages })
     );
     expect(screen.getByTestId('listing-detail-reviews').textContent).toBe(
       JSON.stringify([{ id: 'review-1' }])
@@ -77,6 +86,8 @@ describe('ListingDetailTestPage', () => {
       configurable: true,
     });
     process.env.ENABLE_TEST_PAGES = 'true';
+    delete process.env.NEXT_PUBLIC_E2E;
+    delete process.env.E2E;
 
     const { default: ListingDetailTestPage } = await import('./page');
     render(<ListingDetailTestPage />);
