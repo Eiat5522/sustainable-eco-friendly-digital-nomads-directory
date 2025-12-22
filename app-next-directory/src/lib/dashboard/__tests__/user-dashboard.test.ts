@@ -78,7 +78,6 @@ describe('getUserDashboardData', () => {
       id: 'user-1',
       name: ' Alice ',
       email: 'Alice@Example.com ',
-      role: 'user',
     });
     expect(result?.data.kind).toBe('user');
     expect(result?.data.favorites).toHaveLength(1);

@@ -115,7 +115,7 @@ export async function getUserDashboardData(
   const buckets = createMonthBuckets(months, referenceDate);
   const rangeStart = buckets[0]?.start ?? referenceDate;
 
-  await ensureSanityUser({ id, name: name ?? null, email: email ?? null, role });
+  await ensureSanityUser({ id, name: name ?? null, email: email ?? null });
 
   const isVenueOwner = role === 'venueOwner' || role === 'admin';
 

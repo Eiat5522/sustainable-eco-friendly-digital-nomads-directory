@@ -219,7 +219,6 @@ export async function POST(request: Request) {
       id: userId,
       name: user?.name ?? null,
       email: user?.email ?? null,
-      role,
     });
 
     const userRef = sanityUser?._id ?? userId;

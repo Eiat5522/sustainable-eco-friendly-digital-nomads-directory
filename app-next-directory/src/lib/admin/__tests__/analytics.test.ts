@@ -1,5 +1,6 @@
 import structuredLogger from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
+import { getRoleCounts } from '@/lib/auth/dal';
 import type {
   BulkOperationType,
   ListingWorkflowPatch,
@@ -38,6 +39,11 @@ jest.mock('@/lib/logger', () => {
     default: logger,
   };
 });
+
+// Mock Mongo role counts since analytics now sources role counts from Mongo DAL
+jest.mock('@/lib/auth/dal', () => ({
+  getRoleCounts: jest.fn(),
+}));
 
 type MockPatchChain = {
   set: jest.MockedFunction<(payload: Record<string, unknown>) => MockPatchChain>;
@@ -187,17 +193,21 @@ describe('admin analytics helpers', () => {
           userReports: [{ _key: 'report-3' }],
         },
       ],
-      1, // admin count
-      undefined, // user count (becomes 0)
-      7, // venueOwner count (changed from 3 to 7)
-      8, // superAdmin count (changed from 4 to 8)
-      5,
+      5, // weekly signups
       6,
       7,
       8,
       undefined,
     ];
     fetchMock.mockImplementation(() => Promise.resolve(fetchSequence.shift()));
+
+    // Provide mocked Mongo role counts to align with new DAL-based source
+    (getRoleCounts as jest.Mock).mockResolvedValue({
+      admin: 1,
+      user: 0,
+      venueOwner: 7,
+      superAdmin: 8,
+    });
 
     const snapshot = await fetchAdminAnalytics();
 
@@ -237,6 +247,13 @@ describe('admin analytics helpers', () => {
       undefined,
     ];
     fetchMock.mockImplementation(() => Promise.resolve(fetchSequence.shift()));
+
+    (getRoleCounts as jest.Mock).mockResolvedValue({
+      admin: 0,
+      user: 0,
+      venueOwner: 0,
+      superAdmin: 0,
+    });
 
     const snapshot = await fetchAdminAnalytics();
 

@@ -34,7 +34,6 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
       id: userId,
       name: user?.name ?? null,
       email: user?.email ?? null,
-      role: userRole,
     });
 
     if (!sanityUser) {

@@ -160,7 +160,6 @@ export async function POST(request: NextRequest) {
         id: userId,
         name: user?.name ?? null,
         email: user?.email ?? null,
-        role: userRole,
       }),
     ]);
 

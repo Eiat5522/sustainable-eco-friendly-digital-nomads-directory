@@ -125,13 +125,33 @@ test.describe('Role-Based Access Control (RBAC)', () => {
       await expect(editorPage.locator('[data-testid="create-blog-post"]')).toBeVisible();
     });
 
-    test('editor can moderate listings', async ({ editorPage }) => {
+    test('editor can manage listings (create, edit, read, delete)', async ({ editorPage }) => {
+      // Create listing
+      await editorPage.goto('/listings/create');
+
+      await editorPage.fill('input[name="name"]', 'Editor Test Venue');
+      await editorPage.fill('textarea[name="description"]', 'Editor Test Description');
+      await editorPage.fill('input[name="location"]', 'Editor Test Location');
+      await editorPage.click('button[type="submit"]');
+
+      await expect(editorPage.locator('text=Listing created successfully')).toBeVisible();
+
+      // Assume created listing appears in admin listings
       await editorPage.goto('/admin/listings');
+      const created = editorPage.locator('text=Editor Test Venue').first();
+      await expect(created).toBeVisible();
 
-      const pendingListing = editorPage.locator('[data-testid="pending-listing"]').first();
-      await pendingListing.locator('[data-testid="approve-listing"]').click();
+      // Edit listing
+      await created.locator('[data-testid="edit-listing"]').click();
+      await editorPage.fill('input[name="name"]', 'Editor Test Venue Updated');
+      await editorPage.click('button[type="submit"]');
+      await expect(editorPage.locator('text=Listing updated successfully')).toBeVisible();
 
-      await expect(editorPage.locator('text=Listing approved')).toBeVisible();
+      // Delete listing
+      const listingRow = editorPage.locator('[data-testid="listing-row"]').filter({ hasText: 'Editor Test Venue Updated' }).first();
+      await listingRow.locator('[data-testid="delete-listing"]').click();
+      await editorPage.locator('[data-testid="confirm-delete"]').click();
+      await expect(editorPage.locator('text=Listing deleted successfully')).toBeVisible();
     });
 
     test('editor cannot access user management', async ({ editorPage }) => {

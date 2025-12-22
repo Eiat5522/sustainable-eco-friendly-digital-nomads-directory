@@ -107,16 +107,16 @@ module.exports = {
   // Scope discovery to your source dirs in this package
   roots: ['<rootDir>/src', '<rootDir>/app'],
 
-  // Transform with SWC and emit ESM so top-level await & unstable_mockModule work
+  // Transform TypeScript/JSX with ts-jest to support type-only imports and JSX
   transform: {
     '^.+\\.(t|j)sx?$': [
-      '@swc/jest',
+      'ts-jest',
       {
-        jsc: {
-          target: 'es2022',
-          transform: { react: { runtime: 'automatic' } },
+        tsconfig: '<rootDir>/tsconfig.json',
+        isolatedModules: false,
+        diagnostics: {
+          warnOnly: true,
         },
-        module: { type: 'es6' },
       },
     ],
   },

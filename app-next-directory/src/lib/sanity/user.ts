@@ -42,7 +42,7 @@ async function ensureSanityUserInternal({ id, name, email }: EnsureUserOptions):
   const safeEmail = normaliseEmail(email);
   const safeName = normaliseName(name) ?? FALLBACK_NAME;
   // Remove role handling from Sanity sync — Sanity is CMS-only for roles
-  const safeRole = undefined;
+  
 
   try {
     // Create or ensure a minimal CMS-only Sanity user doc. Do NOT write role information.

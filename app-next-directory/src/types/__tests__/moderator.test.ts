@@ -8,9 +8,9 @@ describe('moderator types and functions', () => {
       expect(role).toBe('admin');
     });
 
-    it('should accept moderator role', () => {
-      const role: ModeratorRole = 'moderator';
-      expect(role).toBe('moderator');
+    it('should accept editor role', () => {
+      const role: ModeratorRole = 'editor';
+      expect(role).toBe('editor');
     });
 
     it('should accept reviewer role', () => {
@@ -24,7 +24,7 @@ describe('moderator types and functions', () => {
       const moderator: Moderator = {
         id: 'mod-123',
         email: 'moderator@example.com',
-        role: 'moderator',
+        role: 'editor',
         name: 'John Doe',
         actionsCount: {
           approved: 10,
@@ -34,7 +34,7 @@ describe('moderator types and functions', () => {
         lastActive: new Date('2024-01-15'),
       };
       expect(moderator.id).toBe('mod-123');
-      expect(moderator.role).toBe('moderator');
+      expect(moderator.role).toBe('editor');
     });
 
     it('should accept moderator with assigned categories', () => {
@@ -75,7 +75,7 @@ describe('moderator types and functions', () => {
       const moderator: Moderator = {
         id: 'mod-1',
         email: 'test@example.com',
-        role: 'moderator',
+        role: 'editor',
         name: 'Test Moderator',
         actionsCount: {
           approved: 100,
@@ -96,7 +96,7 @@ describe('moderator types and functions', () => {
       const mod1: Moderator = {
         id: '1',
         email: 'mod1@example.com',
-        role: 'moderator',
+        role: 'editor',
         name: 'Mod 1',
         actionsCount: { approved: 0, rejected: 0, flagged: 0 },
         lastActive: date1,
@@ -105,7 +105,7 @@ describe('moderator types and functions', () => {
       const mod2: Moderator = {
         id: '2',
         email: 'mod2@example.com',
-        role: 'moderator',
+        role: 'editor',
         name: 'Mod 2',
         actionsCount: { approved: 0, rejected: 0, flagged: 0 },
         lastActive: date2,
@@ -286,7 +286,7 @@ describe('moderator types and functions', () => {
       const moderator: Moderator = {
         id: 'mod-1',
         email: 'test@example.com',
-        role: 'moderator',
+        role: 'editor',
         name: 'Test Mod',
         actionsCount: { approved: 10, rejected: 5, flagged: 2 },
         lastActive: new Date(),
@@ -300,7 +300,7 @@ describe('moderator types and functions', () => {
     });
 
     it('should support role-based access control patterns', () => {
-      const roles: ModeratorRole[] = ['admin', 'moderator', 'reviewer'];
+      const roles: ModeratorRole[] = ['admin', 'editor', 'reviewer'];
       const permissionsMap = roles.map(role => ({
         role,
         permissions: getRolePermissions(role),
@@ -341,7 +341,7 @@ describe('moderator types and functions', () => {
         {
           id: '2',
           email: 'mod@test.com',
-          role: 'moderator',
+          role: 'editor',
           name: 'Moderator',
           actionsCount: { approved: 0, rejected: 0, flagged: 0 },
           lastActive: new Date(),
@@ -349,7 +349,7 @@ describe('moderator types and functions', () => {
       ];
 
       const admins = moderators.filter(m => m.role === 'admin');
-      const mods = moderators.filter(m => m.role === 'moderator');
+      const mods = moderators.filter(m => m.role === 'editor');
 
       expect(admins).toHaveLength(1);
       expect(mods).toHaveLength(1);

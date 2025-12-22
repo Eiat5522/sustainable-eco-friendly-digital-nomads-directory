@@ -106,6 +106,8 @@ describe('Header', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    // Ensure signOut resolves to avoid hanging async behaviour in tests
+    signOutSpy.mockResolvedValue(undefined as unknown as void);
     // Create fresh console spies per-test so restoreAllMocks in afterEach doesn't
     // permanently remove them for subsequent tests.
     consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});

@@ -34,7 +34,7 @@
     "test:e2e:legacy": "jest --config=jest.e2e.config.cjs --runInBand --detectOpenHandles --passWithNoTests --",
     "test:watch": "jest --config=jest.config.cjs --watch",
     "test:coverage": "jest --config=jest.config.cjs --coverage",
-    "test:ci": "jest --config=jest.config.cjs --runInBand",
+    "test:ci": "pnpm lint && pnpm tsc --noEmit && pnpm test:unit",
     "format": "cd .. && biome format --write .",
     "format:check": "cd .. && biome format .",
     "lint:biome": "cd .. && biome lint .",
