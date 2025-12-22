@@ -145,10 +145,41 @@ export async function GET() {
     });
     const queryStartTime = performance.now();
 
-    const listings = await client.fetch<FeaturedListing[]>(FEATURED_LISTINGS_QUERY);
+    // Protect prerender from hanging/aborted network requests by adding
+    // a timeout and handling rejected fetches so Next's prerenderer doesn't
+    // surface a hanging-promise rejection. We intentionally keep a short
+    // timeout to fail fast during static generation and fall back to
+    // mock data where appropriate.
+    const FETCH_TIMEOUT_MS = 10_000;
+
+    // Start the fetch and attach a catcher to avoid unhandled rejections
+    // in case the request is aborted after prerender completes.
+    const rawFetch = client.fetch<FeaturedListing[]>(FEATURED_LISTINGS_QUERY).catch(
+      err => {
+        // Return null on error; we'll handle logging and fallback below.
+        return null as unknown as FeaturedListing[] | null;
+      }
+    );
+
+    const timeoutPromise = new Promise<null>(resolve =>
+      setTimeout(() => resolve(null), FETCH_TIMEOUT_MS)
+    );
+
+    const fetchResult = (await Promise.race([rawFetch, timeoutPromise])) as
+      | FeaturedListing[]
+      | null;
+
+    if (fetchResult === null) {
+      // Timed out or errored; log and fall back to empty/mocked listings so
+      // prerender can continue without surfacing the underlying network error.
+      structuredLogger.warn('Featured listings fetch timed out or failed; using fallback', {
+        component: 'api/featured-listings',
+        timeoutMs: FETCH_TIMEOUT_MS,
+      });
+    }
 
     // FORTEST: guard for prerender - ensure listings is an array
-    const safeListings = Array.isArray(listings) ? listings : [];
+    const safeListings = Array.isArray(fetchResult) ? fetchResult : [];
     const queryEndTime = performance.now();
     structuredLogger.info('Featured listings query completed', {
       component: 'api/featured-listings',

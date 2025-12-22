@@ -16,6 +16,12 @@ if (
 }
 
 const nextConfig = {
+    experimental: {
+    // Enable filesystem caching for `next dev`
+    turbopackFileSystemCacheForDev: true,
+    // Enable filesystem caching for `next build`
+    turbopackFileSystemCacheForBuild: true,
+  },
   // Transpile shared workspace or ESM packages that ship untranspiled code.
   // Add any other local workspace packages here (e.g. shared UI packages).
   transpilePackages: ['framer-motion', 'sustainable-nomads', 'sanity'],

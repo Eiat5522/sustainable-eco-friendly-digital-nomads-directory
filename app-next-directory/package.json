@@ -40,7 +40,7 @@
     "lint:biome": "cd .. && biome lint .",
     "lint:biome:fix": "cd .. && biome lint --write .",
     "lint": "eslint .",
-    "lint:strict": "eslint --max-warning=0 .",
+    "lint:strict": "eslint --max-warnings=none .",
     "e2e:setup": "node tests/setup-e2e-db.mjs",
     "e2e:clean": "node tests/setup-e2e-db.mjs",
     "test:e2e:isolated": "pnpm e2e:setup && pnpm test:e2e",
