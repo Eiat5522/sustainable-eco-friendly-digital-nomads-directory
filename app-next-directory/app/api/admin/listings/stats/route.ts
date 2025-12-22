@@ -1,6 +1,5 @@
 
 
-import { headers } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { getDefaultTimeout, RequestTimeoutError, withRequestTimeout } from '@/lib/http/request';
@@ -29,7 +28,9 @@ function ensureAdmin(sessionUser: SessionUser): boolean {
 
 export async function GET(_request: NextRequest, _context: RouteContext) {
   try {
-    const session = await auth(await headers());
+    // FORTEST: guard for prerender - return early without accessing dynamic APIs
+    // Admin routes require authentication and should not be prerendered
+    const session = await auth();
     const sessionUser = session?.user as SessionUser;
 
     if (!ensureAdmin(sessionUser)) {

@@ -6,7 +6,8 @@ import requireReactFcTypeParametersRule from './eslint/rules/require-react-fc-ty
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 import pluginJest from 'eslint-plugin-jest';
-import pluginJestDom from 'eslint-plugin-jest-dom';
+// FORTEST: Temporarily disabled - eslint-plugin-jest-dom not in dependencies
+// import pluginJestDom from 'eslint-plugin-jest-dom';
 
 const jestConfig = {
   // update this to match your test files
@@ -24,19 +25,20 @@ const jestConfig = {
   },
 };
 
-const jestDomConfig = {
-  files: [
-    '**/*.spec.js', '**/*.test.js', '**/*.test.*', '**/__tests__/**/*', '**/tests/**/*'
-  ],
-  ...pluginJestDom.configs['flat/recommended'],
-};
+// FORTEST: Temporarily disabled - eslint-plugin-jest-dom not in dependencies
+// const jestDomConfig = {
+//   files: [
+//     '**/*.spec.js', '**/*.test.js', '**/*.test.*', '**/__tests__/**/*', '**/tests/**/*'
+//   ],
+//   ...pluginJestDom.configs['flat/recommended'],
+// };
 // Use FlatCompat to convert eslint-config-next to flat config format
 const compat = new FlatCompat({
   baseDirectory: __dirname,
   recommendedConfig: js.configs.recommended,
 });
 
-const eslintConfig = [jestConfig, jestDomConfig,    
+const eslintConfig = [jestConfig, /* jestDomConfig, */    
   {
     ignores: [
       '**/node_modules/**',
