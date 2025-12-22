@@ -101,10 +101,3 @@ Safe rollback checklist
 5. Deploy to staging and smoke-test protected admin routes, login flows, and user sessions.
 6. If issues found, revert the feature branch and restore data from backups; if role translations were applied manually, document the mapping and reverse it if needed.
 7. Record all DB changes in a change-log file under `scripts/migrations/` so manual actions are auditable and reversible.
-
-Next actions I can take now (confirm one):
-- A: Implement the code edits listed above and update tests accordingly (I will update the todo list as I progress).
-- B: Only create the helper `scripts/report-sanity-roles.js` and produce the `/tmp/sanity-roles-report.json` for you to map manually.
-- C: Prepare the migration and tokenVersion change PR with tests and a staging deployment plan.
-
-Please confirm which next action you want me to take.
