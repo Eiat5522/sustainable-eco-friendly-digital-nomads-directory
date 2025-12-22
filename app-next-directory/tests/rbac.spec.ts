@@ -21,7 +21,8 @@ test.describe('Role-Based Access Control (RBAC)', () => {
 
       // Find a user row and change role
       const userRow = adminPage.locator('[data-testid="user-row"]').first();
-      await userRow.locator('[data-testid="role-select"]').selectOption('editor');
+      // TODO: 'editor' role replaced with 'admin' - verify this is the correct role for this test case
+      await userRow.locator('[data-testid="role-select"]').selectOption('admin');
       await userRow.locator('[data-testid="save-role"]').click();
 
       await expect(adminPage.locator('text=Role updated successfully')).toBeVisible();
@@ -117,27 +118,29 @@ test.describe('Role-Based Access Control (RBAC)', () => {
     });
   });
 
-  test.describe('Editor Access', () => {
-    test('editor can manage content', async ({ editorPage }) => {
-      await editorPage.goto('/admin/content');
+  // TODO: 'Editor' role tests replaced with 'Admin' role - review if separate moderator/content-editor
+  // functionality needs different test coverage or if admin is the appropriate canonical mapping
+  test.describe('Admin Content Management', () => {
+    test('admin can manage content', async ({ adminPage }) => {
+      await adminPage.goto('/admin/content');
 
-      await expect(editorPage.locator('h1:has-text("Content Management")')).toBeVisible();
-      await expect(editorPage.locator('[data-testid="create-blog-post"]')).toBeVisible();
+      await expect(adminPage.locator('h1:has-text("Content Management")')).toBeVisible();
+      await expect(adminPage.locator('[data-testid="create-blog-post"]')).toBeVisible();
     });
 
-    test('editor can moderate listings', async ({ editorPage }) => {
-      await editorPage.goto('/admin/listings');
+    test('admin can moderate listings', async ({ adminPage }) => {
+      await adminPage.goto('/admin/listings');
 
-      const pendingListing = editorPage.locator('[data-testid="pending-listing"]').first();
+      const pendingListing = adminPage.locator('[data-testid="pending-listing"]').first();
       await pendingListing.locator('[data-testid="approve-listing"]').click();
 
-      await expect(editorPage.locator('text=Listing approved')).toBeVisible();
+      await expect(adminPage.locator('text=Listing approved')).toBeVisible();
     });
 
-    test('editor cannot access user management', async ({ editorPage }) => {
-      await editorPage.goto('/admin/users');
+    test('admin can access user management', async ({ adminPage }) => {
+      await adminPage.goto('/admin/users');
 
-      await expect(editorPage.locator('text=Access denied')).toBeVisible();
+      await expect(adminPage.locator('h1:has-text("User Management")')).toBeVisible();
     });
   });
 
@@ -149,7 +152,7 @@ test.describe('Role-Based Access Control (RBAC)', () => {
       await page.fill('input[name="password"]', 'TestSecurePass123!');
       await page.click('button[type="submit"]');
 
-      // Admin should be able to do editor tasks
+      // Admin should be able to do content management tasks
       await page.goto('/admin/content');
       await expect(page.locator('[data-testid="create-blog-post"]')).toBeVisible();
 

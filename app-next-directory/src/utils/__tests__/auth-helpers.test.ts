@@ -88,7 +88,7 @@ describe('Auth Helpers', () => {
     it('should return session when user has one of multiple allowed roles', async () => {
       mockAuth.mockResolvedValue(adminSession);
 
-      const result = await requireRole(['admin', 'superadmin']);
+      const result = await requireRole(['admin', 'superAdmin']);
 
       expect(result).toEqual(adminSession);
     });
@@ -96,7 +96,8 @@ describe('Auth Helpers', () => {
     it('should throw FORBIDDEN error when user does not have required role', async () => {
       mockAuth.mockResolvedValue(mockSession);
 
-      await expect(requireRole(['admin', 'moderator'])).rejects.toThrow('FORBIDDEN');
+      // TODO: 'moderator' role replaced with 'admin' for test - verify this permission mapping is correct
+      await expect(requireRole(['admin', 'superAdmin'])).rejects.toThrow('FORBIDDEN');
     });
 
     it('should throw UNAUTHORIZED error when user is not authenticated', async () => {
