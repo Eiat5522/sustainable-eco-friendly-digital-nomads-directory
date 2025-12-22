@@ -244,3 +244,4 @@ playwright-report-app-next.zip
 !.github/chatmodes/**
 !app-next-directory/.github/chatmodes/**
 !e2e-output.txt
+untitled:plan-fixE2eIsolateTests.prompt.md
