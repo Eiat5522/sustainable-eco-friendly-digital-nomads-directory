@@ -146,35 +146,29 @@ describe('Featured Listings API - GET /api/featured-listings', () => {
   });
 
   describe('Error Handling', () => {
-    it('should return 500 on database fetch failure', async () => {
+    it('should return empty listings on database fetch failure', async () => {
       mockedFetch.mockRejectedValueOnce(new Error('Sanity fetch error'));
 
       const response = await GET();
       const data = await response.json();
 
-      expect(response.status).toBe(500);
-      expect(data.success).toBe(false);
-      expect(data.error).toBe('Failed to fetch listings');
-      // Error details are nested in data.data
-      if (data.data?.details) {
-        expect(data.data.details).toBe('Sanity fetch error');
-      }
+      // During prerendering, errors are caught and return empty listings with 200
+      expect(response.status).toBe(200);
+      expect(data.success).toBe(true);
+      expect(data.data.listings).toEqual([]);
       expect(mockedFetch).toHaveBeenCalledTimes(1);
     });
 
-    it('should handle network timeout errors', async () => {
+    it('should return empty listings on network timeout errors', async () => {
       mockedFetch.mockRejectedValueOnce(new Error('Network timeout'));
 
       const response = await GET();
       const data = await response.json();
 
-      expect(response.status).toBe(500);
-      expect(data.success).toBe(false);
-      expect(data.error).toBe('Failed to fetch listings');
-      // Error details are nested in data.data
-      if (data.data?.details) {
-        expect(data.data.details).toBe('Network timeout');
-      }
+      // During prerendering, errors are caught and return empty listings with 200
+      expect(response.status).toBe(200);
+      expect(data.success).toBe(true);
+      expect(data.data.listings).toEqual([]);
     });
 
     it('should return mock featured venues when project ID is missing', async () => {

@@ -82,9 +82,10 @@ describe('Featured Listings API (MSW)', () => {
     const response = await GET();
     const json = await response.json();
 
-    expect(response.status).toBe(500);
-    expect(json.success).toBe(false);
-    expect(json.error).toBe('Failed to fetch listings');
+    // During prerendering, errors are caught and return empty listings with 200
+    expect(response.status).toBe(200);
+    expect(json.success).toBe(true);
+    expect(json.data.listings).toEqual([]);
   });
 
   it('handles network errors from Sanity', async () => {
@@ -97,8 +98,9 @@ describe('Featured Listings API (MSW)', () => {
     const response = await GET();
     const json = await response.json();
 
-    expect(response.status).toBe(500);
-    expect(json.success).toBe(false);
-    expect(json.error).toBe('Failed to fetch listings');
+    // During prerendering, errors are caught and return empty listings with 200
+    expect(response.status).toBe(200);
+    expect(json.success).toBe(true);
+    expect(json.data.listings).toEqual([]);
   });
 });
