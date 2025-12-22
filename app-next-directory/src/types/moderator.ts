@@ -1,3 +1,15 @@
+/**
+ * Content Moderation Role System
+ * 
+ * NOTE: This is a SEPARATE role system for content moderation permissions,
+ * distinct from the canonical MongoDB user authentication roles (ROLE_VALUES).
+ * 
+ * - ModeratorRole: Defines permissions for content moderation tasks (admin, moderator, reviewer)
+ * - User Role (ROLE_VALUES): Defines authentication/authorization roles (user, venueOwner, admin, superAdmin)
+ * 
+ * These are two different domain models serving different purposes.
+ * Do not confuse ModeratorRole with User authentication roles.
+ */
 export type ModeratorRole = 'admin' | 'moderator' | 'reviewer';
 
 export interface Moderator {
