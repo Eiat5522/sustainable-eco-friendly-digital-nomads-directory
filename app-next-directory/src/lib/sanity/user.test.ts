@@ -40,7 +40,6 @@ describe('user.ts', () => {
         _type: 'user' as const,
         name: 'John Doe',
         email: 'john@example.com',
-        role: 'user',
         createdAt: expect.any(String),
       };
 
@@ -50,15 +49,14 @@ describe('user.ts', () => {
         id: 'user-123',
         name: 'John Doe',
         email: 'john@example.com',
-        role: 'user',
       });
 
+      // Role is NOT written to Sanity anymore
       expect(mockClient.createIfNotExists).toHaveBeenCalledWith({
         _id: 'user-123',
         _type: 'user',
         name: 'John Doe',
         email: 'john@example.com',
-        role: 'user',
         createdAt: expect.any(String),
       });
       expect(result).toEqual(mockUser);
@@ -149,13 +147,12 @@ describe('user.ts', () => {
       );
     });
 
-    it('should default role to "user" when not provided', async () => {
+    it('should not write role to Sanity (MongoDB is source of truth)', async () => {
       const mockUser = {
         _id: 'user-123',
         _type: 'user' as const,
         name: 'John Doe',
         email: 'john@example.com',
-        role: 'user',
         createdAt: expect.any(String),
       };
 
@@ -167,9 +164,10 @@ describe('user.ts', () => {
         email: 'john@example.com',
       });
 
+      // Verify role is NOT written to Sanity
       expect(mockClient.createIfNotExists).toHaveBeenCalledWith(
-        expect.objectContaining({
-          role: 'user',
+        expect.not.objectContaining({
+          role: expect.anything(),
         })
       );
     });
@@ -240,7 +238,6 @@ describe('user.ts', () => {
         _type: 'user' as const,
         name: 'John Doe',
         email: 'old@example.com',
-        role: 'user',
         createdAt: '2024-01-01T00:00:00Z',
       };
 
@@ -262,46 +259,34 @@ describe('user.ts', () => {
         id: 'user-123',
         name: 'John Doe',
         email: 'new@example.com',
-        role: 'user',
       });
 
       expect(mockPatchChain.set).toHaveBeenCalledWith({ email: 'new@example.com' });
       expect(result).toEqual(updatedUser);
     });
 
-    it('should update user when role changes', async () => {
+    // NOTE: Role sync removed - MongoDB is now the single source of truth for roles
+    // This test verifies that role changes do NOT trigger Sanity updates
+    it('should not update Sanity when only MongoDB role changes', async () => {
       const existingUser = {
         _id: 'user-123',
         _type: 'user' as const,
         name: 'John Doe',
         email: 'john@example.com',
-        role: 'user',
         createdAt: '2024-01-01T00:00:00Z',
       };
 
-      const updatedUser = {
-        ...existingUser,
-        role: 'admin',
-      };
-
       mockClient.createIfNotExists.mockResolvedValue(existingUser);
-
-      const mockPatchChain = {
-        set: jest.fn().mockReturnValue({
-          commit: jest.fn().mockResolvedValue(updatedUser),
-        }),
-      };
-      mockClient.patch.mockReturnValue(mockPatchChain as any);
 
       const result = await ensureSanityUser({
         id: 'user-123',
         name: 'John Doe',
         email: 'john@example.com',
-        role: 'admin',
       });
 
-      expect(mockPatchChain.set).toHaveBeenCalledWith({ role: 'admin' });
-      expect(result).toEqual(updatedUser);
+      // No patch should be called since name and email didn't change
+      expect(mockClient.patch).not.toHaveBeenCalled();
+      expect(result).toEqual(existingUser);
     });
 
     it('should update multiple fields when they change', async () => {
@@ -310,7 +295,6 @@ describe('user.ts', () => {
         _type: 'user' as const,
         name: 'Old Name',
         email: 'old@example.com',
-        role: 'user',
         createdAt: '2024-01-01T00:00:00Z',
       };
 
@@ -318,7 +302,6 @@ describe('user.ts', () => {
         ...existingUser,
         name: 'New Name',
         email: 'new@example.com',
-        role: 'moderator',
       };
 
       mockClient.createIfNotExists.mockResolvedValue(existingUser);
@@ -334,13 +317,12 @@ describe('user.ts', () => {
         id: 'user-123',
         name: 'New Name',
         email: 'new@example.com',
-        role: 'moderator',
       });
 
+      // Role is NOT synced to Sanity anymore - only name and email
       expect(mockPatchChain.set).toHaveBeenCalledWith({
         name: 'New Name',
         email: 'new@example.com',
-        role: 'moderator',
       });
     });
 
@@ -384,17 +366,20 @@ describe('user.ts', () => {
     });
 
     it('should handle different user roles', async () => {
-      const roles = ['user', 'moderator', 'admin', 'business_owner', 'super_admin'];
+      // NOTE: Updated to use canonical Mongo ROLE_VALUES. Sanity user sync no longer writes/reads roles.
+      // Roles are now sourced from MongoDB only. This test verifies the function works regardless
+      // of what role the user has in MongoDB.
+      const roles = ['user', 'venueOwner', 'admin', 'superAdmin'];
 
       for (const role of roles) {
         jest.clearAllMocks();
 
+        // Mock what Sanity might return (could have legacy role data, but we don't write it)
         const mockUser = {
           _id: `user-${role}`,
           _type: 'user' as const,
           name: 'Test User',
           email: 'test@example.com',
-          role,
           createdAt: expect.any(String),
         };
 
@@ -404,11 +389,19 @@ describe('user.ts', () => {
           id: `user-${role}`,
           name: 'Test User',
           email: 'test@example.com',
-          role: role as any,
         });
 
+        // Verify we create user without role field
         expect(mockClient.createIfNotExists).toHaveBeenCalledWith(
-          expect.objectContaining({ role })
+          expect.objectContaining({
+            _id: `user-${role}`,
+            name: 'Test User',
+            email: 'test@example.com',
+          })
+        );
+        // Verify role is NOT included in the call
+        expect(mockClient.createIfNotExists).toHaveBeenCalledWith(
+          expect.not.objectContaining({ role: expect.anything() })
         );
       }
     });
