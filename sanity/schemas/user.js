@@ -35,25 +35,10 @@ export default {
       validation: Rule => Rule.max(500).warning('Keep bio concise'),
     },
     {
-      name: 'role',
-      title: 'Role',
-      type: 'string',
-      options: {
-        list: [
-          { title: 'User', value: 'user' },
-          { title: 'Editor', value: 'editor' },
-          { title: 'Venue Owner', value: 'venueOwner' },
-          { title: 'Admin', value: 'admin' },
-        ],
-      },
-      initialValue: 'user',
-    },
-    {
       name: 'ownedListings',
       title: 'Owned Listings',
       type: 'array',
       of: [{ type: 'reference', to: [{ type: 'listing' }] }],
-      hidden: ({ document }) => document?.role !== 'venueOwner' && document?.role !== 'admin',
     },
     {
       name: 'reviews',
@@ -92,6 +77,5 @@ export default {
   },
   indexes: [
     { name: 'byEmail', fields: ['email'] },
-    { name: 'byRole', fields: ['role'] },
   ],
 };

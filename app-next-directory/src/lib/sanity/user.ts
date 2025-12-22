@@ -1,12 +1,10 @@
 import { structuredLogger } from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
-import type { UserRole } from '@/types/auth';
 
 type EnsureUserOptions = {
   id: string;
   name?: string | null;
   email?: string | null;
-  role?: UserRole | null;
 };
 
 type SanityUser = {
@@ -36,27 +34,23 @@ function normaliseName(name: string | null | undefined): string | undefined {
  * Ensures a corresponding Sanity `user` document exists for the authenticated NextAuth user.
  * Creates the document when missing and keeps key identity fields (name/email/role) up to date.
  */
-async function ensureSanityUserInternal({
-  id,
-  name,
-  email,
-  role,
-}: EnsureUserOptions): Promise<SanityUser | null> {
+async function ensureSanityUserInternal({ id, name, email }: EnsureUserOptions): Promise<SanityUser | null> {
   if (!id) {
     return null;
   }
 
   const safeEmail = normaliseEmail(email);
   const safeName = normaliseName(name) ?? FALLBACK_NAME;
-  const safeRole = role ?? 'user';
+  // Remove role handling from Sanity sync — Sanity is CMS-only for roles
+  const safeRole = undefined;
 
   try {
+    // Create or ensure a minimal CMS-only Sanity user doc. Do NOT write role information.
     const baseDoc = await client.createIfNotExists!<SanityUser>({
       _id: id,
       _type: 'user',
       name: safeName,
       ...(safeEmail ? { email: safeEmail } : {}),
-      role: safeRole,
       createdAt: new Date().toISOString(),
     });
 
@@ -70,9 +64,7 @@ async function ensureSanityUserInternal({
       patch.email = safeEmail;
     }
 
-    if (baseDoc.role !== safeRole) {
-      patch.role = safeRole;
-    }
+    // Do not touch `role` in Sanity — MongoDB is the single source of truth for auth/roles.
 
     if (Object.keys(patch).length === 0) {
       return baseDoc;

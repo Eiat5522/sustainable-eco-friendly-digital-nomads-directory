@@ -1,7 +1,9 @@
 import 'server-only';
+import { getRoleCounts } from '@/lib/auth/dal';
 import { getDefaultTimeout, withRequestTimeout } from '@/lib/http/request';
 import { structuredLogger } from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
+import { ROLE_VALUES } from '@/models/User';
 
 export type AdminModerationEntry = {
   id: string;
@@ -29,22 +31,14 @@ type ModerationStatusDocument = {
   userReports?: ModerationReport[] | null;
 };
 
-const ROLE_QUERIES = [
-  { role: 'admin', query: 'count(*[_type == "user" && role == "admin"])' },
-  {
-    role: 'user',
-    query: 'count(*[_type == "user" && (role == "user" || !defined(role))])',
-  },
-  { role: 'venueOwner', query: 'count(*[_type == "user" && role == "venueOwner"])' },
-  { role: 'superAdmin', query: 'count(*[_type == "user" && role == "superAdmin"])' },
-] as const;
-
-type RoleKey = (typeof ROLE_QUERIES)[number]['role'];
+type RoleKey = (typeof ROLE_VALUES)[number];
 
 export type AdminRoleCounts = Record<RoleKey, number>;
 
 export const createEmptyRoleCounts = (): AdminRoleCounts =>
-  Object.fromEntries(ROLE_QUERIES.map(({ role }) => [role, 0] as const)) as AdminRoleCounts;
+  Object.fromEntries(
+    (ROLE_VALUES as readonly string[]).map(role => [role, 0] as const)
+  ) as AdminRoleCounts;
 
 export type AdminAnalyticsSnapshot = {
   overview: {
@@ -69,16 +63,24 @@ type AdminAnalyticsTuple = [
 ];
 
 async function fetchRoleCounts(): Promise<AdminRoleCounts> {
-  const counts = await withRequestTimeout<number[]>(
-    Promise.all(ROLE_QUERIES.map(({ query }) => client.fetch<number>(query) as Promise<number>)),
-    getDefaultTimeout(),
-    'Fetching admin role counts timed out'
-  );
-  const baseCounts = createEmptyRoleCounts();
-  ROLE_QUERIES.forEach(({ role }, index) => {
-    baseCounts[role] = counts[index] ?? 0;
-  });
-  return baseCounts;
+  // Use MongoDB as the single source of truth for role counts
+  try {
+    const counts = await withRequestTimeout<Record<string, number>>(
+      getRoleCounts(),
+      getDefaultTimeout(),
+      'Fetching admin role counts timed out'
+    );
+    const baseCounts = createEmptyRoleCounts();
+    Object.keys(counts).forEach(k => {
+      if (k in baseCounts) {
+        (baseCounts as Record<string, number>)[k] = counts[k] ?? 0;
+      }
+    });
+    return baseCounts;
+  } catch (err) {
+    structuredLogger.warn('[admin/analytics] fetchRoleCounts failed', err);
+    return createEmptyRoleCounts();
+  }
 }
 
 type ModerationQueueProjection = Pick<ModerationStatusDocument, '_id' | '_createdAt' | 'status'> & {

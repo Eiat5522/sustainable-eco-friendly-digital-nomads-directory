@@ -122,6 +122,10 @@ export const client: SanityClientLike = DISABLE_SANITY
   ? stubClient
   : (_client as unknown as SanityClientLike);
 
+// CMS-only alias: export a clearly named client for Sanity CMS operations.
+// IMPORTANT: This client must NOT be used for authentication or role checks.
+export const cmsClient = client;
+
 type ImageUrlBuilderModule = typeof SanityImageUrl & {
   default?: typeof SanityImageUrl;
 };

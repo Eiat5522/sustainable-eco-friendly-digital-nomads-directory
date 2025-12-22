@@ -40,6 +40,11 @@ export interface IUser extends Document {
   image?: string;
   createdAt: Date;
   updatedAt: Date;
+  /**
+   * Increment to invalidate previously issued JWTs for this user.
+   * When changed, sessions that embed the old `tokenVersion` should be treated as expired.
+   */
+  tokenVersion?: number;
   // You can add other fields required by the MongoDBAdapter if not automatically handled
   // For example, if you're not using the default adapter fields:
   // username?: string;
@@ -83,6 +88,11 @@ const UserSchema: Schema<IUser> = new Schema(
     },
     image: {
       type: String,
+    },
+    // Token version to allow targeted session invalidation
+    tokenVersion: {
+      type: Number,
+      default: 0,
     },
     // Timestamps are added by the { timestamps: true } option below
   },

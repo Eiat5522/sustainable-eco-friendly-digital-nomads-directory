@@ -31,6 +31,7 @@ export interface AuthUser {
   role: UserRole;
   status?: 'active' | 'suspended' | 'pending';
   emailVerified?: Date | null;
+  tokenVersion?: number;
 }
 
 /**
@@ -45,6 +46,7 @@ type UserDoc = {
   role: UserRole;
   status?: 'active' | 'suspended' | 'pending';
   emailVerified?: Date | null;
+  tokenVersion?: number;
 };
 
 /**
@@ -64,7 +66,7 @@ export async function getUserByEmail(email: string): Promise<AuthUser | null> {
     await connectDB();
 
     const user = await UserModel.findOne({ email: email.trim().toLowerCase() })
-      .select('_id name email image role status emailVerified')
+      .select('_id name email image role status emailVerified tokenVersion')
       .lean<UserDoc>();
 
     if (!user) {
@@ -99,7 +101,7 @@ export async function getUserById(userId: string): Promise<AuthUser | null> {
     }
 
     const user = await UserModel.findById(userId)
-      .select('_id name email image role status emailVerified')
+      .select('_id name email image role status emailVerified tokenVersion')
       .lean<UserDoc>();
 
     if (!user) {
@@ -114,6 +116,7 @@ export async function getUserById(userId: string): Promise<AuthUser | null> {
       role: user.role,
       status: user.status,
       emailVerified: user.emailVerified,
+      tokenVersion: (user as unknown as { tokenVersion?: number }).tokenVersion,
     };
   } catch (_error) {
     return null;
@@ -295,5 +298,25 @@ export async function createUser(userData: {
     };
   } catch (_error) {
     return null;
+  }
+}
+
+/**
+ * Count users for each canonical role.
+ * Returns an object keyed by ROLE_VALUES with numeric counts.
+ */
+export async function getRoleCounts(): Promise<Record<string, number>> {
+  try {
+    await connectDB();
+    const counts: Record<string, number> = {};
+    await Promise.all(
+      (ROLE_VALUES as readonly string[]).map(async role => {
+        const c = await UserModel.countDocuments({ role } as FilterQuery<UserDoc>);
+        counts[role] = c;
+      })
+    );
+    return counts;
+  } catch (_error) {
+    return Object.fromEntries((ROLE_VALUES as readonly string[]).map(r => [r, 0]));
   }
 }

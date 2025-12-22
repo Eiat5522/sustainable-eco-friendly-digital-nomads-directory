@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
+import { getUserById } from '@/lib/auth/dal';
 import { structuredLogger } from '@/lib/logger';
 import type { UserRole } from '@/types/auth';
 
@@ -47,7 +48,35 @@ export async function proxy(request: NextRequest) {
     // Get token for role-based checks
     const token = await getToken({ req: request, secret });
     const isAuthenticated = !!token;
-    const userRole = token?.role as UserRole | undefined;
+    let userRole = token?.role as UserRole | undefined;
+
+    // If token exists and has an id, revalidate role and tokenVersion against MongoDB
+    if (token?.id) {
+      try {
+        const dbUser = await getUserById(String(token.id));
+        if (dbUser) {
+          // If tokenVersion mismatch, treat as unauthenticated to force re-login
+          const tokenVersionInToken = (token as unknown as { tokenVersion?: number }).tokenVersion;
+          if (
+            typeof tokenVersionInToken === 'number' &&
+            typeof dbUser.tokenVersion === 'number' &&
+            tokenVersionInToken !== dbUser.tokenVersion
+          ) {
+            // Force re-login by treating token as absent
+            return withSecurityHeaders(
+              NextResponse.redirect(new URL('/auth/login', request.nextUrl.origin || request.url))
+            );
+          }
+
+          // Use DB role as canonical
+          userRole = dbUser.role as UserRole;
+        }
+      } catch (err) {
+        structuredLogger.warn('[proxy] failed to revalidate token/user', err, {
+          pathname: request.nextUrl.pathname,
+        });
+      }
+    }
 
     // Auth pages handling - redirect authenticated users to dashboard
     const isAuthPage = authPages.some(p => pathname.startsWith(p));

@@ -155,7 +155,16 @@ const callbacks = {
       const u = user as Partial<{ id: string; role?: UserRole | null; name?: string | null }>;
       if (u.id) t.id = u.id;
       if (u.name) t.name = u.name;
-      if (u.role) {
+      // Always prefer the DB canonical role and tokenVersion when available
+      if (u.id) {
+        const dbUser = await getUserById(String(u.id));
+        if (dbUser) {
+          t.role = dbUser.role;
+          (t as unknown as { tokenVersion?: number }).tokenVersion = dbUser.tokenVersion;
+        } else if (u.role) {
+          t.role = u.role;
+        }
+      } else if (u.role) {
         t.role = u.role;
       }
     } else if (t.id && trigger === 'update') {
@@ -165,6 +174,7 @@ const callbacks = {
       if (dbUser) {
         t.name = dbUser.name;
         t.role = dbUser.role;
+        (t as unknown as { tokenVersion?: number }).tokenVersion = dbUser.tokenVersion;
       }
     }
     const email = (user as { email?: string | null })?.email ?? token.email;
@@ -182,7 +192,7 @@ const callbacks = {
   },
   async session({ session, token, user }) {
     type WithAppUser = typeof session & {
-      user: typeof session.user & { id?: string; role?: UserRole };
+      user: typeof session.user & { id?: string; role?: UserRole; tokenVersion?: number };
     };
     const s = session as WithAppUser;
     if (s.user) {
@@ -193,6 +203,10 @@ const callbacks = {
         s.user.role = token.role as UserRole;
       } else {
         delete s.user.role;
+      }
+      // surface tokenVersion in session for client-side checks if needed
+      if (!user && (token as unknown as { tokenVersion?: number })?.tokenVersion !== undefined) {
+        s.user.tokenVersion = (token as unknown as { tokenVersion?: number }).tokenVersion;
       }
       if (!user && token?.id) s.user.id = String(token.id);
       // Session roles are UI hints only. Protected server routes must re-verify
