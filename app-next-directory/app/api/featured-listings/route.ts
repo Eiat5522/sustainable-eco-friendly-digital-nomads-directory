@@ -63,9 +63,6 @@ export async function GET() {
   });
 
   if (!isSanityConfigured()) {
-    structuredLogger.info('Sanity configuration missing, returning mock featured venues', {
-      component: 'api/featured-listings',
-    });
     return ApiResponseHandler.success({ listings: mockFeaturedVenues });
   }
 
@@ -155,7 +152,7 @@ export async function GET() {
     // Start the fetch and attach a catcher to avoid unhandled rejections
     // in case the request is aborted after prerender completes.
     const rawFetch = client.fetch<FeaturedListing[]>(FEATURED_LISTINGS_QUERY).catch(
-      err => {
+      _err => {
         // Return null on error; we'll handle logging and fallback below.
         return null as unknown as FeaturedListing[] | null;
       }

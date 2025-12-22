@@ -6,22 +6,32 @@
  */
 
 import { jest } from '@jest/globals';
-import { client } from '@/lib/sanity';
 import { GET } from './route';
+import { getClient } from '@/lib/sanity';
 
 // Mock Sanity client
 jest.mock('@/lib/sanity', () => ({
-  client: {
+  getClient: jest.fn(() => ({
     fetch: jest.fn(),
+  })),
+}));
+
+// Also mock the cache helpers to avoid caching issues in tests
+jest.mock('@/lib/cache-strategy', () => ({
+  cacheHelpers: {
+    amenities: jest.fn((fn) => fn()),
   },
 }));
+
+const mockedGetClient = getClient as jest.MockedFunction<typeof getClient>;
 
 describe('Amenities API - GET /api/amenities', () => {
   let mockedFetch: jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockedFetch = client.fetch as jest.Mock;
+    mockedFetch = jest.fn();
+    mockedGetClient.mockReturnValue({ fetch: mockedFetch } as any);
   });
 
   describe('Successful Requests', () => {
