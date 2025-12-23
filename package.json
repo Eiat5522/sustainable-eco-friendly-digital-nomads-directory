@@ -31,7 +31,7 @@
     "dev": "pnpm dev:next",
     "build:next": "pnpm --filter app-next-directory build",
     "build:sanity": "pnpm --filter sanity build",
-    "build": "pnpm build:next | grep -v \"Skipping validation of types\" | grep -v \"Skipping linting\" && pnpm build:sanity | grep -v \"Skipping validation of types\" | grep -v \"Skipping linting\"",
+    "build": "bash -lc 'set -o pipefail; pnpm build:next \"$@\" | grep -v \"Skipping validation of types\" | grep -v \"Skipping linting\" && pnpm build:sanity | grep -v \"Skipping validation of types\" | grep -v \"Skipping linting\"'",
     "start:next": "pnpm --filter app-next-directory start",
     "start:sanity": "pnpm --filter sanity start",
     "start": "pnpm start:next",
