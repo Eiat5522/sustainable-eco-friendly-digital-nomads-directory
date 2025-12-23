@@ -94,26 +94,24 @@ export function RelatedListings({ listings }: RelatedListingsProps) {
                     className="group flex h-full flex-col cursor-pointer transition-all duration-300 hover:shadow-[16px_16px_0px_0px]"
                   >
                     <div className="relative h-48 mb-4 overflow-hidden rounded-lg">
-                      <Image
-                        src="/placeholder_image.png"
-                        alt=""
-                        aria-hidden
-                        role="presentation"
-                        fill
-                        sizes="(min-width: 1024px) 50vw, (min-width: 640px) 60vw, 85vw"
-                        className="object-cover"
-                        data-testid="related-listing-fallback"
-                      />
-                      {listing.imageUrl && (
+                      {listing.imageUrl ? (
                         <Image
                           src={listing.imageUrl}
                           alt={`${listing.name} in ${typeof listing.city === 'string' ? listing.city : (listing.city?.name ?? '')}`}
                           fill
                           sizes="(min-width: 1024px) 50vw, (min-width: 640px) 60vw, 85vw"
                           className="object-cover group-hover:scale-105 transition-transform duration-300"
-                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-                            e.currentTarget.hidden = true;
-                          }}
+                        />
+                      ) : (
+                        <Image
+                          src="/placeholder_image.png"
+                          alt=""
+                          aria-hidden
+                          role="presentation"
+                          fill
+                          sizes="(min-width: 1024px) 50vw, (min-width: 640px) 60vw, 85vw"
+                          className="object-cover"
+                          data-testid="related-listing-fallback"
                         />
                       )}
                       {listing.priceRange && (
