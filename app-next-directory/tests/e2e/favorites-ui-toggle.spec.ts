@@ -131,7 +131,10 @@ test.describe('[E2E] Favorites UI toggle - Authenticated', () => {
     await expect(page.getByRole('heading', { level: 3, name: 'Banyan Tree Phuket' })).toBeVisible();
 
     const addButton = page.getByLabel(/Add to favorites/i);
+    await expect(addButton).toBeVisible();
+    await expect(addButton).toHaveCount(1);
     await addButton.click();
+
     const removeButton = page.getByLabel(/Remove from favorites/i);
     await expect(removeButton).toBeVisible();
     await expect(removeButton).toHaveCount(1);
@@ -140,7 +143,11 @@ test.describe('[E2E] Favorites UI toggle - Authenticated', () => {
     await removeButton.click();
     await expect.poll(() => observedStates.length).toBe(2);
 
-    await removeButton.click();
+    const addButtonAgain = page.getByLabel(/Add to favorites/i);
+    await expect(addButtonAgain).toBeVisible();
+    await expect(addButtonAgain).toHaveCount(1);
+    await addButtonAgain.click();
+
     await expect.poll(() => observedStates.length).toBe(3);
 
     expect(observedStates).toEqual([true, false, true]);
@@ -185,7 +192,7 @@ test.describe('[E2E] Favorites UI toggle - Unauthenticated', () => {
       });
     });
 
-    await page.route(FAVORITES_ENDPOINT, async route => {
+    await page.route('**/api/user/favorites**', async route => {
       await route.fulfill({
         status: 401,
         contentType: 'application/json',
@@ -214,7 +221,7 @@ test.describe('[E2E] Favorites UI toggle - Unauthenticated', () => {
     }
   });
 
-  test('hides favorite button for unauthenticated users', async ({ page }) => {
+  test('shows favorite button for unauthenticated users and prompts login on click', async ({ page }) => {
     await page.route('**/api/auth/session', async route => {
       await route.fulfill({
         status: 200,
@@ -226,14 +233,14 @@ test.describe('[E2E] Favorites UI toggle - Unauthenticated', () => {
     await page.goto(DETAIL_PATH);
     await page.waitForLoadState('networkidle');
 
-    const favoriteButton = page.getByLabel(/favorite/i);
-    const buttonCount = await favoriteButton.count();
-
-    if (buttonCount === 0) {
-      expect(buttonCount).toBe(0);
-    } else {
-      const loginLink = page.getByRole('link', { name: /sign in to favorite/i });
-      await expect(loginLink.or(favoriteButton)).toBeVisible();
-    }
+    // Favorite button should be visible for unauthenticated users
+    const favoriteButton = page.getByLabel(/Add to favorites/i).or(page.getByLabel(/favorite/i));
+    await expect(favoriteButton).toBeVisible();
+    
+    // Click should trigger sign-in flow
+    await favoriteButton.click();
+    
+    // Should redirect to login with callback URL
+    await expect(page).toHaveURL(/\/auth\/login.*callbackUrl=/);
   });
 });
