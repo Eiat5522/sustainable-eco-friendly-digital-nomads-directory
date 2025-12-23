@@ -1,6 +1,6 @@
 'use client';
 
-import { Edit, Heart, Loader2, MessageSquare, Star } from 'lucide-react';
+import { Edit, Loader2, MessageSquare, Star } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
@@ -24,19 +24,12 @@ import type {
   UserDashboardPayloadDTO,
   VenueOwnerDashboardDTO,
 } from '@/types/dto';
-import { FavoriteListingsShowcase } from './FavoriteListingsShowcase';
-import type { FavoriteListing, OwnerListingReviews } from './utils';
+import type { OwnerListingReviews } from './utils';
 import {
-  type FavoriteEntry,
   formatDate,
-  normaliseFavorite,
   normaliseOwnerReviews,
   type OwnerReviewsResponse,
 } from './utils';
-
-interface FavoritesResponse {
-  favorites?: Array<FavoriteEntry | null> | null;
-}
 
 type OwnerReviewsResponseApi = OwnerReviewsResponse | null | undefined;
 
@@ -151,10 +144,6 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
   const [isEditing, setIsEditing] = useState(false);
 
-  const [favorites, setFavorites] = useState<FavoriteListing[]>([]);
-  const [favoritesLoading, setFavoritesLoading] = useState(false);
-  const [favoritesError, setFavoritesError] = useState<string | null>(null);
-
   const [ownerListings, setOwnerListings] = useState<OwnerListingReviews[]>([]);
   const [ownerLoading, setOwnerLoading] = useState(false);
   const [ownerError, setOwnerError] = useState<string | null>(null);
@@ -182,38 +171,6 @@ export default function ProfilePage() {
       setIsEditing(false);
     }
   };
-
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    const controller = new AbortController();
-
-    const loadFavorites = async () => {
-      setFavoritesLoading(true);
-      setFavoritesError(null);
-      try {
-        const res = await fetch('/api/user/favorites', { signal: controller.signal });
-        if (!res.ok) {
-          throw new Error('Unable to load favorites');
-        }
-        const data = (await res.json()) as FavoritesResponse;
-        const parsed = (data.favorites ?? [])
-          .map(normaliseFavorite)
-          .filter((favorite): favorite is FavoriteListing => Boolean(favorite));
-        setFavorites(parsed);
-      } catch (error) {
-        if (!(error instanceof DOMException && error.name === 'AbortError')) {
-          setFavoritesError('We could not load your favorites right now. Please try again later.');
-        }
-      } finally {
-        setFavoritesLoading(false);
-      }
-    };
-
-    loadFavorites();
-    return () => {
-      controller.abort();
-    };
-  }, [isAuthenticated]);
 
   useEffect(() => {
     if (!isAuthenticated || role !== 'venueOwner') return;
@@ -291,92 +248,6 @@ export default function ProfilePage() {
       setIsEditing(false);
     }
   }, [activeTab, isEditing]);
-
-  const handleRemoveFavorite = async (id: string) => {
-    const originalFavorites = favorites;
-    setFavorites(current => current.filter(favorite => favorite.id !== id));
-
-    try {
-      const response = await fetch(`/api/user/favorites/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        setFavorites(originalFavorites);
-        setFavoritesError('Failed to remove favorite. Please try again.');
-      }
-    } catch (error) {
-      if (!(error instanceof DOMException && error.name === 'AbortError')) {
-        setFavorites(originalFavorites);
-        setFavoritesError('An error occurred while removing the favorite.');
-      }
-    }
-  };
-
-  const renderFavoriteListingsSection = () => (
-    <section
-      id="favorites"
-      aria-labelledby="favorites-heading"
-      data-testid="profile-favorites"
-      className="space-y-4"
-    >
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h2
-            id="favorites-heading"
-            className="heading-md text-neo-text-primary flex items-center gap-2"
-          >
-            <Heart className="h-5 w-5 text-neo-primary" aria-hidden="true" />
-            Favorite listings
-          </h2>
-          <p className="text-sm text-neo-text-secondary">
-            A quick view of the sustainable venues you&apos;ve saved.
-          </p>
-        </div>
-        <NeoButton asChild variant="secondary">
-          <Link href="/search">Discover more venues</Link>
-        </NeoButton>
-      </div>
-
-      {favoritesLoading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" role="status" aria-live="polite">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <div
-              key={index}
-              className="h-48 animate-pulse rounded-3xl border-4 border-dashed border-neo-border/60 bg-white/60"
-            />
-          ))}
-        </div>
-      ) : favoritesError ? (
-        <NeoCard variant="flat" className="border-4 border-rose-200 bg-rose-50">
-          <NeoCardHeader className="pb-2">
-            <NeoCardTitle className="text-base text-rose-700">
-              We couldn&apos;t load your favorites
-            </NeoCardTitle>
-          </NeoCardHeader>
-          <NeoCardContent className="pt-0 text-sm text-rose-700">{favoritesError}</NeoCardContent>
-        </NeoCard>
-      ) : favorites.length === 0 ? (
-        <NeoCard variant="flat" className="border-4 border-neo-border bg-white/90">
-          <NeoCardContent className="flex flex-col items-start gap-4 py-6 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="font-semibold text-neo-text-primary">
-                You haven&apos;t saved any venues yet.
-              </p>
-              <p className="text-sm text-neo-text-secondary">
-                Explore eco-friendly spaces and tap the heart icon to save your favorites.
-              </p>
-            </div>
-            <NeoButton asChild variant="accent">
-              <Link href="/search">Start exploring</Link>
-            </NeoButton>
-          </NeoCardContent>
-        </NeoCard>
-      ) : (
-        <FavoriteListingsShowcase listings={favorites} onRemove={handleRemoveFavorite} />
-      )}
-    </section>
-  );
 
   const renderOwnerReviewsSection = () => (
     <section
@@ -937,13 +808,11 @@ export default function ProfilePage() {
                   </section>
                 )}
 
-                {renderFavoriteListingsSection()}
               </div>
             )}
 
             {activeTab === 'favourite' && (
               <div className="space-y-10">
-                {renderFavoriteListingsSection()}
                 <section aria-labelledby="favourite-dashboard" className="space-y-6">
                   <h2 id="favourite-dashboard" className="heading-md">
                     Favourite listing dashboards
