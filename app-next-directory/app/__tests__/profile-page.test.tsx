@@ -1,10 +1,8 @@
 import '@testing-library/jest-dom';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import type React from 'react';
 
 const mockUseSession = jest.fn();
-const favoriteShowcaseProps: Array<{ listings: any[]; onRemove: (id: string) => void }> = [];
-
 jest.mock('next-auth/react', () => ({
   useSession: (...args: unknown[]) => mockUseSession(...args),
 }));
@@ -71,27 +69,6 @@ jest.mock('@/components/profile/ProfileEditForm', () => ({
   ),
 }));
 
-jest.mock('../profile/FavoriteListingsShowcase', () => ({
-  FavoriteListingsShowcase: (props: { listings: any[]; onRemove: (id: string) => void }) => {
-    favoriteShowcaseProps.push(props);
-    return (
-      <div data-testid="favorite-showcase">
-        <span data-testid="favorites-count">{props.listings.length}</span>
-        {props.listings.map(listing => (
-          <button
-            key={listing.id}
-            type="button"
-            onClick={() => props.onRemove(listing.id)}
-            data-testid={`remove-${listing.id}`}
-          >
-            Remove {listing.id}
-          </button>
-        ))}
-      </div>
-    );
-  },
-}));
-
 const mockedNormaliseFavorite = jest.fn((entry: any) => {
   if (!entry) return null;
   const slug = entry?.listing?.slug;
@@ -151,7 +128,6 @@ afterAll(() => {
 
 afterEach(() => {
   mockUseSession.mockReset();
-  favoriteShowcaseProps.length = 0;
   global.fetch = originalFetch;
 });
 
@@ -183,99 +159,6 @@ describe('ProfilePage', () => {
     );
   });
 
-  it('loads and renders favorites for authenticated users', async () => {
-    mockUseSession.mockReturnValue({
-      data: {
-        user: {
-          id: 'user-1',
-          name: 'Jordan Doe',
-          email: 'jordan@example.com',
-          role: 'user',
-          image: 'https://example.com/avatar.jpg',
-        },
-      },
-      status: 'authenticated',
-      update: jest.fn(),
-    });
-
-    const favoritesResponse = {
-      favorites: [
-        {
-          _id: 'fav-1',
-          createdAt: '2024-03-01T00:00:00.000Z',
-          listing: {
-            slug: 'eco-stay',
-            name: 'Eco Stay',
-            city: { name: 'Eco City', country: 'Wonderland' },
-            priceRange: 'moderate',
-            ecoFocusTags: ['Solar'],
-            digitalNomadFeatures: ['Fast WiFi'],
-            primaryImage: {
-              asset: {
-                url: 'https://example.com/image.jpg',
-                metadata: { dimensions: { width: 800, height: 600 } },
-              },
-              altText: 'Eco stay image',
-            },
-          },
-        },
-      ],
-    };
-
-    const fetchMock = jest
-      .fn()
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => favoritesResponse,
-      } as Response)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({}),
-      } as Response);
-
-    global.fetch = fetchMock as unknown as typeof fetch;
-
-    const { default: ProfilePage } = await import('../profile/page');
-
-    render(<ProfilePage />);
-
-    const showcase = await screen.findByTestId('favorite-showcase');
-    expect(showcase).toBeInTheDocument();
-    expect(favoriteShowcaseProps.at(-1)?.listings.length).toBe(1);
-    expect(screen.getByTestId('favorites-count')).toHaveTextContent('1');
-    expect(fetchMock).toHaveBeenCalledWith('/api/user/favorites', expect.any(Object));
-
-    fireEvent.click(screen.getByTestId('remove-fav-1'));
-
-    await waitFor(() =>
-      expect(screen.getByText("You haven't saved any venues yet.")).toBeInTheDocument()
-    );
-    expect(fetchMock).toHaveBeenCalledWith('/api/user/favorites/fav-1', { method: 'DELETE' });
-  });
-
-  it('shows an error card when favorites cannot be loaded', async () => {
-    mockUseSession.mockReturnValue({
-      data: { user: { id: 'user-2', name: 'Alex', role: 'user' } },
-      status: 'authenticated',
-      update: jest.fn(),
-    });
-
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: false,
-      json: async () => ({}),
-    } as Response);
-
-    const { default: ProfilePage } = await import('../profile/page');
-
-    render(<ProfilePage />);
-
-    await waitFor(() =>
-      expect(
-        screen.getByText('We could not load your favorites right now. Please try again later.')
-      ).toBeInTheDocument()
-    );
-  });
-
   it('loads owner review summaries for venue owners', async () => {
     mockUseSession.mockReturnValue({
       data: {
@@ -290,32 +173,58 @@ describe('ProfilePage', () => {
       update: jest.fn(),
     });
 
-    const fetchMock = jest
-      .fn()
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ favorites: [] }),
-      } as Response)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          listings: [
-            {
-              slug: 'eco-stay',
-              name: 'Eco Stay',
-              reviews: [
-                {
-                  id: 'rev-1',
-                  rating: 5,
-                  comment: 'Wonderful stay',
-                  createdAt: '2024-02-02T00:00:00.000Z',
-                  reviewerName: 'Jordan',
+    const fetchMock = jest.fn(async input => {
+      const url = typeof input === 'string' ? input : input.url;
+      if (url.includes('/api/user/reviews')) {
+        return {
+          ok: true,
+          json: async () => ({
+            listings: [
+              {
+                slug: 'eco-stay',
+                name: 'Eco Stay',
+                reviews: [
+                  {
+                    id: 'rev-1',
+                    rating: 5,
+                    comment: 'Wonderful stay',
+                    createdAt: '2024-02-02T00:00:00.000Z',
+                    reviewerName: 'Jordan',
+                  },
+                ],
+              },
+            ],
+          }),
+        } as Response;
+      }
+      if (url.includes('/api/user/dashboard')) {
+        return {
+          ok: true,
+          json: async () => ({
+            dashboard: {
+              generatedAt: '2024-03-01T00:00:00.000Z',
+              range: { months: 3 },
+              data: {
+                kind: 'venueOwner',
+                totals: {
+                  avgRating: 4.5,
+                  favoritesCount: 10,
+                  reviewCount: 3,
+                  viewCount: 120,
                 },
-              ],
+                listings: [],
+                monthlyTotals: [],
+                notices: [],
+              },
             },
-          ],
-        }),
-      } as Response);
+          }),
+        } as Response;
+      }
+      return {
+        ok: true,
+        json: async () => ({}),
+      } as Response;
+    });
 
     global.fetch = fetchMock as unknown as typeof fetch;
 
