@@ -1,11 +1,11 @@
 import type { Page } from '@playwright/test';
 import { test as base, expect } from '@playwright/test';
-import { encode } from 'next-auth/jwt';
 import {
   createTestData,
   getSessionForRole,
   TEST_SESSION_COOKIE_NAME,
 } from '@tests/helpers/test-data';
+import { encode } from 'next-auth/jwt';
 import type { Role } from '@/models/User';
 
 const baseUrl = new URL(
@@ -47,15 +47,19 @@ async function applySession(page: Page, role: Role) {
   }
 
   const encodedToken = await buildSessionToken(session.user);
+  const cookieOrigin = baseUrl?.origin ?? 'http://localhost:3000';
+  const hostname = baseUrl?.hostname ?? new URL(cookieOrigin).hostname;
+
   const cookie = {
     name: TEST_SESSION_COOKIE_NAME,
     value: encodedToken,
-    url: baseUrl.origin,
+    // Use domain+path to avoid issues when the test runner resolves origins differently.
+    domain: hostname,
     path: '/',
     httpOnly: true,
-    secure: baseUrl.protocol === 'https:',
+    secure: cookieOrigin.startsWith('https:'),
     sameSite: 'Lax' as const,
-  };
+  } as const;
 
   await page.context().addCookies([cookie]);
 
@@ -80,7 +84,7 @@ async function applySession(page: Page, role: Role) {
     }
   );
 
-  const origin = baseUrl.origin;
+  const origin = cookieOrigin;
   const currentUrl = page.url();
   if (!currentUrl.startsWith(origin)) {
     await page.goto(origin + '/', { waitUntil: 'domcontentloaded' }).catch(() => undefined);
