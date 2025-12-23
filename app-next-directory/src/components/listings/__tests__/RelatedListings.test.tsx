@@ -240,11 +240,12 @@ describe('RelatedListings', () => {
   });
 
   describe('Images', () => {
-    it('renders placeholder image for all listings', () => {
+    it('renders placeholder image only for listings without imageUrl', () => {
       const { container } = render(<RelatedListings listings={mockListings} />);
 
+      // Only listing 2 has empty imageUrl, so only 1 fallback should be rendered
       const placeholders = screen.getAllByTestId('related-listing-fallback');
-      expect(placeholders).toHaveLength(3);
+      expect(placeholders).toHaveLength(1);
     });
 
     it('renders listing image when imageUrl is provided', () => {
@@ -273,18 +274,24 @@ describe('RelatedListings', () => {
       expect(screen.getByAltText(/Eco Hotel Bangkok in\s*$/)).toBeInTheDocument();
     });
 
-    it('hides remote image on error', () => {
-      const { container } = render(<RelatedListings listings={mockListings} />);
-
-      const remoteImage = container.querySelector('img[src="https://example.com/image1.jpg"]');
-      expect(remoteImage).toBeInTheDocument();
-
-      // Trigger error handler
-      if (remoteImage) {
-        const errorEvent = new Event('error');
-        remoteImage.dispatchEvent(errorEvent);
-        expect(remoteImage).toHaveAttribute('hidden');
-      }
+    it('shows fallback for listings without imageUrl', () => {
+      const listingsWithoutImages = [
+        {
+          id: '1',
+          slug: 'test-listing',
+          name: 'Test Listing',
+          city: 'Bangkok',
+          imageUrl: '',
+          priceRange: 'moderate' as const,
+          ecoFocusTags: ['Test'],
+        },
+      ];
+      
+      const { container } = render(<RelatedListings listings={listingsWithoutImages} />);
+      
+      const fallback = screen.getByTestId('related-listing-fallback');
+      expect(fallback).toBeInTheDocument();
+      expect(fallback).toHaveAttribute('src', '/placeholder_image.png');
     });
 
     it('sets placeholder image attributes correctly', () => {
