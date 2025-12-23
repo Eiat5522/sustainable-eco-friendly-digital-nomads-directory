@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import SocialAuthRow from '@/components/auth/SocialAuthRow';
@@ -41,8 +42,8 @@ export function SignupPageContent() {
         <div className="absolute -bottom-24 -right-24 w-72 h-72 rounded-full bg-neo-secondary/10 blur-3xl" />
 
         <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
-          {/* Left panel */}
-          <div className="hidden md:flex flex-col justify-center p-8 rounded-xl neo-card bg-gradient-to-br from-white to-neo-secondary/5">
+          {/* Left panel (visible on all sizes; stacks above auth card on mobile) */}
+          <div className="flex flex-col justify-center p-6 md:p-8 rounded-xl neo-card bg-gradient-to-br from-white to-neo-secondary/5">
             <h2 className="heading-lg mb-3">Create your account</h2>
             <p className="body-md">
               Join our eco-forward community and explore sustainable places to live, work, and
@@ -110,16 +111,17 @@ export function SignupPageContent() {
                 </NeoButton>
               </form>
 
-              <div className="mt-6">
-                <div className="relative flex items-center">
-                  <div className="flex-1 h-px bg-neo-border" />
-                  <span className="px-3 text-xs text-neo-text-secondary">or continue with</span>
-                  <div className="flex-1 h-px bg-neo-border" />
-                </div>
-                <div className="mt-4">
-                  <SocialAuthRow />
-                </div>
-              </div>
+              <p className="mt-6 text-sm text-center">
+                Already have an account?{' '}
+                <Link
+                  href="/auth/login"
+                  className="text-neo-primary hover:underline focus-visible:underline underline-offset-2"
+                >
+                  Log in
+                </Link>
+              </p>
+
+              {/* Social sign-in is shown in the left panel to avoid duplication */}
             </NeoCardContent>
           </NeoCard>
         </div>

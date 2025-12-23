@@ -63,8 +63,8 @@ export default async function LoginPage(props: LoginPageProps) {
           className="absolute -bottom-24 -right-24 w-72 h-72 rounded-full bg-neo-secondary/10 blur-3xl"
         />
         <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
-          {/* Left panel */}
-          <div className="hidden md:flex flex-col justify-center p-8 rounded-xl neo-card bg-gradient-to-br from-white to-neo-secondary/5">
+          {/* Left panel (visible on all sizes; stacks above auth card on mobile) */}
+          <div className="flex flex-col justify-center p-6 md:p-8 rounded-xl neo-card bg-gradient-to-br from-white to-neo-secondary/5">
             <h2 className="heading-lg mb-3" id="welcome-heading">
               Welcome back
             </h2>
@@ -86,12 +86,6 @@ export default async function LoginPage(props: LoginPageProps) {
             </NeoCardHeader>
             <NeoCardContent>
               <LoginForm />
-              <section className="mt-6 md:hidden" aria-labelledby="social-signin-heading-mobile">
-                <h3 id="social-signin-heading-mobile" className="sr-only">
-                  Social sign-in options
-                </h3>
-                <SocialAuthRow />
-              </section>
               <p className="mt-6 text-sm text-center">
                 New user?{' '}
                 <Link

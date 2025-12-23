@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { useEffect, useMemo, useState } from 'react';
-import SocialAuthRow from '@/components/auth/SocialAuthRow';
+// Social sign-in is rendered by the page wrapper to avoid duplication across breakpoints.
 import { NeoButton } from '@/components/ui/neo-button';
 import { NeoInput } from '@/components/ui/neo-input';
 import { sanitizeCallbackUrl } from '@/lib/auth/callbackUrl';
@@ -161,19 +161,6 @@ export default function LoginForm() {
           {isLoading ? 'Signing in…' : 'Login'}
         </NeoButton>
       </form>
-
-      <section className="mt-6" aria-labelledby="social-signin-heading">
-        <div className="relative flex items-center">
-          <div className="flex-1 h-px bg-neo-border" />
-          <span id="social-signin-heading" className="px-3 text-xs text-neo-text-secondary">
-            or continue with
-          </span>
-          <div className="flex-1 h-px bg-neo-border" />
-        </div>
-        <div className="mt-4">
-          <SocialAuthRow />
-        </div>
-      </section>
     </div>
   );
 }

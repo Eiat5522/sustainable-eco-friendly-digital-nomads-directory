@@ -4,7 +4,11 @@
     "allowedDomains": [
       "registry.npmjs.org",
       "github.com",
-      "raw.githubusercontent.com"
+      "raw.githubusercontent.com",
+      "*.sanity.io",
+      "mongodb.com",
+      "cloud.mongodb.com",
+      "atlas.mongodb.com"
     ],
     "allowedMethods": ["GET", "HEAD"],
     "workspaceWrite": true
