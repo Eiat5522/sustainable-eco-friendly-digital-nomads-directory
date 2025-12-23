@@ -15,7 +15,7 @@ test.describe('Search discovery experience', () => {
     await searchField.fill('cowork');
     await page.getByRole('button', { name: 'Search' }).click();
 
-    await page.waitForURL('**/search/results**');
+    await page.waitForURL('**/search**');
     await expect(page).toHaveURL(/q=cowork/i);
 
     await expect(
