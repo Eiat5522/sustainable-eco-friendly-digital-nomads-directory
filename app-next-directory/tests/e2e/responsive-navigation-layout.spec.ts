@@ -93,7 +93,7 @@ test.describe('[E2E] Responsive navigation layout', () => {
     const logoLink = header.getByRole('link', { name: /go to homepage/i });
     await expect(logoLink).toBeVisible();
 
-    const menuButton = header.getByRole('button', { name: /open menu/i });
+    const menuButton = header.getByRole('button', { name: /open navigation menu/i });
     await expect(menuButton).toBeVisible();
     await expect(menuButton).toBeEnabled();
 

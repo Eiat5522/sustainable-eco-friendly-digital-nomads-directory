@@ -11,9 +11,9 @@ test.describe('Discovery network resilience', () => {
   }) => {
     await page.goto('/search/results?e2eScenario=fail-once&q=coworking');
 
-    const errorState = page.getByTestId('search-error-state');
+    const errorState = page.getByTestId('search-error-state').first();
     await expect(errorState).toBeVisible();
-    const retryButton = page.getByTestId('search-retry-button');
+    const retryButton = page.getByTestId('search-retry-button').first();
     await expect(retryButton).toBeVisible();
 
     await Promise.all([
