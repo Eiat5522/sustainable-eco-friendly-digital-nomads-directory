@@ -144,7 +144,6 @@ describe('API /api/comments integration', () => {
       id: 'user-eco-1',
       name: 'Taylor Traveler',
       email: 'taylor@example.com',
-      role: 'user',
     });
 
     expect(mockClientCreate).toHaveBeenCalledWith({
