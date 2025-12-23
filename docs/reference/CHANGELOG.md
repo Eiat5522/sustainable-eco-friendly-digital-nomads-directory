@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced documentation structure and discoverability
 - Updated contributing guidelines with changelog workflow
 - Removed the redundant profile favorites section to prevent the 404 error card from stacking with the working favorites dashboard
+- Refined the new listing workflow styling and stabilized numeric form inputs for venue owners
 
 ## [0.1.3] - 2025-01-XX
 

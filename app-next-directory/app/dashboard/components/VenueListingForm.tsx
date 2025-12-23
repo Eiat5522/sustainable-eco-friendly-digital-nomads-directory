@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ChangeEvent } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -148,6 +148,17 @@ type VenueListingFormProps = {
   saving?: boolean;
 };
 
+const handleNumberChange =
+  (onChange: (value: number | undefined) => void) => (event: ChangeEvent<HTMLInputElement>) => {
+    const rawValue = event.target.value;
+    if (rawValue === '') {
+      onChange(undefined);
+      return;
+    }
+    const parsed = Number(rawValue);
+    onChange(Number.isNaN(parsed) ? undefined : parsed);
+  };
+
 function toOptions(value: unknown): Option[] {
   if (!Array.isArray(value)) {
     return [];
@@ -289,7 +300,9 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
         galleryImages: galleryImageAssetIds.length > 0 ? galleryImageAssetIds : undefined,
       };
 
-      onSave?.(listingData);
+      if (onSave) {
+        await onSave(listingData);
+      }
     } catch (error) {
       structuredLogger.error('Failed to save listing', error, {
         component: 'VenueListingForm',
@@ -553,7 +566,12 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
                 <FormItem>
                   <FormLabel>Minimum Price Per Night (THB)</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} />
+                    <Input
+                      type="number"
+                      {...field}
+                      value={field.value ?? ''}
+                      onChange={handleNumberChange(field.onChange)}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -566,7 +584,12 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
                 <FormItem>
                   <FormLabel>Maximum Price Per Night (THB)</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} />
+                    <Input
+                      type="number"
+                      {...field}
+                      value={field.value ?? ''}
+                      onChange={handleNumberChange(field.onChange)}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -579,7 +602,12 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
                 <FormItem>
                   <FormLabel>Minimum Stay (nights)</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} />
+                    <Input
+                      type="number"
+                      {...field}
+                      value={field.value ?? ''}
+                      onChange={handleNumberChange(field.onChange)}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -625,7 +653,12 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
                 <FormItem>
                   <FormLabel>Minimum Price Per Person (THB)</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} />
+                    <Input
+                      type="number"
+                      {...field}
+                      value={field.value ?? ''}
+                      onChange={handleNumberChange(field.onChange)}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -638,7 +671,12 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
                 <FormItem>
                   <FormLabel>Maximum Price Per Person (THB)</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} />
+                    <Input
+                      type="number"
+                      {...field}
+                      value={field.value ?? ''}
+                      onChange={handleNumberChange(field.onChange)}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -651,7 +689,12 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
                 <FormItem>
                   <FormLabel>Duration</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} />
+                    <Input
+                      type="number"
+                      {...field}
+                      value={field.value ?? ''}
+                      onChange={handleNumberChange(field.onChange)}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -685,7 +728,12 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
                 <FormItem>
                   <FormLabel>Minimum Group Size</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} />
+                    <Input
+                      type="number"
+                      {...field}
+                      value={field.value ?? ''}
+                      onChange={handleNumberChange(field.onChange)}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -698,7 +746,12 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
                 <FormItem>
                   <FormLabel>Maximum Group Size</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} />
+                    <Input
+                      type="number"
+                      {...field}
+                      value={field.value ?? ''}
+                      onChange={handleNumberChange(field.onChange)}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -961,7 +1014,12 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
                 <FormItem>
                   <FormLabel>Maximum Recommended Stay (hours)</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} />
+                    <Input
+                      type="number"
+                      {...field}
+                      value={field.value ?? ''}
+                      onChange={handleNumberChange(field.onChange)}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -1020,7 +1078,12 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
                       <FormItem>
                         <FormLabel>Price</FormLabel>
                         <FormControl>
-                          <Input type="number" {...field} />
+                          <Input
+                            type="number"
+                            {...field}
+                            value={field.value ?? ''}
+                            onChange={handleNumberChange(field.onChange)}
+                          />
                         </FormControl>
                       </FormItem>
                     )}
@@ -1064,7 +1127,12 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
                 <FormItem>
                   <FormLabel>Download Speed (Mbps)</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} />
+                    <Input
+                      type="number"
+                      {...field}
+                      value={field.value ?? ''}
+                      onChange={handleNumberChange(field.onChange)}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -1077,7 +1145,12 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
                 <FormItem>
                   <FormLabel>Upload Speed (Mbps)</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} />
+                    <Input
+                      type="number"
+                      {...field}
+                      value={field.value ?? ''}
+                      onChange={handleNumberChange(field.onChange)}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -1377,7 +1450,12 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
                 <FormItem>
                   <FormLabel>Minimum Average Meal Price (THB)</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} />
+                    <Input
+                      type="number"
+                      {...field}
+                      value={field.value ?? ''}
+                      onChange={handleNumberChange(field.onChange)}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -1390,7 +1468,12 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
                 <FormItem>
                   <FormLabel>Maximum Average Meal Price (THB)</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} />
+                    <Input
+                      type="number"
+                      {...field}
+                      value={field.value ?? ''}
+                      onChange={handleNumberChange(field.onChange)}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
