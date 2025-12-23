@@ -1,16 +1,17 @@
 /**
- * Next.js Middleware Entry Point
+ * Next.js Proxy Entry Point
  *
- * This file must exist at src/middleware.ts for Next.js to recognize and execute middleware.
- * The actual middleware implementation is in ./middleware/index.ts
+ * In Next.js 16, middleware was renamed to proxy.
+ * This file must exist at src/proxy.ts for Next.js to recognize and execute the proxy.
+ * The actual proxy implementation is in ./proxy/index.ts
  * 
  * @see https://nextjs.org/docs/app/building-your-application/routing/middleware
  */
 
-export { createMiddleware } from './middleware/index';
-export { default } from './middleware/index';
+export { createProxy } from './proxy/index';
+export { default } from './proxy/index';
 
-// Next.js middleware configuration
+// Next.js proxy configuration
 // Note: This must be defined directly in this file and cannot be re-exported
 export const config = {
   matcher: [
