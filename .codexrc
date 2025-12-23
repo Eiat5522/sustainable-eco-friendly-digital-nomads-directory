@@ -6,9 +6,8 @@
       "github.com",
       "raw.githubusercontent.com",
       "*.sanity.io",
-      "mongodb.com",
       "cloud.mongodb.com",
-      "atlas.mongodb.com"
+      "cdn.playwright.dev"
     ],
     "allowedMethods": ["GET", "HEAD"],
     "workspaceWrite": true
