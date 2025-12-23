@@ -5,7 +5,7 @@
  * NOTE: Do not import NextRequest/NextResponse from 'next/server' in utility files for Next.js 14+ middleware compatibility.
  */
 
-import { auth } from '@/lib/auth';
+import { getToken } from '@/lib/auth';
 import { getRequestContext, structuredLogger } from '@/lib/logger';
 import { ACCESS_CONTROL_MATRIX } from '@/types/auth';
 
@@ -192,9 +192,12 @@ export function createMiddleware(options: MiddlewareOptions) {
 
           return response;
         } else {
-          const homeUrl = new URL('/', request.nextUrl.origin);
-          homeUrl.searchParams.set('error', 'unauthorized_access');
-          const response = options.NextResponse.redirect(homeUrl);
+          const signinUrl = new URL('/auth/login', request.nextUrl.origin);
+          signinUrl.searchParams.set('callbackUrl', pathname);
+          if (token) {
+            signinUrl.searchParams.set('error', 'unauthorized_access');
+          }
+          const response = options.NextResponse.redirect(signinUrl);
 
           // Add security headers
           Object.entries(securityHeaders).forEach(([key, value]) => {
@@ -236,10 +239,12 @@ export function createMiddleware(options: MiddlewareOptions) {
 // Default middleware export for Next.js
 export default function middleware(request: NextRequestLike): Promise<NextResponseLike> {
   const authOptions: MiddlewareOptions = {
-    getToken: async (_req: NextRequestLike) => {
+    getToken: async (req: NextRequestLike) => {
       try {
-        const session = await auth();
-        return session?.user ? { role: session.user.role } : null;
+        return await getToken({
+          req: req as unknown as Request,
+          secret: process.env.NEXTAUTH_SECRET,
+        });
       } catch {
         return null;
       }
