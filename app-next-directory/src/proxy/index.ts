@@ -1,15 +1,16 @@
 /**
- * Main Middleware File
+ * Main Proxy File
  *
- * This is the main middleware entry point that combines all middleware functionality.
- * NOTE: Do not import NextRequest/NextResponse from 'next/server' in utility files for Next.js 14+ middleware compatibility.
+ * This is the main proxy entry point that combines all proxy functionality.
+ * In Next.js 16, middleware was renamed to proxy.
+ * NOTE: Do not import NextRequest/NextResponse from 'next/server' in utility files for Next.js 14+ proxy compatibility.
  */
 
 import { getToken } from '@/lib/auth';
 import { getRequestContext, structuredLogger } from '@/lib/logger';
 import { ACCESS_CONTROL_MATRIX } from '@/types/auth';
 
-// Compatible types for Next.js 14+ middleware
+// Compatible types for Next.js 14+ proxy
 type NextRequestLike = {
   nextUrl: { pathname: string; origin: string; searchParams: URLSearchParams };
   url: string;
@@ -34,7 +35,7 @@ const securityHeaders = {
   'Referrer-Policy': 'strict-origin-when-cross-origin',
 } as const;
 
-interface MiddlewareOptions {
+interface ProxyOptions {
   getToken: (request: NextRequestLike) => Promise<unknown>;
   NextResponse: {
     next: () => NextResponseLike;
@@ -112,8 +113,8 @@ function hasPermission(
   }
 }
 
-// Main middleware function
-export function createMiddleware(options: MiddlewareOptions) {
+// Main proxy function
+export function createProxy(options: ProxyOptions) {
   return async (request: NextRequestLike): Promise<NextResponseLike> => {
     const { pathname } = request.nextUrl;
 
@@ -219,7 +220,7 @@ export function createMiddleware(options: MiddlewareOptions) {
       return response;
     } catch (error) {
       // Log error and allow request to continue
-      structuredLogger.middlewareError('main-middleware', error, {
+      structuredLogger.middlewareError('main-proxy', error, {
         traceId: getRequestContext(request)?.traceId,
         pathname,
       });
@@ -236,9 +237,9 @@ export function createMiddleware(options: MiddlewareOptions) {
   };
 }
 
-// Default middleware export for Next.js
-export default function middleware(request: NextRequestLike): Promise<NextResponseLike> {
-  const authOptions: MiddlewareOptions = {
+// Default proxy export for Next.js
+export default function proxy(request: NextRequestLike): Promise<NextResponseLike> {
+  const authOptions: ProxyOptions = {
     getToken: async (req: NextRequestLike) => {
       try {
         return await getToken({
@@ -256,11 +257,11 @@ export default function middleware(request: NextRequestLike): Promise<NextRespon
     },
   };
 
-  const middlewareFn = createMiddleware(authOptions);
-  return middlewareFn(request);
+  const proxyFn = createProxy(authOptions);
+  return proxyFn(request);
 }
 
-// Next.js middleware configuration
+// Next.js proxy configuration
 export const config = {
   matcher: [
     /*

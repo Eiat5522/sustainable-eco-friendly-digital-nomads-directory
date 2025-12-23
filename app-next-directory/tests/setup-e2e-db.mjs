@@ -12,7 +12,7 @@
  * Test Credentials (see tmp/playwright-local.env):
  * - admin@example.com / TestSecurePass123! (admin role)
  * - e2e-test@example.com / TestSecurePass123! (user role)
- * - venue@example.com / TestSecurePass123! (venue_owner role)
+ * - venue@example.com / TestSecurePass123! (venueOwner role)
  * - user@example.com / TestSecurePass123! (user role)
  */
 
@@ -95,7 +95,7 @@ async function setupE2EDatabase() {
         email: 'venue@example.com',
         name: 'E2E Venue Owner',
         password: '$2b$10$Iv8szMeMBMy9ccAn3w2fmeO4Er6mBngxBTWczfzCvHy79rHxXqtDO', // TestSecurePass123!
-        role: 'venue_owner',
+        role: 'venueOwner',
         status: 'active',
         emailVerified: new Date(),
         createdAt: new Date(),
