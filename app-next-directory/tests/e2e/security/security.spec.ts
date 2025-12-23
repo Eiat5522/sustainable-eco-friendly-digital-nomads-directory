@@ -35,8 +35,8 @@ const TEST_CONFIG = {
     signin: process.env.TEST_SIGNIN_URL ?? '/auth/login',
     signup: process.env.TEST_SIGNUP_URL ?? '/auth/signup',
     dashboard: process.env.TEST_DASHBOARD_URL ?? '/dashboard',
-    createListing: process.env.TEST_CREATE_LISTING_URL ?? '/dashboard/create-listing',
-    contact: process.env.TEST_CONTACT_URL ?? '/contact',
+    createListing: process.env.TEST_CREATE_LISTING_URL ?? '/dashboard/listings/new',
+    contact: process.env.TEST_CONTACT_URL ?? '/contact-us',
     search: process.env.TEST_SEARCH_URL ?? '/search',
     api: {
       adminUsers: process.env.TEST_API_ADMIN_USERS_URL ?? '/api/admin/users',
