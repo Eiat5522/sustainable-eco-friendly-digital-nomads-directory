@@ -53,3 +53,8 @@ docs
 # Ignore environment files (will be set by docker-compose)
 .env*
 !.env.example
+
+# Repository Files to be excluded from DOcker build
+tmp/**
+tmp/playwright-e2e-test-result.txt
+untitled:plan-fixE2eIsolateTests.prompt.md

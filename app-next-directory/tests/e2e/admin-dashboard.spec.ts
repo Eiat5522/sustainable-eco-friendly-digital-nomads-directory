@@ -21,7 +21,7 @@ test.describe('Admin Dashboard Integration', () => {
       
       // Check that we're NOT on the admin dashboard
       const finalUrl = page.url();
-      expect(finalUrl).not.toContain('/admin/dashboard');
+      expect(finalUrl).toContain('/403');
     });
 
     test('venue owner cannot access admin dashboard', async ({ page }) => {
@@ -38,7 +38,7 @@ test.describe('Admin Dashboard Integration', () => {
       
       // Check that we're NOT on the admin dashboard
       const finalUrl = page.url();
-      expect(finalUrl).not.toContain('/admin/dashboard');
+      expect(finalUrl).toContain('/403');
     });
 
     test('unauthenticated user is redirected to login', async ({ page }) => {
@@ -90,4 +90,3 @@ test.describe('Admin Dashboard Integration', () => {
     });
   });
 });
-

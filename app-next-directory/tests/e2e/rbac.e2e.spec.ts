@@ -12,7 +12,7 @@ test.describe('RBAC (Playwright)', () => {
     );
 
     await page.goto(`${BASE_URL}/admin/dashboard`);
-    await expect(page).toHaveURL(/\/auth\/login/);
+    await expect(page).toHaveURL(/\/403/);
   });
 
   test('venue owner cannot access admin routes', async ({ page }) => {
@@ -23,7 +23,7 @@ test.describe('RBAC (Playwright)', () => {
     );
 
     await page.goto(`${BASE_URL}/admin/dashboard`);
-    await expect(page).toHaveURL(/\/auth\/login/);
+    await expect(page).toHaveURL(/\/403/);
   });
   test('admin can access admin routes', async ({ page }) => {
     await loginAs(

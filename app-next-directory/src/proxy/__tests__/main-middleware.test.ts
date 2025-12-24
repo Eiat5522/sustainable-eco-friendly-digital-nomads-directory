@@ -236,7 +236,7 @@ describe('createProxy', () => {
     expect(getHeader(response, 'X-Frame-Options')).toBe('DENY');
   });
 
-  it('redirects authenticated users without page access to home with error flag', async () => {
+  it('redirects authenticated users without page access to forbidden page', async () => {
     const getToken = jest.fn().mockResolvedValue({ role: 'user' });
     const middleware = createProxy({
       getToken,
@@ -245,8 +245,8 @@ describe('createProxy', () => {
     const response = (await middleware(buildRequest('/listings/create'))) as MockResponse;
 
     expect(redirectMock).toHaveBeenCalledTimes(1);
-    const homeUrl = redirectMock.mock.calls[0][0] as URL;
-    expect(homeUrl.toString()).toBe('https://example.com/?error=unauthorized_access');
+    const forbiddenUrl = redirectMock.mock.calls[0][0] as URL;
+    expect(forbiddenUrl.toString()).toBe('https://example.com/403');
     expect(getHeader(response, 'X-Frame-Options')).toBe('DENY');
   });
 });

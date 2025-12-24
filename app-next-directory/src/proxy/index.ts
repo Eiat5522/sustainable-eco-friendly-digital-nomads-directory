@@ -70,16 +70,38 @@ function getRouteType(pathname: string): 'public' | 'protected' | 'admin' | 'aut
     pathname.startsWith('/dashboard') ||
     pathname.startsWith('/profile') ||
     pathname.startsWith('/listings/create') ||
-    pathname.startsWith('/listings/edit')
+    pathname.startsWith('/listings/edit') ||
+    pathname.startsWith('/listings/manage') ||
+    pathname.startsWith('/settings') ||
+    pathname.startsWith('/analytics')
   )
     return 'protected';
   return 'public';
 }
 
+type PagePermissionKey = keyof (typeof ACCESS_CONTROL_MATRIX)[keyof typeof ACCESS_CONTROL_MATRIX]['pages'];
+
+function getRequiredPagePermission(pathname: string): PagePermissionKey | null {
+  if (pathname.startsWith('/admin')) return 'admin';
+  if (pathname.startsWith('/dashboard/listings/edit') || pathname.startsWith('/listings/edit')) {
+    return 'editListing';
+  }
+  if (pathname.startsWith('/dashboard/listings') || pathname.startsWith('/listings/manage')) {
+    return 'manageListing';
+  }
+  if (pathname.startsWith('/listings/create')) return 'createListing';
+  if (pathname.startsWith('/profile')) return 'profile';
+  if (pathname.startsWith('/settings')) return 'settings';
+  if (pathname.startsWith('/analytics')) return 'analytics';
+  if (pathname.startsWith('/dashboard')) return 'profile';
+  return null;
+}
+
 // Helper to check user permissions
 function hasPermission(
   user: Record<string, unknown> | null | undefined,
-  routeType: string
+  routeType: string,
+  pathname?: string
 ): boolean {
   if (!user) {
     return false;
@@ -94,10 +116,9 @@ function hasPermission(
 
   switch (routeType) {
     case 'protected': {
-      // Protected routes include dashboard, profile, listings/create, listings/edit
-      // Check if user can create listings (covers /listings/create)
-      const protectedResult = matrix.pages?.createListing?.canView ?? false;
-      return protectedResult;
+      const pageKey = pathname ? getRequiredPagePermission(pathname) : null;
+      if (!pageKey) return true;
+      return matrix.pages?.[pageKey]?.canView ?? false;
     }
     case 'admin': {
       const adminResult = matrix.pages?.admin?.canView ?? false;
@@ -105,8 +126,7 @@ function hasPermission(
     }
     case 'api': {
       // API admin routes require admin role
-      const apiResult = role === 'admin';
-      return apiResult;
+      return role === 'admin' || role === 'superAdmin';
     }
     default:
       return true;
@@ -165,10 +185,9 @@ export function createProxy(options: ProxyOptions) {
       }
 
       // Handle protected routes with permission check (user is authenticated but may lack permissions)
-      if (routeType === 'protected' && token && !hasPermission(token, routeType)) {
-        const homeUrl = new URL('/', request.nextUrl.origin);
-        homeUrl.searchParams.set('error', 'unauthorized_access');
-        const response = options.NextResponse.redirect(homeUrl);
+      if (routeType === 'protected' && token && !hasPermission(token, routeType, pathname)) {
+        const forbiddenUrl = new URL('/403', request.nextUrl.origin);
+        const response = options.NextResponse.redirect(forbiddenUrl);
 
         // Add security headers
         Object.entries(securityHeaders as Record<string, string>).forEach(([key, value]) => {
@@ -179,7 +198,7 @@ export function createProxy(options: ProxyOptions) {
       }
 
       // Handle admin routes (require admin role)
-      if ((routeType === 'admin' || routeType === 'api') && !hasPermission(token, routeType)) {
+      if ((routeType === 'admin' || routeType === 'api') && !hasPermission(token, routeType, pathname)) {
         if (routeType === 'api') {
           const response = options.NextResponse.json(
             { error: 'Unauthorized' },
@@ -193,12 +212,21 @@ export function createProxy(options: ProxyOptions) {
 
           return response;
         } else {
-          const signinUrl = new URL('/auth/login', request.nextUrl.origin);
-          signinUrl.searchParams.set('callbackUrl', pathname);
-          if (token) {
-            signinUrl.searchParams.set('error', 'unauthorized_access');
+          if (!token) {
+            const signinUrl = new URL('/auth/login', request.nextUrl.origin);
+            signinUrl.searchParams.set('callbackUrl', pathname);
+            const response = options.NextResponse.redirect(signinUrl);
+
+            // Add security headers
+            Object.entries(securityHeaders).forEach(([key, value]) => {
+              response.headers.set(key, value);
+            });
+
+            return response;
           }
-          const response = options.NextResponse.redirect(signinUrl);
+
+          const forbiddenUrl = new URL('/403', request.nextUrl.origin);
+          const response = options.NextResponse.redirect(forbiddenUrl);
 
           // Add security headers
           Object.entries(securityHeaders).forEach(([key, value]) => {

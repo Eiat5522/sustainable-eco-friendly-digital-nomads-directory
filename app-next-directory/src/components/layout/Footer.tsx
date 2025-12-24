@@ -32,7 +32,11 @@ const socialLinks = [
   { icon: Mail, href: 'mailto:hello@sustainablenomads.com', label: 'Email' },
 ];
 
-export function Footer() {
+interface FooterProps {
+  showNewsletter?: boolean;
+}
+
+export function Footer({ showNewsletter = true }: FooterProps) {
   const router = useRouter();
   const year = new Date().getFullYear();
   const [email, setEmail] = React.useState('');
@@ -44,7 +48,7 @@ export function Footer() {
       className="bg-neo-text-primary text-white border-t-4 border-neo-border"
     >
       <div className="container mx-auto px-4 py-16">
-        {/* Newsletter Signup */}
+      {showNewsletter && (
         <NeoCard variant="flat" className="mb-16 bg-neo-primary border-white">
           <div className="p-8 text-center">
             <h3 className="heading-md mb-4 text-white">Stay Updated on Sustainable Travel</h3>
@@ -105,6 +109,7 @@ export function Footer() {
             </p>
           </div>
         </NeoCard>
+      )}
 
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">

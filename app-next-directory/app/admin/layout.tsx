@@ -23,8 +23,12 @@ export async function AdminShell({ children }: { children: React.ReactNode }) {
   const session = await auth();
   const role = session?.user?.role;
 
-  if (role !== 'admin' && role !== 'superadmin') {
+  if (!session?.user) {
     redirect('/auth/login');
+  }
+
+  if (role !== 'admin' && role !== 'superAdmin') {
+    redirect('/403');
   }
 
   const navItems = [

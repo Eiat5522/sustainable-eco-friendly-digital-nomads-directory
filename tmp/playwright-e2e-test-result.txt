@@ -1,0 +1,4 @@
+
+> app-next-directory@0.1.0 test:e2e /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory
+> playwright test --config=playwright.config.ts
+

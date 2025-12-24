@@ -102,9 +102,20 @@ export async function proxy(request: NextRequest) {
       if (isAdminRoute) {
         // Only admin and superAdmin can access admin routes
         if (userRole !== 'admin' && userRole !== 'superAdmin') {
-          const homeUrl = new URL('/', request.nextUrl.origin || request.url);
-          homeUrl.searchParams.set('error', 'unauthorized_access');
-          return withSecurityHeaders(NextResponse.redirect(homeUrl));
+          const forbiddenUrl = new URL('/403', request.nextUrl.origin || request.url);
+          return withSecurityHeaders(NextResponse.redirect(forbiddenUrl));
+        }
+      }
+
+      // Listing management routes require venueOwner or admin roles
+      const isListingManagementRoute =
+        pathname.startsWith('/dashboard/listings') || pathname.startsWith('/listings/manage');
+      if (isListingManagementRoute) {
+        const canManageListings =
+          userRole === 'venueOwner' || userRole === 'admin' || userRole === 'superAdmin';
+        if (!canManageListings) {
+          const forbiddenUrl = new URL('/403', request.nextUrl.origin || request.url);
+          return withSecurityHeaders(NextResponse.redirect(forbiddenUrl));
         }
       }
 

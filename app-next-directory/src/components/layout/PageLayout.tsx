@@ -9,6 +9,7 @@ import { SkipLink } from '@/components/ui/skip-link';
 interface PageLayoutProps {
   children: React.ReactNode;
   className?: string;
+  showFooterNewsletter?: boolean;
 }
 
 /**
@@ -18,7 +19,11 @@ interface PageLayoutProps {
  * - Consistent navigation structure
  * - Scroll arrow provides visual navigation to main content
  */
-export function PageLayout({ children, className = '' }: PageLayoutProps) {
+export function PageLayout({
+  children,
+  className = '',
+  showFooterNewsletter = true,
+}: PageLayoutProps) {
   return (
     <div className={`min-h-screen bg-background ${className}`}>
       {/* Skip Links - Styled to blend with white header, visible only on focus */}
@@ -33,7 +38,7 @@ export function PageLayout({ children, className = '' }: PageLayoutProps) {
       </main>
 
       <Suspense fallback={<div>Loading footer...</div>}>
-        <Footer />
+        <Footer showNewsletter={showFooterNewsletter} />
       </Suspense>
     </div>
   );
