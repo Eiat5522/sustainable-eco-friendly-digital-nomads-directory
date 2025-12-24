@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { getOptionalTestEnvVar, getRequiredTestEnvVar } from '../../helpers/env';
+import { getOptionalTestEnvVar } from '../../helpers/env';
 
 const parseNumber = (value: string | undefined, fallback: number) => {
   const parsed = Number(value);
