@@ -22,36 +22,9 @@ const Icons = {
       />
     </svg>
   ),
-  facebook: (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="w-5 h-5">
-      <path
-        fill="currentColor"
-        d="M13.5 8.5V7.1c0-.62.41-1.02 1.03-1.02h1.47V3.5h-2.5c-2.07 0-3.5 1.44-3.5 3.6v1.4H8v2.6h1.99V20h3.01v-8.9h2.2l.3-2.6h-2.5z"
-      />
-    </svg>
-  ),
-  twitterx: (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="w-5 h-5">
-      <path
-        fill="currentColor"
-        d="M18.9 2.5h3.1l-6.78 7.75 7.96 11.25H17.3l-4.96-6.59-5.68 6.59H2.5l7.24-8.4L2 2.5h6.02l4.49 6.01 6.39-6.01z"
-      />
-    </svg>
-  ),
-  microsoft: (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="w-5 h-5">
-      <path fill="#F25022" d="M3 3h8v8H3z" />
-      <path fill="#7FBA00" d="M13 3h8v8h-8z" />
-      <path fill="#00A4EF" d="M3 13h8v8H3z" />
-      <path fill="#FFB900" d="M13 13h8v8h-8z" />
-    </svg>
-  ),
 };
 
 const PROVIDERS: Provider[] = [
-  { id: 'facebook', name: 'Facebook', color: '#1877F2', fg: '#FFFFFF', icon: Icons.facebook },
-  { id: 'twitter', name: 'X', color: '#000000', fg: '#FFFFFF', icon: Icons.twitterx },
-  { id: 'microsoft', name: 'Microsoft', color: '#F3F4F6', fg: '#111827', icon: Icons.microsoft },
   { id: 'google', name: 'Google', color: '#FFFFFF', fg: '#111827', icon: Icons.google },
 ];
 
