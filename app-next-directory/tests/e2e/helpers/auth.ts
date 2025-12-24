@@ -17,10 +17,28 @@ registerRoleEmail('e2e-test@example.com', 'user');
 
 export async function loginAs(page: Page, email: string, password: string) {
   const isE2E = process.env.E2E === '1' || process.env.NEXT_PUBLIC_E2E === '1';
-  if (isE2E) {
-    const role = roleByEmail.get(normalizeEmail(email)) ?? 'user';
+  const role = roleByEmail.get(normalizeEmail(email)) ?? 'user';
+
+  // Try programmatic role-based login first (will create/seed user if possible).
+  // This improves reliability in CI and local dev where a test-API exists.
+  try {
+    // Attempt to seed the test user on the server (best-effort). Some environments
+    // expose `/api/e2e/setup-user` to create test users which allows server-side
+    // role checks (admin routes) to pass.
+    try {
+      await fetch(`${process.env.E2E_BASE_URL ?? process.env.BASE_URL ?? 'http://localhost:3000'}/api/e2e/setup-user`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, role }),
+      }).catch(() => undefined);
+    } catch {}
+
     await loginAsRole(page, role);
     return;
+  } catch (err) {
+    // If programmatic login isn't available or fails, fall back to form-based login below.
+    // Only surface the error if we're explicitly in E2E mode.
+    if (isE2E) throw err as Error;
   }
 
   // Try common login routes and stop on the first that exposes a recognizable input
