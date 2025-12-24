@@ -33,6 +33,23 @@ describe('absolute-url', () => {
       expect(result).toBe('https://example.com:3000');
     });
 
+    it('should derive URL from host header before falling back', async () => {
+      process.env.NEXT_PUBLIC_FRONTEND_URL = 'https://fallback.example.com';
+
+      const mockHeadersObj = {
+        get: jest.fn((key: string) => {
+          if (key === 'x-forwarded-proto') return 'http';
+          if (key === 'host') return 'localhost:3210';
+          return null;
+        }),
+      };
+
+      mockHeadersFn.mockResolvedValueOnce(mockHeadersObj as any);
+
+      const result = await getBaseUrl();
+      expect(result).toBe('http://localhost:3210');
+    });
+
     it('should reject unsafe host strings', async () => {
       process.env.VERCEL = '1';
       process.env.NEXT_PUBLIC_FRONTEND_URL = 'http://localhost:3000';

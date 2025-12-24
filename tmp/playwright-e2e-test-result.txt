@@ -1,4 +1,891 @@
 
+> sustainable-eco-friendly-digital-nomads-directory-root@0.1.3 test:e2e /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory
+> pnpm --filter app-next-directory test:e2e
+
+
 > app-next-directory@0.1.0 test:e2e /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory
 > playwright test --config=playwright.config.ts
 
+
+Running 184 tests using 2 workers
+
+  ✓    2 [chromium] › tests/e2e/a11y/core-pages.spec.ts:16:3 › Accessibility smoke checks › home page has no critical axe violations (23.8s)
+  ✓    3 [chromium] › tests/e2e/a11y/core-pages.spec.ts:21:3 › Accessibility smoke checks › listing detail preview passes accessibility scan (1.7s)
+  ✓    4 [chromium] › tests/e2e/a11y/core-pages.spec.ts:26:3 › Accessibility smoke checks › search page supports focus order and has no critical issues (3.2s)
+  ✓    5 [chromium] › tests/e2e/api/events.spec.ts:13:3 › /api/events E2E › endpoint returns proper response structure (756ms)
+  ✘    6 [chromium] › tests/e2e/auth.spec.ts:4:3 › Authentication (Playwright) › registers a new user and lands on the home page (18.3s)
+  ✓    7 [chromium] › tests/e2e/city/city-and-map.spec.ts:4:3 › City page tabs and map markers › renders city overview and related listings with correct links (1.1s)
+  ✓    8 [chromium] › tests/e2e/city-page.spec.ts:4:3 › [E2E] City page › renders city details alongside listings (1.1s)
+  ✓    9 [chromium] › tests/e2e/city-page.spec.ts:15:3 › [E2E] City page › renders the empty city fallback without listings (675ms)
+  ✓   10 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:8:7 › Cross-Browser Compatibility Testing › Core Functionality Across Browsers › search functionality works on chromium (2.7s)
+  ✓   11 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:26:7 › Cross-Browser Compatibility Testing › Core Functionality Across Browsers › form submission works on chromium (1.8s)
+  ✘    1 [chromium] › tests/e2e/admin-dashboard.spec.ts:8:5 › Admin Dashboard Integration › Access Control › regular user cannot access admin dashboard (1.0m)
+  ✓   12 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:52:7 › Cross-Browser Compatibility Testing › Core Functionality Across Browsers › navigation works on chromium (3.5s)
+  -   13 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:8:7 › Cross-Browser Compatibility Testing › Core Functionality Across Browsers › search functionality works on firefox
+  -   14 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:26:7 › Cross-Browser Compatibility Testing › Core Functionality Across Browsers › form submission works on firefox
+  -   15 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:52:7 › Cross-Browser Compatibility Testing › Core Functionality Across Browsers › navigation works on firefox
+  -   16 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:8:7 › Cross-Browser Compatibility Testing › Core Functionality Across Browsers › search functionality works on webkit
+  -   17 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:26:7 › Cross-Browser Compatibility Testing › Core Functionality Across Browsers › form submission works on webkit
+  -   18 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:52:7 › Cross-Browser Compatibility Testing › Core Functionality Across Browsers › navigation works on webkit
+  ✓   19 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:75:5 › Cross-Browser Compatibility Testing › JavaScript Feature Compatibility › ES6 features compatibility (1.2s)
+  ✓   20 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:122:5 › Cross-Browser Compatibility Testing › JavaScript Feature Compatibility › CSS features compatibility (1.6s)
+  ✓   22 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 6 (2.3s)
+  ✓   23 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 6 landscape (1.7s)
+  ✓   24 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 6 Plus (1.3s)
+  ✓   25 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 6 Plus landscape (1.7s)
+  ✓   26 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 7 (1.0s)
+  ✓   27 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 7 landscape (909ms)
+  ✓   28 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 7 Plus (997ms)
+  ✓   29 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 7 Plus landscape (857ms)
+  ✓   30 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 8 (903ms)
+  ✓   31 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 8 landscape (1.0s)
+  ✓   32 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 8 Plus (996ms)
+  ✓   33 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 8 Plus landscape (1.2s)
+  ✓   34 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone SE (861ms)
+  ✓   35 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone SE landscape (789ms)
+  ✓   36 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone SE (3rd gen) (935ms)
+  ✓   37 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone SE (3rd gen) landscape (1.2s)
+  ✓   38 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone X (1.1s)
+  ✓   39 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone X landscape (1.1s)
+  ✓   40 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone XR (906ms)
+  ✓   41 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone XR landscape (1.2s)
+  ✓   42 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 11 (908ms)
+  ✓   43 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 11 landscape (877ms)
+  ✓   44 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 11 Pro (854ms)
+  ✓   45 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 11 Pro landscape (901ms)
+  ✓   46 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 11 Pro Max (970ms)
+  ✓   47 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 11 Pro Max landscape (998ms)
+  ✓   48 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 12 (954ms)
+  ✓   49 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 12 landscape (1.2s)
+  ✓   50 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 12 Pro (980ms)
+  ✓   51 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 12 Pro landscape (776ms)
+  ✓   52 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 12 Pro Max (797ms)
+  ✓   53 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 12 Pro Max landscape (776ms)
+  ✓   54 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 12 Mini (1.3s)
+  ✓   55 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 12 Mini landscape (1.1s)
+  ✓   56 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 13 (1.2s)
+  ✓   57 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 13 landscape (1.5s)
+  ✓   58 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 13 Pro (1.0s)
+  ✓   59 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 13 Pro landscape (1.2s)
+  ✘   21 [chromium] › tests/e2e/admin-dashboard.spec.ts:27:5 › Admin Dashboard Integration › Access Control › venue owner cannot access admin dashboard (42.8s)
+  ✓   60 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 13 Pro Max (970ms)
+  ✓   61 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 13 Pro Max landscape (910ms)
+  ✓   62 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 13 Mini (1.4s)
+  ✓   64 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 13 Mini landscape (1.6s)
+  ✓   65 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 14 (1.4s)
+  ✓   66 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 14 landscape (2.3s)
+  ✓   67 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 14 Plus (1.8s)
+  ✓   68 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 14 Plus landscape (2.2s)
+  ✓   69 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 14 Pro (1.3s)
+  ✓   63 [chromium] › tests/e2e/admin-dashboard.spec.ts:44:5 › Admin Dashboard Integration › Access Control › unauthenticated user is redirected to login (11.6s)
+  ✓   70 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 14 Pro landscape (1.3s)
+  ✓   72 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 14 Pro Max (1.1s)
+  ✓   73 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 14 Pro Max landscape (723ms)
+  ✓   74 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 15 (661ms)
+  ✓   75 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 15 landscape (668ms)
+  ✓   76 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 15 Plus (657ms)
+  ✓   77 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 15 Plus landscape (1.5s)
+  ✓   78 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 15 Pro (768ms)
+  ✓   79 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 15 Pro landscape (635ms)
+  ✓   80 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 15 Pro Max (642ms)
+  ✓   81 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on iPhone 15 Pro Max landscape (1.3s)
+  ✓   82 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on Pixel 2 (819ms)
+  ✓   83 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on Pixel 2 landscape (1.1s)
+  ✓   84 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on Pixel 2 XL (918ms)
+  ✓   85 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on Pixel 2 XL landscape (832ms)
+  ✓   86 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on Pixel 3 (782ms)
+  ✓   87 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on Pixel 3 landscape (786ms)
+  ✓   88 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on Pixel 4 (1.0s)
+  ✓   89 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on Pixel 4 landscape (817ms)
+  ✓   90 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on Pixel 4a (5G) (829ms)
+  ✓   91 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on Pixel 4a (5G) landscape (738ms)
+  ✓   92 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on Pixel 5 (757ms)
+  ✓   93 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on Pixel 5 landscape (696ms)
+  ✓   94 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on Pixel 7 (919ms)
+  ✓   95 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:153:9 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › mobile functionality on Pixel 7 landscape (884ms)
+  ✓   96 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:178:5 › Cross-Browser Compatibility Testing › Mobile Browser Compatibility › touch events compatibility (1.8s)
+  -   97 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:196:5 › Cross-Browser Compatibility Testing › Browser-Specific Feature Tests › Safari-specific functionality
+  -   98 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:215:5 › Cross-Browser Compatibility Testing › Browser-Specific Feature Tests › Firefox-specific functionality
+  ✓   99 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:233:5 › Cross-Browser Compatibility Testing › Browser-Specific Feature Tests › Chrome-specific functionality (982ms)
+  ✘   71 [chromium] › tests/e2e/admin-dashboard.spec.ts:65:5 › Admin Dashboard Integration › Admin Dashboard Functionality › loads simplified admin dashboard page (28.6s)
+  ✓  100 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:269:5 › Cross-Browser Compatibility Testing › File Upload Compatibility › file upload works across browsers (17.7s)
+  ✘  101 [chromium] › tests/e2e/admin-dashboard.spec.ts:73:5 › Admin Dashboard Integration › Admin Dashboard Functionality › displays admin navigation links (26.0s)
+  ✓  102 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:291:5 › Cross-Browser Compatibility Testing › File Upload Compatibility › drag and drop file upload (30.6s)
+  ✓  104 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:328:7 › Cross-Browser Compatibility Testing › Responsive Design Compatibility › responsive layout on Mobile Portrait (704ms)
+  ✓  105 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:328:7 › Cross-Browser Compatibility Testing › Responsive Design Compatibility › responsive layout on Mobile Landscape (828ms)
+  ✓  106 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:328:7 › Cross-Browser Compatibility Testing › Responsive Design Compatibility › responsive layout on Tablet Portrait (874ms)
+  ✓  107 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:328:7 › Cross-Browser Compatibility Testing › Responsive Design Compatibility › responsive layout on Tablet Landscape (776ms)
+  ✓  108 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:328:7 › Cross-Browser Compatibility Testing › Responsive Design Compatibility › responsive layout on Desktop (853ms)
+  ✓  109 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:328:7 › Cross-Browser Compatibility Testing › Responsive Design Compatibility › responsive layout on Large Desktop (925ms)
+chromium load time: 2085ms
+chromium Web Vitals:
+  ✓  110 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:361:5 › Cross-Browser Compatibility Testing › Performance Across Browsers › page load performance comparison (2.4s)
+  ✓  111 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:400:5 › Cross-Browser Compatibility Testing › Error Handling Across Browsers › JavaScript error handling (2.5s)
+  ✘  112 [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:441:5 › Cross-Browser Compatibility Testing › Error Handling Across Browsers › network error recovery (949ms)
+  ✘  103 [chromium] › tests/e2e/admin-dashboard.spec.ts:80:5 › Admin Dashboard Integration › Admin Dashboard Functionality › admin navigation links have correct hrefs (29.0s)
+  ✓  113 [chromium] › tests/e2e/favorites-ui-toggle.spec.ts:41:3 › [E2E] Favorites UI toggle - Authenticated › allows toggling favorites on the listing hero card (2.6s)
+  ✓  114 [chromium] › tests/e2e/favorites-ui-toggle.spec.ts:92:3 › [E2E] Favorites UI toggle - Authenticated › does not create duplicate favorites when toggled repeatedly (2.4s)
+  -  116 [chromium] › tests/e2e/favorites-ui-toggle.spec.ts:158:8 › [E2E] Favorites UI toggle - Unauthenticated › prompts login when unauthenticated user tries to favorite (covered by Jest)
+  -  117 [chromium] › tests/e2e/favorites-ui-toggle.spec.ts:184:8 › [E2E] Favorites UI toggle - Unauthenticated › shows login prompt or redirects to login page for unauthenticated favorite attempt (covered by Jest)
+  ✓  118 [chromium] › tests/e2e/favorites-ui-toggle.spec.ts:224:3 › [E2E] Favorites UI toggle - Unauthenticated › shows favorite button for unauthenticated users and prompts login on click (2.5s)
+  ✓  119 [chromium] › tests/e2e/filters/filters-and-pagination.spec.ts:9:3 › Search filters and pagination › allows combining filters and clearing them (3.0s)
+  ✓  120 [chromium] › tests/e2e/filters/filters-and-pagination.spec.ts:72:3 › Search filters and pagination › supports pagination with URL persistence (2.0s)
+  ✘  121 [chromium] › tests/e2e/listing-detail-media.spec.ts:17:3 › Listing detail media & fallbacks › gallery lightbox navigates between images (7.1s)
+  ✘  122 [chromium] › tests/e2e/listing-detail-media.spec.ts:44:3 › Listing detail media & fallbacks › related listings fall back to placeholder imagery when missing thumbnails (7.1s)
+  ✘  115 [chromium] › tests/e2e/admin-dashboard.spec.ts:87:5 › Admin Dashboard Integration › Admin Dashboard Functionality › page has proper SEO protection (25.7s)
+  ✓  124 [chromium] › tests/e2e/listing-detail-page.spec.ts:22:3 › [E2E] Listing detail page › renders key sections for a valid slug (3.0s)
+  -  125 [chromium] › tests/e2e/listing-detail-page.spec.ts:32:8 › [E2E] Listing detail page › shows the 404 page when the slug is missing (covered by Jest)
+  ✓  126 [chromium] › tests/e2e/listing-detail-page.spec.ts:39:3 › [E2E] Listing detail page › surfaces the error state when the server throws (1.2s)
+  ✘  123 [chromium] › tests/e2e/listing-detail-media.spec.ts:61:3 › Listing detail media & fallbacks › long descriptions expand behind a read more toggle (7.5s)
+  ✓  128 [chromium] › tests/e2e/network-resilience.spec.ts:17:3 › [E2E] Network resilience › recovers featured listings after retrying a failed request (1.5s)
+  ✘  127 [chromium] › tests/e2e/listing-management.spec.ts:21:5 › Listing Management E2E › role-based access control › regular user cannot access admin features (14.5s)
+  ✘  129 [chromium] › tests/e2e/rbac.e2e.spec.ts:7:3 › RBAC (Playwright) › regular user cannot access admin routes (9.6s)
+  ✘  131 [chromium] › tests/e2e/rbac.e2e.spec.ts:18:3 › RBAC (Playwright) › venue owner cannot access admin routes (22.7s)
+  ✘  130 [chromium] › tests/e2e/listing-management.spec.ts:43:5 › Listing Management E2E › role-based access control › admin can see all listings including flagged ones (1.0m)
+  ✘  132 [chromium] › tests/e2e/rbac.e2e.spec.ts:28:3 › RBAC (Playwright) › admin can access admin routes (37.9s)
+  ✓  134 [chromium] › tests/e2e/rbac.spec.ts:6:1 › unauthenticated request to /admin should redirect to login (692ms)
+  ✓  135 [chromium] › tests/e2e/resilience/network-errors.spec.ts:9:3 › Discovery network resilience › shows retry affordance when the search API fails and recovers on retry (1.6s)
+  ✓  136 [chromium] › tests/e2e/resilience/network-errors.spec.ts:33:3 › Discovery network resilience › handles a simulated timeout and eventually renders results (1.5s)
+  ✓  137 [chromium] › tests/e2e/responsive-navigation-layout.spec.ts:84:3 › [E2E] Responsive navigation layout › keeps navigation usable on a 375px mobile viewport (1.7s)
+  ✓  138 [chromium] › tests/e2e/responsive-navigation-layout.spec.ts:103:3 › [E2E] Responsive navigation layout › reveals desktop navigation links at the 768px tablet breakpoint (1.7s)
+  ✓  139 [chromium] › tests/e2e/responsive-navigation-layout.spec.ts:125:3 › [E2E] Responsive navigation layout › maintains layout integrity on a 1280px desktop viewport (1.9s)
+  ✓  140 [chromium] › tests/e2e/reviews-real.spec.ts:23:3 › Reviews submission flow › authenticated user submits review and sees pending confirmation card (975ms)
+  ✓  141 [chromium] › tests/e2e/reviews-real.spec.ts:60:3 › Reviews submission flow › shows approved status when backend marks review as approved (940ms)
+  ✓  142 [chromium] › tests/e2e/reviews-real.spec.ts:90:3 › Reviews submission flow › prevents submission until both rating and comment are provided (1.4s)
+  ✓  143 [chromium] › tests/e2e/reviews-real.spec.ts:106:3 › Reviews submission flow › displays server validation error when comment is too short (1.4s)
+  -  144 [chromium] › tests/e2e/reviews.spec.ts:47:10 › ReviewsSection E2E Tests › Non-authenticated user: Sign-in prompt and callback URL › should show sign-in prompt with correct callbackUrl (covered by Jest)
+  -  145 [chromium] › tests/e2e/reviews.spec.ts:101:10 › ReviewsSection E2E Tests › Non-authenticated user: Sign-in prompt and callback URL › should navigate to login with callbackUrl when Sign In clicked (covered by Jest)
+  -  146 [chromium] › tests/e2e/reviews.spec.ts:139:10 › ReviewsSection E2E Tests › Signed-in user: Review submission flows › should redirect to login on 401 response with callbackUrl (covered by Jest)
+  -  147 [chromium] › tests/e2e/reviews.spec.ts:234:10 › ReviewsSection E2E Tests › Signed-in user: Review submission flows › should show success message on 200 response (covered by Jest)
+  ✓  148 [chromium] › tests/e2e/reviews.spec.ts:315:5 › ReviewsSection E2E Tests › Form validation › should disable submit button when required fields are empty (630ms)
+  ✓  149 [chromium] › tests/e2e/search/search-ux.spec.ts:9:3 › Search discovery experience › submitting a query displays filtered results with preserved parameters (2.1s)
+  ✓  150 [chromium] › tests/e2e/search/search-ux.spec.ts:29:3 › Search discovery experience › shows an empty state when nothing matches the filters (751ms)
+  ✓  151 [chromium] › tests/e2e/search/search-ux.spec.ts:34:3 › Search discovery experience › navigates to the listing detail route when a result is selected (1.2s)
+  ✓  152 [chromium] › tests/e2e/security/security.spec.ts:127:5 › Security Testing › Authentication & Authorization › prevents unauthorized access to admin routes (681ms)
+  ✓  153 [chromium] › tests/e2e/security/security.spec.ts:135:5 › Security Testing › Authentication & Authorization › prevents privilege escalation via API (101ms)
+  ✓  154 [chromium] › tests/e2e/security/security.spec.ts:143:5 › Security Testing › Authentication & Authorization › session timeout redirects to login (642ms)
+  -  155 [chromium] › tests/e2e/security/security.spec.ts:151:5 › Security Testing › Authentication & Authorization › password field has minimum length requirement
+  ✘  156 [chromium] › tests/e2e/security/security.spec.ts:179:5 › Security Testing › Input Validation & Injection Prevention › prevents SQL injection in search (1.6s)
+  ✓  157 [chromium] › tests/e2e/security/security.spec.ts:205:5 › Security Testing › Input Validation & Injection Prevention › prevents XSS in user-generated content (12.2s)
+  ✓  158 [chromium] › tests/e2e/security/security.spec.ts:237:5 › Security Testing › Input Validation & Injection Prevention › prevents CSRF attacks (160ms)
+Create listing page requires authentication - this is good for security
+  ✓  159 [chromium] › tests/e2e/security/security.spec.ts:253:5 › Security Testing › Input Validation & Injection Prevention › file upload security (437ms)
+  ✓  160 [chromium] › tests/e2e/security/security.spec.ts:285:5 › Security Testing › Data Privacy & Protection › sensitive data is not exposed in client-side code (646ms)
+  ✓  161 [chromium] › tests/e2e/security/security.spec.ts:310:5 › Security Testing › Data Privacy & Protection › user data is properly sanitized in API responses (113ms)
+  ✓  162 [chromium] › tests/e2e/security/security.spec.ts:324:5 › Security Testing › Data Privacy & Protection › email validation prevents header injection (8.8s)
+  ✓  133 [chromium] › tests/e2e/listing-management.spec.ts:106:5 › Listing Management E2E › error handling flows › handles invalid listing creation gracefully (55.1s)
+  ✓  163 [chromium] › tests/e2e/security/security.spec.ts:356:5 › Security Testing › Rate Limiting & DDoS Protection › contact form rate limiting (15.2s)
+  ✓  165 [chromium] › tests/e2e/security/security.spec.ts:401:5 › Security Testing › Rate Limiting & DDoS Protection › API endpoint rate limiting (262ms)
+CSP headers not found - may not be configured in test environment
+  ✓  166 [chromium] › tests/e2e/security/security.spec.ts:435:5 › Security Testing › Content Security Policy › CSP headers are properly configured (260ms)
+CSP not blocking inline scripts - may not be configured in test environment
+  ✓  167 [chromium] › tests/e2e/security/security.spec.ts:460:5 › Security Testing › Content Security Policy › inline scripts are blocked by CSP (1.4s)
+  ✓  168 [chromium] › tests/e2e/ux/search.spec.ts:12:3 › Search & Filter UX › search interface is accessible and responsive (1.5s)
+  ✓  169 [chromium] › tests/e2e/ux/search.spec.ts:35:3 › Search & Filter UX › search with filters shows correct results (2.7s)
+  ✓  170 [chromium] › tests/e2e/ux/search.spec.ts:68:3 › Search & Filter UX › mobile responsive design (1.7s)
+  ✓  171 [chromium] › tests/e2e/ux/search.spec.ts:85:3 › Search & Filter UX › keyboard navigation (1.6s)
+  ✓  172 [chromium] › tests/e2e/ux/search.spec.ts:107:5 › Search & Filter UX › screen reader compatibility › has proper ARIA labels and roles (2.0s)
+  ✓  173 [chromium] › tests/e2e/ux/search.spec.ts:121:5 › Search & Filter UX › screen reader compatibility › search form is functional (2.1s)
+  ✓  174 [chromium] › tests/e2e/ux/search.spec.ts:134:5 › Search & Filter UX › focus management › maintains focus during search interaction (1.6s)
+  ✓  175 [chromium] › tests/e2e/ux/search.spec.ts:146:5 › Search & Filter UX › focus management › handles keyboard navigation within form (1.4s)
+  ✓  176 [chromium] › tests/e2e/ux/search.spec.ts:161:5 › Search & Filter UX › loading states and empty results › handles search with no term gracefully (1.5s)
+  ✓  177 [chromium] › tests/e2e/ux/search.spec.ts:173:5 › Search & Filter UX › loading states and empty results › displays results or no results message (2.9s)
+  ✘  164 [chromium] › tests/e2e/listing-management.spec.ts:118:5 › Listing Management E2E › error handling flows › prevents unauthorized listing modification (38.6s)
+  ✓  178 [chromium] › tests/e2e/ux/search.spec.ts:192:5 › Search & Filter UX › visual feedback and interaction › search button is visible and clickable (3.9s)
+  ✓  179 [chromium] › tests/e2e/ux/search.spec.ts:203:5 › Search & Filter UX › visual feedback and interaction › form inputs are interactive (3.2s)
+  ✓  181 [chromium] › tests/e2e/ux/search.spec.ts:218:5 › Search & Filter UX › responsive layout behavior › adapts layout for different screen sizes (3.6s)
+  ✓  182 [chromium] › tests/e2e/ux/search.spec.ts:238:5 › Search & Filter UX › responsive layout behavior › form is usable on small screens (2.2s)
+  ✓  180 [chromium] › tests/e2e/listing-management.spec.ts:142:5 › Listing Management E2E › concurrent operations › handles simultaneous reviews correctly (52.7s)
+  ✘  183 [chromium] › tests/e2e/listing-management.spec.ts:199:5 › Listing Management E2E › data persistence › maintains state across page refreshes (59.6s)
+  ✘  184 [chromium] › tests/e2e/listing-management.spec.ts:226:5 › Listing Management E2E › data persistence › maintains session across multiple tabs (58.3s)
+
+
+  1) [chromium] › tests/e2e/admin-dashboard.spec.ts:8:5 › Admin Dashboard Integration › Access Control › regular user cannot access admin dashboard 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: [32m"/403"[39m
+    Received string:    [31m"http://localhost:3000/dashboard"[39m
+
+      22 |       // Check that we're NOT on the admin dashboard
+      23 |       const finalUrl = page.url();
+    > 24 |       expect(finalUrl).toContain('/403');
+         |                        ^
+      25 |     });
+      26 |
+      27 |     test('venue owner cannot access admin dashboard', async ({ page }) => {
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/admin-dashboard.spec.ts:24:24
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-admin-dashboard-Admin--9dfa7-nnot-access-admin-dashboard-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-admin-dashboard-Admin--9dfa7-nnot-access-admin-dashboard-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-admin-dashboard-Admin--9dfa7-nnot-access-admin-dashboard-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests/e2e/admin-dashboard.spec.ts:27:5 › Admin Dashboard Integration › Access Control › venue owner cannot access admin dashboard 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: [32m"/403"[39m
+    Received string:    [31m"http://localhost:3000/dashboard/venues"[39m
+
+      39 |       // Check that we're NOT on the admin dashboard
+      40 |       const finalUrl = page.url();
+    > 41 |       expect(finalUrl).toContain('/403');
+         |                        ^
+      42 |     });
+      43 |
+      44 |     test('unauthenticated user is redirected to login', async ({ page }) => {
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/admin-dashboard.spec.ts:41:24
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-admin-dashboard-Admin--4c795-nnot-access-admin-dashboard-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-admin-dashboard-Admin--4c795-nnot-access-admin-dashboard-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-admin-dashboard-Admin--4c795-nnot-access-admin-dashboard-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › tests/e2e/admin-dashboard.spec.ts:65:5 › Admin Dashboard Integration › Admin Dashboard Functionality › loads simplified admin dashboard page 
+
+    TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('[data-testid="admin-dashboard"]') to be visible[22m
+
+
+      60 |       await TestHelpers.loginAsAdmin(page);
+      61 |       // Wait for the dashboard to load
+    > 62 |       await page.waitForSelector('[data-testid="admin-dashboard"]', { timeout: 10000 });
+         |                  ^
+      63 |     });
+      64 |
+      65 |     test('loads simplified admin dashboard page', async ({ page }) => {
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/admin-dashboard.spec.ts:62:18
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-admin-dashboard-Admin--d0324-lified-admin-dashboard-page-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-admin-dashboard-Admin--d0324-lified-admin-dashboard-page-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-admin-dashboard-Admin--d0324-lified-admin-dashboard-page-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [chromium] › tests/e2e/admin-dashboard.spec.ts:73:5 › Admin Dashboard Integration › Admin Dashboard Functionality › displays admin navigation links 
+
+    TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('[data-testid="admin-dashboard"]') to be visible[22m
+    [2m    - waiting for" http://localhost:3000/auth/login" navigation to finish...[22m
+
+
+      60 |       await TestHelpers.loginAsAdmin(page);
+      61 |       // Wait for the dashboard to load
+    > 62 |       await page.waitForSelector('[data-testid="admin-dashboard"]', { timeout: 10000 });
+         |                  ^
+      63 |     });
+      64 |
+      65 |     test('loads simplified admin dashboard page', async ({ page }) => {
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/admin-dashboard.spec.ts:62:18
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-admin-dashboard-Admin--ccc64-lays-admin-navigation-links-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-admin-dashboard-Admin--ccc64-lays-admin-navigation-links-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-admin-dashboard-Admin--ccc64-lays-admin-navigation-links-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [chromium] › tests/e2e/admin-dashboard.spec.ts:80:5 › Admin Dashboard Integration › Admin Dashboard Functionality › admin navigation links have correct hrefs 
+
+    TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('[data-testid="admin-dashboard"]') to be visible[22m
+
+
+      60 |       await TestHelpers.loginAsAdmin(page);
+      61 |       // Wait for the dashboard to load
+    > 62 |       await page.waitForSelector('[data-testid="admin-dashboard"]', { timeout: 10000 });
+         |                  ^
+      63 |     });
+      64 |
+      65 |     test('loads simplified admin dashboard page', async ({ page }) => {
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/admin-dashboard.spec.ts:62:18
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-admin-dashboard-Admin--6b589-on-links-have-correct-hrefs-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-admin-dashboard-Admin--6b589-on-links-have-correct-hrefs-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-admin-dashboard-Admin--6b589-on-links-have-correct-hrefs-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [chromium] › tests/e2e/admin-dashboard.spec.ts:87:5 › Admin Dashboard Integration › Admin Dashboard Functionality › page has proper SEO protection 
+
+    TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('[data-testid="admin-dashboard"]') to be visible[22m
+
+
+      60 |       await TestHelpers.loginAsAdmin(page);
+      61 |       // Wait for the dashboard to load
+    > 62 |       await page.waitForSelector('[data-testid="admin-dashboard"]', { timeout: 10000 });
+         |                  ^
+      63 |     });
+      64 |
+      65 |     test('loads simplified admin dashboard page', async ({ page }) => {
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/admin-dashboard.spec.ts:62:18
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-admin-dashboard-Admin--eacb3-e-has-proper-SEO-protection-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-admin-dashboard-Admin--eacb3-e-has-proper-SEO-protection-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-admin-dashboard-Admin--eacb3-e-has-proper-SEO-protection-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [chromium] › tests/e2e/auth.spec.ts:4:3 › Authentication (Playwright) › registers a new user and lands on the home page 
+
+    TimeoutError: locator.fill: Timeout 15000ms exceeded.
+    Call log:
+    [2m  - waiting for getByPlaceholder('Name')[22m
+    [2m    - waiting for" http://localhost:3000/" navigation to finish...[22m
+    [2m    - navigated to "http://localhost:3000/"[22m
+
+
+      16 |
+      17 |     const unique = `${Date.now()}-${test.info().workerIndex}-${Math.random().toString(36).slice(2, 8)}`;
+    > 18 |     await page.getByPlaceholder('Name').fill('Test User');
+         |                                         ^
+      19 |     await page.getByPlaceholder('Email').fill(`test+${unique}@example.com`);
+      20 |     await page.getByPlaceholder('Password').fill('Password_123!Aa');
+      21 |
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/auth.spec.ts:18:41
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-auth-Authentication-Pl-214bb--and-lands-on-the-home-page-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-auth-Authentication-Pl-214bb--and-lands-on-the-home-page-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-auth-Authentication-Pl-214bb--and-lands-on-the-home-page-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-auth-Authentication-Pl-214bb--and-lands-on-the-home-page-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:441:5 › Cross-Browser Compatibility Testing › Error Handling Across Browsers › network error recovery 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByTestId('search-error-state')
+    Expected: visible
+    Error: strict mode violation: getByTestId('search-error-state') resolved to 2 elements:
+        1) <div class="flex flex-col gap-4" data-testid="search-error-state">…</div> aka getByTestId('search-error-state').first()
+        2) <div class="flex flex-col gap-4" data-testid="search-error-state">…</div> aka getByRole('main').getByTestId('search-error-state')
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByTestId('search-error-state')[22m
+
+
+      442 |       await page.goto('/search?e2eScenario=fail-once');
+      443 |
+    > 444 |       await expect(page.getByTestId('search-error-state')).toBeVisible();
+          |                                                            ^
+      445 |
+      446 |       const retryButton = page.getByTestId('search-retry-button');
+      447 |       await expect(retryButton).toBeVisible({ timeout: 5000 });
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/cross-browser/compatibility.spec.ts:444:60
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-cross-browser-compatib-e6f4c-sers-network-error-recovery-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-cross-browser-compatib-e6f4c-sers-network-error-recovery-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-cross-browser-compatib-e6f4c-sers-network-error-recovery-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-cross-browser-compatib-e6f4c-sers-network-error-recovery-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [chromium] › tests/e2e/listing-detail-media.spec.ts:17:3 › Listing detail media & fallbacks › gallery lightbox navigates between images 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  locator('[data-testid="gallery-thumbnail"]')
+    Expected: [32m3[39m
+    Received: [31m0[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveCount" with timeout 5000ms[22m
+    [2m  - waiting for locator('[data-testid="gallery-thumbnail"]')[22m
+    [2m    9 × locator resolved to 0 elements[22m
+    [2m      - unexpected value "0"[22m
+
+
+      17 |   test('gallery lightbox navigates between images', async ({ page }) => {
+      18 |     const thumbnails = page.locator('[data-testid="gallery-thumbnail"]');
+    > 19 |     await expect(thumbnails).toHaveCount(3);
+         |                              ^
+      20 |
+      21 |     await thumbnails.first().click();
+      22 |
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/listing-detail-media.spec.ts:19:30
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-listing-detail-media-L-fadce-ox-navigates-between-images-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-listing-detail-media-L-fadce-ox-navigates-between-images-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-listing-detail-media-L-fadce-ox-navigates-between-images-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-listing-detail-media-L-fadce-ox-navigates-between-images-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [chromium] › tests/e2e/listing-detail-media.spec.ts:44:3 › Listing detail media & fallbacks › related listings fall back to placeholder imagery when missing thumbnails 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('[data-testid="related-listing-card"]').filter({ hasText: 'Eco Resort Koh Samui' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('[data-testid="related-listing-card"]').filter({ hasText: 'Eco Resort Koh Samui' })[22m
+
+
+      49 |       .filter({ hasText: 'Eco Resort Koh Samui' });
+      50 |
+    > 51 |     await expect(fallbackCard).toBeVisible();
+         |                                ^
+      52 |
+      53 |     const fallbackImage = fallbackCard.locator('[data-testid="related-listing-fallback"]');
+      54 |     await expect(fallbackImage).toBeVisible();
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/listing-detail-media.spec.ts:51:32
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-listing-detail-media-L-a8107-ery-when-missing-thumbnails-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-listing-detail-media-L-a8107-ery-when-missing-thumbnails-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-listing-detail-media-L-a8107-ery-when-missing-thumbnails-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-listing-detail-media-L-a8107-ery-when-missing-thumbnails-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [chromium] › tests/e2e/listing-detail-media.spec.ts:61:3 › Listing detail media & fallbacks › long descriptions expand behind a read more toggle 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('[data-testid="long-description"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('[data-testid="long-description"]')[22m
+
+
+      61 |   test('long descriptions expand behind a read more toggle', async ({ page }) => {
+      62 |     const description = page.locator('[data-testid="long-description"]');
+    > 63 |     await expect(description).toBeVisible();
+         |                               ^
+      64 |
+      65 |     const beforeMetrics = await description.evaluate(el => ({
+      66 |       scrollHeight: el.scrollHeight,
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/listing-detail-media.spec.ts:63:31
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-listing-detail-media-L-69b26-d-behind-a-read-more-toggle-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-listing-detail-media-L-69b26-d-behind-a-read-more-toggle-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-listing-detail-media-L-69b26-d-behind-a-read-more-toggle-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-listing-detail-media-L-69b26-d-behind-a-read-more-toggle-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [chromium] › tests/e2e/listing-management.spec.ts:21:5 › Listing Management E2E › role-based access control › regular user cannot access admin features 
+
+    Error: page.goto: net::ERR_ABORTED at http://localhost:3000/admin/dashboard
+    Call log:
+    [2m  - navigating to "http://localhost:3000/admin/dashboard", waiting until "load"[22m
+
+
+      23 |
+      24 |       // Try to access admin routes
+    > 25 |       await page.goto('/admin/dashboard');
+         |                  ^
+      26 |       await expect(page).toHaveURL(/\/403/);
+      27 |
+      28 |       await page.goto('/admin/listings');
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/listing-management.spec.ts:25:18
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-listing-management-Lis-52ce8-annot-access-admin-features-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-listing-management-Lis-52ce8-annot-access-admin-features-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-listing-management-Lis-52ce8-annot-access-admin-features-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) [chromium] › tests/e2e/listing-management.spec.ts:43:5 › Listing Management E2E › role-based access control › admin can see all listings including flagged ones 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator:  getByTestId('admin-listings-page')
+    Expected: visible
+    Received: undefined
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByTestId('admin-listings-page')[22m
+    [2m    - waiting for navigation to finish...[22m
+
+
+      94 |       await page.goto('/admin/listings');
+      95 |
+    > 96 |       await expect(page.getByTestId('admin-listings-page')).toBeVisible();
+         |                                                             ^
+      97 |       await expect(page.getByTestId('listings-table')).toBeVisible();
+      98 |       await expect(page.getByTestId('listing-row-listing-flagged')).toBeVisible();
+      99 |       await expect(page.getByText('Pending')).toBeVisible();
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/listing-management.spec.ts:96:61
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-listing-management-Lis-210b8-ings-including-flagged-ones-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-listing-management-Lis-210b8-ings-including-flagged-ones-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-listing-management-Lis-210b8-ings-including-flagged-ones-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) [chromium] › tests/e2e/listing-management.spec.ts:118:5 › Listing Management E2E › error handling flows › prevents unauthorized listing modification 
+
+    Error: [2mexpect([22m[31mpage[39m[2m).[22mtoHaveURL[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Expected pattern: [32m/\/403/[39m
+    Received string:  [31m""[39m
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toHaveURL" with timeout 5000ms[22m
+    [2m    - waiting for" http://localhost:3000/profile" navigation to finish...[22m
+
+
+      124 |       // Attempt to edit
+      125 |       await page.goto(`/dashboard/listings/edit/${listingId}`).catch(() => undefined);
+    > 126 |       await expect(page).toHaveURL(/\/403/);
+          |                          ^
+      127 |
+      128 |       // Attempt to delete
+      129 |       const deleteResponse = await TestHelpers.makeAuthenticatedRequest(
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/listing-management.spec.ts:126:26
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-listing-management-Lis-9e2ff-orized-listing-modification-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-listing-management-Lis-9e2ff-orized-listing-modification-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-listing-management-Lis-9e2ff-orized-listing-modification-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) [chromium] › tests/e2e/listing-management.spec.ts:199:5 › Listing Management E2E › data persistence › maintains state across page refreshes 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator:  getByText('Test Eco Coworking')
+    Expected: visible
+    Received: undefined
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByText('Test Eco Coworking')[22m
+    [2m    - waiting for navigation to finish...[22m
+
+
+      218 |
+      219 |       await page.goto('/dashboard/listings');
+    > 220 |       await expect(page.getByText(testData.listing.name)).toBeVisible();
+          |                                                           ^
+      221 |
+      222 |       await page.reload();
+      223 |       await expect(page.getByText(testData.listing.name)).toBeVisible();
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/listing-management.spec.ts:220:59
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-listing-management-Lis-d24c1-state-across-page-refreshes-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-listing-management-Lis-d24c1-state-across-page-refreshes-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-listing-management-Lis-d24c1-state-across-page-refreshes-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) [chromium] › tests/e2e/listing-management.spec.ts:226:5 › Listing Management E2E › data persistence › maintains session across multiple tabs 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('heading', { name: 'Vera VenueOwner' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('heading', { name: 'Vera VenueOwner' })[22m
+
+
+      237 |
+      238 |       // Verify logged in state persists
+    > 239 |       await expect(page2.getByRole('heading', { name: displayName })).toBeVisible();
+          |                                                                       ^
+      240 |     });
+      241 |   });
+      242 | });
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/listing-management.spec.ts:239:71
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-listing-management-Lis-83b27-ession-across-multiple-tabs-chromium/video-1.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-listing-management-Lis-83b27-ession-across-multiple-tabs-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-listing-management-Lis-83b27-ession-across-multiple-tabs-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-listing-management-Lis-83b27-ession-across-multiple-tabs-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-listing-management-Lis-83b27-ession-across-multiple-tabs-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) [chromium] › tests/e2e/rbac.e2e.spec.ts:7:3 › RBAC (Playwright) › regular user cannot access admin routes 
+
+    Error: [2mexpect([22m[31mpage[39m[2m).[22mtoHaveURL[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Expected pattern: [32m/\/403/[39m
+    Received string:  [31m"http://localhost:3000/?error=unauthorized_access"[39m
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toHaveURL" with timeout 5000ms[22m
+    [2m    7 × unexpected value "http://localhost:3000/?error=unauthorized_access"[22m
+
+
+      13 |
+      14 |     await page.goto(`${BASE_URL}/admin/dashboard`);
+    > 15 |     await expect(page).toHaveURL(/\/403/);
+         |                        ^
+      16 |   });
+      17 |
+      18 |   test('venue owner cannot access admin routes', async ({ page }) => {
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/rbac.e2e.spec.ts:15:24
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-rbac.e2e-RBAC-Playwrig-75da7--cannot-access-admin-routes-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-rbac.e2e-RBAC-Playwrig-75da7--cannot-access-admin-routes-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-rbac.e2e-RBAC-Playwrig-75da7--cannot-access-admin-routes-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-rbac.e2e-RBAC-Playwrig-75da7--cannot-access-admin-routes-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) [chromium] › tests/e2e/rbac.e2e.spec.ts:18:3 › RBAC (Playwright) › venue owner cannot access admin routes 
+
+    Error: [2mexpect([22m[31mpage[39m[2m).[22mtoHaveURL[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Expected pattern: [32m/\/403/[39m
+    Received string:  [31m"http://localhost:3000/?error=unauthorized_access"[39m
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toHaveURL" with timeout 5000ms[22m
+    [2m    8 × unexpected value "http://localhost:3000/?error=unauthorized_access"[22m
+
+
+      24 |
+      25 |     await page.goto(`${BASE_URL}/admin/dashboard`);
+    > 26 |     await expect(page).toHaveURL(/\/403/);
+         |                        ^
+      27 |   });
+      28 |   test('admin can access admin routes', async ({ page }) => {
+      29 |     await loginAs(
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/rbac.e2e.spec.ts:26:24
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-rbac.e2e-RBAC-Playwrig-f7fe6--cannot-access-admin-routes-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-rbac.e2e-RBAC-Playwrig-f7fe6--cannot-access-admin-routes-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-rbac.e2e-RBAC-Playwrig-f7fe6--cannot-access-admin-routes-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-rbac.e2e-RBAC-Playwrig-f7fe6--cannot-access-admin-routes-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) [chromium] › tests/e2e/rbac.e2e.spec.ts:28:3 › RBAC (Playwright) › admin can access admin routes 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator:  getByTestId('admin-dashboard')
+    Expected: visible
+    Received: undefined
+    Timeout:  10000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('admin-dashboard')[22m
+    [2m    - waiting for navigation to finish...[22m
+
+
+      34 |
+      35 |     await page.goto(`${BASE_URL}/admin/dashboard`);
+    > 36 |     await expect(page.getByTestId('admin-dashboard')).toBeVisible({ timeout: 10000 });
+         |                                                       ^
+      37 |   });
+      38 | });
+      39 |
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/rbac.e2e.spec.ts:36:55
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-rbac.e2e-RBAC-Playwright-admin-can-access-admin-routes-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-rbac.e2e-RBAC-Playwright-admin-can-access-admin-routes-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-rbac.e2e-RBAC-Playwright-admin-can-access-admin-routes-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20) [chromium] › tests/e2e/security/security.spec.ts:179:5 › Security Testing › Input Validation & Injection Prevention › prevents SQL injection in search 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      199 |         const hasNoResults = await page.locator('[data-testid="no-results"]').isVisible().catch(() => false);
+      200 |
+    > 201 |         expect(hasResults || hasNoResults).toBeTruthy();
+          |                                            ^
+      202 |       }
+      203 |     });
+      204 |
+        at /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/e2e/security/security.spec.ts:201:44
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/e2e-security-security-Secu-6abc7-nts-SQL-injection-in-search-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-security-security-Secu-6abc7-nts-SQL-injection-in-search-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e-security-security-Secu-6abc7-nts-SQL-injection-in-search-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e-security-security-Secu-6abc7-nts-SQL-injection-in-search-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20 failed
+    [chromium] › tests/e2e/admin-dashboard.spec.ts:8:5 › Admin Dashboard Integration › Access Control › regular user cannot access admin dashboard 
+    [chromium] › tests/e2e/admin-dashboard.spec.ts:27:5 › Admin Dashboard Integration › Access Control › venue owner cannot access admin dashboard 
+    [chromium] › tests/e2e/admin-dashboard.spec.ts:65:5 › Admin Dashboard Integration › Admin Dashboard Functionality › loads simplified admin dashboard page 
+    [chromium] › tests/e2e/admin-dashboard.spec.ts:73:5 › Admin Dashboard Integration › Admin Dashboard Functionality › displays admin navigation links 
+    [chromium] › tests/e2e/admin-dashboard.spec.ts:80:5 › Admin Dashboard Integration › Admin Dashboard Functionality › admin navigation links have correct hrefs 
+    [chromium] › tests/e2e/admin-dashboard.spec.ts:87:5 › Admin Dashboard Integration › Admin Dashboard Functionality › page has proper SEO protection 
+    [chromium] › tests/e2e/auth.spec.ts:4:3 › Authentication (Playwright) › registers a new user and lands on the home page 
+    [chromium] › tests/e2e/cross-browser/compatibility.spec.ts:441:5 › Cross-Browser Compatibility Testing › Error Handling Across Browsers › network error recovery 
+    [chromium] › tests/e2e/listing-detail-media.spec.ts:17:3 › Listing detail media & fallbacks › gallery lightbox navigates between images 
+    [chromium] › tests/e2e/listing-detail-media.spec.ts:44:3 › Listing detail media & fallbacks › related listings fall back to placeholder imagery when missing thumbnails 
+    [chromium] › tests/e2e/listing-detail-media.spec.ts:61:3 › Listing detail media & fallbacks › long descriptions expand behind a read more toggle 
+    [chromium] › tests/e2e/listing-management.spec.ts:21:5 › Listing Management E2E › role-based access control › regular user cannot access admin features 
+    [chromium] › tests/e2e/listing-management.spec.ts:43:5 › Listing Management E2E › role-based access control › admin can see all listings including flagged ones 
+    [chromium] › tests/e2e/listing-management.spec.ts:118:5 › Listing Management E2E › error handling flows › prevents unauthorized listing modification 
+    [chromium] › tests/e2e/listing-management.spec.ts:199:5 › Listing Management E2E › data persistence › maintains state across page refreshes 
+    [chromium] › tests/e2e/listing-management.spec.ts:226:5 › Listing Management E2E › data persistence › maintains session across multiple tabs 
+    [chromium] › tests/e2e/rbac.e2e.spec.ts:7:3 › RBAC (Playwright) › regular user cannot access admin routes 
+    [chromium] › tests/e2e/rbac.e2e.spec.ts:18:3 › RBAC (Playwright) › venue owner cannot access admin routes 
+    [chromium] › tests/e2e/rbac.e2e.spec.ts:28:3 › RBAC (Playwright) › admin can access admin routes 
+    [chromium] › tests/e2e/security/security.spec.ts:179:5 › Security Testing › Input Validation & Injection Prevention › prevents SQL injection in search 
+  16 skipped
+  148 passed (12.5m)
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m

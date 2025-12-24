@@ -1,0 +1,35 @@
+# User Role Discrepancy Investigation & E2E Auth Test Fix
+
+## Investigation Summary
+
+✅ **COMPLETED**: Investigation revealed that user role implementation is **correct** - the "discrepancy" was intentional UX design. Real issues are authentication and admin dashboard loading failures.
+
+## Next Steps: Fix E2E Auth Tests
+
+### Phase 1: Immediate Fixes (HIGH PRIORITY)
+
+- [ ] 1.1 Fix admin authentication in test environment
+- [ ] 1.2 Add error handling to admin dashboard components
+- [ ] 1.3 Improve test waiting conditions and timeouts
+- [ ] 1.4 Add debug logging to identify specific failure points
+
+### Phase 2: Infrastructure Improvements (MEDIUM PRIORITY)
+
+- [ ] 2.1 Verify test database setup and connections
+- [ ] 2.2 Ensure proper test user seeding
+- [ ] 2.3 Fix environment variable configuration
+- [ ] 2.4 Improve test fixture reliability
+
+### Phase 3: Long-term Improvements (LOW PRIORITY)
+
+- [ ] 3.1 Add comprehensive error boundaries
+- [ ] 3.2 Implement better loading states
+- [ ] 3.3 Add performance monitoring for admin pages
+- [ ] 3.4 Create better test debugging tools
+
+## Key Findings
+
+- User roles correctly use camelCase storage (`venueOwner`) and human-readable display ("Venue Owner")
+- E2E test failures are due to admin dashboard loading timeouts and authentication issues
+- Authentication flow works in production but fails in test environment
+- Need to fix test infrastructure rather than role implementation
