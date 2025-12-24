@@ -48,7 +48,7 @@ export default async function LoginPage(props: LoginPageProps) {
   return (
     <>
       <Header />
-      <div className="relative min-h-screen flex items-center justify-center px-4">
+      <div className="relative min-h-screen flex items-start justify-center px-4 py-12">
         {/* Background accents */}
         <div
           aria-hidden="true"
@@ -62,9 +62,9 @@ export default async function LoginPage(props: LoginPageProps) {
           aria-hidden="true"
           className="absolute -bottom-24 -right-24 w-72 h-72 rounded-full bg-neo-secondary/10 blur-3xl"
         />
-        <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+        <div className="w-full max-w-5xl flex flex-col gap-8 md:flex-row md:items-stretch">
           {/* Left panel (visible on all sizes; stacks above auth card on mobile) */}
-          <div className="flex flex-col justify-center p-6 md:p-8 rounded-xl neo-card bg-gradient-to-br from-white to-neo-secondary/5">
+          <div className="flex flex-1 flex-col justify-center p-6 md:p-8 rounded-xl neo-card bg-gradient-to-br from-white to-neo-secondary/5">
             <h2 className="heading-lg mb-3" id="welcome-heading">
               Welcome back
             </h2>
@@ -80,7 +80,7 @@ export default async function LoginPage(props: LoginPageProps) {
             </section>
           </div>
           {/* Auth card */}
-          <NeoCard className="p-8 md:p-10">
+          <NeoCard className="flex-1 p-8 md:p-10">
             <NeoCardHeader>
               <NeoCardTitle>Log in</NeoCardTitle>
             </NeoCardHeader>
