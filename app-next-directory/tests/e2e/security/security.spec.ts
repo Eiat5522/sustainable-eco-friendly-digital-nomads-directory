@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { getOptionalTestEnvVar, getRequiredTestEnvVar } from '../../helpers/env';
+import { getOptionalTestEnvVar } from '../../helpers/env';
 
 const parseNumber = (value: string | undefined, fallback: number) => {
   const parsed = Number(value);
@@ -47,12 +47,8 @@ const TEST_CONFIG = {
     },
   },
   credentials: {
-    userEmail: getRequiredTestEnvVar('TEST_USER_EMAIL', {
-      description: 'set in .env.test or your shell before running security e2e tests',
-    }),
-    userPassword: getRequiredTestEnvVar('TEST_USER_PASSWORD', {
-      description: 'set in .env.test or your shell before running security e2e tests',
-    }),
+    userEmail: getOptionalTestEnvVar('TEST_USER_EMAIL', 'user@example.com'),
+    userPassword: getOptionalTestEnvVar('TEST_USER_PASSWORD', 'TestSecurePass123!'),
     genericEmail: getOptionalTestEnvVar('TEST_GENERIC_EMAIL', 'test@example.com'),
   },
   search: {
