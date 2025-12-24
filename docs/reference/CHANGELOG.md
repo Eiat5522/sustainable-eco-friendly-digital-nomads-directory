@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Ensured admin route middleware reads session tokens from requests and redirects non-admins to sign-in
+- Stacked login/signup panels on smaller screens and limited social sign-in to Google-only setup
 
 ## [0.1.3] - 2025-01-XX
 

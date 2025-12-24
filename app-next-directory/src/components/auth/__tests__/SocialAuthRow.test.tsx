@@ -21,7 +21,7 @@ describe('SocialAuthRow', () => {
       expect(screen.getByText(/Loading sign-in options/i)).toBeInTheDocument();
     });
 
-    it('renders provider buttons when loaded successfully', async () => {
+    it('renders only configured provider buttons when loaded successfully', async () => {
       jest.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: true,
         json: async () => ({
@@ -35,10 +35,10 @@ describe('SocialAuthRow', () => {
       render(<SocialAuthRow />);
 
       await waitFor(() => {
-        expect(screen.getByLabelText(/Continue with Facebook/i)).toBeInTheDocument();
         expect(screen.getByLabelText(/Continue with Google/i)).toBeInTheDocument();
-        expect(screen.getByLabelText(/Continue with X/i)).toBeInTheDocument();
-        expect(screen.getByLabelText(/Continue with Microsoft/i)).toBeInTheDocument();
+        expect(screen.queryByLabelText(/Continue with Facebook/i)).not.toBeInTheDocument();
+        expect(screen.queryByLabelText(/Continue with X/i)).not.toBeInTheDocument();
+        expect(screen.queryByLabelText(/Continue with Microsoft/i)).not.toBeInTheDocument();
       });
     });
 
@@ -167,17 +167,14 @@ describe('SocialAuthRow', () => {
     it('renders buttons with correct icons', async () => {
       jest.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: true,
-        json: async () => ({
-          facebook: { id: 'facebook' },
-          google: { id: 'google' },
-        }),
+        json: async () => ({ google: { id: 'google' } }),
       } as Response);
 
       const { container } = render(<SocialAuthRow />);
 
       await waitFor(() => {
         const buttons = container.querySelectorAll('button');
-        expect(buttons).toHaveLength(2);
+        expect(buttons).toHaveLength(1);
 
         // Each button should have an SVG icon
         buttons.forEach(button => {
@@ -189,18 +186,12 @@ describe('SocialAuthRow', () => {
     it('renders buttons with correct colors', async () => {
       jest.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: true,
-        json: async () => ({
-          facebook: { id: 'facebook' },
-          google: { id: 'google' },
-        }),
+        json: async () => ({ google: { id: 'google' } }),
       } as Response);
 
       render(<SocialAuthRow />);
 
       await waitFor(() => {
-        const facebookButton = screen.getByLabelText(/Continue with Facebook/i);
-        expect(facebookButton).toHaveStyle({ backgroundColor: '#1877F2' });
-
         const googleButton = screen.getByLabelText(/Continue with Google/i);
         expect(googleButton).toHaveStyle({ backgroundColor: '#FFFFFF' });
       });
@@ -289,30 +280,44 @@ describe('SocialAuthRow', () => {
     });
 
     it('only disables the clicked button, not other buttons', async () => {
+      const customProviders = [
+        {
+          id: 'custom',
+          name: 'Custom',
+          color: '#000000',
+          fg: '#FFFFFF',
+          icon: <span>Custom</span>,
+        },
+        {
+          id: 'google',
+          name: 'Google',
+          color: '#FFFFFF',
+          fg: '#111827',
+          icon: <span>Google</span>,
+        },
+      ];
+
       jest.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: true,
-        json: async () => ({
-          google: { id: 'google' },
-          facebook: { id: 'facebook' },
-        }),
+        json: async () => ({ google: { id: 'google' }, custom: { id: 'custom' } }),
       } as Response);
 
       mockSignIn.mockImplementation(() => new Promise(() => {}));
 
-      render(<SocialAuthRow />);
+      render(<SocialAuthRow providers={customProviders} />);
 
       await waitFor(() => {
         expect(screen.getByLabelText(/Continue with Google/i)).toBeInTheDocument();
       });
 
       const googleButton = screen.getByLabelText(/Continue with Google/i);
-      const facebookButton = screen.getByLabelText(/Continue with Facebook/i);
+      const customButton = screen.getByLabelText(/Continue with Custom/i);
 
       await userEvent.click(googleButton);
 
       await waitFor(() => {
         expect(googleButton).toBeDisabled();
-        expect(facebookButton).toBeEnabled();
+        expect(customButton).toBeEnabled();
       });
     });
 
@@ -500,16 +505,40 @@ describe('SocialAuthRow', () => {
     });
 
     it('renders multiple providers in a row', async () => {
+      const customProviders = [
+        {
+          id: 'google',
+          name: 'Google',
+          color: '#FFFFFF',
+          fg: '#111827',
+          icon: <span>Google</span>,
+        },
+        {
+          id: 'custom-1',
+          name: 'Custom 1',
+          color: '#111111',
+          fg: '#FFFFFF',
+          icon: <span>Custom 1</span>,
+        },
+        {
+          id: 'custom-2',
+          name: 'Custom 2',
+          color: '#222222',
+          fg: '#FFFFFF',
+          icon: <span>Custom 2</span>,
+        },
+      ];
+
       jest.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: true,
         json: async () => ({
-          facebook: { id: 'facebook' },
           google: { id: 'google' },
-          twitter: { id: 'twitter' },
+          'custom-1': { id: 'custom-1' },
+          'custom-2': { id: 'custom-2' },
         }),
       } as Response);
 
-      const { container } = render(<SocialAuthRow />);
+      const { container } = render(<SocialAuthRow providers={customProviders} />);
 
       await waitFor(() => {
         const buttons = container.querySelectorAll('button');
@@ -532,51 +561,6 @@ describe('SocialAuthRow', () => {
         const svg = googleButton.querySelector('svg');
         expect(svg).toBeInTheDocument();
         expect(svg).toHaveAttribute('viewBox', '0 0 24 24');
-      });
-    });
-
-    it('renders Facebook icon', async () => {
-      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ facebook: { id: 'facebook' } }),
-      } as Response);
-
-      render(<SocialAuthRow />);
-
-      await waitFor(() => {
-        const facebookButton = screen.getByLabelText(/Continue with Facebook/i);
-        const svg = facebookButton.querySelector('svg');
-        expect(svg).toBeInTheDocument();
-      });
-    });
-
-    it('renders Twitter/X icon', async () => {
-      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ twitter: { id: 'twitter' } }),
-      } as Response);
-
-      render(<SocialAuthRow />);
-
-      await waitFor(() => {
-        const twitterButton = screen.getByLabelText(/Continue with X/i);
-        const svg = twitterButton.querySelector('svg');
-        expect(svg).toBeInTheDocument();
-      });
-    });
-
-    it('renders Microsoft icon', async () => {
-      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ microsoft: { id: 'microsoft' } }),
-      } as Response);
-
-      render(<SocialAuthRow />);
-
-      await waitFor(() => {
-        const microsoftButton = screen.getByLabelText(/Continue with Microsoft/i);
-        const svg = microsoftButton.querySelector('svg');
-        expect(svg).toBeInTheDocument();
       });
     });
 
@@ -663,17 +647,14 @@ describe('SocialAuthRow', () => {
     it('provides proper button roles', async () => {
       jest.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: true,
-        json: async () => ({
-          google: { id: 'google' },
-          facebook: { id: 'facebook' },
-        }),
+        json: async () => ({ google: { id: 'google' } }),
       } as Response);
 
       render(<SocialAuthRow />);
 
       await waitFor(() => {
         const buttons = screen.getAllByRole('button');
-        expect(buttons).toHaveLength(2);
+        expect(buttons).toHaveLength(1);
       });
     });
 

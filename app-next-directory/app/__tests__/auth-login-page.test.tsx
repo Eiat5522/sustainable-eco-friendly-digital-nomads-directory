@@ -115,7 +115,7 @@ describe('LoginPage', () => {
     expect(screen.getByTestId('header')).toBeInTheDocument();
     expect(screen.getByTestId('footer')).toBeInTheDocument();
     expect(screen.getByTestId('login-form')).toBeInTheDocument();
-    expect(screen.getAllByTestId('social-auth-row')).toHaveLength(2);
+    expect(screen.getAllByTestId('social-auth-row')).toHaveLength(1);
     expect(screen.getByRole('link', { name: /create an account/i })).toHaveAttribute(
       'href',
       '/auth/signup'

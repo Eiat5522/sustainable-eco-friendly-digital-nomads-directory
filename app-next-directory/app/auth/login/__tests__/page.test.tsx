@@ -101,7 +101,7 @@ describe('LoginPage', () => {
 
     expect(screen.getByTestId('mock-header')).toBeInTheDocument();
     expect(screen.getByTestId('mock-footer')).toBeInTheDocument();
-    expect(screen.getAllByTestId('mock-social-row')).toHaveLength(3);
+    expect(screen.getAllByTestId('mock-social-row')).toHaveLength(1);
     expect(redirectMock).not.toHaveBeenCalled();
   });
 });
