@@ -3,7 +3,7 @@
 import Autoplay from 'embla-carousel-autoplay';
 import useEmblaCarousel from 'embla-carousel-react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState, memo, useMemo } from 'react';
+import { useCallback, useEffect, useRef, useState, memo } from 'react';
 import { NeoButton } from '@/components/ui/neo-button';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { VenueCard } from '@/components/ui/VenueCard';
@@ -33,14 +33,24 @@ function toFeaturedListing(listing: unknown): FeaturedListingDTO | null {
 
   const candidate = listing as Record<string, unknown>;
 
-  const id = candidate.id;
-  const name = candidate.name;
-  const slug = candidate.slug;
-  const imageUrl = candidate.imageUrl;
-  const city = candidate.city;
-  const amenityNames = candidate.amenityNames;
-  const ecoFocusTags = candidate.ecoFocusTags;
-  const featured = candidate.featured;
+  // Support multiple data shapes (API DTO or Sanity document shape)
+  const id = (candidate.id ?? candidate._id) as unknown;
+  const name = candidate.name as unknown;
+  const slugRaw = candidate.slug as unknown;
+  // slug could be a string or an object like { current: '...' }
+  const slug = typeof slugRaw === 'string' ? slugRaw : (slugRaw && typeof slugRaw === 'object' ? (slugRaw as any).current : undefined);
+
+  const primaryImage = (candidate.primaryImage ?? candidate.imageUrl) as unknown;
+  let imageUrl: unknown = undefined;
+  if (typeof primaryImage === 'string') imageUrl = primaryImage;
+  else if (primaryImage && typeof primaryImage === 'object') {
+    imageUrl = (primaryImage as any).asset?.url ?? (primaryImage as any).url;
+  }
+
+  const city = candidate.city as unknown;
+  const amenityNames = candidate.amenityNames ?? candidate.amenities ?? undefined;
+  const ecoFocusTags = candidate.ecoFocusTags ?? candidate.ecoTags ?? undefined;
+  const featured = candidate.featured ?? (candidate.moderation ? (candidate.moderation as any).featured : undefined);
 
   if (!isNonEmptyString(id) || !isNonEmptyString(name) || !isNonEmptyString(slug)) {
     return null;
@@ -57,10 +67,10 @@ function toFeaturedListing(listing: unknown): FeaturedListingDTO | null {
   }
 
   return {
-    id,
-    name,
-    slug,
-    imageUrl: isNonEmptyString(imageUrl) ? imageUrl : undefined,
+    id: String(id),
+    name: String(name),
+    slug: String(slug),
+    imageUrl: isNonEmptyString(imageUrl) ? String(imageUrl) : undefined,
     city: cityName,
     amenityNames: toStringArray(amenityNames),
     ecoFocusTags: toStringArray(ecoFocusTags),
@@ -77,9 +87,10 @@ const ListingCard = memo(({ listing, priority }: { listing: FeaturedListingDTO; 
 
 ListingCard.displayName = 'ListingCard';
 
-export function FeaturedListings(): React.JSX.Element {
-  const [listings, setListings] = useState<FeaturedListingDTO[]>([]);
-  const [loading, setLoading] = useState(true);
+export function FeaturedListings({ initialListings }: { initialListings?: FeaturedListingDTO[] }): React.JSX.Element {
+  const hasInitialListings = Array.isArray(initialListings) && initialListings.length > 0;
+  const [listings, setListings] = useState<FeaturedListingDTO[]>(initialListings ?? []);
+  const [loading, setLoading] = useState(!hasInitialListings);
   const [error, setError] = useState<string | null>(null);
   const activeRequest = useRef<number>(0);
   const abortRef = useRef<AbortController | null>(null);
@@ -165,12 +176,13 @@ export function FeaturedListings(): React.JSX.Element {
   }, []);
 
   useEffect(() => {
+    if (hasInitialListings) return;
     void loadListings();
     return () => {
       abortRef.current?.abort();
       abortRef.current = null;
     };
-  }, [loadListings]);
+  }, [loadListings, hasInitialListings]);
 
   const handleRetry = useCallback(() => {
     void loadListings();

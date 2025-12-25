@@ -52,7 +52,8 @@
     "chat.useClaudeSkills": true,
     "playwright.pickLocatorCopyToClipboard": true,
     "playwright.reuseBrowser": true,
-    "playwright.runGlobalSetupOnEachRun": true
+    "playwright.runGlobalSetupOnEachRun": true,
+    "chat.useNestedAgentsMdFiles": true
   },
   "extensions": {
     "recommendations": [
