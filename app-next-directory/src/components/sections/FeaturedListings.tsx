@@ -3,7 +3,7 @@
 import Autoplay from 'embla-carousel-autoplay';
 import useEmblaCarousel from 'embla-carousel-react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, memo, useMemo } from 'react';
 import { NeoButton } from '@/components/ui/neo-button';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { VenueCard } from '@/components/ui/VenueCard';
@@ -16,6 +16,7 @@ type FeaturedListingResponse = {
   };
 };
 
+// Optimized helper functions - moved outside component
 const isNonEmptyString = (value: unknown): value is string =>
   typeof value === 'string' && value.trim().length > 0;
 
@@ -24,7 +25,8 @@ const toStringArray = (value: unknown): string[] => {
   return value.filter(isNonEmptyString);
 };
 
-const toFeaturedListing = (listing: unknown): FeaturedListingDTO | null => {
+// Memoized data transformation function
+function toFeaturedListing(listing: unknown): FeaturedListingDTO | null {
   if (!listing || typeof listing !== 'object') {
     return null;
   }
@@ -64,7 +66,16 @@ const toFeaturedListing = (listing: unknown): FeaturedListingDTO | null => {
     ecoFocusTags: toStringArray(ecoFocusTags),
     featured: typeof featured === 'boolean' ? featured : undefined,
   };
-};
+}
+
+// Memoized ListingCard component
+const ListingCard = memo(({ listing, priority }: { listing: FeaturedListingDTO; priority: boolean }) => (
+  <div className="shrink-0 basis-[85%] sm:basis-[60%] lg:basis-1/3">
+    <VenueCard venue={listing} priority={priority} className="h-full w-full" />
+  </div>
+));
+
+ListingCard.displayName = 'ListingCard';
 
 export function FeaturedListings(): React.JSX.Element {
   const [listings, setListings] = useState<FeaturedListingDTO[]>([]);
@@ -128,6 +139,7 @@ export function FeaturedListings(): React.JSX.Element {
           ? data.data?.listings
           : [];
 
+      // Optimized data transformation to avoid repeated processing
       const normalized = (rawListings as unknown[])
         .map(toFeaturedListing)
         .filter((listing): listing is FeaturedListingDTO => listing !== null);
@@ -167,6 +179,10 @@ export function FeaturedListings(): React.JSX.Element {
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
 
+  // Memoized button handlers to reduce re-renders
+  const handleMouseEnter = useCallback(() => autoplay.current?.stop(), []);
+  const handleMouseLeave = useCallback(() => autoplay.current?.play(), []);
+
   return (
     <section className="py-16 bg-background">
       <div className="container mx-auto px-4">
@@ -198,8 +214,8 @@ export function FeaturedListings(): React.JSX.Element {
               aria-label="Scroll featured left"
               onClick={scrollPrev}
               disabled={!canPrev}
-              onMouseEnter={() => autoplay.current?.stop()}
-              onMouseLeave={() => autoplay.current?.play()}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
             >
               <ChevronLeft size={18} />
             </NeoButton>
@@ -210,8 +226,8 @@ export function FeaturedListings(): React.JSX.Element {
               aria-label="Scroll featured right"
               onClick={scrollNext}
               disabled={!canNext}
-              onMouseEnter={() => autoplay.current?.stop()}
-              onMouseLeave={() => autoplay.current?.play()}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
             >
               <ChevronRight size={18} />
             </NeoButton>
@@ -225,12 +241,7 @@ export function FeaturedListings(): React.JSX.Element {
             >
               <div className="flex gap-6">
                 {listings.map((listing, index) => (
-                  <div
-                    key={listing.id}
-                    className="shrink-0 basis-[85%] sm:basis-[60%] lg:basis-1/3"
-                  >
-                    <VenueCard venue={listing} priority={index < 3} className="h-full w-full" />
-                  </div>
+                  <ListingCard key={listing.id} listing={listing} priority={index < 3} />
                 ))}
               </div>
             </div>

@@ -3,48 +3,60 @@
 import { Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type React from 'react';
-import { useState } from 'react';
+import { useState, useCallback, memo } from 'react';
 import { NeoButton } from '@/components/ui/neo-button';
 import { NeoInput } from '@/components/ui/neo-input';
 import { ScrollDownArrow } from '@/components/ui/scroll-down-arrow';
+
+// Memoized geometric shapes to prevent re-renders
+const GeometricShapes = memo(() => (
+  <>
+    {/* Optimized geometric shapes - using transforms to avoid layout thrashing */}
+    <div
+      className="absolute top-20 left-20 w-32 h-32 bg-neo-secondary rounded-full opacity-80 will-change-transform"
+      aria-hidden="true"
+      role="presentation"
+      style={{ transform: 'translateZ(0)' }} // Force hardware acceleration
+    >
+      <div className="absolute inset-4 bg-neo-border rounded-full"></div>
+      <div className="absolute top-8 left-8 w-4 h-16 bg-neo-border rounded-full"></div>
+      <div className="absolute top-8 right-8 w-4 h-16 bg-neo-border rounded-full"></div>
+      <div className="absolute top-4 left-12 w-4 h-16 bg-neo-border rounded-full transform rotate-45"></div>
+      <div className="absolute top-4 right-12 w-4 h-16 bg-neo-border rounded-full transform -rotate-45"></div>
+      <div className="absolute bottom-4 left-12 w-4 h-16 bg-neo-border rounded-full transform -rotate-45"></div>
+      <div className="absolute bottom-4 right-12 w-4 h-16 bg-neo-border rounded-full transform rotate-45"></div>
+    </div>
+
+    <div className="absolute top-32 right-20 w-24 h-24 bg-pink-400 transform rotate-45 will-change-transform">
+      <div className="absolute inset-2 bg-neo-border"></div>
+    </div>
+
+    {/* Dashed divider - optimized */}
+    <div className="absolute top-1/2 left-1/4 right-1/4 h-0.5 border-t-2 border-dashed border-neo-border opacity-60"></div>
+  </>
+));
+
+GeometricShapes.displayName = 'GeometricShapes';
 
 export function HeroSection() {
   const [q, setQ] = useState('');
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Memoized submit handler to prevent re-renders
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     const query = q.trim();
     if (!query) return;
     router.push(`/search?q=${encodeURIComponent(query)}`);
-  };
+  }, [q, router]);
 
   return (
     <section
       className="relative min-h-[600px] bg-gradient-to-br from-neo-primary via-blue-600 to-blue-800 overflow-hidden"
       aria-labelledby="hero-heading"
     >
-      {/* Geometric Shapes */}
-      <div
-        className="absolute top-20 left-20 w-32 h-32 bg-neo-secondary rounded-full opacity-80"
-        aria-hidden="true"
-        role="presentation"
-      >
-        <div className="absolute inset-4 bg-neo-border rounded-full"></div>
-        <div className="absolute top-8 left-8 w-4 h-16 bg-neo-border rounded-full"></div>
-        <div className="absolute top-8 right-8 w-4 h-16 bg-neo-border rounded-full"></div>
-        <div className="absolute top-4 left-12 w-4 h-16 bg-neo-border rounded-full transform rotate-45"></div>
-        <div className="absolute top-4 right-12 w-4 h-16 bg-neo-border rounded-full transform -rotate-45"></div>
-        <div className="absolute bottom-4 left-12 w-4 h-16 bg-neo-border rounded-full transform -rotate-45"></div>
-        <div className="absolute bottom-4 right-12 w-4 h-16 bg-neo-border rounded-full transform rotate-45"></div>
-      </div>
-
-      <div className="absolute top-32 right-20 w-24 h-24 bg-pink-400 transform rotate-45">
-        <div className="absolute inset-2 bg-neo-border"></div>
-      </div>
-
-      {/* Dashed divider */}
-      <div className="absolute top-1/2 left-1/4 right-1/4 h-0.5 border-t-2 border-dashed border-neo-border opacity-60"></div>
+      {/* Memoized geometric shapes for better performance */}
+      <GeometricShapes />
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 py-20">

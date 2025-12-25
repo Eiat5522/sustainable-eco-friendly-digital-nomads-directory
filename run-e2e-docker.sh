@@ -39,10 +39,24 @@ echo ""
 echo "🌱 Starting services..."
 docker-compose -f docker-compose.e2e.yml up -d mongodb
 
-# Wait for MongoDB to be ready
+# Wait for MongoDB to be ready (poll health status)
 echo ""
 echo "⏳ Waiting for MongoDB to be ready..."
-sleep 5
+MAX_WAIT=60
+WAITED=0
+while true; do
+    STATUS=$(docker inspect --format='{{json .State.Health.Status}}' e2e-mongodb 2>/dev/null || true)
+    if [[ "$STATUS" == '"healthy"' ]]; then
+        echo "✓ MongoDB is healthy"
+        break
+    fi
+    if [[ $WAITED -ge $MAX_WAIT ]]; then
+        echo "⚠ MongoDB did not become healthy after ${MAX_WAIT}s — continuing but tests may fail"
+        break
+    fi
+    sleep 2
+    WAITED=$((WAITED + 2))
+done
 
 # Setup database
 echo ""
@@ -67,10 +81,17 @@ docker-compose -f docker-compose.e2e.yml run --rm app-e2e sh -c "ls -la /app/app
 # Start the Next server inside the container (capture logs) and run Playwright against it.
 echo ""
 echo "🧪 Starting server and running E2E tests (capturing server logs)..."
-docker-compose -f docker-compose.e2e.yml run --rm app-e2e sh -c "pnpm build && \ 
-    mkdir -p /app/app-next-directory/test-results && \ 
-    E2E=1 NEXT_PUBLIC_E2E=1 pnpm start > /app/app-next-directory/test-results/server-start.log 2>&1 & \ 
-    SERVER_PID=$!; sleep 8; pnpm exec playwright test --config=playwright.config.ts; EXIT_CODE=$?; kill -TERM $SERVER_PID || true; exit $EXIT_CODE" 2>&1 | tee app-next-directory/test-results/test-e2e-output.log
+docker-compose -f docker-compose.e2e.yml run --rm app-e2e sh -c "pnpm build && \
+        mkdir -p /app/app-next-directory/test-results && \
+        E2E=1 NEXT_PUBLIC_E2E=1 pnpm start > /app/app-next-directory/test-results/server-start.log 2>&1 & \
+        SERVER_PID=$!; \
+        # wait for server to respond
+        for i in \\$(seq 1 30); do \
+            if curl -sSf http://localhost:3000/ > /dev/null 2>&1; then \
+                echo 'Server is responding'; break; \
+            fi; sleep 1; \
+        done; \
+        pnpm exec playwright test --config=playwright.config.ts; EXIT_CODE=$?; kill -TERM $SERVER_PID || true; exit $EXIT_CODE" 2>&1 | tee app-next-directory/test-results/test-e2e-output.log
 
 # Capture exit code
 EXIT_CODE=$?

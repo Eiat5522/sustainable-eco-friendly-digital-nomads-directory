@@ -99,7 +99,8 @@ export async function cachedQuery<T>(
 
   const redis = getRedisClient();
 
-  // Try to get from cache first
+    const isBuildMode = process.env.NEXT_BUILD_MODE === 'true';
+// Try to get from cache first
   if (redis) {
     try {
       const cached = await redis.get<string>(fullKey);
@@ -108,7 +109,7 @@ export async function cachedQuery<T>(
         const parsed = JSON.parse(cached) as { data: T; timestamp: number; tags: string[] };
 
         // SWR: serve stale while revalidating
-        if (swr) {
+        if (swr && !isBuildMode) {
           const age = Date.now() - parsed.timestamp;
           if (age > staleTime * 1000) {
             // Revalidate in background

@@ -62,6 +62,13 @@ export async function GET() {
     startedAt: requestStartTimestamp,
   });
 
+  if (process.env.NEXT_PUBLIC_MOCK_SANITY_DATA === 'true') {
+    structuredLogger.info('Using mock featured listings data as NEXT_PUBLIC_MOCK_SANITY_DATA is true', {
+      component: 'api/featured-listings',
+    });
+    return ApiResponseHandler.success({ listings: mockFeaturedVenues });
+  }
+
   if (!isSanityConfigured()) {
     return ApiResponseHandler.success({ listings: mockFeaturedVenues });
   }

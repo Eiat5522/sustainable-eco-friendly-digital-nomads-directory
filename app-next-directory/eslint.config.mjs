@@ -55,6 +55,7 @@ const eslintConfig = [jestConfig, /* jestDomConfig, */
       'tsconfig.test.json',
       '../sanity/**',
       '**/.env*',
+      '**/.github/skills/**',
       '**/next-env.d.ts',
     ],
   },

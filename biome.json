@@ -11,6 +11,7 @@
   },
   "formatter": {
     "enabled": true,
+    "ignore": ["**/.github/skills/**"],
     "formatWithErrors": false,
     "indentStyle": "space",
     "indentWidth": 2,
@@ -43,6 +44,7 @@
   },
   "linter": {
     "enabled": true,
+    "ignore": ["**/.github/skills/**"],
     "rules": {
       "recommended": true,
       "a11y": {

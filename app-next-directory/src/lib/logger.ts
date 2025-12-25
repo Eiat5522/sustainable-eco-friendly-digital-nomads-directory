@@ -118,7 +118,7 @@ const shouldRedactKey = (key: string): boolean =>
 
 // Create base logger configuration
 const loggerConfig: pino.LoggerOptions = {
-  level: isE2E ? 'silent' : isProduction ? 'info' : isDevelopment ? 'debug' : 'silent',
+    level: isE2E ? 'silent' : isProduction ? 'info' : isDevelopment ? 'debug' : 'silent',
 
   // Redaction configuration for security
   redact: {
