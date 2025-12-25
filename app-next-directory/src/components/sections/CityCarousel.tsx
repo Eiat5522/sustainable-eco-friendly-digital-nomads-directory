@@ -10,6 +10,9 @@ import { NeoButton } from '@/components/ui/neo-button';
 import type { CityDTO } from '@/types/dto';
 
 type ApiResponse = { success?: boolean; cities?: CityDTO[] };
+type CityCarouselProps = {
+  initialCities?: CityDTO[];
+};
 
 // Optimized data sanitization function
 const sanitizeCityData = (cities: CityDTO[]) => {
@@ -90,9 +93,10 @@ const CityCard = memo(({ city, index }: { city: CityDTO & { _originalSlug: strin
 
 CityCard.displayName = 'CityCard';
 
-export function CityCarousel(): React.JSX.Element {
-  const [cities, setCities] = useState<CityDTO[]>([]);
-  const [loading, setLoading] = useState(true);
+export function CityCarousel({ initialCities }: CityCarouselProps = {}): React.JSX.Element {
+  const hasInitialCities = Array.isArray(initialCities) && initialCities.length > 0;
+  const [cities, setCities] = useState<CityDTO[]>(initialCities ?? []);
+  const [loading, setLoading] = useState(!hasInitialCities);
   const [error, setError] = useState<string | null>(null);
 
   // Embla carousel setup - memoized
@@ -133,6 +137,8 @@ export function CityCarousel(): React.JSX.Element {
   const sanitizedCities = useMemo(() => sanitizeCityData(cities), [cities]);
 
   useEffect(() => {
+    if (hasInitialCities) return;
+
     let cancelled = false;
     const controller = new AbortController();
     (async () => {
@@ -143,7 +149,6 @@ export function CityCarousel(): React.JSX.Element {
         try {
           json = await res.json();
         } catch {}
-        // Accept fallback responses even when status is 503
         const list = json && 'cities' in json && Array.isArray(json.cities) ? json.cities : [];
         if (!cancelled) {
           if (list.length > 0) {
@@ -166,7 +171,7 @@ export function CityCarousel(): React.JSX.Element {
       cancelled = true;
       controller.abort();
     };
-  }, []);
+  }, [hasInitialCities]);
 
   // Memoized button handlers to reduce re-renders
   const handleMouseEnter = useCallback(() => autoplay.current?.stop(), []);
