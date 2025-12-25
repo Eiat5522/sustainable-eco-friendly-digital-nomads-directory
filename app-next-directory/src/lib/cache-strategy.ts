@@ -11,6 +11,12 @@
 import { structuredLogger } from './logger';
 import { getRedisClient } from './redis';
 
+// Skip Redis during build/prerender to avoid timeouts and connection issues
+const isBuildTime = () =>
+  process.env.NEXT_BUILD_MODE === 'true' ||
+  process.env.DISABLE_UPSTASH_DURING_BUILD === '1' ||
+  process.env.DISABLE_UPSTASH_DURING_BUILD === 'true';
+
 export interface CacheOptions {
   /** Cache key prefix for namespacing */
   prefix?: string;
@@ -97,10 +103,15 @@ export async function cachedQuery<T>(
   const { ttl, prefix = 'query', swr = false, staleTime = ttl / 2, tags = [] } = options;
   const fullKey = prefix ? `${prefix}:${key}` : key;
 
+  // Skip Redis entirely during build to avoid timeouts and connection issues
+  if (isBuildTime()) {
+    updateMetrics(fullKey, 'miss');
+    return queryFn();
+  }
+
   const redis = getRedisClient();
 
-    const isBuildMode = process.env.NEXT_BUILD_MODE === 'true';
-// Try to get from cache first
+  // Try to get from cache first
   if (redis) {
     try {
       const cached = await redis.get<string>(fullKey);
@@ -108,8 +119,8 @@ export async function cachedQuery<T>(
         updateMetrics(fullKey, 'hit');
         const parsed = JSON.parse(cached) as { data: T; timestamp: number; tags: string[] };
 
-        // SWR: serve stale while revalidating
-        if (swr && !isBuildMode) {
+        // SWR: serve stale while revalidating (already skipped during build via early return)
+        if (swr) {
           const age = Date.now() - parsed.timestamp;
           if (age > staleTime * 1000) {
             // Revalidate in background

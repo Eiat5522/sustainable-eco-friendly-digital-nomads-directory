@@ -1,4 +1,80 @@
+import { unstable_cache } from 'next/cache';
 import { client } from './client';
+
+// Cache featured listings for 1 hour, revalidate with tag
+const getCachedFeaturedListings = unstable_cache(
+  async (limit: number) => {
+    const query = `*[_type == "listing" && moderation.featured == true && moderation.status == "published"] | order(_createdAt desc)[0...$limit] {
+      _id,
+      name,
+      "slug": slug.current,
+      "primaryImage": primaryImage{
+        ...,
+        asset->
+      },
+      galleryImages[]{
+        ...,
+        asset->
+      },
+      location,
+      "city": city->{
+        _id,
+        name,
+        country
+      },
+      priceRange
+    }`;
+    return await client.fetch(query, { limit });
+  },
+  ['featured-listings'],
+  { revalidate: 3600, tags: ['featured-listings'] }
+);
+
+// Cache cities for 1 hour, revalidate with tag
+const getCachedAllCities = unstable_cache(
+  async () => {
+    const query = `*[_type == "city"] {
+      _id,
+      title,
+      "slug": slug.current,
+      country,
+      description,
+      sustainabilityScore,
+      highlights,
+      "primaryImage": primaryImage {
+        asset->{
+          _ref,
+          _id,
+          url,
+          metadata {
+            dimensions {
+              width,
+              height
+            }
+          }
+        }
+      }
+    }`;
+    return await client.fetch(query);
+  },
+  ['all-cities'],
+  { revalidate: 3600, tags: ['cities'] }
+);
+
+// Cache eco tags for 24 hours (static data)
+const getCachedEcoTags = unstable_cache(
+  async () => {
+    const query = `*[_type == "ecoTag"] {
+      _id,
+      name,
+      "slug": slug.current,
+      description
+    }`;
+    return await client.fetch(query);
+  },
+  ['eco-tags'],
+  { revalidate: 86400, tags: ['eco-tags'] }
+);
 
 async function getListingBySlug(slug: string, _preview = false) {
   const sanityClient = client;
@@ -37,48 +113,14 @@ async function getListingBySlug(slug: string, _preview = false) {
   return await sanityClient.fetch(query, { slug });
 }
 
-// Get all available cities for filtering
+// Get all available cities for filtering (uses cached version)
 async function getAllCities(_preview = false) {
-  const sanityClient = client;
-
-  const query = `*[_type == "city"] {
-    _id,
-    title,
-    "slug": slug.current,
-    country,
-    description,
-    sustainabilityScore,
-    highlights,
-    "primaryImage": primaryImage {
-      asset->{
-        _ref,
-        _id,
-        url,
-        metadata {
-          dimensions {
-            width,
-            height
-          }
-        }
-      }
-    }
-  }`;
-
-  return await sanityClient.fetch(query);
+  return getCachedAllCities();
 }
 
-// Get all eco focus tags for filtering
+// Get all eco focus tags for filtering (uses cached version)
 async function getAllEcoTags(_preview = false) {
-  const sanityClient = client;
-
-  const query = `*[_type == "ecoTag"] {
-    _id,
-    name,
-    "slug": slug.current,
-    description
-  }`;
-
-  return await sanityClient.fetch(query);
+  return getCachedEcoTags();
 }
 
 // Get latest blog posts
@@ -98,31 +140,9 @@ async function getLatestBlogPosts(limit = 3, _preview = false) {
   return await sanityClient.fetch(query, { limit: limit - 1 });
 }
 
+// Get featured listings (uses cached version)
 async function getFeaturedListings(limit = 10, _preview = false) {
-  const sanityClient = client;
-
-  const query = `*[_type == "listing" && moderation.featured == true && moderation.status == "published"] | order(_createdAt desc)[0...$limit] {
-    _id,
-    name,
-    "slug": slug.current,
-    "primaryImage": primaryImage{
-      ...,
-      asset->
-    },
-    galleryImages[]{
-      ...,
-      asset->
-    },
-    location,
-    "city": city->{
-      _id,
-      name,
-      country
-    },
-    priceRange
-  }`;
-
-  return await sanityClient.fetch(query, { limit });
+  return getCachedFeaturedListings(limit);
 }
 
 // Export all functions
