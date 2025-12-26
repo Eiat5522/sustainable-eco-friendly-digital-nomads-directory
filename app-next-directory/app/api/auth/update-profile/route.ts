@@ -1,3 +1,4 @@
+import { revalidateTag } from 'next/cache';
 import { type NextRequest, NextResponse } from 'next/server';
 
 import type { UpdateUserProfileInput } from '@/lib/auth/serverAuth';
@@ -193,6 +194,15 @@ async function handleProfileMutation(request: NextRequest): Promise<NextResponse
         },
         { status: 404 }
       );
+    }
+
+    try {
+      revalidateTag(`user:${authResult.userId}`, 'max');
+    } catch (error) {
+      structuredLogger.warn('[auth] Failed to refresh user cache tag', error, {
+        component: 'auth',
+        userId: authResult.userId,
+      });
     }
 
     return json({

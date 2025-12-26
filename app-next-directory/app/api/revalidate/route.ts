@@ -1,6 +1,6 @@
 import { revalidatePath, revalidateTag } from 'next/cache';
-import { connection } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { connection } from 'next/server';
 import { structuredLogger } from '@/lib/logger';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { validateRevalidationToken } from '@/utils/revalidation-token';
@@ -12,7 +12,7 @@ import { validateRevalidationToken } from '@/utils/revalidation-token';
 export async function GET(request: NextRequest) {
   // Signal that this route should be dynamically rendered at request time
   await connection();
-  
+
   let pathParam: string | null = null;
   try {
     // Parse search params from request URL to avoid nextUrl.searchParams prerender bailout
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
       return ApiResponseHandler.error('Invalid tag parameter', 400);
     }
 
-    revalidateTag(tag);
+    revalidateTag(tag, 'max');
 
     return ApiResponseHandler.success({
       revalidated: true,

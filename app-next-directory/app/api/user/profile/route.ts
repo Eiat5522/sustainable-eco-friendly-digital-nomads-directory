@@ -1,3 +1,4 @@
+import { revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { getUserById, updateUserProfile } from '@/lib/auth/serverAuth';
@@ -83,6 +84,15 @@ export function _createProfileHandlers({
 
         if (!updatedUser) {
           return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
+        }
+
+        try {
+          revalidateTag(`user:${session.user.id}`, 'max');
+        } catch (error) {
+          structuredLogger.warn('[user-profile] Failed to refresh user cache tag', error, {
+            component: 'api/user/profile',
+            userId: session.user.id,
+          });
         }
 
         return NextResponse.json({

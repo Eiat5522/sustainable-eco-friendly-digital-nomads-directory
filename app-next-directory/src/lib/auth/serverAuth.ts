@@ -9,7 +9,7 @@ import { isValidObjectId, type Types } from 'mongoose';
 import dbConnect from '@/lib/dbConnect';
 import User from '@/models/User';
 import type { UserRole } from '@/types/auth';
-import { withMongooseCache } from '../mongoose-cache';
+import { cacheLife, cacheTag } from 'next/cache';
 // Import DAL functions
 import { authenticateUserCredentials, createUser, getUserById as dalGetUserById } from './dal';
 
@@ -89,24 +89,24 @@ export async function createUserAccount(userData: {
  * @param userId User ID
  * @returns User data or null
  */
-export async function getUserById(userId: string): Promise<AuthenticatedUser | null> {
-  const fetchUser = async (): Promise<AuthenticatedUser | null> => {
-    const user = await dalGetUserById(userId);
-    if (!user) return null;
-    return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      image: user.image,
-      role: user.role,
-    };
+const fetchUserById = async (userId: string): Promise<AuthenticatedUser | null> => {
+  const user = await dalGetUserById(userId);
+  if (!user) return null;
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    image: user.image,
+    role: user.role,
   };
+};
 
-  if (process.env.NODE_ENV === 'test') {
-    return fetchUser();
-  }
+export async function getUserById(userId: string): Promise<AuthenticatedUser | null> {
+  'use cache';
+  cacheTag(`user:${userId}`);
+  cacheLife({ stale: 300, expire: 900 });
 
-  return withMongooseCache(UserModel, `getUserById:${userId}`, fetchUser);
+  return fetchUserById(userId);
 }
 
 /**

@@ -20,6 +20,22 @@ This strategy details the caching configuration for the `staging-nextjs-16` bran
 
 - **🗑️ Cleanup:** Remove legacy `export const dynamic` segment configs.
 
+#### Sanity Webhook Setup (Home + Core Content)
+
+- **Endpoint:** `POST /api/sanity/webhook`
+- **Auth:** `x-sanity-webhook-token: <REVALIDATION_TOKEN>`
+- **Payload:** Standard Sanity webhook payload with `_type` or `document._type`
+- **Tags revalidated:** `home` (always), plus `featured-listings` for `listing`, `cities` for `city`, and `eco-tags` for `ecoTag`
+
+Example curl:
+
+```bash
+curl -X POST https://<your-domain>/api/sanity/webhook \
+  -H "content-type: application/json" \
+  -H "x-sanity-webhook-token: $REVALIDATION_TOKEN" \
+  -d '{"_type":"listing"}'
+```
+
 ### Listings Directory Page – `/listings`
 
 - **Rendering Type:** Static content with opportunistic partial updates.
@@ -123,6 +139,10 @@ export async function getUserStats(userId: string) {
 - [ ] Add `'use cache'` and `cacheLife('days')` to the Homepage (`/`).
 
 - [ ] Remove `export const dynamic` from the Homepage and Root Layout.
+
+- [x] Add `/api/sanity/webhook` to revalidate `home` + related tags on CMS updates.
+
+- [ ] Configure Sanity webhooks to call `/api/sanity/webhook` with `x-sanity-webhook-token`.
 
 - [ ] Implement `generateStaticParams` for City and Category pages.
 
