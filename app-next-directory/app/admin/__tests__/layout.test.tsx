@@ -42,7 +42,7 @@ describe('Admin layout', () => {
     expect(redirectMock).not.toHaveBeenCalled();
   });
 
-  it('redirects non-admin users to the login page', async () => {
+  it('redirects non-admin users to the forbidden page', async () => {
     mockAuth.mockResolvedValue({
       user: { id: 'user-2', role: 'user' },
     });
@@ -51,6 +51,6 @@ describe('Admin layout', () => {
     });
 
     await expect(AdminShell({ children: <div /> })).rejects.toThrow('redirect');
-    expect(redirectMock).toHaveBeenCalledWith('/auth/login');
+    expect(redirectMock).toHaveBeenCalledWith('/403');
   });
 });

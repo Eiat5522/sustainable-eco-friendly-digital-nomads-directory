@@ -26,31 +26,69 @@ const toStringArray = (value: unknown): string[] => {
 };
 
 // Memoized data transformation function
+// Define interfaces for the candidate listing data structure
+interface SanityAsset {
+  _ref?: string;
+  _type?: string;
+  url?: string;
+}
+
+interface SanityImage {
+  _type?: string;
+  asset?: SanityAsset;
+  url?: string;
+}
+
+interface SanityModeration {
+  featured?: boolean;
+}
+
+interface SanitySlug {
+  _type?: string;
+  current?: string;
+}
+
+interface SanityListingCandidate {
+  id?: unknown;
+  _id?: unknown;
+  name?: unknown;
+  slug?: string | SanitySlug;
+  primaryImage?: string | SanityImage;
+  imageUrl?: unknown;
+  city?: unknown;
+  amenityNames?: unknown;
+  amenities?: unknown;
+  ecoFocusTags?: unknown;
+  ecoTags?: unknown;
+  featured?: unknown;
+  moderation?: SanityModeration;
+}
+
 function toFeaturedListing(listing: unknown): FeaturedListingDTO | null {
   if (!listing || typeof listing !== 'object') {
     return null;
   }
 
-  const candidate = listing as Record<string, unknown>;
+  const candidate = listing as SanityListingCandidate;
 
   // Support multiple data shapes (API DTO or Sanity document shape)
   const id = (candidate.id ?? candidate._id) as unknown;
   const name = candidate.name as unknown;
   const slugRaw = candidate.slug as unknown;
   // slug could be a string or an object like { current: '...' }
-  const slug = typeof slugRaw === 'string' ? slugRaw : (slugRaw && typeof slugRaw === 'object' ? (slugRaw as any).current : undefined);
+  const slug = typeof slugRaw === 'string' ? slugRaw : (slugRaw && typeof slugRaw === 'object' ? (slugRaw as SanitySlug).current : undefined);
 
   const primaryImage = (candidate.primaryImage ?? candidate.imageUrl) as unknown;
-  let imageUrl: unknown = undefined;
+  let imageUrl: unknown;
   if (typeof primaryImage === 'string') imageUrl = primaryImage;
   else if (primaryImage && typeof primaryImage === 'object') {
-    imageUrl = (primaryImage as any).asset?.url ?? (primaryImage as any).url;
+    imageUrl = (primaryImage as SanityImage).asset?.url ?? (primaryImage as SanityImage).url;
   }
 
   const city = candidate.city as unknown;
   const amenityNames = candidate.amenityNames ?? candidate.amenities ?? undefined;
   const ecoFocusTags = candidate.ecoFocusTags ?? candidate.ecoTags ?? undefined;
-  const featured = candidate.featured ?? (candidate.moderation ? (candidate.moderation as any).featured : undefined);
+  const featured = candidate.featured ?? (candidate.moderation ? (candidate.moderation as SanityModeration).featured : undefined);
 
   if (!isNonEmptyString(id) || !isNonEmptyString(name) || !isNonEmptyString(slug)) {
     return null;

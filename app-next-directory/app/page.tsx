@@ -1,10 +1,14 @@
+'use cache';
+
 import { Suspense, cache } from 'react';
+import { cacheLife, cacheTag } from 'next/cache';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { CityCarousel } from '@/components/sections/CityCarousel';
 import { FeaturedListings } from '@/components/sections/FeaturedListings';
 import { HeroSection } from '@/components/sections/HeroSection';
-import type { CityDTO, Percentage0To100 } from '@/types/dto';
+import type { CityDTO, FeaturedListingDTO, Percentage0To100 } from '@/types/dto';
 import { getAllCities, getFeaturedListings } from '@/lib/sanity/queries';
+import { structuredLogger } from '@/lib/logger';
 
 const cachedGetFeaturedListings = cache((limit: number) => getFeaturedListings(limit));
 const cachedGetAllCities = cache(() => getAllCities());
@@ -23,6 +27,20 @@ interface SanityCityRecord {
       url?: string;
     };
   };
+}
+
+interface SanityFeaturedListingRecord {
+  _id?: string;
+  name?: string;
+  slug?: string;
+  primaryImage?: {
+    asset?: {
+      url?: string;
+    };
+  };
+  city?: {
+    name?: string;
+  } | string;
 }
 
 const mapCityRecordToDTO = (city: SanityCityRecord): CityDTO | null => {
@@ -59,13 +77,38 @@ const mapCityRecordToDTO = (city: SanityCityRecord): CityDTO | null => {
   };
 };
 
+const mapFeaturedListingRecordToDTO = (
+  listing: SanityFeaturedListingRecord
+): FeaturedListingDTO | null => {
+  if (!listing?._id || !listing.name || !listing.slug) {
+    return null;
+  }
+
+  const city =
+    typeof listing.city === 'string'
+      ? listing.city
+      : listing.city?.name ?? '';
+
+  return {
+    id: listing._id,
+    name: listing.name,
+    slug: listing.slug,
+    imageUrl: listing.primaryImage?.asset?.url,
+    city,
+    amenityNames: [],
+  };
+};
+
 async function FeaturedListingsSection() {
-  let listings = [];
+  let listings: FeaturedListingDTO[] = [];
 
   try {
-    listings = (await cachedGetFeaturedListings(10)) ?? [];
+    const rawListings = (await cachedGetFeaturedListings(10)) ?? [];
+    listings = rawListings
+      .map(mapFeaturedListingRecordToDTO)
+      .filter((listing): listing is FeaturedListingDTO => listing !== null);
   } catch (error) {
-    console.error('Failed to load featured listings for Home page', error);
+    structuredLogger.error('Failed to load featured listings for Home page', error, { component: 'home-page' });
   }
 
   return <FeaturedListings initialListings={listings} />;
@@ -82,13 +125,16 @@ async function CityCarouselSection() {
       .slice(0, CITY_CAROUSEL_LIMIT);
     cities = mappedCities;
   } catch (error) {
-    console.error('Failed to load cities for Home page', error);
+    structuredLogger.error('Failed to load cities for Home page', error, { component: 'home-page' });
   }
 
   return <CityCarousel initialCities={cities} />;
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  cacheLife('days');
+  cacheTag('home');
+
   return (
     <PageLayout>
       <HeroSection />
@@ -99,7 +145,7 @@ export default function HomePage() {
           </div>
         }
       >
-        {/* eslint-disable-next-line react/no-unknown-property */}
+        { }
         <FeaturedListingsSection />
       </Suspense>
       <Suspense

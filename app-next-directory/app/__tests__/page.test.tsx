@@ -3,6 +3,11 @@ import { render, screen } from '@testing-library/react';
 import type React from 'react';
 import HomePage from '../page';
 
+jest.mock('@/lib/sanity/queries', () => ({
+  getFeaturedListings: jest.fn(() => Promise.resolve([])),
+  getAllCities: jest.fn(() => Promise.resolve([])),
+}));
+
 // Mock PageLayout
 jest.mock('@/components/layout/PageLayout', () => ({
   PageLayout: ({ children }: { children: React.ReactNode }) => (
@@ -36,14 +41,14 @@ describe('HomePage', () => {
     expect(screen.getByTestId('hero-section')).toBeInTheDocument();
   });
 
-  it('renders the featured listings section', () => {
+  it('renders the featured listings fallback while loading', () => {
     render(<HomePage />);
-    expect(screen.getByTestId('featured-listings')).toBeInTheDocument();
+    expect(screen.getByText(/loading featured venues/i)).toBeInTheDocument();
   });
 
-  it('renders the city carousel within suspense boundary', () => {
+  it('renders the city carousel fallback while loading', () => {
     render(<HomePage />);
-    expect(screen.getByTestId('city-carousel')).toBeInTheDocument();
+    expect(screen.getByText(/loading cities/i)).toBeInTheDocument();
   });
 
   it('renders all sections in correct order', () => {
@@ -51,6 +56,8 @@ describe('HomePage', () => {
     const sections = container.querySelectorAll('[data-testid]');
     const testIds = Array.from(sections).map(el => el.getAttribute('data-testid'));
 
-    expect(testIds).toEqual(['page-layout', 'hero-section', 'featured-listings', 'city-carousel']);
+    expect(testIds).toEqual(['page-layout', 'hero-section']);
+    expect(screen.getByText(/loading featured venues/i)).toBeInTheDocument();
+    expect(screen.getByText(/loading cities/i)).toBeInTheDocument();
   });
 });

@@ -10,11 +10,13 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import type { NextRequest } from 'next/server';
 
-// Mock Next.js revalidatePath
+// Mock Next.js revalidatePath/revalidateTag
 const mockRevalidatePath = jest.fn();
+const mockRevalidateTag = jest.fn();
 jest.mock('next/cache', () => ({
   __esModule: true,
   revalidatePath: mockRevalidatePath,
+  revalidateTag: mockRevalidateTag,
 }));
 
 // Mock the logger
@@ -34,6 +36,7 @@ jest.mock('@/utils/revalidation-token', () => ({
 }));
 
 let GET: typeof import('../route').GET;
+let POST: typeof import('../route').POST;
 
 describe('Revalidate API - GET /api/revalidate', () => {
   const originalEnv = process.env;
@@ -42,10 +45,12 @@ describe('Revalidate API - GET /api/revalidate', () => {
     jest.clearAllMocks();
     process.env = { ...originalEnv, REVALIDATION_TOKEN: 'test-secret-token' };
     mockRevalidatePath.mockImplementation(() => {});
+    mockRevalidateTag.mockImplementation(() => {});
 
     // Dynamically import the route handler
     const routeModule = await import('../route');
     GET = routeModule.GET;
+    POST = routeModule.POST;
   });
 
   afterEach(() => {
@@ -534,5 +539,90 @@ describe('Revalidate API - GET /api/revalidate', () => {
 
       expect(mockRevalidatePath).toHaveBeenCalledTimes(3);
     });
+  });
+});
+
+describe('Revalidate API - POST /api/revalidate', () => {
+  const originalEnv = process.env;
+
+  beforeEach(async () => {
+    jest.clearAllMocks();
+    process.env = { ...originalEnv, REVALIDATION_TOKEN: 'test-secret-token' };
+    mockRevalidateTag.mockImplementation(() => {});
+
+    const routeModule = await import('../route');
+    POST = routeModule.POST;
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
+  });
+
+  it('should revalidate tag with valid token', async () => {
+    mockValidateRevalidationToken.mockReturnValue(true);
+
+    const request = {
+      method: 'POST',
+      json: jest.fn(async () => ({ token: 'test-secret-token', tag: 'featured-listings' })),
+    } as unknown as NextRequest;
+
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(data.success).toBe(true);
+    expect(data.data.revalidated).toBe(true);
+    expect(data.data.tag).toBe('featured-listings');
+    expect(data.data).toHaveProperty('now');
+    expect(mockRevalidateTag).toHaveBeenCalledWith('featured-listings');
+    expect(mockValidateRevalidationToken).toHaveBeenCalledWith('test-secret-token');
+  });
+
+  it('should return 401 when token is invalid', async () => {
+    mockValidateRevalidationToken.mockReturnValue(false);
+
+    const request = {
+      method: 'POST',
+      json: jest.fn(async () => ({ token: 'invalid-token', tag: 'featured-listings' })),
+    } as unknown as NextRequest;
+
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(401);
+    expect(data.success).toBe(false);
+    expect(mockRevalidateTag).not.toHaveBeenCalled();
+  });
+
+  it('should return 400 when tag is missing', async () => {
+    mockValidateRevalidationToken.mockReturnValue(true);
+
+    const request = {
+      method: 'POST',
+      json: jest.fn(async () => ({ token: 'test-secret-token' })),
+    } as unknown as NextRequest;
+
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(data.success).toBe(false);
+    expect(mockRevalidateTag).not.toHaveBeenCalled();
+  });
+
+  it('should return 400 when tag is not allowed', async () => {
+    mockValidateRevalidationToken.mockReturnValue(true);
+
+    const request = {
+      method: 'POST',
+      json: jest.fn(async () => ({ token: 'test-secret-token', tag: 'invalid-tag' })),
+    } as unknown as NextRequest;
+
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(data.success).toBe(false);
+    expect(mockRevalidateTag).not.toHaveBeenCalled();
   });
 });

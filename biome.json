@@ -6,12 +6,12 @@
     "useIgnoreFile": true
   },
   "files": {
+    "includes": ["**", "!!**/.github/skills"],
     "ignoreUnknown": true,
     "maxSize": 5242880
   },
   "formatter": {
     "enabled": true,
-    "ignore": ["**/.github/skills/**"],
     "formatWithErrors": false,
     "indentStyle": "space",
     "indentWidth": 2,
@@ -44,7 +44,6 @@
   },
   "linter": {
     "enabled": true,
-    "ignore": ["**/.github/skills/**"],
     "rules": {
       "recommended": true,
       "a11y": {
