@@ -1,13 +1,15 @@
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import type React from 'react';
 import { Suspense } from 'react';
 
+import { Footer } from '@/components/layout/Footer';
+import { Header } from '@/components/layout/Header';
 import { auth } from '@/lib/auth';
+import AdminNavigation from './AdminNavigation';
 
 const fallbackLoading = (
-  <div className="min-h-screen flex items-center justify-center bg-gray-50">
-    <div className="px-6 py-4 text-sm text-gray-500">Loading admin console…</div>
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="px-6 py-4 text-sm text-neo-text-secondary">Loading admin console…</div>
   </div>
 );
 
@@ -31,43 +33,39 @@ export async function AdminShell({ children }: { children: React.ReactNode }) {
     redirect('/403');
   }
 
-  const navItems = [
-    { href: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
-    { href: '/admin/users', label: 'Users', icon: '👥' },
-    { href: '/admin/listings', label: 'Listings', icon: '📝' },
-    { href: '/listings', label: 'Back to Site', icon: '🏠' },
-  ];
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <Link href="/admin/dashboard" className="flex-shrink-0 flex items-center">
-                <span className="text-xl font-bold text-gray-900">Admin Panel</span>
-              </Link>
-              <div className="hidden md:ml-8 md:flex md:space-x-8">
-                {navItems.map(item => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                  >
-                    <span className="mr-2">{item.icon}</span>
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
-            </div>
-            <div className="flex items-center">
-              <span className="text-sm text-gray-600">Admin</span>
-            </div>
+    <div className="min-h-screen bg-background">
+      <Suspense fallback={<div>Loading header...</div>}>
+        <Header />
+      </Suspense>
+
+      <section className="relative overflow-hidden border-b-4 border-neo-border bg-neo-surface">
+        <div className="pointer-events-none absolute -top-20 right-0 h-48 w-48 rounded-full bg-neo-secondary/40 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-16 left-10 h-40 w-40 rounded-full bg-neo-primary/30 blur-3xl" />
+        <div className="container mx-auto px-4 py-10">
+          <div className="max-w-3xl space-y-3">
+            <span className="inline-flex w-fit items-center gap-2 rounded-full border-2 border-neo-border bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-neo-text-secondary">
+              Admin Console
+            </span>
+            <h1 className="heading-lg text-neo-text-primary">Admin Panel</h1>
+            <p className="body-md">
+              Curate listings, manage users, and keep the directory running smoothly in a single,
+              unified workspace.
+            </p>
           </div>
         </div>
-      </nav>
+      </section>
 
-      {children}
+      <div className="container mx-auto px-4 py-10">
+        <div className="grid gap-8 lg:grid-cols-[240px_minmax(0,1fr)]">
+          <AdminNavigation />
+          <main className="min-w-0 space-y-6">{children}</main>
+        </div>
+      </div>
+
+      <Suspense fallback={<div>Loading footer...</div>}>
+        <Footer />
+      </Suspense>
     </div>
   );
 }

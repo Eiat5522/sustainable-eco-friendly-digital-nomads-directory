@@ -4,10 +4,19 @@ jest.mock('@/lib/auth', () => ({
   auth: jest.fn(),
 }));
 
+jest.mock('@/components/layout/Header', () => ({
+  Header: () => <div data-testid="header" />,
+}));
+
+jest.mock('@/components/layout/Footer', () => ({
+  Footer: () => <div data-testid="footer" />,
+}));
+
 const redirectMock = jest.fn();
 
 jest.mock('next/navigation', () => ({
   redirect: (...args: unknown[]) => redirectMock(...args),
+  usePathname: jest.fn(() => '/admin/dashboard'),
 }));
 
 const mockAuth = jest.requireMock('@/lib/auth').auth as jest.Mock;
@@ -32,12 +41,12 @@ describe('Admin layout', () => {
     await act(async () => {
       render(shell);
     });
-    const panel = await screen.findByText('Admin Panel', undefined, { timeout: 5000 });
-    expect(panel).toBeInTheDocument();
+    expect(await screen.findByText('Admin Panel', undefined, { timeout: 5000 })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /dashboard/i })).toHaveAttribute(
       'href',
       '/admin/dashboard'
     );
+    expect(screen.getByRole('link', { name: /back to site/i })).toHaveAttribute('href', '/');
     expect(screen.getByTestId('layout-child')).toBeInTheDocument();
     expect(redirectMock).not.toHaveBeenCalled();
   });

@@ -44,20 +44,18 @@ export default async function AdminUsersPage() {
 
   return (
     <Suspense fallback={<div>Loading user management...</div>}>
-      <main className="min-h-screen bg-gray-50" data-testid="admin-users-page">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900" data-testid="admin-users-title">
-              User Management
-            </h1>
-            <p className="mt-2 text-gray-600">Manage user accounts, roles, and permissions.</p>
-          </div>
+      <section className="space-y-6" data-testid="admin-users-page">
+        <header className="space-y-2">
+          <h2 className="heading-md text-neo-text-primary" data-testid="admin-users-title">
+            User Management
+          </h2>
+          <p className="body-md">Manage user accounts, roles, and permissions.</p>
+        </header>
 
-          <div className="bg-white shadow-sm rounded-lg border border-gray-200">
-            <UserManagementTable currentUserRole={sessionUser.role} currentUserId={sessionUser.id} />
-          </div>
+        <div className="neo-card rounded-2xl bg-neo-surface p-4 md:p-6">
+          <UserManagementTable currentUserRole={sessionUser.role} currentUserId={sessionUser.id} />
         </div>
-      </main>
+      </section>
     </Suspense>
   );
 }

@@ -44,25 +44,21 @@ export default async function AdminListingsPage() {
 
   return (
     <Suspense fallback={<div>Loading listings management...</div>}>
-      <main className="min-h-screen bg-gray-50" data-testid="admin-listings-page">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900" data-testid="admin-listings-title">
-              Listing Management
-            </h1>
-            <p className="mt-2 text-gray-600">
-              Manage listings, approve submissions, and feature content.
-            </p>
-          </div>
+      <section className="space-y-6" data-testid="admin-listings-page">
+        <header className="space-y-2">
+          <h2 className="heading-md text-neo-text-primary" data-testid="admin-listings-title">
+            Listing Management
+          </h2>
+          <p className="body-md">Manage listings, approve submissions, and feature content.</p>
+        </header>
 
-          <div className="bg-white shadow-sm rounded-lg border border-gray-200">
-            <ListingsManagementTable
-              currentUserRole={sessionUser.role}
-              currentUserId={sessionUser.id}
-            />
-          </div>
+        <div className="neo-card rounded-2xl bg-neo-surface p-4 md:p-6">
+          <ListingsManagementTable
+            currentUserRole={sessionUser.role}
+            currentUserId={sessionUser.id}
+          />
         </div>
-      </main>
+      </section>
     </Suspense>
   );
 }

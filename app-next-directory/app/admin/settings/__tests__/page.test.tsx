@@ -95,9 +95,9 @@ describe('AdminSettingsPage', () => {
     const { container } = render(page);
 
     const mainElement = screen.getByTestId('admin-settings-page');
-    expect(mainElement).toHaveClass('min-h-screen', 'bg-gray-50');
+    expect(mainElement).toHaveClass('space-y-6');
 
     const title = screen.getByTestId('admin-settings-title');
-    expect(title).toHaveClass('text-3xl', 'font-bold', 'text-gray-900');
+    expect(title).toHaveClass('heading-md', 'text-neo-text-primary');
   });
 });

@@ -53,20 +53,18 @@ export default async function AdminSettingsPage() {
 
   return (
     <Suspense fallback={<div>Loading admin settings...</div>}>
-      <main className="min-h-screen bg-gray-50" data-testid="admin-settings-page">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900" data-testid="admin-settings-title">
-              Admin Settings
-            </h1>
-            <p className="mt-2 text-gray-600">Configure application settings and preferences.</p>
-          </div>
+      <section className="space-y-6" data-testid="admin-settings-page">
+        <header className="space-y-2">
+          <h2 className="heading-md text-neo-text-primary" data-testid="admin-settings-title">
+            Admin Settings
+          </h2>
+          <p className="body-md">Configure application settings and preferences.</p>
+        </header>
 
-          <div className="bg-white shadow-sm rounded-lg border border-gray-200">
-            <SettingsForm />
-          </div>
+        <div className="neo-card rounded-2xl bg-neo-surface p-4 md:p-6">
+          <SettingsForm />
         </div>
-      </main>
+      </section>
     </Suspense>
   );
 }
