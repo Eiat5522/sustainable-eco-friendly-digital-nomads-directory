@@ -1,9 +1,11 @@
+'use cache';
+
 import type { Collection, Filter } from 'mongodb';
 import type { Metadata } from 'next';
-import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { groq } from 'next-sanity';
 import { cache } from 'react';
+import { cacheLife, cacheTag } from 'next/cache';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
 import { ListingDetailView } from '@/components/listings/ListingDetailView';
@@ -192,8 +194,27 @@ const RELATED_QUERY = groq`*[_type == "listing" && moderation.status == "publish
 
 const FAVORITE_QUERY = groq`*[_type == "userFavorite" && user._ref == $userId && listing._ref == $listingId][0]{ _id }`;
 
+// Generate static params for popular listings
+export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
+  try {
+    const popularSlugs = await client.fetch<string[]>(
+      groq`*[_type == "listing" && moderation.status == "published" && defined(popular) && popular == true][0...50]{ "slug": slug.current }`
+    );
+    
+    return popularSlugs.map(item => ({ slug: item.slug }));
+  } catch (error) {
+    logger.error('Failed to generate static params for listings', error, {
+      component: 'listings/[slug]',
+    });
+    return [];
+  }
+}
+
 // Wrap in React cache() to deduplicate requests within the same render pass
 const fetchListingBySlug = cache(async (slug: string): Promise<ListingDetailDTO | null> => {
+  cacheLife('max');
+  cacheTag(`listing-${slug}`);
+  
   const raw = await client.fetch<SanityListing | null>(LISTING_QUERY, { slug });
   if (!raw) return null;
   try {
@@ -382,25 +403,13 @@ export default async function ListingPage({ params }: Props) {
 
   const { auth } = await import('@/lib/auth');
 
-  // FORTEST: Wrap headers() in try-catch for compatibility with prerender
-  let _h = null as
-    | null
-    | Awaited<Awaited<ReturnType<typeof headers>>>
-    | { get(name: string): string | null | undefined };
-  try {
-    _h = await headers();
-  } catch {
-    _h = null;
-  }
-
-  const sessionPromise = auth(_h);
-  const listing = await fetchListingBySlug(slug);
-  if (!listing) notFound();
-
-  const session = await sessionPromise;
+  const session = await auth();
   const user = session?.user as { id?: string; role?: UserRole } | undefined;
   const userId = user?.id;
   const isSignedIn = Boolean(session && userId);
+
+  const listing = await fetchListingBySlug(slug);
+  if (!listing) notFound();
 
   const [relatedListings, reviews, isFavorited] = await Promise.all([
     fetchRelatedListings(listing.city?.id, listing.id),

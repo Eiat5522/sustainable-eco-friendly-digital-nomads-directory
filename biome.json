@@ -96,12 +96,12 @@
   },
   "overrides": [
     {
-      "includes": ["**/*.test.*", "**/__tests__/**/*", "**/tests/**/*"],
+      "includes": ["**/*.test.*", "**/__mocks__/**/*"],
       "linter": {
         "rules": {
           "suspicious": {
             "noExplicitAny": "off",
-            "noConsole": "off"
+            "noConsole": "warn"
           },
           "correctness": {
             "noUnusedVariables": "off",
@@ -115,6 +115,21 @@
       "linter": {
         "rules": {
           "suspicious": {
+            "noExplicitAny": "error",
+            "noConsole": "warn"
+          },
+          "correctness": {
+            "noUnusedVariables": "warn",
+            "noUnusedFunctionParameters": "warn"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/__tests__/**/*", "**/tests/**/*"],
+      "linter": {
+        "rules": {
+          "suspicious": {
             "noExplicitAny": "off",
             "noConsole": "off"
           },
@@ -125,7 +140,6 @@
         }
       }
     },
-
     {
       "includes": ["**/*.d.ts"],
       "linter": {

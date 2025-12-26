@@ -574,7 +574,7 @@ describe('Revalidate API - POST /api/revalidate', () => {
     expect(data.data.revalidated).toBe(true);
     expect(data.data.tag).toBe('featured-listings');
     expect(data.data).toHaveProperty('now');
-    expect(mockRevalidateTag).toHaveBeenCalledWith('featured-listings');
+    expect(mockRevalidateTag).toHaveBeenCalledWith('featured-listings', 'max');
     expect(mockValidateRevalidationToken).toHaveBeenCalledWith('test-secret-token');
   });
 

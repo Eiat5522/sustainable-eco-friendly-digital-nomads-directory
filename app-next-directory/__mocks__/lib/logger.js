@@ -1,34 +1,11 @@
 import { jest } from '@jest/globals';
 
-const callConsole = (level, args) => {
-  const forwarded =
-    args.length >= 2 && (args[1] instanceof Error || typeof args[1] === 'string')
-      ? args.slice(0, 2)
-      : [args[0]];
-  const fn = console[level] || console.log;
-  if (typeof fn === 'function') {
-    try {
-      fn(...forwarded);
-    } catch {
-      /* ignore */
-    }
-  }
-};
-
 export const structuredLogger = {
-  info: jest.fn((...args) => {
-    callConsole('log', args);
-  }),
-  warn: jest.fn((...args) => {
-    callConsole('warn', args);
-  }),
-  error: jest.fn((...args) => {
-    callConsole('error', args);
-  }),
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
   middlewareError: jest.fn(),
-  debug: jest.fn((...args) => {
-    callConsole('debug', args);
-  }),
+  debug: jest.fn(),
   emailError: jest.fn(),
   child: jest.fn(),
 };

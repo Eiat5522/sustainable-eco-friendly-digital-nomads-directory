@@ -31,28 +31,33 @@ jest.mock('@/components/sections/CityCarousel', () => ({
 }));
 
 describe('HomePage', () => {
-  it('renders the page layout', () => {
-    render(<HomePage />);
+  it('renders the page layout', async () => {
+    const page = await HomePage();
+    render(page);
     expect(screen.getByTestId('page-layout')).toBeInTheDocument();
   });
 
-  it('renders the hero section', () => {
-    render(<HomePage />);
+  it('renders the hero section', async () => {
+    const page = await HomePage();
+    render(page);
     expect(screen.getByTestId('hero-section')).toBeInTheDocument();
   });
 
-  it('renders the featured listings fallback while loading', () => {
-    render(<HomePage />);
+  it('renders the featured listings fallback while loading', async () => {
+    const page = await HomePage();
+    render(page);
     expect(screen.getByText(/loading featured venues/i)).toBeInTheDocument();
   });
 
-  it('renders the city carousel fallback while loading', () => {
-    render(<HomePage />);
+  it('renders the city carousel fallback while loading', async () => {
+    const page = await HomePage();
+    render(page);
     expect(screen.getByText(/loading cities/i)).toBeInTheDocument();
   });
 
-  it('renders all sections in correct order', () => {
-    const { container } = render(<HomePage />);
+  it('renders all sections in correct order', async () => {
+    const page = await HomePage();
+    const { container } = render(page);
     const sections = container.querySelectorAll('[data-testid]');
     const testIds = Array.from(sections).map(el => el.getAttribute('data-testid'));
 

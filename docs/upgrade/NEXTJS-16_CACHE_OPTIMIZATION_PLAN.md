@@ -167,5 +167,3 @@ export async function getUserStats(userId: string) {
 - [ ] Verify that no dynamic APIs (`cookies()`, `headers()`) are called inside cached public functions.
 
 - [ ] Test on-demand revalidation for Listings via CMS webhooks.
-
-Would you like me to provide the specific GROQ query adjustments needed to optimize the Admin Analytics caching?

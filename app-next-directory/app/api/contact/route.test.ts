@@ -397,12 +397,6 @@ describe('Contact API', () => {
             const request = createPostRequest(validContactData);
             const response = await isolatedPost(request);
 
-            // Add debugging to see what's happening
-            if (response.status !== 200) {
-              const errorData = await response.json();
-              console.error('Test failed with response:', errorData);
-            }
-
             const data = await response.json();
 
             expect(response.status).toBe(200);

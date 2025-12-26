@@ -1,5 +1,5 @@
 // Mock for '@vercel/analytics/react' package
-const React = require('react');
+const _React = require('react');
 
 const Analytics = jest.fn(() => null);
 
