@@ -7,7 +7,7 @@
     "dev:clean": "bash ../scripts/clean-build-artifacts.sh && next dev",
     "build": "pnpm run build:types && next build",
     "build:types": "tsc -p tsconfig.types.json",
-    "check-types": "tsc --noEmit --project tsconfig.json",
+    "check-types": "tsc --noEmit",
     "type-check": "tsc --noEmit",
     "start": "next start",
     "preview": "next start",
