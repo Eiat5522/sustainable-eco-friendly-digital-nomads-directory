@@ -27,8 +27,6 @@
     "test:unit:export": "cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --runInBand --passWithNoTests --coverage --json --outputFile=tmp/unit_test_output.json",
     "test:unit:export:tee": "cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --runInBand --passWithNoTests --coverage 2>&1 | tee tmp/unit_test_output.txt",
     "test:integration": "cross-env JEST_USE_REAL_MONGOOSE=1 JEST_RUN_INTEGRATION=1 jest --config=jest.integration.config.cjs --runInBand --passWithNoTests",
-    "test:integration:node": "pnpm test:integration",
-    "test:integration:react": "pnpm test:integration",
     "test:e2e": "playwright test --config=playwright.config.ts",
     "test:e2e:list": "playwright test --list --config=playwright.config.ts",
     "test:e2e:legacy": "jest --config=jest.e2e.config.cjs --runInBand --detectOpenHandles --passWithNoTests --",
