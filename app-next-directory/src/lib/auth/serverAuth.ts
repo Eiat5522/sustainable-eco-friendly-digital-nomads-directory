@@ -6,17 +6,60 @@
  */
 
 import { isValidObjectId, type Types } from 'mongoose';
+import { cacheLife, cacheTag } from 'next/cache';
+import { redirect } from 'next/navigation';
 import dbConnect from '@/lib/dbConnect';
 import User from '@/models/User';
 import type { UserRole } from '@/types/auth';
-import { cacheLife, cacheTag } from 'next/cache';
+import { auth } from '../auth';
 // Import DAL functions
 import { authenticateUserCredentials, createUser, getUserById as dalGetUserById } from './dal';
+import { syncUserToSanity } from './userService';
 
 // Memoized database connection function
 const connectToDatabase = async () => {
   await dbConnect();
 };
+
+/**
+ * Enforce account status (e.g., block suspended users)
+ * Should be called in Server Components or Server Actions
+ */
+export async function enforceAccountStatus(userId: string) {
+  const user = await dalGetUserById(userId);
+  if (!user) return;
+
+  if (user.status === 'suspended') {
+    redirect('/auth/suspended');
+  }
+}
+
+/**
+ * Require a specific role or roles for a server-side operation
+ * @param role - Required role or array of roles
+ * @returns The authenticated user
+ */
+export async function requireRole(role: UserRole | UserRole[]): Promise<AuthenticatedUser> {
+  const session = await auth();
+  const user = session?.user as AuthenticatedUser | undefined;
+
+  if (!user) {
+    redirect('/auth/login');
+  }
+
+  const roles = Array.isArray(role) ? role : [role];
+  if (!roles.includes(user.role)) {
+    redirect('/403');
+  }
+
+  // Also check status
+  const dbUser = await dalGetUserById(user.id);
+  if (dbUser?.status === 'suspended') {
+    redirect('/auth/suspended');
+  }
+
+  return user;
+}
 
 type UserDoc = {
   _id: Types.ObjectId;
@@ -127,6 +170,21 @@ export async function updateUserRole(userId: string, newRole: UserRole): Promise
       { $set: { role: newRole } },
       { runValidators: true }
     );
+
+    if (res.matchedCount === 1) {
+      // Sync to Sanity
+      const dbUser = await UserModel.findById(userId);
+      if (dbUser) {
+        await syncUserToSanity({
+          email: dbUser.email,
+          name: dbUser.name,
+          image: dbUser.image,
+          role: dbUser.role,
+          status: dbUser.status,
+        });
+      }
+    }
+
     return res.matchedCount === 1;
   } catch (_error) {
     return false;
@@ -184,10 +242,19 @@ export async function updateUserProfile(
     }
 
     const doc = await UserModel.findByIdAndUpdate(userId, { $set }, { new: true })
-      .select('_id name email image role')
+      .select('_id name email image role status')
       .lean<UserDoc | null>();
 
     if (!doc) return null;
+
+    // Sync to Sanity
+    await syncUserToSanity({
+      email: doc.email,
+      name: doc.name,
+      image: doc.image,
+      role: doc.role as UserRole,
+      status: doc.status,
+    });
 
     return {
       id: doc._id.toString(),

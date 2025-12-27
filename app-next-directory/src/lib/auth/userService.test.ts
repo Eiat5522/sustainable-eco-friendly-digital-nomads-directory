@@ -196,6 +196,7 @@ describe('userService', () => {
         email: 'test@example.com',
         bio: 'Test bio',
         role: 'admin',
+        status: 'active',
         createdAt: expect.any(String),
         avatar: {
           _type: 'image',
@@ -225,6 +226,7 @@ describe('userService', () => {
         email: 'test@example.com',
         bio: '',
         role: 'user',
+        status: 'active',
         createdAt: expect.any(String),
       });
       expect(result).toEqual(newUser);

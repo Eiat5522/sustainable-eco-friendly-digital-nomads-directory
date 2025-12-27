@@ -82,12 +82,14 @@ export async function createSanityUser({
   avatar,
   bio = '',
   role = 'user',
+  status = 'active',
 }: {
   name: string;
   email: string;
   avatar?: string;
   bio?: string;
   role?: string;
+  status?: string;
 }) {
   if (!email || !name) {
     throw new Error('Name and email are required to create a user');
@@ -106,6 +108,7 @@ export async function createSanityUser({
       email,
       bio,
       role,
+      status,
       createdAt: new Date().toISOString(),
       ...(avatar && {
         avatar: {
@@ -130,6 +133,51 @@ export async function createSanityUser({
 }
 
 /**
+ * Sync a MongoDB user to Sanity
+ * This is the primary function for ensuring Sanity matches MongoDB (SSoT)
+ */
+export async function syncUserToSanity(mongoUser: {
+  email: string;
+  name?: string;
+  image?: string;
+  role?: string;
+  status?: string;
+}) {
+  if (!mongoUser.email) {
+    throw new Error('Email is required to sync user to Sanity');
+  }
+
+  try {
+    const existingSanityUser = await findSanityUserByEmail(mongoUser.email);
+
+    if (existingSanityUser) {
+      // Update existing user
+      return await updateSanityUserWithAuthDetails(existingSanityUser._id, {
+        name: mongoUser.name,
+        avatar: mongoUser.image,
+        role: mongoUser.role,
+        status: mongoUser.status,
+      });
+    } else {
+      // Create new user
+      return await createSanityUser({
+        name: mongoUser.name || mongoUser.email.split('@')[0],
+        email: mongoUser.email,
+        role: mongoUser.role,
+        status: mongoUser.status,
+      });
+    }
+  } catch (err) {
+    structuredLogger.error('Error syncing user to Sanity', err, {
+      email: mongoUser.email,
+      component: 'user-service',
+      operation: 'sync_user',
+    });
+    throw err;
+  }
+}
+
+/**
  * Update a Sanity user with authentication details
  */
 export async function updateSanityUserWithAuthDetails(
@@ -138,6 +186,7 @@ export async function updateSanityUserWithAuthDetails(
     name?: string;
     avatar?: string;
     role?: string;
+    status?: string;
   }
 ) {
   if (!userId) return null;
@@ -151,6 +200,10 @@ export async function updateSanityUserWithAuthDetails(
 
     if (updates.role) {
       patch.set({ role: updates.role });
+    }
+
+    if (updates.status) {
+      patch.set({ status: updates.status });
     }
 
     if (updates.avatar) {
@@ -209,8 +262,8 @@ export async function createLocalUser(
     createdAt: new Date(),
   });
 
-  // Create user in Sanity
-  await createSanityUser({ name, email: normalizedEmail, role: 'user' });
+  // Sync to Sanity (SSoT: MongoDB -> Sanity)
+  await syncUserToSanity({ name, email: normalizedEmail, role: 'user' });
 
   return result;
 }

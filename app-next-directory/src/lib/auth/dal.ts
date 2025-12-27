@@ -17,6 +17,7 @@ import dbConnect from '@/lib/dbConnect';
 import User, { type IUser, ROLE_VALUES, STATUS_VALUES } from '@/models/User';
 import type { UserRole } from '@/types/auth';
 import { isEmailVerificationRequired } from './config';
+import { syncUserToSanity } from './userService';
 
 const UserModel = User as unknown as import('mongoose').Model<IUser>;
 
@@ -215,6 +216,19 @@ export async function updateUserRole(userId: string, newRole: UserRole): Promise
       { runValidators: true }
     );
 
+    if (result.matchedCount === 1) {
+      const dbUser = await UserModel.findById(userId);
+      if (dbUser) {
+        await syncUserToSanity({
+          email: dbUser.email,
+          name: dbUser.name,
+          image: dbUser.image,
+          role: dbUser.role,
+          status: dbUser.status,
+        });
+      }
+    }
+
     return result.matchedCount === 1;
   } catch (_error) {
     return false;
@@ -249,6 +263,19 @@ export async function updateUserStatus(
       { runValidators: true }
     );
 
+    if (result.matchedCount === 1) {
+      const dbUser = await UserModel.findById(userId);
+      if (dbUser) {
+        await syncUserToSanity({
+          email: dbUser.email,
+          name: dbUser.name,
+          image: dbUser.image,
+          role: dbUser.role,
+          status: dbUser.status,
+        });
+      }
+    }
+
     return result.matchedCount === 1;
   } catch (_error) {
     return false;
@@ -265,6 +292,8 @@ export async function createUser(userData: {
   email: string;
   password: string;
   image?: string;
+  role?: UserRole;
+  status?: 'active' | 'suspended' | 'pending';
 }): Promise<AuthUser | null> {
   try {
     await connectDB();
@@ -278,14 +307,23 @@ export async function createUser(userData: {
     // Hash password
     const hashedPassword = await bcrypt.hash(userData.password, 12);
 
-    // Create user with default role and status
+    // Create user with provided or default role and status
     const user = await UserModel.create({
       name: userData.name,
       email: userData.email.trim().toLowerCase(),
       password: hashedPassword,
       image: userData.image,
-      role: 'user' as UserRole,
-      status: 'active',
+      role: userData.role || ('user' as UserRole),
+      status: userData.status || 'active',
+    });
+
+    // Sync to Sanity
+    await syncUserToSanity({
+      email: user.email,
+      name: user.name,
+      image: user.image,
+      role: user.role,
+      status: user.status,
     });
 
     return {

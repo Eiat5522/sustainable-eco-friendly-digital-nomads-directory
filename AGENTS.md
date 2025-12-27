@@ -33,7 +33,7 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 - `pnpm install` — bootstrap dependencies once per machine.
 - `pnpm dev:next` / `pnpm dev:sanity` — run the Next.js app and Sanity Studio locally; use `pnpm dev:clean` after dependency churn.
 - `pnpm build`, `pnpm build:next`, `pnpm build:sanity` — generate production bundles.
-- `pnpm lint` and `pnpm check-types` — enforce ESLint rules and strict TypeScript.
+- `pnpm lint` and `pnpm check-types` — enforce linting with Biome and ESLint and TypeScript with strict mode.
 - `pnpm test:unit`, `pnpm test:integration`, `pnpm test:e2e`, `pnpm test:coverage` — Jest and Playwright batteries, plus coverage reporting.
 
 ## Coding Style & Naming Conventions

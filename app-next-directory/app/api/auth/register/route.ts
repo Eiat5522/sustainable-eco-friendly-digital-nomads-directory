@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { type NextRequest, NextResponse } from 'next/server';
+import { syncUserToSanity } from '@/lib/auth/userService';
 import connect from '@/lib/dbConnect';
 import structuredLogger from '@/lib/logger';
 import User from '@/models/User';
@@ -87,6 +88,22 @@ export async function POST(request: NextRequest) {
       password: hashedPassword,
       role: 'user',
     });
+
+    // Sync to Sanity (SSoT: MongoDB -> Sanity)
+    try {
+      await syncUserToSanity({
+        email: createdUserDoc.email,
+        name: createdUserDoc.name,
+        role: createdUserDoc.role,
+        status: createdUserDoc.status,
+      });
+    } catch (syncError) {
+      // Log sync error but don't fail registration
+      structuredLogger.error('Failed to sync user to Sanity during registration', syncError, {
+        email: createdUserDoc.email,
+        component: 'auth',
+      });
+    }
 
     const safeUser =
       createdUserDoc && typeof createdUserDoc === 'object' && 'toObject' in createdUserDoc

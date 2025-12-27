@@ -11,6 +11,7 @@ import { isAdminEmail } from '@/lib/auth/config';
 import { getUserById } from '@/lib/auth/dal';
 import { enforceLoginRateLimit, recordLoginAttempt } from '@/lib/auth/rateLimit';
 import { authenticateUser } from '@/lib/auth/serverAuth';
+import { syncUserToSanity } from '@/lib/auth/userService';
 import dbConnect from '@/lib/dbConnect';
 import { structuredLogger } from '@/lib/logger';
 import User, { type IUser } from '@/models/User';
@@ -25,6 +26,7 @@ type AppUser = {
   email?: string | null;
   image?: string | null;
   role?: UserRole;
+  status?: string;
 };
 
 const UserModel = User as unknown as Model<IUser>;
@@ -101,6 +103,15 @@ const adapter = createAuthAdapter();
 const callbacks = {
   async signIn({ user, account, profile }) {
     try {
+      // Check if user is suspended in MongoDB
+      if (user?.email) {
+        await dbConnect();
+        const dbUser = await UserModel.findOne({ email: user.email.toLowerCase() });
+        if (dbUser?.status === 'suspended') {
+          return false; // Block sign-in
+        }
+      }
+
       // Only apply to OAuth providers; credentials flow already enforces verification.
       if (account?.provider && account.provider !== 'credentials' && user?.email) {
         // TODO(auth): Reinstate rate-limit enforcement for OAuth verification
@@ -149,10 +160,15 @@ const callbacks = {
     return true;
   },
   async jwt({ token, user, trigger }) {
-    type AppToken = JWT & { id?: string; role?: UserRole; name?: string | null };
+    type AppToken = JWT & { id?: string; role?: UserRole; name?: string | null; status?: string };
     const t = token as unknown as AppToken;
     if (user) {
-      const u = user as Partial<{ id: string; role?: UserRole | null; name?: string | null }>;
+      const u = user as Partial<{
+        id: string;
+        role?: UserRole | null;
+        name?: string | null;
+        status?: string;
+      }>;
       if (u.id) t.id = u.id;
       if (u.name) t.name = u.name;
       // Always prefer the DB canonical role and tokenVersion when available
@@ -160,6 +176,7 @@ const callbacks = {
         const dbUser = await getUserById(String(u.id));
         if (dbUser) {
           t.role = dbUser.role;
+          t.status = dbUser.status;
           (t as unknown as { tokenVersion?: number }).tokenVersion = dbUser.tokenVersion;
         } else if (u.role) {
           t.role = u.role;
@@ -174,6 +191,7 @@ const callbacks = {
       if (dbUser) {
         t.name = dbUser.name;
         t.role = dbUser.role;
+        t.status = dbUser.status;
         (t as unknown as { tokenVersion?: number }).tokenVersion = dbUser.tokenVersion;
       }
     }
@@ -192,7 +210,12 @@ const callbacks = {
   },
   async session({ session, token, user }) {
     type WithAppUser = typeof session & {
-      user: typeof session.user & { id?: string; role?: UserRole; tokenVersion?: number };
+      user: typeof session.user & {
+        id?: string;
+        role?: UserRole;
+        status?: string;
+        tokenVersion?: number;
+      };
     };
     const s = session as WithAppUser;
     if (s.user) {
@@ -204,6 +227,11 @@ const callbacks = {
       } else {
         delete s.user.role;
       }
+
+      if (token?.status) {
+        s.user.status = token.status as string;
+      }
+
       // surface tokenVersion in session for client-side checks if needed
       if (!user && (token as unknown as { tokenVersion?: number })?.tokenVersion !== undefined) {
         s.user.tokenVersion = (token as unknown as { tokenVersion?: number }).tokenVersion;
@@ -225,6 +253,74 @@ export const authOptions: NextAuthConfig = {
     signIn: '/auth/login',
   },
   callbacks,
+  events: {
+    async signIn({ user }) {
+      if (user?.email) {
+        try {
+          await dbConnect();
+          // Update lastLogin in MongoDB
+          await UserModel.updateOne(
+            { email: user.email.toLowerCase() },
+            { $set: { lastLogin: new Date() } }
+          );
+
+          // Sync to Sanity
+          const dbUser = await UserModel.findOne({ email: user.email.toLowerCase() });
+          if (dbUser) {
+            await syncUserToSanity({
+              email: dbUser.email,
+              name: dbUser.name,
+              image: dbUser.image,
+              role: dbUser.role,
+            });
+          }
+        } catch (error) {
+          structuredLogger.error('[auth] Error in signIn event', error, {
+            component: 'auth',
+            email: user.email,
+          });
+        }
+      }
+    },
+    async createUser({ user }) {
+      if (user?.id || user?.email) {
+        try {
+          await dbConnect();
+          const query = user.id ? { _id: user.id } : { email: user.email?.toLowerCase() };
+          
+          // Ensure default role and status are set in MongoDB (since adapter bypasses Mongoose defaults)
+          await UserModel.updateOne(
+            query,
+            { 
+              $set: { 
+                role: 'user',
+                status: 'active'
+              },
+              $setOnInsert: {
+                createdAt: new Date(),
+                updatedAt: new Date()
+              }
+            },
+            { upsert: false }
+          );
+
+          const role = 'role' in user ? (user.role as string) : 'user';
+          await syncUserToSanity({
+            email: user.email ?? '',
+            name: user.name ?? undefined,
+            image: user.image ?? undefined,
+            role: role,
+            status: 'active',
+          });
+        } catch (error) {
+          structuredLogger.error('[auth] Error in createUser event', error, {
+            component: 'auth',
+            email: user.email,
+          });
+        }
+      }
+    },
+  },
 };
 
 const nextAuthInstance = (() => {

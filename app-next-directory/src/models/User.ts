@@ -18,7 +18,7 @@ import isEmail from 'validator/lib/isEmail';
 
 // Role definitions - single source of truth
 // Canonical roles aligned with auth requirements
-export const ROLE_VALUES = ['user', 'venueOwner', 'admin', 'superAdmin'] as const;
+export const ROLE_VALUES = ['user', 'editor', 'venueOwner', 'admin', 'superAdmin'] as const;
 export type Role = (typeof ROLE_VALUES)[number];
 
 // Status definitions for user accounts
@@ -38,6 +38,7 @@ export interface IUser extends Document {
   status: UserStatus;
   emailVerified?: Date | null;
   image?: string;
+  lastLogin?: Date | null;
   createdAt: Date;
   updatedAt: Date;
   /**
@@ -88,6 +89,10 @@ const UserSchema: Schema<IUser> = new Schema(
     },
     image: {
       type: String,
+    },
+    lastLogin: {
+      type: Date,
+      default: null,
     },
     // Token version to allow targeted session invalidation
     tokenVersion: {

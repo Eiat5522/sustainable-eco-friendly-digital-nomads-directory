@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState, useTransition } from 'react';
 import { getUserFacingMessage } from '@/lib/client-utils';
 import { fetchJsonWithRetry, getDefaultTimeout, RequestTimeoutError } from '@/lib/http/request';
 import type { UserRole } from '@/types/auth';
+import { CreateUserModal } from './CreateUserModal';
 
 type UserListItem = {
   id: string;
@@ -323,7 +324,10 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
             </select>
           </div>
         </div>
-        <div className="text-sm text-gray-500">{pagination.totalCount} users total</div>
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-gray-500">{pagination.totalCount} users total</div>
+          <CreateUserModal onUserCreated={() => loadUsers(1)} />
+        </div>
       </div>
 
       {error && (
