@@ -1,6 +1,6 @@
 import { revalidateTag } from 'next/cache';
-import { connection } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { connection } from 'next/server';
 import { structuredLogger } from '@/lib/logger';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { validateRevalidationToken } from '@/utils/revalidation-token';
@@ -8,7 +8,7 @@ import { validateRevalidationToken } from '@/utils/revalidation-token';
 type SanityWebhookPayload = {
   _type?: string;
   type?: string;
-  document?: { _type?: string };
+  document?: { _type?: string; slug?: { current?: string } };
   ids?: { created?: string[]; updated?: string[]; deleted?: string[] };
 };
 
@@ -37,7 +37,27 @@ export async function POST(request: NextRequest) {
       TAGS_BY_TYPE[docType].forEach(tag => tags.add(tag));
     }
 
-    tags.forEach(tag => revalidateTag(tag));
+    // Attempt to revalidate listing-specific tags if payload provides slugs/ids
+    const listingSlugs: string[] = [];
+    if (docType === 'listing') {
+      const docSlug = payload?.document?.slug?.current;
+      if (typeof docSlug === 'string' && docSlug.length > 0) listingSlugs.push(docSlug);
+      const ids = [
+        ...(payload?.ids?.created ?? []),
+        ...(payload?.ids?.updated ?? []),
+        ...(payload?.ids?.deleted ?? []),
+      ];
+      for (const idOrSlug of ids) {
+        if (typeof idOrSlug === 'string' && idOrSlug.length > 0) listingSlugs.push(idOrSlug);
+      }
+    }
+
+    tags.forEach(tag => revalidateTag(tag, 'max'));
+    for (const s of Array.from(new Set(listingSlugs))) {
+      try {
+        revalidateTag(`listing-${s}`, 'max');
+      } catch {}
+    }
 
     return ApiResponseHandler.success({
       revalidated: true,

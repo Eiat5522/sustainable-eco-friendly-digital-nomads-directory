@@ -2,10 +2,10 @@
 
 import type { Collection, Filter } from 'mongodb';
 import type { Metadata } from 'next';
+import { cacheLife, cacheTag } from 'next/cache';
 import { notFound } from 'next/navigation';
 import { groq } from 'next-sanity';
 import { cache } from 'react';
-import { cacheLife, cacheTag } from 'next/cache';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
 import { ListingDetailView } from '@/components/listings/ListingDetailView';
@@ -197,10 +197,12 @@ const FAVORITE_QUERY = groq`*[_type == "userFavorite" && user._ref == $userId &&
 // Generate static params for popular listings
 export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
   try {
-    const popularSlugs = await client.fetch<string[]>(
+    const popularSlugs = await client.fetch<Array<{ slug: string }>>(
       groq`*[_type == "listing" && moderation.status == "published" && defined(popular) && popular == true][0...50]{ "slug": slug.current }`
     );
-    
+
+    if (!popularSlugs) return [];
+
     return popularSlugs.map(item => ({ slug: item.slug }));
   } catch (error) {
     logger.error('Failed to generate static params for listings', error, {
@@ -214,7 +216,7 @@ export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
 const fetchListingBySlug = cache(async (slug: string): Promise<ListingDetailDTO | null> => {
   cacheLife('max');
   cacheTag(`listing-${slug}`);
-  
+
   const raw = await client.fetch<SanityListing | null>(LISTING_QUERY, { slug });
   if (!raw) return null;
   try {

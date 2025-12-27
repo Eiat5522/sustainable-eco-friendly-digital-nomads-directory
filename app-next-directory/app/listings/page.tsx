@@ -1,12 +1,11 @@
 'use cache';
 
-import { Suspense } from 'react';
 import { cacheLife, cacheTag } from 'next/cache';
-import { ListingsDirectoryView } from '@/components/listings/ListingsDirectoryView';
-import { ListingFilters } from '@/components/listings/ListingFilters';
-import { MapView } from '@/components/map/MapView';
-import { getAllListings, getListingFilters } from '@/lib/data/listings';
-import type { ListingSummaryDTO } from '@/types/dto';
+import { Suspense } from 'react';
+import { ListingGrid } from '@/components/listings/ListingGrid';
+import { SearchFiltersForm } from '@/components/search/SearchFiltersForm';
+import { getAllListings } from '@/lib/data/listings';
+import type { SearchParamRecord } from '@/types/search';
 
 cacheLife('hours');
 cacheTag('listings');
@@ -24,7 +23,7 @@ async function ListingsContent({ searchParams }: { searchParams: SearchParams })
   const cachedGetListings = async (filters: SearchParams) => {
     cacheLife('hours');
     cacheTag('listings');
-    
+
     return await getAllListings({
       search: filters.search,
       city: filters.city,
@@ -35,13 +34,8 @@ async function ListingsContent({ searchParams }: { searchParams: SearchParams })
   };
 
   const listings = await cachedGetListings(searchParams);
-  
-  return (
-    <ListingsDirectoryView 
-      listings={listings as ListingSummaryDTO[]} 
-      searchParams={searchParams}
-    />
-  );
+
+  return <ListingGrid listings={listings} />;
 }
 
 async function MapSection({ searchParams }: { searchParams: SearchParams }) {
@@ -54,17 +48,22 @@ async function MapSection({ searchParams }: { searchParams: SearchParams }) {
   });
 
   return (
-    <div className="h-96 w-full rounded-lg overflow-hidden border">
-      <MapView listings={listings as ListingSummaryDTO[]} />
+    <div className="h-96 w-full rounded-lg overflow-hidden border p-4">
+      <p className="text-sm text-gray-600">
+        Map placeholder — {Array.isArray(listings) ? listings.length : 0} listings.
+      </p>
     </div>
   );
 }
 
-export default async function ListingsPage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
+export default async function ListingsPage({ searchParams }: { searchParams: SearchParams }) {
+  const initialParams: SearchParamRecord = {
+    q: searchParams.search,
+    destination: searchParams.city,
+    category: searchParams.type,
+    amenities: searchParams.ecoTags?.split(','),
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -72,10 +71,10 @@ export default async function ListingsPage({
         <p className="text-gray-600 mb-6">
           Discover eco-friendly workspaces, accommodations, and venues perfect for digital nomads
         </p>
-        
+
         {/* PPR: Static content renders immediately, interactive elements stream in */}
         <Suspense fallback={<div className="h-32 bg-gray-100 rounded animate-pulse" />}>
-          <ListingFilters searchParams={searchParams} />
+          <SearchFiltersForm initialParams={initialParams} />
         </Suspense>
       </div>
 
@@ -97,11 +96,7 @@ export default async function ListingsPage({
 
         {/* Interactive map - Client Component in Suspense */}
         <div className="lg:col-span-1">
-          <Suspense
-            fallback={
-              <div className="h-96 bg-gray-100 rounded animate-pulse" />
-            }
-          >
+          <Suspense fallback={<div className="h-96 bg-gray-100 rounded animate-pulse" />}>
             <MapSection searchParams={searchParams} />
           </Suspense>
         </div>

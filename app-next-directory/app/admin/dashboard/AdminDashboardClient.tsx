@@ -1,8 +1,21 @@
 'use client';
 
 import Link from 'next/link';
+import type { AdminAnalyticsSnapshot, AdminModerationEntry } from '@/lib/admin/analytics';
 
-export default function AdminDashboardClient() {
+type AdminDashboardData = {
+  analytics: AdminAnalyticsSnapshot;
+  moderationQueue: AdminModerationEntry[];
+  generatedAt: string;
+};
+
+interface AdminDashboardClientProps {
+  adminData?: AdminDashboardData;
+}
+
+export default function AdminDashboardClient({
+  adminData: _adminData,
+}: AdminDashboardClientProps) {
   return (
     <section className="space-y-6" data-testid="admin-dashboard">
       <div className="neo-card rounded-2xl bg-neo-surface p-6 md:p-8">

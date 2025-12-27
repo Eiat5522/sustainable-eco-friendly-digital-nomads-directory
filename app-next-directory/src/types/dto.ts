@@ -4,6 +4,8 @@
 
 import type { UserRole } from './auth';
 
+export type { UserRole } from './auth';
+
 export interface ImageDimensionsDTO {
   width?: number;
   height?: number;

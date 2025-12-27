@@ -167,3 +167,68 @@ export async function getUserStats(userId: string) {
 - [ ] Verify that no dynamic APIs (`cookies()`, `headers()`) are called inside cached public functions.
 
 - [ ] Test on-demand revalidation for Listings via CMS webhooks.
+
+---
+
+## ✅ Migration Checklist for the Team (Audited Status)
+
+### Phase 1: Public Routes
+
+- C Add `'use cache'` and `cacheLife('days')` to the Homepage (`/`).
+  - Evidence: `app-next-directory/app/page.tsx` contains `"use cache"`, `cacheLife('days')`, and `cacheTag('home')`.
+
+- C Remove `export const dynamic` from the Homepage and Root Layout.
+  - Evidence: Route segment `export const dynamic` was removed from migrated pages (see migration notes and removed exports in `app-next-directory`).
+
+- C Add `/api/sanity/webhook` to revalidate `home` + related tags on CMS updates.
+  - Evidence: `app-next-directory/app/api/sanity/webhook/route.ts` and accompanying tests exist and call `revalidateTag()` for `home` and mapped tags.
+
+- P Configure Sanity webhooks to call `/api/sanity/webhook` with `x-sanity-webhook-token`.
+  - Implemented: Webhook endpoint validates `x-sanity-webhook-token` (tests present).
+  - Remaining: External CMS (Sanity) must be configured to send requests to the endpoint; this repo-side configuration cannot confirm the external webhook setup.
+
+- P Implement `generateStaticParams` for City and Category pages.
+  - Implemented: `generateStaticParams` is present for city pages (`app-next-directory/app/cities/[slug]/page.tsx`) and listings (`/listings/[slug]`).
+  - Remaining: No category dynamic route (`/category/[slug]`) implementation found; category PR static params are not present.
+
+- C Implement `generateStaticParams` for Listing Detail pages.
+  - Evidence: `app-next-directory/app/listings/[slug]/page.tsx` exports `generateStaticParams()` and returns popular slugs.
+
+- C Wrap the Listing Detail data fetch in `'use cache'` with tag-based revalidation.
+  - Evidence: Listing page uses `cache()` wrapper, `cacheLife('max')`, and `cacheTag(`listing-${slug}`)`.
+
+### Phase 2: Authenticated & Admin Routes
+
+- P Refactor `/dashboard` to use a `userId`-keyed function with `'use cache'`.
+  - Implemented: User-specific cached function `getUserStats(userId)` exists in `app-next-directory/app/profile/ServerProfilePage.tsx` with `"use cache"`, `cacheTag`, and `cacheLife`.
+  - Remaining: Top-level `/dashboard` route currently redirects to `/profile`; ensure dashboard entry points consistently use the same cached pattern or update `/dashboard` to call the user-keyed cached helper.
+
+- C Convert `/admin` to a Server Component and implement server-side analytics fetching.
+  - Evidence: `ServerAdminDashboard.tsx` is a server component using a cached analytics fetch.
+
+- C Apply `cacheLife` to the Admin Analytics function (5-minute stale window).
+  - Evidence: `getAdminAnalyticsData()` uses `cacheLife({ stale: 300, revalidate: 600 })`.
+
+- P Add `updateTag('moderation')` to moderation server actions.
+  - Implemented: Helper `refreshModerationQueue()` (calls `updateTag('moderation')`) exists in `ServerAdminDashboard.tsx`.
+  - Remaining: The moderation API POST handler (`/api/admin/moderation`) and the `performModerationAction()` workflow do not currently invoke `updateTag('moderation')` after commits; wiring is required so cached moderation views revalidate immediately after actions.
+
+### Phase 3: Validation & Cleanup
+
+- P Audit all components to ensure interactive widgets are the only `'use client'` files.
+  - Implemented: Large portions of UI follow Server Component-first pattern and many `"use client"` files are limited to interactive widgets.
+  - Remaining: A full repository-wide audit is incomplete; some files and tests still reference client/server boundaries and should be validated in one pass.
+
+- P Verify that no dynamic APIs (`cookies()`, `headers()`) are called inside cached public functions.
+  - Implemented: Guards and try/catch wrappers were added in several routes (e.g., admin settings, dashboard listings) and documentation indicates effort to move runtime APIs out of cached scopes.
+  - Remaining: Build logs show prerender-time fetch errors and cache-fill timeouts (e.g., `pnpm-build.txt` entries for featured listings and city pages), indicating remaining cases where request-scoped data or long fetches affect cache behavior and require further attention.
+
+- P Test on-demand revalidation for Listings via CMS webhooks.
+  - Implemented: Webhook endpoint revalidates `home` and mapped tags like `featured-listings`; listing pages tag with `listing-${slug}`.
+  - Remaining: Webhook currently does not revalidate per-listing `listing-${slug}` tags based on payload slug/ids; add mapping to revalidate listing-specific tags (and ensure Sanity sends slug/ids in webhook payload). Also confirm external webhook configuration.
+
+---
+
+Notes and next steps:
+- Most server-side `"use cache"` patterns, `cacheLife()` profiles, and cache tagging are implemented for core pages (home, listings, admin analytics, user stats). The remaining work focuses on wiring revalidation hooks, completing category static params, ensuring moderation actions call `updateTag`, and addressing prerender fetch timeouts uncovered in the build logs.
+- Recommend: 1) Add per-listing invalidation to the Sanity webhook handler; 2) Wire `updateTag('moderation')` into moderation POST handler or `performModerationAction()`; 3) Implement category route `generateStaticParams` or document expected PPR behavior; 4) Run a full repo cache-audit and a production-like prerender build to surface remaining dynamic API usages.

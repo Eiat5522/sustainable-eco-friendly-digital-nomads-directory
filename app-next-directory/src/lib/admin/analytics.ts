@@ -1,4 +1,5 @@
 import 'server-only';
+import { updateTag } from 'next/cache';
 import { getRoleCounts } from '@/lib/auth/dal';
 import { getDefaultTimeout, withRequestTimeout } from '@/lib/http/request';
 import { structuredLogger } from '@/lib/logger';
@@ -257,6 +258,8 @@ export async function performModerationAction({
   }
 
   await patch.commit({ autoGenerateArrayKeys: true });
+
+  try { updateTag('moderation'); } catch {}
 
   return fetchModerationEntryById(moderationId);
 }
