@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --inspect",
     "dev:clean": "bash ../scripts/clean-build-artifacts.sh && next dev",
     "build": "pnpm run build:types && next build",
     "build:types": "tsc -p tsconfig.types.json",

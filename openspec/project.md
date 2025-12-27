@@ -1,103 +1,113 @@
+```markdown
 # Project Context
 
 ## Purpose
 
-Sustainable Eco-Friendly Digital Nomads Directory is a monorepo that powers a curated directory of eco-friendly venues
-and services for digital nomads (search, maps, listings, and authenticated dashboards), with Sanity as the CMS and
-MongoDB as the primary data store.
+Sustainable Eco-Friendly Digital Nomads Directory is a pnpm monorepo powering a curated directory of
+eco-friendly venues and services for digital nomads (search, maps, listings, authenticated dashboards).
+The repo composes a Next.js frontend, a Sanity Studio workspace, and supporting scripts/tests.
 
-## Tech Stack
+## Concrete Tech Stack (repo-verified)
 
-- **Monorepo**: pnpm workspaces (`app-next-directory/`, `sanity/`)
-- **Frontend**: Next.js App Router (currently Next.js 16.1.0), React 19, TypeScript 5.9
-- **Styling/UI**: Tailwind CSS v4, Radix UI primitives, shadcn/ui patterns
-- **CMS**: Sanity v3 (`sanity/` workspace, `@sanity/client` in app)
-- **Auth**: NextAuth.js v5 beta (`next-auth@5.0.0-beta.30`) + `@auth/mongodb-adapter`
-- **Database**: MongoDB (`mongodb`) + Mongoose (`mongoose`) (Atlas-style connection via env)
-- **Caching / rate limiting**: Upstash Redis (`@upstash/redis`) + `@upstash/ratelimit`
-- **Maps**: Leaflet + react-leaflet (OpenStreetMap tiles)
-- **Email**: Resend (`resend`), plus `nodemailer` for related flows
-- **Analytics**: PostHog (`posthog-js`), Vercel Analytics (`@vercel/analytics`)
-- **Testing**: Jest (unit/integration) + React Testing Library, Playwright (E2E)
+- Monorepo: `pnpm` workspaces (root `package.json` and `pnpm-workspace.yaml`; `packageManager: pnpm@10.15.0`).
+- Frontend: Next.js App Router (Next.js 16.1.0) + React 19, TypeScript 5.9.x (app-level `tsconfig.json` uses `strict: true`).
+- Styling/UI: Tailwind CSS, Radix primitives and shadcn/ui patterns in the app workspace.
+- CMS: Sanity (studio under `sanity/`), with repo `typegen` scripts for Sanity types.
+- Auth: NextAuth v5 (beta) + MongoDB adapter.
+- Database: MongoDB + Mongoose (app uses mongoose + in-memory patterns for tests).
+- Caching/rate-limiting: Upstash Redis + @upstash/ratelimit.
+- Testing: Jest (unit/integration) and Playwright (E2E). Biome is used for formatting at root.
 
-## Project Conventions
+Evidence: see `package.json` (root) and `app-next-directory/package.json`, `app-next-directory/tsconfig.json`,
+`app-next-directory/playwright.config.ts`.
 
-### Code Style
+## Monorepo Layout (important folders)
 
-- **TypeScript-first, strict**: `strict: true` and additional safety flags are enabled; avoid type assertions unless
-  necessary.
-- **No `any`**: `any` is forbidden in production code (Biome enforces `noExplicitAny: error` in most folders).
-- **Formatting**:
+- `app-next-directory/` — Next.js app, tests, Playwright/Jest configs, scripts, mocks.
+- `sanity/` — Sanity Studio and schemas.
+- `scripts/`, `docs/`, `tests/`, `coverage/` — repo helpers, documentation, CI artifacts.
 
-  - Biome formats the repo (2-space indentation, single quotes, semicolons, line width 100).
-  - Prettier is also used in the Next.js workspace via lint-staged for staged files.
-- **Naming**:
+## Key runnable commands (copy/paste)
 
-  - Components/pages in PascalCase; hooks in camelCase prefixed with `use*`; utilities in `src/lib/` or `src/utils/`.
-  - Sanity system fields (e.g. `_id`, `_type`) are allowed exceptions where relevant.
-- **Imports**:
+- From repo root (delegates into workspaces):
 
-  - Prefer the `@/` alias in the Next.js app (maps to `app-next-directory/src/*` and `app-next-directory/app/*`).
-  - Keep imports aligned with the alias instead of deep relative paths.
+```bash
+pnpm dev:next         # run the Next.js app (filters to app-next-directory)
+pnpm build            # runs workspace builds (next + sanity when configured)
+pnpm typegen          # regenerate Sanity types and run postprocess
+pnpm lint             # biome + eslint checks (root delegates)
+pnpm test:unit        # runs unit tests in the app workspace
+pnpm test:e2e         # runs Playwright E2E for the app workspace
+```
 
-### Architecture Patterns
+- Directly in `app-next-directory/`:
 
-- **Monorepo layout**:
+```bash
+pnpm dev              # next dev
+pnpm build            # build types then next build
+pnpm start            # next start
+pnpm test:unit        # jest unit tests (serial by default for CI)
+pnpm test:e2e         # playwright test --config=playwright.config.ts
+pnpm lint:eslint      # run ESLint for the app
+```
 
-  - Next.js app lives in `app-next-directory/`
-  - Sanity Studio lives in `sanity/`
-- **Next.js app structure**:
+See `app-next-directory/package.json` and root `package.json` for exact scripts and postinstall hooks.
 
-  - Routes and route handlers: `app-next-directory/src/app/`
-  - Reusable UI: `app-next-directory/src/components/`
-  - Integrations and domain helpers: `app-next-directory/src/lib/`, `app-next-directory/src/utils/`
-  - Mocks/test helpers: `app-next-directory/src/tests/`, `app-next-directory/src/test-helpers/`,
-    `app-next-directory/src/__mocks__/`
-- **Next.js 16 async patterns** (important for tests and server components):
+## Linting, Formatting, and Type Safety
 
-  - Await async pages/layouts before rendering in tests (avoid rendering unresolved Promises).
-  - Wrap async/server shells in Suspense where a boundary needs a fallback.
-  - Pass request objects through NextAuth helpers when wrapping API handlers.
+- Formatting: `biome` at repo root (format + lint flows). `prettier` is present in the app workspace and used
+  in lint-staged flows.
+- Linting: ESLint with a flat config in `app-next-directory/eslint.config.mjs` (Next.js + TypeScript rules).
+- TypeScript: `strict: true` plus aggressive safety flags in `app-next-directory/tsconfig.json`; the codebase forbids
+  unchecked `any` usage for production code.
 
-### Testing Strategy
+Files: [package.json](package.json#L1-L20), [app-next-directory/tsconfig.json](app-next-directory/tsconfig.json#L1-L40),
+[app-next-directory/eslint.config.mjs](app-next-directory/eslint.config.mjs#L1-L40).
 
-- **Unit tests**: Jest (Next.js-aware config) + Testing Library for components and utilities.
-- **Integration tests**: Jest integration config for Node environment; uses `mongodb-memory-server` patterns where
-  applicable.
-- **E2E tests**: Playwright under `app-next-directory/tests/e2e/`.
-- **CI reliability rules**:
+## Testing Conventions & CI Rules
 
-  - Do not hit live external services in tests (Sanity, Upstash, email providers). Prefer MSW/mocks and test fixtures.
-  - Keep E2E tests deterministic; stub network traffic and test data per the project testing strategy.
+- Unit tests: Jest config in `app-next-directory/jest.config.cjs` with Next.js-aware setup and helpers.
+- E2E tests: Playwright under `app-next-directory/tests/` and configured in `app-next-directory/playwright.config.ts`.
+- CI/testing policy: tests must not hit live external services; use MSW, fixtures, or local stubs. Playwright config
+  and AGENTS.md call out that network traffic should be stubbed for deterministic runs.
 
-### Git Workflow
+Files: [app-next-directory/jest.config.cjs](app-next-directory/jest.config.cjs#L1-L40),
+[app-next-directory/playwright.config.ts](app-next-directory/playwright.config.ts#L1-L80),
+[AGENTS.md](AGENTS.md#L46-L50).
 
-- **Branches**: `main` (production), `develop` (integration), plus `feature/*`, `fix/*`, `release/*`.
-- **Commits**: Conventional-ish `type: message` (`feat`, `fix`, `docs`, `refactor`, `test`, `chore`, etc.).
-- **PRs**: Target `develop`, keep PRs small and single-purpose, include validation commands.
-- **Pre-merge validation (typical)**: `pnpm lint`, `pnpm check-types`, `pnpm test:unit` (and `pnpm test:e2e` when
-  relevant).
+## Developer tooling / scripts
 
-## Domain Context
+- Sanity typegen: `pnpm typegen` (root delegates to `sanity` workspace and runs `types:postprocess`).
+- Playwright and MSW have postinstall helpers in the app workspace (`postinstall` hooks).
+- There are helper scripts under `scripts/` (e.g., WSL-safe helpers, e2e Docker helpers).
 
-- The product is a curated directory of eco-friendly venues/services for digital nomads.
-- Core domain concepts commonly include: listings/venues, cities/regions, sustainability attributes/tags, and search
-  and map discovery.
-- Auth is role-based; tests and docs reference roles like `user`, `editor`, `venueOwner`, `admin`, `superAdmin`.
+Files: [package.json](package.json#L48-L52), [app-next-directory/package.json](app-next-directory/package.json#L1-L30),
+`scripts/` folder.
 
-## Important Constraints
+## Git & Release Conventions
 
-- **Do not commit secrets**: use local env files (`app-next-directory/.env.local`, `sanity/.env`).
-- **Type safety is enforced**: avoid `any`; prefer `unknown` + narrowing or explicit DTOs.
-- **Testing must be offline-friendly**: CI should not depend on external APIs/network availability.
-- **Keep instrumentation deterministic in tests**: reset instrumentation hooks where tests flip `NODE_ENV`.
+- Branching: use `develop` as an integration branch; create `feature/*` or `fix/*` branches for work. PRs typically target
+  `develop` per repo docs.
+- Commit messages follow a concise `type: summary` pattern (feat/fix/docs/chore/test/refactor).
 
-## External Dependencies
+See: [AGENTS.md](AGENTS.md#L114-L116), [README.md](README.md#L45-L49).
 
-- Sanity (CMS + content API)
-- MongoDB Atlas (primary DB)
-- Upstash Redis (cache + rate limiting)
-- Vercel (deployment + analytics)
-- Resend (email delivery)
-- OpenStreetMap/Leaflet ecosystem (maps)
-- PostHog (analytics)
+## Important Constraints / Policies
+
+- Never commit secrets — use local `.env` files (`app-next-directory/.env.local`, `sanity/.env`).
+- Tests and CI must avoid calling live external services (Sanity, Upstash, Resend, etc.).
+- When tests alter global instrumentation or `process.on` listeners, call the repo helper that resets instrumentation
+  to keep test runs deterministic.
+
+Files: [app-next-directory/src/instrumentation.ts](app-next-directory/src/instrumentation.ts#L140-L170),
+[AGENTS.md](AGENTS.md#L46-L50).
+
+---
+
+If you'd like, I can now:
+
+- (A) Add a short `Commands` cheat-sheet file under `docs/` with the exact `pnpm` commands and examples; or
+- (B) Open a PR branch and commit this `openspec/project.md` change with a concise commit message. Which do you prefer?
+
+``` 
+``` 
