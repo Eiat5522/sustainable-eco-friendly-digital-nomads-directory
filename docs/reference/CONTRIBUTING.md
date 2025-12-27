@@ -21,6 +21,8 @@ We follow a simplified version of Git Flow with these main branches:
 ## Development Process
 
 1. **Start a Feature**
+
+
    ```bash
    git checkout develop
    git pull origin develop
@@ -32,11 +34,15 @@ We follow a simplified version of Git Flow with these main branches:
    - Follow the coding standards
    - Add tests where necessary
 
+
 3. **Commit Changes**
+
    ```bash
    git add .
+
    git commit -m "type: descriptive message"
    ```
+
    Commit message types:
    - feat: New feature
    - fix: Bug fix
@@ -44,9 +50,11 @@ We follow a simplified version of Git Flow with these main branches:
    - style: Formatting, missing semi-colons, etc
    - refactor: Code refactoring
    - test: Adding tests
+
    - chore: Maintenance tasks
 
 4. **Push Changes**
+
    ```bash
    git push origin feature/your-feature-name
    ```
@@ -56,6 +64,8 @@ We follow a simplified version of Git Flow with these main branches:
    - Fill in the PR template
    - Request review from team members
    - Ensure all automated checks pass
+
+
 
 ## Code Review Process
 
@@ -69,7 +79,9 @@ We follow a simplified version of Git Flow with these main branches:
 
 2. **During Review**
    - Respond to feedback promptly and professionally
+
    - Make requested changes in new commits (don't force push)
+
    - Re-request review after addressing feedback
    - Keep discussions focused on the code
 
@@ -86,8 +98,10 @@ We follow a simplified version of Git Flow with these main branches:
 
 2. **Review Guidelines**
    - Be constructive and respectful in feedback
+
    - Explain the "why" behind suggestions
    - Approve minor changes, request changes for significant issues
+
    - Test the changes locally if needed
    - Focus on code quality, not personal preferences
 
@@ -95,9 +109,11 @@ We follow a simplified version of Git Flow with these main branches:
 - **Keep PRs small**: Aim for < 400 lines of changes
 - **Single purpose**: One feature or fix per PR
 - **Break down large changes**: Create multiple related PRs
+
 - **Draft PRs**: Use draft PRs for work-in-progress feedback
 
 ## Code Style
+
 
 For detailed coding standards and best practices, see [CODING_STANDARDS.md](./CODING_STANDARDS.md).
 
@@ -105,10 +121,12 @@ For detailed coding standards and best practices, see [CODING_STANDARDS.md](./CO
 - Follow Prettier configuration for code formatting
 - Use TypeScript for all new code with proper type safety
 - Follow ESLint rules - address all warnings and errors
+
 - Write meaningful, conventional commit messages
 - Avoid `any` type - use specific types or `unknown`
 - Follow naming conventions: PascalCase for components, camelCase for functions
 - Document complex logic with clear comments
+
 
 ## Pre-commit Checks
 

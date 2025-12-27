@@ -56,7 +56,15 @@
     "chat.useNestedAgentsMdFiles": true,
     "cSpell.words": [
       "Prerendering"
-    ]
+    ],
+    "vscodeDebuggerMCP.licenseAccepted": true,
+    "vscodeDebuggerMCP.transportType": "sse",
+    "github.copilot.chat.languageContext.fix.typescript.enabled": true,
+    "editor.experimental.preferTreeSitter.typescript": true,
+    "github.copilot.chat.languageContext.inline.typescript.enabled": true,
+    "github.copilot.chat.languageContext.typescript.enabled": true,
+    "github.copilot.chat.languageContext.typescript.includeDocumentation": true,
+    "accessibility.voice.ignoreCodeBlocks": true
   },
   "extensions": {
     "recommendations": [

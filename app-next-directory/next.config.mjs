@@ -16,7 +16,7 @@ if (
 }
 
 const nextConfig = {
-    experimental: {
+  experimental: {
     // Enable filesystem caching for `next dev`
     turbopackFileSystemCacheForDev: true,
     // Enable filesystem caching for `next build`

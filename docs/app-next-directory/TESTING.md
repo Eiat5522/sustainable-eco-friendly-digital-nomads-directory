@@ -203,6 +203,7 @@ Tests are automatically run as part of our Continuous Integration (CI) pipeline 
 ---
 
 🔗 **Related Documentation**:
+
 * [Authentication System (`AUTHENTICATION.md`)](AUTHENTICATION.md)
 * [Next.js Frontend README (`README.md`)](README.md)
 * [Playwright Documentation](https://playwright.dev/docs/intro)
