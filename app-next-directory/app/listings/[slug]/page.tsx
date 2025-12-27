@@ -1,5 +1,3 @@
-'use cache';
-
 import type { Collection, Filter } from 'mongodb';
 import type { Metadata } from 'next';
 import { cacheLife, cacheTag } from 'next/cache';
@@ -201,19 +199,34 @@ export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
       groq`*[_type == "listing" && moderation.status == "published" && defined(popular) && popular == true][0...50]{ "slug": slug.current }`
     );
 
-    if (!popularSlugs) return [];
+    // Return at least one result for Cache Components validation
+    if (popularSlugs && popularSlugs.length > 0) {
+      return popularSlugs.map(item => ({ slug: item.slug }));
+    }
 
-    return popularSlugs.map(item => ({ slug: item.slug }));
+    // Fallback: return the first published listing to satisfy Cache Components requirement
+    const fallbackListings = await client.fetch<Array<{ slug: string }>>(
+      groq`*[_type == "listing" && moderation.status == "published"][0...1]{ "slug": slug.current }`
+    );
+
+    if (fallbackListings && fallbackListings.length > 0) {
+      return fallbackListings.map(item => ({ slug: item.slug }));
+    }
+
+    // If no listings exist at all, return a placeholder
+    return [{ slug: 'placeholder-listing' }];
   } catch (error) {
     logger.error('Failed to generate static params for listings', error, {
       component: 'listings/[slug]',
     });
-    return [];
+    // Return a placeholder on error to satisfy Cache Components requirement
+    return [{ slug: 'placeholder-listing' }];
   }
 }
 
 // Wrap in React cache() to deduplicate requests within the same render pass
 const fetchListingBySlug = cache(async (slug: string): Promise<ListingDetailDTO | null> => {
+  'use cache';
   cacheLife('max');
   cacheTag(`listing-${slug}`);
 

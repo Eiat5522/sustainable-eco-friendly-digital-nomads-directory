@@ -46,8 +46,8 @@ describe('Sanity Webhook API - POST /api/sanity/webhook', () => {
     expect(response.status).toBe(200);
     expect(data.success).toBe(true);
     expect(data.data.tags).toEqual(expect.arrayContaining(['home', 'featured-listings']));
-    expect(mockRevalidateTag).toHaveBeenCalledWith('home');
-    expect(mockRevalidateTag).toHaveBeenCalledWith('featured-listings');
+    expect(mockRevalidateTag).toHaveBeenCalledWith('home', 'max');
+    expect(mockRevalidateTag).toHaveBeenCalledWith('featured-listings', 'max');
   });
 
   it('revalidates home and city tags for city updates', async () => {
@@ -65,8 +65,8 @@ describe('Sanity Webhook API - POST /api/sanity/webhook', () => {
     expect(response.status).toBe(200);
     expect(data.success).toBe(true);
     expect(data.data.tags).toEqual(expect.arrayContaining(['home', 'cities']));
-    expect(mockRevalidateTag).toHaveBeenCalledWith('home');
-    expect(mockRevalidateTag).toHaveBeenCalledWith('cities');
+    expect(mockRevalidateTag).toHaveBeenCalledWith('home', 'max');
+    expect(mockRevalidateTag).toHaveBeenCalledWith('cities', 'max');
   });
 
   it('returns 401 when token is invalid', async () => {
@@ -101,6 +101,6 @@ describe('Sanity Webhook API - POST /api/sanity/webhook', () => {
     expect(response.status).toBe(200);
     expect(data.success).toBe(true);
     expect(data.data.tags).toEqual(['home']);
-    expect(mockRevalidateTag).toHaveBeenCalledWith('home');
+    expect(mockRevalidateTag).toHaveBeenCalledWith('home', 'max');
   });
 });

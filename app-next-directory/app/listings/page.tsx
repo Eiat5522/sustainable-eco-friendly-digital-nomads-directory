@@ -1,14 +1,9 @@
-'use cache';
-
 import { cacheLife, cacheTag } from 'next/cache';
 import { Suspense } from 'react';
 import { ListingGrid } from '@/components/listings/ListingGrid';
 import { SearchFiltersForm } from '@/components/search/SearchFiltersForm';
 import { getAllListings } from '@/lib/data/listings';
 import type { SearchParamRecord } from '@/types/search';
-
-cacheLife('hours');
-cacheTag('listings');
 
 interface SearchParams {
   search?: string;
@@ -18,33 +13,33 @@ interface SearchParams {
   ecoTags?: string;
 }
 
-async function ListingsContent({ searchParams }: { searchParams: SearchParams }) {
-  // Use cache() to deduplicate requests within the same render pass
-  const cachedGetListings = async (filters: SearchParams) => {
-    cacheLife('hours');
-    cacheTag('listings');
+async function ListingsContent({ params }: { params: SearchParams }) {
+  'use cache';
+  cacheLife('hours');
+  cacheTag('listings');
 
-    return await getAllListings({
-      search: filters.search,
-      city: filters.city,
-      type: filters.type,
-      priceRange: filters.priceRange,
-      ecoTags: filters.ecoTags?.split(','),
-    });
-  };
-
-  const listings = await cachedGetListings(searchParams);
+  const listings = await getAllListings({
+    search: params.search,
+    city: params.city,
+    type: params.type,
+    priceRange: params.priceRange,
+    ecoTags: params.ecoTags?.split(','),
+  });
 
   return <ListingGrid listings={listings} />;
 }
 
-async function MapSection({ searchParams }: { searchParams: SearchParams }) {
+async function MapSection({ params }: { params: SearchParams }) {
+  'use cache';
+  cacheLife('hours');
+  cacheTag('listings-map');
+
   const listings = await getAllListings({
-    search: searchParams.search,
-    city: searchParams.city,
-    type: searchParams.type,
-    priceRange: searchParams.priceRange,
-    ecoTags: searchParams.ecoTags?.split(','),
+    search: params.search,
+    city: params.city,
+    type: params.type,
+    priceRange: params.priceRange,
+    ecoTags: params.ecoTags?.split(','),
   });
 
   return (
@@ -56,12 +51,18 @@ async function MapSection({ searchParams }: { searchParams: SearchParams }) {
   );
 }
 
-export default async function ListingsPage({ searchParams }: { searchParams: SearchParams }) {
+export default async function ListingsPage(props: {
+  searchParams?: Promise<SearchParams>;
+}) {
+  // Await searchParams outside of cache scope
+  const searchParams = await props.searchParams;
+  const params = searchParams ?? ({} as SearchParams);
+  
   const initialParams: SearchParamRecord = {
-    q: searchParams.search,
-    destination: searchParams.city,
-    category: searchParams.type,
-    amenities: searchParams.ecoTags?.split(','),
+    q: params.search,
+    destination: params.city,
+    category: params.type,
+    amenities: params.ecoTags?.split(','),
   };
 
   return (
@@ -90,14 +91,14 @@ export default async function ListingsPage({ searchParams }: { searchParams: Sea
               </div>
             }
           >
-            <ListingsContent searchParams={searchParams} />
+            <ListingsContent params={params} />
           </Suspense>
         </div>
 
         {/* Interactive map - Client Component in Suspense */}
         <div className="lg:col-span-1">
           <Suspense fallback={<div className="h-96 bg-gray-100 rounded animate-pulse" />}>
-            <MapSection searchParams={searchParams} />
+            <MapSection params={params} />
           </Suspense>
         </div>
       </div>

@@ -56,7 +56,7 @@ export const metadata: Metadata = {
 
 export default async function BlogPage(
   props: Readonly<{
-    searchParams?: { page?: string; limit?: string; tag?: string; search?: string };
+    searchParams?: Promise<{ page?: string; limit?: string; tag?: string; search?: string }>;
   }>
 ) {
   const { page = '1', limit = '10', tag = '', search = '' } = (await props.searchParams) || {};

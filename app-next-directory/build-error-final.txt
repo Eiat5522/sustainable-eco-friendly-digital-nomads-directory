@@ -1,0 +1,26 @@
+
+> app-next-directory@0.1.0 build /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory
+> pnpm run build:types && next build
+
+
+> app-next-directory@0.1.0 build:types /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory
+> tsc -p tsconfig.types.json
+
+▲ Next.js 16.1.0 (Turbopack, Cache Components)
+- Environments: .env.local, .env
+- Experiments (use with caution):
+  ✓ turbopackFileSystemCacheForBuild
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 3.2min
+  Skipping validation of types
+  Collecting page data using 3 workers ...
+{"level":30,"time":1766819217777,"pid":51086,"hostname":"unknown","service":"sustainable-nomads-directory","version":"0.1.0","msg":"[auth route] module loaded"}
+{"level":50,"time":1766819227787,"pid":51072,"hostname":"unknown","service":"sustainable-nomads-directory","version":"0.1.0","component":"console","level":"error","err":{"type":"Object","message":"Failed to collect configuration for /listings","stack":"","name":"Error"},"error":{"type":"Object","message":"Failed to collect configuration for /listings","stack":"","name":"Error"},"msg":"Failed to collect configuration for /listings"}
+
+> Build error occurred
+Error: Failed to collect page data for /listings
+    at ignore-listed frames {
+  type: 'Error'
+}
+ ELIFECYCLE  Command failed with exit code 1.

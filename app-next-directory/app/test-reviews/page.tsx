@@ -24,10 +24,10 @@ function pickFirst(value: string | string[] | undefined) {
 }
 
 export default async function TestReviewsPage(props: {
-  searchParams?: Promise<SearchParams | Promise<SearchParams>>;
+  searchParams?: Promise<SearchParams>;
 }) {
   const searchParams = await props.searchParams;
-  const resolved = await Promise.resolve(searchParams ?? ({} as SearchParams));
+  const resolved = searchParams ?? ({} as SearchParams);
   const signedInValue = pickFirst(resolved?.signedIn);
   const presetValue = pickFirst(resolved?.preset);
 
