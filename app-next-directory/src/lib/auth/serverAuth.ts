@@ -11,10 +11,18 @@ import { redirect } from 'next/navigation';
 import dbConnect from '@/lib/dbConnect';
 import User from '@/models/User';
 import type { UserRole } from '@/types/auth';
-import { auth } from '../auth';
 // Import DAL functions
 import { authenticateUserCredentials, createUser, getUserById as dalGetUserById } from './dal';
 import { syncUserToSanity } from './userService';
+
+// Lazy import auth to avoid circular dependency issues in tests
+let authImport: typeof import('../auth') | null = null;
+async function getAuth() {
+  if (!authImport) {
+    authImport = await import('../auth');
+  }
+  return authImport.auth;
+}
 
 // Memoized database connection function
 const connectToDatabase = async () => {
@@ -40,6 +48,7 @@ export async function enforceAccountStatus(userId: string) {
  * @returns The authenticated user
  */
 export async function requireRole(role: UserRole | UserRole[]): Promise<AuthenticatedUser> {
+  const auth = await getAuth();
   const session = await auth();
   const user = session?.user as AuthenticatedUser | undefined;
 

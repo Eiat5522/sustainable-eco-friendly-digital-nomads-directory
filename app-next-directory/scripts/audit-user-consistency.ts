@@ -1,9 +1,9 @@
 import * as dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import { createClient } from 'next-sanity';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import User from '../src/models/User.js';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import User from '../src/models/User.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

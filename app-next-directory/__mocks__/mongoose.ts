@@ -327,6 +327,6 @@ const mongoose = {
   isValidObjectId,
 };
 
-// Export both as default and named exports to handle different import styles
+// Export as default and attach all properties
 export default mongoose;
-export { SchemaMock as Schema };
+export const Schema = SchemaMock;

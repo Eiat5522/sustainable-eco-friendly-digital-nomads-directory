@@ -41,7 +41,7 @@
     "lint:eslint:strict": "eslint --max-warnings=none .",
     "e2e:setup": "node tests/setup-e2e-db.mjs",
     "e2e:clean": "node tests/setup-e2e-db.mjs",
-    "test:e2e:isolated": "pnpm e2e:setup && pnpm test:e2e",
+    "test:e2e:isolated": "cd .. && bash run-e2e-docker.sh",
     "test:e2e:debug": "PWDEBUG=1 playwright test --config=playwright.config.ts",
     "test:e2e:ui": "playwright test --ui --config=playwright.config.ts"
   },
