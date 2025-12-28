@@ -9,7 +9,7 @@ import { isValidObjectId, type Types } from 'mongoose';
 import { cacheLife, cacheTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 import dbConnect from '@/lib/dbConnect';
-import User from '@/models/User';
+import User, { type UserStatus } from '@/models/User';
 import type { UserRole } from '@/types/auth';
 // Import DAL functions
 import { authenticateUserCredentials, createUser, getUserById as dalGetUserById } from './dal';
@@ -77,6 +77,8 @@ type UserDoc = {
   password?: string;
   image?: string;
   role: UserRole;
+  status?: UserStatus;
+  sanityId?: string;
   emailVerified?: Date | null;
   favorites?: Array<Types.ObjectId | string>;
 };
@@ -184,13 +186,18 @@ export async function updateUserRole(userId: string, newRole: UserRole): Promise
       // Sync to Sanity
       const dbUser = await UserModel.findById(userId);
       if (dbUser) {
-        await syncUserToSanity({
+        const sanityUser = await syncUserToSanity({
+          id: dbUser._id.toString(),
           email: dbUser.email,
           name: dbUser.name,
           image: dbUser.image,
           role: dbUser.role,
           status: dbUser.status,
+          sanityId: dbUser.sanityId ?? null,
         });
+        if (sanityUser?._id && dbUser.sanityId !== sanityUser._id) {
+          await UserModel.updateOne({ _id: dbUser._id }, { $set: { sanityId: sanityUser._id } });
+        }
       }
     }
 
@@ -257,13 +264,18 @@ export async function updateUserProfile(
     if (!doc) return null;
 
     // Sync to Sanity
-    await syncUserToSanity({
+    const sanityUser = await syncUserToSanity({
+      id: doc._id.toString(),
       email: doc.email,
       name: doc.name,
       image: doc.image,
       role: doc.role as UserRole,
       status: doc.status,
+      sanityId: doc.sanityId ?? null,
     });
+    if (sanityUser?._id && doc.sanityId !== sanityUser._id) {
+      await UserModel.updateOne({ _id: doc._id }, { $set: { sanityId: sanityUser._id } });
+    }
 
     return {
       id: doc._id.toString(),

@@ -21,7 +21,7 @@ type UserListItem = {
 };
 
 // Valid roles for filtering and assignment
-const VALID_ROLES: UserRole[] = ['user', 'venueOwner', 'admin', 'superAdmin'];
+const VALID_ROLES: UserRole[] = ['user', 'editor', 'venueOwner', 'admin', 'superAdmin'];
 
 function ensureAdmin(sessionUser: SessionUser): boolean {
   const role = sessionUser?.role;

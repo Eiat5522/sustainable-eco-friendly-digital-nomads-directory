@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import mongoose, { type Document, Schema } from 'mongoose';
-import isEmail from 'validator/lib/isEmail';
+import isEmail from 'validator/lib/isEmail.js';
 
 /**
  * User Model - Index Management Notes:
@@ -38,6 +38,7 @@ export interface IUser extends Document {
   status: UserStatus;
   emailVerified?: Date | null;
   image?: string;
+  sanityId?: string;
   lastLogin?: Date | null;
   createdAt: Date;
   updatedAt: Date;
@@ -89,6 +90,10 @@ const UserSchema: Schema<IUser> = new Schema(
     },
     image: {
       type: String,
+    },
+    sanityId: {
+      type: String,
+      default: null,
     },
     lastLogin: {
       type: Date,

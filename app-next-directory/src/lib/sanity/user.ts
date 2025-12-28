@@ -12,9 +12,12 @@ type SanityUser = {
   _type: 'user';
   name?: string;
   email?: string;
+  mongodbId?: string;
   role?: string;
   createdAt?: string;
 };
+
+type SanityUserInput = Omit<SanityUser, '_id'> & { _id?: string };
 
 const FALLBACK_NAME = 'Anonymous';
 
@@ -45,14 +48,29 @@ async function ensureSanityUserInternal({ id, name, email }: EnsureUserOptions):
   
 
   try {
-    // Create or ensure a minimal CMS-only Sanity user doc. Do NOT write role information.
-    const baseDoc = await client.createIfNotExists!<SanityUser>({
-      _id: id,
-      _type: 'user',
-      name: safeName,
-      ...(safeEmail ? { email: safeEmail } : {}),
-      createdAt: new Date().toISOString(),
-    });
+    const baseDoc =
+      (await client.fetch<SanityUser | null>(
+        `*[_type == "user" && mongodbId == $mongodbId][0]`,
+        { mongodbId: id }
+      )) ??
+      (await client.fetch<SanityUser | null>(`*[_type == "user" && _id == $id][0]`, { id })) ??
+      (safeEmail
+        ? await client.fetch<SanityUser | null>(
+            `*[_type == "user" && email == $email][0]`,
+            { email: safeEmail }
+          )
+        : null);
+
+    if (!baseDoc) {
+      const createDoc = client.create as (doc: SanityUserInput) => Promise<SanityUser>;
+      return await createDoc({
+        _type: 'user',
+        name: safeName,
+        mongodbId: id,
+        ...(safeEmail ? { email: safeEmail } : {}),
+        createdAt: new Date().toISOString(),
+      });
+    }
 
     const patch: Record<string, string> = {};
 
@@ -64,13 +82,17 @@ async function ensureSanityUserInternal({ id, name, email }: EnsureUserOptions):
       patch.email = safeEmail;
     }
 
+    if (!baseDoc.mongodbId) {
+      patch.mongodbId = id;
+    }
+
     // Do not touch `role` in Sanity — MongoDB is the single source of truth for auth/roles.
 
     if (Object.keys(patch).length === 0) {
       return baseDoc;
     }
 
-    const updated = await client.patch!(id)
+    const updated = await client.patch!(baseDoc._id)
       .set(patch)
       .commit<SanityUser>({ autoGenerateArrayKeys: true });
     return updated;

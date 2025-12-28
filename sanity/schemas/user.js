@@ -14,9 +14,15 @@ export default {
       name: 'email',
       title: 'Email',
       type: 'string',
-      readOnly: true,
       isUnique: true, // Added isUnique flag
       validation: Rule => Rule.email(), // Removed .unique()
+    },
+    {
+      name: 'mongodbId',
+      title: 'MongoDB ID',
+      type: 'string',
+      readOnly: true,
+      description: 'System-linked MongoDB user ID for cross-system syncing.',
     },
     {
       name: 'avatar',
@@ -39,11 +45,11 @@ export default {
       name: 'role',
       title: 'Role',
       type: 'string',
-      readOnly: true,
       options: {
         list: [
           { title: 'User', value: 'user' },
           { title: 'Editor', value: 'editor' },
+          { title: 'Author', value: 'author' },
           { title: 'Venue Owner', value: 'venueOwner' },
           { title: 'Admin', value: 'admin' },
           { title: 'Super Admin', value: 'superAdmin' },
@@ -108,5 +114,6 @@ export default {
   },
   indexes: [
     { name: 'byEmail', fields: ['email'] },
+    { name: 'byMongoId', fields: ['mongodbId'] },
   ],
 };

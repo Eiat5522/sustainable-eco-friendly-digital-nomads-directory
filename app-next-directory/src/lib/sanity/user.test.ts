@@ -8,7 +8,7 @@ import { ensureSanityUser, unfavoriteListing } from './user';
 // Mock the client module
 jest.mock('./client', () => ({
   client: {
-    createIfNotExists: jest.fn(),
+    create: jest.fn(),
     patch: jest.fn(() => ({
       set: jest.fn(() => ({
         commit: jest.fn(),
@@ -44,7 +44,8 @@ describe('user.ts', () => {
         createdAt: expect.any(String),
       };
 
-      mockClient.createIfNotExists.mockResolvedValue(mockUser);
+      mockClient.fetch.mockResolvedValue(null);
+      mockClient.create.mockResolvedValue(mockUser);
 
       const result = await ensureSanityUser({
         id: 'user-123',
@@ -54,10 +55,10 @@ describe('user.ts', () => {
       });
 
       // Role is not persisted to Sanity anymore; only name/email/ids are written
-      expect(mockClient.createIfNotExists).toHaveBeenCalledWith({
-        _id: 'user-123',
+      expect(mockClient.create).toHaveBeenCalledWith({
         _type: 'user',
         name: 'John Doe',
+        mongodbId: 'user-123',
         email: 'john@example.com',
         createdAt: expect.any(String),
       });
@@ -72,7 +73,7 @@ describe('user.ts', () => {
       });
 
       expect(result).toBeNull();
-      expect(mockClient.createIfNotExists).not.toHaveBeenCalled();
+      expect(mockClient.create).not.toHaveBeenCalled();
     });
 
     it('should use fallback name "Anonymous" when name is null', async () => {
@@ -85,7 +86,8 @@ describe('user.ts', () => {
         createdAt: expect.any(String),
       };
 
-      mockClient.createIfNotExists.mockResolvedValue(mockUser);
+      mockClient.fetch.mockResolvedValue(null);
+      mockClient.create.mockResolvedValue(mockUser);
 
       await ensureSanityUser({
         id: 'user-123',
@@ -93,7 +95,7 @@ describe('user.ts', () => {
         email: 'john@example.com',
       });
 
-      expect(mockClient.createIfNotExists).toHaveBeenCalledWith(
+      expect(mockClient.create).toHaveBeenCalledWith(
         expect.objectContaining({
           name: 'Anonymous',
         })
@@ -109,7 +111,8 @@ describe('user.ts', () => {
         createdAt: expect.any(String),
       };
 
-      mockClient.createIfNotExists.mockResolvedValue(mockUser);
+      mockClient.fetch.mockResolvedValue(null);
+      mockClient.create.mockResolvedValue(mockUser);
 
       await ensureSanityUser({
         id: 'user-123',
@@ -117,7 +120,7 @@ describe('user.ts', () => {
         email: null,
       });
 
-      expect(mockClient.createIfNotExists).toHaveBeenCalledWith(
+      expect(mockClient.create).toHaveBeenCalledWith(
         expect.objectContaining({
           name: 'Anonymous',
         })
@@ -134,7 +137,8 @@ describe('user.ts', () => {
         createdAt: expect.any(String),
       };
 
-      mockClient.createIfNotExists.mockResolvedValue(mockUser);
+      mockClient.fetch.mockResolvedValue(null);
+      mockClient.create.mockResolvedValue(mockUser);
 
       await ensureSanityUser({
         id: 'user-123',
@@ -142,7 +146,7 @@ describe('user.ts', () => {
         email: '  JOHN@EXAMPLE.COM  ',
       });
 
-      expect(mockClient.createIfNotExists).toHaveBeenCalledWith(
+      expect(mockClient.create).toHaveBeenCalledWith(
         expect.objectContaining({
           email: 'john@example.com',
         })
@@ -159,7 +163,8 @@ describe('user.ts', () => {
         createdAt: expect.any(String),
       };
 
-      mockClient.createIfNotExists.mockResolvedValue(mockUser);
+      mockClient.fetch.mockResolvedValue(null);
+      mockClient.create.mockResolvedValue(mockUser);
 
       await ensureSanityUser({
         id: 'user-123',
@@ -168,7 +173,7 @@ describe('user.ts', () => {
       });
 
       // Ensure role is NOT written to Sanity (MongoDB is source of truth)
-      expect(mockClient.createIfNotExists).toHaveBeenCalledWith(
+      expect(mockClient.create).toHaveBeenCalledWith(
         expect.not.objectContaining({ role: expect.anything() })
       );
     });
@@ -182,7 +187,8 @@ describe('user.ts', () => {
         createdAt: expect.any(String),
       };
 
-      mockClient.createIfNotExists.mockResolvedValue(mockUser);
+      mockClient.fetch.mockResolvedValue(null);
+      mockClient.create.mockResolvedValue(mockUser);
 
       await ensureSanityUser({
         id: 'user-123',
@@ -190,7 +196,7 @@ describe('user.ts', () => {
         email: null,
       });
 
-      expect(mockClient.createIfNotExists).toHaveBeenCalledWith(
+      expect(mockClient.create).toHaveBeenCalledWith(
         expect.not.objectContaining({
           email: expect.anything(),
         })
@@ -203,6 +209,7 @@ describe('user.ts', () => {
         _type: 'user' as const,
         name: 'Old Name',
         email: 'john@example.com',
+        mongodbId: 'user-123',
         role: 'user',
         createdAt: '2024-01-01T00:00:00Z',
       };
@@ -212,7 +219,7 @@ describe('user.ts', () => {
         name: 'New Name',
       };
 
-      mockClient.createIfNotExists.mockResolvedValue(existingUser);
+      mockClient.fetch.mockResolvedValue(existingUser);
 
       const mockPatchChain = {
         set: jest.fn().mockReturnValue({
@@ -239,6 +246,7 @@ describe('user.ts', () => {
         _type: 'user' as const,
         name: 'John Doe',
         email: 'old@example.com',
+        mongodbId: 'user-123',
         role: 'user',
         createdAt: '2024-01-01T00:00:00Z',
       };
@@ -248,7 +256,7 @@ describe('user.ts', () => {
         email: 'new@example.com',
       };
 
-      mockClient.createIfNotExists.mockResolvedValue(existingUser);
+      mockClient.fetch.mockResolvedValue(existingUser);
 
       const mockPatchChain = {
         set: jest.fn().mockReturnValue({
@@ -274,6 +282,7 @@ describe('user.ts', () => {
         _type: 'user' as const,
         name: 'John Doe',
         email: 'john@example.com',
+        mongodbId: 'user-123',
         role: 'user',
         createdAt: '2024-01-01T00:00:00Z',
       };
@@ -283,7 +292,7 @@ describe('user.ts', () => {
         ...existingUser,
       };
 
-      mockClient.createIfNotExists.mockResolvedValue(existingUser);
+      mockClient.fetch.mockResolvedValue(existingUser);
 
       const mockPatchChain = {
         set: jest.fn().mockReturnValue({
@@ -310,6 +319,7 @@ describe('user.ts', () => {
         _type: 'user' as const,
         name: 'Old Name',
         email: 'old@example.com',
+        mongodbId: 'user-123',
         role: 'user',
         createdAt: '2024-01-01T00:00:00Z',
       };
@@ -320,7 +330,7 @@ describe('user.ts', () => {
         email: 'new@example.com',
       };
 
-      mockClient.createIfNotExists.mockResolvedValue(existingUser);
+      mockClient.fetch.mockResolvedValue(existingUser);
 
       const mockPatchChain = {
         set: jest.fn().mockReturnValue({
@@ -349,11 +359,12 @@ describe('user.ts', () => {
         _type: 'user' as const,
         name: 'John Doe',
         email: 'john@example.com',
+        mongodbId: 'user-123',
         role: 'user',
         createdAt: '2024-01-01T00:00:00Z',
       };
 
-      mockClient.createIfNotExists.mockResolvedValue(existingUser);
+      mockClient.fetch.mockResolvedValue(existingUser);
 
       const result = await ensureSanityUser({
         id: 'user-123',
@@ -368,7 +379,7 @@ describe('user.ts', () => {
 
     it('should handle errors gracefully and return null', async () => {
       // In test environment, ensureSanityUser is mockable and we need to force it to call the internal function
-      mockClient.createIfNotExists.mockRejectedValue(new Error('Database error'));
+      mockClient.fetch.mockRejectedValue(new Error('Database error'));
 
       // This will fall through to ensureSanityUserInternal by default since no mock is set
       const result = await ensureSanityUser({
@@ -397,7 +408,8 @@ describe('user.ts', () => {
           createdAt: expect.any(String),
         };
 
-        mockClient.createIfNotExists.mockResolvedValue(mockUser);
+        mockClient.fetch.mockResolvedValue(null);
+        mockClient.create.mockResolvedValue(mockUser);
 
         await ensureSanityUser({
           id: `user-${role}`,
@@ -407,7 +419,7 @@ describe('user.ts', () => {
         });
 
         // Sanity create should NOT include role
-        expect(mockClient.createIfNotExists).toHaveBeenCalledWith(
+        expect(mockClient.create).toHaveBeenCalledWith(
           expect.not.objectContaining({ role: expect.anything() })
         );
       }

@@ -267,12 +267,21 @@ export const authOptions: NextAuthConfig = {
           // Sync to Sanity
           const dbUser = await UserModel.findOne({ email: user.email.toLowerCase() });
           if (dbUser) {
-            await syncUserToSanity({
+            const sanityUser = await syncUserToSanity({
+              id: dbUser._id.toString(),
               email: dbUser.email,
               name: dbUser.name,
               image: dbUser.image,
               role: dbUser.role,
+              status: dbUser.status,
+              sanityId: dbUser.sanityId ?? null,
             });
+            if (sanityUser?._id && dbUser.sanityId !== sanityUser._id) {
+              await UserModel.updateOne(
+                { _id: dbUser._id },
+                { $set: { sanityId: sanityUser._id } }
+              );
+            }
           }
         } catch (error) {
           structuredLogger.error('[auth] Error in signIn event', error, {
@@ -304,14 +313,25 @@ export const authOptions: NextAuthConfig = {
             { upsert: false }
           );
 
-          const role = 'role' in user ? (user.role as string) : 'user';
-          await syncUserToSanity({
-            email: user.email ?? '',
-            name: user.name ?? undefined,
-            image: user.image ?? undefined,
-            role: role,
-            status: 'active',
-          });
+          const dbUser = await UserModel.findOne(query);
+          const role = dbUser?.role ?? ('role' in user ? (user.role as string) : 'user');
+          if (dbUser) {
+            const sanityUser = await syncUserToSanity({
+              id: dbUser._id.toString(),
+              email: dbUser.email,
+              name: dbUser.name ?? undefined,
+              image: dbUser.image ?? undefined,
+              role,
+              status: dbUser.status ?? 'active',
+              sanityId: dbUser.sanityId ?? null,
+            });
+            if (sanityUser?._id && dbUser.sanityId !== sanityUser._id) {
+              await UserModel.updateOne(
+                { _id: dbUser._id },
+                { $set: { sanityId: sanityUser._id } }
+              );
+            }
+          }
         } catch (error) {
           structuredLogger.error('[auth] Error in createUser event', error, {
             component: 'auth',

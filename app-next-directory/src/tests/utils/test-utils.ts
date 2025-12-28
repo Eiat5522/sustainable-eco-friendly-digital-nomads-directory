@@ -22,6 +22,7 @@ export async function loginAsRole(page: Page, role: Role): Promise<void> {
     // Map roles to test user emails
     const roleEmailMap: Record<Role, string> = {
       user: process.env.E2E_USER_EMAIL ?? 'user@example.com',
+      editor: process.env.E2E_EDITOR_EMAIL ?? 'editor@example.com',
       venueOwner: process.env.E2E_VENUE_OWNER_EMAIL ?? 'venue@example.com',
       admin: process.env.E2E_ADMIN_EMAIL ?? 'admin@example.com',
       superAdmin: process.env.E2E_ADMIN_EMAIL ?? 'admin@example.com', // Use admin email for superAdmin

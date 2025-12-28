@@ -33,6 +33,7 @@ export interface AuthUser {
   status?: 'active' | 'suspended' | 'pending';
   emailVerified?: Date | null;
   tokenVersion?: number;
+  sanityId?: string;
 }
 
 /**
@@ -48,6 +49,7 @@ type UserDoc = {
   status?: 'active' | 'suspended' | 'pending';
   emailVerified?: Date | null;
   tokenVersion?: number;
+  sanityId?: string;
 };
 
 /**
@@ -55,6 +57,22 @@ type UserDoc = {
  */
 async function connectDB(): Promise<void> {
   await dbConnect();
+}
+
+async function syncUserAndPersistSanityId(user: IUser): Promise<void> {
+  const sanityUser = await syncUserToSanity({
+    id: user._id.toString(),
+    email: user.email,
+    name: user.name,
+    image: user.image,
+    role: user.role,
+    status: user.status,
+    sanityId: user.sanityId ?? null,
+  });
+
+  if (sanityUser?._id && user.sanityId !== sanityUser._id) {
+    await UserModel.updateOne({ _id: user._id }, { $set: { sanityId: sanityUser._id } });
+  }
 }
 
 /**
@@ -67,7 +85,7 @@ export async function getUserByEmail(email: string): Promise<AuthUser | null> {
     await connectDB();
 
     const user = await UserModel.findOne({ email: email.trim().toLowerCase() })
-      .select('_id name email image role status emailVerified tokenVersion')
+      .select('_id name email image role status emailVerified tokenVersion sanityId')
       .lean<UserDoc>();
 
     if (!user) {
@@ -82,6 +100,7 @@ export async function getUserByEmail(email: string): Promise<AuthUser | null> {
       role: user.role,
       status: user.status,
       emailVerified: user.emailVerified,
+      sanityId: user.sanityId,
     };
   } catch (_error) {
     return null;
@@ -102,7 +121,7 @@ export async function getUserById(userId: string): Promise<AuthUser | null> {
     }
 
     const user = await UserModel.findById(userId)
-      .select('_id name email image role status emailVerified tokenVersion')
+      .select('_id name email image role status emailVerified tokenVersion sanityId')
       .lean<UserDoc>();
 
     if (!user) {
@@ -118,6 +137,7 @@ export async function getUserById(userId: string): Promise<AuthUser | null> {
       status: user.status,
       emailVerified: user.emailVerified,
       tokenVersion: (user as unknown as { tokenVersion?: number }).tokenVersion,
+      sanityId: user.sanityId,
     };
   } catch (_error) {
     return null;
@@ -219,13 +239,7 @@ export async function updateUserRole(userId: string, newRole: UserRole): Promise
     if (result.matchedCount === 1) {
       const dbUser = await UserModel.findById(userId);
       if (dbUser) {
-        await syncUserToSanity({
-          email: dbUser.email,
-          name: dbUser.name,
-          image: dbUser.image,
-          role: dbUser.role,
-          status: dbUser.status,
-        });
+        await syncUserAndPersistSanityId(dbUser);
       }
     }
 
@@ -266,13 +280,59 @@ export async function updateUserStatus(
     if (result.matchedCount === 1) {
       const dbUser = await UserModel.findById(userId);
       if (dbUser) {
-        await syncUserToSanity({
-          email: dbUser.email,
-          name: dbUser.name,
-          image: dbUser.image,
-          role: dbUser.role,
-          status: dbUser.status,
-        });
+        await syncUserAndPersistSanityId(dbUser);
+      }
+    }
+
+    return result.matchedCount === 1;
+  } catch (_error) {
+    return false;
+  }
+}
+
+/**
+ * Update user profile fields such as name and email
+ * @param userId - User MongoDB ObjectId as string
+ * @param updates - Partial updates for name/email
+ * @returns true if successful, false otherwise
+ */
+export async function updateUserProfile(
+  userId: string,
+  updates: { name?: string; email?: string }
+): Promise<boolean> {
+  try {
+    await connectDB();
+
+    if (!isValidObjectId(userId)) {
+      return false;
+    }
+
+    const set: Record<string, unknown> = {};
+
+    if (typeof updates.name === 'string' && updates.name.trim().length > 0) {
+      set.name = updates.name.trim();
+    }
+
+    if (typeof updates.email === 'string' && updates.email.trim().length > 0) {
+      const normalized = updates.email.trim().toLowerCase();
+
+      // Ensure email is not used by another user
+      const exists = await UserModel.exists({ email: normalized, _id: { $ne: userId } });
+      if (exists) return false;
+
+      set.email = normalized;
+    }
+
+    if (Object.keys(set).length === 0) {
+      return false;
+    }
+
+    const result = await UserModel.updateOne({ _id: userId }, { $set: set }, { runValidators: true });
+
+    if (result.matchedCount === 1) {
+      const dbUser = await UserModel.findById(userId);
+      if (dbUser) {
+        await syncUserAndPersistSanityId(dbUser as unknown as IUser);
       }
     }
 
@@ -318,13 +378,7 @@ export async function createUser(userData: {
     });
 
     // Sync to Sanity
-    await syncUserToSanity({
-      email: user.email,
-      name: user.name,
-      image: user.image,
-      role: user.role,
-      status: user.status,
-    });
+    await syncUserAndPersistSanityId(user);
 
     return {
       id: user._id.toString(),
@@ -333,6 +387,7 @@ export async function createUser(userData: {
       image: user.image,
       role: user.role,
       status: user.status,
+      sanityId: user.sanityId,
     };
   } catch (_error) {
     return null;

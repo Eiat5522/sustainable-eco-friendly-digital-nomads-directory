@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import type React from 'react';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { getUserFacingMessage } from '@/lib/client-utils';
@@ -121,6 +122,7 @@ function formatTimeAgo(dateString: string | null): string {
 function RoleBadge({ role }: { role: UserRole }) {
   const roleColors: Record<UserRole, string> = {
     user: 'bg-gray-50 text-gray-700 border-gray-200',
+    editor: 'bg-amber-50 text-amber-700 border-amber-200',
     venueOwner: 'bg-blue-50 text-blue-700 border-blue-200',
     admin: 'bg-red-50 text-red-700 border-red-200',
     superAdmin: 'bg-red-100 text-red-800 border-red-300',
@@ -128,6 +130,7 @@ function RoleBadge({ role }: { role: UserRole }) {
 
   const roleLabels: Record<UserRole, string> = {
     user: 'User',
+    editor: 'Editor',
     venueOwner: 'Venue Owner',
     admin: 'Admin',
     superAdmin: 'Super Admin',
@@ -312,7 +315,9 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
             <select
               id="roleFilter"
               value={roleFilter}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setRoleFilter(e.target.value as UserRole | '')}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                setRoleFilter(e.target.value as UserRole | '')
+              }
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">All roles</option>
@@ -387,7 +392,9 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
                         {canChangeRoles ? (
                           <select
                             value={user.role}
-                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleRoleChange(user.id, e.target.value as UserRole)}
+                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                              handleRoleChange(user.id, e.target.value as UserRole)
+                            }
                             disabled={
                               isPending || (user.id === currentUserId && user.role === 'superAdmin')
                             }
@@ -411,6 +418,12 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center gap-3">
+                          <Link
+                            href={`/admin/user/${user.id}`}
+                            className="text-sm text-blue-600 hover:text-blue-700"
+                          >
+                            Edit
+                          </Link>
                           <button
                             type="button"
                             onClick={() =>
@@ -502,6 +515,9 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
           )}
         </>
       )}
+    </div>
+  );
+}
     </div>
   );
 }

@@ -358,6 +358,7 @@ describe('userService', () => {
       const mockCollection = {
         findOne: jest.fn().mockResolvedValue(null),
         insertOne: jest.fn().mockResolvedValue({ insertedId: 'abc123' }),
+        updateOne: jest.fn().mockResolvedValue({}),
       };
       const mockDb = {
         collection: jest.fn().mockReturnValue(mockCollection),
@@ -388,6 +389,7 @@ describe('userService', () => {
       const mockCollection = {
         findOne: jest.fn().mockResolvedValue(null),
         insertOne: jest.fn().mockResolvedValue({ insertedId: 'abc123' }),
+        updateOne: jest.fn().mockResolvedValue({}),
       };
       const mockDb = {
         collection: jest.fn().mockReturnValue(mockCollection),
@@ -416,6 +418,7 @@ describe('userService', () => {
       const mockCollection = {
         findOne: jest.fn().mockResolvedValue(null),
         insertOne: jest.fn().mockResolvedValue({ insertedId: 'abc123' }),
+        updateOne: jest.fn().mockResolvedValue({}),
       };
       const mockDb = {
         collection: jest.fn().mockReturnValue(mockCollection),
@@ -448,6 +451,11 @@ describe('userService', () => {
           email: 'test@example.com',
           role: 'user',
         })
+      );
+
+      expect(mockCollection.updateOne).toHaveBeenCalledWith(
+        { _id: 'abc123' },
+        { $set: { sanityId: 'user123' } }
       );
 
       expect(result).toEqual({ insertedId: 'abc123' });
