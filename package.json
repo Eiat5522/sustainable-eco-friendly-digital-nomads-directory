@@ -48,8 +48,8 @@
     "check-types": "tsc --noEmit",
     "type-check": "tsc --noEmit",
     "types:postprocess": "node sanity-types-postprocess.js",
-    "typegen": "cd sanity && pnpm --filter sanity update-types && pnpm run types:postprocess",
     "update-types": "cd sanity && pnpm update-types",
+    "typegen": "cd sanity && pnpm --filter sanity update-types && pnpm run types:postprocess",
     "validate:specs": "node ./scripts/spec-validator.js"
   },
   "browserslist": [

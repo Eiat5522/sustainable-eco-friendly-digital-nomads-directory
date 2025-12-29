@@ -48,15 +48,21 @@ export async function GET(_request: NextRequest, _context: RouteContext) {
     ] = await withRequestTimeout(
       Promise.all([
         client.fetch<number>('count(*[_type == "listing"])'),
-        client.fetch<number>('count(*[_type == "listing" && adminWorkflow.status == "published"])'),
         client.fetch<number>(
-          'count(*[_type == "listing" && adminWorkflow.status == "unpublished"])'
+          'count(*[_type == "listing" && coalesce(adminWorkflow.status, moderation.status, "draft") == "published"])'
         ),
-        client.fetch<number>('count(*[_type == "listing" && adminWorkflow.status == "pending"])'),
         client.fetch<number>(
-          'count(*[_type == "listing" && (!defined(adminWorkflow.status) || adminWorkflow.status == "draft")])'
+          'count(*[_type == "listing" && coalesce(adminWorkflow.status, moderation.status, "draft") == "unpublished"])'
         ),
-        client.fetch<number>('count(*[_type == "listing" && adminWorkflow.isFeatured == true])'),
+        client.fetch<number>(
+          'count(*[_type == "listing" && coalesce(adminWorkflow.status, moderation.status, "draft") == "pending"])'
+        ),
+        client.fetch<number>(
+          'count(*[_type == "listing" && coalesce(adminWorkflow.status, moderation.status, "draft") == "draft"])'
+        ),
+        client.fetch<number>(
+          'count(*[_type == "listing" && coalesce(adminWorkflow.isFeatured, moderation.featured, false) == true && coalesce(adminWorkflow.status, moderation.status, "draft") == "published"])'
+        ),
         client.fetch<Array<{ type: string; count: number }>>(
           `*[_type == "listing"] | order(type) {
             type

@@ -114,7 +114,7 @@ export async function GET(request: NextRequest, _context: RouteContext) {
       'unpublished',
     ];
     if (statusFilter && allowedStatusValues.includes(statusFilter as ListingWorkflowStatus)) {
-      statusCondition = `&& adminWorkflow.status == "${statusFilter}"`;
+      statusCondition = `&& coalesce(adminWorkflow.status, moderation.status, "draft") == "${statusFilter}"`;
     }
 
     let typeCondition = '';
@@ -127,12 +127,12 @@ export async function GET(request: NextRequest, _context: RouteContext) {
       name,
       slug,
       type,
-      "status": coalesce(adminWorkflow.status, "draft"),
+      "status": coalesce(adminWorkflow.status, moderation.status, "draft"),
       _createdAt,
       _updatedAt,
       "city": city->.name,
       moderationStatus,
-      "isFeatured": coalesce(adminWorkflow.isFeatured, false)
+      "isFeatured": coalesce(adminWorkflow.isFeatured, moderation.featured, false)
     }`;
 
     const countQuery = `count(*[_type == "listing" ${searchCondition} ${statusCondition} ${typeCondition}])`;

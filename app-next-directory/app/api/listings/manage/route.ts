@@ -111,6 +111,56 @@ export async function POST(request: Request) {
     }
 
     const listingId = uuidv4();
+
+    // Quota enforcement: determine target owner and check their effective limit
+    const tierMap: Record<string, number> = { free: 1, pro: 5, enterprise: 50 };
+
+    // Determine the owner ref: default to session user; admins may pass `owner` in payload
+    const targetOwnerRef = (() => {
+      if (isAdmin && typeof data?.owner === 'string' && data.owner) return String(data.owner);
+      return String(sessionUser.id);
+    })();
+
+    try {
+      const ownerDoc = await client.fetch(`*[_type == "user" && _id == $id][0]{_id, maxLocations, listingQuotaTier, quotaOverrideByAdmin}`, {
+        id: targetOwnerRef,
+      });
+
+      const quotaOverride = !!ownerDoc?.quotaOverrideByAdmin;
+
+      let effectiveLimit: number | null = null;
+      if (ownerDoc?.maxLocations != null) {
+        effectiveLimit = Number(ownerDoc.maxLocations);
+      } else if (ownerDoc?.listingQuotaTier) {
+        effectiveLimit = tierMap[String(ownerDoc.listingQuotaTier)] ?? null;
+      } else {
+        effectiveLimit = tierMap.free; // global default
+      }
+
+      if (!quotaOverride) {
+        if (effectiveLimit != null) {
+          const currentCount = await client.fetch(
+            `count(*[_type == "listing" && owner._ref == $ownerRef])`,
+            { ownerRef: targetOwnerRef }
+          );
+
+          if (Number(currentCount) >= Number(effectiveLimit)) {
+            return NextResponse.json(
+              {
+                error: 'quota_exceeded',
+                message: `Owner has reached their listing limit (${currentCount}/${effectiveLimit}).`,
+                currentCount,
+                limit: effectiveLimit,
+              },
+              { status: 403 }
+            );
+          }
+        }
+      }
+    } catch (err) {
+      structuredLogger.error('Failed to validate owner quota', err, { component: 'listings-manage-api' });
+      return NextResponse.json({ error: 'Failed to validate owner quota' }, { status: 500 });
+    }
     const listingPayload: Record<string, unknown> = {
       _id: listingId,
       _type: 'listing',

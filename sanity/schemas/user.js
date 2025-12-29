@@ -104,6 +104,40 @@ export default {
       readOnly: true,
       initialValue: () => new Date().toISOString(),
     },
+    {
+      name: 'listingQuotaTier',
+      title: 'Listing Quota Tier',
+      type: 'string',
+      description: 'Optional human-friendly quota tier. Server maps tier -> default maxLocations.',
+      options: {
+        list: [
+          { title: 'Free', value: 'free' },
+          { title: 'Pro', value: 'pro' },
+          { title: 'Enterprise', value: 'enterprise' },
+        ],
+      },
+    },
+    {
+      name: 'maxLocations',
+      title: 'Max Locations',
+      type: 'number',
+      description: 'Numeric override for number of listings this owner may have. If empty, tier mapping or global default applies.',
+      validation: Rule => Rule.min(0),
+    },
+    {
+      name: 'locationCount',
+      title: 'Location Count (optional)',
+      type: 'number',
+      description: 'Optional cached count of owned listings. If present, used for quick reads but reconciled with authoritative queries.',
+      readOnly: true,
+    },
+    {
+      name: 'quotaOverrideByAdmin',
+      title: 'Quota Override (admin)',
+      type: 'boolean',
+      description: 'When true an admin may bypass quota checks for this user.',
+      initialValue: false,
+    },
   ],
   preview: {
     select: {

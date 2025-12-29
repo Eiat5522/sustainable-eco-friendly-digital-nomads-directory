@@ -661,55 +661,6 @@ export type Review = {
   comment?: string
 }
 
-export type User = {
-  _id: string
-  _type: 'user'
-  _createdAt: string
-  _updatedAt: string
-  _rev: string
-  name?: string
-  email?: string
-  mongodbId?: string
-  avatar?: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
-    media?: unknown
-    hotspot?: SanityImageHotspot
-    crop?: SanityImageCrop
-    _type: 'image'
-  }
-  bio?: string
-  role?: 'user' | 'editor' | 'author' | 'venueOwner' | 'admin' | 'superAdmin'
-  status?: 'active' | 'suspended' | 'pending'
-  ownedListings?: Array<{
-    _ref: string
-    _type: 'reference'
-    _weak?: boolean
-    _key: string
-    [internalGroqTypeReferenceTo]?: 'listing'
-  }>
-  reviews?: Array<{
-    _ref: string
-    _type: 'reference'
-    _weak?: boolean
-    _key: string
-    [internalGroqTypeReferenceTo]?: 'review'
-  }>
-  comments?: Array<{
-    _ref: string
-    _type: 'reference'
-    _weak?: boolean
-    _key: string
-    [internalGroqTypeReferenceTo]?: 'comment'
-  }>
-  lastActive?: string
-  createdAt?: string
-}
-
 export type EcoTag = {
   _id: string
   _type: 'ecoTag'
@@ -728,6 +679,12 @@ export type Listing = {
   _rev: string
   name?: string
   slug?: Slug
+  owner?: {
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    [internalGroqTypeReferenceTo]?: 'user'
+  }
   shortDescription?: string
   longDescription?: string
   city?: {
@@ -815,6 +772,59 @@ export type Geopoint = {
   lat?: number
   lng?: number
   alt?: number
+}
+
+export type User = {
+  _id: string
+  _type: 'user'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  name?: string
+  email?: string
+  mongodbId?: string
+  avatar?: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+  }
+  bio?: string
+  role?: 'user' | 'editor' | 'author' | 'venueOwner' | 'admin' | 'superAdmin'
+  status?: 'active' | 'suspended' | 'pending'
+  ownedListings?: Array<{
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    _key: string
+    [internalGroqTypeReferenceTo]?: 'listing'
+  }>
+  reviews?: Array<{
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    _key: string
+    [internalGroqTypeReferenceTo]?: 'review'
+  }>
+  comments?: Array<{
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    _key: string
+    [internalGroqTypeReferenceTo]?: 'comment'
+  }>
+  lastActive?: string
+  createdAt?: string
+  listingQuotaTier?: 'free' | 'pro' | 'enterprise'
+  maxLocations?: number
+  locationCount?: number
+  quotaOverrideByAdmin?: boolean
 }
 
 export type City = {
@@ -968,10 +978,10 @@ export type AllSanitySchemaTypes =
   | UserFavorite
   | BlogPost
   | Review
-  | User
   | EcoTag
   | Listing
   | Geopoint
+  | User
   | City
   | Code
   | SanityImagePaletteSwatch
