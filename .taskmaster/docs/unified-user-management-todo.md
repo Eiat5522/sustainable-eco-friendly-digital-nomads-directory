@@ -16,6 +16,7 @@
 ## 2. Admin Panel - Centralized User Creation & Management
 
 ### Create User Functionality
+
 - [ ] **2.1** Add "Add New User" UI workflow/form in admin panel
   - [ ] Input fields: name, email, password, role selection
 - [ ] **2.2** Create API route `/api/admin/create-user` to handle user creation
@@ -27,6 +28,7 @@
   - [ ] Store minimal fields (name, email, avatar)
 
 ### Role Assignment & Changes
+
 - [ ] **2.5** Add "Promote/Change Role" action in admin UI
 - [ ] **2.6** Create API endpoint for role updates
 - [ ] **2.7** Update MongoDB user role field on role change
@@ -34,6 +36,7 @@
 - [ ] **2.9** Handle session refresh for logged-in users after role change
 
 ### Activate/Deactivate (Suspension)
+
 - [ ] **2.10** Implement activate/suspend toggle in admin UI
 - [ ] **2.11** Add status field update in MongoDB (active/suspended)
 - [ ] **2.12** Update `authenticateUser` function to check user status and block suspended users
@@ -43,6 +46,7 @@
 ## 3. Synchronize Sanity for Content References
 
 ### One-Way Sync (MongoDB → Sanity)
+
 - [ ] **3.1** Implement auto-creation of Sanity user doc on any user creation path:
   - [ ] Admin-created users
   - [ ] Self-registered users
@@ -51,6 +55,7 @@
 - [ ] **3.3** Keep role field in Sanity and sync it for conditional UI logic
 
 ### Sanity Studio Configuration
+
 - [ ] **3.4** Configure Sanity Studio permissions to prevent direct user document creation/editing by content authors
 - [ ] **3.5** Keep `updateSanityUserWithAuthDetails` logic in NextAuth signIn callback
 
@@ -59,11 +64,13 @@
 ## 4. Handling Listings and Blog Post Authors
 
 ### Blog Post Authors
+
 - [ ] **4.1** Maintain blog post author reference to Sanity user document
 - [ ] **4.2** Ensure all users who can be authors exist in Sanity via sync
 - [ ] **4.3** Implement role-based gating for blog writing features (editor role required)
 
 ### Listing Owners
+
 - [ ] **4.4** Reintroduce/retain role field on Sanity user doc for OwnedListings conditional logic
 - [ ] **4.5** Implement listing owner assignment in admin panel (optional)
   - [ ] Allow selecting owner on listing edit page
@@ -90,18 +97,22 @@
 ## 6. Avoiding Conflicts and Maintaining Consistency
 
 ### Prevent Manual Sanity Edits
+
 - [ ] **6.1** Configure Sanity Studio roles/permissions to hide or lock user document type
 
 ### Data Integrity
+
 - [ ] **6.2** Enforce unique emails across both MongoDB and Sanity
 - [ ] **6.3** Keep existing checks in registration/creation routes for duplicates
 
 ### Data Migration
+
 - [ ] **6.4** Create migration script to reintroduce role field to existing Sanity user docs
   - [ ] For each Sanity user, find corresponding MongoDB user by email
   - [ ] Set Sanity role field to match MongoDB role
 
 ### Consistency Audits
+
 - [ ] **6.5** Create audit script to verify every MongoDB user has corresponding Sanity doc
 - [ ] **6.6** Create audit script to find orphaned Sanity user docs (no matching MongoDB user)
 - [ ] **6.7** Schedule or manually run periodic consistency checks

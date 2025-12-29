@@ -2,27 +2,11 @@ import { jest } from '@jest/globals';
 
 // Mocks
 const mockConnect = jest.fn();
-const mockExists = jest.fn();
-const mockCreate = jest.fn();
-const mockUpdateOne = jest.fn();
-const mockFindById = jest.fn();
 const mockHash = jest.fn();
 const mockSync = jest.fn();
 
 jest.mock('@/lib/dbConnect', () => jest.fn((...args: unknown[]) => mockConnect(...args)));
 jest.mock('@/lib/auth/userService', () => ({ syncUserToSanity: (...args: unknown[]) => mockSync(...args) }));
-jest.mock('bcryptjs', () => ({ hash: (...args: unknown[]) => mockHash(...args), default: { hash: mockHash } }));
-
-// Partial mock of the Mongoose User model used in DAL
-jest.mock('@/models/User', () => ({
-  __esModule: true,
-  default: {
-    exists: jest.fn((...args: unknown[]) => mockExists(...args)),
-    create: jest.fn((...args: unknown[]) => mockCreate(...args)),
-    updateOne: jest.fn((...args: unknown[]) => mockUpdateOne(...args)),
-    findById: jest.fn((...args: unknown[]) => mockFindById(...args)),
-  },
-}));
 
 describe('auth DAL', () => {
   const originalEnv = process.env;
@@ -31,6 +15,7 @@ describe('auth DAL', () => {
     jest.clearAllMocks();
     jest.resetModules();
     process.env = { ...originalEnv };
+    jest.doMock('bcryptjs', () => ({ hash: (...args: unknown[]) => mockHash(...args), default: { hash: mockHash } }));
   });
 
   afterAll(() => {
@@ -38,6 +23,11 @@ describe('auth DAL', () => {
   });
 
   it('createUser returns null when email already exists', async () => {
+    const userModelModule = jest.requireMock('@/models/User');
+    const { structuredLogger } = jest.requireMock('@/lib/logger');
+    structuredLogger.debug('userModel module keys', { keys: Object.keys(userModelModule) });
+    structuredLogger.debug('mockExists value', { mockExists: !!userModelModule.mockExists });
+    const { mockExists } = userModelModule;
     mockExists.mockResolvedValue(true);
 
     const { createUser } = await import('./dal');
@@ -48,6 +38,7 @@ describe('auth DAL', () => {
   });
 
   it('createUser creates user and returns auth object', async () => {
+    const { mockExists, mockCreate } = jest.requireMock('@/models/User');
     mockExists.mockResolvedValue(false);
     mockHash.mockResolvedValue('hashed_pw');
     const created = { _id: { toString: () => 'uid' }, name: 'A', email: 'a@x.com', role: 'user', status: 'active', sanityId: null };
@@ -64,6 +55,7 @@ describe('auth DAL', () => {
   });
 
   it('updateUserProfile returns false when email is already used by another user', async () => {
+    const { mockExists } = jest.requireMock('@/models/User');
     mockExists.mockResolvedValue(true);
     const { updateUserProfile } = await import('./dal');
 
@@ -73,6 +65,7 @@ describe('auth DAL', () => {
   });
 
   it('updateUserProfile updates name/email and syncs to sanity', async () => {
+    const { mockExists, mockUpdateOne, mockFindById } = jest.requireMock('@/models/User');
     mockExists.mockResolvedValue(false);
     mockUpdateOne.mockResolvedValue({ matchedCount: 1 });
     const dbUser = { _id: { toString: () => '507f1f77bcf86cd799439011' }, name: 'Old', email: 'old@example.com', role: 'user', sanityId: null };

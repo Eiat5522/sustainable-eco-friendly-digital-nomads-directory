@@ -1,28 +1,41 @@
-import { jest } from '@jest/globals';
+const { jest } = require('@jest/globals');
 
-// Create a complete Mongoose model mock
 const mockSelect = jest.fn();
 const mockLean = jest.fn();
 const mockFindOne = jest.fn();
 const mockUpdateOne = jest.fn();
 const mockCreate = jest.fn();
+const mockExists = jest.fn();
+const mockFindById = jest.fn();
 
-// Set up the query chain
 mockLean.mockResolvedValue(null);
 mockSelect.mockReturnValue({ lean: mockLean });
 mockFindOne.mockReturnValue({ select: mockSelect, lean: mockLean });
+mockFindById.mockResolvedValue(null);
 
 const UserModel = {
   findOne: mockFindOne,
   updateOne: mockUpdateOne,
   create: mockCreate,
-  // Export the individual mocks for test manipulation
+  exists: mockExists,
+  findById: mockFindById,
   _mockSelect: mockSelect,
   _mockLean: mockLean,
   _mockFindOne: mockFindOne,
   _mockUpdateOne: mockUpdateOne,
   _mockCreate: mockCreate,
+  _mockExists: mockExists,
+  _mockFindById: mockFindById,
 };
 
-export { mockSelect, mockLean, mockFindOne, mockUpdateOne, mockCreate };
-export default UserModel;
+module.exports = {
+  __esModule: true,
+  default: UserModel,
+  mockSelect,
+  mockLean,
+  mockFindOne,
+  mockUpdateOne,
+  mockCreate,
+  mockExists,
+  mockFindById,
+};

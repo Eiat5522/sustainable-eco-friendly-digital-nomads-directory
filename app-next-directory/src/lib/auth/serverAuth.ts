@@ -85,6 +85,14 @@ type UserDoc = {
 // Narrowed fields used when authenticating a user (deprecated - moved to DAL)
 // type SelectedAuthDoc = Pick<UserDoc, '_id' | 'name' | 'email' | 'image' | 'role' | 'password' | 'emailVerified'>;
 const UserModel = User as unknown as import('mongoose').Model<UserDoc>;
+
+// Lightweight update result shape used to avoid `any` casts in update handling
+type UpdateResultLike = {
+  matchedCount?: number;
+  modifiedCount?: number;
+  nModified?: number;
+  acknowledged?: boolean;
+};
 export interface AuthenticatedUser {
   id: string;
   name: string;
@@ -182,7 +190,7 @@ export async function updateUserRole(userId: string, newRole: UserRole): Promise
       { runValidators: true }
     );
 
-    if (res.matchedCount === 1) {
+    if (res && (res as UpdateResultLike).matchedCount === 1) {
       // Sync to Sanity
       const dbUser = await UserModel.findById(userId);
       if (dbUser) {
@@ -201,7 +209,17 @@ export async function updateUserRole(userId: string, newRole: UserRole): Promise
       }
     }
 
-    return res.matchedCount === 1;
+    // Be resilient to different driver/ORM return shapes (matchedCount, modifiedCount, nModified)
+    const resTyped = res as UpdateResultLike;
+    const success = !!(
+      res &&
+      ((resTyped.matchedCount && resTyped.matchedCount === 1) ||
+        (resTyped.modifiedCount && resTyped.modifiedCount === 1) ||
+        (resTyped.nModified && resTyped.nModified === 1) ||
+        resTyped.acknowledged === true)
+    );
+
+    return success;
   } catch (_error) {
     return false;
   }

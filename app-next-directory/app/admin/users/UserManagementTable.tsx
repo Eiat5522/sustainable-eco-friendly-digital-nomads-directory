@@ -518,6 +518,4 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
     </div>
   );
 }
-    </div>
-  );
-}
+

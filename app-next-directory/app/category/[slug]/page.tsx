@@ -30,8 +30,8 @@ export const metadata: Metadata = {
   title: 'Category',
 };
 
-export default async function CategoryPage({ params }: { params: { slug: string } }) {
-  const { slug } = params;
+export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
 
   // Cache category pages for a moderate duration
   cacheLife('hours');
