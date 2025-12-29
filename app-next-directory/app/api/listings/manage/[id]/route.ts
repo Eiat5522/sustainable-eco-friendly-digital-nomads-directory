@@ -127,6 +127,66 @@ export async function PUT(request: Request, context: RouteContext) {
       patchPayload.category = data.type;
     }
 
+    // Owner change (admin only)
+    let ownerChanged = false;
+    let newOwnerId: string | undefined;
+    if (isAdmin && data.owner && typeof data.owner === 'string') {
+      newOwnerId = data.owner;
+      if (newOwnerId !== existingListing.owner?._ref) {
+        ownerChanged = true;
+
+        // Quota check for new owner
+        const tierMap: Record<string, number> = { free: 1, pro: 5, enterprise: 50 };
+        try {
+          const ownerDoc = await client.fetch(
+            `*[_type == "user" && _id == $id][0]{_id, maxLocations, listingQuotaTier, quotaOverrideByAdmin}`,
+            { id: newOwnerId }
+          );
+
+          if (!ownerDoc) {
+            return NextResponse.json({ error: 'Target owner not found' }, { status: 404 });
+          }
+
+          const quotaOverride = !!ownerDoc?.quotaOverrideByAdmin;
+          let effectiveLimit: number | null = null;
+          if (ownerDoc?.maxLocations != null) {
+            effectiveLimit = Number(ownerDoc.maxLocations);
+          } else if (ownerDoc?.listingQuotaTier) {
+            effectiveLimit = tierMap[String(ownerDoc.listingQuotaTier)] ?? null;
+          } else {
+            effectiveLimit = tierMap.free;
+          }
+
+          if (!quotaOverride) {
+            if (effectiveLimit != null) {
+              const currentCount = await client.fetch(
+                `count(*[_type == "listing" && owner._ref == $ownerRef])`,
+                { ownerRef: newOwnerId }
+              );
+
+              if (Number(currentCount) >= Number(effectiveLimit)) {
+                return NextResponse.json(
+                  {
+                    error: 'quota_exceeded',
+                    message: `Target owner has reached their listing limit (${currentCount}/${effectiveLimit}).`,
+                    currentCount,
+                    limit: effectiveLimit,
+                  },
+                  { status: 403 }
+                );
+              }
+            }
+          }
+          patchPayload.owner = { _type: 'reference', _ref: newOwnerId };
+        } catch (err) {
+          structuredLogger.error('Failed to validate owner quota', err, {
+            component: 'listings-manage-api',
+          });
+          return NextResponse.json({ error: 'Failed to validate owner quota' }, { status: 500 });
+        }
+      }
+    }
+
     // City reference
     if (data.city) {
       if (typeof data.city !== 'string') {
@@ -179,6 +239,26 @@ export async function PUT(request: Request, context: RouteContext) {
     }
 
     const result = await client.patch(resolvedParams.id).set(patchPayload).commit();
+
+    if (ownerChanged && newOwnerId) {
+      const entry = {
+        _key: `hist-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        from: existingListing.owner?._ref || null,
+        to: newOwnerId,
+        actor: sessionUser.id,
+        reason: (data.reason as string) || 'Admin update',
+        at: new Date().toISOString(),
+      };
+
+      try {
+        await client.patch(resolvedParams.id).append('ownerHistory', [entry]).commit();
+      } catch (historyErr) {
+        structuredLogger.error('Failed to append ownerHistory after update', historyErr, {
+          listingId: resolvedParams.id,
+          entry,
+        });
+      }
+    }
 
     return NextResponse.json(result);
   } catch (error) {

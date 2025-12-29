@@ -168,7 +168,7 @@ export async function POST(request: Request) {
       slug: { _type: 'slug', current: toSlug(name) },
       type,
       category: type,
-      owner: { _type: 'reference', _ref: sessionUser.id },
+      owner: { _type: 'reference', _ref: targetOwnerRef },
       city: { _type: 'reference', _ref: city },
     };
 

@@ -1,5 +1,7 @@
 import { unstable_cache } from 'next/cache';
 import type { NextRequest } from 'next/server';
+import { structuredLogger } from '@/lib/logger';
+import { client } from '@/lib/sanity';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { handleAuthError, requireAuth } from '@/utils/auth-helpers';
 import { getCollection } from '@/utils/db-helpers';
@@ -31,6 +33,7 @@ type ListingPayload = {
   website?: string;
   contactPhone?: string;
   contactEmail?: string;
+  ownerId?: string;
 };
 
 type ValidationResult = {
@@ -134,6 +137,7 @@ function validateListingPayload(body: unknown): ValidationResult {
   const website = typeof raw.website === 'string' ? raw.website.trim() : undefined;
   const contactPhone = typeof raw.contactPhone === 'string' ? raw.contactPhone.trim() : undefined;
   const contactEmail = typeof raw.contactEmail === 'string' ? raw.contactEmail.trim() : undefined;
+  const ownerId = typeof raw.ownerId === 'string' ? raw.ownerId.trim() : undefined;
 
   const errors: string[] = [];
 
@@ -179,6 +183,7 @@ function validateListingPayload(body: unknown): ValidationResult {
       website,
       contactPhone,
       contactEmail,
+      ownerId,
     },
   };
 }
@@ -269,10 +274,14 @@ export function createListingsHandlers(overrides: Partial<ListingsDependencies> 
       return onAuthError(error);
     }
 
-    const user = session?.user as { id?: string; plan?: string } | undefined;
-    if (!user || user.plan !== 'premium') {
+    const user = session?.user as { id?: string; plan?: string; role?: string } | undefined;
+    if (!user) {
       return ResponseBuilder.forbidden();
     }
+
+    // Quota enforcement
+    const tierMap: Record<string, number> = { free: 1, pro: 5, enterprise: 50 };
+    const isAdmin = user.role === 'admin' || user.role === 'superAdmin';
 
     if (!request || typeof request.json !== 'function') {
       return ResponseBuilder.error('Request body is required', 400);
@@ -290,6 +299,48 @@ export function createListingsHandlers(overrides: Partial<ListingsDependencies> 
       return ResponseBuilder.error('Invalid listing data', 400, validation.errors);
     }
 
+    // Determine target owner for quota check and document creation
+    const targetOwnerId =
+      isAdmin && validation.payload.ownerId ? validation.payload.ownerId : (user.id as string);
+
+    try {
+      // Fetch owner doc from Sanity (using Mongo ID or Sanity ID)
+      const ownerDoc = await client.fetch(
+        `*[_type == "user" && (mongodbId == $id || _id == $id)][0]{_id, maxLocations, listingQuotaTier, quotaOverrideByAdmin}`,
+        { id: targetOwnerId }
+      );
+
+      const quotaOverride = !!ownerDoc?.quotaOverrideByAdmin;
+
+      let effectiveLimit: number | null = null;
+      if (ownerDoc?.maxLocations != null) {
+        effectiveLimit = Number(ownerDoc.maxLocations);
+      } else if (ownerDoc?.listingQuotaTier) {
+        effectiveLimit = tierMap[String(ownerDoc.listingQuotaTier)] ?? null;
+      } else {
+        effectiveLimit = tierMap.free; // global default
+      }
+
+      if (!quotaOverride && !isAdmin) {
+        if (effectiveLimit != null) {
+          const collection = await resolveCollection('listings');
+          const currentCount = await (collection as MongoCollection).countDocuments({
+            ownerId: targetOwnerId,
+          });
+
+          if (Number(currentCount) >= Number(effectiveLimit)) {
+            return ResponseBuilder.error(
+              `Owner has reached their listing limit (${currentCount}/${effectiveLimit}).`,
+              403
+            );
+          }
+        }
+      }
+    } catch (err) {
+      structuredLogger.error('Failed to validate owner quota', err, { component: 'listings-api' });
+      return ResponseBuilder.error('Failed to validate owner quota', 500);
+    }
+
     try {
       const collection = await resolveCollection('listings');
       if (!collection || typeof (collection as MongoCollection).findOne !== 'function') {
@@ -305,7 +356,7 @@ export function createListingsHandlers(overrides: Partial<ListingsDependencies> 
 
       const document = {
         ...validation.payload,
-        ownerId: user.id ?? null,
+        ownerId: targetOwnerId,
         createdAt: new Date(),
       };
 
@@ -316,7 +367,7 @@ export function createListingsHandlers(overrides: Partial<ListingsDependencies> 
         {
           ...validation.payload,
           id: insertedId ?? null,
-          ownerId: user.id ?? null,
+          ownerId: targetOwnerId,
         },
         'Listing created successfully'
       );

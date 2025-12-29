@@ -2,6 +2,13 @@ import { describe, expect, it, jest } from '@jest/globals';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { createListingsHandlers } from './route';
 
+// Mock Sanity client
+jest.mock('@/lib/sanity', () => ({
+  client: {
+    fetch: jest.fn(),
+  },
+}));
+
 type MockRequest = {
   url?: string;
   json?: () => Promise<unknown>;
@@ -17,11 +24,31 @@ describe('API /api/listings route handlers', () => {
   ) => {
     const requireAuth =
       overrides.requireAuth ??
-      jest.fn().mockResolvedValue({ user: { id: 'user-1', plan: 'premium' } });
+      jest.fn().mockResolvedValue({ user: { id: 'user-1', plan: 'premium', role: 'venueOwner' } });
     const handleAuthError =
       overrides.handleAuthError ??
       jest.fn((error: unknown) => ApiResponseHandler.error('auth error', 401, String(error ?? '')));
-    const getCollection = overrides.getCollection ?? jest.fn();
+
+    // Default mock for collections
+    const defaultUsersCollection = {
+      findOne: jest.fn().mockResolvedValue({
+        _id: 'user-1',
+        listingQuotaTier: 'pro',
+      }),
+    };
+    const defaultListingsCollection = {
+      countDocuments: jest.fn().mockResolvedValue(0),
+      findOne: jest.fn().mockResolvedValue(null),
+      insertOne: jest.fn().mockResolvedValue({ insertedId: 'new-id' }),
+    };
+
+    const getCollection =
+      overrides.getCollection ??
+      jest.fn((name: string) => {
+        if (name === 'users') return Promise.resolve(defaultUsersCollection);
+        if (name === 'listings') return Promise.resolve(defaultListingsCollection);
+        return Promise.resolve(null);
+      });
 
     return {
       handlers: createListingsHandlers({
@@ -32,6 +59,8 @@ describe('API /api/listings route handlers', () => {
       requireAuth,
       handleAuthError,
       getCollection,
+      defaultUsersCollection,
+      defaultListingsCollection,
     };
   };
 
@@ -165,15 +194,35 @@ describe('API /api/listings route handlers', () => {
       });
 
     it('returns forbidden when the authenticated user is not premium', async () => {
-      const requireAuth = jest.fn().mockResolvedValue({ user: { id: 'user-1', plan: 'basic' } });
-      const { handlers, getCollection } = buildHandlers({ requireAuth });
+      const requireAuth = jest.fn().mockResolvedValue({ user: { id: 'user-1', plan: 'basic', role: 'venueOwner' } });
+      const usersCollection = {
+        findOne: jest.fn().mockResolvedValue({ _id: 'user-1', listingQuotaTier: 'free' }),
+      };
+      const listingsCollection = {
+        countDocuments: jest.fn().mockResolvedValue(1), // Free limit is 1
+        findOne: jest.fn().mockResolvedValue(null),
+      };
+      const getCollection = jest.fn((name: string) => {
+        if (name === 'users') return Promise.resolve(usersCollection);
+        if (name === 'listings') return Promise.resolve(listingsCollection);
+        return Promise.resolve(null);
+      });
+      const { handlers } = buildHandlers({ requireAuth, getCollection });
+
+      // Mock client.fetch for the quota check
+      const { client } = require('@/lib/sanity');
+      (client.fetch as jest.Mock).mockResolvedValue({
+        _id: 'user-1',
+        listingQuotaTier: 'free',
+        maxLocations: 1,
+      });
 
       const response = await handlers.POST(createRequest(validPayload));
       const { status, body } = await parseResponse(response);
 
       expect(status).toBe(403);
-      expect(body).toEqual({ success: false, error: 'Forbidden' });
-      expect(getCollection).not.toHaveBeenCalled();
+      expect(body.success).toBe(false);
+      expect(body.error).toMatch(/Owner has reached their listing limit/);
     });
 
     it('returns error when request body is missing', async () => {
@@ -218,10 +267,18 @@ describe('API /api/listings route handlers', () => {
     });
 
     it('returns conflict when a listing with the same slug already exists', async () => {
-      const collection = {
+      const listingsCollection = {
+        countDocuments: jest.fn().mockResolvedValue(0),
         findOne: jest.fn().mockResolvedValue({ id: 'existing' }),
       };
-      const getCollection = jest.fn().mockResolvedValue(collection);
+      const usersCollection = {
+        findOne: jest.fn().mockResolvedValue({ _id: 'user-1', listingQuotaTier: 'pro' }),
+      };
+      const getCollection = jest.fn((name: string) => {
+        if (name === 'users') return Promise.resolve(usersCollection);
+        if (name === 'listings') return Promise.resolve(listingsCollection);
+        return Promise.resolve(null);
+      });
       const { handlers } = buildHandlers({ getCollection });
 
       const response = await handlers.POST(createRequest(validPayload));
@@ -229,15 +286,23 @@ describe('API /api/listings route handlers', () => {
 
       expect(status).toBe(409);
       expect(body).toEqual({ success: false, error: 'Listing with this slug already exists' });
-      expect(collection.findOne).toHaveBeenCalledWith({ slug: 'eco-hub' });
+      expect(listingsCollection.findOne).toHaveBeenCalledWith({ slug: 'eco-hub' });
     });
 
     it('creates a listing successfully when payload is valid', async () => {
-      const collection = {
+      const listingsCollection = {
+        countDocuments: jest.fn().mockResolvedValue(0),
         findOne: jest.fn().mockResolvedValue(null),
         insertOne: jest.fn().mockResolvedValue({ insertedId: 'new-id' }),
       };
-      const getCollection = jest.fn().mockResolvedValue(collection);
+      const usersCollection = {
+        findOne: jest.fn().mockResolvedValue({ _id: 'user-1', listingQuotaTier: 'pro' }),
+      };
+      const getCollection = jest.fn((name: string) => {
+        if (name === 'users') return Promise.resolve(usersCollection);
+        if (name === 'listings') return Promise.resolve(listingsCollection);
+        return Promise.resolve(null);
+      });
       const { handlers } = buildHandlers({ getCollection });
 
       const response = await handlers.POST(createRequest(validPayload));
@@ -253,7 +318,7 @@ describe('API /api/listings route handlers', () => {
         },
         message: 'Listing created successfully',
       });
-      expect(collection.insertOne).toHaveBeenCalledWith(
+      expect(listingsCollection.insertOne).toHaveBeenCalledWith(
         expect.objectContaining({
           ...validPayload,
           ownerId: 'user-1',
@@ -262,11 +327,19 @@ describe('API /api/listings route handlers', () => {
     });
 
     it('returns bad request when insertOne throws an invalid JSON error', async () => {
-      const collection = {
+      const listingsCollection = {
+        countDocuments: jest.fn().mockResolvedValue(0),
         findOne: jest.fn().mockResolvedValue(null),
         insertOne: jest.fn().mockRejectedValue(new Error('Invalid JSON')),
       };
-      const getCollection = jest.fn().mockResolvedValue(collection);
+      const usersCollection = {
+        findOne: jest.fn().mockResolvedValue({ _id: 'user-1', listingQuotaTier: 'pro' }),
+      };
+      const getCollection = jest.fn((name: string) => {
+        if (name === 'users') return Promise.resolve(usersCollection);
+        if (name === 'listings') return Promise.resolve(listingsCollection);
+        return Promise.resolve(null);
+      });
       const { handlers } = buildHandlers({ getCollection });
 
       const response = await handlers.POST(createRequest(validPayload));
@@ -277,11 +350,19 @@ describe('API /api/listings route handlers', () => {
     });
 
     it('returns server error when insertion fails unexpectedly', async () => {
-      const collection = {
+      const listingsCollection = {
+        countDocuments: jest.fn().mockResolvedValue(0),
         findOne: jest.fn().mockResolvedValue(null),
         insertOne: jest.fn().mockRejectedValue(new Error('database failure')),
       };
-      const getCollection = jest.fn().mockResolvedValue(collection);
+      const usersCollection = {
+        findOne: jest.fn().mockResolvedValue({ _id: 'user-1', listingQuotaTier: 'pro' }),
+      };
+      const getCollection = jest.fn((name: string) => {
+        if (name === 'users') return Promise.resolve(usersCollection);
+        if (name === 'listings') return Promise.resolve(listingsCollection);
+        return Promise.resolve(null);
+      });
       const { handlers } = buildHandlers({ getCollection });
 
       const response = await handlers.POST(createRequest(validPayload));
@@ -289,6 +370,39 @@ describe('API /api/listings route handlers', () => {
 
       expect(status).toBe(500);
       expect(body).toEqual({ success: false, error: 'Failed to create listing' });
+    });
+
+    it('returns forbidden when quota is exceeded', async () => {
+      const listingsCollection = {
+        countDocuments: jest.fn().mockResolvedValue(5), // Pro limit is 5
+        findOne: jest.fn().mockResolvedValue(null),
+      };
+      const usersCollection = {
+        findOne: jest.fn().mockResolvedValue({ _id: 'user-1', listingQuotaTier: 'pro' }),
+      };
+      const getCollection = jest.fn((name: string) => {
+        if (name === 'users') return Promise.resolve(usersCollection);
+        if (name === 'listings') return Promise.resolve(listingsCollection);
+        return Promise.resolve(null);
+      });
+      const { handlers } = buildHandlers({ getCollection });
+
+      // Mock client.fetch for the quota check
+      const { client } = require('@/lib/sanity');
+      (client.fetch as jest.Mock).mockResolvedValue({
+        _id: 'user-1',
+        listingQuotaTier: 'pro',
+        maxLocations: 5,
+      });
+
+      const response = await handlers.POST(createRequest(validPayload));
+      const { status, body } = await parseResponse(response);
+
+      expect(status).toBe(403);
+      expect(body).toEqual({
+        success: false,
+        error: 'Owner has reached their listing limit (5/5).',
+      });
     });
 
     it('delegates to handleAuthError when authentication throws', async () => {
