@@ -149,7 +149,11 @@ describe('API /api/listings/[slug] route handlers', () => {
       const { status, body } = await parseResponse(response);
 
       expect(status).toBe(403);
-      expect(body).toEqual({ success: false, error: 'Forbidden' });
+      expect(body).toEqual({
+        success: false,
+        error: 'Forbidden',
+        message: 'You do not have permission to update this listing',
+      });
     });
 
     it('delegates to handleAuthError when requireAuth throws', async () => {
@@ -209,7 +213,11 @@ describe('API /api/listings/[slug] route handlers', () => {
       const { status, body } = await parseResponse(response);
 
       expect(status).toBe(403);
-      expect(body).toEqual({ success: false, error: 'Forbidden' });
+      expect(body).toEqual({
+        success: false,
+        error: 'Forbidden',
+        message: 'You do not have permission to delete this listing',
+      });
     });
 
     it('delegates to handleAuthError when requireAuth throws', async () => {

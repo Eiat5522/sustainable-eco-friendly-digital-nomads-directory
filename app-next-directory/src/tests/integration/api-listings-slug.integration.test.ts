@@ -98,6 +98,7 @@ describe('API /api/listings/[slug] integration', () => {
     expect(updateCall.$set).not.toHaveProperty('ownerId');
     expect(updateCall.$set).not.toHaveProperty('slug');
     expect(updateCall.$set).not.toHaveProperty('unknownField');
+    expect(updateCall.$set).toHaveProperty('updatedAt');
   });
 
   it('returns 403 if user is not the owner', async () => {
@@ -135,45 +136,5 @@ describe('API /api/listings/[slug] integration', () => {
 
     const response = await handlers.PUT(request, { params: Promise.resolve({ slug: 'non-existent' }) });
     expect(response.status).toBe(404);
-  });
-});
-    expect(updateCall.$set).toHaveProperty('updatedAt');
-  });
-
-  it('returns 404 if listing not found', async () => {
-    const { handlers } = setupHandlers([]);
-    
-    const request = new Request('http://localhost/api/listings/non-existent', {
-      method: 'PUT',
-      body: JSON.stringify({ title: 'New Title' }),
-      headers: { 'content-type': 'application/json' },
-    });
-
-    const response = await handlers.PUT(request, { params: Promise.resolve({ slug: 'non-existent' }) });
-    expect(response.status).toBe(404);
-  });
-
-  it('returns 403 if user is not the owner', async () => {
-    const initialListing: ListingRecord = {
-      title: 'Original Title',
-      slug: 'test-slug',
-      category: 'coworking',
-      description: 'Original description',
-      location: 'Original location',
-      ecoTags: [],
-      digitalNomadFeatures: [],
-      ownerId: 'other-user'
-    };
-
-    const { handlers } = setupHandlers([initialListing]);
-    
-    const request = new Request('http://localhost/api/listings/test-slug', {
-      method: 'PUT',
-      body: JSON.stringify({ title: 'New Title' }),
-      headers: { 'content-type': 'application/json' },
-    });
-
-    const response = await handlers.PUT(request, { params: Promise.resolve({ slug: 'test-slug' }) });
-    expect(response.status).toBe(403);
   });
 });

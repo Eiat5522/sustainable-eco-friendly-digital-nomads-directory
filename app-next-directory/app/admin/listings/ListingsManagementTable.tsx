@@ -479,12 +479,14 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
                       <span className="text-blue-600">{actionStatus.message}</span>
                     ) : (
                       <div className="flex gap-2">
-                        <Link
-                          href={`/admin/listings/edit/${listing.id}`}
-                          className="text-blue-600 hover:text-blue-900"
-                          title="Edit"
-                        >
-                          ✎
+                        <Link href={`/admin/listings/edit/${listing.id}`} legacyBehavior>
+                          <a
+                            href={`/admin/listings/edit/${listing.id}`}
+                            className="text-blue-600 hover:text-blue-900"
+                            title="Edit listing"
+                          >
+                            ✎
+                          </a>
                         </Link>
                         {listing.status !== 'published' && (
                           <button

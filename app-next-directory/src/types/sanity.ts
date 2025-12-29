@@ -9,6 +9,22 @@ export interface SanityDocument {
   _rev: string;
 }
 
+export type ListingQuotaTier = 'free' | 'pro' | 'enterprise';
+
+export interface SanityUserQuotaDoc {
+  _id: string;
+  mongodbId?: string | null;
+  maxLocations?: number | null;
+  listingQuotaTier?: ListingQuotaTier | null;
+  quotaOverrideByAdmin?: boolean | null;
+}
+
+export interface SanityListingOwnerDocument {
+  _id: string;
+  owner?: { _ref?: string } | null;
+  ownerHistory?: unknown[];
+}
+
 export interface Amenity {
   _id: string;
   name: string;

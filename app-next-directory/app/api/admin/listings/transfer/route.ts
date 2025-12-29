@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { structuredLogger } from '@/lib/logger';
 import { client } from '@/lib/sanity';
+import type { SanityListingOwnerDocument, SanityUserQuotaDoc } from '@/types/sanity';
 
 export async function POST(request: Request) {
   let session = null;
@@ -31,7 +32,7 @@ export async function POST(request: Request) {
     }
 
     // fetch listing
-    const listing = await client.fetch(
+    const listing = await client.fetch<SanityListingOwnerDocument | null>(
       `*[_type == "listing" && _id == $id][0]{_id, owner, ownerHistory}`,
       { id: listingId }
     );
@@ -39,16 +40,16 @@ export async function POST(request: Request) {
 
     // fetch target owner and compute effective limit
     const tierMap: Record<string, number> = { free: 1, pro: 5, enterprise: 50 };
-    const ownerDoc = await client.fetch(
+    const ownerDoc = await client.fetch<SanityUserQuotaDoc | null>(
       `*[_type == "user" && _id == $id][0]{_id, maxLocations, listingQuotaTier, quotaOverrideByAdmin}`,
       { id: newOwnerId }
     );
     if (!ownerDoc) return NextResponse.json({ error: 'Target owner not found' }, { status: 404 });
 
-    const quotaOverride = !!ownerDoc?.quotaOverrideByAdmin;
+    const quotaOverride = !!ownerDoc.quotaOverrideByAdmin;
     let effectiveLimit: number | null = null;
-    if (ownerDoc?.maxLocations != null) effectiveLimit = Number(ownerDoc.maxLocations);
-    else if (ownerDoc?.listingQuotaTier)
+    if (ownerDoc.maxLocations != null) effectiveLimit = Number(ownerDoc.maxLocations);
+    else if (ownerDoc.listingQuotaTier)
       effectiveLimit = tierMap[String(ownerDoc.listingQuotaTier)] ?? null;
     else effectiveLimit = tierMap.free;
 
@@ -90,7 +91,7 @@ export async function POST(request: Request) {
     const setResult = await client
       .patch(listingId)
       .set({ owner: { _type: 'reference', _ref: newOwnerId } })
-      .commit();
+      .commit<{ _id?: string }>();
 
     try {
       await client.patch(listingId).append('ownerHistory', [entry]).commit();

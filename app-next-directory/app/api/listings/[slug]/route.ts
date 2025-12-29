@@ -1,6 +1,8 @@
 import type { NextRequest } from 'next/server';
 import { structuredLogger } from '@/lib/logger';
+import { client } from '@/lib/sanity';
 import { getListingBySlug } from '@/lib/sanity/queries';
+import type { SanityUserQuotaDoc } from '@/types/sanity';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { handleAuthError, requireAuth } from '@/utils/auth-helpers';
 import { getCollection } from '@/utils/db-helpers';
@@ -109,7 +111,7 @@ export function createSlugHandlers(overrides: Partial<SlugDependencies> = {}) {
           const tierMap: Record<string, number> = { free: 1, pro: 5, enterprise: 50 };
 
           try {
-            const ownerDoc = await client.fetch(
+            const ownerDoc = await client.fetch<SanityUserQuotaDoc | null>(
               `*[_type == "user" && (mongodbId == $id || _id == $id)][0]{_id, maxLocations, listingQuotaTier, quotaOverrideByAdmin}`,
               { id: newOwnerId }
             );
@@ -118,11 +120,11 @@ export function createSlugHandlers(overrides: Partial<SlugDependencies> = {}) {
               return ApiResponseHandler.error('Target owner not found', 404);
             }
 
-            const quotaOverride = !!ownerDoc?.quotaOverrideByAdmin;
+            const quotaOverride = !!ownerDoc.quotaOverrideByAdmin;
             let effectiveLimit: number | null = null;
-            if (ownerDoc?.maxLocations != null) {
+            if (ownerDoc.maxLocations != null) {
               effectiveLimit = Number(ownerDoc.maxLocations);
-            } else if (ownerDoc?.listingQuotaTier) {
+            } else if (ownerDoc.listingQuotaTier) {
               effectiveLimit = tierMap[String(ownerDoc.listingQuotaTier)] ?? null;
             } else {
               effectiveLimit = tierMap.free;

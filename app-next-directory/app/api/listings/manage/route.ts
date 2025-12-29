@@ -4,6 +4,7 @@ import { auth } from '@/lib/auth';
 import { structuredLogger } from '@/lib/logger';
 import { client } from '@/lib/sanity';
 import { toSlug } from '@/lib/utils/slug';
+import type { SanityUserQuotaDoc } from '@/types/sanity';
 import type { UserRole } from '@/types/auth';
 import { isListingTypeValue } from '@/types/listings';
 
@@ -122,16 +123,21 @@ export async function POST(request: Request) {
     })();
 
     try {
-      const ownerDoc = await client.fetch(`*[_type == "user" && _id == $id][0]{_id, maxLocations, listingQuotaTier, quotaOverrideByAdmin}`, {
-        id: targetOwnerRef,
-      });
+      const ownerDoc = await client.fetch<SanityUserQuotaDoc | null>(
+        `*[_type == "user" && _id == $id][0]{_id, maxLocations, listingQuotaTier, quotaOverrideByAdmin}`,
+        { id: targetOwnerRef }
+      );
 
-      const quotaOverride = !!ownerDoc?.quotaOverrideByAdmin;
+      if (!ownerDoc) {
+        return NextResponse.json({ error: 'Target owner not found' }, { status: 404 });
+      }
+
+      const quotaOverride = !!ownerDoc.quotaOverrideByAdmin;
 
       let effectiveLimit: number | null = null;
-      if (ownerDoc?.maxLocations != null) {
+      if (ownerDoc.maxLocations != null) {
         effectiveLimit = Number(ownerDoc.maxLocations);
-      } else if (ownerDoc?.listingQuotaTier) {
+      } else if (ownerDoc.listingQuotaTier) {
         effectiveLimit = tierMap[String(ownerDoc.listingQuotaTier)] ?? null;
       } else {
         effectiveLimit = tierMap.free; // global default
@@ -139,7 +145,7 @@ export async function POST(request: Request) {
 
       if (!quotaOverride) {
         if (effectiveLimit != null) {
-          const currentCount = await client.fetch(
+          const currentCount = await client.fetch<number>(
             `count(*[_type == "listing" && owner._ref == $ownerRef])`,
             { ownerRef: targetOwnerRef }
           );

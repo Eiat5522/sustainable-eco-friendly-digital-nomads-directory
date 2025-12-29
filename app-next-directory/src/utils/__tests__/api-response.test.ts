@@ -122,5 +122,12 @@ describe('ApiResponseHandler', () => {
       expect(typeof result.json).toBe('function');
       expect(result.status).toBe(403);
     });
+
+    it('should include a custom message when provided', async () => {
+      const result = ApiResponseHandler.forbidden('Access denied');
+      expect(result.status).toBe(403);
+      const payload = await result.json();
+      expect(payload).toHaveProperty('message', 'Access denied');
+    });
   });
 });

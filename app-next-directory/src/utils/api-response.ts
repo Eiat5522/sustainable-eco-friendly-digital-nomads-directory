@@ -68,7 +68,11 @@ export const ApiResponseHandler = {
     return createJsonResponse({ success: false, error: 'Unauthorized access' }, { status: 401 });
   },
 
-  forbidden() {
-    return createJsonResponse({ success: false, error: 'Forbidden' }, { status: 403 });
+  forbidden(message?: string) {
+    const payload: ApiResponse<never> = { success: false, error: 'Forbidden' };
+    if (message) {
+      payload.message = message;
+    }
+    return createJsonResponse(payload, { status: 403 });
   },
 };
