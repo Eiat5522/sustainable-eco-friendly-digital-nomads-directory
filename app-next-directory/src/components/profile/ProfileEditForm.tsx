@@ -2,6 +2,7 @@
 
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { Label } from '@/components/ui/label';
 import { NeoButton } from '@/components/ui/neo-button';
 import {
@@ -25,6 +26,7 @@ export function ProfileEditForm({ currentName = '', onSuccess, onCancel }: Profi
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const { update } = useSession();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,6 +52,15 @@ export function ProfileEditForm({ currentName = '', onSuccess, onCancel }: Profi
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
         throw new Error(data.error?.message || 'Failed to update profile');
+      }
+
+      // Attempt to refresh the client session immediately so UI reflects the
+      // updated display name without requiring the user to re-login.
+      try {
+        if (update) await update();
+      } catch (_err) {
+        // If session update fails we still consider the profile update successful
+        // and fallback to parent handler which may attempt its own update.
       }
 
       setSuccess(true);
