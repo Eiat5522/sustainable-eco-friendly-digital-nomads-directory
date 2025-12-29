@@ -193,6 +193,7 @@ const callbacks = {
       const dbUser = await getUserById(String(t.id));
       if (dbUser) {
         t.name = dbUser.name;
+        t.picture = dbUser.image;
         t.role = dbUser.role;
         t.status = dbUser.status;
         (t as unknown as { tokenVersion?: number }).tokenVersion = dbUser.tokenVersion;
@@ -223,6 +224,12 @@ const callbacks = {
     const s = session as WithAppUser;
     if (s.user) {
       if (user?.id) s.user.id = user.id;
+
+      // Explicitly sync name and image from token to session user
+      // This ensures client-side updates via update() are reflected immediately
+      if (token?.name) s.user.name = token.name as string;
+      if (token?.picture) s.user.image = token.picture as string;
+
       if (user?.role) {
         s.user.role = user.role as UserRole;
       } else if (!user && token?.role) {

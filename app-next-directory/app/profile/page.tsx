@@ -164,7 +164,7 @@ export default function ProfilePage() {
 
   const handleEditSuccess = async () => {
     try {
-      await update();
+      await update({});
       setIsEditing(false);
     } catch (_error) {
       alert('Profile updated successfully. Please refresh the page to see changes.');

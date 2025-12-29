@@ -1,8 +1,8 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
-import { useState } from 'react';
 import { useSession } from 'next-auth/react';
+import { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { NeoButton } from '@/components/ui/neo-button';
 import {
@@ -57,7 +57,7 @@ export function ProfileEditForm({ currentName = '', onSuccess, onCancel }: Profi
       // Attempt to refresh the client session immediately so UI reflects the
       // updated display name without requiring the user to re-login.
       try {
-        if (update) await update();
+        if (update) await update({});
       } catch (_err) {
         // If session update fails we still consider the profile update successful
         // and fallback to parent handler which may attempt its own update.
