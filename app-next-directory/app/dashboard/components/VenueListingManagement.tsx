@@ -92,7 +92,7 @@ export function VenueListingManagement() {
   useEffect(() => {
     const fetchListings = async () => {
       try {
-        const response = await fetch('/api/listings');
+        const response = await fetch('/api/listings/manage');
         if (!response.ok) {
           throw new Error('Failed to fetch listings');
         }

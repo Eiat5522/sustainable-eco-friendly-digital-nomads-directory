@@ -11,9 +11,10 @@ import {
   NeoCardHeader,
   NeoCardTitle,
 } from '@/components/ui/neo-card';
-import type { ListingFormValues } from '../../components/VenueListingForm';
-import { VenueListingForm } from '../../components/VenueListingForm';
-export default function NewListingPage() {
+import type { ListingFormValues } from '../../../dashboard/components/VenueListingForm';
+import { VenueListingForm } from '../../../dashboard/components/VenueListingForm';
+
+export default function AdminNewListingPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
 
@@ -31,7 +32,7 @@ export default function NewListingPage() {
         throw new Error('Failed to create listing');
       }
 
-      router.push('/dashboard/listings');
+      router.push('/admin/listings');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create listing');
     }
@@ -43,15 +44,15 @@ export default function NewListingPage() {
         <header className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-2">
             <p className="text-xs font-semibold uppercase tracking-wide text-neo-text-tertiary">
-              Venue owner workspace
+              Admin workspace
             </p>
             <h1 className="heading-xl text-neo-text-primary">Add New Listing</h1>
             <p className="text-sm text-neo-text-secondary">
-              Capture the details that make your space unforgettable for eco-conscious nomads.
+              Create listings on behalf of venue owners and contributors.
             </p>
           </div>
           <NeoButton asChild variant="secondary" className="shadow-[4px_4px_0px_0px_#0f172a]">
-            <Link href="/dashboard/listings">Back to listings</Link>
+            <Link href="/admin/listings">Back to listings</Link>
           </NeoButton>
         </header>
 
@@ -62,7 +63,7 @@ export default function NewListingPage() {
           <NeoCardHeader className="space-y-2">
             <NeoCardTitle>Listing details</NeoCardTitle>
             <NeoCardDescription className="text-sm text-neo-text-secondary">
-              Share the essentials, amenities, and sustainability features your guests care about.
+              Fill in the essentials so the listing is ready for review.
             </NeoCardDescription>
           </NeoCardHeader>
           <NeoCardContent className="space-y-6">

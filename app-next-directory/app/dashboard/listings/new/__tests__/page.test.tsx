@@ -39,7 +39,7 @@ describe('NewListingPage', () => {
     await user.click(screen.getByRole('button', { name: /trigger-save/i }));
 
     expect(global.fetch).toHaveBeenCalledWith(
-      '/api/listings',
+      '/api/listings/manage',
       expect.objectContaining({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

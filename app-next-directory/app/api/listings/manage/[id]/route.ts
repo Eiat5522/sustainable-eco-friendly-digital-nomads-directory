@@ -3,8 +3,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { auth } from '@/lib/auth';
 import { structuredLogger } from '@/lib/logger';
 import { client } from '@/lib/sanity';
+import type { UserRole } from '@/types/auth';
 
 type RouteContext = { params: { id: string } | Promise<{ id: string }> };
+type SessionUser = { id?: string; role?: UserRole } | undefined;
 
 async function resolveParams(params: { id: string } | Promise<{ id: string }>) {
   return await Promise.resolve(params);
@@ -29,17 +31,23 @@ export async function GET(request: Request, context: RouteContext) {
     throw error;
   }
 
-  const sessionUser = session?.user as { id?: string; role?: string } | undefined;
+  const sessionUser = session?.user as SessionUser;
+  const role = sessionUser?.role;
+  const isAdmin = role === 'admin' || role === 'superAdmin';
+  const isVenueOwner = role === 'venueOwner';
 
-  if (sessionUser?.role !== 'venueOwner' || !sessionUser.id) {
+  if (!sessionUser?.id || (!isAdmin && !isVenueOwner)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const listing = await client.fetch(
-      `*[_type == "listing" && _id == $id && owner._ref == $userId][0]`,
-      { id: resolvedParams.id, userId: sessionUser.id }
-    );
+    const query = isAdmin
+      ? `*[_type == "listing" && _id == $id][0]`
+      : `*[_type == "listing" && _id == $id && owner._ref == $userId][0]`;
+    const listing = await client.fetch(query, {
+      id: resolvedParams.id,
+      userId: sessionUser.id,
+    });
 
     if (!listing) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
@@ -74,16 +82,21 @@ export async function PUT(request: Request, context: RouteContext) {
     throw error;
   }
 
-  const sessionUser = session?.user as { id?: string; role?: string } | undefined;
+  const sessionUser = session?.user as SessionUser;
+  const role = sessionUser?.role;
+  const isAdmin = role === 'admin' || role === 'superAdmin';
+  const isVenueOwner = role === 'venueOwner';
 
-  if (sessionUser?.role !== 'venueOwner' || !sessionUser.id) {
+  if (!sessionUser?.id || (!isAdmin && !isVenueOwner)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const data = await request.json();
+    const data = (await request.json()) as Record<string, unknown>;
     const existingListing = await client.fetch(
-      `*[_type == "listing" && _id == $id && owner._ref == $userId][0]`,
+      isAdmin
+        ? `*[_type == "listing" && _id == $id][0]`
+        : `*[_type == "listing" && _id == $id && owner._ref == $userId][0]`,
       { id: resolvedParams.id, userId: sessionUser.id }
     );
 
@@ -96,20 +109,22 @@ export async function PUT(request: Request, context: RouteContext) {
 
     // Basic scalar/string fields (whitelist explicitly)
     const allowedScalars = [
-      'title',
-      'slug',
+      'name',
       'shortDescription',
-      'description',
+      'longDescription',
+      'type',
+      'address',
+      'contactPhone',
+      'contactEmail',
       'website',
-      'email',
-      'phone',
       'priceRange',
-      'status',
-      'listingType',
-      'isFeatured',
     ];
     for (const key of allowedScalars) {
       if (Object.hasOwn(data, key)) patchPayload[key] = data[key];
+    }
+
+    if (Object.hasOwn(data, 'type')) {
+      patchPayload.category = data.type;
     }
 
     // City reference
@@ -179,15 +194,20 @@ export async function DELETE(request: Request, context: RouteContext) {
   const { params } = context;
   const resolvedParams = await resolveParams(params);
   const session = await auth(request.headers);
-  const sessionUser = session?.user as { id?: string; role?: string } | undefined;
+  const sessionUser = session?.user as SessionUser;
+  const role = sessionUser?.role;
+  const isAdmin = role === 'admin' || role === 'superAdmin';
+  const isVenueOwner = role === 'venueOwner';
 
-  if (sessionUser?.role !== 'venueOwner' || !sessionUser.id) {
+  if (!sessionUser?.id || (!isAdmin && !isVenueOwner)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
     const existingListing = await client.fetch(
-      `*[_type == "listing" && _id == $id && owner._ref == $userId][0]`,
+      isAdmin
+        ? `*[_type == "listing" && _id == $id][0]`
+        : `*[_type == "listing" && _id == $id && owner._ref == $userId][0]`,
       { id: resolvedParams.id, userId: sessionUser.id }
     );
 

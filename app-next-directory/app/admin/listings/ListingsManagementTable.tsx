@@ -1,6 +1,8 @@
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useEffect, useState, useTransition } from 'react';
+import { NeoButton } from '@/components/ui/neo-button';
 import { getUserFacingMessage } from '@/lib/client-utils';
 import { fetchJsonWithRetry, getDefaultTimeout, RequestTimeoutError } from '@/lib/http/request';
 import {
@@ -329,6 +331,15 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
 
   return (
     <div className="p-6">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900">Listings</h3>
+          <p className="text-sm text-gray-500">Create and edit listings managed by the team.</p>
+        </div>
+        <NeoButton asChild>
+          <Link href="/admin/listings/new">Add new listing</Link>
+        </NeoButton>
+      </div>
       {stats ? (
         <div
           className="mb-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"
@@ -468,6 +479,13 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
                       <span className="text-blue-600">{actionStatus.message}</span>
                     ) : (
                       <div className="flex gap-2">
+                        <Link
+                          href={`/admin/listings/edit/${listing.id}`}
+                          className="text-blue-600 hover:text-blue-900"
+                          title="Edit"
+                        >
+                          ✎
+                        </Link>
                         {listing.status !== 'published' && (
                           <button
                             type="button"

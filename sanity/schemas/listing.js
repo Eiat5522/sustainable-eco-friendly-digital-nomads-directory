@@ -20,6 +20,13 @@ export default defineType({
       validation: Rule => Rule.required(),
     }),
     defineField({
+      name: 'owner',
+      title: 'Owner',
+      type: 'reference',
+      to: [{ type: 'user' }],
+      description: 'User who manages this listing.',
+    }),
+    defineField({
       name: 'shortDescription',
       title: 'Short Description',
       type: 'string',

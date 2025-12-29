@@ -60,7 +60,7 @@ describe('Manage Listings API', () => {
       it('should return listing when user is venue owner', async () => {
         const mockListing = {
           _id: 'listing-1',
-          title: 'Eco Workspace',
+          name: 'Eco Workspace',
           owner: { _ref: 'user-1' },
         };
 
@@ -84,7 +84,7 @@ describe('Manage Listings API', () => {
       });
 
       it('should handle async params', async () => {
-        const mockListing = { _id: 'listing-1', title: 'Test' };
+        const mockListing = { _id: 'listing-1', name: 'Test' };
         mockAuth.mockResolvedValueOnce({
           user: { id: 'user-1', role: 'venueOwner' },
         });
@@ -187,12 +187,12 @@ describe('Manage Listings API', () => {
       it('should update listing when user is owner', async () => {
         const existingListing = {
           _id: 'listing-1',
-          title: 'Old Title',
+          name: 'Old Title',
           owner: { _ref: 'user-1' },
         };
         const updatedListing = {
           _id: 'listing-1',
-          title: 'New Title',
+          name: 'New Title',
           owner: { _ref: 'user-1' },
         };
 
@@ -205,7 +205,7 @@ describe('Manage Listings API', () => {
         const request = new Request('http://localhost/api/listings/manage/listing-1', {
           method: 'PUT',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ title: 'New Title' }),
+          body: JSON.stringify({ name: 'New Title' }),
         });
         const context: RouteContext = { params: { id: 'listing-1' } };
 
@@ -220,7 +220,7 @@ describe('Manage Listings API', () => {
       it('should update listing with city reference', async () => {
         const existingListing = {
           _id: 'listing-1',
-          title: 'Test',
+          name: 'Test',
           owner: { _ref: 'user-1' },
         };
 
@@ -287,12 +287,12 @@ describe('Manage Listings API', () => {
         const request = new Request('http://localhost/api/listings/manage/listing-1', {
           method: 'PUT',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ title: 'New Title', unexpected: 'field' }),
+          body: JSON.stringify({ name: 'New Title', unexpected: 'field' }),
         });
         const context: RouteContext = { params: { id: 'listing-1' } };
 
         await PUT(request, context);
-        expect(mockSet).toHaveBeenCalledWith({ title: 'New Title' });
+        expect(mockSet).toHaveBeenCalledWith({ name: 'New Title' });
       });
 
       it('should handle null and undefined values for nested objects', async () => {
@@ -328,7 +328,7 @@ describe('Manage Listings API', () => {
 
         const request = new Request('http://localhost/api/listings/manage/listing-1', {
           method: 'PUT',
-          body: JSON.stringify({ title: 'New Title' }),
+          body: JSON.stringify({ name: 'New Title' }),
         });
         const context: RouteContext = { params: { id: 'listing-1' } };
 
@@ -349,7 +349,7 @@ describe('Manage Listings API', () => {
 
         const request = new Request('http://localhost/api/listings/manage/listing-1', {
           method: 'PUT',
-          body: JSON.stringify({ title: 'New Title' }),
+          body: JSON.stringify({ name: 'New Title' }),
         });
         const context: RouteContext = { params: { id: 'listing-1' } };
 
@@ -400,7 +400,7 @@ describe('Manage Listings API', () => {
         const request = new Request('http://localhost/api/listings/manage/listing-1', {
           method: 'PUT',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ title: 'New Title' }),
+          body: JSON.stringify({ name: 'New Title' }),
         });
         const context: RouteContext = { params: { id: 'listing-1' } };
 
@@ -418,7 +418,7 @@ describe('Manage Listings API', () => {
       it('should delete listing when user is owner', async () => {
         const existingListing = {
           _id: 'listing-1',
-          title: 'To Delete',
+          name: 'To Delete',
           owner: { _ref: 'user-1' },
         };
 

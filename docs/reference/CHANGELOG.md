@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation index (INDEX.md) with comprehensive navigation
 - Formalized changelog process in CONTRIBUTING.md
 - Cross-references between documentation files
+- Admin create/edit listing screens in the admin panel
 
 ### Changed
 - Enhanced documentation structure and discoverability
@@ -21,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Ensured admin route middleware reads session tokens from requests and redirects non-admins to sign-in
 - Stacked login/signup panels on smaller screens and limited social sign-in to Google-only setup
+- Restored listing editing for venue owners and admins by aligning managed listing APIs with Sanity ownership
 
 ## [0.1.3] - 2025-01-XX
 
