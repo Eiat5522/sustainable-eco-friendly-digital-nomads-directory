@@ -14,7 +14,7 @@
 import bcrypt from 'bcryptjs';
 import { type FilterQuery, isValidObjectId, type Types } from 'mongoose';
 import dbConnect from '@/lib/dbConnect';
-import User, { type IUser, ROLE_VALUES, STATUS_VALUES } from '@/models/User';
+import User, { type IUser, ROLE_VALUES, STATUS_VALUES, type UserStatus } from '@/models/User';
 import type { UserRole } from '@/types/auth';
 import { isEmailVerificationRequired } from './config';
 import { syncUserToSanity } from './userService';
@@ -30,6 +30,7 @@ export interface AuthUser {
   email: string;
   image?: string;
   role: UserRole;
+  status: UserStatus;
   emailVerified?: Date | null;
   tokenVersion?: number;
   sanityId?: string;
@@ -45,8 +46,10 @@ type UserDoc = {
   password?: string;
   image?: string;
   role: UserRole;
+  status: UserStatus;
   emailVerified?: Date | null;
   sanityId?: string;
+  tokenVersion?: number;
 };
 
 /**

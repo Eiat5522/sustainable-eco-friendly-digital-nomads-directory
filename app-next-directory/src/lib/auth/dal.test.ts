@@ -4,9 +4,41 @@ import { jest } from '@jest/globals';
 const mockConnect = jest.fn();
 const mockHash = jest.fn();
 const mockSync = jest.fn();
+const mockFindOne = jest.fn();
+const mockFindById = jest.fn();
+const mockUpdateOne = jest.fn();
+const mockCreate = jest.fn();
+const mockExists = jest.fn();
+const mockCountDocuments = jest.fn();
+const mockIsValidObjectId = jest.fn();
+
+const mockUserModel = {
+  findOne: jest.fn((...args: unknown[]) => mockFindOne(...args)),
+  findById: jest.fn((...args: unknown[]) => mockFindById(...args)),
+  updateOne: jest.fn((...args: unknown[]) => mockUpdateOne(...args)),
+  create: jest.fn((...args: unknown[]) => mockCreate(...args)),
+  exists: jest.fn((...args: unknown[]) => mockExists(...args)),
+  countDocuments: jest.fn((...args: unknown[]) => mockCountDocuments(...args)),
+};
 
 jest.mock('@/lib/dbConnect', () => jest.fn((...args: unknown[]) => mockConnect(...args)));
 jest.mock('@/lib/auth/userService', () => ({ syncUserToSanity: (...args: unknown[]) => mockSync(...args) }));
+jest.mock('mongoose', () => ({
+  __esModule: true,
+  isValidObjectId: (...args: unknown[]) => mockIsValidObjectId(...args),
+}));
+jest.mock('@/models/User', () => ({
+  __esModule: true,
+  default: mockUserModel,
+  ROLE_VALUES: ['user', 'editor', 'venueOwner', 'admin', 'superAdmin'],
+  STATUS_VALUES: ['active', 'suspended', 'pending'],
+  mockFindOne,
+  mockFindById,
+  mockUpdateOne,
+  mockCreate,
+  mockExists,
+  mockCountDocuments,
+}));
 
 describe('auth DAL', () => {
   const originalEnv = process.env;
@@ -15,7 +47,24 @@ describe('auth DAL', () => {
     jest.clearAllMocks();
     jest.resetModules();
     process.env = { ...originalEnv };
+    jest.doMock('mongoose', () => ({
+      __esModule: true,
+      isValidObjectId: (...args: unknown[]) => mockIsValidObjectId(...args),
+    }));
+    jest.doMock('@/models/User', () => ({
+      __esModule: true,
+      default: mockUserModel,
+      ROLE_VALUES: ['user', 'editor', 'venueOwner', 'admin', 'superAdmin'],
+      STATUS_VALUES: ['active', 'suspended', 'pending'],
+      mockFindOne,
+      mockFindById,
+      mockUpdateOne,
+      mockCreate,
+      mockExists,
+      mockCountDocuments,
+    }));
     jest.doMock('bcryptjs', () => ({ hash: (...args: unknown[]) => mockHash(...args), default: { hash: mockHash } }));
+    mockIsValidObjectId.mockReturnValue(true);
   });
 
   afterAll(() => {

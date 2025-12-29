@@ -45,6 +45,7 @@ const enforceLoginRateLimit = jest.fn();
 const recordLoginAttempt = jest.fn();
 const dbConnect = jest.fn();
 const updateOne = jest.fn();
+const findOne = jest.fn();
 const isAdminEmail = jest.fn(() => false);
 
 jest.mock('@/lib/auth/adapter', () => ({
@@ -68,7 +69,10 @@ jest.mock('@/lib/dbConnect', () => jest.fn((...args: unknown[]) => dbConnect(...
 
 jest.mock('@/models/User', () => ({
   __esModule: true,
-  default: { updateOne: jest.fn((...args: unknown[]) => updateOne(...args)) },
+  default: {
+    updateOne: jest.fn((...args: unknown[]) => updateOne(...args)),
+    findOne: jest.fn((...args: unknown[]) => findOne(...args)),
+  },
 }));
 
 jest.mock('@/lib/auth/config', () => ({
@@ -107,7 +111,10 @@ const importAuthModule = async () => {
   jest.doMock('@/lib/dbConnect', () => jest.fn((...args: unknown[]) => dbConnect(...args)));
   jest.doMock('@/models/User', () => ({
     __esModule: true,
-    default: { updateOne: jest.fn((...args: unknown[]) => updateOne(...args)) },
+    default: {
+      updateOne: jest.fn((...args: unknown[]) => updateOne(...args)),
+      findOne: jest.fn((...args: unknown[]) => findOne(...args)),
+    },
   }));
   jest.doMock('@/lib/auth/config', () => ({
     isAdminEmail,
@@ -137,6 +144,7 @@ describe('auth module', () => {
     isAdminEmail.mockReturnValue(false);
     credentialsSpy.mockClear();
     googleSpy.mockClear();
+    findOne.mockResolvedValue(null);
   });
 
   afterAll(() => {

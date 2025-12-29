@@ -104,16 +104,20 @@ const callbacks = {
   async signIn({ user, account, profile }) {
     try {
       // Check if user is suspended in MongoDB
-      if (user?.email) {
+      const provider = account?.provider;
+      const isCredentialsProvider = provider === 'credentials';
+      const email = typeof user?.email === 'string' ? user.email.toLowerCase() : null;
+      const shouldCheckDb = Boolean(email && provider && !isCredentialsProvider);
+      if (shouldCheckDb) {
         await dbConnect();
-        const dbUser = await UserModel.findOne({ email: user.email.toLowerCase() });
+        const dbUser = await UserModel.findOne({ email });
         if (dbUser?.status === 'suspended') {
           return false; // Block sign-in
         }
       }
 
       // Only apply to OAuth providers; credentials flow already enforces verification.
-      if (account?.provider && account.provider !== 'credentials' && user?.email) {
+      if (shouldCheckDb) {
         // TODO(auth): Reinstate rate-limit enforcement for OAuth verification
         // callbacks once the shared rate limiter is ready for this flow.
 
@@ -121,30 +125,29 @@ const callbacks = {
         const p = (profile ?? {}) as Record<string, unknown>;
         const isTrue = (v: unknown) => v === true;
         const isNotNullish = (v: unknown) => v != null;
-        const provider = account.provider;
+        const oauthProvider = provider as string;
         const emailVerifiedHeuristic =
           isTrue(p['email_verified']) ||
           isTrue(p['verified_email']) ||
           isTrue(p['emailVerified']) ||
           isNotNullish(p['email_verified_at']) ||
           isTrue(p['verified']);
-        const hasEmail = Boolean(user.email);
+        const hasEmail = Boolean(email);
         const shouldVerify =
           // Google common flags
-          (provider === 'google' && (emailVerifiedHeuristic || hasEmail)) ||
+          (oauthProvider === 'google' && (emailVerifiedHeuristic || hasEmail)) ||
           // Facebook often provides email if permission granted; presence implies control
-          (provider === 'facebook' && hasEmail) ||
+          (oauthProvider === 'facebook' && hasEmail) ||
           // X/Twitter only exposes email with elevated perms; if present assume control
-          (provider === 'twitter' && ((p['email'] as string | undefined) || hasEmail)) ||
+          (oauthProvider === 'twitter' && ((p['email'] as string | undefined) || hasEmail)) ||
           // Microsoft Entra ID: if sign-in succeeded and email present, assume verified
-          (provider === 'microsoft-entra-id' && hasEmail) ||
+          (oauthProvider === 'microsoft-entra-id' && hasEmail) ||
           // Fallback on explicit flags from any provider
           emailVerifiedHeuristic;
         if (shouldVerify && process.env.MONGODB_URI) {
-          await dbConnect();
           await UserModel.updateOne(
             {
-              email: String(user.email).toLowerCase(),
+              email,
               emailVerified: null,
             },
             { $set: { emailVerified: new Date() } },

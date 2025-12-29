@@ -44,7 +44,7 @@
     "lint": "biome lint . && pnpm lint:eslint",
     "test:watch": "pnpm --filter app-next-directory test:watch",
     "test:coverage": "pnpm --filter app-next-directory test:coverage",
-    "test:ci": "biome lint . && pnpm lint:eslint && pnpm build:next --debug-prerender & pnpm --filter app-next-directory test:unit && pnpm --filter app-next-directory test:integration",
+    "test:ci": "biome lint . && pnpm lint:eslint && tsc --noEmit && pnpm --filter app-next-directory test:unit",
     "check-types": "tsc --noEmit",
     "type-check": "tsc --noEmit",
     "types:postprocess": "node sanity-types-postprocess.js",

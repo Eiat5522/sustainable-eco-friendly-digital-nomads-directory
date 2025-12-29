@@ -65,6 +65,12 @@ describe('serverAuth', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.resetModules();
+    mockUserModel.findOne.mockReset();
+    mockUserModel.exists.mockReset();
+    mockUserModel.create.mockReset();
+    mockUserModel.findById.mockReset();
+    mockUserModel.updateOne.mockReset();
+    mockUserModel.findByIdAndUpdate.mockReset();
     mockDbConnect.mockResolvedValue(undefined);
     mockIsEmailVerificationRequired.mockReturnValue(false);
     mockIsValidObjectId.mockImplementation(id => {
