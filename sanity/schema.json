@@ -880,6 +880,215 @@
     }
   },
   {
+    "name": "sanity.imageCrop",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "sanity.imageCrop"
+          }
+        },
+        "top": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "number"
+          },
+          "optional": true
+        },
+        "bottom": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "number"
+          },
+          "optional": true
+        },
+        "left": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "number"
+          },
+          "optional": true
+        },
+        "right": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "number"
+          },
+          "optional": true
+        }
+      }
+    }
+  },
+  {
+    "name": "sanity.imageHotspot",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "sanity.imageHotspot"
+          }
+        },
+        "x": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "number"
+          },
+          "optional": true
+        },
+        "y": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "number"
+          },
+          "optional": true
+        },
+        "height": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "number"
+          },
+          "optional": true
+        },
+        "width": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "number"
+          },
+          "optional": true
+        }
+      }
+    }
+  },
+  {
+    "name": "restaurantDetails",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "restaurantDetails"
+          }
+        },
+        "cuisineType": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "array",
+            "of": {
+              "type": "string"
+            }
+          },
+          "optional": true
+        },
+        "priceRange": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "budget"
+              },
+              {
+                "type": "string",
+                "value": "moderate"
+              },
+              {
+                "type": "string",
+                "value": "expensive"
+              },
+              {
+                "type": "string",
+                "value": "luxury"
+              }
+            ]
+          },
+          "optional": true
+        },
+        "operatingHours": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "sustainabilityInitiatives": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "array",
+            "of": {
+              "type": "string"
+            }
+          },
+          "optional": true
+        },
+        "dietaryOptions": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "array",
+            "of": {
+              "type": "string"
+            }
+          },
+          "optional": true
+        },
+        "seating": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "array",
+            "of": {
+              "type": "string"
+            }
+          },
+          "optional": true
+        },
+        "workFriendly": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "array",
+            "of": {
+              "type": "string"
+            }
+          },
+          "optional": true
+        },
+        "averageMealPriceThb": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "object",
+            "attributes": {
+              "min": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "number"
+                },
+                "optional": true
+              },
+              "max": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "number"
+                },
+                "optional": true
+              }
+            }
+          },
+          "optional": true
+        }
+      }
+    }
+  },
+  {
     "name": "nomadFeature",
     "type": "document",
     "attributes": {
@@ -1018,6 +1227,36 @@
           }
         },
         "optional": true
+      }
+    }
+  },
+  {
+    "name": "slug",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "slug"
+          }
+        },
+        "current": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "source": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        }
       }
     }
   },
@@ -1828,6 +2067,96 @@
     }
   },
   {
+    "name": "coworkingDetails",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "coworkingDetails"
+          }
+        },
+        "pricingPlans": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "array",
+            "of": {
+              "type": "object",
+              "attributes": {
+                "_key": {
+                  "type": "objectAttribute",
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              },
+              "rest": {
+                "type": "inline",
+                "name": "coworkingPricingPlan"
+              }
+            }
+          },
+          "optional": true
+        },
+        "openingHours": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "array",
+            "of": {
+              "type": "object",
+              "attributes": {
+                "_key": {
+                  "type": "objectAttribute",
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              },
+              "rest": {
+                "type": "inline",
+                "name": "openingHoursEntry"
+              }
+            }
+          },
+          "optional": true
+        },
+        "internetSpeed": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "object",
+            "attributes": {
+              "download": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "number"
+                },
+                "optional": true
+              },
+              "upload": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "number"
+                },
+                "optional": true
+              },
+              "lastTested": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "string"
+                },
+                "optional": true
+              }
+            }
+          },
+          "optional": true
+        }
+      }
+    }
+  },
+  {
     "name": "comment",
     "type": "document",
     "attributes": {
@@ -1972,6 +2301,278 @@
           "dereferencesTo": "comment"
         },
         "optional": true
+      }
+    }
+  },
+  {
+    "name": "cafeDetails",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "cafeDetails"
+          }
+        },
+        "openingHours": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "array",
+            "of": {
+              "type": "object",
+              "attributes": {
+                "_key": {
+                  "type": "objectAttribute",
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              },
+              "rest": {
+                "type": "inline",
+                "name": "openingHoursEntry"
+              }
+            }
+          },
+          "optional": true
+        },
+        "priceIndication": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "$"
+              },
+              {
+                "type": "string",
+                "value": "$$"
+              }
+            ]
+          },
+          "optional": true
+        },
+        "menuHighlights": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "array",
+            "of": {
+              "type": "union",
+              "of": [
+                {
+                  "type": "string",
+                  "value": "specialty_coffee_beans"
+                },
+                {
+                  "type": "string",
+                  "value": "sourdough_bread_pastries"
+                },
+                {
+                  "type": "string",
+                  "value": "extensive_vegan_options"
+                },
+                {
+                  "type": "string",
+                  "value": "fresh_pressed_juices_smoothies"
+                },
+                {
+                  "type": "string",
+                  "value": "brunch_menu"
+                },
+                {
+                  "type": "string",
+                  "value": "local_thai_dishes"
+                },
+                {
+                  "type": "string",
+                  "value": "craft_beer_wine"
+                },
+                {
+                  "type": "string",
+                  "value": "organic_ingredients"
+                },
+                {
+                  "type": "string",
+                  "value": "gluten_free_options"
+                },
+                {
+                  "type": "string",
+                  "value": "plant_based_menu"
+                }
+              ]
+            }
+          },
+          "optional": true
+        },
+        "workspaceAmenities": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "array",
+            "of": {
+              "type": "string"
+            }
+          },
+          "optional": true
+        },
+        "maxRecommendedStay": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "number"
+          },
+          "optional": true
+        },
+        "noiseLevel": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "very_quiet"
+              },
+              {
+                "type": "string",
+                "value": "low"
+              },
+              {
+                "type": "string",
+                "value": "moderate"
+              },
+              {
+                "type": "string",
+                "value": "high"
+              },
+              {
+                "type": "string",
+                "value": "very_loud"
+              }
+            ]
+          },
+          "optional": true
+        },
+        "powerOutlets": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "object",
+            "attributes": {
+              "availability": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "union",
+                  "of": [
+                    {
+                      "type": "string",
+                      "value": "abundant"
+                    },
+                    {
+                      "type": "string",
+                      "value": "good"
+                    },
+                    {
+                      "type": "string",
+                      "value": "limited"
+                    },
+                    {
+                      "type": "string",
+                      "value": "very_limited"
+                    },
+                    {
+                      "type": "string",
+                      "value": "none"
+                    }
+                  ]
+                },
+                "optional": true
+              },
+              "notes": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "string"
+                },
+                "optional": true
+              }
+            }
+          },
+          "optional": true
+        },
+        "workPolicy": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "object",
+            "attributes": {
+              "laptopsAllowed": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "boolean"
+                },
+                "optional": true
+              },
+              "timeLimit": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "number"
+                },
+                "optional": true
+              },
+              "peakHoursPolicy": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "union",
+                  "of": [
+                    {
+                      "type": "string",
+                      "value": "always"
+                    },
+                    {
+                      "type": "string",
+                      "value": "limited_peak"
+                    },
+                    {
+                      "type": "string",
+                      "value": "no_peak"
+                    }
+                  ]
+                },
+                "optional": true
+              },
+              "peakHours": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "string"
+                },
+                "optional": true
+              }
+            }
+          },
+          "optional": true
+        },
+        "veganFriendly": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "object",
+            "attributes": {
+              "isVeganFriendly": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "boolean"
+                },
+                "optional": true
+              },
+              "veganOptions": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "number"
+                },
+                "optional": true
+              }
+            }
+          },
+          "optional": true
+        }
       }
     }
   },
@@ -2140,6 +2741,625 @@
     }
   },
   {
+    "name": "activitiesDetails",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "activitiesDetails"
+          }
+        },
+        "activityType": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "yoga_wellness"
+              },
+              {
+                "type": "string",
+                "value": "outdoor_adventure"
+              },
+              {
+                "type": "string",
+                "value": "cultural_experience"
+              },
+              {
+                "type": "string",
+                "value": "eco_tour"
+              },
+              {
+                "type": "string",
+                "value": "cooking_class"
+              },
+              {
+                "type": "string",
+                "value": "meditation_mindfulness"
+              },
+              {
+                "type": "string",
+                "value": "community_service"
+              },
+              {
+                "type": "string",
+                "value": "sustainable_workshop"
+              }
+            ]
+          },
+          "optional": true
+        },
+        "pricePerPerson": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "object",
+            "attributes": {
+              "min": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "number"
+                },
+                "optional": true
+              },
+              "max": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "number"
+                },
+                "optional": true
+              }
+            }
+          },
+          "optional": true
+        },
+        "duration": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "object",
+            "attributes": {
+              "value": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "number"
+                },
+                "optional": true
+              },
+              "unit": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "union",
+                  "of": [
+                    {
+                      "type": "string",
+                      "value": "hours"
+                    },
+                    {
+                      "type": "string",
+                      "value": "days"
+                    }
+                  ]
+                },
+                "optional": true
+              }
+            }
+          },
+          "optional": true
+        },
+        "groupSize": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "object",
+            "attributes": {
+              "min": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "number"
+                },
+                "optional": true
+              },
+              "max": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "number"
+                },
+                "optional": true
+              }
+            }
+          },
+          "optional": true
+        },
+        "sustainabilityPractices": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "array",
+            "of": {
+              "type": "string"
+            }
+          },
+          "optional": true
+        },
+        "skillLevel": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "beginner"
+              },
+              {
+                "type": "string",
+                "value": "intermediate"
+              },
+              {
+                "type": "string",
+                "value": "advanced"
+              },
+              {
+                "type": "string",
+                "value": "all_levels"
+              }
+            ]
+          },
+          "optional": true
+        },
+        "ecoScore": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "object",
+            "attributes": {
+              "score": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "number"
+                },
+                "optional": true
+              },
+              "certifications": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "array",
+                  "of": {
+                    "type": "string"
+                  }
+                },
+                "optional": true
+              },
+              "justification": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "string"
+                },
+                "optional": true
+              }
+            }
+          },
+          "optional": true
+        },
+        "languages": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "array",
+            "of": {
+              "type": "string"
+            }
+          },
+          "optional": true
+        },
+        "accessibility": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "object",
+            "attributes": {
+              "wheelchairAccessible": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "boolean"
+                },
+                "optional": true
+              },
+              "mobilityLevel": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "union",
+                  "of": [
+                    {
+                      "type": "string",
+                      "value": "easy"
+                    },
+                    {
+                      "type": "string",
+                      "value": "moderate"
+                    },
+                    {
+                      "type": "string",
+                      "value": "challenging"
+                    },
+                    {
+                      "type": "string",
+                      "value": "difficult"
+                    }
+                  ]
+                },
+                "optional": true
+              },
+              "accessibilityNotes": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "string"
+                },
+                "optional": true
+              }
+            }
+          },
+          "optional": true
+        },
+        "seasonality": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "object",
+            "attributes": {
+              "bestMonths": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "array",
+                  "of": {
+                    "type": "string"
+                  }
+                },
+                "optional": true
+              },
+              "weatherDependent": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "boolean"
+                },
+                "optional": true
+              }
+            }
+          },
+          "optional": true
+        }
+      }
+    }
+  },
+  {
+    "name": "accommodationDetails",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "accommodationDetails"
+          }
+        },
+        "accommodationType": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "hotel"
+              },
+              {
+                "type": "string",
+                "value": "guesthouse"
+              },
+              {
+                "type": "string",
+                "value": "bungalow"
+              },
+              {
+                "type": "string",
+                "value": "resort"
+              },
+              {
+                "type": "string",
+                "value": "hostel"
+              },
+              {
+                "type": "string",
+                "value": "apartment_condo"
+              },
+              {
+                "type": "string",
+                "value": "villa"
+              },
+              {
+                "type": "string",
+                "value": "eco_lodge"
+              }
+            ]
+          },
+          "optional": true
+        },
+        "pricePerNightThb": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "object",
+            "attributes": {
+              "min": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "number"
+                },
+                "optional": true
+              },
+              "max": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "number"
+                },
+                "optional": true
+              }
+            }
+          },
+          "optional": true
+        },
+        "openingHours": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "array",
+            "of": {
+              "type": "object",
+              "attributes": {
+                "_key": {
+                  "type": "objectAttribute",
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              },
+              "rest": {
+                "type": "inline",
+                "name": "openingHoursEntry"
+              }
+            }
+          },
+          "optional": true
+        },
+        "roomTypesAvailable": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "array",
+            "of": {
+              "type": "object",
+              "attributes": {
+                "type": {
+                  "type": "objectAttribute",
+                  "value": {
+                    "type": "union",
+                    "of": [
+                      {
+                        "type": "string",
+                        "value": "single"
+                      },
+                      {
+                        "type": "string",
+                        "value": "double"
+                      },
+                      {
+                        "type": "string",
+                        "value": "twin"
+                      },
+                      {
+                        "type": "string",
+                        "value": "studio"
+                      },
+                      {
+                        "type": "string",
+                        "value": "one_bedroom"
+                      },
+                      {
+                        "type": "string",
+                        "value": "two_bedroom"
+                      },
+                      {
+                        "type": "string",
+                        "value": "dormitory"
+                      },
+                      {
+                        "type": "string",
+                        "value": "suite"
+                      }
+                    ]
+                  },
+                  "optional": true
+                },
+                "pricePerNight": {
+                  "type": "objectAttribute",
+                  "value": {
+                    "type": "number"
+                  },
+                  "optional": true
+                },
+                "features": {
+                  "type": "objectAttribute",
+                  "value": {
+                    "type": "array",
+                    "of": {
+                      "type": "string"
+                    }
+                  },
+                  "optional": true
+                }
+              },
+              "rest": {
+                "type": "object",
+                "attributes": {
+                  "_key": {
+                    "type": "objectAttribute",
+                    "value": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "optional": true
+        },
+        "minimumStay": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "number"
+          },
+          "optional": true
+        },
+        "coworkingPartnership": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "object",
+            "attributes": {
+              "hasPartnership": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "boolean"
+                },
+                "optional": true
+              },
+              "partner": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "object",
+                  "attributes": {
+                    "_ref": {
+                      "type": "objectAttribute",
+                      "value": {
+                        "type": "string"
+                      }
+                    },
+                    "_type": {
+                      "type": "objectAttribute",
+                      "value": {
+                        "type": "string",
+                        "value": "reference"
+                      }
+                    },
+                    "_weak": {
+                      "type": "objectAttribute",
+                      "value": {
+                        "type": "boolean"
+                      },
+                      "optional": true
+                    }
+                  },
+                  "dereferencesTo": "listing"
+                },
+                "optional": true
+              },
+              "discountDetails": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "string"
+                },
+                "optional": true
+              }
+            }
+          },
+          "optional": true
+        },
+        "workspaceQuality": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "object",
+            "attributes": {
+              "hasWorkspace": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "boolean"
+                },
+                "optional": true
+              },
+              "workspaceType": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "union",
+                  "of": [
+                    {
+                      "type": "string",
+                      "value": "proper_desk"
+                    },
+                    {
+                      "type": "string",
+                      "value": "ergonomic"
+                    },
+                    {
+                      "type": "string",
+                      "value": "basic"
+                    },
+                    {
+                      "type": "string",
+                      "value": "shared"
+                    }
+                  ]
+                },
+                "optional": true
+              },
+              "workspaceFeatures": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "array",
+                  "of": {
+                    "type": "string"
+                  }
+                },
+                "optional": true
+              }
+            }
+          },
+          "optional": true
+        },
+        "stayDuration": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "object",
+            "attributes": {
+              "minimumNights": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "number"
+                },
+                "optional": true
+              },
+              "maximumNights": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "number"
+                },
+                "optional": true
+              },
+              "longTermAvailable": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "boolean"
+                },
+                "optional": true
+              },
+              "longTermDiscount": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "string"
+                },
+                "optional": true
+              }
+            }
+          },
+          "optional": true
+        }
+      }
+    }
+  },
+  {
     "name": "userFavorite",
     "type": "document",
     "attributes": {
@@ -2201,7 +3421,8 @@
             }
           },
           "dereferencesTo": "user"
-        }
+        },
+        "optional": true
       },
       "listing": {
         "type": "objectAttribute",
@@ -2230,7 +3451,15 @@
             }
           },
           "dereferencesTo": "listing"
-        }
+        },
+        "optional": true
+      },
+      "createdAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
       }
     }
   },
@@ -2762,6 +3991,13 @@
         },
         "optional": true
       },
+      "mongodbId": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
       "avatar": {
         "type": "objectAttribute",
         "value": {
@@ -2853,11 +4089,40 @@
             },
             {
               "type": "string",
+              "value": "author"
+            },
+            {
+              "type": "string",
               "value": "venueOwner"
             },
             {
               "type": "string",
               "value": "admin"
+            },
+            {
+              "type": "string",
+              "value": "superAdmin"
+            }
+          ]
+        },
+        "optional": true
+      },
+      "status": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "active"
+            },
+            {
+              "type": "string",
+              "value": "suspended"
+            },
+            {
+              "type": "string",
+              "value": "pending"
             }
           ]
         },
@@ -3715,7 +4980,7 @@
     }
   },
   {
-    "name": "restaurantDetails",
+    "name": "geopoint",
     "type": "type",
     "value": {
       "type": "object",
@@ -3724,1092 +4989,27 @@
           "type": "objectAttribute",
           "value": {
             "type": "string",
-            "value": "restaurantDetails"
+            "value": "geopoint"
           }
         },
-        "cuisineType": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "array",
-            "of": {
-              "type": "string"
-            }
-          },
-          "optional": true
-        },
-        "priceRange": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "union",
-            "of": [
-              {
-                "type": "string",
-                "value": "budget"
-              },
-              {
-                "type": "string",
-                "value": "moderate"
-              },
-              {
-                "type": "string",
-                "value": "expensive"
-              },
-              {
-                "type": "string",
-                "value": "luxury"
-              }
-            ]
-          },
-          "optional": true
-        },
-        "operatingHours": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string"
-          },
-          "optional": true
-        },
-        "sustainabilityInitiatives": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "array",
-            "of": {
-              "type": "string"
-            }
-          },
-          "optional": true
-        },
-        "dietaryOptions": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "array",
-            "of": {
-              "type": "string"
-            }
-          },
-          "optional": true
-        },
-        "seating": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "array",
-            "of": {
-              "type": "string"
-            }
-          },
-          "optional": true
-        },
-        "workFriendly": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "array",
-            "of": {
-              "type": "string"
-            }
-          },
-          "optional": true
-        },
-        "averageMealPriceThb": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "object",
-            "attributes": {
-              "min": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "number"
-                },
-                "optional": true
-              },
-              "max": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "number"
-                },
-                "optional": true
-              }
-            }
-          },
-          "optional": true
-        }
-      }
-    }
-  },
-  {
-    "name": "coworkingDetails",
-    "type": "type",
-    "value": {
-      "type": "object",
-      "attributes": {
-        "_type": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string",
-            "value": "coworkingDetails"
-          }
-        },
-        "pricingPlans": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "array",
-            "of": {
-              "type": "object",
-              "attributes": {
-                "_key": {
-                  "type": "objectAttribute",
-                  "value": {
-                    "type": "string"
-                  }
-                }
-              },
-              "rest": {
-                "type": "inline",
-                "name": "coworkingPricingPlan"
-              }
-            }
-          },
-          "optional": true
-        },
-        "openingHours": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "array",
-            "of": {
-              "type": "object",
-              "attributes": {
-                "_key": {
-                  "type": "objectAttribute",
-                  "value": {
-                    "type": "string"
-                  }
-                }
-              },
-              "rest": {
-                "type": "inline",
-                "name": "openingHoursEntry"
-              }
-            }
-          },
-          "optional": true
-        },
-        "internetSpeed": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "object",
-            "attributes": {
-              "download": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "number"
-                },
-                "optional": true
-              },
-              "upload": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "number"
-                },
-                "optional": true
-              },
-              "lastTested": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "string"
-                },
-                "optional": true
-              }
-            }
-          },
-          "optional": true
-        }
-      }
-    }
-  },
-  {
-    "name": "cafeDetails",
-    "type": "type",
-    "value": {
-      "type": "object",
-      "attributes": {
-        "_type": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string",
-            "value": "cafeDetails"
-          }
-        },
-        "openingHours": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "array",
-            "of": {
-              "type": "object",
-              "attributes": {
-                "_key": {
-                  "type": "objectAttribute",
-                  "value": {
-                    "type": "string"
-                  }
-                }
-              },
-              "rest": {
-                "type": "inline",
-                "name": "openingHoursEntry"
-              }
-            }
-          },
-          "optional": true
-        },
-        "priceIndication": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "union",
-            "of": [
-              {
-                "type": "string",
-                "value": "$"
-              },
-              {
-                "type": "string",
-                "value": "$$"
-              }
-            ]
-          },
-          "optional": true
-        },
-        "menuHighlights": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "array",
-            "of": {
-              "type": "union",
-              "of": [
-                {
-                  "type": "string",
-                  "value": "specialty_coffee_beans"
-                },
-                {
-                  "type": "string",
-                  "value": "sourdough_bread_pastries"
-                },
-                {
-                  "type": "string",
-                  "value": "extensive_vegan_options"
-                },
-                {
-                  "type": "string",
-                  "value": "fresh_pressed_juices_smoothies"
-                },
-                {
-                  "type": "string",
-                  "value": "brunch_menu"
-                },
-                {
-                  "type": "string",
-                  "value": "local_thai_dishes"
-                },
-                {
-                  "type": "string",
-                  "value": "craft_beer_wine"
-                },
-                {
-                  "type": "string",
-                  "value": "organic_ingredients"
-                },
-                {
-                  "type": "string",
-                  "value": "gluten_free_options"
-                },
-                {
-                  "type": "string",
-                  "value": "plant_based_menu"
-                }
-              ]
-            }
-          },
-          "optional": true
-        },
-        "workspaceAmenities": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "array",
-            "of": {
-              "type": "string"
-            }
-          },
-          "optional": true
-        },
-        "maxRecommendedStay": {
+        "lat": {
           "type": "objectAttribute",
           "value": {
             "type": "number"
           },
           "optional": true
         },
-        "noiseLevel": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "union",
-            "of": [
-              {
-                "type": "string",
-                "value": "very_quiet"
-              },
-              {
-                "type": "string",
-                "value": "low"
-              },
-              {
-                "type": "string",
-                "value": "moderate"
-              },
-              {
-                "type": "string",
-                "value": "high"
-              },
-              {
-                "type": "string",
-                "value": "very_loud"
-              }
-            ]
-          },
-          "optional": true
-        },
-        "powerOutlets": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "object",
-            "attributes": {
-              "availability": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "union",
-                  "of": [
-                    {
-                      "type": "string",
-                      "value": "abundant"
-                    },
-                    {
-                      "type": "string",
-                      "value": "good"
-                    },
-                    {
-                      "type": "string",
-                      "value": "limited"
-                    },
-                    {
-                      "type": "string",
-                      "value": "very_limited"
-                    },
-                    {
-                      "type": "string",
-                      "value": "none"
-                    }
-                  ]
-                },
-                "optional": true
-              },
-              "notes": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "string"
-                },
-                "optional": true
-              }
-            }
-          },
-          "optional": true
-        },
-        "workPolicy": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "object",
-            "attributes": {
-              "laptopsAllowed": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "boolean"
-                },
-                "optional": true
-              },
-              "timeLimit": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "number"
-                },
-                "optional": true
-              },
-              "peakHoursPolicy": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "union",
-                  "of": [
-                    {
-                      "type": "string",
-                      "value": "always"
-                    },
-                    {
-                      "type": "string",
-                      "value": "limited_peak"
-                    },
-                    {
-                      "type": "string",
-                      "value": "no_peak"
-                    }
-                  ]
-                },
-                "optional": true
-              },
-              "peakHours": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "string"
-                },
-                "optional": true
-              }
-            }
-          },
-          "optional": true
-        },
-        "veganFriendly": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "object",
-            "attributes": {
-              "isVeganFriendly": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "boolean"
-                },
-                "optional": true
-              },
-              "veganOptions": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "number"
-                },
-                "optional": true
-              }
-            }
-          },
-          "optional": true
-        }
-      }
-    }
-  },
-  {
-    "name": "activitiesDetails",
-    "type": "type",
-    "value": {
-      "type": "object",
-      "attributes": {
-        "_type": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string",
-            "value": "activitiesDetails"
-          }
-        },
-        "activityType": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "union",
-            "of": [
-              {
-                "type": "string",
-                "value": "yoga_wellness"
-              },
-              {
-                "type": "string",
-                "value": "outdoor_adventure"
-              },
-              {
-                "type": "string",
-                "value": "cultural_experience"
-              },
-              {
-                "type": "string",
-                "value": "eco_tour"
-              },
-              {
-                "type": "string",
-                "value": "cooking_class"
-              },
-              {
-                "type": "string",
-                "value": "meditation_mindfulness"
-              },
-              {
-                "type": "string",
-                "value": "community_service"
-              },
-              {
-                "type": "string",
-                "value": "sustainable_workshop"
-              }
-            ]
-          },
-          "optional": true
-        },
-        "pricePerPerson": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "object",
-            "attributes": {
-              "min": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "number"
-                },
-                "optional": true
-              },
-              "max": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "number"
-                },
-                "optional": true
-              }
-            }
-          },
-          "optional": true
-        },
-        "duration": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "object",
-            "attributes": {
-              "value": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "number"
-                },
-                "optional": true
-              },
-              "unit": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "union",
-                  "of": [
-                    {
-                      "type": "string",
-                      "value": "hours"
-                    },
-                    {
-                      "type": "string",
-                      "value": "days"
-                    }
-                  ]
-                },
-                "optional": true
-              }
-            }
-          },
-          "optional": true
-        },
-        "groupSize": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "object",
-            "attributes": {
-              "min": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "number"
-                },
-                "optional": true
-              },
-              "max": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "number"
-                },
-                "optional": true
-              }
-            }
-          },
-          "optional": true
-        },
-        "sustainabilityPractices": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "array",
-            "of": {
-              "type": "string"
-            }
-          },
-          "optional": true
-        },
-        "skillLevel": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "union",
-            "of": [
-              {
-                "type": "string",
-                "value": "beginner"
-              },
-              {
-                "type": "string",
-                "value": "intermediate"
-              },
-              {
-                "type": "string",
-                "value": "advanced"
-              },
-              {
-                "type": "string",
-                "value": "all_levels"
-              }
-            ]
-          },
-          "optional": true
-        },
-        "ecoScore": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "object",
-            "attributes": {
-              "score": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "number"
-                },
-                "optional": true
-              },
-              "certifications": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "array",
-                  "of": {
-                    "type": "string"
-                  }
-                },
-                "optional": true
-              },
-              "justification": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "string"
-                },
-                "optional": true
-              }
-            }
-          },
-          "optional": true
-        },
-        "languages": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "array",
-            "of": {
-              "type": "string"
-            }
-          },
-          "optional": true
-        },
-        "accessibility": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "object",
-            "attributes": {
-              "wheelchairAccessible": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "boolean"
-                },
-                "optional": true
-              },
-              "mobilityLevel": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "union",
-                  "of": [
-                    {
-                      "type": "string",
-                      "value": "easy"
-                    },
-                    {
-                      "type": "string",
-                      "value": "moderate"
-                    },
-                    {
-                      "type": "string",
-                      "value": "challenging"
-                    },
-                    {
-                      "type": "string",
-                      "value": "difficult"
-                    }
-                  ]
-                },
-                "optional": true
-              },
-              "accessibilityNotes": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "string"
-                },
-                "optional": true
-              }
-            }
-          },
-          "optional": true
-        },
-        "seasonality": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "object",
-            "attributes": {
-              "bestMonths": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "array",
-                  "of": {
-                    "type": "string"
-                  }
-                },
-                "optional": true
-              },
-              "weatherDependent": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "boolean"
-                },
-                "optional": true
-              }
-            }
-          },
-          "optional": true
-        }
-      }
-    }
-  },
-  {
-    "name": "accommodationDetails",
-    "type": "type",
-    "value": {
-      "type": "object",
-      "attributes": {
-        "_type": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string",
-            "value": "accommodationDetails"
-          }
-        },
-        "accommodationType": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "union",
-            "of": [
-              {
-                "type": "string",
-                "value": "hotel"
-              },
-              {
-                "type": "string",
-                "value": "guesthouse"
-              },
-              {
-                "type": "string",
-                "value": "bungalow"
-              },
-              {
-                "type": "string",
-                "value": "resort"
-              },
-              {
-                "type": "string",
-                "value": "hostel"
-              },
-              {
-                "type": "string",
-                "value": "apartment_condo"
-              },
-              {
-                "type": "string",
-                "value": "villa"
-              },
-              {
-                "type": "string",
-                "value": "eco_lodge"
-              }
-            ]
-          },
-          "optional": true
-        },
-        "pricePerNightThb": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "object",
-            "attributes": {
-              "min": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "number"
-                },
-                "optional": true
-              },
-              "max": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "number"
-                },
-                "optional": true
-              }
-            }
-          },
-          "optional": true
-        },
-        "openingHours": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "array",
-            "of": {
-              "type": "object",
-              "attributes": {
-                "_key": {
-                  "type": "objectAttribute",
-                  "value": {
-                    "type": "string"
-                  }
-                }
-              },
-              "rest": {
-                "type": "inline",
-                "name": "openingHoursEntry"
-              }
-            }
-          },
-          "optional": true
-        },
-        "roomTypesAvailable": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "array",
-            "of": {
-              "type": "object",
-              "attributes": {
-                "type": {
-                  "type": "objectAttribute",
-                  "value": {
-                    "type": "union",
-                    "of": [
-                      {
-                        "type": "string",
-                        "value": "single"
-                      },
-                      {
-                        "type": "string",
-                        "value": "double"
-                      },
-                      {
-                        "type": "string",
-                        "value": "twin"
-                      },
-                      {
-                        "type": "string",
-                        "value": "studio"
-                      },
-                      {
-                        "type": "string",
-                        "value": "one_bedroom"
-                      },
-                      {
-                        "type": "string",
-                        "value": "two_bedroom"
-                      },
-                      {
-                        "type": "string",
-                        "value": "dormitory"
-                      },
-                      {
-                        "type": "string",
-                        "value": "suite"
-                      }
-                    ]
-                  },
-                  "optional": true
-                },
-                "pricePerNight": {
-                  "type": "objectAttribute",
-                  "value": {
-                    "type": "number"
-                  },
-                  "optional": true
-                },
-                "features": {
-                  "type": "objectAttribute",
-                  "value": {
-                    "type": "array",
-                    "of": {
-                      "type": "string"
-                    }
-                  },
-                  "optional": true
-                }
-              },
-              "rest": {
-                "type": "object",
-                "attributes": {
-                  "_key": {
-                    "type": "objectAttribute",
-                    "value": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "optional": true
-        },
-        "minimumStay": {
+        "lng": {
           "type": "objectAttribute",
           "value": {
             "type": "number"
           },
           "optional": true
         },
-        "coworkingPartnership": {
+        "alt": {
           "type": "objectAttribute",
           "value": {
-            "type": "object",
-            "attributes": {
-              "hasPartnership": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "boolean"
-                },
-                "optional": true
-              },
-              "partner": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "object",
-                  "attributes": {
-                    "_ref": {
-                      "type": "objectAttribute",
-                      "value": {
-                        "type": "string"
-                      }
-                    },
-                    "_type": {
-                      "type": "objectAttribute",
-                      "value": {
-                        "type": "string",
-                        "value": "reference"
-                      }
-                    },
-                    "_weak": {
-                      "type": "objectAttribute",
-                      "value": {
-                        "type": "boolean"
-                      },
-                      "optional": true
-                    }
-                  },
-                  "dereferencesTo": "listing"
-                },
-                "optional": true
-              },
-              "discountDetails": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "string"
-                },
-                "optional": true
-              }
-            }
-          },
-          "optional": true
-        },
-        "workspaceQuality": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "object",
-            "attributes": {
-              "hasWorkspace": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "boolean"
-                },
-                "optional": true
-              },
-              "workspaceType": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "union",
-                  "of": [
-                    {
-                      "type": "string",
-                      "value": "proper_desk"
-                    },
-                    {
-                      "type": "string",
-                      "value": "ergonomic"
-                    },
-                    {
-                      "type": "string",
-                      "value": "basic"
-                    },
-                    {
-                      "type": "string",
-                      "value": "shared"
-                    }
-                  ]
-                },
-                "optional": true
-              },
-              "workspaceFeatures": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "array",
-                  "of": {
-                    "type": "string"
-                  }
-                },
-                "optional": true
-              }
-            }
-          },
-          "optional": true
-        },
-        "stayDuration": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "object",
-            "attributes": {
-              "minimumNights": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "number"
-                },
-                "optional": true
-              },
-              "maximumNights": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "number"
-                },
-                "optional": true
-              },
-              "longTermAvailable": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "boolean"
-                },
-                "optional": true
-              },
-              "longTermDiscount": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "string"
-                },
-                "optional": true
-              }
-            }
+            "type": "number"
           },
           "optional": true
         }
@@ -5183,7 +5383,7 @@
     }
   },
   {
-    "name": "sanity.imageHotspot",
+    "name": "sanity.imageMetadata",
     "type": "type",
     "value": {
       "type": "object",
@@ -5192,78 +5392,58 @@
           "type": "objectAttribute",
           "value": {
             "type": "string",
-            "value": "sanity.imageHotspot"
+            "value": "sanity.imageMetadata"
           }
         },
-        "x": {
+        "location": {
           "type": "objectAttribute",
           "value": {
-            "type": "number"
+            "type": "inline",
+            "name": "geopoint"
           },
           "optional": true
         },
-        "y": {
+        "dimensions": {
           "type": "objectAttribute",
           "value": {
-            "type": "number"
+            "type": "inline",
+            "name": "sanity.imageDimensions"
           },
           "optional": true
         },
-        "height": {
+        "palette": {
           "type": "objectAttribute",
           "value": {
-            "type": "number"
+            "type": "inline",
+            "name": "sanity.imagePalette"
           },
           "optional": true
         },
-        "width": {
+        "lqip": {
           "type": "objectAttribute",
           "value": {
-            "type": "number"
-          },
-          "optional": true
-        }
-      }
-    }
-  },
-  {
-    "name": "sanity.imageCrop",
-    "type": "type",
-    "value": {
-      "type": "object",
-      "attributes": {
-        "_type": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string",
-            "value": "sanity.imageCrop"
-          }
-        },
-        "top": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "number"
+            "type": "string"
           },
           "optional": true
         },
-        "bottom": {
+        "blurHash": {
           "type": "objectAttribute",
           "value": {
-            "type": "number"
+            "type": "string"
           },
           "optional": true
         },
-        "left": {
+        "hasAlpha": {
           "type": "objectAttribute",
           "value": {
-            "type": "number"
+            "type": "boolean"
           },
           "optional": true
         },
-        "right": {
+        "isOpaque": {
           "type": "objectAttribute",
           "value": {
-            "type": "number"
+            "type": "boolean"
           },
           "optional": true
         }
@@ -5403,6 +5583,43 @@
           "name": "sanity.assetSourceData"
         },
         "optional": true
+      }
+    }
+  },
+  {
+    "name": "sanity.assetSourceData",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "sanity.assetSourceData"
+          }
+        },
+        "name": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "id": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "url": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        }
       }
     }
   },
@@ -5547,178 +5764,6 @@
           "name": "sanity.assetSourceData"
         },
         "optional": true
-      }
-    }
-  },
-  {
-    "name": "sanity.imageMetadata",
-    "type": "type",
-    "value": {
-      "type": "object",
-      "attributes": {
-        "_type": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string",
-            "value": "sanity.imageMetadata"
-          }
-        },
-        "location": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "inline",
-            "name": "geopoint"
-          },
-          "optional": true
-        },
-        "dimensions": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "inline",
-            "name": "sanity.imageDimensions"
-          },
-          "optional": true
-        },
-        "palette": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "inline",
-            "name": "sanity.imagePalette"
-          },
-          "optional": true
-        },
-        "lqip": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string"
-          },
-          "optional": true
-        },
-        "blurHash": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string"
-          },
-          "optional": true
-        },
-        "hasAlpha": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "boolean"
-          },
-          "optional": true
-        },
-        "isOpaque": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "boolean"
-          },
-          "optional": true
-        }
-      }
-    }
-  },
-  {
-    "name": "geopoint",
-    "type": "type",
-    "value": {
-      "type": "object",
-      "attributes": {
-        "_type": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string",
-            "value": "geopoint"
-          }
-        },
-        "lat": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "number"
-          },
-          "optional": true
-        },
-        "lng": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "number"
-          },
-          "optional": true
-        },
-        "alt": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "number"
-          },
-          "optional": true
-        }
-      }
-    }
-  },
-  {
-    "name": "slug",
-    "type": "type",
-    "value": {
-      "type": "object",
-      "attributes": {
-        "_type": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string",
-            "value": "slug"
-          }
-        },
-        "current": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string"
-          },
-          "optional": true
-        },
-        "source": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string"
-          },
-          "optional": true
-        }
-      }
-    }
-  },
-  {
-    "name": "sanity.assetSourceData",
-    "type": "type",
-    "value": {
-      "type": "object",
-      "attributes": {
-        "_type": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string",
-            "value": "sanity.assetSourceData"
-          }
-        },
-        "name": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string"
-          },
-          "optional": true
-        },
-        "id": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string"
-          },
-          "optional": true
-        },
-        "url": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string"
-          },
-          "optional": true
-        }
       }
     }
   }

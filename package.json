@@ -44,11 +44,12 @@
     "lint": "biome lint . && pnpm lint:eslint",
     "test:watch": "pnpm --filter app-next-directory test:watch",
     "test:coverage": "pnpm --filter app-next-directory test:coverage",
-    "test:ci": "biome lint . && pnpm lint:eslint && pnpm type-check && pnpm --filter app-next-directory test:unit && pnpm --filter app-next-directory test:integration",
+    "test:ci": "biome lint . && pnpm lint:eslint && pnpm build:next --debug-prerender & pnpm --filter app-next-directory test:unit && pnpm --filter app-next-directory test:integration",
     "check-types": "tsc --noEmit",
     "type-check": "tsc --noEmit",
     "types:postprocess": "node sanity-types-postprocess.js",
-    "typegen": "pnpm --filter sanity update-types && pnpm run types:postprocess",
+    "typegen": "cd sanity && pnpm --filter sanity update-types && pnpm run types:postprocess",
+    "update-types": "cd sanity && pnpm update-types",
     "validate:specs": "node ./scripts/spec-validator.js"
   },
   "browserslist": [

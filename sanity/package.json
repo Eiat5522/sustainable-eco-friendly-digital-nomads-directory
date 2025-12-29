@@ -15,7 +15,7 @@
     "deploy-graphql": "sanity graphql deploy",
     "extract-schema": "sanity schema extract",
     "generate-types": "sanity typegen generate",
-    "update-types": "npm run extract-schema && npm run generate-types",
+    "update-types": "pnpm extract-schema && pnpm generate-types",
     "test": "echo \"Error: no test specified\" >&2 && exit 1",
     "lint": "eslint . --ext .ts,.tsx,.js"
   },
