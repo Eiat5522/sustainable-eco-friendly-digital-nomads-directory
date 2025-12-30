@@ -13,7 +13,7 @@ test.describe('RBAC (Playwright)', () => {
 
     const res = await page.goto(`${BASE_URL}/admin/dashboard`, { waitUntil: 'domcontentloaded' });
 
-    // Accept either a 401/403 status, an explicit /403 page, or a redirect to a signin/login page
+    // Accept either a 401/403 status, an explicit unauthorized page, or a redirect to a signin/login page
     const status = res?.status() ?? 0;
     if ([401, 403].includes(status)) {
       expect([401, 403]).toContain(status);
@@ -26,7 +26,7 @@ test.describe('RBAC (Playwright)', () => {
       return;
     }
 
-    await expect(page).toHaveURL(/\/(403|login|api\/auth\/signin)(?:[?#].*)?$/);
+    await expect(page).toHaveURL(/\/(auth\/unauthorized|login|api\/auth\/signin)(?:[?#].*)?$/);
   });
 
   test('venue owner cannot access admin routes', async ({ page }) => {
@@ -47,7 +47,7 @@ test.describe('RBAC (Playwright)', () => {
       expect(current).toContain('error=unauthorized_access');
       return;
     }
-    await expect(page).toHaveURL(/\/(403|login|api\/auth\/signin)(?:[?#].*)?$/);
+    await expect(page).toHaveURL(/\/(auth\/unauthorized|login|api\/auth\/signin)(?:[?#].*)?$/);
   });
   test('admin can access admin routes', async ({ page }) => {
     await loginAs(
