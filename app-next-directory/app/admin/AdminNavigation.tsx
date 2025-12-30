@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
   {
-    href: '/admin/dashboard',
+    href: '/admin',
     label: 'Dashboard',
     description: 'Overview and status',
     icon: LayoutDashboard,

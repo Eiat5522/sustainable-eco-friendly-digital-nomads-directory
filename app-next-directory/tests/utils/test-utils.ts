@@ -123,7 +123,7 @@ export const test = base.extend<{ authenticatedPage: Page; adminPage: Page }>({
     await use(page);
   },
   adminPage: async ({ page }, use) => {
-    await loginAs(page, 'admin', { redirectTo: '/admin/dashboard' });
+    await loginAs(page, 'admin', { redirectTo: '/admin' });
     await use(page);
   },
 });
@@ -200,7 +200,7 @@ export const TestHelpers = {
   },
 
   async loginAsAdmin(page: Page, email?: string, password?: string) {
-    await loginByRole(page, 'admin', '/admin/dashboard', email, password);
+    await loginByRole(page, 'admin', '/admin', email, password);
   },
 
   async createListing(page: Page, data: any = {}) {

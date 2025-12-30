@@ -11,7 +11,7 @@ test.describe('RBAC (Playwright)', () => {
       process.env.E2E_USER_PASSWORD ?? 'TestSecurePass123!'
     );
 
-    const res = await page.goto(`${BASE_URL}/admin/dashboard`, { waitUntil: 'domcontentloaded' });
+    const res = await page.goto(`${BASE_URL}/admin`, { waitUntil: 'domcontentloaded' });
 
     // Accept either a 401/403 status, an explicit /403 page, or a redirect to a signin/login page
     const status = res?.status() ?? 0;
@@ -36,7 +36,7 @@ test.describe('RBAC (Playwright)', () => {
       process.env.E2E_VENUE_OWNER_PASSWORD ?? 'TestSecurePass123!'
     );
 
-    const res = await page.goto(`${BASE_URL}/admin/dashboard`, { waitUntil: 'domcontentloaded' });
+    const res = await page.goto(`${BASE_URL}/admin`, { waitUntil: 'domcontentloaded' });
     const status = res?.status() ?? 0;
     if ([401, 403].includes(status)) {
       expect([401, 403]).toContain(status);
@@ -56,7 +56,7 @@ test.describe('RBAC (Playwright)', () => {
       process.env.E2E_ADMIN_PASSWORD ?? 'TestSecurePass123!'
     );
 
-    const res = await page.goto(`${BASE_URL}/admin/dashboard`, { waitUntil: 'domcontentloaded' });
+    const res = await page.goto(`${BASE_URL}/admin`, { waitUntil: 'domcontentloaded' });
 
     // If the server responded with a 401/403 that's unexpected for an admin
     const status = res?.status() ?? 0;

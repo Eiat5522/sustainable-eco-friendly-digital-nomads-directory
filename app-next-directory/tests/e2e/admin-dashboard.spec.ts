@@ -10,7 +10,7 @@ test.describe('Admin Dashboard Integration', () => {
 
       // Try to navigate to admin dashboard - should be redirected
       try {
-        await page.goto(`${BASE_URL}/admin/dashboard`, { waitUntil: 'load', timeout: 15000 });
+        await page.goto(`${BASE_URL}/admin`, { waitUntil: 'load', timeout: 15000 });
       } catch {
         // Redirects can cause net::ERR_ABORTED; that's expected for forbidden routes
       }
@@ -27,7 +27,7 @@ test.describe('Admin Dashboard Integration', () => {
 
       // Try to navigate to admin dashboard - should be redirected
       try {
-        await page.goto(`${BASE_URL}/admin/dashboard`, { waitUntil: 'load', timeout: 15000 });
+        await page.goto(`${BASE_URL}/admin`, { waitUntil: 'load', timeout: 15000 });
       } catch {
         // Redirects can cause net::ERR_ABORTED; that's expected for forbidden routes
       }
@@ -41,7 +41,7 @@ test.describe('Admin Dashboard Integration', () => {
 
     test('unauthenticated user is redirected to login', async ({ page }) => {
       await page
-        .goto(`${BASE_URL}/admin/dashboard`, {
+        .goto(`${BASE_URL}/admin`, {
           waitUntil: 'load',
           timeout: 15000,
         })

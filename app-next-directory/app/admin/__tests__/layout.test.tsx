@@ -16,7 +16,7 @@ const redirectMock = jest.fn();
 
 jest.mock('next/navigation', () => ({
   redirect: (...args: unknown[]) => redirectMock(...args),
-  usePathname: jest.fn(() => '/admin/dashboard'),
+  usePathname: jest.fn(() => '/admin'),
 }));
 
 const mockAuth = jest.requireMock('@/lib/auth').auth as jest.Mock;
@@ -46,7 +46,7 @@ describe('Admin layout', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /dashboard/i })).toHaveAttribute(
       'href',
-      '/admin/dashboard'
+      '/admin'
     );
     expect(screen.getByRole('link', { name: /back to site/i })).toHaveAttribute('href', '/');
     expect(screen.getByTestId('layout-child')).toBeInTheDocument();

@@ -536,7 +536,7 @@ describe('Header', () => {
       await user.click(screen.getByRole('button', { name: /open account menu/i }));
 
       await waitFor(() => {
-        const adminLink = document.querySelector('a[href="/admin/dashboard"]');
+        const adminLink = document.querySelector('a[href="/admin"]');
         expect(adminLink).toBeInTheDocument();
         expect(adminLink?.textContent).toMatch(/admin dashboards/i);
       });
@@ -735,7 +735,7 @@ describe('Header', () => {
 
       await waitFor(() => {
         const dashboardLink = document.querySelector('a[href="/dashboard"]');
-        const adminLink = document.querySelector('a[href="/admin/dashboard"]');
+        const adminLink = document.querySelector('a[href="/admin"]');
         const profileLink = document.querySelector('a[href="/profile"]');
         expect(profileLink).toBeInTheDocument();
         expect(dashboardLink).not.toBeInTheDocument();

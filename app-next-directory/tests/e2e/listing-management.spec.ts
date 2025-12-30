@@ -22,7 +22,7 @@ test.describe('Listing Management E2E', () => {
       await TestHelpers.loginAsUser(page);
 
       // Try to access admin routes
-      await page.goto('/admin/dashboard');
+      await page.goto('/admin');
       await expect(page).toHaveURL(/\/403/);
 
       await page.goto('/admin/listings');
