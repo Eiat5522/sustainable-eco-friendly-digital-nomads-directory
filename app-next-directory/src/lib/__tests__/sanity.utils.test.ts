@@ -1,10 +1,12 @@
 const standardClient = { fetch: jest.fn() };
 const previewClient = { fetch: jest.fn() };
-const createClientMock = jest.fn();
 const cachedFetchMock = jest.fn();
+const getClientMock = jest.fn();
 
-jest.mock('next-sanity', () => ({
-  createClient: createClientMock,
+jest.mock('../sanity/client', () => ({
+  client: standardClient,
+  previewClient,
+  getClient: getClientMock,
 }));
 
 jest.mock('../sanity/cached-client', () => ({
@@ -24,53 +26,29 @@ describe('sanity utils', () => {
     process.env.SANITY_PREVIEW_SECRET = 'secret';
     standardClient.fetch.mockReset();
     previewClient.fetch.mockReset();
-    createClientMock.mockReset();
     cachedFetchMock.mockReset();
+    getClientMock.mockReset();
+    getClientMock.mockImplementation(preview => (preview ? previewClient : standardClient));
   });
 
   afterAll(() => {
     process.env = originalEnv;
   });
 
-  const loadModule = async () => {
-    createClientMock.mockImplementation((options: Record<string, unknown>) => {
-      if (options?.perspective === 'previewDrafts') {
-        return previewClient;
-      }
-      return standardClient;
-    });
+  const loadModule = () => import('../sanity.utils');
 
-    return import('../sanity.utils');
-  };
-
-  it('creates clients with expected configuration and exports helpers', async () => {
-    process.env.NODE_ENV = 'production';
+  it('re-exports the shared client helpers and config', async () => {
     const mod = await loadModule();
-    // Trigger the client initialization explicitly to reflect lazy-loading
-    mod.getClient();
-    mod.getClient(true);
-
-    expect(createClientMock).toHaveBeenNthCalledWith(1, {
-      projectId: 'proj',
-      dataset: 'dataset',
-      apiVersion: '2025-05-15',
-      useCdn: true,
-    });
-    expect(createClientMock).toHaveBeenNthCalledWith(2, {
-      projectId: 'proj',
-      dataset: 'dataset',
-      apiVersion: '2025-05-15',
-      useCdn: false,
-      perspective: 'previewDrafts',
-    });
 
     expect(mod.getClient()).toBe(standardClient);
+    expect(getClientMock).toHaveBeenCalledWith(undefined);
     expect(mod.getClient(true)).toBe(previewClient);
+    expect(getClientMock).toHaveBeenLastCalledWith(true);
     expect(mod.config).toEqual({
       dataset: 'dataset',
       projectId: 'proj',
       apiVersion: '2025-05-15',
-      useCdn: true,
+      useCdn: false,
     });
   });
 
@@ -83,13 +61,6 @@ describe('sanity utils', () => {
 
   it('fetches preview data using the preview client', async () => {
     const mod = await loadModule();
-    mod.getClient(true); // Ensure preview client is initialized
-    // Debug: verify createClientMock calls
-
-    // Debug: validate the returned preview client instance
-
-    console.log('preview returned equals previewClient?', mod.getClient(true) === previewClient);
-    console.log('createClientMock calls:', createClientMock.mock.calls.length);
     previewClient.fetch.mockResolvedValueOnce({ slug: 'preview' });
 
     const result = await mod.fetchBySlug('post', 'hello', true);

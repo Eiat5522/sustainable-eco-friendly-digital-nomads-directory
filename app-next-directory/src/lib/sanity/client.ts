@@ -21,6 +21,7 @@
  * ```
  */
 
+import type { ClientConfig, ClientPerspective } from '@sanity/client';
 import * as SanityClient from '@sanity/client';
 import SanityImageUrl from '@sanity/image-url';
 import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
@@ -54,13 +55,22 @@ const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'placeholder-dataset';
 const token =
   process.env.SANITY_API_READ_TOKEN || process.env.SANITY_API_TOKEN || process.env.SANITY_TOKEN;
 
-const clientConfig = {
+const clientConfig: ClientConfig = {
   projectId,
   dataset,
   apiVersion: '2024-01-01',
   useCdn: false, // Ensure fresh data for server-side logic
   ...(token ? { token, ignoreBrowserTokenWarning: true } : {}),
 };
+
+const previewClientConfig = {
+  ...clientConfig,
+  useCdn: false,
+  perspective: 'previewDrafts',
+  ...(process.env.SANITY_PREVIEW_TOKEN
+    ? { token: process.env.SANITY_PREVIEW_TOKEN, ignoreBrowserTokenWarning: true }
+    : {}),
+} satisfies ClientConfig & { perspective: ClientPerspective };
 
 // Allow short-circuiting Sanity network calls during build/prerender.
 const DISABLE_SANITY =
@@ -70,6 +80,10 @@ const DISABLE_SANITY =
 let _client: ReturnType<typeof createClient> | null = null;
 if (!DISABLE_SANITY) {
   _client = createClient(clientConfig);
+}
+let _previewClient: ReturnType<typeof createClient> | null = null;
+if (!DISABLE_SANITY) {
+  _previewClient = createClient(previewClientConfig);
 }
 
 // Minimal typed interface for the Sanity client surface that this codebase uses.
@@ -92,6 +106,7 @@ interface SanityClientLike {
     commit: <T = unknown>(opts?: Record<string, unknown>) => Promise<T>;
   };
   delete?: (id: string) => Promise<void>;
+  withConfig?: (config: Partial<ClientConfig>) => SanityClientLike;
   [key: string]: unknown;
 }
 
@@ -116,11 +131,16 @@ const stubClient: SanityClientLike = {
     commit: async <T = unknown>(_opts?: Record<string, unknown>) => null as unknown as T,
   }),
   delete: async (_id: string) => undefined,
+  withConfig: (_config: Partial<ClientConfig>) => stubClient,
 };
 
 export const client: SanityClientLike = DISABLE_SANITY
   ? stubClient
   : (_client as unknown as SanityClientLike);
+
+export const previewClient: SanityClientLike = DISABLE_SANITY
+  ? stubClient
+  : (_previewClient as unknown as SanityClientLike);
 
 // CMS-only alias: export a clearly named client for Sanity CMS operations.
 // IMPORTANT: This client must NOT be used for authentication or role checks.
@@ -184,11 +204,56 @@ export { builder, urlFor };
  * Provides all exported members as a single object for environments
  * that prefer default imports.
  */
+export function getClient(usePreview = false) {
+  return usePreview ? previewClient : client;
+}
+
 const sanityClientExports = {
   createClient,
   client,
+  previewClient,
+  getClient,
   builder,
   urlFor,
+  sanityFetch,
 };
 
 export default sanityClientExports;
+
+// Convenience helper for manual caching + revalidation control.
+// Use this for pages where you need to control Next.js caching behaviour
+// (time-based, tag-based, or path-based revalidation).
+export async function sanityFetch<const QueryString extends string>({
+  query,
+  params = {},
+  revalidate = 60,
+  tags = [],
+}: {
+  query: QueryString;
+  params?: Record<string, unknown>;
+  revalidate?: number | false;
+  tags?: string[];
+}) {
+  // The underlying client.fetch accepts a third options argument which Next.js
+  // will interpret for ISR when using the `next` option. Our local typed client
+  // surface doesn't include it, so we cast to any for this call.
+  const anyClient = client as unknown as {
+    fetch: (
+      q: string,
+      p?: Record<string, unknown>,
+      opts?: Record<string, unknown>
+    ) => Promise<unknown>;
+  };
+
+  const nextOpts: Record<string, unknown> = {
+    next: {
+      revalidate: tags.length ? false : revalidate,
+      tags,
+    },
+  };
+
+  return anyClient.fetch(query, params, nextOpts) as Promise<unknown>;
+}
+
+  return anyClient.fetch(query, params, nextOpts) as Promise<unknown>;
+}

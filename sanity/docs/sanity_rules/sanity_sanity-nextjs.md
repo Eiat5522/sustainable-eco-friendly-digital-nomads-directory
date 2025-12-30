@@ -4,16 +4,20 @@
 ## 1. Architecture Patterns
 
 ### Option A: Embedded Studio (Recommended)
+
 **Best for:** Most Next.js projects. Unified deployment, simpler setup.
 
 The Studio lives inside your Next.js app at `/app/studio/[[...tool]]/page.tsx`.
+
 - **Config:** `sanity.config.ts` lives in the project root.
 - See `sanity-project-structure` rule for detailed structure.
 
 ### Option B: Monorepo (Alternative)
+
 **Best for:** Separation of concerns, multiple frontends, or strict dependency isolation.
 
 The Studio and Next.js app live in separate folders:
+
 ```
 apps/
 ├── studio/     # Sanity Studio (standalone)
@@ -95,6 +99,7 @@ const nextConfig: NextConfig = {
 ```
 
 Console output shows cache status:
+
 ```text
 GET /posts 200 in 39ms
  │ GET https://...apicdn.sanity.io/... 200 in 5ms (cache hit)
@@ -108,6 +113,7 @@ GET /posts 200 in 39ms
 | `useCdn: false` | Slower | Guaranteed fresh | `generateStaticParams`, webhooks |
 
 Override per-request:
+
 ```typescript
 // For static generation, use API directly
 export async function generateStaticParams() {
@@ -162,6 +168,7 @@ const posts = await sanityFetch({
 Surgically revalidate specific routes when documents change.
 
 **1. Create API Route:**
+
 ```typescript
 // src/app/api/revalidate/path/route.ts
 import { revalidatePath } from 'next/cache';
@@ -194,6 +201,7 @@ export async function POST(req: NextRequest) {
 ```
 
 **2. Create GROQ-Powered Webhook:**
+
 - URL: `https://yoursite.com/api/revalidate/path`
 - Filter: `_type in ["post"]`
 - Projection: `{ "path": "/posts/" + slug.current }`
@@ -204,6 +212,7 @@ export async function POST(req: NextRequest) {
 "Update once, revalidate everywhere" — best for referenced content.
 
 **1. Tag Your Queries:**
+
 ```typescript
 // Posts index - revalidate when ANY post, author, or category changes
 const posts = await sanityFetch({
@@ -220,6 +229,7 @@ const post = await sanityFetch({
 ```
 
 **2. Create API Route:**
+
 ```typescript
 // src/app/api/revalidate/tag/route.ts
 import { revalidateTag } from 'next/cache';
@@ -252,6 +262,7 @@ export async function POST(req: NextRequest) {
 ```
 
 **3. Create GROQ-Powered Webhook:**
+
 - URL: `https://yoursite.com/api/revalidate/tag`
 - Filter: `_type in ["post", "author", "category"]`
 - Projection: `{ "tags": [_type, _type + ":" + slug.current] }`
@@ -478,6 +489,7 @@ export const PTE_IMAGE_PRESENTATION_QUERY = defineQuery(`
 For listing pages with many entries, use offset-based pagination with a count query.
 
 ### Queries
+
 ```typescript
 // Paginated listing
 export const ARTICLES_QUERY = defineQuery(`
@@ -494,6 +506,7 @@ export const ARTICLES_COUNT_QUERY = defineQuery(`
 ```
 
 ### Listing Page
+
 ```typescript
 const ENTRIES_PER_PAGE = 10;
 

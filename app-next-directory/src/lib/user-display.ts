@@ -16,7 +16,7 @@ export function getUserDisplayInfo(
   const name = source?.name?.trim() ?? '';
   const email = source?.email?.trim() ?? '';
   const displayName = name || email || fallback;
-  const shortName = name ? name.split(' ')[0] : '';
+  const shortName = name ? (name.split(' ')[0] ?? '') : '';
   const initialsSource = name || email;
 
   const initials = initialsSource

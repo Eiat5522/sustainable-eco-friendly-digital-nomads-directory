@@ -93,11 +93,65 @@ const e2eFixtures: Record<string, ListingFixture> = {
   },
 };
 
-// When building with `NEXT_PUBLIC_MOCK_SANITY_DATA=true` we should avoid
-// making network requests to Sanity during prerender — use local mocks.
-const USE_MOCK_SANITY =
-  process.env.NEXT_PUBLIC_MOCK_SANITY_DATA === '1' ||
-  process.env.NEXT_PUBLIC_MOCK_SANITY_DATA === 'true';
+// Helper: run a promise with a timeout to avoid hanging fetches during prerender
+async function withTimeout<T>(p: Promise<T>, ms = 10000): Promise<T> {
+  let id: ReturnType<typeof setTimeout> | null = null;
+  const timeout = new Promise<T>((_, reject) => {
+    id = setTimeout(() => reject(new Error('Sanity fetch timeout')), ms);
+  });
+  try {
+    return await Promise.race([p, timeout]);
+  } finally {
+    if (id) clearTimeout(id);
+  }
+}
+
+// Retry wrapper for client.fetch to tolerate transient network/auth issues
+// IMPORTANT: when Next.js is running a debug prerender build we must avoid
+// scheduling timers (setTimeout) because timers that reject after the
+// prerender lifecycle cause HangingPromiseRejectionError. During prerender
+// we perform a single immediate attempt and fall back gracefully on error.
+async function retryFetch<T>(query: string, params?: Record<string, unknown>, attempts = 3, timeoutMs = 10000): Promise<T | null> {
+  const isDebugPrerender =
+    Boolean(process.env.NEXT_DEBUG_PRERENDER) ||
+    Boolean(process.env.DEBUG_PRERENDER) ||
+    String(process.env.NEXT_PUBLIC_DEBUG_PRERENDER) === 'true';
+
+  let lastError: unknown;
+
+  // If we're in a debug prerender run, avoid timers entirely: do a single
+  // immediate fetch attempt and return a graceful failure to the caller.
+  const maxAttempts = isDebugPrerender ? 1 : attempts;
+
+  for (let i = 0; i < maxAttempts; i++) {
+    try {
+      // During prerender avoid withTimeout (it uses setTimeout). For normal
+      // runs we keep the timeout wrapper to cap slow requests.
+      if (isDebugPrerender) {
+        return await client.fetch<T>(query, params as unknown as Record<string, unknown>);
+      }
+
+      return await withTimeout(client.fetch<T>(query, params as unknown as Record<string, unknown>), timeoutMs);
+    } catch (err: unknown) {
+      lastError = err;
+      logger.warn('Sanity fetch failed (will retry)', {
+        component: 'listings/[slug]',
+        attempt: i + 1,
+        error: err,
+        // indicate if we suppressed backoff due to prerender
+        isDebugPrerender,
+      });
+
+      // Only schedule a micro backoff when not in prerender (timers are safe)
+      if (!isDebugPrerender && i < maxAttempts - 1) {
+        await new Promise(r => setTimeout(r, 200 * (i + 1)));
+      }
+    }
+  }
+
+  // final failure bubbles up for the caller to handle/log
+  throw lastError;
+}
 
 function isPriceRange(
   value: string | null | undefined
@@ -201,7 +255,7 @@ const FAVORITE_QUERY = groq`*[_type == "userFavorite" && user._ref == $userId &&
 // Generate static params for popular listings
 export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
   try {
-    const popularSlugs = await client.fetch<Array<{ slug: string }>>(
+    const popularSlugs = await retryFetch<Array<{ slug: string }>>(
       groq`*[_type == "listing" && moderation.status == "published" && defined(popular) && popular == true][0...50]{ "slug": slug.current }`
     );
 
@@ -211,7 +265,7 @@ export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
     }
 
     // Fallback: return the first published listing to satisfy Cache Components requirement
-    const fallbackListings = await client.fetch<Array<{ slug: string }>>(
+    const fallbackListings = await retryFetch<Array<{ slug: string }>>(
       groq`*[_type == "listing" && moderation.status == "published"][0...1]{ "slug": slug.current }`
     );
 
@@ -235,14 +289,9 @@ const fetchListingBySlug = cache(async (slug: string): Promise<ListingDetailDTO 
   'use cache';
   cacheLife('max');
   cacheTag(`listing-${slug}`);
-  // Avoid network calls while building if mocks are enabled.
-  if (USE_MOCK_SANITY) {
-    logger.info('Using mock listing detail during build', { component: 'listings/[slug]', slug });
-    // The imported `mockListingDetail` is already shaped like ListingDetailDTO
-    return structuredClone(mockListingDetail) as ListingDetailDTO;
-  }
-
-  const raw = await client.fetch<SanityListing | null>(LISTING_QUERY, { slug });
+  // Use retryFetch + timeout to avoid hanging the prerender when Sanity
+  // is temporarily unreachable or slow.
+  const raw = await retryFetch<SanityListing | null>(LISTING_QUERY, { slug });
   if (!raw) return null;
   try {
     return transformToDetailDTO(raw);
@@ -263,19 +312,8 @@ async function fetchRelatedListings(cityId?: string, excludeId?: string) {
       priceRange: 'budget' | 'moderate' | 'premium';
       ecoFocusTags: string[];
     }>;
-  // When building with mock Sanity data enabled, return the local fixture
-  // to avoid real network requests during prerender.
-  if (USE_MOCK_SANITY) {
-    logger.info('Using mock related listings during build', {
-      component: 'listings/[slug]',
-      cityId,
-      excludeId,
-    });
-    return structuredClone(mockRelatedListings);
-  }
-
   try {
-    const records = await client.fetch<RelatedListingRecord[]>(RELATED_QUERY, {
+    const records = await retryFetch<RelatedListingRecord[]>(RELATED_QUERY, {
       cityId,
       excludeId,
     });
@@ -394,7 +432,7 @@ async function fetchReviews(listingSlug: string, userId?: string): Promise<Revie
 async function checkIsFavorited(listingId: string, userId?: string): Promise<boolean> {
   if (!userId) return false;
   try {
-    const favorite = await client.fetch<{ _id?: string | null } | null>(FAVORITE_QUERY, {
+    const favorite = await retryFetch<{ _id?: string | null } | null>(FAVORITE_QUERY, {
       userId,
       listingId,
     });

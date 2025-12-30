@@ -14,8 +14,13 @@ if (
 ) {
   throw new Error('NEXT_PUBLIC_API_URL must be set for Preview/Production environments.');
 }
-
 const nextConfig = {
+  logging: {
+    fetches: {
+      fullUrl: true, // Logs the full URL of fetch requests
+      hmrRefreshes: true, // Logs fetches even during HMR refreshes
+    },
+  },
   experimental: {
     // Enable filesystem caching for `next dev`
     turbopackFileSystemCacheForDev: true,
