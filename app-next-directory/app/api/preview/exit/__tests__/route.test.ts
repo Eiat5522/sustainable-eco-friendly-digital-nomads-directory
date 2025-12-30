@@ -221,14 +221,12 @@ describe('Preview Exit API - GET /api/preview/exit', () => {
     });
 
     it('should handle nested path redirect', async () => {
-      const request = new Request(
-        'http://localhost/api/preview/exit?redirect=/admin/dashboard/stats'
-      );
+      const request = new Request('http://localhost/api/preview/exit?redirect=/admin/stats');
 
       const response = await GET(request);
 
       expect(response.status).toBe(302);
-      expect(response.headers.get('location')).toContain('/admin/dashboard/stats');
+      expect(response.headers.get('location')).toContain('/admin/stats');
     });
   });
 

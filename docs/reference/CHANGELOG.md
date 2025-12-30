@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Aligned admin listing stats and table filters with moderation status and featured flags to match published featured counts
 - Guarded contact form emails against header injection payloads during client-side validation
 - Avoided server-provided featured listings during E2E runs so network retry flows can exercise fetch resilience
+- Aligned admin redirects, navigation links, and E2E helpers to use the /admin route
 
 ## [0.1.3] - 2025-01-XX
 

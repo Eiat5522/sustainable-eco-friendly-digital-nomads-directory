@@ -31,7 +31,7 @@ const createUrlPattern = (url: string) => new RegExp(`.*${escapeForRegex(url)}`)
 const TEST_CONFIG = {
   urls: {
     home: process.env.TEST_HOME_URL ?? '/',
-    adminDashboard: process.env.TEST_ADMIN_DASHBOARD_URL ?? '/admin/dashboard',
+    adminDashboard: process.env.TEST_ADMIN_DASHBOARD_URL ?? '/admin',
     signin: process.env.TEST_SIGNIN_URL ?? '/auth/login',
     signup: process.env.TEST_SIGNUP_URL ?? '/auth/signup',
     dashboard: process.env.TEST_DASHBOARD_URL ?? '/dashboard',

@@ -185,7 +185,7 @@ export function Header(): React.JSX.Element {
                     {isAdmin && (
                       <DropdownMenu.Item asChild>
                         <Link
-                          href="/admin/dashboard"
+                          href="/admin"
                           className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-neo-text-primary outline-none transition data-[highlighted]:bg-neo-primary/10"
                         >
                           <LayoutDashboard size={16} aria-hidden="true" />

@@ -48,10 +48,10 @@ describe('Mock Factories', () => {
     });
 
     it('should handle protected routes', () => {
-      const mockRequest = makeMockRequest('/admin/dashboard');
+      const mockRequest = makeMockRequest('/admin');
 
-      expect(mockRequest.nextUrl.pathname).toBe('/admin/dashboard');
-      expect(mockRequest.url).toContain('/admin/dashboard');
+      expect(mockRequest.nextUrl.pathname).toBe('/admin');
+      expect(mockRequest.url).toContain('/admin');
     });
 
     it('should handle paths with multiple segments', () => {
