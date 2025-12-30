@@ -6,8 +6,8 @@
  */
 
 import { jest } from '@jest/globals';
-import { GET } from './route';
 import { getClient } from '@/lib/sanity';
+import { GET } from './route';
 
 // Mock Sanity client
 jest.mock('@/lib/sanity', () => ({
@@ -19,7 +19,7 @@ jest.mock('@/lib/sanity', () => ({
 // Also mock the cache helpers to avoid caching issues in tests
 jest.mock('@/lib/cache-strategy', () => ({
   cacheHelpers: {
-    amenities: jest.fn((fn) => fn()),
+    amenities: jest.fn(fn => fn()),
   },
 }));
 

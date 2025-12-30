@@ -41,7 +41,9 @@ describe('Admin layout', () => {
     await act(async () => {
       render(shell);
     });
-    expect(await screen.findByText('Admin Panel', undefined, { timeout: 5000 })).toBeInTheDocument();
+    expect(
+      await screen.findByText('Admin Panel', undefined, { timeout: 5000 })
+    ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /dashboard/i })).toHaveAttribute(
       'href',
       '/admin/dashboard'

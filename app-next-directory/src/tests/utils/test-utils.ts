@@ -12,7 +12,7 @@ import type { Role } from '@/models/User';
  */
 export async function loginAsRole(page: Page, role: Role): Promise<void> {
   const isE2E = process.env.E2E === '1' || process.env.NEXT_PUBLIC_E2E === '1';
-  
+
   if (!isE2E) {
     console.warn('loginAsRole should only be used in E2E test environment');
     return;
@@ -50,18 +50,27 @@ export async function loginAsRole(page: Page, role: Role): Promise<void> {
       page.waitForURL(/\/(dashboard|admin|home)(\/)?(?=$|[?#])/, { timeout: 10000 }),
       page.waitForNavigation({ timeout: 10000 }),
       // Wait for a successful login indicator
-      page.waitForFunction(() => {
-        const userMenu = document.querySelector<HTMLElement>('[data-testid="user-menu"], [aria-label*="user"], .user-menu');
-        const loginButton = document.querySelector('[data-testid="login-button"], [aria-label*="login"]');
-        // If user menu exists or login button is gone, we likely logged in
-        return (userMenu && userMenu.offsetParent !== null) || !loginButton;
-      }, { timeout: 10000 }),
+      page.waitForFunction(
+        () => {
+          const userMenu = document.querySelector<HTMLElement>(
+            '[data-testid="user-menu"], [aria-label*="user"], .user-menu'
+          );
+          const loginButton = document.querySelector(
+            '[data-testid="login-button"], [aria-label*="login"]'
+          );
+          // If user menu exists or login button is gone, we likely logged in
+          return (userMenu && userMenu.offsetParent !== null) || !loginButton;
+        },
+        { timeout: 10000 }
+      ),
     ]);
 
     console.log(`Successfully authenticated as ${role} (${email})`);
   } catch (error) {
     console.error(`Failed to login as ${role}:`, error);
-    throw new Error(`Authentication failed for role ${role}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Authentication failed for role ${role}: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
   }
 }
 
@@ -70,13 +79,16 @@ export async function loginAsRole(page: Page, role: Role): Promise<void> {
  */
 async function ensureTestUserExists(email: string, password: string, role: Role): Promise<void> {
   try {
-    const response = await fetch(`${process.env.E2E_BASE_URL ?? process.env.BASE_URL ?? 'http://localhost:3000'}/api/e2e/setup-user`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password, role }),
-    });
+    const response = await fetch(
+      `${process.env.E2E_BASE_URL ?? process.env.BASE_URL ?? 'http://localhost:3000'}/api/e2e/setup-user`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, role }),
+      }
+    );
 
     if (!response.ok) {
       // If the endpoint doesn't exist, we'll try direct database creation
@@ -93,18 +105,20 @@ async function ensureTestUserExists(email: string, password: string, role: Role)
  */
 async function fillLoginForm(page: Page, email: string, password: string): Promise<void> {
   // Try to find email field
-  const emailField = page.getByLabel(/email/i) || 
-                    page.locator('input[name="email"]').first() ||
-                    page.locator('input[type="email"]').first();
-  
+  const emailField =
+    page.getByLabel(/email/i) ||
+    page.locator('input[name="email"]').first() ||
+    page.locator('input[type="email"]').first();
+
   await emailField.waitFor({ state: 'visible', timeout: 5000 });
   await emailField.fill(email);
 
   // Try to find password field
-  const passwordField = page.getByLabel(/password/i) ||
-                       page.locator('input[name="password"]').first() ||
-                       page.locator('input[type="password"]').first();
-  
+  const passwordField =
+    page.getByLabel(/password/i) ||
+    page.locator('input[name="password"]').first() ||
+    page.locator('input[type="password"]').first();
+
   await passwordField.waitFor({ state: 'visible', timeout: 5000 });
   await passwordField.fill(password);
 }

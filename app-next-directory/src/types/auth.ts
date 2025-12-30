@@ -303,7 +303,13 @@ export const ACCESS_CONTROL_MATRIX: Record<
         canDelete: false,
         canManage: false,
       },
-      reviews: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      reviews: {
+        canView: true,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canManage: false,
+      },
       profile: {
         canView: true,
         canCreate: false,

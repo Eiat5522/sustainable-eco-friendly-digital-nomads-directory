@@ -7,7 +7,7 @@ declare namespace NodeJS {
     __MONGODB_MEMORY__?: boolean;
     gc?: () => void;
   }
-  
+
   interface ProcessEnv {
     [key: string]: string | undefined;
   }

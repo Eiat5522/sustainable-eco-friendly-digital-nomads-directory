@@ -1,4 +1,4 @@
-   import { Redis } from '@upstash/redis';
+import { Redis } from '@upstash/redis';
 import { structuredLogger } from '@/lib/logger';
 
 export type RedisLike = Pick<Redis, 'get' | 'set' | 'del' | 'incr' | 'expire' | 'ping'> &

@@ -430,9 +430,7 @@ test.describe('Cross-Browser Compatibility Testing', () => {
       await primaryNav.getByRole('link', { name: 'Contact Us' }).click();
       await page.waitForLoadState('networkidle');
 
-      const filteredErrors = errors.filter(
-        error => !error.includes('Minified React error #418')
-      );
+      const filteredErrors = errors.filter(error => !error.includes('Minified React error #418'));
 
       // Should not have JavaScript errors
       expect(filteredErrors).toHaveLength(0);

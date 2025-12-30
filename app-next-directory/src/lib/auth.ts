@@ -306,19 +306,19 @@ export const authOptions: NextAuthConfig = {
         try {
           await dbConnect();
           const query = user.id ? { _id: user.id } : { email: user.email?.toLowerCase() };
-          
+
           // Ensure default role and status are set in MongoDB (since adapter bypasses Mongoose defaults)
           await UserModel.updateOne(
             query,
-            { 
-              $set: { 
+            {
+              $set: {
                 role: 'user',
-                status: 'active'
+                status: 'active',
               },
               $setOnInsert: {
                 createdAt: new Date(),
-                updatedAt: new Date()
-              }
+                updatedAt: new Date(),
+              },
             },
             { upsert: false }
           );
@@ -421,12 +421,9 @@ export async function auth(
       if (msg.includes('headers()') || msg.includes('During prerendering')) {
         // Log at debug level since this is expected behavior during prerendering
         // Using debug instead of info to avoid cluttering build output
-        structuredLogger.debug(
-          '[auth] headers() unavailable during prerender, returning null',
-          {
-            component: 'auth',
-          }
-        );
+        structuredLogger.debug('[auth] headers() unavailable during prerender, returning null', {
+          component: 'auth',
+        });
         return null;
       }
     } catch {

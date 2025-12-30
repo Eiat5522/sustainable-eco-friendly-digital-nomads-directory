@@ -1,5 +1,4 @@
-import { connection } from 'next/server';
-import { NextResponse } from 'next/server';
+import { connection, NextResponse } from 'next/server';
 import { getCitiesList } from '@/lib/data/city';
 import type { CityDTO } from '@/types/dto';
 
@@ -20,7 +19,7 @@ if (process.env.NODE_ENV === 'test') {
 export async function GET() {
   // Signal that this route should be dynamically rendered at request time
   await connection();
-  
+
   try {
     const fetchCities = _testControl?.fetchCitiesOverride ?? getCitiesList;
     const cities = await fetchCities(8);

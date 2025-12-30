@@ -54,7 +54,7 @@ class SchemaMock {
           path: key,
           instance: this.getInstanceType(def),
           options: def?.options ?? def ?? {},
-          isRequired: !!(def?.required),
+          isRequired: !!def?.required,
           enumValues: def?.enum,
         };
       });
@@ -70,7 +70,9 @@ class SchemaMock {
     if (fieldDef.type === Date) return 'Date';
     if (
       fieldDef.type === ObjectIdMock ||
-      (fieldDef.type && typeof fieldDef.type === 'object' && (fieldDef.type as { name?: string }).name === 'ObjectId')
+      (fieldDef.type &&
+        typeof fieldDef.type === 'object' &&
+        (fieldDef.type as { name?: string }).name === 'ObjectId')
     )
       return 'ObjectId';
     if (Array.isArray(fieldDef.type)) return 'Array';
@@ -125,7 +127,12 @@ const createModelMock = (modelName: string, schema?: SchemaMock) => {
     const instance: Record<string, unknown> = { ...(doc || {}) };
     instance._id = instance._id || new ObjectIdMock();
     instance.isNew = true;
-    if (schema) Object.defineProperty(instance, 'schema', { value: schema, writable: true, configurable: true }); // keep runtime shape for code that expects .schema
+    if (schema)
+      Object.defineProperty(instance, 'schema', {
+        value: schema,
+        writable: true,
+        configurable: true,
+      }); // keep runtime shape for code that expects .schema
 
     const _store: Record<string, unknown> = {};
 
@@ -233,9 +240,21 @@ const createModelMock = (modelName: string, schema?: SchemaMock) => {
 
     // Add mock methods to the instance
     Object.defineProperties(instance, {
-      save: { value: jest.fn<() => Promise<unknown>>().mockResolvedValue(instance), writable: true, configurable: true },
-      validate: { value: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined), writable: true, configurable: true },
-      isModified: { value: jest.fn<() => boolean>(() => false), writable: true, configurable: true }
+      save: {
+        value: jest.fn<() => Promise<unknown>>().mockResolvedValue(instance),
+        writable: true,
+        configurable: true,
+      },
+      validate: {
+        value: jest.fn<() => Promise<undefined>>().mockResolvedValue(undefined),
+        writable: true,
+        configurable: true,
+      },
+      isModified: {
+        value: jest.fn<() => boolean>(() => false),
+        writable: true,
+        configurable: true,
+      },
     });
 
     // Set the prototype to make `instanceof` checks work
@@ -255,7 +274,7 @@ const createModelMock = (modelName: string, schema?: SchemaMock) => {
     updateOne: jest.fn<() => Promise<unknown>>(),
     exists: jest.fn<() => Promise<unknown>>(),
     find: jest.fn<() => Promise<unknown>>(),
-    countDocuments: jest.fn<() => Promise<number>>()
+    countDocuments: jest.fn<() => Promise<number>>(),
   });
 
   return modelMock as unknown as (...args: unknown[]) => Record<string, unknown>;
@@ -301,27 +320,37 @@ const mongoose = {
       return modelsCache[key];
     },
   }),
-  connect: jest.fn<() => Promise<{ readyState: number; connection: { readyState: number } }>>().mockResolvedValue({ readyState: 1, connection: { readyState: 1 } }),
+  connect: jest
+    .fn<() => Promise<{ readyState: number; connection: { readyState: number } }>>()
+    .mockResolvedValue({ readyState: 1, connection: { readyState: 1 } }),
   connection: {
     on: noop,
     once: noop,
     readyState: 1,
-    collection: jest.fn<(_name: string) => {
-      insertOne: ReturnType<typeof jest.fn>;
-      createIndexes: ReturnType<typeof jest.fn>;
-      findOne: ReturnType<typeof jest.fn>;
-      updateOne: ReturnType<typeof jest.fn>;
-      deleteOne: ReturnType<typeof jest.fn>;
-    }>((_name: string) => ({
-      insertOne: jest.fn<(doc: Record<string, unknown>) => Promise<{ acknowledged: boolean }>>(async (doc: Record<string, unknown>) => {
-        collectionStore[_name] = collectionStore[_name] || [];
-        collectionStore[_name].push(doc);
-        return { acknowledged: true };
-      }),
+    collection: jest.fn<
+      (_name: string) => {
+        insertOne: ReturnType<typeof jest.fn>;
+        createIndexes: ReturnType<typeof jest.fn>;
+        findOne: ReturnType<typeof jest.fn>;
+        updateOne: ReturnType<typeof jest.fn>;
+        deleteOne: ReturnType<typeof jest.fn>;
+      }
+    >((_name: string) => ({
+      insertOne: jest.fn<(doc: Record<string, unknown>) => Promise<{ acknowledged: boolean }>>(
+        async (doc: Record<string, unknown>) => {
+          collectionStore[_name] = collectionStore[_name] || [];
+          collectionStore[_name].push(doc);
+          return { acknowledged: true };
+        }
+      ),
       createIndexes: jest.fn<() => Promise<Record<string, unknown>>>().mockResolvedValue({}),
       findOne: jest.fn<() => Promise<null>>().mockResolvedValue(null),
-      updateOne: jest.fn<() => Promise<{ matchedCount: number }>>().mockResolvedValue({ matchedCount: 1 }),
-      deleteOne: jest.fn<() => Promise<{ deletedCount: number }>>().mockResolvedValue({ deletedCount: 1 }),
+      updateOne: jest
+        .fn<() => Promise<{ matchedCount: number }>>()
+        .mockResolvedValue({ matchedCount: 1 }),
+      deleteOne: jest
+        .fn<() => Promise<{ deletedCount: number }>>()
+        .mockResolvedValue({ deletedCount: 1 }),
     })),
   },
   isValidObjectId,

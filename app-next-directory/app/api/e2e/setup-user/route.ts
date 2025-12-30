@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import { NextResponse, type NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import connect from '@/lib/dbConnect';
 import structuredLogger from '@/lib/logger';
 import User, { BCRYPT_COST, ROLE_VALUES, type Role } from '@/models/User';

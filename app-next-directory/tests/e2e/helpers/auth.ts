@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test';
-import type { Role } from '@/models/User';
 import { loginAs as loginAsRole } from '@tests/utils/test-utils';
+import type { Role } from '@/models/User';
 
 const normalizeEmail = (value: string) => value.trim().toLowerCase();
 const roleByEmail = new Map<string, Role>();
@@ -26,11 +26,14 @@ export async function loginAs(page: Page, email: string, password: string) {
     // expose `/api/e2e/setup-user` to create test users which allows server-side
     // role checks (admin routes) to pass.
     try {
-      await fetch(`${process.env.E2E_BASE_URL ?? process.env.BASE_URL ?? 'http://localhost:3000'}/api/e2e/setup-user`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, role }),
-      }).catch(() => undefined);
+      await fetch(
+        `${process.env.E2E_BASE_URL ?? process.env.BASE_URL ?? 'http://localhost:3000'}/api/e2e/setup-user`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, role }),
+        }
+      ).catch(() => undefined);
     } catch {}
 
     await loginAsRole(page, role);
@@ -110,42 +113,44 @@ export async function loginAs(page: Page, email: string, password: string) {
   try {
     // Click and wait for either successful navigation or network idle
     await submitLocator.click();
-    
+
     // Wait for navigation with a race between URL change and network idle
     await Promise.race([
       page.waitForURL(/\/(dashboard|account|home|admin)(\/)?(?=$|[?#])/, { timeout: 45000 }),
       page.waitForNavigation({ waitUntil: 'networkidle', timeout: 45000 }),
       // Also accept staying on the same page if login was successful (e.g., redirect via JS)
-      page.waitForFunction(() => !document.querySelector('[aria-disabled="true"]'), { timeout: 45000 }),
+      page.waitForFunction(() => !document.querySelector('[aria-disabled="true"]'), {
+        timeout: 45000,
+      }),
     ]);
   } catch (error) {
     // Capture current URL for debugging
     const currentUrl = page.url();
-    
+
     // Surface any visible error messages to aid debugging
     const errorMessage = await page
-      .locator('[role="alert"], .error-message, .alert-error, #form-error, #email-error, #password-error')
+      .locator(
+        '[role="alert"], .error-message, .alert-error, #form-error, #email-error, #password-error'
+      )
       .first()
       .innerText({ timeout: 2000 })
       .then(t => t.trim())
       .catch(() => null);
-    
+
     // Check if we're still on the login page
     const isStillOnLogin = /\/(login|signin|auth)/.test(currentUrl);
-    
+
     // Build detailed error message
     let errorDetails = `Login failed for ${email}`;
     if (errorMessage) {
       errorDetails += `: ${errorMessage}`;
     } else if (isStillOnLogin) {
-      errorDetails += '. Still on login page after form submission. Credentials may be invalid or database may not be seeded properly.';
+      errorDetails +=
+        '. Still on login page after form submission. Credentials may be invalid or database may not be seeded properly.';
     } else {
       errorDetails += `. Navigation timeout. Current URL: ${currentUrl}`;
     }
-    
-    throw Object.assign(
-      new Error(errorDetails),
-      { cause: error }
-    );
+
+    throw Object.assign(new Error(errorDetails), { cause: error });
   }
 }

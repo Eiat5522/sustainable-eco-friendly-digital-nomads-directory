@@ -1,18 +1,39 @@
 import { jest } from '@jest/globals';
-import {
-  createTestData,
-  getFavoritesForUser,
-  listCities,
-} from '@/tests/helpers/test-data';
+import type { TestUserPlan } from '@/tests/helpers/test-data';
+import { createTestData, getFavoritesForUser, listCities } from '@/tests/helpers/test-data';
+import type { ListingQuotaTier } from '@/types/sanity';
 
 const data = createTestData();
+
+const PLAN_TIER_MAP: Record<TestUserPlan, ListingQuotaTier> = {
+  free: 'free',
+  premium: 'enterprise',
+};
+
+const PLAN_MAX_LOCATIONS: Record<TestUserPlan, number> = {
+  free: 1,
+  premium: 50,
+};
+
+const USER_QUERY_REGEX = /\[_type\s*==\s*"user"/;
+const DEFAULT_PLAN: TestUserPlan = 'premium';
+
+const buildQuotaDoc = (id: string, plan: TestUserPlan, role?: string) => ({
+  _id: id,
+  mongodbId: id,
+  listingQuotaTier: PLAN_TIER_MAP[plan],
+  maxLocations: PLAN_MAX_LOCATIONS[plan],
+  quotaOverrideByAdmin: role === 'admin' || role === 'superAdmin',
+});
 
 // Check if we should use MSW mode (real HTTP requests to be intercepted by MSW)
 const useMSWMode = process.env.SANITY_FETCH_MODE === 'msw';
 
 const mapListingToSanity = (slug: string | undefined) => {
   if (!slug) return null;
-  const listing = data.listings.find((l: { slug?: { current: string } }) => l.slug?.current === slug);
+  const listing = data.listings.find(
+    (l: { slug?: { current: string } }) => l.slug?.current === slug
+  );
   if (!listing) return null;
   const city = listCities().find(entry => entry.slug === listing.city.slug?.current);
   return {
@@ -39,15 +60,30 @@ const mapListingToSanity = (slug: string | undefined) => {
 };
 
 const fetch = jest.fn(async (query: string, params: Record<string, unknown> = {}) => {
+  if (USER_QUERY_REGEX.test(query)) {
+    const userId = (params.id ?? params.userId ?? params.ownerId ?? params._id ?? null) as
+      | string
+      | null;
+    if (!userId) {
+      return null;
+    }
+
+    const user =
+      data.users.find(entry => entry.id === userId) ??
+      data.users.find(entry => entry.sessionToken === userId);
+
+    const plan: TestUserPlan = user?.plan ?? DEFAULT_PLAN;
+    const role = user?.role;
+    return buildQuotaDoc(userId, plan, role);
+  }
+
   if (/_type\s*==\s*"userFavorite"/.test(query)) {
     const userId = params.userId ?? data.users[0]?.id;
     const favorites = getFavoritesForUser(userId);
-    return favorites.map((favorite: {
-      id: string;
-      createdAt: string;
-      listingId: string;
-    }) => {
-      const listing = data.listings.find((item: { _id: string }) => item._id === favorite.listingId);
+    return favorites.map((favorite: { id: string; createdAt: string; listingId: string }) => {
+      const listing = data.listings.find(
+        (item: { _id: string }) => item._id === favorite.listingId
+      );
       return {
         _id: favorite.id,
         createdAt: favorite.createdAt,
@@ -94,38 +130,42 @@ const fetch = jest.fn(async (query: string, params: Record<string, unknown> = {}
   }
 
   if (/_type\s*==\s*"ecoTag"/.test(query)) {
-    return data.ecoTags.map((tag: { _id: string; name: string; slug: { current: string }; description?: string }) => ({
-      _id: tag._id,
-      name: tag.name,
-      slug: tag.slug.current,
-      description: tag.description,
-    }));
+    return data.ecoTags.map(
+      (tag: { _id: string; name: string; slug: { current: string }; description?: string }) => ({
+        _id: tag._id,
+        name: tag.name,
+        slug: tag.slug.current,
+        description: tag.description,
+      })
+    );
   }
 
   if (/moderation\.featured/.test(query)) {
-    return data.listings.map((listing: {
-      _id: string;
-      name: string;
-      slug?: { current: string };
-      primaryImage?: unknown;
-      galleryImages?: unknown[];
-      location?: unknown;
-      city: { slug?: { current: string }; name: string };
-      priceRange?: string;
-    }) => ({
-      _id: listing._id,
-      name: listing.name,
-      slug: listing.slug?.current,
-      primaryImage: listing.primaryImage,
-      galleryImages: listing.galleryImages,
-      location: listing.location,
-      city: {
-        _id: listing.city.slug?.current,
-        name: listing.city.name,
-        country: listCities().find(city => city.slug === listing.city.slug?.current)?.country,
-      },
-      priceRange: listing.priceRange,
-    }));
+    return data.listings.map(
+      (listing: {
+        _id: string;
+        name: string;
+        slug?: { current: string };
+        primaryImage?: unknown;
+        galleryImages?: unknown[];
+        location?: unknown;
+        city: { slug?: { current: string }; name: string };
+        priceRange?: string;
+      }) => ({
+        _id: listing._id,
+        name: listing.name,
+        slug: listing.slug?.current,
+        primaryImage: listing.primaryImage,
+        galleryImages: listing.galleryImages,
+        location: listing.location,
+        city: {
+          _id: listing.city.slug?.current,
+          name: listing.city.name,
+          country: listCities().find(city => city.slug === listing.city.slug?.current)?.country,
+        },
+        priceRange: listing.priceRange,
+      })
+    );
   }
 
   return [];

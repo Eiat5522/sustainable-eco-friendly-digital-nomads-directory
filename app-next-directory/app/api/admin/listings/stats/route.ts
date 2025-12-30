@@ -1,5 +1,3 @@
-
-
 import { type NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { getDefaultTimeout, RequestTimeoutError, withRequestTimeout } from '@/lib/http/request';

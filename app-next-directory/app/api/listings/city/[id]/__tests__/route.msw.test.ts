@@ -30,14 +30,12 @@ jest.mock('@/utils/api-response', () => ({
         (message, status, details) =>
           new Response(JSON.stringify({ success: false, error: message, details }), { status })
       ),
-    notFound: jest
-      .fn()
-      .mockImplementation(
-        resource =>
-          new Response(JSON.stringify({ success: false, error: `${resource} not found` }), {
-            status: 404,
-          })
-      ),
+    notFound: jest.fn().mockImplementation(
+      resource =>
+        new Response(JSON.stringify({ success: false, error: `${resource} not found` }), {
+          status: 404,
+        })
+    ),
   },
 }));
 

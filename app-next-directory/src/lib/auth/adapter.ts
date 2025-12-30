@@ -19,12 +19,10 @@ export function createAuthAdapter(): Adapter | undefined {
     process.env.JEST_WORKER_ID !== undefined ||
     process.env.JEST_UNIT_ONLY === '1' ||
     process.env.NODE_ENV === 'test';
-  const isE2EEnvironment =
-    process.env.E2E === '1' || process.env.NEXT_PUBLIC_E2E === '1';
+  const isE2EEnvironment = process.env.E2E === '1' || process.env.NEXT_PUBLIC_E2E === '1';
   const isJestMockAdapter = typeof adapterFactory === 'function' && 'mock' in adapterFactory;
   const shouldUseRealMongoForTests =
-    process.env.USE_REAL_MONGODB_FOR_TESTS === '1' ||
-    process.env.USE_REAL_MONGODB_FOR_E2E === '1';
+    process.env.USE_REAL_MONGODB_FOR_TESTS === '1' || process.env.USE_REAL_MONGODB_FOR_E2E === '1';
 
   const shouldSkipAdapter =
     (adapterFactory === MongoDBAdapter || isJestMockAdapter) &&

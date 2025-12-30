@@ -51,13 +51,11 @@ async function MapSection({ params }: { params: SearchParams }) {
   );
 }
 
-export default async function ListingsPage(props: {
-  searchParams?: Promise<SearchParams>;
-}) {
+export default async function ListingsPage(props: { searchParams?: Promise<SearchParams> }) {
   // Await searchParams outside of cache scope
   const searchParams = await props.searchParams;
   const params = searchParams ?? ({} as SearchParams);
-  
+
   const initialParams: SearchParamRecord = {
     q: params.search,
     destination: params.city,

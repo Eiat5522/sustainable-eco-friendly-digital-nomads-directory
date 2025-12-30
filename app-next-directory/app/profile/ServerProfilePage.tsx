@@ -1,8 +1,8 @@
 'use cache';
 
 import { cacheLife, cacheTag, updateTag } from 'next/cache';
-import { redirect } from 'next/navigation';
 import Image from 'next/image';
+import { redirect } from 'next/navigation';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
 import { getUserDashboardData } from '@/lib/dashboard/user-dashboard';

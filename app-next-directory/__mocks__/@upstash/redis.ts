@@ -70,38 +70,46 @@ export const mockRedisClient = {
   zscore: jest.fn(),
 
   // Transaction support
-  multi: jest.fn<() => {
-    set: ReturnType<typeof jest.fn>;
-    get: ReturnType<typeof jest.fn>;
-    del: ReturnType<typeof jest.fn>;
-    incr: ReturnType<typeof jest.fn>;
-    expire: ReturnType<typeof jest.fn>;
-    exec: ReturnType<typeof jest.fn>;
-  }>().mockReturnValue({
-    set: jest.fn().mockReturnThis(),
-    get: jest.fn().mockReturnThis(),
-    del: jest.fn().mockReturnThis(),
-    incr: jest.fn().mockReturnThis(),
-    expire: jest.fn().mockReturnThis(),
-    exec: jest.fn().mockResolvedValue([]),
-  }),
+  multi: jest
+    .fn<
+      () => {
+        set: ReturnType<typeof jest.fn>;
+        get: ReturnType<typeof jest.fn>;
+        del: ReturnType<typeof jest.fn>;
+        incr: ReturnType<typeof jest.fn>;
+        expire: ReturnType<typeof jest.fn>;
+        exec: ReturnType<typeof jest.fn>;
+      }
+    >()
+    .mockReturnValue({
+      set: jest.fn().mockReturnThis(),
+      get: jest.fn().mockReturnThis(),
+      del: jest.fn().mockReturnThis(),
+      incr: jest.fn().mockReturnThis(),
+      expire: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue([]),
+    }),
 
   // Pipeline support (similar to multi but without atomicity)
-  pipeline: jest.fn<() => {
-    set: ReturnType<typeof jest.fn>;
-    get: ReturnType<typeof jest.fn>;
-    del: ReturnType<typeof jest.fn>;
-    incr: ReturnType<typeof jest.fn>;
-    expire: ReturnType<typeof jest.fn>;
-    exec: ReturnType<typeof jest.fn>;
-  }>().mockReturnValue({
-    set: jest.fn().mockReturnThis(),
-    get: jest.fn().mockReturnThis(),
-    del: jest.fn().mockReturnThis(),
-    incr: jest.fn().mockReturnThis(),
-    expire: jest.fn().mockReturnThis(),
-    exec: jest.fn().mockResolvedValue([]),
-  }),
+  pipeline: jest
+    .fn<
+      () => {
+        set: ReturnType<typeof jest.fn>;
+        get: ReturnType<typeof jest.fn>;
+        del: ReturnType<typeof jest.fn>;
+        incr: ReturnType<typeof jest.fn>;
+        expire: ReturnType<typeof jest.fn>;
+        exec: ReturnType<typeof jest.fn>;
+      }
+    >()
+    .mockReturnValue({
+      set: jest.fn().mockReturnThis(),
+      get: jest.fn().mockReturnThis(),
+      del: jest.fn().mockReturnThis(),
+      incr: jest.fn().mockReturnThis(),
+      expire: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue([]),
+    }),
 
   // Key management
   keys: jest.fn(),

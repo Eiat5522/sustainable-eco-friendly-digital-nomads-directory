@@ -7,7 +7,10 @@
     "_updatedAt": "2025-05-24T11:24:00Z",
     "avatar": {
       "_type": "image",
-      "asset": {"_ref": "image-a7e4fe5b63e9af100179addca6cb56d8671fc2f1-232x134-png","_type":"reference"}
+      "asset": {
+        "_ref": "image-a7e4fe5b63e9af100179addca6cb56d8671fc2f1-232x134-png",
+        "_type": "reference"
+      }
     },
     "bio": "Ian Lancaster Fleming was a British writer, best known for his postwar James Bond series of spy novels. Fleming came from a wealthy family connected to the merchant bank Robert Fleming & Co., and his father was the Member of Parliament for Henley from 1910 until his death on the Western Front in 1917. Wikipedia",
     "createdAt": "2025-05-24T11:18:51.737Z",
@@ -30,7 +33,7 @@
     "_createdAt": "2025-11-04T07:04:57Z",
     "_id": "6908179f9726f82211bea357",
     "_rev": "40JKdlBYq3s7dKFduQZ47S",
-    "_system": {"base": {"id":"6908179f9726f82211bea357","rev":"lbDd30gU36ad1Jual3XcuN"}},
+    "_system": { "base": { "id": "6908179f9726f82211bea357", "rev": "lbDd30gU36ad1Jual3XcuN" } },
     "_type": "user",
     "_updatedAt": "2025-12-24T11:42:19Z",
     "createdAt": "2025-11-04T07:04:56.730Z",
@@ -79,7 +82,13 @@
     "_rev": "o6PeU5DO1WlYcv1DjLwfp2",
     "_type": "user",
     "_updatedAt": "2025-09-16T07:22:20Z",
-    "avatar": {"_type":"image","asset":{"_ref":"image-b102f194adb2b1852a503d3d3c05bd9c5645c5fc-739x415-webp","_type":"reference"}},
+    "avatar": {
+      "_type": "image",
+      "asset": {
+        "_ref": "image-b102f194adb2b1852a503d3d3c05bd9c5645c5fc-739x415-webp",
+        "_type": "reference"
+      }
+    },
     "createdAt": "2025-09-16T07:15:22.110Z",
     "name": "John Ronald Reuel Tolkien Writer and philologist",
     "role": "editor"
@@ -88,10 +97,32 @@
     "_createdAt": "2025-05-24T11:25:20Z",
     "_id": "fa29cbcc-08b1-4d40-a0e3-c36743ef2fff",
     "_rev": "dBgGOw16J3Coo4RU04eGRQ",
-    "_system": {"base": {"id":"fa29cbcc-08b1-4d40-a0e3-c36743ef2fff","rev":"GW5zd7gcSCfBxm3pYzC8xH"}},
+    "_system": {
+      "base": { "id": "fa29cbcc-08b1-4d40-a0e3-c36743ef2fff", "rev": "GW5zd7gcSCfBxm3pYzC8xH" }
+    },
     "_type": "user",
     "_updatedAt": "2025-11-15T04:48:58Z",
-    "avatar": {"_type":"image","asset":{"_ref":"image-560c9362d82f8dc27fcbad432478c8a36873acd2-225x225-jpg","_type":"reference"},"crop":{"_type":"sanity.imageCrop","bottom":0,"left":0.17154582538249466,"right":0,"top":0},"hotspot":{"_type":"sanity.imageHotspot","height":1,"width":0.8284541746175054,"x":0.5857729126912473,"y":0.5}},
+    "avatar": {
+      "_type": "image",
+      "asset": {
+        "_ref": "image-560c9362d82f8dc27fcbad432478c8a36873acd2-225x225-jpg",
+        "_type": "reference"
+      },
+      "crop": {
+        "_type": "sanity.imageCrop",
+        "bottom": 0,
+        "left": 0.17154582538249466,
+        "right": 0,
+        "top": 0
+      },
+      "hotspot": {
+        "_type": "sanity.imageHotspot",
+        "height": 1,
+        "width": 0.8284541746175054,
+        "x": 0.5857729126912473,
+        "y": 0.5
+      }
+    },
     "bio": "Joanne Rowling CH OBE FRSL, known by her pen name J. K. Rowling, is a British author and philanthropist. She wrote Harry Potter, a seven-volume fantasy series published from 1997 to 2007.",
     "createdAt": "2025-05-24T11:25:02.136Z",
     "email": "eiat52@gmail.com",

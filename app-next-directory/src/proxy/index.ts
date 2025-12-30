@@ -79,7 +79,8 @@ function getRouteType(pathname: string): 'public' | 'protected' | 'admin' | 'aut
   return 'public';
 }
 
-type PagePermissionKey = keyof (typeof ACCESS_CONTROL_MATRIX)[keyof typeof ACCESS_CONTROL_MATRIX]['pages'];
+type PagePermissionKey =
+  keyof (typeof ACCESS_CONTROL_MATRIX)[keyof typeof ACCESS_CONTROL_MATRIX]['pages'];
 
 function getRequiredPagePermission(pathname: string): PagePermissionKey | null {
   if (pathname.startsWith('/admin')) return 'admin';
@@ -198,7 +199,10 @@ export function createProxy(options: ProxyOptions) {
       }
 
       // Handle admin routes (require admin role)
-      if ((routeType === 'admin' || routeType === 'api') && !hasPermission(token, routeType, pathname)) {
+      if (
+        (routeType === 'admin' || routeType === 'api') &&
+        !hasPermission(token, routeType, pathname)
+      ) {
         if (routeType === 'api') {
           const response = options.NextResponse.json(
             { error: 'Unauthorized' },

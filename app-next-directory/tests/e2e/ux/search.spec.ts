@@ -17,7 +17,7 @@ test.describe('Search & Filter UX', () => {
     // Check search input is present with proper labeling
     const searchInput = page.locator('input[type="search"][name="q"]');
     await expect(searchInput).toBeVisible();
-    
+
     // Check that the label exists in the DOM (even if screen-reader only)
     const label = page.locator('label[for="search-page-input"]');
     await expect(label).toHaveCount(1);
@@ -38,10 +38,10 @@ test.describe('Search & Filter UX', () => {
 
     // Submit search
     await page.click('button[type="submit"]');
-    
+
     // Wait for navigation to complete
     await page.waitForLoadState('networkidle');
-    
+
     // The page should navigate (either stay on /search or go to /search/results)
     // Just verify we're still on a search-related page
     expect(page.url()).toContain('/search');
@@ -56,12 +56,16 @@ test.describe('Search & Filter UX', () => {
     // The search should have been performed - check that input maintains value or results shown
     const searchInput = page.locator('input[type="search"][name="q"]');
     const inputValue = await searchInput.inputValue();
-    
+
     // Either the input has the value we searched for, or results/no results are shown
-    const hasResults = inputValue.includes('coworking') || 
-                      await page.locator('[data-testid="listing-card"]').count() > 0 ||
-                      await page.locator('text=No results found').isVisible().catch(() => false);
-    
+    const hasResults =
+      inputValue.includes('coworking') ||
+      (await page.locator('[data-testid="listing-card"]').count()) > 0 ||
+      (await page
+        .locator('text=No results found')
+        .isVisible()
+        .catch(() => false));
+
     expect(hasResults).toBeTruthy();
   });
 
@@ -90,13 +94,13 @@ test.describe('Search & Filter UX', () => {
 
     // Type in search field
     await page.keyboard.type('coworking');
-    
+
     // Tab to search button
     await page.keyboard.press('Tab');
-    
+
     // Press Enter to submit
     await page.keyboard.press('Enter');
-    
+
     // Should navigate to search results
     await page.waitForLoadState('networkidle');
     expect(page.url()).toContain('/search');
@@ -138,7 +142,7 @@ test.describe('Search & Filter UX', () => {
 
       // Type a search term
       await page.keyboard.type('test');
-      
+
       // Input should still be focused
       await expect(page.locator('input[name="q"]')).toBeFocused();
     });
@@ -146,10 +150,10 @@ test.describe('Search & Filter UX', () => {
     test('handles keyboard navigation within form', async ({ page }) => {
       // Start from search input
       await page.click('input[name="q"]');
-      
+
       // Tab to next focusable element
       await page.keyboard.press('Tab');
-      
+
       // Should be able to tab through form controls
       const activeElement = await page.evaluate(() => document.activeElement?.tagName);
       expect(['INPUT', 'BUTTON']).toContain(activeElement);
@@ -164,7 +168,7 @@ test.describe('Search & Filter UX', () => {
 
       // Should navigate to search/results
       await page.waitForURL(/\/search/);
-      
+
       // Page should still be functional
       const searchForm = page.locator('[data-testid="search-form"]');
       await expect(searchForm).toBeVisible();
@@ -179,9 +183,9 @@ test.describe('Search & Filter UX', () => {
       await page.waitForURL(/\/search/);
 
       // Check either listings or no results message appears
-      const hasListings = await page.locator('[data-testid="listing-card"]').count() > 0;
+      const hasListings = (await page.locator('[data-testid="listing-card"]').count()) > 0;
       const noResultsText = await page.locator('text=No results found').isVisible();
-      
+
       // At least one should be true (either show listings or no results)
       expect(hasListings || noResultsText).toBeTruthy();
     });
@@ -192,21 +196,21 @@ test.describe('Search & Filter UX', () => {
     test('search button is visible and clickable', async ({ page }) => {
       const searchButton = page.getByRole('button', { name: 'Search' });
       await expect(searchButton).toBeVisible();
-      
+
       // Button should be clickable
       await searchButton.click();
-      
+
       // Should navigate
       await page.waitForURL(/\/search/);
     });
 
     test('form inputs are interactive', async ({ page }) => {
       const searchInput = page.locator('input[name="q"]');
-      
+
       // Should be able to type in input
       await searchInput.fill('test query');
       await expect(searchInput).toHaveValue('test query');
-      
+
       // Should be able to clear and type again
       await searchInput.fill('');
       await expect(searchInput).toHaveValue('');
@@ -228,7 +232,7 @@ test.describe('Search & Filter UX', () => {
       // Test desktop layout
       await page.setViewportSize({ width: 1440, height: 900 });
       await expect(searchForm).toBeVisible();
-      
+
       // Search functionality should work on desktop
       await page.fill('input[name="q"]', 'test');
       await page.click('button[type="submit"]');
@@ -242,14 +246,14 @@ test.describe('Search & Filter UX', () => {
       // Check form elements are accessible
       const searchInput = page.locator('input[name="q"]');
       await expect(searchInput).toBeVisible();
-      
+
       const searchButton = page.getByRole('button', { name: 'Search' });
       await expect(searchButton).toBeVisible();
 
       // Should be able to interact
       await searchInput.fill('mobile test');
       await searchButton.click();
-      
+
       // Should navigate
       await page.waitForURL(/\/search/);
     });

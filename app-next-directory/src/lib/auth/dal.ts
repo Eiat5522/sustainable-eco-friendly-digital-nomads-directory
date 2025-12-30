@@ -59,13 +59,15 @@ async function connectDB(): Promise<void> {
   await dbConnect();
 }
 
-async function syncUserAndPersistSanityId(user: Partial<IUser> & { _id: Types.ObjectId }): Promise<void> {
+async function syncUserAndPersistSanityId(
+  user: Partial<IUser> & { _id: Types.ObjectId }
+): Promise<void> {
   const sanityUser = await syncUserToSanity({
     id: user._id.toString(),
     email: user.email ?? '',
     name: user.name ?? '',
     image: user.image,
-    role: (user.role ?? ('user' as UserRole)),
+    role: user.role ?? ('user' as UserRole),
     status: user.status,
     sanityId: user.sanityId ?? null,
   });
@@ -290,7 +292,6 @@ export async function updateUserStatus(
   }
 }
 
-
 /**
  * Create a new user account
  * @param userData - User registration data
@@ -379,13 +380,20 @@ export async function updateUserProfile(
 
     const updateRes = await UserModel.updateOne({ _id: userId }, { $set }, { runValidators: true });
 
-    type UpdateResultLike = { matchedCount?: number; modifiedCount?: number; nModified?: number; acknowledged?: boolean };
+    type UpdateResultLike = {
+      matchedCount?: number;
+      modifiedCount?: number;
+      nModified?: number;
+      acknowledged?: boolean;
+    };
     const resTyped = updateRes as UpdateResultLike;
 
     if (resTyped.matchedCount === 1) {
       const dbUser = await UserModel.findById(userId);
       if (dbUser) {
-        await syncUserAndPersistSanityId(dbUser as unknown as Partial<IUser> & { _id: Types.ObjectId });
+        await syncUserAndPersistSanityId(
+          dbUser as unknown as Partial<IUser> & { _id: Types.ObjectId }
+        );
         // syncUserAndPersistSanityId handles persisting sanityId on the user model
       }
       return true;

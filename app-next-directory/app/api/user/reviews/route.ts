@@ -1,5 +1,3 @@
-
-
 import { randomUUID } from 'node:crypto';
 import type { Collection } from 'mongodb';
 import { NextResponse } from 'next/server';

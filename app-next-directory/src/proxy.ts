@@ -4,12 +4,11 @@
  * In Next.js 16, middleware was renamed to proxy.
  * This file must exist at src/proxy.ts for Next.js to recognize and execute the proxy.
  * The actual proxy implementation is in ./proxy/index.ts
- * 
+ *
  * @see https://nextjs.org/docs/app/building-your-application/routing/middleware
  */
 
-export { createProxy } from './proxy/index';
-export { default } from './proxy/index';
+export { createProxy, default } from './proxy/index';
 
 // Next.js proxy configuration
 // Note: This must be defined directly in this file and cannot be re-exported

@@ -3,7 +3,7 @@
 import { Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type React from 'react';
-import { useState, useCallback, memo } from 'react';
+import { memo, useCallback, useState } from 'react';
 import { NeoButton } from '@/components/ui/neo-button';
 import { NeoInput } from '@/components/ui/neo-input';
 import { ScrollDownArrow } from '@/components/ui/scroll-down-arrow';
@@ -43,12 +43,15 @@ export function HeroSection() {
   const router = useRouter();
 
   // Memoized submit handler to prevent re-renders
-  const handleSubmit = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    const query = q.trim();
-    if (!query) return;
-    router.push(`/search?q=${encodeURIComponent(query)}`);
-  }, [q, router]);
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      const query = q.trim();
+      if (!query) return;
+      router.push(`/search?q=${encodeURIComponent(query)}`);
+    },
+    [q, router]
+  );
 
   return (
     <section

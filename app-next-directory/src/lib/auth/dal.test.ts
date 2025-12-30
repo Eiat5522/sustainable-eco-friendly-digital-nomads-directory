@@ -22,7 +22,9 @@ const mockUserModel = {
 };
 
 jest.mock('@/lib/dbConnect', () => jest.fn((...args: unknown[]) => mockConnect(...args)));
-jest.mock('@/lib/auth/userService', () => ({ syncUserToSanity: (...args: unknown[]) => mockSync(...args) }));
+jest.mock('@/lib/auth/userService', () => ({
+  syncUserToSanity: (...args: unknown[]) => mockSync(...args),
+}));
 jest.mock('mongoose', () => ({
   __esModule: true,
   isValidObjectId: (...args: unknown[]) => mockIsValidObjectId(...args),
@@ -63,7 +65,10 @@ describe('auth DAL', () => {
       mockExists,
       mockCountDocuments,
     }));
-    jest.doMock('bcryptjs', () => ({ hash: (...args: unknown[]) => mockHash(...args), default: { hash: mockHash } }));
+    jest.doMock('bcryptjs', () => ({
+      hash: (...args: unknown[]) => mockHash(...args),
+      default: { hash: mockHash },
+    }));
     mockIsValidObjectId.mockReturnValue(true);
   });
 
@@ -90,7 +95,14 @@ describe('auth DAL', () => {
     const { mockExists, mockCreate } = jest.requireMock('@/models/User');
     mockExists.mockResolvedValue(false);
     mockHash.mockResolvedValue('hashed_pw');
-    const created = { _id: { toString: () => 'uid' }, name: 'A', email: 'a@x.com', role: 'user', status: 'active', sanityId: null };
+    const created = {
+      _id: { toString: () => 'uid' },
+      name: 'A',
+      email: 'a@x.com',
+      role: 'user',
+      status: 'active',
+      sanityId: null,
+    };
     mockCreate.mockResolvedValue(created);
     mockSync.mockResolvedValue({ _id: 'sanity123' });
 
@@ -110,21 +122,37 @@ describe('auth DAL', () => {
 
     const res = await updateUserProfile('507f1f77bcf86cd799439011', { email: 'taken@example.com' });
     expect(res).toBe(false);
-    expect(mockExists).toHaveBeenCalledWith({ email: 'taken@example.com', _id: { $ne: '507f1f77bcf86cd799439011' } });
+    expect(mockExists).toHaveBeenCalledWith({
+      email: 'taken@example.com',
+      _id: { $ne: '507f1f77bcf86cd799439011' },
+    });
   });
 
   it('updateUserProfile updates name/email and syncs to sanity', async () => {
     const { mockExists, mockUpdateOne, mockFindById } = jest.requireMock('@/models/User');
     mockExists.mockResolvedValue(false);
     mockUpdateOne.mockResolvedValue({ matchedCount: 1 });
-    const dbUser = { _id: { toString: () => '507f1f77bcf86cd799439011' }, name: 'Old', email: 'old@example.com', role: 'user', sanityId: null };
+    const dbUser = {
+      _id: { toString: () => '507f1f77bcf86cd799439011' },
+      name: 'Old',
+      email: 'old@example.com',
+      role: 'user',
+      sanityId: null,
+    };
     mockFindById.mockResolvedValue(dbUser);
     mockSync.mockResolvedValue({ _id: 'sanityNew' });
 
     const { updateUserProfile } = await import('./dal');
-    const res = await updateUserProfile('507f1f77bcf86cd799439011', { name: 'New Name', email: ' New@Example.com ' });
+    const res = await updateUserProfile('507f1f77bcf86cd799439011', {
+      name: 'New Name',
+      email: ' New@Example.com ',
+    });
 
-    expect(mockUpdateOne).toHaveBeenCalledWith({ _id: '507f1f77bcf86cd799439011' }, { $set: { name: 'New Name', email: 'new@example.com' } }, { runValidators: true });
+    expect(mockUpdateOne).toHaveBeenCalledWith(
+      { _id: '507f1f77bcf86cd799439011' },
+      { $set: { name: 'New Name', email: 'new@example.com' } },
+      { runValidators: true }
+    );
     expect(mockFindById).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
     expect(mockSync).toHaveBeenCalled();
     expect(res).toBe(true);

@@ -48,68 +48,70 @@ export function Footer({ showNewsletter = true }: FooterProps) {
       className="bg-neo-text-primary text-white border-t-4 border-neo-border"
     >
       <div className="container mx-auto px-4 py-16">
-      {showNewsletter && (
-        <NeoCard variant="flat" className="mb-16 bg-neo-primary border-white">
-          <div className="p-8 text-center">
-            <h3 className="heading-md mb-4 text-white">Stay Updated on Sustainable Travel</h3>
-            <p className="body-lg mb-6 text-blue-100 max-w-2xl mx-auto">
-              Get weekly updates on new sustainable venues, eco-travel tips, and nomad community
-              highlights
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-              <label htmlFor="newsletter-email" className="sr-only">
-                Email address
-              </label>
-              <NeoInput
-                id="newsletter-email"
-                name="email"
-                type="email"
-                placeholder="Enter your email"
-                autoComplete="email"
-                inputMode="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                aria-invalid={!!errors.email}
-                aria-describedby="newsletter-help"
-                aria-errormessage={errors.email ? 'newsletter-error' : undefined}
-                required
-                className="flex-1 bg-white text-neo-text-primary"
-              />
-              {errors.email && (
-                <p id="newsletter-error" className="text-red-500 text-sm mt-1" role="alert">
-                  {errors.email}
-                </p>
-              )}
-              <NeoButton asChild variant="secondary" size="md">
-                <Link
-                  href="/contact-us?type=newsletter"
-                  onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
-                    const trimmed = email.trim();
-                    const isValid = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
-                      trimmed
-                    );
-                    if (!isValid) {
+        {showNewsletter && (
+          <NeoCard variant="flat" className="mb-16 bg-neo-primary border-white">
+            <div className="p-8 text-center">
+              <h3 className="heading-md mb-4 text-white">Stay Updated on Sustainable Travel</h3>
+              <p className="body-lg mb-6 text-blue-100 max-w-2xl mx-auto">
+                Get weekly updates on new sustainable venues, eco-travel tips, and nomad community
+                highlights
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+                <label htmlFor="newsletter-email" className="sr-only">
+                  Email address
+                </label>
+                <NeoInput
+                  id="newsletter-email"
+                  name="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  autoComplete="email"
+                  inputMode="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  aria-invalid={!!errors.email}
+                  aria-describedby="newsletter-help"
+                  aria-errormessage={errors.email ? 'newsletter-error' : undefined}
+                  required
+                  className="flex-1 bg-white text-neo-text-primary"
+                />
+                {errors.email && (
+                  <p id="newsletter-error" className="text-red-500 text-sm mt-1" role="alert">
+                    {errors.email}
+                  </p>
+                )}
+                <NeoButton asChild variant="secondary" size="md">
+                  <Link
+                    href="/contact-us?type=newsletter"
+                    onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                      const trimmed = email.trim();
+                      const isValid = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
+                        trimmed
+                      );
+                      if (!isValid) {
+                        e.preventDefault();
+                        setErrors({ email: 'Please enter a valid email address.' });
+                        return;
+                      }
+                      setErrors({ email: '' });
+                      // Prevent default Link navigation and push with email query param so the contact page
+                      // can prepopulate the email field from the URL.
                       e.preventDefault();
-                      setErrors({ email: 'Please enter a valid email address.' });
-                      return;
-                    }
-                    setErrors({ email: '' });
-                    // Prevent default Link navigation and push with email query param so the contact page
-                    // can prepopulate the email field from the URL.
-                    e.preventDefault();
-                    router.push(`/contact-us?type=newsletter&email=${encodeURIComponent(trimmed)}`);
-                  }}
-                >
-                  Subscribe
-                </Link>
-              </NeoButton>
+                      router.push(
+                        `/contact-us?type=newsletter&email=${encodeURIComponent(trimmed)}`
+                      );
+                    }}
+                  >
+                    Subscribe
+                  </Link>
+                </NeoButton>
+              </div>
+              <p id="newsletter-help" className="sr-only">
+                We send occasional updates. Unsubscribe anytime.
+              </p>
             </div>
-            <p id="newsletter-help" className="sr-only">
-              We send occasional updates. Unsubscribe anytime.
-            </p>
-          </div>
-        </NeoCard>
-      )}
+          </NeoCard>
+        )}
 
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">

@@ -121,14 +121,16 @@ export default {
       name: 'maxLocations',
       title: 'Max Locations',
       type: 'number',
-      description: 'Numeric override for number of listings this owner may have. If empty, tier mapping or global default applies.',
+      description:
+        'Numeric override for number of listings this owner may have. If empty, tier mapping or global default applies.',
       validation: Rule => Rule.min(0),
     },
     {
       name: 'locationCount',
       title: 'Location Count (optional)',
       type: 'number',
-      description: 'Optional cached count of owned listings. If present, used for quick reads but reconciled with authoritative queries.',
+      description:
+        'Optional cached count of owned listings. If present, used for quick reads but reconciled with authoritative queries.',
       readOnly: true,
     },
     {

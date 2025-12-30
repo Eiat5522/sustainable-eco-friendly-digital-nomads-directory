@@ -6,8 +6,6 @@ import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 import { SettingsForm } from './SettingsForm';
 
-
-
 // MIGRATED: Removed `export const dynamic = 'force-dynamic'` to be compatible
 // with `cacheComponents`. This route is dynamic-by-default under Cache Components.
 // TODO: If this page should be cached, add `"use cache"` in the appropriate

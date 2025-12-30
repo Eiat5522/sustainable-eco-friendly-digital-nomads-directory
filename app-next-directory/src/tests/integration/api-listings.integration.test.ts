@@ -91,6 +91,9 @@ describe('API /api/listings integration', () => {
 
   it('persists newly created listings and exposes them through GET', async () => {
     const { handlers, records, collection } = setupHandlers();
+    const countDocumentsMock = collection.countDocuments as jest.MockedFunction<
+      typeof collection.countDocuments
+    >;
     const payload = {
       title: 'Zero Waste Hub',
       slug: 'zero-waste-hub',
@@ -122,6 +125,7 @@ describe('API /api/listings integration', () => {
       ownerId: 'user-123',
     });
 
+    countDocumentsMock.mockClear();
     const getResponse = await handlers.GET({
       url: 'http://localhost/api/listings?page=1&limit=5',
     });
@@ -144,7 +148,7 @@ describe('API /api/listings integration', () => {
         totalPages: 1,
       },
     });
-    expect(collection.countDocuments).toHaveBeenCalledTimes(1);
+    expect(countDocumentsMock).toHaveBeenCalledTimes(1);
   });
 
   it('prevents duplicate listings with the same slug across POST requests', async () => {

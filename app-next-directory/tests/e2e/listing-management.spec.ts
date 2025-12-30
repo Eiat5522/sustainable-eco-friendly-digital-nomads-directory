@@ -29,14 +29,10 @@ test.describe('Listing Management E2E', () => {
       await expect(page).toHaveURL(/\/403/);
 
       // Try to access moderation API
-      const response = await TestHelpers.makeAuthenticatedRequest(
-        page,
-        '/api/admin/moderation',
-        {
-          method: 'POST',
-          data: { moderationId: 'queue-123', action: 'approve' },
-        }
-      );
+      const response = await TestHelpers.makeAuthenticatedRequest(page, '/api/admin/moderation', {
+        method: 'POST',
+        data: { moderationId: 'queue-123', action: 'approve' },
+      });
       expect(response.status()).toBe(403);
     });
 

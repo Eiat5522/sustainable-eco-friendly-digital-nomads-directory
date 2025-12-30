@@ -54,9 +54,7 @@
     "playwright.reuseBrowser": true,
     "playwright.runGlobalSetupOnEachRun": true,
     "chat.useNestedAgentsMdFiles": true,
-    "cSpell.words": [
-      "Prerendering"
-    ],
+    "cSpell.words": ["Prerendering"],
     "vscodeDebuggerMCP.licenseAccepted": true,
     "vscodeDebuggerMCP.transportType": "sse",
     "github.copilot.chat.languageContext.fix.typescript.enabled": true,
@@ -68,10 +66,6 @@
     "workbench.externalBrowser": "chrome"
   },
   "extensions": {
-    "recommendations": [
-      "biomejs.biome",
-      "dbaeumer.vscode-eslint",
-      "prettier.prettier-vscode"
-    ]
+    "recommendations": ["biomejs.biome", "dbaeumer.vscode-eslint", "prettier.prettier-vscode"]
   }
 }

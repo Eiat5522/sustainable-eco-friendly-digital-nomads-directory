@@ -13,9 +13,7 @@ interface AdminDashboardClientProps {
   adminData?: AdminDashboardData;
 }
 
-export default function AdminDashboardClient({
-  adminData: _adminData,
-}: AdminDashboardClientProps) {
+export default function AdminDashboardClient({ adminData: _adminData }: AdminDashboardClientProps) {
   return (
     <section className="space-y-6" data-testid="admin-dashboard">
       <div className="neo-card rounded-2xl bg-neo-surface p-6 md:p-8">

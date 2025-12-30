@@ -41,7 +41,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   let listings: CategoryListing[] = [];
   try {
     const LISTINGS_BY_CATEGORY = groq`*[_type == "listing" && category == $category && moderation.status == "published"]{ _id, name, "slug": slug.current, primaryImage }`;
-    listings = (await client.fetch<CategoryListing[]>(LISTINGS_BY_CATEGORY, { category: slug })) ?? [];
+    listings =
+      (await client.fetch<CategoryListing[]>(LISTINGS_BY_CATEGORY, { category: slug })) ?? [];
   } catch (_error) {
     // swallow - page will render with no results
   }

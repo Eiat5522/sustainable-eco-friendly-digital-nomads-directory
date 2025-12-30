@@ -3,7 +3,7 @@
 import Autoplay from 'embla-carousel-autoplay';
 import useEmblaCarousel from 'embla-carousel-react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState, memo } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { NeoButton } from '@/components/ui/neo-button';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { VenueCard } from '@/components/ui/VenueCard';
@@ -76,7 +76,12 @@ function toFeaturedListing(listing: unknown): FeaturedListingDTO | null {
   const name = candidate.name as unknown;
   const slugRaw = candidate.slug as unknown;
   // slug could be a string or an object like { current: '...' }
-  const slug = typeof slugRaw === 'string' ? slugRaw : (slugRaw && typeof slugRaw === 'object' ? (slugRaw as SanitySlug).current : undefined);
+  const slug =
+    typeof slugRaw === 'string'
+      ? slugRaw
+      : slugRaw && typeof slugRaw === 'object'
+        ? (slugRaw as SanitySlug).current
+        : undefined;
 
   const primaryImage = (candidate.primaryImage ?? candidate.imageUrl) as unknown;
   let imageUrl: unknown;
@@ -88,7 +93,9 @@ function toFeaturedListing(listing: unknown): FeaturedListingDTO | null {
   const city = candidate.city as unknown;
   const amenityNames = candidate.amenityNames ?? candidate.amenities ?? undefined;
   const ecoFocusTags = candidate.ecoFocusTags ?? candidate.ecoTags ?? undefined;
-  const featured = candidate.featured ?? (candidate.moderation ? (candidate.moderation as SanityModeration).featured : undefined);
+  const featured =
+    candidate.featured ??
+    (candidate.moderation ? (candidate.moderation as SanityModeration).featured : undefined);
 
   if (!isNonEmptyString(id) || !isNonEmptyString(name) || !isNonEmptyString(slug)) {
     return null;
@@ -117,15 +124,21 @@ function toFeaturedListing(listing: unknown): FeaturedListingDTO | null {
 }
 
 // Memoized ListingCard component
-const ListingCard = memo(({ listing, priority }: { listing: FeaturedListingDTO; priority: boolean }) => (
-  <div className="shrink-0 basis-[85%] sm:basis-[60%] lg:basis-1/3">
-    <VenueCard venue={listing} priority={priority} className="h-full w-full" />
-  </div>
-));
+const ListingCard = memo(
+  ({ listing, priority }: { listing: FeaturedListingDTO; priority: boolean }) => (
+    <div className="shrink-0 basis-[85%] sm:basis-[60%] lg:basis-1/3">
+      <VenueCard venue={listing} priority={priority} className="h-full w-full" />
+    </div>
+  )
+);
 
 ListingCard.displayName = 'ListingCard';
 
-export function FeaturedListings({ initialListings }: { initialListings?: FeaturedListingDTO[] }): React.JSX.Element {
+export function FeaturedListings({
+  initialListings,
+}: {
+  initialListings?: FeaturedListingDTO[];
+}): React.JSX.Element {
   const hasInitialListings = Array.isArray(initialListings) && initialListings.length > 0;
   const [listings, setListings] = useState<FeaturedListingDTO[]>(initialListings ?? []);
   const [loading, setLoading] = useState(!hasInitialListings);

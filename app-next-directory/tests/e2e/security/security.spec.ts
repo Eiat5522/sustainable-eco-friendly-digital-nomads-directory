@@ -135,7 +135,7 @@ test.describe('Security Testing', () => {
     test('prevents privilege escalation via API', async ({ request }) => {
       // Try to access admin API endpoints without authentication
       const response = await request.get(TEST_CONFIG.urls.api.adminUsers);
-      
+
       // Should be forbidden or redirect (401/403)
       expect([401, 403]).toContain(response.status());
     });
@@ -151,15 +151,15 @@ test.describe('Security Testing', () => {
     test('password field has minimum length requirement', async ({ page, context }) => {
       // Clear cookies to ensure fresh state
       await context.clearCookies();
-      
+
       await page.goto(TEST_CONFIG.urls.signup);
-      
+
       // Wait for page load
       await page.waitForLoadState('networkidle');
-      
+
       // Check if we're on the signup page (not redirected)
       const currentUrl = page.url();
-      
+
       // If redirected to home, skip this test as auth pages require session setup
       if (currentUrl.includes(TEST_CONFIG.urls.home) || currentUrl === 'http://localhost:3000/') {
         test.skip();
@@ -169,7 +169,7 @@ test.describe('Security Testing', () => {
       // Check password field has minlength attribute
       const passwordField = page.locator('input[name="password"]');
       await expect(passwordField).toBeVisible({ timeout: 5000 });
-      
+
       const minLength = await passwordField.getAttribute('minLength');
       expect(Number(minLength)).toBeGreaterThanOrEqual(8);
     });
@@ -188,15 +188,21 @@ test.describe('Security Testing', () => {
         // Should not cause database errors - check if error message exists and doesn't contain DB errors
         const errorMessage = page.locator('[data-testid="error-message"]');
         const errorExists = await errorMessage.isVisible().catch(() => false);
-        
+
         if (errorExists) {
           const errorText = await errorMessage.textContent();
           expect(errorText?.toLowerCase()).not.toMatch(/database|sql|mysql|postgres/i);
         }
 
         // Should handle gracefully with no results or sanitized search
-        const hasResults = await page.locator('[data-testid="search-results"]').isVisible().catch(() => false);
-        const hasNoResults = await page.locator('[data-testid="no-results"]').isVisible().catch(() => false);
+        const hasResults = await page
+          .locator('[data-testid="search-results"]')
+          .isVisible()
+          .catch(() => false);
+        const hasNoResults = await page
+          .locator('[data-testid="no-results"]')
+          .isVisible()
+          .catch(() => false);
 
         expect(hasResults || hasNoResults).toBeTruthy();
       }
@@ -214,14 +220,14 @@ test.describe('Security Testing', () => {
         await page.fill('input[name="email"]', TEST_CONFIG.credentials.genericEmail);
         await page.fill('input[name="subject"]', 'Security test subject');
         await page.fill('textarea[name="enquiry"]', payload);
-        
+
         // Set up dialog listener before clicking submit
         const alertDialogPromise = page
           .waitForEvent('dialog', { timeout: TEST_CONFIG.timeouts.dialog })
           .catch(() => null);
-        
+
         await page.click('button[type="submit"]');
-        
+
         const dialog = await alertDialogPromise;
         expect(dialog).toBeNull(); // No alert should be triggered
 
@@ -237,7 +243,7 @@ test.describe('Security Testing', () => {
     test('prevents CSRF attacks', async ({ page, context }) => {
       // This test verifies that API endpoints require authentication
       // CSRF tokens are typically handled by the auth framework (NextAuth.js)
-      
+
       // Try to make request without authentication
       const response = await page.request.post(TEST_CONFIG.urls.api.listings, {
         data: {
@@ -253,9 +259,9 @@ test.describe('Security Testing', () => {
     test('file upload security', async ({ page }) => {
       // This test verifies that the application has file upload functionality
       // Note: This page requires authentication, so we check if it redirects or loads
-      
+
       const response = await page.goto(TEST_CONFIG.urls.createListing);
-      
+
       // Check if we got redirected to login (expected for unauth user)
       if (page.url().includes('login') || page.url().includes('signin')) {
         // Expected - page requires authentication
@@ -264,18 +270,20 @@ test.describe('Security Testing', () => {
         // If page loaded, wait for it to stabilize (but with reasonable timeout)
         try {
           await page.waitForLoadState('domcontentloaded', { timeout: 5000 });
-          
+
           // Check if file input exists
           const fileInputCount = await page.locator('input[type="file"]').count();
           if (fileInputCount > 0) {
-            console.log(`Found ${fileInputCount} file input(s) - file upload functionality present`);
+            console.log(
+              `Found ${fileInputCount} file input(s) - file upload functionality present`
+            );
           }
         } catch (error) {
           // Page might still be loading complex components - that's okay
           console.log('Page loaded but may still be initializing components');
         }
       }
-      
+
       // Pass the test - we verified the page either requires auth or has file inputs
       expect(true).toBeTruthy();
     });
@@ -338,7 +346,7 @@ test.describe('Security Testing', () => {
         // Should reject malformed emails - check for email validation error
         const emailError = page.locator('[data-testid="email-error"]');
         const errorVisible = await emailError.isVisible({ timeout: 2000 }).catch(() => false);
-        
+
         // If no error is shown client-side, the server should reject it
         if (!errorVisible) {
           // Wait a moment for server response
@@ -439,7 +447,7 @@ test.describe('Security Testing', () => {
       // Check for CSP header (may be in report-only mode or not configured in test env)
       const csp =
         headers['content-security-policy'] || headers['content-security-policy-report-only'];
-      
+
       // CSP may not be configured in test environments
       // If it IS configured, verify it has proper directives
       if (csp) {

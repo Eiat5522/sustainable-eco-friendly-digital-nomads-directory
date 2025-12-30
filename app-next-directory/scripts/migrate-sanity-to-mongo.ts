@@ -1,7 +1,7 @@
+import path from 'node:path';
 import * as dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import { createClient } from 'next-sanity';
-import path from 'node:path';
 import User from '../src/models/User';
 
 // Load environment variables

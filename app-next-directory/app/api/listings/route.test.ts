@@ -194,7 +194,9 @@ describe('API /api/listings route handlers', () => {
       });
 
     it('returns forbidden when the authenticated user is not premium', async () => {
-      const requireAuth = jest.fn().mockResolvedValue({ user: { id: 'user-1', plan: 'basic', role: 'venueOwner' } });
+      const requireAuth = jest
+        .fn()
+        .mockResolvedValue({ user: { id: 'user-1', plan: 'basic', role: 'venueOwner' } });
       const usersCollection = {
         findOne: jest.fn().mockResolvedValue({ _id: 'user-1', listingQuotaTier: 'free' }),
       };

@@ -1,8 +1,8 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import * as dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import { createClient } from 'next-sanity';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import User from '../src/models/User.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -36,10 +36,9 @@ async function sync() {
       const email = mongoUser.email.toLowerCase();
       console.log(`Syncing user ${email}...`);
 
-      const sanityUser = await sanityClient.fetch(
-        '*[_type == "user" && email == $email][0]',
-        { email }
-      );
+      const sanityUser = await sanityClient.fetch('*[_type == "user" && email == $email][0]', {
+        email,
+      });
 
       if (sanityUser) {
         console.log(`Updating Sanity user ${email}...`);

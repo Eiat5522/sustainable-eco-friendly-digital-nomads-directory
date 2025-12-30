@@ -13,7 +13,7 @@
  */
 
 /* Postprocess additions: reference union */
-export type SanityReference = { _ref: string; _type: 'reference'; _weak?: boolean }
+export type SanityReference = { _ref: string; _type: 'reference'; _weak?: boolean };
 
 // Source: schema.json
 export type SanityImagePaletteSwatch = {

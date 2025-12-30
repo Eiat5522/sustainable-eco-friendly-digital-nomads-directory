@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb';
 
-(async function main(){
+(async function main() {
   try {
     const uri = process.env.MONGODB_URI || 'mongodb://mongodb:27017/e2e_test';
     const client = new MongoClient(uri);

@@ -313,10 +313,9 @@ export async function createLocalUser(
   });
 
   if (sanityUser?._id) {
-    await db.collection('users').updateOne(
-      { _id: result.insertedId },
-      { $set: { sanityId: sanityUser._id } }
-    );
+    await db
+      .collection('users')
+      .updateOne({ _id: result.insertedId }, { $set: { sanityId: sanityUser._id } });
   }
 
   return result;

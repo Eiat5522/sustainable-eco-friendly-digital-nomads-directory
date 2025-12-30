@@ -1,5 +1,3 @@
-
-
 // PATCH: Align GROQ query and DTO mapping with appView.ts
 import { structuredLogger } from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
@@ -63,9 +61,12 @@ export async function GET() {
   });
 
   if (process.env.NEXT_PUBLIC_MOCK_SANITY_DATA === 'true') {
-    structuredLogger.info('Using mock featured listings data as NEXT_PUBLIC_MOCK_SANITY_DATA is true', {
-      component: 'api/featured-listings',
-    });
+    structuredLogger.info(
+      'Using mock featured listings data as NEXT_PUBLIC_MOCK_SANITY_DATA is true',
+      {
+        component: 'api/featured-listings',
+      }
+    );
     return ApiResponseHandler.success({ listings: mockFeaturedVenues });
   }
 
@@ -158,12 +159,10 @@ export async function GET() {
 
     // Start the fetch and attach a catcher to avoid unhandled rejections
     // in case the request is aborted after prerender completes.
-    const rawFetch = client.fetch<FeaturedListing[]>(FEATURED_LISTINGS_QUERY).catch(
-      _err => {
-        // Return null on error; we'll handle logging and fallback below.
-        return null as unknown as FeaturedListing[] | null;
-      }
-    );
+    const rawFetch = client.fetch<FeaturedListing[]>(FEATURED_LISTINGS_QUERY).catch(_err => {
+      // Return null on error; we'll handle logging and fallback below.
+      return null as unknown as FeaturedListing[] | null;
+    });
 
     const timeoutPromise = new Promise<null>(resolve =>
       setTimeout(() => resolve(null), FETCH_TIMEOUT_MS)

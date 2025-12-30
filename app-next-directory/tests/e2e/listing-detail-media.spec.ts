@@ -54,7 +54,6 @@ test.describe('Listing detail media & fallbacks', () => {
     await expect(fallbackImage).toBeVisible();
     const src = await fallbackImage.getAttribute('src');
     expect(src).toContain('placeholder_image');
-
   });
 
   test('long descriptions expand behind a read more toggle', async ({ page }) => {

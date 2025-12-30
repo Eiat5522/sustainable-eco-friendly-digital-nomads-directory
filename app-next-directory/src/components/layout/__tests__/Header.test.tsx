@@ -722,7 +722,7 @@ describe('Header', () => {
             id: '1',
             name: 'Venue Owner',
             email: 'owner@example.com',
-        role: 'venueOwner',    
+            role: 'venueOwner',
           },
         } as Session,
         'authenticated'

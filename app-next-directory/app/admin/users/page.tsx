@@ -6,8 +6,6 @@ import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 import { UserManagementTable } from './UserManagementTable';
 
-
-
 export const metadata: Metadata = {
   title: 'User Management - Admin Dashboard',
   robots: { index: false, follow: false },

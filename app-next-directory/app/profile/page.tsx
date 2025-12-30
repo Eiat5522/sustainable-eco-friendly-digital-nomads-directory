@@ -25,11 +25,7 @@ import type {
   VenueOwnerDashboardDTO,
 } from '@/types/dto';
 import type { OwnerListingReviews } from './utils';
-import {
-  formatDate,
-  normaliseOwnerReviews,
-  type OwnerReviewsResponse,
-} from './utils';
+import { formatDate, normaliseOwnerReviews, type OwnerReviewsResponse } from './utils';
 
 type OwnerReviewsResponseApi = OwnerReviewsResponse | null | undefined;
 
@@ -807,7 +803,6 @@ export default function ProfilePage() {
                     />
                   </section>
                 )}
-
               </div>
             )}
 

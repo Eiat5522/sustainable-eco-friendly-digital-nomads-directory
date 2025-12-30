@@ -221,7 +221,9 @@ test.describe('[E2E] Favorites UI toggle - Unauthenticated', () => {
     }
   });
 
-  test('shows favorite button for unauthenticated users and prompts login on click', async ({ page }) => {
+  test('shows favorite button for unauthenticated users and prompts login on click', async ({
+    page,
+  }) => {
     await page.route('**/api/auth/session', async route => {
       await route.fulfill({
         status: 200,
@@ -236,10 +238,10 @@ test.describe('[E2E] Favorites UI toggle - Unauthenticated', () => {
     // Favorite button should be visible for unauthenticated users
     const favoriteButton = page.getByLabel(/Add to favorites/i).or(page.getByLabel(/favorite/i));
     await expect(favoriteButton).toBeVisible();
-    
+
     // Click should trigger sign-in flow
     await favoriteButton.click();
-    
+
     // Should redirect to login with callback URL
     await expect(page).toHaveURL(/\/auth\/login.*callbackUrl=/);
   });

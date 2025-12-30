@@ -1,8 +1,8 @@
 'use client';
 
 import { SessionProvider } from 'next-auth/react';
-import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 interface ClientRootLayoutProps {
   children: ReactNode;

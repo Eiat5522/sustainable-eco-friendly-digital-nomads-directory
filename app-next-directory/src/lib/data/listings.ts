@@ -1,7 +1,7 @@
 import { groq } from 'next-sanity';
+import { ALLOWED_CATEGORIES } from '@/lib/constants/categories';
 import { imageOrFallback } from '@/lib/dto-transformer';
 import { client } from '@/lib/sanity/client';
-import { ALLOWED_CATEGORIES } from '@/lib/constants/categories';
 import type { ListingSummaryDTO } from '@/types/dto';
 
 type ListingEcoTag = {

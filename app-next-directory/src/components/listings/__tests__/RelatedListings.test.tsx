@@ -286,9 +286,9 @@ describe('RelatedListings', () => {
           ecoFocusTags: ['Test'],
         },
       ];
-      
+
       const { container } = render(<RelatedListings listings={listingsWithoutImages} />);
-      
+
       const fallback = screen.getByTestId('related-listing-fallback');
       expect(fallback).toBeInTheDocument();
       expect(fallback).toHaveAttribute('src', '/placeholder_image.png');

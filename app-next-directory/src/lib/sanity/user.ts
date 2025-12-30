@@ -37,7 +37,11 @@ function normaliseName(name: string | null | undefined): string | undefined {
  * Ensures a corresponding Sanity `user` document exists for the authenticated NextAuth user.
  * Creates the document when missing and keeps key identity fields (name/email/role) up to date.
  */
-async function ensureSanityUserInternal({ id, name, email }: EnsureUserOptions): Promise<SanityUser | null> {
+async function ensureSanityUserInternal({
+  id,
+  name,
+  email,
+}: EnsureUserOptions): Promise<SanityUser | null> {
   if (!id) {
     return null;
   }
@@ -45,20 +49,17 @@ async function ensureSanityUserInternal({ id, name, email }: EnsureUserOptions):
   const safeEmail = normaliseEmail(email);
   const safeName = normaliseName(name) ?? FALLBACK_NAME;
   // Remove role handling from Sanity sync — Sanity is CMS-only for roles
-  
 
   try {
     const baseDoc =
-      (await client.fetch<SanityUser | null>(
-        `*[_type == "user" && mongodbId == $mongodbId][0]`,
-        { mongodbId: id }
-      )) ??
+      (await client.fetch<SanityUser | null>(`*[_type == "user" && mongodbId == $mongodbId][0]`, {
+        mongodbId: id,
+      })) ??
       (await client.fetch<SanityUser | null>(`*[_type == "user" && _id == $id][0]`, { id })) ??
       (safeEmail
-        ? await client.fetch<SanityUser | null>(
-            `*[_type == "user" && email == $email][0]`,
-            { email: safeEmail }
-          )
+        ? await client.fetch<SanityUser | null>(`*[_type == "user" && email == $email][0]`, {
+            email: safeEmail,
+          })
         : null);
 
     if (!baseDoc) {

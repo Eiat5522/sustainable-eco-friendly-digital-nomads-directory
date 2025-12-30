@@ -6,8 +6,6 @@ import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 import { ListingsManagementTable } from './ListingsManagementTable';
 
-
-
 export const metadata: Metadata = {
   title: 'Listing Management - Admin Dashboard',
   robots: { index: false, follow: false },

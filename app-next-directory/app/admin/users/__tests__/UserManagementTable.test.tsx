@@ -149,32 +149,38 @@ describe('UserManagementTable', () => {
     const searchInput = screen.getByPlaceholderText(
       'Search by name or email...'
     ) as HTMLInputElement;
-    
+
     await act(async () => {
       fireEvent.change(searchInput, { target: { value: 'alice' } });
     });
 
-    await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalledWith(
-        expect.stringContaining('search=alice'),
-        expect.any(Object)
-      );
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(fetchMock).toHaveBeenCalledWith(
+          expect.stringContaining('search=alice'),
+          expect.any(Object)
+        );
+      },
+      { timeout: 3000 }
+    );
 
     const roleFilter = screen.getByLabelText('Filter by role', {
       selector: 'select',
     }) as HTMLSelectElement;
-    
+
     await act(async () => {
       fireEvent.change(roleFilter, { target: { value: 'admin' } });
     });
 
-    await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalledWith(
-        expect.stringContaining('role=admin'),
-        expect.any(Object)
-      );
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(fetchMock).toHaveBeenCalledWith(
+          expect.stringContaining('role=admin'),
+          expect.any(Object)
+        );
+      },
+      { timeout: 3000 }
+    );
   });
 
   it('displays an error message when loading users fails', async () => {
@@ -257,7 +263,7 @@ describe('UserManagementTable', () => {
 
     // Status should be gone
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
-    
+
     jest.useRealTimers();
   });
 

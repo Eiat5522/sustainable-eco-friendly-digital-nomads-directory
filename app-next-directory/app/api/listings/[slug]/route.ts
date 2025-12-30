@@ -22,7 +22,11 @@ const DEFAULT_DEPENDENCIES: SlugDependencies = {
 };
 
 export function createSlugHandlers(overrides: Partial<SlugDependencies> = {}) {
-  const { requireAuth: ensureAuth, handleAuthError: onAuthError, getCollection: resolveCollection } = {
+  const {
+    requireAuth: ensureAuth,
+    handleAuthError: onAuthError,
+    getCollection: resolveCollection,
+  } = {
     ...DEFAULT_DEPENDENCIES,
     ...overrides,
   };

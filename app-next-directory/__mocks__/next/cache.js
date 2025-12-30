@@ -3,7 +3,7 @@
 
 const revalidatePath = jest.fn();
 const revalidateTag = jest.fn();
-const unstable_cache = jest.fn((fn) => fn);
+const unstable_cache = jest.fn(fn => fn);
 const unstable_noStore = jest.fn();
 const cacheLife = jest.fn();
 const cacheTag = jest.fn();

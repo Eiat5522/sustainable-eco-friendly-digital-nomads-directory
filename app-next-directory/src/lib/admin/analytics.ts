@@ -259,7 +259,9 @@ export async function performModerationAction({
 
   await patch.commit({ autoGenerateArrayKeys: true });
 
-  try { updateTag('moderation'); } catch {}
+  try {
+    updateTag('moderation');
+  } catch {}
 
   return fetchModerationEntryById(moderationId);
 }

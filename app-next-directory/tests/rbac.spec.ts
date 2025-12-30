@@ -148,7 +148,10 @@ test.describe('Role-Based Access Control (RBAC)', () => {
       await expect(editorPage.locator('text=Listing updated successfully')).toBeVisible();
 
       // Delete listing
-      const listingRow = editorPage.locator('[data-testid="listing-row"]').filter({ hasText: 'Editor Test Venue Updated' }).first();
+      const listingRow = editorPage
+        .locator('[data-testid="listing-row"]')
+        .filter({ hasText: 'Editor Test Venue Updated' })
+        .first();
       await listingRow.locator('[data-testid="delete-listing"]').click();
       await editorPage.locator('[data-testid="confirm-delete"]').click();
       await expect(editorPage.locator('text=Listing deleted successfully')).toBeVisible();

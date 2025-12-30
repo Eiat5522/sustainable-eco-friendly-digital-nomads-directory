@@ -4,9 +4,9 @@ import { auth } from '@/lib/auth';
 import { structuredLogger } from '@/lib/logger';
 import { client } from '@/lib/sanity';
 import { toSlug } from '@/lib/utils/slug';
-import type { SanityUserQuotaDoc } from '@/types/sanity';
 import type { UserRole } from '@/types/auth';
 import { isListingTypeValue } from '@/types/listings';
+import type { SanityUserQuotaDoc } from '@/types/sanity';
 
 type SessionUser = { id?: string; role?: UserRole } | undefined;
 
@@ -164,7 +164,9 @@ export async function POST(request: Request) {
         }
       }
     } catch (err) {
-      structuredLogger.error('Failed to validate owner quota', err, { component: 'listings-manage-api' });
+      structuredLogger.error('Failed to validate owner quota', err, {
+        component: 'listings-manage-api',
+      });
       return NextResponse.json({ error: 'Failed to validate owner quota' }, { status: 500 });
     }
     const listingPayload: Record<string, unknown> = {

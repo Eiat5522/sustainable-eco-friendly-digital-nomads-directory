@@ -6,6 +6,7 @@ import requireReactFcTypeParametersRule from './eslint/rules/require-react-fc-ty
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 import pluginJest from 'eslint-plugin-jest';
+
 // FORTEST: Temporarily disabled - eslint-plugin-jest-dom not in dependencies
 // import pluginJestDom from 'eslint-plugin-jest-dom';
 
@@ -38,7 +39,8 @@ const compat = new FlatCompat({
   recommendedConfig: js.configs.recommended,
 });
 
-const eslintConfig = [jestConfig, /* jestDomConfig, */    
+const eslintConfig = [
+  jestConfig /* jestDomConfig, */,
   {
     ignores: [
       '**/node_modules/**',

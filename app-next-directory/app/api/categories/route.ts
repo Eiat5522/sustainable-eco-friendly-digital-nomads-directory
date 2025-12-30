@@ -9,7 +9,7 @@ export async function GET() {
   // Signal that this route should be dynamically rendered at request time
   // This prevents HANGING_PROMISE_REJECTION errors during prerendering
   await connection();
-  
+
   try {
     const categories = (await cacheHelpers.categories(async () => {
       return await client.fetch(

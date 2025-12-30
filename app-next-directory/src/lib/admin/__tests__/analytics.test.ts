@@ -1,6 +1,6 @@
+import { getRoleCounts } from '@/lib/auth/dal';
 import structuredLogger from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
-import { getRoleCounts } from '@/lib/auth/dal';
 import type {
   BulkOperationType,
   ListingWorkflowPatch,

@@ -23,9 +23,7 @@ function pickFirst(value: string | string[] | undefined) {
   return value;
 }
 
-export default async function TestReviewsPage(props: {
-  searchParams?: Promise<SearchParams>;
-}) {
+export default async function TestReviewsPage(props: { searchParams?: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
   const resolved = searchParams ?? ({} as SearchParams);
   const signedInValue = pickFirst(resolved?.signedIn);

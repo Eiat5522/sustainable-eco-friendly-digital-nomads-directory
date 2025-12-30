@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useState, type ChangeEvent } from 'react';
+import { type ChangeEvent, useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Checkbox } from '@/components/ui/checkbox';

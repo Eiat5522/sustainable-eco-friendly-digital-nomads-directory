@@ -92,7 +92,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </div>
 
         {listings.length === 0 ? (
-          <p className="text-neo-text-secondary" data-testid="no-results">No results found.</p>
+          <p className="text-neo-text-secondary" data-testid="no-results">
+            No results found.
+          </p>
         ) : (
           <div data-testid="search-results">
             <ListingGrid listings={listings} />
@@ -138,7 +140,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     mainContent = (
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col gap-4" data-testid="search-error-state">
-          <p className="text-red-500" data-testid="error-message">Failed to load search results. Please try again later.</p>
+          <p className="text-red-500" data-testid="error-message">
+            Failed to load search results. Please try again later.
+          </p>
           <NeoButton asChild variant="outline" size="sm" data-testid="search-retry-button">
             <Link href={retryLink}>Retry search</Link>
           </NeoButton>

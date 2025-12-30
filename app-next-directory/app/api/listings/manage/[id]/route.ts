@@ -3,8 +3,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { auth } from '@/lib/auth';
 import { structuredLogger } from '@/lib/logger';
 import { client } from '@/lib/sanity';
-import type { SanityListingOwnerDocument, SanityUserQuotaDoc } from '@/types/sanity';
 import type { UserRole } from '@/types/auth';
+import type { SanityListingOwnerDocument, SanityUserQuotaDoc } from '@/types/sanity';
 
 type RouteContext = { params: { id: string } | Promise<{ id: string }> };
 type SessionUser = { id?: string; role?: UserRole } | undefined;
@@ -139,24 +139,24 @@ export async function PUT(request: Request, context: RouteContext) {
         // Quota check for new owner
         const tierMap: Record<string, number> = { free: 1, pro: 5, enterprise: 50 };
         try {
-        const ownerDoc = await client.fetch<SanityUserQuotaDoc | null>(
-          `*[_type == "user" && _id == $id][0]{_id, maxLocations, listingQuotaTier, quotaOverrideByAdmin}`,
-          { id: newOwnerId }
-        );
+          const ownerDoc = await client.fetch<SanityUserQuotaDoc | null>(
+            `*[_type == "user" && _id == $id][0]{_id, maxLocations, listingQuotaTier, quotaOverrideByAdmin}`,
+            { id: newOwnerId }
+          );
 
-        if (!ownerDoc) {
-          return NextResponse.json({ error: 'Target owner not found' }, { status: 404 });
-        }
+          if (!ownerDoc) {
+            return NextResponse.json({ error: 'Target owner not found' }, { status: 404 });
+          }
 
-        const quotaOverride = !!ownerDoc.quotaOverrideByAdmin;
-        let effectiveLimit: number | null = null;
-        if (ownerDoc.maxLocations != null) {
-          effectiveLimit = Number(ownerDoc.maxLocations);
-        } else if (ownerDoc.listingQuotaTier) {
-          effectiveLimit = tierMap[String(ownerDoc.listingQuotaTier)] ?? null;
-        } else {
-          effectiveLimit = tierMap.free;
-        }
+          const quotaOverride = !!ownerDoc.quotaOverrideByAdmin;
+          let effectiveLimit: number | null = null;
+          if (ownerDoc.maxLocations != null) {
+            effectiveLimit = Number(ownerDoc.maxLocations);
+          } else if (ownerDoc.listingQuotaTier) {
+            effectiveLimit = tierMap[String(ownerDoc.listingQuotaTier)] ?? null;
+          } else {
+            effectiveLimit = tierMap.free;
+          }
 
           if (!quotaOverride) {
             if (effectiveLimit != null) {
