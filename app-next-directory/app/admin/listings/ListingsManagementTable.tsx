@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { NeoButton } from '@/components/ui/neo-button';
 import { getUserFacingMessage } from '@/lib/client-utils';
@@ -14,6 +13,7 @@ import {
   type ListingManagementResponse,
   type ListingWorkflowStatus,
 } from '@/types/listings';
+import { EditListingModal } from './EditListingModal';
 
 type ListingsManagementTableProps = {
   currentUserRole?: 'admin' | 'superAdmin';
@@ -479,15 +479,21 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
                       <span className="text-blue-600">{actionStatus.message}</span>
                     ) : (
                       <div className="flex gap-2">
-                        <Link href={`/admin/listings/edit/${listing.id}`} legacyBehavior>
-                          <a
-                            href={`/admin/listings/edit/${listing.id}`}
-                            className="text-blue-600 hover:text-blue-900"
-                            title="Edit listing"
-                          >
-                            ✎
-                          </a>
-                        </Link>
+                        <EditListingModal
+                          listingId={listing.id}
+                          listingName={listing.name}
+                          onUpdated={() =>
+                            void Promise.all([
+                              loadListings(
+                                pagination.page,
+                                filters.search,
+                                filters.status,
+                                filters.type
+                              ),
+                              loadStats(),
+                            ])
+                          }
+                        />
                         {listing.status !== 'published' && (
                           <button
                             type="button"

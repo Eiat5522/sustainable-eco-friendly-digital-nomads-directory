@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated contributing guidelines with changelog workflow
 - Removed the redundant profile favorites section to prevent the 404 error card from stacking with the working favorites dashboard
 - Refined the new listing workflow styling and stabilized numeric form inputs for venue owners
+- Updated the admin listings edit flow to use the new listing UI inside a modal popup
 
 ### Fixed
 - Ensured admin route middleware reads session tokens from requests and redirects non-admins to sign-in
