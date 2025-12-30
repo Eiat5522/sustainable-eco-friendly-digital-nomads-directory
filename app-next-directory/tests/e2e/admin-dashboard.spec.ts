@@ -17,6 +17,7 @@ test.describe('Admin Dashboard Integration', () => {
 
       await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});
 
+      await expect(page).toHaveURL(/\/auth\/unauthorized/);
       await expect(page.getByRole('heading', { name: /403 - Access Denied/i })).toBeVisible({
         timeout: 10000,
       });
@@ -34,6 +35,7 @@ test.describe('Admin Dashboard Integration', () => {
 
       await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});
 
+      await expect(page).toHaveURL(/\/auth\/unauthorized/);
       await expect(page.getByRole('heading', { name: /403 - Access Denied/i })).toBeVisible({
         timeout: 10000,
       });
