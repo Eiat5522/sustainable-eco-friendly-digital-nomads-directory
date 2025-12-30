@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { NeoButton } from '@/components/ui/neo-button';
 import { getUserFacingMessage } from '@/lib/client-utils';
