@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { cacheLife, cacheTag } from 'next/cache';
 import { groq } from 'next-sanity';
 import { client } from '@/lib/sanity/client';
+import { structuredLogger } from '@/lib/logger';
 
 type CategoryListing = {
   _id: string;
@@ -17,12 +18,21 @@ export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
     const categories = await client.fetch<string[]>(
       groq`array::unique(*[_type == "listing" && defined(category)].category)`
     );
-    return (categories ?? [])
-      .filter(c => typeof c === 'string' && c.length > 0)
-      .map(c => ({ slug: String(c) }));
-  } catch (_error) {
-    // If fetching categories fails during build, return an empty list to avoid build break
-    return [];
+    const resolvedCategories = (categories ?? []).filter(
+      c => typeof c === 'string' && c.length > 0
+    );
+    if (resolvedCategories.length === 0) {
+      // Cache Components require at least one static param to validate during build.
+      return [{ slug: 'empty-category' }];
+    }
+    return resolvedCategories.map(category => ({ slug: String(category) }));
+  } catch (error) {
+    structuredLogger.error('Failed to generate static params for category pages', error, {
+      component: 'category-page',
+      operation: 'generateStaticParams',
+    });
+    // With Cache Components enabled, Next requires at least one param.
+    return [{ slug: 'empty-category' }];
   }
 }
 
