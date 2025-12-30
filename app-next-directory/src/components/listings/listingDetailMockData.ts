@@ -24,7 +24,9 @@ export const mockListingDetail: ListingDetailDTO = {
   location: { lat: 8.0863, lng: 98.2781 },
   shortDescription: 'Luxury eco-resort with stunning ocean views and sustainable practices',
   longDescription:
-    'Nestled along the pristine shores of Phuket, Banyan Tree Phuket offers an unparalleled luxury experience while maintaining a strong commitment to environmental sustainability. Our resort features solar-powered facilities, zero-waste initiatives, and locally-sourced amenities that minimize our ecological footprint without compromising on comfort and elegance.',
+    'Nestled along the pristine shores of Phuket, Banyan Tree Phuket offers an unparalleled luxury experience while maintaining a strong commitment to environmental sustainability. Our resort features solar-powered facilities, zero-waste initiatives, and locally-sourced amenities that minimize our ecological footprint without compromising on comfort and elegance. ' +
+    'Guests can unwind in private pool villas, join guided mangrove restoration tours, and enjoy curated wellness rituals that celebrate regional traditions. Every stay supports coral reef monitoring, plastic-free dining, and education programs that empower nearby communities to protect their natural resources. ' +
+    'With thoughtfully designed workspaces, reliable high-speed connectivity, and a tranquil setting for focus, the resort blends productivity with restorative travel for conscious digital nomads seeking a deeper connection to the environment.',
   galleryImages: ['/placeholder_image.png', '/placeholder_image.png', '/placeholder_image.png'],
   amenities: [
     { id: 'wifi', name: 'High-Speed WiFi', slug: 'wifi', icon: 'wifi', category: 'connectivity' },
