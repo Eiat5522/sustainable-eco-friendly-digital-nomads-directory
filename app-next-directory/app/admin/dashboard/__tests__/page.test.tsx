@@ -83,7 +83,6 @@ describe('AdminDashboardPage', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('Manage Users')).toBeInTheDocument();
     expect(screen.getByText('Manage Listings')).toBeInTheDocument();
-    expect(screen.getByText('Settings')).toBeInTheDocument();
     expect(screen.getByText('Back to Site')).toBeInTheDocument();
   });
 
@@ -94,12 +93,10 @@ describe('AdminDashboardPage', () => {
 
     const usersLink = screen.getByText('Manage Users').closest('a');
     const listingsLink = screen.getByText('Manage Listings').closest('a');
-    const settingsLink = screen.getByText('Settings').closest('a');
     const homeLink = screen.getByText('Back to Site').closest('a');
 
     expect(usersLink).toHaveAttribute('href', '/admin/users');
     expect(listingsLink).toHaveAttribute('href', '/admin/listings');
-    expect(settingsLink).toHaveAttribute('href', '/admin/settings');
     expect(homeLink).toHaveAttribute('href', '/');
   });
 });

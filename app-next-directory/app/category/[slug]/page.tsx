@@ -13,16 +13,21 @@ type CategoryListing = {
 };
 
 export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
+  const fallbackCategories = ['coworking'];
   try {
     const categories = await client.fetch<string[]>(
       groq`array::unique(*[_type == "listing" && defined(category)].category)`
     );
-    return (categories ?? [])
-      .filter(c => typeof c === 'string' && c.length > 0)
-      .map(c => ({ slug: String(c) }));
+    const normalized = (categories ?? []).filter(
+      (category): category is string => typeof category === 'string' && category.length > 0
+    );
+
+    const slugs = normalized.length > 0 ? normalized : fallbackCategories;
+
+    return slugs.map(slug => ({ slug }));
   } catch (_error) {
-    // If fetching categories fails during build, return an empty list to avoid build break
-    return [];
+    // If fetching categories fails during build, return fallback values for debug prerender.
+    return fallbackCategories.map(slug => ({ slug }));
   }
 }
 

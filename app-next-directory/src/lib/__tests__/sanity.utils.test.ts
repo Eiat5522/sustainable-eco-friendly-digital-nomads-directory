@@ -41,7 +41,7 @@ describe('sanity utils', () => {
     const mod = await loadModule();
 
     expect(mod.getClient()).toBe(standardClient);
-    expect(getClientMock).toHaveBeenCalledWith(undefined);
+    expect(getClientMock).toHaveBeenCalledWith();
     expect(mod.getClient(true)).toBe(previewClient);
     expect(getClientMock).toHaveBeenLastCalledWith(true);
     expect(mod.config).toEqual({

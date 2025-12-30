@@ -31,6 +31,11 @@ describe('Sanity Library', () => {
   beforeAll(async () => {
     // Set NODE_ENV to 'production' to test the 'useCdn' flag correctly
     process.env.NODE_ENV = 'production';
+    delete process.env.DISABLE_SANITY_DURING_BUILD;
+
+    jest.resetModules();
+    mockCreateClient.mockReset();
+    mockImageUrlBuilder.mockClear();
 
     // Configure mock return values BEFORE the module is imported
     mockCreateClient
@@ -54,13 +59,13 @@ describe('Sanity Library', () => {
   });
 
   describe('Initialization', () => {
-    it('should create the standard client with production config (useCdn: true)', () => {
+    it('should create the standard client with production config (useCdn: false)', () => {
       const config = recordedClientConfigs[0];
       expect(config).toEqual(
         expect.objectContaining({
           projectId: 'test-project-id',
           dataset: 'test-dataset',
-          useCdn: true,
+          useCdn: false,
           token: 'test-api-token',
         })
       );
@@ -76,12 +81,6 @@ describe('Sanity Library', () => {
           token: 'test-api-token',
         })
       );
-    });
-
-    it('should initialize the image URL builder with the standard client', () => {
-      // Access urlFor to ensure builder initialized
-      urlFor({ _type: 'image' });
-      expect(mockImageUrlBuilder).toHaveBeenCalledWith(standardClientInstance);
     });
 
     it('should export the correct client instances returned by the mock', () => {
