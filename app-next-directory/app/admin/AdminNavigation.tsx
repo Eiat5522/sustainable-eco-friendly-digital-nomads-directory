@@ -27,7 +27,7 @@ const NAV_ITEMS = [
   {
     href: '/admin/settings',
     label: 'Settings',
-    description: 'Controls and preferences',
+    description: 'Workspace preferences',
     icon: Settings,
   },
 ];
@@ -63,6 +63,7 @@ export default function AdminNavigation(): React.JSX.Element {
               <Link
                 key={item.href}
                 href={item.href}
+                aria-label={item.label}
                 aria-current={isActive ? 'page' : undefined}
                 className={cn(
                   'group flex min-w-[200px] items-center gap-3 rounded-xl border-2 border-neo-border bg-neo-surface px-4 py-3 text-sm font-semibold text-neo-text-primary shadow-[4px_4px_0px_0px] shadow-neo-shadow transition-all duration-150 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px]',
@@ -100,6 +101,7 @@ export default function AdminNavigation(): React.JSX.Element {
               <Link
                 key={item.href}
                 href={item.href}
+                aria-label={item.label}
                 className="group flex items-center gap-3 rounded-xl border-2 border-neo-border bg-neo-secondary/20 px-4 py-3 text-sm font-semibold text-neo-text-primary shadow-[4px_4px_0px_0px] shadow-neo-shadow transition-all duration-150 hover:translate-x-[2px] hover:translate-y-[2px] hover:bg-neo-secondary/30 hover:shadow-[2px_2px_0px_0px]"
               >
                 <span className="flex h-9 w-9 items-center justify-center rounded-lg border-2 border-neo-border bg-white text-neo-text-primary">

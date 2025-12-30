@@ -30,7 +30,7 @@ export default function AdminDashboardClient({ adminData: _adminData }: AdminDas
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <Link
           href="/admin/users"
           className="neo-card group rounded-2xl bg-neo-surface p-5 transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px] hover:shadow-neo-shadow"
@@ -50,16 +50,6 @@ export default function AdminDashboardClient({ adminData: _adminData }: AdminDas
           </p>
           <h3 className="heading-sm mt-3 text-neo-text-primary">Manage Listings</h3>
           <p className="body-sm mt-2">Approve submissions and curate highlights.</p>
-        </Link>
-        <Link
-          href="/admin/settings"
-          className="neo-card group rounded-2xl bg-neo-surface p-5 transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px] hover:shadow-neo-shadow"
-        >
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-neo-text-secondary">
-            Settings
-          </p>
-          <h3 className="heading-sm mt-3 text-neo-text-primary">Tune Settings</h3>
-          <p className="body-sm mt-2">Configure platform preferences.</p>
         </Link>
         <Link
           href="/"

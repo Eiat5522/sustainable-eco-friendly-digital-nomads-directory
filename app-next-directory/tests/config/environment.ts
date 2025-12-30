@@ -4,9 +4,14 @@ import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 
 const envFilePath = process.env.PLAYWRIGHT_DOTENV_PATH ?? resolve(process.cwd(), '.env.test');
+const localEnvFilePath = resolve(process.cwd(), '.env.local');
+
+if (existsSync(localEnvFilePath)) {
+  loadEnv({ path: localEnvFilePath, override: false });
+}
 
 if (!process.env.SKIP_PLAYWRIGHT_DOTENV && existsSync(envFilePath)) {
-  loadEnv({ path: envFilePath, override: false });
+  loadEnv({ path: envFilePath, override: true });
 }
 
 const rawBaseURL =

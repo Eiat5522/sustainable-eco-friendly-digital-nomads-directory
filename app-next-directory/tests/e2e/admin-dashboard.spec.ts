@@ -1,48 +1,42 @@
 import { expect, test } from '@playwright/test';
-import { TestHelpers } from '@tests/utils/test-utils';
+import { loginAs, TestHelpers } from '@tests/utils/test-utils';
 
 const BASE_URL = process.env.E2E_BASE_URL ?? process.env.BASE_URL ?? 'http://localhost:3000';
 
 test.describe('Admin Dashboard Integration', () => {
   test.describe('Access Control', () => {
     test('regular user cannot access admin dashboard', async ({ page }) => {
-      await TestHelpers.loginAsUser(page);
+      await loginAs(page, 'user');
 
       // Try to navigate to admin dashboard - should be redirected
-      await page
-        .goto(`${BASE_URL}/admin/dashboard`, {
-          waitUntil: 'load',
-          timeout: 15000,
-        })
-        .catch(() => {
-          // Navigation might be interrupted by redirect - this is expected
-        });
+      try {
+        await page.goto(`${BASE_URL}/admin/dashboard`, { waitUntil: 'load', timeout: 15000 });
+      } catch {
+        // Redirects can cause net::ERR_ABORTED; that's expected for forbidden routes
+      }
 
-      // Wait for any redirects to settle
       await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});
 
-      // Check that we're NOT on the admin dashboard
-      const finalUrl = page.url();
-      expect(finalUrl).toContain('/403');
+      await expect(page.getByRole('heading', { name: /403 - Access Denied/i })).toBeVisible({
+        timeout: 10000,
+      });
     });
 
     test('venue owner cannot access admin dashboard', async ({ page }) => {
-      await TestHelpers.loginAsVenueOwner(page);
+      await loginAs(page, 'venueOwner');
 
       // Try to navigate to admin dashboard - should be redirected
-      await page
-        .goto(`${BASE_URL}/admin/dashboard`, {
-          waitUntil: 'load',
-          timeout: 15000,
-        })
-        .catch(() => {});
+      try {
+        await page.goto(`${BASE_URL}/admin/dashboard`, { waitUntil: 'load', timeout: 15000 });
+      } catch {
+        // Redirects can cause net::ERR_ABORTED; that's expected for forbidden routes
+      }
 
-      // Wait for any redirects to settle
       await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});
 
-      // Check that we're NOT on the admin dashboard
-      const finalUrl = page.url();
-      expect(finalUrl).toContain('/403');
+      await expect(page.getByRole('heading', { name: /403 - Access Denied/i })).toBeVisible({
+        timeout: 10000,
+      });
     });
 
     test('unauthenticated user is redirected to login', async ({ page }) => {
@@ -75,26 +69,31 @@ test.describe('Admin Dashboard Integration', () => {
     });
 
     test('displays admin navigation links', async ({ page }) => {
-      await expect(page.getByRole('link', { name: 'Manage Users' })).toBeVisible();
-      await expect(page.getByRole('link', { name: 'Manage Listings' })).toBeVisible();
-      await expect(page.getByRole('link', { name: 'Settings' })).toBeVisible();
-      await expect(page.getByRole('link', { name: 'Back to Site' })).toBeVisible();
+      const adminSidebar = page.locator('aside[aria-label="Admin navigation"]');
+      await expect(adminSidebar.getByRole('link', { name: 'Users' })).toBeVisible();
+      await expect(adminSidebar.getByRole('link', { name: 'Listings' })).toBeVisible();
+      const backToSiteLink = adminSidebar.locator('a', { hasText: 'Back to Site' }).first();
+      await expect(backToSiteLink).toBeVisible();
+      await expect(adminSidebar.getByRole('link', { name: 'Settings' })).toBeVisible();
     });
 
     test('admin navigation links have correct hrefs', async ({ page }) => {
-      await expect(page.getByRole('link', { name: 'Manage Users' })).toHaveAttribute(
+      const adminSidebar = page.locator('aside[aria-label="Admin navigation"]');
+      await expect(adminSidebar.getByRole('link', { name: 'Users' })).toHaveAttribute(
         'href',
         '/admin/users'
       );
-      await expect(page.getByRole('link', { name: 'Manage Listings' })).toHaveAttribute(
+      await expect(adminSidebar.getByRole('link', { name: 'Listings' })).toHaveAttribute(
         'href',
         '/admin/listings'
       );
-      await expect(page.getByRole('link', { name: 'Settings' })).toHaveAttribute(
+      const backToSiteLink = adminSidebar.locator('a', { hasText: 'Back to Site' }).first();
+      await expect(backToSiteLink).toHaveAttribute('href', '/');
+
+      await expect(adminSidebar.getByRole('link', { name: 'Settings' })).toHaveAttribute(
         'href',
         '/admin/settings'
       );
-      await expect(page.getByRole('link', { name: 'Back to Site' })).toHaveAttribute('href', '/');
     });
 
     test('page has proper SEO protection', async ({ page }) => {

@@ -86,6 +86,26 @@ const providers: NextAuthConfig['providers'] = [
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
+const parseBooleanEnv = (value?: string): boolean => {
+  if (!value) {
+    return false;
+  }
+  return ['1', 'true', 'yes', 'on'].includes(value.trim().toLowerCase());
+};
+
+const trustHostEnvRaw = process.env.AUTH_TRUST_HOST ?? process.env.NEXTAUTH_TRUST_HOST;
+const trustHostEnv =
+  typeof trustHostEnvRaw === 'undefined' ? undefined : parseBooleanEnv(trustHostEnvRaw);
+const trustHostFallback =
+  Boolean(
+    process.env.AUTH_URL ||
+      process.env.NEXTAUTH_URL ||
+      process.env.NEXTAUTH_URL_INTERNAL ||
+      process.env.VERCEL ||
+      process.env.CF_PAGES
+  ) || process.env.NODE_ENV !== 'production';
+const shouldTrustHost = trustHostEnv ?? trustHostFallback;
+
 if (googleClientId && googleClientSecret) {
   providers.push(
     Google({
@@ -258,6 +278,7 @@ export const authOptions: NextAuthConfig = {
   // Use adapter only when a valid Mongo URI is configured to avoid dev crashes
   ...(adapter ? { adapter } : {}),
   session: { strategy: 'jwt' },
+  trustHost: shouldTrustHost,
   providers,
   pages: {
     signIn: '/auth/login',
@@ -429,6 +450,7 @@ export async function auth(
     } catch {
       // Fall through to rethrow the original error below if we can't inspect it.
     }
+    structuredLogger.error('[auth] auth() helper error', error, { component: 'auth' });
     throw error;
   }
 }

@@ -40,6 +40,7 @@
     "lint:biome:fix": "cd .. && biome lint --write .",
     "lint:eslint": "eslint .",
     "lint:eslint:strict": "eslint --max-warnings=none .",
+    "lint": "pnpm lint:biome && pnpm lint:eslint",
     "e2e:setup": "node tests/setup-e2e-db.mjs",
     "e2e:clean": "node tests/setup-e2e-db.mjs",
     "test:e2e:isolated": "cd .. && bash run-e2e-docker.sh",
