@@ -4,7 +4,7 @@ import { Edit, Loader2, MessageSquare, Star } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
 import { ProfileEditForm } from '@/components/profile/ProfileEditForm';
@@ -24,6 +24,7 @@ import type {
   UserDashboardPayloadDTO,
   VenueOwnerDashboardDTO,
 } from '@/types/dto';
+import { useCachedUserProfile } from '@/hooks/useCachedUserProfile';
 import type { OwnerListingReviews } from './utils';
 import { formatDate, normaliseOwnerReviews, type OwnerReviewsResponse } from './utils';
 
@@ -134,7 +135,8 @@ export default function ProfilePage() {
   const isAuthenticated = status === 'authenticated';
   const role = (session?.user?.role ?? 'user') as UserRole;
   const ownerRole = isOwnerRole(role);
-  const displayName = session?.user?.name ?? session?.user?.email ?? 'Your account';
+  const { displayInfo } = useCachedUserProfile(session?.user ?? null, isAuthenticated);
+  const displayName = displayInfo.displayName;
   const email = session?.user?.email ?? undefined;
 
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
@@ -148,15 +150,7 @@ export default function ProfilePage() {
   const [dashboardLoading, setDashboardLoading] = useState(false);
   const [dashboardError, setDashboardError] = useState<string | null>(null);
 
-  const initials = useMemo(() => {
-    const source = session?.user?.name ?? session?.user?.email ?? '';
-    if (!source) return 'U';
-    return source
-      .split(' ')
-      .map(part => part.trim().charAt(0).toUpperCase())
-      .join('')
-      .slice(0, 2);
-  }, [session?.user?.name, session?.user?.email]);
+  const initials = displayInfo.initials;
 
   const handleEditSuccess = async () => {
     try {
