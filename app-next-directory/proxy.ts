@@ -102,7 +102,7 @@ export async function proxy(request: NextRequest) {
       if (isAdminRoute) {
         // Only admin and superAdmin can access admin routes
         if (userRole !== 'admin' && userRole !== 'superAdmin') {
-          const forbiddenUrl = new URL('/403', request.nextUrl.origin || request.url);
+          const forbiddenUrl = new URL('/auth/unauthorized', request.nextUrl.origin || request.url);
           return withSecurityHeaders(NextResponse.redirect(forbiddenUrl));
         }
       }
@@ -114,7 +114,7 @@ export async function proxy(request: NextRequest) {
         const canManageListings =
           userRole === 'venueOwner' || userRole === 'admin' || userRole === 'superAdmin';
         if (!canManageListings) {
-          const forbiddenUrl = new URL('/403', request.nextUrl.origin || request.url);
+          const forbiddenUrl = new URL('/auth/unauthorized', request.nextUrl.origin || request.url);
           return withSecurityHeaders(NextResponse.redirect(forbiddenUrl));
         }
       }

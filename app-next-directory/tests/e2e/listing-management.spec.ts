@@ -23,10 +23,10 @@ test.describe('Listing Management E2E', () => {
 
       // Try to access admin routes
       await page.goto('/admin/dashboard');
-      await expect(page).toHaveURL(/\/403/);
+      await expect(page).toHaveURL(/\/auth\/unauthorized/);
 
       await page.goto('/admin/listings');
-      await expect(page).toHaveURL(/\/403/);
+      await expect(page).toHaveURL(/\/auth\/unauthorized/);
 
       // Try to access moderation API
       const response = await TestHelpers.makeAuthenticatedRequest(page, '/api/admin/moderation', {
@@ -119,7 +119,7 @@ test.describe('Listing Management E2E', () => {
 
       // Attempt to edit
       await page.goto(`/dashboard/listings/edit/${listingId}`).catch(() => undefined);
-      await expect(page).toHaveURL(/\/403/);
+      await expect(page).toHaveURL(/\/auth\/unauthorized/);
 
       // Attempt to delete
       const deleteResponse = await TestHelpers.makeAuthenticatedRequest(
