@@ -7,6 +7,7 @@ import Link from 'next/link';
 import type { Session } from 'next-auth';
 import { SessionContext, signOut } from 'next-auth/react';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useCachedUserProfile } from '@/hooks/useCachedUserProfile';
 import { structuredLogger } from '@/lib/logger';
 
 type SessionStatus = 'loading' | 'authenticated' | 'unauthenticated';
@@ -36,20 +37,17 @@ export function Header(): React.JSX.Element {
   const { session, status } = useSafeSession();
   const isAuthenticated = status === 'authenticated';
   const isAdmin = ['admin', 'superAdmin'].includes(session?.user?.role ?? '');
-  const displayName = session?.user?.name ?? session?.user?.email ?? 'your account';
-  const shortName = session?.user?.name?.split(' ')[0] ?? session?.user?.name ?? '';
+  const { displayInfo } = useCachedUserProfile(
+    session?.user ?? null,
+    isAuthenticated,
+    'your account'
+  );
+  const displayName = displayInfo.displayName;
+  const shortName = displayInfo.shortName;
   const accountLabel = isAuthenticated ? `Signed in as ${displayName}` : 'Sign in';
   const [signingOut, setSigningOut] = useState(false);
   const userImage = typeof session?.user?.image === 'string' ? session.user.image : null;
-  const accountInitials = (() => {
-    const source = session?.user?.name ?? session?.user?.email ?? '';
-    if (!source) return 'U';
-    return source
-      .split(' ')
-      .map(part => part.trim().charAt(0).toUpperCase())
-      .join('')
-      .slice(0, 2);
-  })();
+  const accountInitials = displayInfo.initials;
 
   const handleSignOut = useCallback(async () => {
     if (signingOut) return;
