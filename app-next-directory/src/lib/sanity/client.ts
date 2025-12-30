@@ -254,6 +254,3 @@ export async function sanityFetch<const QueryString extends string>({
 
   return anyClient.fetch(query, params, nextOpts) as Promise<unknown>;
 }
-
-  return anyClient.fetch(query, params, nextOpts) as Promise<unknown>;
-}
