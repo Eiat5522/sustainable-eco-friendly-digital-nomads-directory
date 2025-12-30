@@ -45,6 +45,7 @@
     "test:watch": "pnpm --filter app-next-directory test:watch",
     "test:coverage": "pnpm --filter app-next-directory test:coverage",
     "test:ci": "biome lint . && pnpm lint:eslint && tsc --noEmit && pnpm --filter app-next-directory test:unit",
+    "test:full": "pnpm --filter app-next-directory test:full",
     "check-types": "tsc --noEmit",
     "type-check": "tsc --noEmit",
     "types:postprocess": "node sanity-types-postprocess.js",
