@@ -2,6 +2,7 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 import type { NextRequest } from 'next/server';
 import { connection } from 'next/server';
 import { structuredLogger } from '@/lib/logger';
+import { ALLOWED_REVALIDATION_TAGS, TAG_PATTERN } from '@/lib/revalidation';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { validateRevalidationToken } from '@/utils/revalidation-token';
 
@@ -53,9 +54,6 @@ export async function GET(request: NextRequest) {
     return ApiResponseHandler.error('Error revalidating', 500);
   }
 }
-
-const ALLOWED_REVALIDATION_TAGS = new Set(['featured-listings', 'cities', 'eco-tags', 'home']);
-const TAG_PATTERN = /^[a-z0-9:-]+$/i;
 
 export async function POST(request: NextRequest) {
   await connection();

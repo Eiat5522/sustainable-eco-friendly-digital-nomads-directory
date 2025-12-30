@@ -1,6 +1,6 @@
-import { revalidatePath } from 'next/cache';
 import type { NextRequest } from 'next/server';
 import { getRequestContext, structuredLogger } from '@/lib/logger';
+import { REVALIDATE_ALL_ROUTES, revalidatePaths } from '@/lib/revalidation';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { validateRevalidationToken } from '@/utils/revalidation-token';
 
@@ -33,14 +33,10 @@ export async function POST(request: NextRequest) {
       return ApiResponseHandler.error('Invalid token', 401);
     }
 
-    // Revalidate all dynamic routes
-    const routesToRevalidate = ['/', '/listings', '/category', '/city'];
+    const routesToRevalidate = [...REVALIDATE_ALL_ROUTES];
 
-    // Revalidate each route
-    const revalidate = _testControl?.revalidatePathOverride ?? revalidatePath;
-    for (const route of routesToRevalidate) {
-      revalidate(route);
-    }
+    const revalidate = _testControl?.revalidatePathOverride;
+    revalidatePaths(routesToRevalidate, revalidate);
 
     // Access Date.now() after reading uncached data (revalidatePath) to avoid prerender bailout
     return ApiResponseHandler.success({
