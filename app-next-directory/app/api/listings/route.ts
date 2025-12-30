@@ -323,7 +323,7 @@ export function createListingsHandlers(overrides: Partial<ListingsDependencies> 
       } else if (ownerDoc.listingQuotaTier) {
         effectiveLimit = tierMap[String(ownerDoc.listingQuotaTier)] ?? null;
       } else {
-        effectiveLimit = tierMap.free; // global default
+        effectiveLimit = tierMap.free ?? null; // global default
       }
 
       if (!quotaOverride && !isAdmin) {

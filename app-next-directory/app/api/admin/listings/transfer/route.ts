@@ -51,7 +51,7 @@ export async function POST(request: Request) {
     if (ownerDoc.maxLocations != null) effectiveLimit = Number(ownerDoc.maxLocations);
     else if (ownerDoc.listingQuotaTier)
       effectiveLimit = tierMap[String(ownerDoc.listingQuotaTier)] ?? null;
-    else effectiveLimit = tierMap.free;
+    else effectiveLimit = tierMap.free ?? null;
 
     if (!quotaOverride && effectiveLimit != null) {
       const currentCount = await client.fetch(

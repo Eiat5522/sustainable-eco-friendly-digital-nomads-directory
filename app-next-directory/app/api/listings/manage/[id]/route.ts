@@ -155,7 +155,7 @@ export async function PUT(request: Request, context: RouteContext) {
           } else if (ownerDoc.listingQuotaTier) {
             effectiveLimit = tierMap[String(ownerDoc.listingQuotaTier)] ?? null;
           } else {
-            effectiveLimit = tierMap.free;
+            effectiveLimit = tierMap.free ?? null;
           }
 
           if (!quotaOverride) {

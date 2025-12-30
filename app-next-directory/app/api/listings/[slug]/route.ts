@@ -131,7 +131,7 @@ export function createSlugHandlers(overrides: Partial<SlugDependencies> = {}) {
             } else if (ownerDoc.listingQuotaTier) {
               effectiveLimit = tierMap[String(ownerDoc.listingQuotaTier)] ?? null;
             } else {
-              effectiveLimit = tierMap.free;
+            effectiveLimit = tierMap.free ?? null;
             }
 
             if (!quotaOverride) {
