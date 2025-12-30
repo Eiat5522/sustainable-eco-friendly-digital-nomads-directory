@@ -450,7 +450,7 @@ Create `.env.test` or `.env.local`:
 TEST_USER_EMAIL=user@example.com
 TEST_USER_PASSWORD=password123
 TEST_ADMIN_EMAIL=admin@example.com
-TEST_ADMIN_PASSWORD=admin123
+TEST_ADMIN_PASSWORD=TestSecurePass123!
 TEST_VENUE_OWNER_EMAIL=venue@example.com
 TEST_VENUE_OWNER_PASSWORD=venue123
 
