@@ -11,8 +11,8 @@ import {
   NeoCardTitle,
 } from '@/components/ui/neo-card';
 import { getUserFacingMessage } from '@/lib/client-utils';
-import type { ListingFormValues } from '../../../dashboard/components/VenueListingForm';
-import { VenueListingForm } from '../../../dashboard/components/VenueListingForm';
+import type { ListingFormValues } from '../../dashboard/components/VenueListingForm';
+import { VenueListingForm } from '../../dashboard/components/VenueListingForm';
 
 type EditListingModalProps = {
   listingId: string;

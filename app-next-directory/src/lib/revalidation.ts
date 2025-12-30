@@ -1,5 +1,7 @@
 import { revalidatePath, revalidateTag } from 'next/cache';
 
+type RevalidateTagFn = typeof revalidateTag;
+
 export type SanityWebhookPayload = {
   _type?: string;
   type?: string;
@@ -56,7 +58,7 @@ export const resolveSanityRevalidationTargets = (payload: SanityWebhookPayload |
 export const revalidateTags = (
   tags: string[],
   listingSlugs: string[],
-  revalidateTagFn: (tag: string, type?: 'layout' | 'page' | 'max') => void = revalidateTag
+  revalidateTagFn: RevalidateTagFn = revalidateTag
 ) => {
   tags.forEach(tag => revalidateTagFn(tag, 'max'));
   for (const slug of listingSlugs) {
