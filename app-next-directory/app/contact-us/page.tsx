@@ -23,9 +23,17 @@ import { Textarea } from '@/components/ui/textarea';
 
 type EnquiryType = 'general' | 'newsletter';
 
+const emailSchema = z
+  .string()
+  .email('Please enter a valid email address')
+  .refine(
+    value => !/[\r\n]/.test(value) && !/%0a|%0d/i.test(value),
+    'Please enter a valid email address'
+  );
+
 const contactFormSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name too long'),
-  email: z.string().email('Please enter a valid email address'),
+  email: emailSchema,
   subject: z.string().min(5, 'Subject must be at least 5 characters').max(200, 'Subject too long'),
   message: z
     .string()
@@ -34,7 +42,7 @@ const contactFormSchema = z.object({
 });
 
 const newsletterSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
+  email: emailSchema,
 });
 
 function ContactForm() {

@@ -13,6 +13,7 @@ import type { CityDTO, FeaturedListingDTO, Percentage0To100 } from '@/types/dto'
 const cachedGetFeaturedListings = cache((limit: number) => getFeaturedListings(limit));
 const cachedGetAllCities = cache(() => getAllCities());
 const CITY_CAROUSEL_LIMIT = 8;
+const isE2ERun = process.env.NEXT_PUBLIC_E2E === '1' || process.env.E2E === '1';
 
 interface SanityCityRecord {
   _id?: string;
@@ -99,6 +100,10 @@ const mapFeaturedListingRecordToDTO = (
 };
 
 async function FeaturedListingsSection() {
+  if (isE2ERun) {
+    return <FeaturedListings />;
+  }
+
   let listings: FeaturedListingDTO[] = [];
 
   try {

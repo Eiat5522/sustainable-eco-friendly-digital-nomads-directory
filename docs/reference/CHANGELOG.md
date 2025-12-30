@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Stacked login/signup panels on smaller screens and limited social sign-in to Google-only setup
 - Restored listing editing for venue owners and admins by aligning managed listing APIs with Sanity ownership
 - Aligned admin listing stats and table filters with moderation status and featured flags to match published featured counts
+- Guarded contact form emails against header injection payloads during client-side validation
+- Avoided server-provided featured listings during E2E runs so network retry flows can exercise fetch resilience
 
 ## [0.1.3] - 2025-01-XX
 
