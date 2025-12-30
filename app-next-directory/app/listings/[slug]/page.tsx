@@ -93,6 +93,12 @@ const e2eFixtures: Record<string, ListingFixture> = {
   },
 };
 
+// When building with `NEXT_PUBLIC_MOCK_SANITY_DATA=true` we should avoid
+// making network requests to Sanity during prerender — use local mocks.
+const USE_MOCK_SANITY =
+  process.env.NEXT_PUBLIC_MOCK_SANITY_DATA === '1' ||
+  process.env.NEXT_PUBLIC_MOCK_SANITY_DATA === 'true';
+
 function isPriceRange(
   value: string | null | undefined
 ): value is 'budget' | 'moderate' | 'premium' {
@@ -229,6 +235,12 @@ const fetchListingBySlug = cache(async (slug: string): Promise<ListingDetailDTO 
   'use cache';
   cacheLife('max');
   cacheTag(`listing-${slug}`);
+  // Avoid network calls while building if mocks are enabled.
+  if (USE_MOCK_SANITY) {
+    logger.info('Using mock listing detail during build', { component: 'listings/[slug]', slug });
+    // The imported `mockListingDetail` is already shaped like ListingDetailDTO
+    return structuredClone(mockListingDetail) as ListingDetailDTO;
+  }
 
   const raw = await client.fetch<SanityListing | null>(LISTING_QUERY, { slug });
   if (!raw) return null;
@@ -251,6 +263,17 @@ async function fetchRelatedListings(cityId?: string, excludeId?: string) {
       priceRange: 'budget' | 'moderate' | 'premium';
       ecoFocusTags: string[];
     }>;
+  // When building with mock Sanity data enabled, return the local fixture
+  // to avoid real network requests during prerender.
+  if (USE_MOCK_SANITY) {
+    logger.info('Using mock related listings during build', {
+      component: 'listings/[slug]',
+      cityId,
+      excludeId,
+    });
+    return structuredClone(mockRelatedListings);
+  }
+
   try {
     const records = await client.fetch<RelatedListingRecord[]>(RELATED_QUERY, {
       cityId,
