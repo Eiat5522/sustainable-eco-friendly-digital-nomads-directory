@@ -1,14 +1,13 @@
-'use cache';
+'use client';
 
 import type { Metadata } from 'next';
-import { cacheLife, cacheTag } from 'next/cache';
-import Link from 'next/link';
 import { groq } from 'next-sanity';
-import { client } from '@/lib/sanity/client';type CategoryListing = {
+import { client } from '@/lib/sanity/client';
+
+type CategoryListing = {
   _id: string;
   name: string;
   slug: string;
-  primaryImage?: unknown;
 };
 
 export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
@@ -37,10 +36,6 @@ export const metadata: Metadata = {
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
-  // Cache category pages for a moderate duration
-  cacheLife('hours');
-  cacheTag(`category-${slug}`);
-
   // Fetch listings for this category (safe, will return empty array on error)
   let listings: CategoryListing[] = [];
   try {
@@ -58,13 +53,10 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
       <ul className="space-y-3">
         {listings.map(listing => (
           <li key={listing._id} className="p-3 border rounded">
-import type { Metadata } from 'next';
-import Link from 'next/link';
-import { groq } from 'next-sanity';              {listing.name}
-            </a>
+            {listing.name}
           </li>
         ))}
       </ul>
-  </main>
-  )
+    </main>
+  );
 }

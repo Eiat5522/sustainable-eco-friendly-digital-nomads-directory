@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import type { Page } from '@playwright/test';
 import { test as base, expect } from '@playwright/test';
 import {
@@ -44,6 +46,93 @@ async function applySession(page: Page, role: Role) {
   const session = getSessionForRole(role);
   if (!session) {
     throw new Error(`Test session not found for role: ${role}`);
+  }
+
+  // If a pre-generated storageState exists for this role, apply it for speed.
+  try {
+    const storagePath = path.resolve(process.cwd(), 'tests', 'storageStates', `${role}.json`);
+    if (fs.existsSync(storagePath)) {
+      const raw = fs.readFileSync(storagePath, 'utf-8');
+      const parsed = JSON.parse(raw) as {
+        cookies?: any[];
+        origins?: Array<{ origin: string; localStorage: Array<{ name: string; value: string }> }>;
+      };
+
+      // Apply cookies (if any)
+      if (parsed.cookies && parsed.cookies.length > 0) {
+        // Ensure cookie expiry numbers are preserved
+        const cookies = parsed.cookies.map(c => ({ ...c }));
+        await page
+          .context()
+          .addCookies(cookies)
+          .catch(() => undefined);
+      }
+
+      // Apply localStorage entries for the base origin
+      const origin = baseUrl.origin;
+      const originEntry = parsed.origins?.find(
+        o => o.origin === origin || o.origin === `${origin}/`
+      );
+      if (originEntry?.localStorage?.length) {
+        // Navigate to origin so we can set localStorage
+        await page.goto(origin + '/', { waitUntil: 'domcontentloaded' }).catch(() => undefined);
+        for (const item of originEntry.localStorage) {
+          await page
+            .evaluate(([k, v]) => window.localStorage.setItem(k, v), [item.name, item.value])
+            .catch(() => undefined);
+        }
+      }
+
+      // Ensure the page is at origin and reload so auth state is available
+      await page
+        .goto(baseUrl.origin + '/', { waitUntil: 'domcontentloaded' })
+        .catch(() => undefined);
+
+      // Also set compatibility token/localStorage used by some helpers
+      const encodedToken = await buildSessionToken(session.user);
+      await page.context().addInitScript(
+        ({ token, user }) => {
+          window.localStorage.setItem('token', token);
+          window.localStorage.setItem('currentUser', JSON.stringify(user));
+          window.sessionStorage.setItem('token', token);
+        },
+        {
+          token: encodedToken,
+          user: {
+            id: session.user.id,
+            email: session.user.email,
+            name: session.user.name,
+            role: session.user.role,
+            plan: session.user.plan,
+            image: session.user.image ?? null,
+          },
+        }
+      );
+
+      // Also add the session cookie used by server-side tests for explicitness
+      const cookie = {
+        name: TEST_SESSION_COOKIE_NAME,
+        value: encodedToken,
+        domain: baseUrl.hostname,
+        path: '/',
+        httpOnly: true,
+        secure: baseUrl.origin.startsWith('https'),
+        sameSite: 'Lax' as const,
+      } as const;
+      await page
+        .context()
+        .addCookies([cookie])
+        .catch(() => undefined);
+
+      // Reload to apply init script
+      await page.reload({ waitUntil: 'domcontentloaded' }).catch(() => undefined);
+
+      return { ...session, token: encodedToken };
+    }
+  } catch (err) {
+    // fall back to regular session build on any error
+
+    console.warn('applySession: failed to apply storageState, falling back to token build', err);
   }
 
   const encodedToken = await buildSessionToken(session.user);

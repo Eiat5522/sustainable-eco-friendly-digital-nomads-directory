@@ -23,93 +23,61 @@ This two-step process replaced an auditable security signal with a quiet, succes
 
 Authorized administrators faced E2E test timeouts because the test waited for a non-existent path.
 
-* 
 **Test Configuration:** Expected to redirect to and find elements at `/admin/dashboard`.
 
-
-* 
 **Actual Application Path:** The admin index page was located at the base path `/admin`.
-
-
 
 ### Architectural Conflict: Dueling Security Layers
 
 The failures are symptoms of a conflict between two primary enforcement layers:
 
-* 
+*
+
 **Layer 1: Global Proxy (`src/proxy.ts`)** – A fast, low-context perimeter defense. Its flawed "soft redirect" logic intercepted users before they could reach inner guards.
 
+* **Layer 1: Global Proxy (`src/proxy.ts`)** – A fast, low-context perimeter defense. Its flawed "soft redirect" logic intercepted users before they could reach inner guards.
 
-* 
-**Layer 2: Admin Layout Guard (`app/admin/layout.tsx`)** – A slower, high-context server-side component. It contained the correct logic to issue a hard redirect to **/unauthorized** but was rendered unreachable by Layer 1.
-
-
-
----
-
-## 2. Decision Drivers
+* **Layer 2: Admin Layout Guard (`app/admin/layout.tsx`)** – A slower, high-context server-side component. It contained the correct logic to issue a hard redirect to **/unauthorized** but was rendered unreachable by Layer 1.
 
 A decisive architectural change is required to address the following systemic issues:
 
-* 
+*
+
 **Unreliable Security Verification:** Soft redirects create false negatives in E2E tests.
 
+*
 
-* 
 **Inconsistent Failure Signals:** Conflicting responses to the same event increase maintenance liability.
 
+* **Unreliable Security Verification:** Soft redirects create false negatives in E2E tests.
 
-* 
-**Poor Debugging Experience:** Routing mismatches and credential inconsistencies (e.g., `admin-pass-123` vs. `admin-123`) create "debugging purgatory".
+* **Inconsistent Failure Signals:** Conflicting responses to the same event increase maintenance liability.
 
+* **Poor Debugging Experience:** Routing mismatches and credential inconsistencies (e.g., `admin-pass-123` vs. `admin-123`) create "debugging purgatory".
 
-* 
-**Architectural Ambiguity:** Lack of a single source of truth for authorization failures.
+* **Architectural Ambiguity:** Lack of a single source of truth for authorization failures.
 
+*
 
+* **Pros:** Establishes a consistent, auditable signal; aligns Layer 1 and Layer 2; simplifies the security model.
 
----
-
-## 3. Considered Options
-
-### Option 1: Unify Redirect Logic at the Proxy (Chosen)
-
-Modify the global proxy to immediately redirect unauthorized attempts to the canonical **/unauthorized** endpoint.
-
-* 
-**Pros:** Establishes a consistent, auditable signal; aligns Layer 1 and Layer 2; simplifies the security model.
-
-
-* 
-**Cons:** Requires updating E2E tests to expect `/unauthorized` instead of `403`.
-
-
+* **Cons:** Requires updating E2E tests to expect `/unauthorized` instead of `403`.
 
 ### Option 2: Refactor Both Layers to Point to a New /403 Path
 
 Create a new `/403` route and modify both layers to redirect there.
 
-* 
-**Pros:** Achieves consistency without changing existing E2E assertions.
+* **Pros:** Achieves consistency without changing existing E2E assertions.
 
-
-* 
-**Cons:** Creates code duplication as a functional equivalent already exists; ignores superior existing logic in the layout guard.
-
-
+* **Cons:** Creates code duplication as a functional equivalent already exists; ignores superior existing logic in the layout guard.
 
 ### Option 3: Delegate All Role Checks to the Layout Guard
 
 Remove role-checking from the proxy, leaving it only for authentication.
 
-* 
-**Pros:** Adheres to the principle of single responsibility.
+* **Pros:** Adheres to the principle of single responsibility.
 
-
-* 
-**Cons:** Reduces performance as unauthorized requests penetrate deeper into the stack; weakens "perimeter defense".
-
-
+* **Cons:** Reduces performance as unauthorized requests penetrate deeper into the stack; weakens "perimeter defense".
 
 ---
 
@@ -123,29 +91,27 @@ Remove role-checking from the proxy, leaving it only for authentication.
 
 ### Implementation Plan
 
-1. 
+1.
+
 **Modify Global Proxy:** Replace the soft redirect to the root path with: `return NextResponse.redirect(new URL('/unauthorized', request.url))`.
 
+1.
 
-2. 
 **Align E2E Test Suite:** Update assertions to wait for a URL containing `/unauthorized` rather than `403`.
 
+1.
 
-3. 
 **Correct Admin Routing:** Update post-login logic and the `loginAsAdmin` helper to target `/admin` instead of `/admin/dashboard`.
 
+1.
 
-4. 
 **Unify Test Credentials:** Standardize admin passwords across test fixtures and helpers.
-
-
 
 ### Architectural Refinement (Follow-up)
 
-* 
+*
+
 **Centralize Admin Role Logic:** Configure the global proxy to exclude the `/admin` path from role-checking, delegating that specific check entirely to the `AdminLayout` guard to improve maintainability.
-
-
 
 ---
 ---

@@ -16,6 +16,9 @@ const resolvedPort = PLAYWRIGHT_PORT;
 const serverWaitURL = PLAYWRIGHT_ENV.serverWaitURL;
 
 export default defineConfig({
+  // Global setup will generate storageState JSON files for fast auth reuse
+  // Use ESM-safe string path (avoid require in ESM config)
+  globalSetup: './tests/global-setup',
   // Run Playwright tests from the project tests directory using .spec.ts extension only
   // Only run tests inside the `tests/e2e` directory. Integration tests are managed by Jest.
   // This keeps Playwright focused on UI E2E only and prevents it from picking up other
@@ -60,8 +63,7 @@ export default defineConfig({
   },
   projects: [
     
-    { name: 'chromium', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } } },
-    { name: 'firefox', use: { ...devices['Desktop Firefox'], viewport: { width: 1280, height: 800 } } },
+    { name: 'chromium', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } } },    { name: 'firefox', use: { ...devices['Desktop Firefox'], viewport: { width: 1280, height: 800 } } },
     { name: 'webkit', use: { ...devices['Desktop Safari'], viewport: { width: 1280, height: 800 } } },
   ],
   webServer: isLocal

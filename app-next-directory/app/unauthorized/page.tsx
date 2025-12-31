@@ -14,8 +14,6 @@ export const metadata: Metadata = {
 };
 
 export default function UnauthorizedPage() {
-
-export default function UnauthorizedPage() {
   return (
     <PageLayout showFooterNewsletter={false}>
       <section className="relative flex min-h-[70vh] items-center justify-center overflow-hidden px-4 py-16">
@@ -28,7 +26,7 @@ export default function UnauthorizedPage() {
           </NeoCardHeader>
           <NeoCardContent>
             <p className="text-xl font-semibold text-neo-text-primary mb-6">
-              You don&apos;t have permission to view this page.
+              You don't have permission to view this page.
             </p>
             <NeoButton asChild variant="primary" size="lg">
               <Link href="/">Go back home</Link>
