@@ -1,0 +1,151 @@
+# ADR-001: Standardize Unauthorized Access Response Across Security Layers
+
+**Status:** Decided.
+**Date:** 2025-12-31.
+
+---
+
+## 1. Context
+
+A robust layered security architecture ("defense-in-depth") depends on the consistent coordination of its components. Recent end-to-end (E2E) test failures revealed a critical inconsistency between security layers, resulting in a system behavior that violates its security contract. This architectural dissonance stems from prioritizing a "Gentle UX" over an explicit and auditable security contract.
+
+### Symptom 1: Unauthorized Access Redirect Failure
+
+Non-administrator users attempting to access restricted admin paths experienced a masking of security denials.
+
+| Expected Behavior | Actual Behavior |
+| --- | --- |
+| Hard redirect to a URL containing **403**, providing an explicit security denial signal. | "Soft redirect" to the root path (**/**) with an error parameter, which then routed users to their personal dashboards. |
+
+This two-step process replaced an auditable security signal with a quiet, successful navigation event, making automated verification impossible. Additionally, the application's inner security layer was already designed to redirect to a **/unauthorized** page, highlighting a discrepancy with the E2E test expectations.
+
+### Symptom 2: Admin Dashboard Timeout Failure
+
+Authorized administrators faced E2E test timeouts because the test waited for a non-existent path.
+
+* 
+**Test Configuration:** Expected to redirect to and find elements at `/admin/dashboard`.
+
+
+* 
+**Actual Application Path:** The admin index page was located at the base path `/admin`.
+
+
+
+### Architectural Conflict: Dueling Security Layers
+
+The failures are symptoms of a conflict between two primary enforcement layers:
+
+* 
+**Layer 1: Global Proxy (`src/proxy.ts`)** – A fast, low-context perimeter defense. Its flawed "soft redirect" logic intercepted users before they could reach inner guards.
+
+
+* 
+**Layer 2: Admin Layout Guard (`app/admin/layout.tsx`)** – A slower, high-context server-side component. It contained the correct logic to issue a hard redirect to **/unauthorized** but was rendered unreachable by Layer 1.
+
+
+
+---
+
+## 2. Decision Drivers
+
+A decisive architectural change is required to address the following systemic issues:
+
+* 
+**Unreliable Security Verification:** Soft redirects create false negatives in E2E tests.
+
+
+* 
+**Inconsistent Failure Signals:** Conflicting responses to the same event increase maintenance liability.
+
+
+* 
+**Poor Debugging Experience:** Routing mismatches and credential inconsistencies (e.g., `admin-pass-123` vs. `admin-123`) create "debugging purgatory".
+
+
+* 
+**Architectural Ambiguity:** Lack of a single source of truth for authorization failures.
+
+
+
+---
+
+## 3. Considered Options
+
+### Option 1: Unify Redirect Logic at the Proxy (Chosen)
+
+Modify the global proxy to immediately redirect unauthorized attempts to the canonical **/unauthorized** endpoint.
+
+* 
+**Pros:** Establishes a consistent, auditable signal; aligns Layer 1 and Layer 2; simplifies the security model.
+
+
+* 
+**Cons:** Requires updating E2E tests to expect `/unauthorized` instead of `403`.
+
+
+
+### Option 2: Refactor Both Layers to Point to a New /403 Path
+
+Create a new `/403` route and modify both layers to redirect there.
+
+* 
+**Pros:** Achieves consistency without changing existing E2E assertions.
+
+
+* 
+**Cons:** Creates code duplication as a functional equivalent already exists; ignores superior existing logic in the layout guard.
+
+
+
+### Option 3: Delegate All Role Checks to the Layout Guard
+
+Remove role-checking from the proxy, leaving it only for authentication.
+
+* 
+**Pros:** Adheres to the principle of single responsibility.
+
+
+* 
+**Cons:** Reduces performance as unauthorized requests penetrate deeper into the stack; weakens "perimeter defense".
+
+
+
+---
+
+## 4. Decision
+
+**We will proceed with Option 1**. We will standardize the response by modifying `src/proxy.ts` to issue an immediate redirect to the **/unauthorized** endpoint. This prioritizes an explicit, auditable security contract over a "gentle UX". A security response that cannot be reliably verified is considered unreliable.
+
+---
+
+## 5. Consequences
+
+### Implementation Plan
+
+1. 
+**Modify Global Proxy:** Replace the soft redirect to the root path with: `return NextResponse.redirect(new URL('/unauthorized', request.url))`.
+
+
+2. 
+**Align E2E Test Suite:** Update assertions to wait for a URL containing `/unauthorized` rather than `403`.
+
+
+3. 
+**Correct Admin Routing:** Update post-login logic and the `loginAsAdmin` helper to target `/admin` instead of `/admin/dashboard`.
+
+
+4. 
+**Unify Test Credentials:** Standardize admin passwords across test fixtures and helpers.
+
+
+
+### Architectural Refinement (Follow-up)
+
+* 
+**Centralize Admin Role Logic:** Configure the global proxy to exclude the `/admin` path from role-checking, delegating that specific check entirely to the `AdminLayout` guard to improve maintainability.
+
+
+
+---
+---

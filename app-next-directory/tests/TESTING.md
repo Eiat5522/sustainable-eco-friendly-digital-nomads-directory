@@ -73,11 +73,7 @@ pnpm test:unit
 
 # Run integration tests (Jest)
 pnpm test:integration
-
-# Legacy Jest-based E2E tests (deprecated)
-pnpm test:e2e:legacy
 ```
-
 
 ### Test Fixtures
 We use custom fixtures to provide common test setup and teardown:

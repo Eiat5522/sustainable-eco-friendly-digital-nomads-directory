@@ -193,7 +193,7 @@ describe('withAuthMatrix', () => {
 
       expect(response.status).toBe(307);
       const location = response.headers.get('location');
-      expect(location).toContain('/auth/unauthorized');
+      expect(location).toContain('/unauthorized');
     });
 
     it('allows access when user has required permission', async () => {
@@ -256,7 +256,7 @@ describe('withAuthMatrix', () => {
       // console.log('[TEST] mockHasPagePermission.mock.calls:', mockHasPagePermission.mock.calls);
       expect(response.status).toBe(307);
       const location = response.headers.get('location');
-      expect(location).toContain('/auth/unauthorized');
+      expect(location).toContain('/unauthorized');
     });
   });
 
@@ -452,7 +452,7 @@ describe('withMinimumRole', () => {
 
       expect(response.status).toBe(307);
       const location = response.headers.get('location');
-      expect(location).toContain('/auth/unauthorized');
+      expect(location).toContain('/unauthorized');
     });
 
     it('allows page access when user has minimum role', async () => {
@@ -551,7 +551,7 @@ describe('withAuth (legacy)', () => {
 
     expect(response.status).toBe(307);
     const location = response.headers.get('location');
-    expect(location).toContain('/auth/unauthorized');
+    expect(location).toContain('/unauthorized');
   });
 
   it('allows access when user role is in required roles', async () => {

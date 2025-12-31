@@ -63,7 +63,8 @@
     "github.copilot.chat.languageContext.typescript.enabled": true,
     "github.copilot.chat.languageContext.typescript.includeDocumentation": true,
     "accessibility.voice.ignoreCodeBlocks": true,
-    "workbench.externalBrowser": "chrome"
+    "workbench.externalBrowser": "chrome",
+    "coderabbit.agentType": "Clipboard"
   },
   "extensions": {
     "recommendations": ["biomejs.biome", "dbaeumer.vscode-eslint", "prettier.prettier-vscode"]

@@ -1,7 +1,19 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { NeoButton } from '@/components/ui/neo-button';
 import { NeoCard, NeoCardContent, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
+
+export const metadata: Metadata = {
+  title: '403 - Access Denied',
+  description: 'You do not have permission to access this page.',
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
+
+export default function UnauthorizedPage() {
 
 export default function UnauthorizedPage() {
   return (

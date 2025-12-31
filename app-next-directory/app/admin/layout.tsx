@@ -30,7 +30,7 @@ export async function AdminShell({ children }: { children: React.ReactNode }) {
   }
 
   if (role !== 'admin' && role !== 'superAdmin') {
-    redirect('/403');
+    redirect('/unauthorized');
   }
 
   return (

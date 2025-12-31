@@ -58,7 +58,7 @@ export async function requireRole(role: UserRole | UserRole[]): Promise<Authenti
 
   const roles = Array.isArray(role) ? role : [role];
   if (!roles.includes(user.role)) {
-    redirect('/403');
+    redirect('/unauthorized');
   }
 
   // Also check status

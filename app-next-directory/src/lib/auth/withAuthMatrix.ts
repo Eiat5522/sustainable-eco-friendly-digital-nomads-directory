@@ -114,7 +114,7 @@ export async function withAuthMatrix(
 
     if (!hasPermission) {
       // User doesn't have required permission, redirect to unauthorized page
-      const url = new URL('/auth/unauthorized', request.url);
+      const url = new URL('/unauthorized', request.url);
       url.searchParams.set('reason', 'insufficient_permissions');
       url.searchParams.set('required', `${page}.${action}`);
       url.searchParams.set('role', userRole);
@@ -248,7 +248,7 @@ export async function withMinimumRole(
     }
 
     if (!hasMinimumRole) {
-      const url = new URL('/auth/unauthorized', request.url);
+      const url = new URL('/unauthorized', request.url);
       url.searchParams.set('reason', 'insufficient_role');
       url.searchParams.set('required', requiredRole);
       url.searchParams.set('current', userRole);
@@ -298,7 +298,7 @@ export async function withAuth(request: NextRequest, requiredRoles?: string[]) {
   const userRole = (token?.role as string) || 'user';
 
   if (requiredRoles && !requiredRoles.includes(userRole)) {
-    const url = new URL('/auth/unauthorized', request.url);
+    const url = new URL('/unauthorized', request.url);
     url.searchParams.set('reason', 'insufficient_role');
     return NextResponse.redirect(url);
   }

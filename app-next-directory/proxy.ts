@@ -30,7 +30,7 @@ const protectedRoutes = [
   '/listings/manage',
   '/listings/create',
 ];
-const authPages = ['/auth/error', '/auth/login', '/auth/signup', '/login', '/register'];
+const authPages = ['/auth/error', '/auth/login', '/auth/signup'];
 
 export async function proxy(request: NextRequest) {
   try {
@@ -97,16 +97,6 @@ export async function proxy(request: NextRequest) {
         return withSecurityHeaders(NextResponse.redirect(loginUrl));
       }
 
-      // Admin route access control
-      const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route));
-      if (isAdminRoute) {
-        // Only admin and superAdmin can access admin routes
-        if (userRole !== 'admin' && userRole !== 'superAdmin') {
-          const forbiddenUrl = new URL('/auth/unauthorized', request.nextUrl.origin || request.url);
-          return withSecurityHeaders(NextResponse.redirect(forbiddenUrl));
-        }
-      }
-
       // Listing management routes require venueOwner or admin roles
       const isListingManagementRoute =
         pathname.startsWith('/dashboard/listings') || pathname.startsWith('/listings/manage');
@@ -114,7 +104,17 @@ export async function proxy(request: NextRequest) {
         const canManageListings =
           userRole === 'venueOwner' || userRole === 'admin' || userRole === 'superAdmin';
         if (!canManageListings) {
-          const forbiddenUrl = new URL('/auth/unauthorized', request.nextUrl.origin || request.url);
+          const forbiddenUrl = new URL('/unauthorized', request.nextUrl.origin || request.url);
+          return withSecurityHeaders(NextResponse.redirect(forbiddenUrl));
+        }
+      }
+
+      // Admin routes require admin or superAdmin roles
+      const isAdminRoute = adminRoutes.some(path => pathname.startsWith(path));
+      if (isAdminRoute) {
+        const isAdmin = userRole === 'admin' || userRole === 'superAdmin';
+        if (!isAdmin) {
+          const forbiddenUrl = new URL('/unauthorized', request.nextUrl.origin || request.url);
           return withSecurityHeaders(NextResponse.redirect(forbiddenUrl));
         }
       }
@@ -125,7 +125,6 @@ export async function proxy(request: NextRequest) {
 
     // API routes protection (non-auth API)
     if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth')) {
-      // Public APIs that anyone can access (no auth required):
       const publicApiPaths = ['/api/listings'];
       const isPublicApi = publicApiPaths.some(path => pathname.startsWith(path));
       if (isPublicApi) {

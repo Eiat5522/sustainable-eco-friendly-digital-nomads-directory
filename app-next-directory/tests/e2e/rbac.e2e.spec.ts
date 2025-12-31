@@ -8,7 +8,7 @@ test.describe('RBAC (Playwright)', () => {
     await loginAs(
       page,
       process.env.E2E_USER_EMAIL ?? 'user@example.com',
-      process.env.E2E_USER_PASSWORD ?? 'TestSecurePass123!'
+      process.env.E2E_USER_PASSWORD ?? 'admin-123'
     );
 
     const res = await page.goto(`${BASE_URL}/admin`, { waitUntil: 'domcontentloaded' });
@@ -20,20 +20,14 @@ test.describe('RBAC (Playwright)', () => {
       return;
     }
 
-    const current = page.url();
-    if (current.includes('error=unauthorized_access')) {
-      expect(current).toContain('error=unauthorized_access');
-      return;
-    }
-
-    await expect(page).toHaveURL(/\/(auth\/unauthorized|login|api\/auth\/signin)(?:[?#].*)?$/);
+    await expect(page).toHaveURL(/\/(unauthorized|login|api\/auth\/signin)(?:[?#].*)?$/);
   });
 
   test('venue owner cannot access admin routes', async ({ page }) => {
     await loginAs(
       page,
       process.env.E2E_VENUE_OWNER_EMAIL ?? 'venue@example.com',
-      process.env.E2E_VENUE_OWNER_PASSWORD ?? 'TestSecurePass123!'
+      process.env.E2E_VENUE_OWNER_PASSWORD ?? 'admin-123'
     );
 
     const res = await page.goto(`${BASE_URL}/admin`, { waitUntil: 'domcontentloaded' });
@@ -42,18 +36,13 @@ test.describe('RBAC (Playwright)', () => {
       expect([401, 403]).toContain(status);
       return;
     }
-    const current = page.url();
-    if (current.includes('error=unauthorized_access')) {
-      expect(current).toContain('error=unauthorized_access');
-      return;
-    }
-    await expect(page).toHaveURL(/\/(auth\/unauthorized|login|api\/auth\/signin)(?:[?#].*)?$/);
+    await expect(page).toHaveURL(/\/(unauthorized|login|api\/auth\/signin)(?:[?#].*)?$/);
   });
   test('admin can access admin routes', async ({ page }) => {
     await loginAs(
       page,
       process.env.E2E_ADMIN_EMAIL ?? 'admin@example.com',
-      process.env.E2E_ADMIN_PASSWORD ?? 'TestSecurePass123!'
+      process.env.E2E_ADMIN_PASSWORD ?? 'admin-123'
     );
 
     const res = await page.goto(`${BASE_URL}/admin`, { waitUntil: 'domcontentloaded' });

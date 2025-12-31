@@ -2,11 +2,9 @@
 
 import type { Metadata } from 'next';
 import { cacheLife, cacheTag } from 'next/cache';
+import Link from 'next/link';
 import { groq } from 'next-sanity';
-import { client } from '@/lib/sanity/client';
-import { structuredLogger } from '@/lib/logger';
-
-type CategoryListing = {
+import { client } from '@/lib/sanity/client';type CategoryListing = {
   _id: string;
   name: string;
   slug: string;
@@ -60,12 +58,13 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
       <ul className="space-y-3">
         {listings.map(listing => (
           <li key={listing._id} className="p-3 border rounded">
-            <a href={`/listings/${listing.slug}`} className="font-medium">
-              {listing.name}
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { groq } from 'next-sanity';              {listing.name}
             </a>
           </li>
         ))}
       </ul>
-    </main>
-  );
+  </main>
+  )
 }
