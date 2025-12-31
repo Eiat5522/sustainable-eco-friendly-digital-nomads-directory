@@ -289,21 +289,24 @@ const fetchListingBySlug = cache(async (slug: string): Promise<ListingDetailDTO 
   'use cache';
   cacheLife('max');
   cacheTag(`listing-${slug}`);
-  // Use retryFetch + timeout to avoid hanging the prerender when Sanity
-  // is temporarily unreachable or slow.
   try {
+    // Use retryFetch + timeout to avoid hanging the prerender when Sanity
+    // is temporarily unreachable or slow.
     const raw = await retryFetch<SanityListing | null>(LISTING_QUERY, { slug });
     if (!raw) return null;
     try {
       return transformToDetailDTO(raw);
     } catch (e) {
-      logger.error('Failed to transform listing payload', e, { slug, component: 'listings/[slug]' });
+      logger.error('Failed to transform listing payload', e, {
+        slug,
+        component: 'listings/[slug]',
+      });
       return null;
     }
   } catch (error) {
-    logger.error('Failed to fetch listing payload', error, {
-      slug,
+    logger.error('Failed to fetch listing details', error, {
       component: 'listings/[slug]',
+      slug,
     });
     return null;
   }

@@ -14,25 +14,21 @@ type CategoryListing = {
 };
 
 export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
+  const fallbackCategories = ['coworking'];
   try {
     const categories = await client.fetch<string[]>(
       groq`array::unique(*[_type == "listing" && defined(category)].category)`
     );
-    const resolvedCategories = (categories ?? []).filter(
-      c => typeof c === 'string' && c.length > 0
+    const normalized = (categories ?? []).filter(
+      (category): category is string => typeof category === 'string' && category.length > 0
     );
-    if (resolvedCategories.length === 0) {
-      // Cache Components require at least one static param to validate during build.
-      return [{ slug: 'empty-category' }];
-    }
-    return resolvedCategories.map(category => ({ slug: String(category) }));
-  } catch (error) {
-    structuredLogger.error('Failed to generate static params for category pages', error, {
-      component: 'category-page',
-      operation: 'generateStaticParams',
-    });
-    // With Cache Components enabled, Next requires at least one param.
-    return [{ slug: 'empty-category' }];
+
+    const slugs = normalized.length > 0 ? normalized : fallbackCategories;
+
+    return slugs.map(slug => ({ slug }));
+  } catch (_error) {
+    // If fetching categories fails during build, return fallback values for debug prerender.
+    return fallbackCategories.map(slug => ({ slug }));
   }
 }
 

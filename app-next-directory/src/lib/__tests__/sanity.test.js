@@ -31,8 +31,10 @@ describe('Sanity Library', () => {
   beforeAll(async () => {
     // Set NODE_ENV to 'production' to test the 'useCdn' flag correctly
     process.env.NODE_ENV = 'production';
+    delete process.env.DISABLE_SANITY_DURING_BUILD;
+
     jest.resetModules();
-    mockCreateClient.mockClear();
+    mockCreateClient.mockReset();
     mockImageUrlBuilder.mockClear();
 
     // Configure mock return values BEFORE the module is imported
