@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { cacheLife, cacheTag } from 'next/cache';
 import { groq } from 'next-sanity';
 import { client } from '@/lib/sanity/client';
+import { structuredLogger } from '@/lib/logger';
 
 type CategoryListing = {
   _id: string;

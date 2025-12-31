@@ -65,8 +65,8 @@ export default defineConfig({
     },
   ],
   webServer: isLocal
-    ? {
-        command: 'E2E=1 pnpm start',
+      ? {
+        command: 'E2E=1 pnpm dev',
         url: serverWaitURL.toString(),
         // Increase timeout for containerized environments (build + startup can take longer)
         timeout: 180_000,
@@ -74,7 +74,7 @@ export default defineConfig({
         reuseExistingServer: !(process.env.CI || process.env.E2E || process.env.NEXT_PUBLIC_E2E),
         env: {
           // Load .env.e2e file for isolated test environment
-          NODE_ENV: 'production',
+          NODE_ENV: 'development',
           PORT: String(resolvedPort),
           E2E: '1',
           NEXT_PUBLIC_E2E: '1',
