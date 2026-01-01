@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { Page } from '@playwright/test';
+import type { BrowserContext, Page } from '@playwright/test';
 import { test as base, expect } from '@playwright/test';
 import {
   createTestData,
@@ -42,6 +42,114 @@ async function buildSessionToken(user: {
   });
 }
 
+type StorageStateOrigin = {
+  origin: string;
+  localStorage: Array<{ name: string; value: string }>;
+};
+
+type CookiesInput = Parameters<BrowserContext['addCookies']>[0];
+
+type StorageStateParsed = {
+  cookies?: Array<Record<string, unknown>>;
+  origins?: StorageStateOrigin[];
+};
+
+const expectedStorageStateSchema =
+  '{ cookies?: Array<Record<string, unknown>>; origins?: Array<{ origin: string; localStorage: Array<{ name: string; value: string }> }> }';
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function describeValue(value: unknown) {
+  const kind = Array.isArray(value) ? 'array' : typeof value;
+  if (typeof value === 'string') {
+    return `${kind} "${value}"`;
+  }
+  try {
+    return `${kind} ${JSON.stringify(value)}`;
+  } catch {
+    return `${kind} ${String(value)}`;
+  }
+}
+
+function assertStorageStateShape(parsed: unknown): asserts parsed is StorageStateParsed {
+  if (!isPlainObject(parsed)) {
+    throw new Error(
+      `Invalid storageState. Expected object with schema ${expectedStorageStateSchema}. Received ${describeValue(parsed)}.`
+    );
+  }
+
+  const { cookies, origins } = parsed;
+
+  if (cookies !== undefined) {
+    if (!Array.isArray(cookies)) {
+      throw new Error(
+        `Invalid storageState.cookies. Expected array. Received ${describeValue(cookies)}.`
+      );
+    }
+    cookies.forEach((cookie, index) => {
+      if (!isPlainObject(cookie)) {
+        throw new Error(
+          `Invalid storageState.cookies[${index}]. Expected object. Received ${describeValue(cookie)}.`
+        );
+      }
+    });
+  }
+
+  if (origins !== undefined) {
+    if (!Array.isArray(origins)) {
+      throw new Error(
+        `Invalid storageState.origins. Expected array. Received ${describeValue(origins)}.`
+      );
+    }
+    origins.forEach((originEntry, index) => {
+      if (!isPlainObject(originEntry)) {
+        throw new Error(
+          `Invalid storageState.origins[${index}]. Expected object. Received ${describeValue(originEntry)}.`
+        );
+      }
+      const origin = originEntry.origin;
+      if (typeof origin !== 'string') {
+        throw new Error(
+          `Invalid storageState.origins[${index}].origin. Expected string. Received ${describeValue(origin)}.`
+        );
+      }
+      const localStorage = originEntry.localStorage;
+      if (!Array.isArray(localStorage)) {
+        throw new Error(
+          `Invalid storageState.origins[${index}].localStorage. Expected array. Received ${describeValue(
+            localStorage
+          )}.`
+        );
+      }
+      localStorage.forEach((entry, entryIndex) => {
+        if (!isPlainObject(entry)) {
+          throw new Error(
+            `Invalid storageState.origins[${index}].localStorage[${entryIndex}]. Expected object. Received ${describeValue(
+              entry
+            )}.`
+          );
+        }
+        if (typeof entry.name !== 'string') {
+          throw new Error(
+            `Invalid storageState.origins[${index}].localStorage[${entryIndex}].name. Expected string. Received ${describeValue(
+              entry.name
+            )}.`
+          );
+        }
+        if (typeof entry.value !== 'string') {
+          throw new Error(
+            `Invalid storageState.origins[${index}].localStorage[${entryIndex}].value. Expected string. Received ${describeValue(
+              entry.value
+            )}.`
+          );
+        }
+      });
+    });
+  }
+}
+
 async function applySession(page: Page, role: Role) {
   const session = getSessionForRole(role);
   if (!session) {
@@ -53,15 +161,13 @@ async function applySession(page: Page, role: Role) {
     const storagePath = path.resolve(process.cwd(), 'tests', 'storageStates', `${role}.json`);
     if (fs.existsSync(storagePath)) {
       const raw = fs.readFileSync(storagePath, 'utf-8');
-      const parsed = JSON.parse(raw) as {
-        cookies?: any[];
-        origins?: Array<{ origin: string; localStorage: Array<{ name: string; value: string }> }>;
-      };
+      const parsed = JSON.parse(raw);
+      assertStorageStateShape(parsed);
 
       // Apply cookies (if any)
       if (parsed.cookies && parsed.cookies.length > 0) {
         // Ensure cookie expiry numbers are preserved
-        const cookies = parsed.cookies.map(c => ({ ...c }));
+        const cookies = parsed.cookies.map(cookie => ({ ...cookie })) as CookiesInput;
         await page
           .context()
           .addCookies(cookies)
@@ -73,9 +179,11 @@ async function applySession(page: Page, role: Role) {
       const originEntry = parsed.origins?.find(
         o => o.origin === origin || o.origin === `${origin}/`
       );
+      let navigatedToOrigin = false;
       if (originEntry?.localStorage?.length) {
         // Navigate to origin so we can set localStorage
         await page.goto(origin + '/', { waitUntil: 'domcontentloaded' }).catch(() => undefined);
+        navigatedToOrigin = true;
         for (const item of originEntry.localStorage) {
           await page
             .evaluate(([k, v]) => window.localStorage.setItem(k, v), [item.name, item.value])
@@ -83,10 +191,13 @@ async function applySession(page: Page, role: Role) {
         }
       }
 
-      // Ensure the page is at origin and reload so auth state is available
-      await page
-        .goto(baseUrl.origin + '/', { waitUntil: 'domcontentloaded' })
-        .catch(() => undefined);
+      // Navigate to origin if we didn't already (so reload affects the correct origin)
+      if (!navigatedToOrigin) {
+        await page.goto(baseUrl.origin + '/', { waitUntil: 'domcontentloaded' }).catch(() => undefined);
+      }
+
+      // Reload to ensure auth state is available
+      await page.reload({ waitUntil: 'domcontentloaded' }).catch(() => undefined);
 
       // Also set compatibility token/localStorage used by some helpers
       const encodedToken = await buildSessionToken(session.user);
@@ -226,10 +337,20 @@ async function loginByRole(
   email?: string,
   password?: string
 ) {
-  if (email && password) {
-    await loginViaForm(page, email, password, new RegExp(fallbackPath));
+  if (email) {
+    // If the caller provided an email but no password, use an env override
+    // or fall back to the seeded password for the given role so tests
+    // remain in sync with fixtures.
+    const roleDefaultPasswords: Record<string, string> = {
+      admin: process.env.E2E_ADMIN_PASSWORD ?? 'adminpass123',
+      user: process.env.E2E_USER_PASSWORD ?? 'adminpass123',
+      venueOwner: process.env.E2E_VENUE_OWNER_PASSWORD ?? 'adminpass123',
+    };
+    const pwd = password ?? roleDefaultPasswords[role] ?? 'adminpass123';
+    await loginViaForm(page, email, pwd, new RegExp(fallbackPath));
     return;
   }
+
   await loginAs(page, role, { redirectTo: fallbackPath });
 }
 

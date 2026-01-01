@@ -44,10 +44,7 @@ describe('Admin layout', () => {
     expect(
       await screen.findByText('Admin Panel', undefined, { timeout: 5000 })
     ).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /dashboard/i })).toHaveAttribute(
-      'href',
-      '/admin'
-    );
+    expect(screen.getByRole('link', { name: /dashboard/i })).toHaveAttribute('href', '/admin');
     expect(screen.getByRole('link', { name: /back to site/i })).toHaveAttribute('href', '/');
     expect(screen.getByTestId('layout-child')).toBeInTheDocument();
     expect(redirectMock).not.toHaveBeenCalled();
@@ -62,6 +59,6 @@ describe('Admin layout', () => {
     });
 
     await expect(AdminShell({ children: <div /> })).rejects.toThrow('redirect');
-    expect(redirectMock).toHaveBeenCalledWith('/403');
+    expect(redirectMock).toHaveBeenCalledWith('/unauthorized');
   });
 });

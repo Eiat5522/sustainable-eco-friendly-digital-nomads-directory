@@ -8,7 +8,7 @@ test.describe('RBAC (Playwright)', () => {
     await loginAs(
       page,
       process.env.E2E_USER_EMAIL ?? 'user@example.com',
-      process.env.E2E_USER_PASSWORD ?? 'admin-123'
+      process.env.E2E_USER_PASSWORD ?? 'adminpass123'
     );
 
     const res = await page.goto(`${BASE_URL}/admin`, { waitUntil: 'domcontentloaded' });
@@ -27,7 +27,7 @@ test.describe('RBAC (Playwright)', () => {
     await loginAs(
       page,
       process.env.E2E_VENUE_OWNER_EMAIL ?? 'venue@example.com',
-      process.env.E2E_VENUE_OWNER_PASSWORD ?? 'admin-123'
+      process.env.E2E_VENUE_OWNER_PASSWORD ?? 'adminpass123'
     );
 
     const res = await page.goto(`${BASE_URL}/admin`, { waitUntil: 'domcontentloaded' });
@@ -42,7 +42,7 @@ test.describe('RBAC (Playwright)', () => {
     await loginAs(
       page,
       process.env.E2E_ADMIN_EMAIL ?? 'admin@example.com',
-      process.env.E2E_ADMIN_PASSWORD ?? 'admin-123'
+      process.env.E2E_ADMIN_PASSWORD ?? 'adminpass123'
     );
 
     const res = await page.goto(`${BASE_URL}/admin`, { waitUntil: 'domcontentloaded' });

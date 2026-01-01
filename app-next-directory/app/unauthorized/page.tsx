@@ -26,7 +26,7 @@ export default function UnauthorizedPage() {
           </NeoCardHeader>
           <NeoCardContent>
             <p className="text-xl font-semibold text-neo-text-primary mb-6">
-              You don't have permission to view this page.
+              You don&apos;t have permission to view this page.
             </p>
             <NeoButton asChild variant="primary" size="lg">
               <Link href="/">Go back home</Link>

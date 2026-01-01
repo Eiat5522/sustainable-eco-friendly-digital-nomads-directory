@@ -10,7 +10,8 @@ import {
 } from '@/data/e2e/discovery-fixtures';
 import type { DereferencedSanityListing } from '@/lib/dto-transformer';
 import { transformToSummaryDTO } from '@/lib/dto-transformer';
-import { cachedClient } from '@/lib/sanity/cached-client';
+// cachedClient replaced by sanityFetch for tag-aware caching in page-level renders
+import { sanityFetch } from '@/lib/sanity/client';
 import type { CityDetailDTO, CityDTO, ListingSummaryDTO } from '@/types/dto';
 
 type SanityImageDimensions = { width?: number; height?: number };
@@ -183,9 +184,13 @@ export async function getCityBySlug(slug: string): Promise<CityDTO | null> {
     }
   }`;
 
-  const raw = await cachedClient.fetch<SanityCitySummary | null>(getCitySummaryBySlugQuery, {
-    slug,
-  });
+  const raw = (await sanityFetch({
+    query: getCitySummaryBySlugQuery,
+    params: { slug },
+    // Long-lived cache for city summaries; invalidate per-city when content changes.
+    revalidate: 60 * 60 * 24 * 7,
+    tags: [`cities:list`, `city:${slug}`],
+  })) as SanityCitySummary | null;
   return toCityDTO(raw);
 }
 
@@ -223,9 +228,12 @@ export async function getCityDetailBySlug(slug: string): Promise<CityDetailDTO |
     }
   }`;
 
-  const raw = await cachedClient.fetch<SanityCityDetail | null>(getCityFullDetailsBySlugQuery, {
-    slug,
-  });
+  const raw = (await sanityFetch({
+    query: getCityFullDetailsBySlugQuery,
+    params: { slug },
+    revalidate: 60 * 60 * 24 * 7,
+    tags: [`cities:list`, `city:${slug}`],
+  })) as SanityCityDetail | null;
   return toCityDetailDTO(raw);
 }
 
@@ -267,10 +275,13 @@ export async function getListingsByCityId(cityId: string): Promise<ListingSummar
     }
   }`;
 
-  const listingsRaw = await cachedClient.fetch<ListingSummarySource[]>(
-    getPublishedListingsInCityQuery,
-    { cityId }
-  );
+  const listingsRaw = (await sanityFetch({
+    query: getPublishedListingsInCityQuery,
+    params: { cityId },
+    // Tag listings per city id so we can revalidate a single city's listings.
+    revalidate: 60 * 60 * 24 * 7,
+    tags: [`city:${cityId}`],
+  })) as ListingSummarySource[];
 
   return listingsRaw.map((listing: ListingSummarySource) =>
     transformToSummaryDTO({
@@ -301,7 +312,13 @@ export async function getCitiesList(limit = 20): Promise<CityDTO[]> {
     }
   }`;
 
-  const raw = await cachedClient.fetch(getAllCitiesPaginatedQuery, { limit });
+  const raw = (await sanityFetch({
+    query: getAllCitiesPaginatedQuery,
+    params: { limit },
+    revalidate: 60 * 60 * 24 * 7,
+    tags: ['cities:list'],
+  })) as unknown;
+
   return (Array.isArray(raw) ? raw : []).map(toCityDTO).filter(Boolean) as CityDTO[];
 }
 
@@ -319,7 +336,11 @@ export async function getAllCitySlugs(): Promise<string[]> {
   try {
     const getAllCitySlugsQuery = groq`*[_type == "city"].slug.current`;
 
-    const slugs = await cachedClient.fetch<string[]>(getAllCitySlugsQuery);
+    const slugs = (await sanityFetch({
+      query: getAllCitySlugsQuery,
+      revalidate: 60 * 60 * 24 * 7,
+      tags: ['cities:list'],
+    })) as string[];
     return Array.isArray(slugs)
       ? slugs.filter((slug): slug is string => typeof slug === 'string' && slug.length > 0)
       : [];

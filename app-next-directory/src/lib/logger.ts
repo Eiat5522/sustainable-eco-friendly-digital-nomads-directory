@@ -308,7 +308,109 @@ export const structuredLogger = {
       ...(errorPayload ? { err: errorPayload, error: errorPayload } : {}),
     };
     mirrorStructuredLogToConsole('error', msg, error, logContext);
-    logger.error(logContext, msg);
+    // Use a write-behind queue to avoid calling Date.now() (via pino) while
+    // a Server Component is rendering. We enqueue the log entry synchronously
+    // and flush it on the next tick. This preserves call ordering relative to
+    // other synchronous code and avoids the Next.js prerender error.
+    // We also register graceful flush handlers so logs are written before
+    // process exit where possible.
+
+    type QueueEntry = { msg: string; error?: unknown; context?: LogContext };
+
+    const globalAny = globalThis as unknown as { __logQueue?: QueueEntry[]; __logFlushScheduled?: boolean };
+
+    if (!globalAny.__logQueue) globalAny.__logQueue = [];
+
+    globalAny.__logQueue.push({ msg, error, context: logContext });
+
+    const scheduleFlush = () => {
+      if (globalAny.__logFlushScheduled) return;
+      globalAny.__logFlushScheduled = true;
+      try {
+        // Use setImmediate when available to flush after the current event turn.
+        const flushFn = () => {
+          globalAny.__logFlushScheduled = false;
+          const q = globalAny.__logQueue ?? [];
+          globalAny.__logQueue = [];
+          for (const entry of q) {
+            try {
+              logger.error(entry.context ?? {}, entry.msg);
+            } catch (_) {
+              // Swallow errors during logging to avoid affecting app flow
+            }
+          }
+        };
+
+        if (typeof setImmediate === 'function') {
+          setImmediate(flushFn);
+        } else if (typeof queueMicrotask === 'function') {
+          queueMicrotask(flushFn);
+        } else {
+          Promise.resolve().then(flushFn).catch(() => undefined);
+        }
+      } catch (e) {
+        // As a last resort, perform synchronous logging
+        try {
+          logger.error(logContext, msg);
+        } catch (_) {
+          // ignore
+        }
+      }
+    };
+
+    scheduleFlush();
+
+    // Ensure pending logs are flushed on graceful shutdown signals where possible.
+    // These handlers are idempotent and cheap to register.
+    const registerFlushOnExit = (() => {
+      let installed = false;
+      return () => {
+        if (installed || typeof process === 'undefined' || !isServer) return;
+        installed = true;
+
+        const flushNow = () => {
+          try {
+            const q = globalAny.__logQueue ?? [];
+            globalAny.__logQueue = [];
+            for (const entry of q) {
+              try {
+                // Synchronous attempt to write remaining logs
+                logger.error(entry.context ?? {}, entry.msg);
+              } catch (_) {
+                // ignore
+              }
+            }
+          } catch (_) {
+            // ignore
+          }
+        };
+
+        try {
+          process.on('beforeExit', flushNow);
+          process.on('exit', flushNow);
+          process.on('SIGINT', () => {
+            flushNow();
+            process.exit(130);
+          });
+          process.on('SIGTERM', () => {
+            flushNow();
+            process.exit(137);
+          });
+          process.on('uncaughtException', (err: unknown) => {
+            try {
+              logger.error({ err }, 'uncaughtException');
+            } catch (_) {
+              // ignore
+            }
+            flushNow();
+          });
+        } catch (_) {
+          // best-effort only
+        }
+      };
+    })();
+
+    registerFlushOnExit();
   },
 
   // Specialized logging methods for common use cases

@@ -91,21 +91,13 @@ Remove role-checking from the proxy, leaving it only for authentication.
 
 ### Implementation Plan
 
-1.
+1. **Modify Global Proxy:** Replace the soft redirect to the root path with: `return NextResponse.redirect(new URL('/unauthorized', request.url))`.
 
-**Modify Global Proxy:** Replace the soft redirect to the root path with: `return NextResponse.redirect(new URL('/unauthorized', request.url))`.
+2. **Align E2E Test Suite:** Update assertions to wait for a URL containing `/unauthorized` rather than `403`.
 
-1.
+3. **Correct Admin Routing:** Update post-login logic and the `loginAsAdmin` helper to target `/admin` instead of `/admin/dashboard`.
 
-**Align E2E Test Suite:** Update assertions to wait for a URL containing `/unauthorized` rather than `403`.
-
-1.
-
-**Correct Admin Routing:** Update post-login logic and the `loginAsAdmin` helper to target `/admin` instead of `/admin/dashboard`.
-
-1.
-
-**Unify Test Credentials:** Standardize admin passwords across test fixtures and helpers.
+4. **Unify Test Credentials:** Standardize admin passwords across test fixtures and helpers.
 
 ### Architectural Refinement (Follow-up)
 
