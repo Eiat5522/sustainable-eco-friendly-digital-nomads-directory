@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import http from 'node:http';
 import path from 'node:path';
 import { chromium } from '@playwright/test';
 
@@ -20,6 +21,34 @@ export default async function globalSetup() {
 
   const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000';
 
+  // Wait for the dev server to be reachable before launching the browser
+  async function waitForServer(url: string, timeout = 60_000) {
+    const start = Date.now();
+    while (Date.now() - start < timeout) {
+      try {
+        await new Promise<void>((res, rej) => {
+          const req = http.get(url, r => {
+            // any response indicates the server is up
+            res();
+            r.resume();
+          });
+          req.on('error', rej);
+          req.setTimeout(3000, () => {
+            req.destroy();
+            rej(new Error('timeout'));
+          });
+        });
+        return;
+      } catch (e) {
+        // wait a bit and retry
+        await new Promise(r => setTimeout(r, 1000));
+      }
+    }
+    throw new Error(`Server did not become reachable at ${url} within ${timeout}ms`);
+  }
+
+  await waitForServer(baseURL);
+
   const browser = await chromium.launch();
   const context = await browser.newContext({ baseURL });
   const page = await context.newPage();
@@ -35,8 +64,21 @@ export default async function globalSetup() {
     await page.fill('input[name="password"]', adminPassword);
     await page.click('button[type="submit"]');
 
-    // Wait for a stable post-login URL or element
-    await page.waitForURL('**/admin**', { timeout: 10_000 });
+    // Wait for a stable post-login URL or element (longer timeout + debug capture)
+    try {
+      await page.waitForURL('**/admin**', { timeout: 60_000 });
+    } catch (err) {
+      // capture debug artifacts to help diagnose flakiness
+      const debugPrefix = path.join(storageDir, 'debug-admin');
+      try {
+        await page.screenshot({ path: `${debugPrefix}.png`, fullPage: true }).catch(() => {});
+        const html = await page.content();
+        fs.writeFileSync(`${debugPrefix}.html`, html);
+      } catch (e) {
+        // ignore debug write errors
+      }
+      throw err;
+    }
 
     // Save admin storage state
     const adminPath = path.join(storageDir, 'admin.json');
@@ -59,14 +101,25 @@ export default async function globalSetup() {
       await userPage.fill('input[name="email"]', userEmail);
       await userPage.fill('input[name="password"]', userPassword);
       await userPage.click('button[type="submit"]');
-      await userPage.waitForURL('**/dashboard**', { timeout: 10_000 });
+      try {
+        await userPage.waitForURL('**/dashboard**', { timeout: 60_000 });
+      } catch (err) {
+        const debugPrefix = path.join(storageDir, 'debug-user');
+        try {
+          await userPage.screenshot({ path: `${debugPrefix}.png`, fullPage: true }).catch(() => {});
+          const html = await userPage.content();
+          fs.writeFileSync(`${debugPrefix}.html`, html);
+        } catch (e) {
+          // ignore
+        }
+        throw err;
+      }
       const userPath = path.join(storageDir, 'user.json');
       await userContext.storageState({ path: userPath });
     } finally {
       await userContext.close();
     }
   } catch (err) {
-     
     console.warn('global-setup: failed to generate user storageState', err);
   }
   await context.close();

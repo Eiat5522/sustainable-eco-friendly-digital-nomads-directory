@@ -45,8 +45,9 @@ export const metadata: Metadata = {
   title: 'Category',
 };
 
-export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
+export default async function CategoryPage({ params }: { params: { slug: string } }) {
+
+  const { slug } = params;
 
   // Resolve the original category value from the slug so our Sanity query
   // matches the stored category values (which are not slugified).

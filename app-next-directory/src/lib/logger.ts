@@ -348,7 +348,7 @@ export const structuredLogger = {
         } else {
           Promise.resolve().then(flushFn).catch(() => undefined);
         }
-      } catch (e) {
+      } catch (_e) {
         // As a last resort, perform synchronous logging
         try {
           logger.error(logContext, msg);
@@ -360,58 +360,27 @@ export const structuredLogger = {
 
     scheduleFlush();
 
-    // Ensure pending logs are flushed on graceful shutdown signals where possible.
-    // These handlers are idempotent and cheap to register.
-    const registerFlushOnExit = (() => {
-      let installed = false;
-      return () => {
-        if (installed || typeof process === 'undefined' || !isServer) return;
-        installed = true;
-
-        const flushNow = () => {
+    // In some environments (Edge runtime / Turbopack analysis) Node process
+    // APIs are not available and cause build-time errors. The installation of
+    // process-level handlers is therefore performed in a separate node-only
+    // module (`src/lib/logger-node.ts`) that is only imported by server-only
+    // entrypoints. Here we simply call a noop placeholder which will be
+    // replaced by the real installer when running in Node.js server code.
+    // This avoids Turbopack build errors while preserving graceful flushes
+    // when running the server.
           try {
-            const q = globalAny.__logQueue ?? [];
-            globalAny.__logQueue = [];
-            for (const entry of q) {
-              try {
-                // Synchronous attempt to write remaining logs
-                logger.error(entry.context ?? {}, entry.msg);
-              } catch (_) {
-                // ignore
-              }
-            }
+            import('./logger-node')
+              .then(({ installExitFlushHandlers }) => {
+                if (typeof installExitFlushHandlers === 'function') {
+                  installExitFlushHandlers();
+                }
+              })
+              .catch(() => {
+                // ignore: best-effort; in edge/compiled contexts this file may not exist
+              });
           } catch (_) {
-            // ignore
-          }
-        };
-
-        try {
-          process.on('beforeExit', flushNow);
-          process.on('exit', flushNow);
-          process.on('SIGINT', () => {
-            flushNow();
-            process.exit(130);
-          });
-          process.on('SIGTERM', () => {
-            flushNow();
-            process.exit(137);
-          });
-          process.on('uncaughtException', (err: unknown) => {
-            try {
-              logger.error({ err }, 'uncaughtException');
-            } catch (_) {
-              // ignore
-            }
-            flushNow();
-          });
-        } catch (_) {
-          // best-effort only
-        }
-      };
-    })();
-
-    registerFlushOnExit();
-  },
+            // ignore: best-effort; in edge/compiled contexts this file may not exist
+          }  },
 
   // Specialized logging methods for common use cases
   apiError: (endpoint: string, error: unknown, context?: Omit<LogContext, 'path'>) => {
