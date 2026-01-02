@@ -100,22 +100,26 @@ const nextConfig = {
   // Define cache profiles for `revalidateTag(tag, profile)` usage.
   // Profiles control background revalidation and stale behavior.
   cacheLife: {
-    max: {
+    instant: {
       // aggressive: immediate background revalidation behavior
-      maxAge: 0,
-      staleWhileRevalidate: 60,
+      stale: 30,
+      revalidate: 60,
+      expire: 0,
     },
     short: {
-      maxAge: 30,
-      staleWhileRevalidate: 60,
+      stale: 30,
+      revalidate: 60,
+      expire: 30,
     },
     medium: {
-      maxAge: 300,
-      staleWhileRevalidate: 600,
+      stale: 60,
+      revalidate: 600,
+      expire: 300,
     },
     long: {
-      maxAge: 60 * 60 * 24 * 7,
-      staleWhileRevalidate: 60 * 60,
+      stale: 300,
+      revalidate: 60 * 60 * 24,
+      expire: 60 * 60 * 24 * 7,
     },
   },
 

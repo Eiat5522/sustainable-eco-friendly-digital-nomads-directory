@@ -230,5 +230,6 @@ export async function getUserStats(userId: string) {
 ---
 
 Notes and next steps:
+
 - Most server-side `"use cache"` patterns, `cacheLife()` profiles, and cache tagging are implemented for core pages (home, listings, admin analytics, user stats). The remaining work focuses on wiring revalidation hooks, completing category static params, ensuring moderation actions call `updateTag`, and addressing prerender fetch timeouts uncovered in the build logs.
 - Recommend: 1) Add per-listing invalidation to the Sanity webhook handler; 2) Wire `updateTag('moderation')` into moderation POST handler or `performModerationAction()`; 3) Implement category route `generateStaticParams` or document expected PPR behavior; 4) Run a full repo cache-audit and a production-like prerender build to surface remaining dynamic API usages.
