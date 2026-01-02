@@ -12,6 +12,7 @@ jest.mock('@/lib/sanity/cached-client', () => ({
 
 jest.mock('@/lib/sanity/client', () => ({
   client: { fetch: jest.fn() },
+  sanityFetch: jest.fn(),
 }));
 
 jest.mock('@/lib/dto-transformer', () => ({
@@ -27,13 +28,20 @@ jest.mock('@/data/e2e/discovery-fixtures', () => ({
 }));
 
 const { cachedClient } = require('@/lib/sanity/cached-client');
-const { client } = require('@/lib/sanity/client');
+const { client, sanityFetch } = require('@/lib/sanity/client');
 const { transformToSummaryDTO } = require('@/lib/dto-transformer');
 const fixtures = require('@/data/e2e/discovery-fixtures');
 
 describe('city data helpers', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Make sanityFetch proxy to the cachedClient.fetch mock by default so
+    // existing tests that set cachedClient.fetch will continue to work.
+    if (sanityFetch && typeof sanityFetch.mockImplementation === 'function') {
+      sanityFetch.mockImplementation(async ({ query, params }: any) => {
+        return cachedClient.fetch(query, params ?? {});
+      });
+    }
   });
 
   it('uses E2E fixtures when running in E2E mode', async () => {

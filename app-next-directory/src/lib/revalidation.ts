@@ -12,12 +12,14 @@ export type SanityWebhookPayload = {
 const SANITY_TAGS_BY_TYPE: Record<string, string[]> = {
   listing: ['featured-listings'],
   city: ['cities'],
+  category: ['categories'],
   ecoTag: ['eco-tags'],
 };
 
 export const ALLOWED_REVALIDATION_TAGS = new Set([
   'featured-listings',
   'cities',
+  'categories',
   'eco-tags',
   'home',
 ]);
@@ -32,6 +34,14 @@ export const resolveSanityRevalidationTargets = (payload: SanityWebhookPayload |
 
   if (docType && SANITY_TAGS_BY_TYPE[docType]) {
     SANITY_TAGS_BY_TYPE[docType].forEach(tag => tags.add(tag));
+    // If the payload contains a document with a slug, include a fine-grained
+    // per-resource tag (e.g., `city:slug` or `category:slug`) so the webhook
+    // can invalidate the specific resource without touching unrelated tags.
+    const docSlug = payload?.document?.slug?.current;
+    if (typeof docSlug === 'string' && docSlug.length > 0) {
+      if (docType === 'city') tags.add(`city:${docSlug}`);
+      if (docType === 'category') tags.add(`category:${docSlug}`);
+    }
   }
 
   const listingSlugs: string[] = [];

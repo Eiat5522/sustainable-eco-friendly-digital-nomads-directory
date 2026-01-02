@@ -81,6 +81,18 @@ describe('Sanity client module', () => {
         useCdn: false,
         token: 'test-token',
         ignoreBrowserTokenWarning: true,
+        maxRetries: 0,
+      });
+
+      expect(createClient).toHaveBeenCalledWith({
+        projectId: 'test-project',
+        dataset: 'test-dataset',
+        apiVersion: '2024-01-01',
+        useCdn: false,
+        token: 'test-token',
+        ignoreBrowserTokenWarning: true,
+        maxRetries: 0,
+        perspective: 'previewDrafts',
       });
 
       expect(clientModule.client).toBe(mockClient);
@@ -106,6 +118,16 @@ describe('Sanity client module', () => {
         dataset: 'placeholder-dataset',
         apiVersion: '2024-01-01',
         useCdn: false,
+        maxRetries: 0,
+      });
+
+      expect(createClient).toHaveBeenCalledWith({
+        projectId: 'placeholder-project-id',
+        dataset: 'placeholder-dataset',
+        apiVersion: '2024-01-01',
+        useCdn: false,
+        maxRetries: 0,
+        perspective: 'previewDrafts',
       });
 
       expect(clientModule.client).toBe(mockClient);
@@ -484,6 +506,18 @@ describe('Sanity client module', () => {
         useCdn: false,
         token: 'partial-token',
         ignoreBrowserTokenWarning: true,
+        maxRetries: 0,
+      });
+
+      expect(createClient).toHaveBeenCalledWith({
+        projectId: 'partial-project',
+        dataset: 'placeholder-dataset', // Falls back to placeholder
+        apiVersion: '2024-01-01',
+        useCdn: false,
+        token: 'partial-token',
+        ignoreBrowserTokenWarning: true,
+        maxRetries: 0,
+        perspective: 'previewDrafts',
       });
 
       process.env = originalEnv;

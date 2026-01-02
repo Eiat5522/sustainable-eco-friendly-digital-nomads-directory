@@ -32,9 +32,12 @@ describe('Admin layout', () => {
     AdminShell = layoutModule.AdminShell;
   });
 
-  it('renders navigation for admin and super admin users', async () => {
+  it.each([
+    { role: 'admin' as const, id: 'user-1' },
+    { role: 'superAdmin' as const, id: 'user-2' },
+  ])('renders navigation for admin and super admin users (role: $role)', async ({ role, id }) => {
     mockAuth.mockResolvedValue({
-      user: { id: 'user-1', role: 'admin' },
+      user: { id, role },
     });
 
     const shell = await AdminShell({ children: <div data-testid="layout-child">Child</div> });

@@ -1,4 +1,5 @@
-import { connection } from 'next/server';
+'use cache'
+
 import { CityDetailView } from '@/components/city/CityDetailView';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
@@ -175,10 +176,6 @@ export default async function CityPage({ params }: Props) {
       );
     }
   }
-
-  // Signal dynamic intent before any operations that use Date.now() (like logging)
-  // This is required for Cache Components to properly handle prerendering
-  await connection();
 
   // Prefer detailed city data; fall back to basic data and guard exceptions
   let rawCity: unknown = null;

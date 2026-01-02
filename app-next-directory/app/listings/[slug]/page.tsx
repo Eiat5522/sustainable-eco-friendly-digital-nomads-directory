@@ -93,64 +93,26 @@ const e2eFixtures: Record<string, ListingFixture> = {
   },
 };
 
-// Helper: run a promise with a timeout to avoid hanging fetches during prerender
-async function withTimeout<T>(p: Promise<T>, ms = 10000): Promise<T> {
-  let id: ReturnType<typeof setTimeout> | null = null;
-  const timeout = new Promise<T>((_, reject) => {
-    id = setTimeout(() => reject(new Error('Sanity fetch timeout')), ms);
-  });
-  try {
-    return await Promise.race([p, timeout]);
-  } finally {
-    if (id) clearTimeout(id);
-  }
-}
-
 // Retry wrapper for client.fetch to tolerate transient network/auth issues
-// IMPORTANT: when Next.js is running a debug prerender build we must avoid
-// scheduling timers (setTimeout) because timers that reject after the
-// prerender lifecycle cause HangingPromiseRejectionError. During prerender
-// we perform a single immediate attempt and fall back gracefully on error.
-async function retryFetch<T>(query: string, params?: Record<string, unknown>, attempts = 3, timeoutMs = 10000): Promise<T | null> {
-  const isDebugPrerender =
-    Boolean(process.env.NEXT_DEBUG_PRERENDER) ||
-    Boolean(process.env.DEBUG_PRERENDER) ||
-    String(process.env.NEXT_PUBLIC_DEBUG_PRERENDER) === 'true';
-
-  let lastError: unknown;
-
-  // If we're in a debug prerender run, avoid timers entirely: do a single
-  // immediate fetch attempt and return a graceful failure to the caller.
-  const maxAttempts = isDebugPrerender ? 1 : attempts;
-
-  for (let i = 0; i < maxAttempts; i++) {
-    try {
-      // During prerender avoid withTimeout (it uses setTimeout). For normal
-      // runs we keep the timeout wrapper to cap slow requests.
-      if (isDebugPrerender) {
-        return await client.fetch<T>(query, params as unknown as Record<string, unknown>);
-      }
-
-      return await withTimeout(client.fetch<T>(query, params as unknown as Record<string, unknown>), timeoutMs);
-    } catch (err: unknown) {
-      lastError = err;
-      logger.warn('Sanity fetch failed (will retry)', {
-        component: 'listings/[slug]',
-        attempt: i + 1,
-        error: err,
-        // indicate if we suppressed backoff due to prerender
-        isDebugPrerender,
-      });
-
-      // Only schedule a micro backoff when not in prerender (timers are safe)
-      if (!isDebugPrerender && i < maxAttempts - 1) {
-        await new Promise(r => setTimeout(r, 200 * (i + 1)));
-      }
-    }
+// IMPORTANT: Avoid timer-based backoff/timeout wrappers here.
+// During prerender, any timer-based retry in a different task can fire after the
+// prerender lifecycle is complete and trigger HangingPromiseRejectionError.
+// We rely on a small number of immediate retries plus `maxRetries: 0` on the
+// Sanity client (see `src/lib/sanity/client.ts`).
+async function retryFetch<T>(
+  query: string,
+  params?: Record<string, unknown>,
+  _attempts = 1 // Note: retry disabled to avoid HangingPromiseRejectionError
+): Promise<T | null> {
+  try {
+    return await client.fetch<T>(query, params);
+  } catch (err: unknown) {
+    logger.error('Sanity fetch failed', {
+      component: 'listings/[slug]',
+      error: err,
+    });
+    throw err;
   }
-
-  // final failure bubbles up for the caller to handle/log
-  throw lastError;
 }
 
 function isPriceRange(

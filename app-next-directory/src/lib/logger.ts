@@ -368,19 +368,7 @@ export const structuredLogger = {
     // replaced by the real installer when running in Node.js server code.
     // This avoids Turbopack build errors while preserving graceful flushes
     // when running the server.
-          try {
-            import('./logger-node')
-              .then(({ installExitFlushHandlers }) => {
-                if (typeof installExitFlushHandlers === 'function') {
-                  installExitFlushHandlers();
-                }
-              })
-              .catch(() => {
-                // ignore: best-effort; in edge/compiled contexts this file may not exist
-              });
-          } catch (_) {
-            // ignore: best-effort; in edge/compiled contexts this file may not exist
-          }  },
+  },
 
   // Specialized logging methods for common use cases
   apiError: (endpoint: string, error: unknown, context?: Omit<LogContext, 'path'>) => {
@@ -642,4 +630,18 @@ export const redirectConsoleToStructuredLogger = () => {
 
 if (isServer && !isTest) {
   redirectConsoleToStructuredLogger();
+
+  try {
+    import('./logger-node')
+      .then(({ installExitFlushHandlers }) => {
+        if (typeof installExitFlushHandlers === 'function') {
+          installExitFlushHandlers();
+        }
+      })
+      .catch(() => {
+        // ignore: best-effort; in edge/compiled contexts this file may not exist
+      });
+  } catch (_) {
+    // ignore: best-effort; in edge/compiled contexts this file may not exist
+  }
 }

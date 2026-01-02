@@ -13,7 +13,7 @@ applyTo: "**"
 
 ## 😱 Caution - apply to Copilot running in VS Code with the integrated terminal. **This does not apply to Copilot CLI**
 
-There is a known bug in the current version of Copilot. Copilot will freeze when running long running commands resulting in a fail command using the integrated teminal in VS Code. Follow the guide below to see the instructions.
+There is a known bug in the current version of Copilot. Copilot will freeze when running long running commands resulting in a fail command using the integrated terminal in VS Code. Follow the guide below to see the instructions.
 
 1. Whenever you run a command in the terminal, pipe the output to a file, output.txt, that you can read from.
 2. You should read the output.txt file to see the results of your commands.

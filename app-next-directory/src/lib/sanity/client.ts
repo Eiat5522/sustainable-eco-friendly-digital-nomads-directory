@@ -19,7 +19,7 @@
  * // Build image URLs
  * const imageUrl = urlFor(listing.image).width(800).height(600).url();
  * ```
- */
+*/
 
 import type { ClientConfig, ClientPerspective } from '@sanity/client';
 import * as SanityClient from '@sanity/client';
@@ -60,6 +60,9 @@ const clientConfig: ClientConfig = {
   dataset,
   apiVersion: '2024-01-01',
   useCdn: false, // Ensure fresh data for server-side logic
+  // IMPORTANT: Disable retries during build to prevent HangingPromiseRejectionError,
+  // but allow retries in production for better resilience.
+  maxRetries: process.env.NODE_ENV === 'production' ? undefined : 0,
   ...(token ? { token, ignoreBrowserTokenWarning: true } : {}),
 };
 
@@ -207,7 +210,6 @@ export { builder, urlFor };
 export function getClient(usePreview = false) {
   return usePreview ? previewClient : client;
 }
-
 const sanityClientExports = {
   createClient,
   client,

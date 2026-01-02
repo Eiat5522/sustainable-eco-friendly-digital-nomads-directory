@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
-import { chromium } from '@playwright/test';
+import { chromium, type Page } from '@playwright/test';
 
 /**
  * Global setup for Playwright E2E tests.
@@ -14,6 +14,17 @@ import { chromium } from '@playwright/test';
  * - E2E_ADMIN_EMAIL / E2E_ADMIN_PASSWORD
  * - E2E_USER_EMAIL / E2E_USER_PASSWORD
  */
+
+async function captureDebugArtifacts(page: Page, prefix: string, storageDir: string) {
+  const debugPrefix = path.join(storageDir, prefix);
+  try {
+    await page.screenshot({ path: `${debugPrefix}.png`, fullPage: true });
+    const html = await page.content();
+    fs.writeFileSync(`${debugPrefix}.html`, html);
+  } catch {
+    // ignore debug write errors
+  }
+}
 
 export default async function globalSetup() {
   const storageDir = path.resolve(process.cwd(), 'tests', 'storageStates');
@@ -28,8 +39,12 @@ export default async function globalSetup() {
       try {
         await new Promise<void>((res, rej) => {
           const req = http.get(url, r => {
-            // any response indicates the server is up
+          // check for successful status codes
+          if (r.statusCode && r.statusCode >= 200 && r.statusCode < 400) {
             res();
+          } else {
+            rej(new Error(`Server returned status ${r.statusCode}`));
+          }
             r.resume();
           });
           req.on('error', rej);
@@ -69,14 +84,7 @@ export default async function globalSetup() {
       await page.waitForURL('**/admin**', { timeout: 60_000 });
     } catch (err) {
       // capture debug artifacts to help diagnose flakiness
-      const debugPrefix = path.join(storageDir, 'debug-admin');
-      try {
-        await page.screenshot({ path: `${debugPrefix}.png`, fullPage: true }).catch(() => {});
-        const html = await page.content();
-        fs.writeFileSync(`${debugPrefix}.html`, html);
-      } catch (e) {
-        // ignore debug write errors
-      }
+      await captureDebugArtifacts(page, 'debug-admin', storageDir);
       throw err;
     }
 
@@ -104,14 +112,7 @@ export default async function globalSetup() {
       try {
         await userPage.waitForURL('**/dashboard**', { timeout: 60_000 });
       } catch (err) {
-        const debugPrefix = path.join(storageDir, 'debug-user');
-        try {
-          await userPage.screenshot({ path: `${debugPrefix}.png`, fullPage: true }).catch(() => {});
-          const html = await userPage.content();
-          fs.writeFileSync(`${debugPrefix}.html`, html);
-        } catch (e) {
-          // ignore
-        }
+        await captureDebugArtifacts(userPage, 'debug-user', storageDir);
         throw err;
       }
       const userPath = path.join(storageDir, 'user.json');

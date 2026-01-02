@@ -19,7 +19,7 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 
 <!-- OPENSPEC:END -->
 
-# Repository Guidelines
+## Repository Guidelines
 
 ## Project Structure & Module Organization
 

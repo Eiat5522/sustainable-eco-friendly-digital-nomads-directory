@@ -1,11 +1,18 @@
 // Node-only installer for logger exit/flush handlers.
 // This file must only be imported in Node.js server contexts.
 
+interface LogEntry {
+  msg: string;
+  context?: unknown;
+}
+
+let handlersInstalled = false;
+
 export function installExitFlushHandlers() {
   if (typeof process === 'undefined') return;
-
+  if (handlersInstalled) return;
   try {
-    const globalAny = globalThis as unknown as { __logQueue?: Array<unknown> };
+    const globalAny = globalThis as unknown as { __logQueue?: Array<LogEntry> };
 
     const flushNow = () => {
       try {
@@ -15,7 +22,7 @@ export function installExitFlushHandlers() {
           try {
             // Use console.error as a fallback if pino isn't available during shutdown
             // biome-ignore lint/suspicious/noConsole: intentional fallback for logging during shutdown
-            if (entry?.context && entry.msg && typeof console.error === 'function') {
+            if (entry?.context && entry?.msg && typeof console.error === 'function') {
               // biome-ignore lint/suspicious/noConsole: intentional fallback for logging during shutdown
               console.error(entry.msg, entry.context);
             }
@@ -42,7 +49,7 @@ export function installExitFlushHandlers() {
       process.on('SIGTERM', () => {
         flushNow();
         try {
-          process.exit(137);
+          process.exit(143);
         } catch (_) {
           // ignore
         }
@@ -55,7 +62,13 @@ export function installExitFlushHandlers() {
           // ignore
         }
         flushNow();
+        try {
+          process.exit(1);
+        } catch (_) {
+          // ignore
+        }
       });
+      handlersInstalled = true;
     } catch (_) {
       // best-effort only
     }

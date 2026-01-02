@@ -43,10 +43,10 @@ describe('Sanity Library', () => {
       .mockReturnValueOnce(previewClientInstance);
 
     // Dynamically import the module to ensure mocks and env vars are applied
-    const sanityModule = await import('../sanity.js');
+    const sanityModule = await import('../sanity/client');
     // Get actual clients using the exported helper to trigger initialization
-    client = sanityModule.getClient();
-    previewClient = sanityModule.getClient(true);
+    client = await sanityModule.getClient();
+    previewClient = await sanityModule.getClient(true);
     urlFor = sanityModule.urlFor;
     getClient = sanityModule.getClient;
     recordedClientConfigs = mockCreateClient.mock.calls.map(([config]) => config);
@@ -90,16 +90,16 @@ describe('Sanity Library', () => {
   });
 
   describe('getClient', () => {
-    it('should return the preview client when usePreview is true', () => {
-      expect(getClient(true)).toBe(previewClientInstance);
+    it('should return the preview client when usePreview is true', async () => {
+      expect(await getClient(true)).toBe(previewClientInstance);
     });
 
-    it('should return the standard client when usePreview is false', () => {
-      expect(getClient(false)).toBe(standardClientInstance);
+    it('should return the standard client when usePreview is false', async () => {
+      expect(await getClient(false)).toBe(standardClientInstance);
     });
 
-    it('should return the standard client by default', () => {
-      expect(getClient()).toBe(standardClientInstance);
+    it('should return the standard client by default', async () => {
+      expect(await getClient()).toBe(standardClientInstance);
     });
   });
 

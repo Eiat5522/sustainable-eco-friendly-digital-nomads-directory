@@ -26,6 +26,8 @@ const nextConfig = {
     turbopackFileSystemCacheForDev: true,
     // Enable filesystem caching for `next build`
     turbopackFileSystemCacheForBuild: true,
+    // Enable HMR (Hot Module Replacement): default is false
+    serverComponentsHmrCache: true,
   },
   // Transpile shared workspace or ESM packages that ship untranspiled code.
   // Add any other local workspace packages here (e.g. shared UI packages).
@@ -95,6 +97,27 @@ const nextConfig = {
   // route segment exports to comments and added migration TODOs; enable the
   // feature now and run a build to capture remaining issues.
   cacheComponents: true,
+  // Define cache profiles for `revalidateTag(tag, profile)` usage.
+  // Profiles control background revalidation and stale behavior.
+  cacheLife: {
+    max: {
+      // aggressive: immediate background revalidation behavior
+      maxAge: 0,
+      staleWhileRevalidate: 60,
+    },
+    short: {
+      maxAge: 30,
+      staleWhileRevalidate: 60,
+    },
+    medium: {
+      maxAge: 300,
+      staleWhileRevalidate: 600,
+    },
+    long: {
+      maxAge: 60 * 60 * 24 * 7,
+      staleWhileRevalidate: 60 * 60,
+    },
+  },
 
   turbopack: {
     // Point Turbopack at the monorepo root so it can resolve symlinked

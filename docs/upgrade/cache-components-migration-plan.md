@@ -154,8 +154,7 @@ This migration converts the Home page to use Next.js Cache Components for better
    ```ts
    const isBuildTime = () =>
      process.env.NEXT_BUILD_MODE === 'true' ||
-     process.env.DISABLE_UPSTASH_DURING_BUILD === '1' ||
-     process.env.DISABLE_UPSTASH_DURING_BUILD === 'true';
+     process.env.DISABLE_UPSTASH_DURING_BUILD === '1';
    
    // Early return in cachedQuery() to skip Redis during build
    if (isBuildTime()) {
@@ -176,8 +175,22 @@ This migration converts the Home page to use Next.js Cache Components for better
 1. **Add revalidation endpoint** - Create `app/api/revalidate/route.ts`:
    ```ts
    import { revalidateTag } from 'next/cache';
+   const REVALIDATE_SECRET = process.env.REVALIDATE_SECRET;
+
    export async function POST(request: Request) {
+   // Verify secret
+   const authHeader = request.headers.get('authorization');
+   if (!authHeader || !REVALIDATE_SECRET || authHeader !== `Bearer ${REVALIDATE_SECRET}`) {
+     return Response.json({ error: 'Unauthorized' }, { status: 401 });
+   }
+    
      const { tag } = await request.json();
+   // Validate tag
+   const validTags = ['featured-listings', 'cities', 'eco-tags'];
+   if (!tag || !validTags.includes(tag)) {
+     return Response.json({ error: 'Invalid tag' }, { status: 400 });
+   }
+
      revalidateTag(tag); // 'featured-listings', 'cities', 'eco-tags'
      return Response.json({ revalidated: true });
    }
@@ -204,6 +217,35 @@ pnpm dev:next
 
 ### Environment Variables for Build
 
-- `NEXT_BUILD_MODE=true` - Signals build-time context
-- `DISABLE_UPSTASH_DURING_BUILD=1` - Skips Redis connections
-- `DISABLE_SANITY_DURING_BUILD=1` - Returns stub data from Sanity client
+The following environment variables are used to optimize build performance and prevent timeouts during static generation. They should be set during CI/CD builds but not in local development or production deployments.
+
+#### `NEXT_BUILD_MODE=true`
+- **When to set**: CI/CD builds only (not local dev or production)
+- **Modules/files that read it**:
+  - `src/lib/cache-strategy.ts` (lines 16-18): Used in `isBuildTime()` function to detect build context
+- **Rationale**: Signals build-time context to prevent Redis connections during prerendering, avoiding connection timeouts and build failures
+- **Example usage**:
+  - Local dev: Not set (Redis connections allowed)
+  - CI/CD: `NEXT_BUILD_MODE=true pnpm build`
+
+#### `DISABLE_UPSTASH_DURING_BUILD=1`
+- **When to set**: CI/CD builds only (not local dev or production)
+- **Modules/files that read it**:
+  - `src/lib/cache-strategy.ts` (lines 17-18): Part of `isBuildTime()` check
+  - `src/lib/redis.ts` (line 47): Skips Redis client creation
+  - `src/utils/rate-limit.ts` (line 46): Bypasses rate limiting logic
+- **Rationale**: Prevents Redis connection attempts during build/prerender to avoid network timeouts and connection pool issues
+- **Example usage**:
+  - Local dev: Not set (Redis connections allowed)
+  - CI/CD: `DISABLE_UPSTASH_DURING_BUILD=1 pnpm build`
+
+#### `DISABLE_SANITY_DURING_BUILD=1`
+- **When to set**: CI/CD builds only (not local dev or production)
+- **Modules/files that read it**:
+  - `src/lib/sanity/client.ts` (lines 80-81): Skips Sanity client initialization
+  - `src/lib/sanity-http-client.ts` (lines 73-74, 631-632): Returns fixture data instead of making API calls
+  - `src/lib/auth/userService.ts` (lines 9-10): Bypasses Sanity queries for user data
+- **Rationale**: Prevents network calls to Sanity CMS during build/prerender, avoiding API timeouts and ensuring build succeeds without external dependencies
+- **Example usage**:
+  - Local dev: Not set (real Sanity data used)
+  - CI/CD: `DISABLE_SANITY_DURING_BUILD=1 pnpm build`
