@@ -1,0 +1,7 @@
+# Ignore generated outputs inside app workspace
+.next/**
+dist/**
+coverage/**
+playwright-report/**
+tests/storageStates/**
+tmp/**

@@ -262,8 +262,7 @@ describe('HeroSection', () => {
     render(
       <HeroSection
         listing={listingWithoutPriceRange}
-        isFavorited={false}
-        onToggleFavorite={mockOnToggleFavorite}
+        favoriteButton={<button data-testid="favorite-button-placeholder" />}
       />
     );
 
@@ -272,7 +271,16 @@ describe('HeroSection', () => {
 
   describe('Favorite functionality', () => {
     it('renders FavoriteButton with correct props', () => {
-      render(<HeroSection listing={mockListing} />);
+      render(
+        <HeroSection
+          listing={mockListing}
+          favoriteButton={
+            <button data-testid="neo-button" className="bg-white/90 hover:bg-white" data-size="sm">
+              <span data-testid="heart-icon">♥</span>
+            </button>
+          }
+        />
+      );
 
       const favoriteButton = screen.getByTestId('neo-button');
       expect(favoriteButton).toHaveAttribute('data-size', 'sm');
@@ -280,18 +288,16 @@ describe('HeroSection', () => {
     });
 
     it('positions favorite button correctly in hero image overlay', () => {
-      render(<HeroSection listing={mockListing} />);
+      render(
+        <HeroSection
+          listing={mockListing}
+          favoriteButton={<button data-testid="neo-button">Favorite</button>}
+        />
+      );
 
       const favoriteButton = screen.getByTestId('neo-button');
       const buttonContainer = favoriteButton.parentElement;
       expect(buttonContainer).toHaveClass('absolute', 'top-4', 'right-4');
-    });
-
-    it('renders heart icon', () => {
-      render(<HeroSection listing={mockListing} />);
-
-      const heartIcon = screen.getByTestId('heart-icon');
-      expect(heartIcon).toBeInTheDocument();
     });
   });
 
@@ -362,12 +368,11 @@ describe('HeroSection', () => {
       render(
         <HeroSection
           listing={mockListing}
-          isFavorited={false}
-          onToggleFavorite={mockOnToggleFavorite}
+          favoriteButton={<button data-testid="favorite-button" aria-label="Add to favorites" />}
         />
       );
 
-      const favoriteButton = screen.getByTestId('neo-button');
+      const favoriteButton = screen.getByTestId('favorite-button');
       expect(favoriteButton).toHaveAttribute('aria-label', 'Add to favorites');
     });
 
@@ -375,12 +380,13 @@ describe('HeroSection', () => {
       render(
         <HeroSection
           listing={mockListing}
-          isFavorited={true}
-          onToggleFavorite={mockOnToggleFavorite}
+          favoriteButton={
+            <button data-testid="favorite-button" aria-label="Remove from favorites" />
+          }
         />
       );
 
-      const favoriteButton = screen.getByTestId('neo-button');
+      const favoriteButton = screen.getByTestId('favorite-button');
       expect(favoriteButton).toHaveAttribute('aria-label', 'Remove from favorites');
     });
   });

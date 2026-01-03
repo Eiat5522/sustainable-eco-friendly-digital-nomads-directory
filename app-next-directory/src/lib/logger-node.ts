@@ -35,21 +35,6 @@ export function installExitFlushHandlers() {
         // ignore
       }
     };
-    const handleFatalError = (eventName: string, error: unknown, exitCode: number) => {
-      try {
-        // biome-ignore lint/suspicious/noConsole: intentional fallback for logging during shutdown
-        console.error(eventName, error);
-      } catch (_) {
-        // ignore
-      }
-      flushNow();
-      try {
-        proc.exit(exitCode);
-      } catch (_) {
-        // ignore
-      }
-    };
-
     try {
       proc.on('beforeExit', flushNow);
       proc.on('exit', flushNow);

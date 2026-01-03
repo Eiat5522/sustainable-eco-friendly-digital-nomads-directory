@@ -1,14 +1,11 @@
-'use client';
-
-import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { jsonPostOptions } from '@/lib/http/request';
-import { structuredLogger } from '@/lib/logger';
+import type React from 'react';
+import { Suspense } from 'react';
 import type { CityDTO, ListingDetailDTO } from '@/types/dto';
-import { getCurrentHref, redirectTo } from '@/utils/navigation';
 import GalleryGrid from './GalleryGrid';
+import { FavoriteButtonOverlay } from './FavoriteButtonOverlay';
 import { HeroSection } from './HeroSection';
 import { ListingDetailsCard } from './ListingDetailsCard';
+import { ListingViewTracker } from './ListingViewTracker';
 import { RelatedListings } from './RelatedListings';
 import { ReviewsSection } from './ReviewsSection';
 
@@ -51,111 +48,42 @@ export function ListingDetailView({
   isFavorited = false,
   userId,
 }: ListingDetailViewProps): React.JSX.Element {
-  const [favorited, setFavorited] = useState<boolean>(Boolean(isFavorited));
-  const pathname = usePathname();
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    const recordView = async () => {
-      // Use slug for routing/identification in URLs (dynamic route uses [slug])
-      if (!listing?.slug) return;
-
-      // CRITICAL: Only record views on listing detail pages (/listings/[slug])
-      // This prevents the view recording from being triggered on other pages like the home page
-      if (!pathname || !pathname.startsWith('/listings/')) {
-        return;
-      }
-
-      // Skip recording views during unit tests to avoid leaking fetch
-      // calls into test assertions (Jest sets NODE_ENV to 'test').
-      if (process.env.NODE_ENV === 'test' || typeof process.env.JEST_WORKER_ID !== 'undefined') {
-        return;
-      }
-
-      try {
-        await fetch(`/api/listings/${listing.slug}/views`, {
-          method: 'POST',
-          signal: controller.signal,
-        });
-      } catch (_error) {
-        if (process.env.NODE_ENV !== 'production') {
-        }
-      }
-    };
-
-    recordView();
-
-    return () => {
-      controller.abort();
-    };
-  }, [listing?.slug, pathname]);
-
-  const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
-
-  const onToggleFavorite = async () => {
-    // If the user isn't signed in, redirect to login with callback
-    if (!isSignedIn) {
-      const href = getCurrentHref();
-      redirectTo(`/auth/login?callbackUrl=${encodeURIComponent(href)}`);
-      return;
-    }
-
-    if (isTogglingFavorite) return;
-    const previousFavorited = favorited;
-    setIsTogglingFavorite(true);
-    // Optimistically flip the UI so the button feels responsive.
-    setFavorited(!previousFavorited);
-
-    try {
-      // Use slug for favorite toggles to keep the dynamic path consistent
-      const res = await fetch(`/api/user/favorites/${listing.slug}`, jsonPostOptions({}));
-
-      if (!res.ok) {
-        structuredLogger.error('Failed to toggle favorite', undefined, {
-          component: 'listings',
-          status: res.status,
-          statusText: res.statusText,
-        });
-        if (res.status === 401) {
-          // Unauthorized - redirect to login
-          const href = getCurrentHref();
-          redirectTo(`/auth/login?callbackUrl=${encodeURIComponent(href)}`);
-        }
-        setFavorited(previousFavorited);
-        return;
-      }
-
-      const data = await res.json();
-      if (typeof data?.favorited === 'boolean') {
-        setFavorited(data.favorited);
-      }
-    } catch (err) {
-      setFavorited(previousFavorited);
-      structuredLogger.error('Failed to toggle favorite', err, { component: 'listings' });
-    } finally {
-      setIsTogglingFavorite(false);
-    }
-  };
-
   const filteredRelatedListings = relatedListings.filter(related => related.id !== listing.id);
 
   return (
     <div className="min-h-screen bg-background">
+      <ListingViewTracker slug={listing.slug} />
       <div className="container mx-auto px-4 pt-6 pb-8">
         <div className="max-w-6xl mx-auto">
           {/* Hero Section */}
           <HeroSection
             listing={listing}
-            isFavorited={favorited}
-            onToggleFavorite={onToggleFavorite}
+            favoriteButton={
+              <Suspense
+                fallback={
+                  <div className="bg-white/90 hover:bg-white rounded-md px-3 py-2 shadow animate-pulse" />
+                }
+              >
+                <FavoriteButtonOverlay
+                  listingSlug={listing.slug}
+                  listingTitle={listing.name}
+                  initialIsFavorited={isFavorited}
+                />
+              </Suspense>
+            }
           />
 
           {/* Gallery Carousel */}
           {/* Render modern gallery grid only when there are meaningful gallery images */}
           {listing.galleryImages && listing.galleryImages.length > 0 && (
             <div className="mt-8">
-              <GalleryGrid images={listing.galleryImages} fallback="/placeholder_image.png" />
+              <Suspense
+                fallback={
+                  <div className="h-64 w-full rounded-lg bg-muted animate-pulse" aria-hidden="true" />
+                }
+              >
+                <GalleryGrid images={listing.galleryImages} fallback="/placeholder_image.png" />
+              </Suspense>
             </div>
           )}
 
@@ -168,19 +96,27 @@ export function ListingDetailView({
             {/* Sidebar */}
             <div className="lg:col-span-1">
               {/* Reviews Section */}
-              <ReviewsSection
-                reviews={reviews}
-                listingId={listing.id}
-                isSignedIn={isSignedIn}
-                userId={userId}
-              />
+              <Suspense
+                fallback={
+                  <div className="h-64 w-full rounded-lg bg-muted animate-pulse" aria-hidden="true" />
+                }
+              >
+                <ReviewsSection
+                  reviews={reviews}
+                  listingId={listing.id}
+                  isSignedIn={isSignedIn}
+                  userId={userId}
+                />
+              </Suspense>
             </div>
           </div>
 
           {/* Related Listings */}
           {filteredRelatedListings.length > 0 && (
             <div className="mt-12">
-              <RelatedListings listings={filteredRelatedListings} />
+              <Suspense fallback={<div className="h-40 w-full rounded-lg bg-muted animate-pulse" />}>
+                <RelatedListings listings={filteredRelatedListings} />
+              </Suspense>
             </div>
           )}
         </div>

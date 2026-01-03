@@ -212,7 +212,8 @@ export async function POST(request: NextRequest) {
       ?.current;
     if (listingSlug) {
       try {
-        revalidateTag(`listing:${listingSlug}`, 'max');
+        revalidateTag(`listing-${listingSlug}`, 'max');
+        revalidateTag(`listing-${listingSlug}-reviews`, 'max');
       } catch {
         // Ignore revalidation errors in non-ISR contexts
       }

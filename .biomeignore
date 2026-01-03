@@ -1,0 +1,7 @@
+# Ignore generated and build artifacts
+**/.next/**
+**/dist/**
+**/coverage/**
+**/playwright-report/**
+**/tests/storageStates/**
+**/tmp/**

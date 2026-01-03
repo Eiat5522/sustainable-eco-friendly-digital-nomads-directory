@@ -1,41 +1,14 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen } from '@testing-library/react';
 import { usePathname } from 'next/navigation';
+import type { React } from 'react';
 import type { CityDTO, ListingDetailDTO } from '@/types/dto';
-import { getCurrentHref, redirectTo } from '@/utils/navigation';
 import { ListingDetailView } from '../ListingDetailView';
-
-const originalFetch = global.fetch;
-const mockFetch = jest.fn<ReturnType<typeof fetch>, Parameters<typeof fetch>>();
-const originalHref = window.location.href;
-const defaultListingHref = 'http://localhost/listings/test-listing';
-
-jest.mock('@/utils/navigation', () => ({
-  getCurrentHref: jest.fn(),
-  redirectTo: jest.fn(),
-}));
 
 jest.mock('next/navigation', () => ({
   usePathname: jest.fn(),
 }));
 
-const mockGetCurrentHref = getCurrentHref as jest.MockedFunction<typeof getCurrentHref>;
-const mockRedirectTo = redirectTo as jest.MockedFunction<typeof redirectTo>;
 const mockUsePathname = usePathname as jest.MockedFunction<typeof usePathname>;
-
-const mockResponse = (
-  body: unknown,
-  init: { status?: number; statusText?: string; ok?: boolean } = {}
-) => {
-  const status = init.status ?? 200;
-  const ok = init.ok ?? (status >= 200 && status < 300);
-  return {
-    ok,
-    status,
-    statusText: init.statusText ?? 'OK',
-    json: jest.fn().mockResolvedValue(body),
-  };
-};
 
 jest.mock('../GalleryGrid', () => {
   return function MockGalleryGrid({ images }: { images: string[] }) {
@@ -51,19 +24,15 @@ jest.mock('../HeroSection', () => {
   return {
     HeroSection: function MockHeroSection({
       listing,
-      isFavorited,
-      onToggleFavorite,
+      favoriteButton,
     }: {
       listing: ListingDetailDTO;
-      isFavorited: boolean;
-      onToggleFavorite?: () => void;
+      favoriteButton?: React.ReactNode;
     }) {
       return (
         <div data-testid="hero-section">
           <h1 data-testid="hero-title">{listing.name}</h1>
-          <button data-testid="favorite-button" onClick={onToggleFavorite}>
-            {isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-          </button>
+          {favoriteButton}
         </div>
       );
     },
@@ -115,18 +84,19 @@ jest.mock('../RelatedListings', () => {
   };
 });
 
+jest.mock('../ListingViewTracker', () => ({
+  ListingViewTracker: () => null,
+}));
+
+jest.mock('../FavoriteButtonOverlay', () => ({
+  FavoriteButtonOverlay: ({ listingSlug }: { listingSlug: string }) => (
+    <button data-testid="favorite-button" data-listing-slug={listingSlug} aria-label="Add" />
+  ),
+}));
+
 beforeEach(() => {
   jest.clearAllMocks();
-  mockFetch.mockReset();
-  global.fetch = mockFetch as unknown as typeof fetch;
-  window.history.replaceState({}, '', defaultListingHref);
-  mockGetCurrentHref.mockReturnValue(defaultListingHref);
   mockUsePathname.mockReturnValue('/listings/test-listing');
-});
-
-afterAll(() => {
-  global.fetch = originalFetch;
-  window.history.replaceState({}, '', originalHref);
 });
 
 const mockCity: CityDTO = {
@@ -270,31 +240,7 @@ describe('ListingDetailView', () => {
     expect(screen.getByTestId('signin-status')).toHaveTextContent('not-signed-in');
   });
 
-  it('redirects unauthenticated users to login when toggling favorites', async () => {
-    render(
-      <ListingDetailView
-        listing={baseListing}
-        reviews={baseReviews}
-        isSignedIn={false}
-        isFavorited={false}
-      />
-    );
-
-    const button = screen.getByTestId('favorite-button');
-    await userEvent.click(button);
-
-    expect(mockGetCurrentHref).toHaveBeenCalled();
-    expect(mockRedirectTo).toHaveBeenCalledWith(
-      '/auth/login?callbackUrl=http%3A%2F%2Flocalhost%2Flistings%2Ftest-listing'
-    );
-    expect(mockFetch).not.toHaveBeenCalled();
-  });
-
-  it('calls the favorites API and updates the button label on success', async () => {
-    mockFetch.mockResolvedValue(
-      mockResponse({ favorited: true }) as unknown as Awaited<ReturnType<typeof fetch>>
-    );
-
+  it('renders the favorite button when provided as a client island', () => {
     render(
       <ListingDetailView
         listing={baseListing}
@@ -304,188 +250,7 @@ describe('ListingDetailView', () => {
       />
     );
 
-    const button = screen.getByTestId('favorite-button');
-    await userEvent.click(button);
-
-    await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledWith(
-        `/api/user/favorites/${baseListing.slug}`,
-        expect.objectContaining({
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-        })
-      );
-    });
-
-    await waitFor(() => {
-      expect(button).toHaveTextContent('Remove from favorites');
-    });
-  });
-
-  it('updates local state when the API returns an unfavorited state', async () => {
-    mockFetch.mockResolvedValue(
-      mockResponse({ favorited: false }) as unknown as Awaited<ReturnType<typeof fetch>>
-    );
-
-    render(
-      <ListingDetailView listing={baseListing} reviews={baseReviews} isSignedIn isFavorited />
-    );
-
-    const button = screen.getByTestId('favorite-button');
-    expect(button).toHaveTextContent('Remove from favorites');
-
-    await userEvent.click(button);
-
-    await waitFor(() => {
-      expect(button).toHaveTextContent('Add to favorites');
-    });
-  });
-
-  it('redirects to login when the API returns 401', async () => {
-    mockFetch.mockResolvedValue(
-      mockResponse(
-        { error: 'Unauthorized' },
-        { status: 401, statusText: 'Unauthorized', ok: false }
-      ) as unknown as Awaited<ReturnType<typeof fetch>>
-    );
-
-    render(
-      <ListingDetailView
-        listing={baseListing}
-        reviews={baseReviews}
-        isSignedIn
-        isFavorited={false}
-      />
-    );
-
-    const button = screen.getByTestId('favorite-button');
-    await userEvent.click(button);
-
-    await waitFor(() => {
-      expect(mockGetCurrentHref).toHaveBeenCalled();
-      expect(mockRedirectTo).toHaveBeenCalledWith(
-        '/auth/login?callbackUrl=http%3A%2F%2Flocalhost%2Flistings%2Ftest-listing'
-      );
-    });
-  });
-
-  it('logs an error when the API responds with a non-success status', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    mockFetch.mockResolvedValue(
-      mockResponse(
-        { error: 'Server error' },
-        { status: 500, statusText: 'Internal Server Error', ok: false }
-      ) as unknown as Awaited<ReturnType<typeof fetch>>
-    );
-
-    render(
-      <ListingDetailView
-        listing={baseListing}
-        reviews={baseReviews}
-        isSignedIn
-        isFavorited={false}
-      />
-    );
-
-    await userEvent.click(screen.getByTestId('favorite-button'));
-
-    await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Failed to toggle favorite:',
-        500,
-        'Internal Server Error'
-      );
-    });
-
-    consoleSpy.mockRestore();
-  });
-
-  it('logs an error when the favorites request rejects', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    mockFetch.mockRejectedValue(new Error('Network down'));
-
-    render(
-      <ListingDetailView
-        listing={baseListing}
-        reviews={baseReviews}
-        isSignedIn
-        isFavorited={false}
-      />
-    );
-
-    await userEvent.click(screen.getByTestId('favorite-button'));
-
-    await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to toggle favorite:', expect.any(Error));
-    });
-
-    consoleSpy.mockRestore();
-  });
-
-  it('does not record views when pathname is not a listing detail page', async () => {
-    // Mock pathname to be home page instead of listing detail
-    mockUsePathname.mockReturnValue('/');
-
-    // Temporarily enable production mode to verify view recording doesn't happen
-    const originalNodeEnv = process.env.NODE_ENV;
-    const originalJestWorkerId = process.env.JEST_WORKER_ID;
-    delete process.env.JEST_WORKER_ID;
-    process.env.NODE_ENV = 'production';
-
-    render(
-      <ListingDetailView
-        listing={baseListing}
-        reviews={baseReviews}
-        isSignedIn
-        isFavorited={false}
-      />
-    );
-
-    // Wait a bit to ensure no fetch is triggered
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    // View recording API should NOT be called since we're not on a listing page
-    expect(mockFetch).not.toHaveBeenCalledWith(
-      expect.stringContaining('/api/listings/'),
-      expect.any(Object)
-    );
-
-    // Restore environment
-    process.env.NODE_ENV = originalNodeEnv;
-    if (originalJestWorkerId) process.env.JEST_WORKER_ID = originalJestWorkerId;
-  });
-
-  it('does not record views when pathname is on other pages like search', async () => {
-    // Mock pathname to be search page
-    mockUsePathname.mockReturnValue('/search');
-
-    // Temporarily enable production mode to verify view recording doesn't happen
-    const originalNodeEnv = process.env.NODE_ENV;
-    const originalJestWorkerId = process.env.JEST_WORKER_ID;
-    delete process.env.JEST_WORKER_ID;
-    process.env.NODE_ENV = 'production';
-
-    render(
-      <ListingDetailView
-        listing={baseListing}
-        reviews={baseReviews}
-        isSignedIn
-        isFavorited={false}
-      />
-    );
-
-    // Wait a bit to ensure no fetch is triggered
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    // View recording API should NOT be called
-    expect(mockFetch).not.toHaveBeenCalledWith(
-      expect.stringContaining('/api/listings/'),
-      expect.any(Object)
-    );
-
-    // Restore environment
-    process.env.NODE_ENV = originalNodeEnv;
-    if (originalJestWorkerId) process.env.JEST_WORKER_ID = originalJestWorkerId;
+    expect(screen.getByTestId('favorite-button')).toBeInTheDocument();
   });
 
   it('renders with a full set of props', () => {
@@ -514,7 +279,10 @@ describe('ListingDetailView', () => {
     expect(screen.getByTestId('reviews-section')).toBeInTheDocument();
     expect(screen.getByTestId('gallery-grid')).toBeInTheDocument();
     expect(screen.getByTestId('related-listings')).toBeInTheDocument();
-    expect(screen.getByTestId('favorite-button')).toHaveTextContent('Remove from favorites');
+    expect(screen.getByTestId('favorite-button')).toHaveAttribute(
+      'data-listing-slug',
+      baseListing.slug
+    );
   });
 
   it('excludes the current listing from the related listings', () => {

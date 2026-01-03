@@ -1,20 +1,18 @@
-'use client';
 import { MapPin } from 'lucide-react';
 import Image from 'next/image';
-import { FavoriteButton } from '@/components/favorites/FavoriteButton';
+import type React from 'react';
+import type { ReactNode } from 'react';
 import { NeoCard, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
 import { FALLBACK_IMAGE } from '@/lib/dto-transformer';
 import type { ListingDetailDTO } from '@/types/dto';
 
 interface HeroSectionProps {
   listing: ListingDetailDTO;
-  // Optional controlled favorite props for integration tests / parent control
-  isFavorited?: boolean;
-  onToggleFavorite?: () => Promise<void> | void;
+  favoriteButton?: ReactNode;
 }
 
 export function HeroSection(props: Readonly<HeroSectionProps>): React.JSX.Element {
-  const { listing } = props;
+  const { listing, favoriteButton } = props;
   const hasRealHeroImage =
     typeof listing.imageUrl === 'string' &&
     listing.imageUrl.length > 0 &&
@@ -34,19 +32,7 @@ export function HeroSection(props: Readonly<HeroSectionProps>): React.JSX.Elemen
         )}
 
         {/* Favorite Button Overlay */}
-        <div className="absolute top-4 right-4">
-          <FavoriteButton
-            data-testid="favorite-button"
-            data-listing-id={listing.slug}
-            data-listing-title={listing.name}
-            listingId={listing.slug}
-            listingTitle={listing.name}
-            size="sm"
-            className="bg-white/90 hover:bg-white"
-            isFavorited={props.isFavorited}
-            onToggle={props.onToggleFavorite}
-          />
-        </div>
+        {favoriteButton && <div className="absolute top-4 right-4">{favoriteButton}</div>}
       </div>
 
       <NeoCardHeader>

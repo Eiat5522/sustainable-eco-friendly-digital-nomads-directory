@@ -11,6 +11,7 @@ coverage/
 out/
 build/
 dist/
+app-next-directory/tests/storageStates/
 !app-next-directory/__mocks__/leaflet/dist/
 !app-next-directory/__mocks__/leaflet/dist/leaflet.css.js
 

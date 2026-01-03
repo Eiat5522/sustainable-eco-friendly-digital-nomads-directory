@@ -6,7 +6,16 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!!**/.github/skills"],
+    "includes": [
+      "**",
+      "!!**/.github/skills",
+      "!!**/.next",
+      "!!**/dist",
+      "!!**/coverage",
+      "!!**/playwright-report",
+      "!!**/tests/storageStates",
+      "!!**/tmp"
+    ],
     "ignoreUnknown": true,
     "maxSize": 5242880
   },
