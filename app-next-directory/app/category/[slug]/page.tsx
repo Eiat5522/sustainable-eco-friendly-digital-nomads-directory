@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
 import { groq } from 'next-sanity';
-import { sanityFetch } from '@/lib/sanity/client';
+import { Suspense } from 'react';
 import { CategoryListings } from '@/components/category/CategoryListings';
+import { sanityFetch } from '@/lib/sanity/client';
 
 function toSlug(value: string) {
   return value
@@ -38,18 +38,18 @@ export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
   }
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const { slug } = params;
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
   return {
     title: `${slug.charAt(0).toUpperCase() + slug.slice(1)} Category`,
   };
 }
 
-export default async function CategoryPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
   return (

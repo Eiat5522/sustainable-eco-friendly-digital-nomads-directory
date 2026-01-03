@@ -39,6 +39,10 @@ export const resolveSanityRevalidationTargets = (payload: SanityWebhookPayload |
     // can invalidate the specific resource without touching unrelated tags.
     const docSlug = payload?.document?.slug?.current;
     if (typeof docSlug === 'string' && docSlug.length > 0) {
+     if (!TAG_PATTERN.test(`${docType}:${docSlug}`)) {
+       // Skip invalid slugs or log a warning
+       return;
+     }
       if (docType === 'city') tags.add(`city:${docSlug}`);
       if (docType === 'category') tags.add(`category:${docSlug}`);
     }

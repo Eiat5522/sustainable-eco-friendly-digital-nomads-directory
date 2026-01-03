@@ -97,29 +97,28 @@ const nextConfig = {
   // route segment exports to comments and added migration TODOs; enable the
   // feature now and run a build to capture remaining issues.
   cacheComponents: true,
-  // Define cache profiles for `revalidateTag(tag, profile)` usage.
-  // Profiles control background revalidation and stale behavior.
+  // Define cache profiles for use with cacheLife() and revalidateTag().
+  // Profiles control client stale time, server revalidation, and expiration.
   cacheLife: {
     instant: {
-      // aggressive: immediate background revalidation behavior
-      stale: 30,
+      // Aggressive: immediate background revalidation
+      stale: 0,
       revalidate: 60,
-      expire: 0,
-    },
+      expire: 60 * 60, // 1 hour
     short: {
       stale: 30,
       revalidate: 60,
-      expire: 30,
+      expire: 60 * 5, // 5 minutes
     },
     medium: {
-      stale: 60,
+      stale: 300,
       revalidate: 600,
-      expire: 300,
+      expire: 60 * 60, // 1 hour
     },
     long: {
-      stale: 300,
-      revalidate: 60 * 60 * 24,
-      expire: 60 * 60 * 24 * 7,
+      stale: 60 * 60 * 24 * 7, // 7 days
+      revalidate: 60 * 60 * 24, // 1 day
+      expire: 60 * 60 * 24 * 7, // 7 days
     },
   },
 

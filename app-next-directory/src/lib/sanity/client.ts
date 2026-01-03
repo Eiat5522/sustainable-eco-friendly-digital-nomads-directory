@@ -61,8 +61,8 @@ const clientConfig: ClientConfig = {
   apiVersion: '2024-01-01',
   useCdn: false, // Ensure fresh data for server-side logic
   // IMPORTANT: Disable retries during build to prevent HangingPromiseRejectionError,
-  // but allow retries in production for better resilience.
-  maxRetries: process.env.NODE_ENV === 'production' ? undefined : 0,
+  // but allow retries at runtime for better resilience.
+  maxRetries: process.env.DISABLE_SANITY_DURING_BUILD ? 0 : undefined,
   ...(token ? { token, ignoreBrowserTokenWarning: true } : {}),
 };
 

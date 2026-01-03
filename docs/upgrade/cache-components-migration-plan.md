@@ -22,18 +22,7 @@ Prioritized Fixes
 
 Example (add to `next.config.ts`):
 
-```ts
-import type { NextConfig } from 'next'
 
-const nextConfig: NextConfig = {
-  cacheComponents: true,
-  cacheLife: {
-    hours: { stale: 60 * 60, revalidate: 60 * 10, expire: 60 * 60 * 24 },
-  },
-}
-
-export default nextConfig
-```
 
 Effort: low. Verify: `pnpm build` and visit Home; no runtime errors.
 
@@ -43,17 +32,16 @@ Effort: low. Verify: `pnpm build` and visit Home; no runtime errors.
 
 Snippet:
 
-```ts
 // src/lib/featuredListings.ts
 'use server'
 use cache
+import { cacheTag } from 'next/cache'
 import { client } from '@/sanity/lib/client'
 
 export async function getFeaturedListings() {
   cacheTag('featured-listings')
   return client.fetch(/* GROQ */ `*[_type == 'listing' && featured] | order(_createdAt desc)[0...10]`)
 }
-```
 
 Effort: medium. Risk: medium (ensure server-only APIs). Verify: server-side render uses helper; LCP improve.
 

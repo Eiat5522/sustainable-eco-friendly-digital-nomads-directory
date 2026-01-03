@@ -5,6 +5,7 @@ type CategoryListing = {
   _id: string;
   name: string;
   slug: string;
+  primaryImage?: any; // Update with correct type structure
 };
 
 function toSlug(value: string) {
@@ -21,7 +22,7 @@ export async function CategoryListings({ slug }: { slug: string }) {
   // Resolve the original category value from the slug so our Sanity query
   // matches the stored category values (which are not slugified).
   let categoryForQuery = slug;
-  try {
+    const LISTINGS_BY_CATEGORY = groq`*[_type == "listing" && category == $category && defined(moderation) && moderation.status == "published"]{ _id, name, "slug": slug.current, primaryImage }`;
     const categories = (await sanityFetch({
       query: groq`array::unique(*[_type == "listing" && defined(category)].category)`,
       revalidate: 60 * 60 * 24 * 7,

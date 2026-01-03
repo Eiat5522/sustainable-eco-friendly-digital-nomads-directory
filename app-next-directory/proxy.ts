@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
-import { getUserById } from '@/lib/auth/dal';
+import { getUserById } from '@lib/auth/dal';
 import { structuredLogger } from '@/lib/logger';
 import type { UserRole } from '@/types/auth';
 
@@ -78,11 +78,11 @@ export async function proxy(request: NextRequest) {
       }
     }
 
-    // Auth pages handling - redirect authenticated users to dashboard
+    // Auth pages handling - redirect authenticated users to profile
     const isAuthPage = authPages.some(p => pathname.startsWith(p));
     if (isAuthPage && isAuthenticated) {
       return withSecurityHeaders(
-        NextResponse.redirect(new URL('/dashboard', request.nextUrl.origin || request.url))
+        NextResponse.redirect(new URL('/profile', request.nextUrl.origin || request.url))
       );
     }
 

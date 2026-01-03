@@ -93,16 +93,14 @@ const e2eFixtures: Record<string, ListingFixture> = {
   },
 };
 
-// Retry wrapper for client.fetch to tolerate transient network/auth issues
-// IMPORTANT: Avoid timer-based backoff/timeout wrappers here.
-// During prerender, any timer-based retry in a different task can fire after the
-// prerender lifecycle is complete and trigger HangingPromiseRejectionError.
-// We rely on a small number of immediate retries plus `maxRetries: 0` on the
-// Sanity client (see `src/lib/sanity/client.ts`).
-async function retryFetch<T>(
+// Wrapper for client.fetch that logs errors and propagates them to callers.
+// IMPORTANT: No retry logic or timer-based operations here.
+// During prerender, timer-based retries can fire after the prerender lifecycle
+// completes and trigger HangingPromiseRejectionError. Callers handle failures
+// by returning fallback values (null, [], false).
+async function fetchFromSanity<T>(
   query: string,
-  params?: Record<string, unknown>,
-  _attempts = 1 // Note: retry disabled to avoid HangingPromiseRejectionError
+  params?: Record<string, unknown>
 ): Promise<T | null> {
   try {
     return await client.fetch<T>(query, params);
@@ -217,7 +215,7 @@ const FAVORITE_QUERY = groq`*[_type == "userFavorite" && user._ref == $userId &&
 // Generate static params for popular listings
 export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
   try {
-    const popularSlugs = await retryFetch<Array<{ slug: string }>>(
+    const popularSlugs = await fetchFromSanity<Array<{ slug: string }>>(
       groq`*[_type == "listing" && moderation.status == "published" && defined(popular) && popular == true][0...50]{ "slug": slug.current }`
     );
 
@@ -227,7 +225,7 @@ export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
     }
 
     // Fallback: return the first published listing to satisfy Cache Components requirement
-    const fallbackListings = await retryFetch<Array<{ slug: string }>>(
+    const fallbackListings = await fetchFromSanity<Array<{ slug: string }>>(
       groq`*[_type == "listing" && moderation.status == "published"][0...1]{ "slug": slug.current }`
     );
 
@@ -252,9 +250,9 @@ const fetchListingBySlug = cache(async (slug: string): Promise<ListingDetailDTO 
   cacheLife('max');
   cacheTag(`listing-${slug}`);
   try {
-    // Use retryFetch + timeout to avoid hanging the prerender when Sanity
+    // Use fetchFromSanity + timeout to avoid hanging the prerender when Sanity
     // is temporarily unreachable or slow.
-    const raw = await retryFetch<SanityListing | null>(LISTING_QUERY, { slug });
+    const raw = await fetchFromSanity<SanityListing | null>(LISTING_QUERY, { slug });
     if (!raw) return null;
     try {
       return transformToDetailDTO(raw);
@@ -286,7 +284,7 @@ async function fetchRelatedListings(cityId?: string, excludeId?: string) {
       ecoFocusTags: string[];
     }>;
   try {
-    const records = await retryFetch<RelatedListingRecord[]>(RELATED_QUERY, {
+    const records = await fetchFromSanity<RelatedListingRecord[]>(RELATED_QUERY, {
       cityId,
       excludeId,
     });
@@ -405,7 +403,7 @@ async function fetchReviews(listingSlug: string, userId?: string): Promise<Revie
 async function checkIsFavorited(listingId: string, userId?: string): Promise<boolean> {
   if (!userId) return false;
   try {
-    const favorite = await retryFetch<{ _id?: string | null } | null>(FAVORITE_QUERY, {
+    const favorite = await fetchFromSanity<{ _id?: string | null } | null>(FAVORITE_QUERY, {
       userId,
       listingId,
     });
