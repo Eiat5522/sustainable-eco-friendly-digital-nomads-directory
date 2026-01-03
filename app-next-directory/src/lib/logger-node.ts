@@ -9,7 +9,8 @@ interface LogEntry {
 let handlersInstalled = false;
 
 export function installExitFlushHandlers() {
-  if (typeof process === 'undefined') return;
+  const proc = (globalThis as unknown as { process?: NodeJS.Process }).process;
+  if (typeof proc === 'undefined') return;
   if (handlersInstalled) return;
   try {
     const globalAny = globalThis as unknown as { __logQueue?: Array<LogEntry> };
@@ -34,39 +35,61 @@ export function installExitFlushHandlers() {
         // ignore
       }
     };
+    const handleFatalError = (eventName: string, error: unknown, exitCode: number) => {
+      try {
+        // biome-ignore lint/suspicious/noConsole: intentional fallback for logging during shutdown
+        console.error(eventName, error);
+      } catch (_) {
+        // ignore
+      }
+      flushNow();
+      try {
+        proc.exit(exitCode);
+      } catch (_) {
+        // ignore
+      }
+    };
 
     try {
-      process.on('beforeExit', flushNow);
-      process.on('exit', flushNow);
-      process.on('SIGINT', () => {
+      proc.on('beforeExit', flushNow);
+      proc.on('exit', flushNow);
+      proc.on('SIGINT', () => {
         flushNow();
         try {
-          process.exit(130);
+          proc.exit(130);
         } catch (_) {
           // ignore
         }
       });
-      process.on('SIGTERM', () => {
+      proc.on('SIGTERM', () => {
         flushNow();
         try {
-          process.exit(143);
+          proc.exit(143);
         } catch (_) {
           // ignore
         }
       });
-      process.on('uncaughtException', (err: unknown) => {
+      const handleFatalError = (eventName: string, error: unknown, exitCode: number) => {
         try {
           // biome-ignore lint/suspicious/noConsole: intentional fallback for logging during shutdown
-          console.error('uncaughtException', err);
+          console.error(eventName, error);
         } catch (_) {
           // ignore
         }
         flushNow();
         try {
-          process.exit(1);
+          proc.exit(exitCode);
         } catch (_) {
           // ignore
         }
+      };
+
+      proc.on('uncaughtException', (err: unknown) => {
+        handleFatalError('uncaughtException', err, 1);
+      });
+
+      proc.on('unhandledRejection', (reason: unknown) => {
+        handleFatalError('unhandledRejection', reason, 1);
       });
       handlersInstalled = true;
     } catch (_) {

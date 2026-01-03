@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
-import { getUserById } from '@lib/auth/dal';
+import { getUserById } from '@/lib/auth/dal';
 import { structuredLogger } from '@/lib/logger';
 import type { UserRole } from '@/types/auth';
 

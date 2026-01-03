@@ -631,17 +631,13 @@ export const redirectConsoleToStructuredLogger = () => {
 if (isServer && !isTest) {
   redirectConsoleToStructuredLogger();
 
-  try {
-    import('./logger-node')
-      .then(({ installExitFlushHandlers }) => {
-        if (typeof installExitFlushHandlers === 'function') {
-          installExitFlushHandlers();
-        }
-      })
-      .catch(() => {
-        // ignore: best-effort; in edge/compiled contexts this file may not exist
-      });
-  } catch (_) {
-    // ignore: best-effort; in edge/compiled contexts this file may not exist
-  }
+  import('./logger-node')
+    .then(({ installExitFlushHandlers }) => {
+      if (typeof installExitFlushHandlers === 'function') {
+        installExitFlushHandlers();
+      }
+    })
+    .catch(() => {
+      // ignore: best-effort; in edge/compiled contexts this file may not exist
+    });
 }

@@ -1,11 +1,17 @@
 import { groq } from 'next-sanity';
 import { sanityFetch } from '@/lib/sanity/client';
+import type { SanityImage } from '@/types/sanity.types';
+
+type SanityImageWithHotspot = SanityImage & {
+  crop?: { top?: number; left?: number; right?: number; bottom?: number; width?: number; height?: number };
+  hotspot?: { x?: number; y?: number; height?: number; width?: number };
+};
 
 type CategoryListing = {
   _id: string;
   name: string;
   slug: string;
-  primaryImage?: any; // Update with correct type structure
+  primaryImage?: SanityImageWithHotspot;
 };
 
 function toSlug(value: string) {
@@ -22,13 +28,13 @@ export async function CategoryListings({ slug }: { slug: string }) {
   // Resolve the original category value from the slug so our Sanity query
   // matches the stored category values (which are not slugified).
   let categoryForQuery = slug;
-    const LISTINGS_BY_CATEGORY = groq`*[_type == "listing" && category == $category && defined(moderation) && moderation.status == "published"]{ _id, name, "slug": slug.current, primaryImage }`;
+  try {
     const categories = (await sanityFetch({
       query: groq`array::unique(*[_type == "listing" && defined(category)].category)`,
       revalidate: 60 * 60 * 24 * 7,
       tags: ['categories:list'],
     })) as string[];
-    const matched = (categories ?? []).find(c => toSlug(String(c)) === slug);
+    const matched = categories.find((c: unknown) => toSlug(String(c)) === slug);
     if (matched && typeof matched === 'string') {
       categoryForQuery = matched;
     }

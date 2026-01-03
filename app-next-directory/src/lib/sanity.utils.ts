@@ -21,11 +21,11 @@ export async function fetchBySlug(type: string, slug: string, preview = false) {
 
     const client = await getSanityClient(true);
 
-    return client.fetch(FETCH_BY_SLUG_QUERY, { type, slug });
+    return await client.fetch(FETCH_BY_SLUG_QUERY, { type, slug });
 
   }
 
-  return cachedClient.fetch(FETCH_BY_SLUG_QUERY, { type, slug });
+  return await cachedClient.fetch(FETCH_BY_SLUG_QUERY, { type, slug });
 
 }
 

@@ -250,8 +250,8 @@ const fetchListingBySlug = cache(async (slug: string): Promise<ListingDetailDTO 
   cacheLife('max');
   cacheTag(`listing-${slug}`);
   try {
-    // Use fetchFromSanity + timeout to avoid hanging the prerender when Sanity
-    // is temporarily unreachable or slow.
+    // fetchFromSanity throws on error after logging. The catch block below
+    // returns null on failure to avoid breaking the prerender.
     const raw = await fetchFromSanity<SanityListing | null>(LISTING_QUERY, { slug });
     if (!raw) return null;
     try {

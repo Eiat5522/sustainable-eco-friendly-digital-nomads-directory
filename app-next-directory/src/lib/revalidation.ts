@@ -1,4 +1,5 @@
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { structuredLogger } from '@/lib/logger';
 
 type RevalidateTagFn = typeof revalidateTag;
 
@@ -39,12 +40,12 @@ export const resolveSanityRevalidationTargets = (payload: SanityWebhookPayload |
     // can invalidate the specific resource without touching unrelated tags.
     const docSlug = payload?.document?.slug?.current;
     if (typeof docSlug === 'string' && docSlug.length > 0) {
-     if (!TAG_PATTERN.test(`${docType}:${docSlug}`)) {
-       // Skip invalid slugs or log a warning
-       return;
-     }
-      if (docType === 'city') tags.add(`city:${docSlug}`);
-      if (docType === 'category') tags.add(`category:${docSlug}`);
+      if (TAG_PATTERN.test(`${docType}:${docSlug}`)) {
+        if (docType === 'city') tags.add(`city:${docSlug}`);
+        if (docType === 'category') tags.add(`category:${docSlug}`);
+      } else {
+        structuredLogger.warn('Invalid slug pattern for document', { docType, docSlug });
+      }
     }
   }
 
@@ -76,9 +77,20 @@ export const revalidateTags = (
 ) => {
   tags.forEach(tag => revalidateTagFn(tag, 'max'));
   for (const slug of listingSlugs) {
+    const listingTag = `listing:${slug}`;
+    if (!TAG_PATTERN.test(listingTag)) {
+      structuredLogger.warn('Skipping invalid listing tag during revalidation', {
+        slug,
+        listingTag,
+      });
+      continue;
+    }
+
     try {
-      revalidateTagFn(`listing-${slug}`, 'max');
-    } catch {}
+      revalidateTagFn(listingTag, 'max');
+    } catch (error) {
+      structuredLogger.error('Failed to revalidate listing tag', error, { slug, listingTag });
+    }
   }
 };
 

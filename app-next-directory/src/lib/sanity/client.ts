@@ -62,7 +62,11 @@ const clientConfig: ClientConfig = {
   useCdn: false, // Ensure fresh data for server-side logic
   // IMPORTANT: Disable retries during build to prevent HangingPromiseRejectionError,
   // but allow retries at runtime for better resilience.
-  maxRetries: process.env.DISABLE_SANITY_DURING_BUILD ? 0 : undefined,
+  maxRetries:
+    process.env.DISABLE_SANITY_DURING_BUILD === '1' ||
+    process.env.DISABLE_SANITY_DURING_BUILD === 'true'
+      ? 0
+      : undefined,
   ...(token ? { token, ignoreBrowserTokenWarning: true } : {}),
 };
 

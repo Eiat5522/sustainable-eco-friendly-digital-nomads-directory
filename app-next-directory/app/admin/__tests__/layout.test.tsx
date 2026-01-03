@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 
 jest.mock('@/lib/auth', () => ({
   auth: jest.fn(),
@@ -41,12 +41,8 @@ describe('Admin layout', () => {
     });
 
     const shell = await AdminShell({ children: <div data-testid="layout-child">Child</div> });
-    await act(async () => {
-      render(shell);
-    });
-    expect(
-      await screen.findByText('Admin Panel', undefined, { timeout: 5000 })
-    ).toBeInTheDocument();
+    render(shell);
+    expect(await screen.findByText('Admin Panel', undefined, { timeout: 750 })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /dashboard/i })).toHaveAttribute('href', '/admin');
     expect(screen.getByRole('link', { name: /back to site/i })).toHaveAttribute('href', '/');
     expect(screen.getByTestId('layout-child')).toBeInTheDocument();
@@ -55,7 +51,7 @@ describe('Admin layout', () => {
 
   it('redirects non-admin users to the forbidden page', async () => {
     mockAuth.mockResolvedValue({
-      user: { id: 'user-2', role: 'user' },
+      user: { id: 'user-3', role: 'user' },
     });
     redirectMock.mockImplementation(() => {
       throw new Error('redirect');

@@ -53,6 +53,78 @@ describe('city data helpers', () => {
     expect(cachedClient.fetch).not.toHaveBeenCalled();
   });
 
+  it('calls sanityFetch with cache tags for city summaries', async () => {
+    fixtures.isE2ERun.mockReturnValue(false);
+    sanityFetch.mockImplementationOnce(async () => ({
+      _id: 'city-10',
+      name: 'Seoul',
+      slug: 'seoul',
+      country: 'South Korea',
+      highlights: [],
+    }));
+
+    const result = await getCityBySlug('seoul');
+
+    const args = sanityFetch.mock.calls[0]?.[0] as {
+      params?: Record<string, unknown>;
+      revalidate?: number;
+      tags?: string[];
+      query?: string;
+    };
+    expect(args).toEqual(
+      expect.objectContaining({
+        params: { slug: 'seoul' },
+        revalidate: 60 * 60 * 24 * 7,
+        tags: ['cities:list', 'city:seoul'],
+      })
+    );
+    expect(String(args?.query)).toContain('slug.current == $slug');
+    expect(cachedClient.fetch).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      id: 'city-10',
+      name: 'Seoul',
+      slug: 'seoul',
+      country: 'South Korea',
+      sustainabilityScore: undefined,
+      highlights: [],
+      imageUrl: undefined,
+      imageDimensions: undefined,
+      description: undefined,
+    });
+  });
+
+  it('passes revalidation tags to sanityFetch when loading listings by city', async () => {
+    fixtures.isE2ERun.mockReturnValue(false);
+    sanityFetch.mockImplementationOnce(async () => [
+      {
+        _id: 'listing-100',
+        name: 'Eco Spot',
+        slug: 'eco-spot',
+        type: 'cafe',
+        city: { _id: 'city-xyz', name: 'Test City', slug: 'test-city', country: 'Testland' },
+      },
+    ]);
+
+    const listings = await getListingsByCityId('city-xyz');
+
+    const args = sanityFetch.mock.calls[0]?.[0] as {
+      params?: Record<string, unknown>;
+      revalidate?: number;
+      tags?: string[];
+      query?: string;
+    };
+    expect(args).toEqual(
+      expect.objectContaining({
+        params: { cityId: 'city-xyz' },
+        revalidate: 60 * 60 * 24 * 7,
+        tags: ['city:city-xyz'],
+      })
+    );
+    expect(String(args?.query)).toContain('_type == "listing"');
+    expect(cachedClient.fetch).not.toHaveBeenCalled();
+    expect(listings).toEqual([{ id: 'listing-100', name: 'Eco Spot' }]);
+  });
+
   it('returns null when Sanity has no matching city', async () => {
     fixtures.isE2ERun.mockReturnValue(false);
     cachedClient.fetch.mockResolvedValue(null);

@@ -226,5 +226,12 @@
     "*.{css,scss}": [
       "prettier --write"
     ]
-  }
+  },  
+  "devEngines": {  
+    "runtime": {  
+      "name": "node",  
+      "version": "^22.21.0",
+      "onFail": "download"  
+    }  
+  }  
 }

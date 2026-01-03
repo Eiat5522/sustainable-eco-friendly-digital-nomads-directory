@@ -27,27 +27,17 @@ Authorized administrators faced E2E test timeouts because the test waited for a 
 
 **Actual Application Path:** The admin index page was located at the base path `/admin`.
 
+## 2. Architectural Conflict
+
 ### Architectural Conflict: Dueling Security Layers
 
 The failures are symptoms of a conflict between two primary enforcement layers:
-
-*
-
-**Layer 1: Global Proxy (`src/proxy.ts`)** – A fast, low-context perimeter defense. Its flawed "soft redirect" logic intercepted users before they could reach inner guards.
 
 * **Layer 1: Global Proxy (`src/proxy.ts`)** – A fast, low-context perimeter defense. Its flawed "soft redirect" logic intercepted users before they could reach inner guards.
 
 * **Layer 2: Admin Layout Guard (`app/admin/layout.tsx`)** – A slower, high-context server-side component. It contained the correct logic to issue a hard redirect to **/unauthorized** but was rendered unreachable by Layer 1.
 
 A decisive architectural change is required to address the following systemic issues:
-
-*
-
-**Unreliable Security Verification:** Soft redirects create false negatives in E2E tests.
-
-*
-
-**Inconsistent Failure Signals:** Conflicting responses to the same event increase maintenance liability.
 
 * **Unreliable Security Verification:** Soft redirects create false negatives in E2E tests.
 
@@ -56,8 +46,6 @@ A decisive architectural change is required to address the following systemic is
 * **Poor Debugging Experience:** Routing mismatches and credential inconsistencies (e.g., `admin-pass-123` vs. `admin-123`) create "debugging purgatory".
 
 * **Architectural Ambiguity:** Lack of a single source of truth for authorization failures.
-
-*
 
 * **Pros:** Establishes a consistent, auditable signal; aligns Layer 1 and Layer 2; simplifies the security model.
 
@@ -100,8 +88,6 @@ Remove role-checking from the proxy, leaving it only for authentication.
 4. **Unify Test Credentials:** Standardize admin passwords across test fixtures and helpers.
 
 ### Architectural Refinement (Follow-up)
-
-*
 
 **Centralize Admin Role Logic:** Configure the global proxy to exclude the `/admin` path from role-checking, delegating that specific check entirely to the `AdminLayout` guard to improve maintainability.
 

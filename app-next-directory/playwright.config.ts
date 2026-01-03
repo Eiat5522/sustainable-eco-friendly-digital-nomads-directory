@@ -63,9 +63,9 @@ export default defineConfig({
   },
   projects: [
     
-    { name: 'chromium', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } } },    { name: 'firefox', use: { ...devices['Desktop Firefox'], viewport: { width: 1280, height: 800 } } },
-    { name: 'chromium', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } }},  ],
-  webServer: isLocal
+    { name: 'chromium', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } } },
+    { name: 'firefox', use: { ...devices['Desktop Firefox'], viewport: { width: 1280, height: 800 } } },
+     ],  webServer: isLocal
       ? {
         command: 'E2E=1 pnpm dev',
         url: serverWaitURL.toString(),

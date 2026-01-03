@@ -105,6 +105,7 @@ const nextConfig = {
       stale: 0,
       revalidate: 60,
       expire: 60 * 60, // 1 hour
+    },
     short: {
       stale: 30,
       revalidate: 60,
