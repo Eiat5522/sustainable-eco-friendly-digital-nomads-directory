@@ -1,5 +1,7 @@
+import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
-import type { CityDTO, ListingDetailDTO } from '@/types/dto';
+import userEvent from '@testing-library/user-event';
+import type { CityDTO, ListingDetailDTO } from '../../../types/dto';
 import { HeroSection } from '../HeroSection';
 
 // Mock Next.js Image component
@@ -135,8 +137,6 @@ describe('HeroSection', () => {
     seoDescription: 'Eco-friendly coffee shop SEO description',
   };
 
-  const mockOnToggleFavorite = jest.fn();
-
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -153,13 +153,7 @@ describe('HeroSection', () => {
   });
 
   it('renders hero image when available', () => {
-    render(
-      <HeroSection
-        listing={mockListing}
-        isFavorited={false}
-        onToggleFavorite={mockOnToggleFavorite}
-      />
-    );
+    render(<HeroSection listing={mockListing} />);
 
     const image = screen.getByTestId('next-image');
     expect(image).toHaveAttribute('src', '/coffee-shop.jpg');
@@ -174,13 +168,7 @@ describe('HeroSection', () => {
       imageUrl: '/placeholder_image.png',
     };
 
-    render(
-      <HeroSection
-        listing={listingWithFallback}
-        isFavorited={false}
-        onToggleFavorite={mockOnToggleFavorite}
-      />
-    );
+    render(<HeroSection listing={listingWithFallback} />);
 
     expect(screen.queryByTestId('next-image')).not.toBeInTheDocument();
   });
@@ -191,25 +179,13 @@ describe('HeroSection', () => {
       imageUrl: '',
     };
 
-    render(
-      <HeroSection
-        listing={listingWithEmptyImage}
-        isFavorited={false}
-        onToggleFavorite={mockOnToggleFavorite}
-      />
-    );
+    render(<HeroSection listing={listingWithEmptyImage} />);
 
     expect(screen.queryByTestId('next-image')).not.toBeInTheDocument();
   });
 
   it('renders MapPin icon with city information', () => {
-    render(
-      <HeroSection
-        listing={mockListing}
-        isFavorited={false}
-        onToggleFavorite={mockOnToggleFavorite}
-      />
-    );
+    render(<HeroSection listing={mockListing} />);
 
     const mapIcon = screen.getByTestId('map-pin-icon');
     expect(mapIcon).toBeInTheDocument();
@@ -222,13 +198,7 @@ describe('HeroSection', () => {
       city: null,
     };
 
-    render(
-      <HeroSection
-        listing={listingWithoutCity}
-        isFavorited={false}
-        onToggleFavorite={mockOnToggleFavorite}
-      />
-    );
+    render(<HeroSection listing={listingWithoutCity} />);
 
     expect(screen.queryByTestId('map-pin-icon')).not.toBeInTheDocument();
     expect(screen.queryByText('Test City, Test Country')).not.toBeInTheDocument();
@@ -240,13 +210,7 @@ describe('HeroSection', () => {
       shortDescription: undefined,
     };
 
-    render(
-      <HeroSection
-        listing={listingWithoutDescription}
-        isFavorited={false}
-        onToggleFavorite={mockOnToggleFavorite}
-      />
-    );
+    render(<HeroSection listing={listingWithoutDescription} />);
 
     expect(
       screen.queryByText('Eco-friendly coffee shop with organic beans and solar power')
@@ -270,6 +234,13 @@ describe('HeroSection', () => {
   });
 
   describe('Favorite functionality', () => {
+    it('renders correctly without favoriteButton prop', () => {
+      render(<HeroSection listing={mockListing} />);
+
+      expect(screen.queryByTestId('favorite-button')).not.toBeInTheDocument();
+      expect(screen.getByTestId('neo-card-title')).toHaveTextContent('Sustainable Coffee Shop');
+    });
+
     it('renders FavoriteButton with correct props', () => {
       render(
         <HeroSection
@@ -287,17 +258,36 @@ describe('HeroSection', () => {
       expect(favoriteButton).toHaveClass('bg-white/90', 'hover:bg-white');
     });
 
-    it('positions favorite button correctly in hero image overlay', () => {
-      render(
-        <HeroSection
-          listing={mockListing}
-          favoriteButton={<button data-testid="neo-button">Favorite</button>}
-        />
+    it('renders and handles interaction for realistic favorite button', async () => {
+      const onToggleMock = jest.fn();
+      const MockFavoriteButton = () => (
+        <button
+          onClick={onToggleMock}
+          data-testid="neo-button"
+          data-variant="secondary"
+          data-size="sm"
+          className="transition-all duration-200 hover:scale-105"
+          aria-label="Add to favorites"
+        >
+          <span
+            data-testid="heart-icon"
+            className="h-4 w-4 transition-colors text-gray-400 hover:text-red-500"
+          >
+            ❤️
+          </span>
+        </button>
       );
 
+      render(<HeroSection listing={mockListing} favoriteButton={<MockFavoriteButton />} />);
+
       const favoriteButton = screen.getByTestId('neo-button');
-      const buttonContainer = favoriteButton.parentElement;
-      expect(buttonContainer).toHaveClass('absolute', 'top-4', 'right-4');
+      expect(favoriteButton).toBeInTheDocument();
+      expect(favoriteButton).toHaveAttribute('aria-label', 'Add to favorites');
+      expect(screen.getByTestId('heart-icon')).toBeInTheDocument();
+
+      // Verify interaction
+      await userEvent.click(favoriteButton);
+      expect(onToggleMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -334,13 +324,7 @@ describe('HeroSection', () => {
 
   describe('Accessibility', () => {
     it('provides proper alt text for hero image', () => {
-      render(
-        <HeroSection
-          listing={mockListing}
-          isFavorited={false}
-          onToggleFavorite={mockOnToggleFavorite}
-        />
-      );
+      render(<HeroSection listing={mockListing} />);
 
       const image = screen.getByTestId('next-image');
       expect(image).toHaveAttribute('alt', 'Sustainable Coffee Shop - Test City sustainable venue');
@@ -352,13 +336,7 @@ describe('HeroSection', () => {
         city: null,
       };
 
-      render(
-        <HeroSection
-          listing={listingWithoutCity}
-          isFavorited={false}
-          onToggleFavorite={mockOnToggleFavorite}
-        />
-      );
+      render(<HeroSection listing={listingWithoutCity} />);
 
       const image = screen.getByTestId('next-image');
       expect(image).toHaveAttribute('alt', 'Sustainable Coffee Shop sustainable venue');
@@ -421,6 +399,19 @@ describe('HeroSection', () => {
         'overflow-hidden',
         'rounded-lg'
       );
+    });
+
+    it('positions favorite button container correctly', () => {
+      render(
+        <HeroSection
+          listing={mockListing}
+          favoriteButton={<button data-testid="favorite-button">Favorite</button>}
+        />
+      );
+
+      const favoriteButton = screen.getByTestId('favorite-button');
+      const buttonContainer = favoriteButton.parentElement;
+      expect(buttonContainer).toHaveClass('absolute', 'top-4', 'right-4');
     });
   });
 });

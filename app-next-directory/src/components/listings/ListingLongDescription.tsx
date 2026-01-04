@@ -1,7 +1,7 @@
 'use client';
 
 import type React from 'react';
-import { useId, useMemo, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 
 interface ListingLongDescriptionProps {
   description: string;
@@ -12,13 +12,21 @@ export function ListingLongDescription({
 }: ListingLongDescriptionProps): React.JSX.Element {
   const [isExpanded, setIsExpanded] = useState(false);
   const descriptionId = useId();
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
-  const shouldTruncate = useMemo(() => {
-    return description.trim().length > 260;
-  }, [description]);
+  const shouldTruncate = description.trim().length > 260;
+
+  useEffect(() => {
+    setStatusMessage('Description loaded. Use Read more to expand.');
+  }, []);
 
   return (
     <div>
+      {statusMessage ? (
+        <span className="sr-only" role="status" aria-live="polite">
+          {statusMessage}
+        </span>
+      ) : null}
       <div
         id={descriptionId}
         data-testid="long-description"

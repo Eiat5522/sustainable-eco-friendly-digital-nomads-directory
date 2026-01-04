@@ -65,11 +65,11 @@ export function ListingDetailsCard({ listing }: Readonly<ListingDetailsCardProps
         </NeoCardHeader>
 
         <NeoCardContent>
-          <Suspense
-            fallback={<div className="h-64 w-full rounded-lg bg-muted animate-pulse" aria-hidden="true" />}
-          >
-            <ListingMapClient location={listing.location} address={listing.address} name={listing.name} />
-          </Suspense>
+          <ListingMapClient
+            location={listing.location}
+            address={listing.address}
+            name={listing.name}
+          />
         </NeoCardContent>
       </NeoCard>
     </div>
@@ -91,7 +91,12 @@ function renderSections({
       content: (
         <Suspense
           fallback={
-            <div className="h-24 w-full rounded-lg bg-muted animate-pulse" aria-hidden="true" />
+            <>
+              <div className="min-h-24 w-full rounded-lg bg-muted animate-pulse" aria-hidden="true" />
+              <span className="sr-only" role="status" aria-live="polite">
+                Loading description…
+              </span>
+            </>
           }
         >
           <ListingLongDescription description={listing.longDescription} />

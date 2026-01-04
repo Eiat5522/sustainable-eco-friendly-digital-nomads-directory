@@ -35,8 +35,9 @@ try {
 // Read tsconfig.json synchronously using __dirname so this file remains CJS.
 let compilerOptions = {};
 try {
+  const { parse } = require('comment-json');
   const tsconfigRaw = fs.readFileSync(path.resolve(__dirname, './tsconfig.json'), 'utf8');
-  compilerOptions = JSON.parse(tsconfigRaw || '{}').compilerOptions || {};
+  compilerOptions = parse(tsconfigRaw || '{}').compilerOptions || {};
 } catch (_e) {
   // ignore - leave compilerOptions empty
 }

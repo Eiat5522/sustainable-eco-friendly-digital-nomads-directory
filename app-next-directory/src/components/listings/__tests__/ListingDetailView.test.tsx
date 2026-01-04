@@ -1,7 +1,8 @@
+import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import { usePathname } from 'next/navigation';
-import type { React } from 'react';
-import type { CityDTO, ListingDetailDTO } from '@/types/dto';
+import type React from 'react';
+import type { CityDTO, ListingDetailDTO } from '../../../types/dto';
 import { ListingDetailView } from '../ListingDetailView';
 
 jest.mock('next/navigation', () => ({
@@ -89,8 +90,12 @@ jest.mock('../ListingViewTracker', () => ({
 }));
 
 jest.mock('../FavoriteButtonOverlay', () => ({
-  FavoriteButtonOverlay: ({ listingSlug }: { listingSlug: string }) => (
-    <button data-testid="favorite-button" data-listing-slug={listingSlug} aria-label="Add" />
+  FavoriteButtonOverlay: ({ listingSlug, isFavorited }: { listingSlug: string; isFavorited?: boolean }) => (
+    <button 
+      data-testid="favorite-button" 
+      data-listing-slug={listingSlug} 
+      aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"} 
+    />
   ),
 }));
 
@@ -152,6 +157,7 @@ const baseReviews = [
     comment: 'Great place!',
     user: { name: 'John Doe', image: '/john.jpg' },
     createdAt: '2023-01-01',
+    status: 'approved' as const,
   },
 ];
 
@@ -251,6 +257,10 @@ describe('ListingDetailView', () => {
     );
 
     expect(screen.getByTestId('favorite-button')).toBeInTheDocument();
+    expect(screen.getByTestId('favorite-button')).toHaveAttribute(
+      'data-listing-slug',
+      baseListing.slug
+    );
   });
 
   it('renders with a full set of props', () => {
@@ -293,7 +303,7 @@ describe('ListingDetailView', () => {
         slug: 'related',
         imageUrl: '/related.jpg',
         city: mockCity,
-        priceRange: 'budget',
+        priceRange: 'budget' as const,
         ecoFocusTags: [],
       },
       {
@@ -302,7 +312,7 @@ describe('ListingDetailView', () => {
         slug: baseListing.slug,
         imageUrl: baseListing.imageUrl,
         city: mockCity,
-        priceRange: 'moderate',
+        priceRange: 'moderate' as const,
         ecoFocusTags: [],
       },
     ];
