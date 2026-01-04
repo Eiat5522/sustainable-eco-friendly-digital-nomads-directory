@@ -5,6 +5,25 @@ import type { Role } from '@/models/User';
 const normalizeEmail = (value: string) => value.trim().toLowerCase();
 const roleByEmail = new Map<string, Role>();
 
+const maskEmail = (email: string): string => {
+  // Only mask emails when explicitly enabled for tests/CI. Local dev keeps full emails
+  // so interactive debugging is easier. The flags accepted are:
+  // - MASK_EMAIL_IN_TESTS=1 or =true
+  // - CI=1 or =true
+  const shouldMask =
+    process.env.MASK_EMAIL_IN_TESTS === '1' ||
+    process.env.MASK_EMAIL_IN_TESTS === 'true' ||
+    process.env.CI === '1' ||
+    process.env.CI === 'true';
+
+  if (!shouldMask) return email;
+
+  const [local, domain] = email.split('@');
+  if (!domain) return '[redacted-email]';
+  const visible = local.slice(0, 2) || '*';
+  return `${visible}***@${domain}`;
+};
+
 const registerRoleEmail = (email: string | undefined, role: Role) => {
   if (!email) return;
   roleByEmail.set(normalizeEmail(email), role);
@@ -141,7 +160,7 @@ export async function loginAs(page: Page, email: string, password: string) {
     const isStillOnLogin = /\/(login|signin|auth)/.test(currentUrl);
 
     // Build detailed error message
-    let errorDetails = `Login failed for ${email}`;
+    let errorDetails = `Login failed for ${maskEmail(email)}`;
     if (errorMessage) {
       errorDetails += `: ${errorMessage}`;
     } else if (isStillOnLogin) {

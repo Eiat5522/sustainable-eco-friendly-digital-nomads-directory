@@ -21,6 +21,13 @@ import { MongoClient } from 'mongodb';
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/e2e_test';
 const DB_NAME = 'e2e_test';
 
+const maskEmail = email => {
+  const [local, domain] = String(email).split('@');
+  if (!domain) return '[redacted-email]';
+  const visible = local.slice(0, 2) || '*';
+  return `${visible}***@${domain}`;
+};
+
 async function setupE2EDatabase() {
   console.log('🚀 Setting up E2E test database...');
 
@@ -115,14 +122,14 @@ async function setupE2EDatabase() {
 
     for (const user of testUsers) {
       await db.collection('users').insertOne(user);
-      console.log(`  - Created ${user.role} user: ${user.email}`);
+      console.log(`  - Created ${user.role} user: ${maskEmail(user.email)}`);
     }
 
     console.log('\n✨ E2E database setup complete!\n');
     console.log('Database:', DB_NAME);
     console.log('Test users created:');
     testUsers.forEach(u => {
-      console.log(`  - ${u.email} (role: ${u.role})`);
+      console.log(`  - ${maskEmail(u.email)} (role: ${u.role})`);
     });
     console.log('');
   } catch (error) {

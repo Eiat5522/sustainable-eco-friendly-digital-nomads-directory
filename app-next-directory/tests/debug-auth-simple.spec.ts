@@ -1,6 +1,44 @@
 import { expect, test } from '@playwright/test';
 import { structuredLogger } from '@/lib/logger';
 
+const maskEmail = (email: string): string => {
+  const [local, domain] = email.split('@');
+  if (!domain) return '[redacted-email]';
+  const visible = local.slice(0, 2) || '*';
+  return `${visible}***@${domain}`;
+};
+
+const sanitizeAuthResponse = (body: unknown): unknown => {
+  if (!body || typeof body !== 'object') return '[redacted]';
+  
+  // Deep copy to avoid mutating original and handle nested structures
+  let copy;
+  try {
+    copy = JSON.parse(JSON.stringify(body));
+  } catch (error) {
+    return '[redacted-circular-ref]';
+  }
+  
+  const sensitiveFields = ['password', 'passwordHash', 'token', 'refreshToken', 'sessionToken', 'accessToken'];
+  
+  const redact = (obj: any): void => {
+    if (!obj || typeof obj !== 'object') return;
+    
+    for (const key of Object.keys(obj)) {
+      if (key === 'email' && typeof obj[key] === 'string') {
+        obj[key] = maskEmail(obj[key]);
+      } else if (sensitiveFields.includes(key)) {
+        obj[key] = '[redacted]';
+      } else if (typeof obj[key] === 'object') {
+        redact(obj[key]);
+      }
+    }
+  };
+  
+  redact(copy);
+  return copy;
+};
+
 test.describe('Authentication Debug', () => {
   test('should load login page and have form elements', async ({ page }) => {
     // Go to login page
@@ -41,7 +79,7 @@ test.describe('Authentication Debug', () => {
 
     const responseBody = await response.json();
     structuredLogger.debug('Registration response status:', { status: response.status() });
-    structuredLogger.debug('Registration response body:', { body: responseBody });
+    structuredLogger.debug('Registration response body:', { body: sanitizeAuthResponse(responseBody) });
 
     // Expect successful creation or user already exists
     expect([201, 409]).toContain(response.status());

@@ -10,9 +10,9 @@
  * Ensures proper module resolution by running from skill directory.
  */
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+const fs = require('node:fs');
+const path = require('node:path');
+const { execSync } = require('node:child_process');
 
 // Change to skill directory for proper module resolution
 process.chdir(__dirname);

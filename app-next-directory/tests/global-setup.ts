@@ -32,6 +32,16 @@ export default async function globalSetup() {
 
   const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000';
 
+  // Validate required environment variables before allocating resources
+  const adminPassword = process.env.E2E_ADMIN_PASSWORD;
+  if (!adminPassword) {
+    throw new Error('E2E_ADMIN_PASSWORD environment variable is required');
+  }
+  const userPassword = process.env.E2E_USER_PASSWORD;
+  if (!userPassword) {
+    throw new Error('E2E_ADMIN_PASSWORD environment variable is required. Set it to your test admin password before running E2E tests.');
+  }
+
   // Wait for the dev server to be reachable before launching the browser
   async function waitForServer(url: string, timeout = 60_000) {
     const start = Date.now();
@@ -70,7 +80,6 @@ export default async function globalSetup() {
 
   // Admin credentials
   const adminEmail = process.env.E2E_ADMIN_EMAIL ?? 'admin@example.com';
-  const adminPassword = process.env.E2E_ADMIN_PASSWORD ?? 'TestSecurePass123!';
 
   try {
     // Navigate and perform login - adjust selectors if your app differs
@@ -102,9 +111,8 @@ export default async function globalSetup() {
     console.warn('global-setup: failed to generate admin storageState', err);
   }
 
-  // Also create a regular user storage state if credentials are present
+  // Also create a regular user storage state; require credentials in env
   const userEmail = process.env.E2E_USER_EMAIL ?? 'e2e-test@example.com';
-  const userPassword = process.env.E2E_USER_PASSWORD ?? 'TestSecurePass123!';
 
   try {
     const userContext = await browser.newContext({ baseURL });

@@ -24,10 +24,10 @@ describe('filters types', () => {
     it('should accept basic filter condition', () => {
       const condition: FilterCondition = {
         field: 'category',
-        value: 'coworking',
+        value: ListingCategory.COWORKING,
       };
       expect(condition.field).toBe('category');
-      expect(condition.value).toBe('coworking');
+      expect(condition.value).toBe(ListingCategory.COWORKING);
     });
 
     it('should accept condition with operator', () => {
@@ -62,7 +62,7 @@ describe('filters types', () => {
   describe('FilterGroup interface', () => {
     it('should accept basic filter group', () => {
       const group: FilterGroup = {
-        conditions: [{ field: 'category', value: 'coworking' }],
+        conditions: [{ field: 'category', value: ListingCategory.COWORKING }],
         operator: 'AND',
       };
       expect(group.conditions).toHaveLength(1);
@@ -72,7 +72,7 @@ describe('filters types', () => {
     it('should accept group with multiple conditions', () => {
       const group: FilterGroup = {
         conditions: [
-          { field: 'category', value: 'coworking' },
+          { field: 'category', value: ListingCategory.COWORKING },
           { field: 'location', value: 'Bangkok' },
           { field: 'maxPriceRange', value: 500 },
         ],
@@ -101,7 +101,7 @@ describe('filters types', () => {
 
     it('should accept all optional properties', () => {
       const group: FilterGroup = {
-        conditions: [{ field: 'category', value: 'cafe' }],
+        conditions: [{ field: 'category', value: ListingCategory.CAFE }],
         operator: 'OR',
         isEnabled: false,
         label: 'Cafe Filters',
@@ -128,7 +128,7 @@ describe('filters types', () => {
       const filters: ListingFilters = {
         category: ListingCategory.COWORKING,
       };
-      expect(filters.category).toBe('coworking');
+      expect(filters.category).toBe(ListingCategory.COWORKING);
     });
 
     it('should accept location filter', () => {
@@ -192,7 +192,7 @@ describe('filters types', () => {
       const filters: ListingFilters = {
         combinations: [
           {
-            conditions: [{ field: 'category', value: 'coworking' }],
+            conditions: [{ field: 'category', value: ListingCategory.COWORKING }],
             operator: 'AND',
           },
         ],
@@ -226,7 +226,7 @@ describe('filters types', () => {
         combinationOperator: 'AND',
       };
       expect(filters.searchQuery).toBe('eco cafe');
-      expect(filters.category).toBe('cafe');
+      expect(filters.category).toBe(ListingCategory.CAFE);
       expect(filters.ecoTags).toContain('organic');
     });
   });
@@ -290,7 +290,7 @@ describe('filters types', () => {
         combinations: [
           {
             conditions: [
-              { field: 'category', value: 'coworking' },
+              { field: 'category', value: ListingCategory.COWORKING },
               { field: 'location', value: 'Bangkok' },
             ],
             operator: 'AND',
@@ -299,7 +299,7 @@ describe('filters types', () => {
           },
           {
             conditions: [
-              { field: 'category', value: 'cafe' },
+              { field: 'category', value: ListingCategory.CAFE },
               { field: 'ecoTags', value: ['organic'] },
             ],
             operator: 'AND',
@@ -322,7 +322,7 @@ describe('filters types', () => {
       filters.maxPriceRange = 1000;
 
       expect(filters.searchQuery).toBeDefined();
-      expect(filters.category).toBe('coworking');
+      expect(filters.category).toBe(ListingCategory.COWORKING);
       expect(filters.ecoTags).toContain('solar-power');
       expect(filters.maxPriceRange).toBe(1000);
     });

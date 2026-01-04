@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { test as setup, type Page } from '@playwright/test';
+import { createHash } from 'node:crypto';
+import { type Page, test as setup } from '@playwright/test';
 
 const storageDir = path.resolve(process.cwd(), 'tests', 'storageStates');
 if (!fs.existsSync(storageDir)) {
@@ -21,32 +22,77 @@ type AuthConfig = {
 };
 
 async function authenticateUser(page: Page, config: AuthConfig) {
-  const {
-    emailEnvVar,
-    passwordEnvVar,
-    defaultEmail,
-    defaultPassword,
-    outputPath,
-    expectedPaths,
-  } = config;
+  const { emailEnvVar, passwordEnvVar, defaultEmail, defaultPassword, outputPath, expectedPaths } =
+    config;
+
+  // Collect console messages and page errors for richer debugging
+  const consoleMessages: string[] = [];
+  page.on('console', msg => consoleMessages.push(`${msg.type()}: ${msg.text()}`));
+  page.on('pageerror', err => consoleMessages.push(`pageerror: ${err.message}`));
 
   const email = process.env[emailEnvVar] || defaultEmail;
   const password = process.env[passwordEnvVar] || defaultPassword;
 
-  await page.goto('/auth/login');
-  await page.fill('input[name="email"]', email);
-  await page.fill('input[name="password"]', password);
-  await page.click('button[type="submit"]');
+  if (!email || !password) {
+    throw new Error(
+      `Missing credentials for env vars ${emailEnvVar}/${passwordEnvVar}. Email present: ${Boolean(email)}, Password present: ${Boolean(password)}`
+    );
+  }
 
-  await page.waitForURL(
-    (url: URL) =>
-      expectedPaths.some(path => (path === '/' ? url.pathname === '/' : url.pathname.includes(path))),
-    { timeout: 15000 }
-  );
+  const debugBase = path.join(storageDir, path.basename(outputPath, path.extname(outputPath)));
 
-  await page.waitForSelector('[data-testid="user-menu"]', { timeout: 5000 });
+  type DebugArtifacts = { png?: string; html?: string; logsPath?: string };
 
-  await page.context().storageState({ path: outputPath });
+  async function dumpDebug(suffix = 'error'): Promise<DebugArtifacts> {
+    try {
+      const base = `${debugBase}-${suffix}-${Date.now()}`;
+      return { png, html, logsPath };
+    } catch (e) {
+      // best-effort: log but don't mask original error
+      // eslint-disable-next-line no-console
+      console.error('Failed to write debug artifacts:', e);
+      return {};
+    }
+  }
+
+  try {
+    await page.goto('/auth/login');
+    await page.fill('input[name="email"]', email);
+    await page.fill('input[name="password"]', password);
+    await page.click('button[type="submit"]');
+
+    await page.waitForURL(
+      (url: URL) =>
+        expectedPaths.some(p =>
+          p === '/' ? url.pathname === '/' : url.pathname === p || url.pathname.startsWith(p + '/')
+        ),
+      { timeout: 15000 }
+    );
+
+    await page.waitForSelector('[data-testid="user-menu"]', { timeout: 5000 });
+
+  } catch (err) {
+    const artifacts = await dumpDebug('auth-failure');
+    const emailHash = createHash('sha256').update(email).digest('hex');
+    const artifactParts: string[] = [];
+    if (artifacts.png) artifactParts.push(`screenshot=${artifacts.png}`);
+    if (artifacts.html) artifactParts.push(`html=${artifacts.html}`);
+    if (artifacts.logsPath) artifactParts.push(`logs=${artifacts.logsPath}`);
+
+    throw new Error(
+      `Authentication failed for env ${emailEnvVar} (email hash: ${emailHash}). Error: ${err instanceof Error ? err.message : String(err)}. Current URL: ${page.url()}. Artifacts: ${artifactParts.join('; ')}. Console:\n${consoleMessages.join('\n')}`
+    );
+  }
+
+  // Save storage state after successful authentication
+  try {
+    await page.context().storageState({ path: outputPath });
+  } catch (err) {
+    const artifacts = await dumpDebug('storageState-failure');
+    throw new Error(
+      `Failed to write storage state to ${outputPath}: ${err instanceof Error ? err.message : String(err)}. Debug: ${JSON.stringify(artifacts)}. Console:\n${consoleMessages.join('\n')}`
+    );
+  }
 }
 
 // Authenticate regular user

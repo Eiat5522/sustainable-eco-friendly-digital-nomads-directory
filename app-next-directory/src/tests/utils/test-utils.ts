@@ -5,6 +5,15 @@
 import type { Page } from '@playwright/test';
 import type { Role } from '@/models/User';
 
+const maskEmail = (email: string): string => {
+  const parts = email.split('@');
+  if (parts.length !== 2) return '[redacted-email]';
+  const [local, domain] = parts;
+  if (!domain) return '[redacted-email]';
+  const visible = local.length > 0 ? local[0] : '*';
+  return `${visible}***@${domain}`;
+};
+
 /**
  * Login as a specific role in E2E test environment
  * This function simulates authentication by creating/finding a test user
@@ -65,7 +74,7 @@ export async function loginAsRole(page: Page, role: Role): Promise<void> {
       ),
     ]);
 
-    console.log(`Successfully authenticated as ${role} (${email})`);
+    console.log(`Successfully authenticated as ${role} (${maskEmail(email)})`);
   } catch (error) {
     console.error(`Failed to login as ${role}:`, error);
     throw new Error(

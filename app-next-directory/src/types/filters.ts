@@ -3,13 +3,6 @@ import type { ListingCategory } from './enums';
 // Filter combination operators
 export type FilterOperator = 'AND' | 'OR';
 
-// Single filter condition
-export interface FilterCondition {
-  field: keyof ListingFilters;
-  value: string | number | boolean | string[] | FilterGroup[];
-  operator?: FilterOperator;
-}
-
 // Filter group that combines multiple conditions
 export interface FilterGroup {
   conditions: FilterCondition[];
@@ -37,6 +30,15 @@ export interface ListingFilters {
   combinations?: FilterGroup[];
   combinationOperator?: FilterOperator; // Global operator for combining filter groups
 }
+
+// Single filter condition mapped to the correct value type for each field
+export type FilterCondition = {
+  [Key in keyof ListingFilters]: {
+    field: Key;
+    value: NonNullable<ListingFilters[Key]>;
+    operator?: FilterOperator;
+  };
+}[keyof ListingFilters];
 
 export interface FilterResults<T> {
   data: T[];
