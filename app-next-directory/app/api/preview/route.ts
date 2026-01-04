@@ -17,11 +17,29 @@ export async function GET(request: Request) {
   if (!slug) {
     return new Response('No slug in the request', { status: 400 });
   }
+ 
+  if (!type) {
+    return new Response('No type in the request', { status: 400 });
+  }
+
+  const allowedTypes = ['listing', 'city'] as const;
+  const isAllowedType = (t: string): t is (typeof allowedTypes)[number] =>
+    (allowedTypes as readonly string[]).includes(t);
+
+  if (!isAllowedType(type)) {
+    return new Response('Invalid type parameter', { status: 400 });
+  }
 
   // Enable Draft Mode by setting the cookie
   (await draftMode()).enable();
   // Redirect to the path from the fetched post
   // We don't redirect to searchParams.slug as that might lead to open redirect vulnerabilities
-  const redirectPath = `/${type === 'listing' ? 'listings' : type}/${slug}`;
+ const pathPrefixMap: Record<string, string> = {
+   listing: 'listings',
+   city: 'cities',
+ };
+ const pathPrefix = pathPrefixMap[type] || type;
+  
+  const redirectPath = `/${pathPrefix}/${slug}`;
   redirect(redirectPath);
 }

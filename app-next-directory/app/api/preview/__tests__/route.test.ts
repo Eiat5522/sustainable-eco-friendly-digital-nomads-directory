@@ -252,7 +252,7 @@ describe('Preview Mode API - GET /api/preview', () => {
       try {
         await GET(request);
       } catch (error: any) {
-        expect(error.message).toContain('/city/amsterdam');
+        expect(error.message).toContain('/cities/amsterdam');
       }
     });
 

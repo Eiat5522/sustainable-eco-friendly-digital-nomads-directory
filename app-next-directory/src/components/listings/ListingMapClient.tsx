@@ -5,7 +5,7 @@ import { Component, Suspense } from 'react';
 import dynamic from 'next/dynamic';
 
 const InteractiveMap = dynamic(
-  () => import('@/components/ui/interactive-map').then(mod => mod.InteractiveMap),
+  () => import('@/components/ui/InteractiveMap').then(mod => mod.InteractiveMap),
   { ssr: false }
 );
 

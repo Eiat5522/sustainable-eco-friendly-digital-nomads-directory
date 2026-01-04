@@ -80,7 +80,7 @@ test.describe('Preview Mode Functionality', () => {
 
   test('should display draft city content in preview mode', async ({ page }) => {
     // Assuming we have a draft city with slug 'test-draft-city'
-    await page.goto('/city/test-draft-city');
+    await page.goto('/cities/test-draft-city');
 
     // Verify draft content is visible
     const cityTitle = await page.getByRole('heading', { level: 1 });

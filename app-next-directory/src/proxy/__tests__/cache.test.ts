@@ -135,7 +135,7 @@ describe('cache middleware', () => {
         },
         method: 'GET',
         nextUrl: {
-          pathname: '/city/berlin',
+          pathname: '/cities/berlin',
         },
       };
       const mockSet = jest.fn();

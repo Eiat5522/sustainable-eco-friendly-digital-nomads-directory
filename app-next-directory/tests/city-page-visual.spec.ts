@@ -5,7 +5,7 @@ test.describe('City Page Visual Tests', () => {
     // Navigate to the city page for Koh Samui
     // Assuming your local dev server runs on a port Playwright can access,
     // and the base URL is configured in playwright.config.ts
-    await page.goto('/city/koh-samui');
+    await page.goto('/cities/koh-samui');
 
     // Optional: Wait for a specific element (e.g., the city heading) to ensure the page
     // is fully loaded before capturing the screenshot.
@@ -17,6 +17,19 @@ test.describe('City Page Visual Tests', () => {
     await expect(page).toHaveScreenshot('city-koh-samui-page.png');
   });
 
-  // TODO(visual-tests): Add scenarios for error states (e.g., a missing city slug)
-  // once the UI for those flows has stabilized.
+  test.describe('error states', () => {
+    test('should show the fallback city view for an unknown slug', async ({ page }) => {
+      await page.goto('/cities/unknown-slug');
+      await expect(page.getByRole('heading', { level: 1, name: 'Unknown Slug' })).toBeVisible();
+
+      await expect(page).toHaveScreenshot('city-unknown-slug-fallback.png');
+    });
+
+    test('should render the not-found page when the slug is missing', async ({ page }) => {
+      await page.goto('/cities');
+      await expect(page.getByText('404 - Page Not Found')).toBeVisible();
+
+      await expect(page).toHaveScreenshot('city-missing-slug-not-found.png');
+    });
+  });
 });

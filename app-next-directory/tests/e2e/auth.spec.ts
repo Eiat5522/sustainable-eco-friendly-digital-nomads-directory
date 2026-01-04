@@ -16,7 +16,7 @@ test.describe('Authentication (Playwright)', () => {
 
     const unique = `${Date.now()}-${test.info().workerIndex}-${Math.random().toString(36).slice(2, 8)}`;
     await page.getByPlaceholder('Name').fill('Test User');
-    await page.getByPlaceholder('Email').fill(`test+${unique}@example.com`);
+    await page.getByRole('textbox', { name: 'Email', exact: true }).fill(`test+${unique}@example.com`);
     await page.getByPlaceholder('Password').fill('Password_123!Aa');
 
     await Promise.all([

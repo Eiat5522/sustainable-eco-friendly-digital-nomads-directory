@@ -67,8 +67,7 @@ export default defineConfig({
     { name: 'firefox', use: { ...devices['Desktop Firefox'], viewport: { width: 1280, height: 800 } } },
      ],  webServer: isLocal
       ? {
-        command: 'E2E=1 pnpm dev',
-        url: serverWaitURL.toString(),
+        command: 'next dev',        url: serverWaitURL.toString(),
         // Increase timeout for containerized environments (build + startup can take longer)
         timeout: 180_000,
         // In CI/E2E/Docker runs we should NOT reuse an existing server to avoid stale processes

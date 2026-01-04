@@ -101,7 +101,7 @@ test.describe('Preview Mode Performance Tests', () => {
     await page.waitForLoadState('networkidle');
 
     // Navigate through several pages in preview mode
-    const urls = ['/listings/test-draft-listing', '/city/test-draft-city', '/'];
+    const urls = ['/listings/test-draft-listing', '/cities/test-draft-city', '/'];
 
     for (const url of urls) {
       await page.goto(url);

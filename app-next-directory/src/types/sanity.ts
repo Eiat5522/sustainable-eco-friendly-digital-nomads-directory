@@ -19,10 +19,19 @@ export interface SanityUserQuotaDoc {
   quotaOverrideByAdmin?: boolean | null;
 }
 
+export interface OwnerHistoryEntry {
+  _key: string;
+  from: string | null;
+  to: string;
+  actor: string;
+  reason: string;
+  at: string;
+}
+
 export interface SanityListingOwnerDocument {
   _id: string;
   owner?: { _ref?: string } | null;
-  ownerHistory?: unknown[];
+  ownerHistory?: OwnerHistoryEntry[];
 }
 
 export interface Amenity {

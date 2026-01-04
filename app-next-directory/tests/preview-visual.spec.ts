@@ -65,7 +65,7 @@ test.describe('Preview Mode Visual Tests', () => {
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
 
       // Navigate to draft city
-      await page.goto('/city/test-draft-city');
+      await page.goto('/cities/test-draft-city');
 
       // Wait for content to load
       await expect(page.getByRole('heading', { level: 1 })).toBeVisible();

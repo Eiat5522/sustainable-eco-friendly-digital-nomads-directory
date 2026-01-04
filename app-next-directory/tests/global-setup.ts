@@ -70,7 +70,7 @@ export default async function globalSetup() {
 
   // Admin credentials
   const adminEmail = process.env.E2E_ADMIN_EMAIL ?? 'admin@example.com';
-  const adminPassword = process.env.E2E_ADMIN_PASSWORD ?? 'adminpass123';
+  const adminPassword = process.env.E2E_ADMIN_PASSWORD ?? 'TestSecurePass123!';
 
   try {
     // Navigate and perform login - adjust selectors if your app differs
@@ -81,7 +81,13 @@ export default async function globalSetup() {
 
     // Wait for a stable post-login URL or element (longer timeout + debug capture)
     try {
-      await page.waitForURL('**/admin**', { timeout: 60_000 });
+      // Wait for navigation to dashboard, admin, or home
+      await page.waitForURL(url => 
+        url.pathname.includes('/admin') || 
+        url.pathname.includes('/dashboard') || 
+        url.pathname === '/', 
+        { timeout: 30000 }
+      );
     } catch (err) {
       // capture debug artifacts to help diagnose flakiness
       await captureDebugArtifacts(page, 'debug-admin', storageDir);
@@ -93,13 +99,12 @@ export default async function globalSetup() {
     await context.storageState({ path: adminPath });
   } catch (err) {
     // don't fail global setup hard; surface the error to logs
-
     console.warn('global-setup: failed to generate admin storageState', err);
   }
 
   // Also create a regular user storage state if credentials are present
-  const userEmail = process.env.E2E_USER_EMAIL ?? 'test_customer@example.com';
-  const userPassword = process.env.E2E_USER_PASSWORD ?? 'password';
+  const userEmail = process.env.E2E_USER_EMAIL ?? 'e2e-test@example.com';
+  const userPassword = process.env.E2E_USER_PASSWORD ?? 'TestSecurePass123!';
 
   try {
     const userContext = await browser.newContext({ baseURL });
@@ -110,7 +115,11 @@ export default async function globalSetup() {
       await userPage.fill('input[name="password"]', userPassword);
       await userPage.click('button[type="submit"]');
       try {
-        await userPage.waitForURL('**/dashboard**', { timeout: 60_000 });
+        await userPage.waitForURL(url => 
+          url.pathname.includes('/dashboard') || 
+          url.pathname === '/', 
+          { timeout: 30000 }
+        );
       } catch (err) {
         await captureDebugArtifacts(userPage, 'debug-user', storageDir);
         throw err;

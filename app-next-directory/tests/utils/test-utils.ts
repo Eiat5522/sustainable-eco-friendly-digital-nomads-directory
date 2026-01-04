@@ -297,11 +297,11 @@ async function applySession(page: Page, role: Role) {
 
 async function loginViaForm(page: Page, email: string, password: string, redirectPattern: RegExp) {
   await page.goto('/auth/login');
-  await page.getByRole('textbox', { name: /^email$/i }).fill(email);
-  await page.getByRole('textbox', { name: /^password$/i }).fill(password);
+  await page.getByLabel(/email/i).fill(email);
+  await page.getByLabel(/password/i).fill(password);
   const submit = page.locator('button[type="submit"]');
   await Promise.all([
-    page.waitForURL(redirectPattern, { timeout: 10_000 }).catch(() => undefined),
+    page.waitForURL(redirectPattern, { timeout: 15_000 }).catch(() => undefined),
     submit.click(),
   ]);
 }
@@ -342,11 +342,11 @@ async function loginByRole(
     // or fall back to the seeded password for the given role so tests
     // remain in sync with fixtures.
     const roleDefaultPasswords: Record<string, string> = {
-      admin: process.env.E2E_ADMIN_PASSWORD ?? 'adminpass123',
-      user: process.env.E2E_USER_PASSWORD ?? 'adminpass123',
-      venueOwner: process.env.E2E_VENUE_OWNER_PASSWORD ?? 'adminpass123',
+      admin: process.env.E2E_ADMIN_PASSWORD ?? 'TestSecurePass123!',
+      user: process.env.E2E_USER_PASSWORD ?? 'TestSecurePass123!',
+      venueOwner: process.env.E2E_VENUE_OWNER_PASSWORD ?? 'TestSecurePass123!',
     };
-    const pwd = password ?? roleDefaultPasswords[role] ?? 'adminpass123';
+    const pwd = password ?? roleDefaultPasswords[role] ?? 'TestSecurePass123!';
     await loginViaForm(page, email, pwd, new RegExp(fallbackPath));
     return;
   }
