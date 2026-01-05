@@ -81,6 +81,7 @@ type ReviewDocument = {
 const DEFAULT_REVIEWS_LIMIT = 10;
 
 const isE2ETest = process.env.NEXT_PUBLIC_E2E === '1' || process.env.E2E === '1';
+const isBuildMode = process.env.NEXT_BUILD_MODE === 'true';
 const E2E_ERROR_SLUG = 'listing-error-simulated';
 
 const e2eFixtures: Record<string, ListingFixture> = {
@@ -98,13 +99,38 @@ const e2eFixtures: Record<string, ListingFixture> = {
 // During prerender, timer-based retries can fire after the prerender lifecycle
 // completes and trigger HangingPromiseRejectionError. Callers handle failures
 // by returning fallback values (null, [], false).
+const isPrerenderRejection = (error: unknown): boolean => {
+  if (!error) return false;
+  const message =
+    error instanceof Error
+      ? error.message
+      : typeof error === 'object' && 'message' in error
+        ? String((error as { message?: unknown }).message ?? '')
+        : '';
+  if (message.includes('During prerendering')) return true;
+  if (typeof error === 'object' && 'digest' in error) {
+    return (error as { digest?: unknown }).digest === 'HANGING_PROMISE_REJECTION';
+  }
+  return false;
+};
+
 async function fetchFromSanity<T>(
   query: string,
   params?: Record<string, unknown>
 ): Promise<T | null> {
+  const fetchClient =
+    isBuildMode && typeof client.withConfig === 'function'
+      ? client.withConfig({ maxRetries: 0 })
+      : client;
   try {
-    return await client.fetch<T>(query, params);
+    return await fetchClient.fetch<T>(query, params);
   } catch (err: unknown) {
+    if (isBuildMode && isPrerenderRejection(err)) {
+      logger.warn('Sanity fetch rejected during prerender; using fallback', {
+        component: 'listings/[slug]',
+      });
+      return null;
+    }
     logger.error('Sanity fetch failed', {
       component: 'listings/[slug]',
       error: err,

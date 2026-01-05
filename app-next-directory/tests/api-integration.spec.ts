@@ -569,33 +569,6 @@ test.describe('API Integration Testing - Workstream E.1', () => {
     });
   });
 
-  test.describe('Events & Calendar Endpoints', () => {
-    test('GET /api/events - Get Upcoming Events', async ({ request }) => {
-      const response = await request.get(`${BASE_URL}/api/events`);
-
-      expect(response.status()).toBe(200);
-      const data = await response.json();
-      expect(data.events).toBeDefined();
-      expect(Array.isArray(data.events)).toBe(true);
-    });
-
-    test('GET /api/events?city=Bangkok&type=workshop - Filter Events', async ({ request }) => {
-      const response = await request.get(`${BASE_URL}/api/events?city=Bangkok&type=workshop`);
-
-      expect(response.status()).toBe(200);
-      const data = await response.json();
-      expect(data.events).toBeDefined();
-      expect(data.filters).toBeDefined();
-    });
-
-    test('GET /api/events/[eventId] - Get Event Details', async ({ request }) => {
-      const response = await request.get(`${BASE_URL}/api/events/test-event-id`);
-
-      // Expecting either 200 (success) or 404 (not found)
-      expect([200, 404]).toContain(response.status());
-    });
-  });
-
   test.describe('Cities & Locations Endpoints', () => {
     test('GET /api/cities - Get All Cities', async ({ request }) => {
       const response = await request.get(`${BASE_URL}/api/cities`);

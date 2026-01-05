@@ -52,7 +52,6 @@ module.exports = {
     '<rootDir>/tests/e2e/',
     // Quarantined legacy/flaky e2e/api tests
     '<rootDir>/tests/api/preview-api.test.ts',
-    '<rootDir>/tests/api/events-api.test.ts',
   ],
   testTimeout: 60000,
 };

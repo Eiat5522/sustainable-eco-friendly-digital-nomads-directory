@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --inspect",
+    "dev": "next dev",
     "dev:clean": "bash ../scripts/clean-build-artifacts.sh && next dev",
     "build": "pnpm run build:types && next build",
     "build:types": "tsc -p tsconfig.types.json",
@@ -226,12 +226,12 @@
     "*.{css,scss}": [
       "prettier --write"
     ]
-  },  
-  "devEngines": {  
-    "runtime": {  
-      "name": "node",  
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
       "version": "^22.21.0",
-      "onFail": "download"  
-    }  
-  }  
+      "onFail": "download"
+    }
+  }
 }

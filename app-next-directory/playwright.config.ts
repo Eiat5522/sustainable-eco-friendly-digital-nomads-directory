@@ -16,9 +16,6 @@ const resolvedPort = PLAYWRIGHT_PORT;
 const serverWaitURL = PLAYWRIGHT_ENV.serverWaitURL;
 
 export default defineConfig({
-  // Global setup will generate storageState JSON files for fast auth reuse
-  // Use ESM-safe string path (avoid require in ESM config)
-  globalSetup: './tests/global-setup',
   // Run Playwright tests from the project tests directory using .spec.ts extension only
   // Only run tests inside the `tests/e2e` directory. Integration tests are managed by Jest.
   // This keeps Playwright focused on UI E2E only and prevents it from picking up other
@@ -62,14 +59,23 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   projects: [
-    // Setup project
-    { name: 'setup', testMatch: /.*\.setup\.ts/ },
-    
-    { name: 'chromium', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 }, storageState: 'playwright/.auth/user.json', }, dependencies: ['setup'], },
-    { name: 'firefox', use: { ...devices['Desktop Firefox'], viewport: { width: 1280, height: 800 }, storageState: 'playwright/.auth/user.json', }, dependencies: ['setup'], },
-     ],  webServer: isLocal
-      ? {
-        command: 'next dev',        url: serverWaitURL.toString(),
+    // Setup project to generate storageState files before running tests
+    { name: 'setup', testMatch: '**/auth.setup.ts', testIgnore: ['**/jest.setup.ts'] },
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } },
+      dependencies: ['setup'],
+    },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'], viewport: { width: 1280, height: 800 } },
+      dependencies: ['setup'],
+    },
+  ],
+  webServer: isLocal
+    ? {
+        command: 'next dev',
+        url: serverWaitURL.toString(),
         // Increase timeout for containerized environments (build + startup can take longer)
         timeout: 180_000,
         // In CI/E2E/Docker runs we should NOT reuse an existing server to avoid stale processes

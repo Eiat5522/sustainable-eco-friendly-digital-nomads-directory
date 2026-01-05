@@ -52,7 +52,7 @@
 - `/admin/users/page.tsx`: Added Suspense boundary.
 - `/api/user/analytics/route.ts`: Removed custom try-catch prerendering guard for `headers()`.
 - `/api/user/reviews/route.ts`: Removed custom try-catch prerendering guard for `headers()`.
-- `/api/events/route.ts`: Added `Cache-Control: 'no-store'` to responses. Removed `export const dynamic = 'force-dynamic'`.
+- `/api/events/route.ts`: Added `Cache-Control: 'no-store'` to responses. Removed `export const dynamic = 'force-dynamic'`. (Route removed later; no data source.)
 - `/api/featured-listings/route.ts`: Added `Cache-Control: 'no-store'` to responses. Removed `export const dynamic = 'force-dynamic'`.
 - `/api/admin/listings/stats/route.ts`: Fixed syntax error in import statement.
 

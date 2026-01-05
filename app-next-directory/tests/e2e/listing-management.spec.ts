@@ -22,10 +22,10 @@ test.describe('Listing Management E2E', () => {
       await TestHelpers.loginAsUser(page);
 
       // Try to access admin routes
-      await page.goto('/admin');
+      await page.goto('/admin', { waitUntil: 'domcontentloaded' });
       await expect(page).toHaveURL(/\/unauthorized/);
 
-      await page.goto('/admin/listings');
+      await page.goto('/admin/listings', { waitUntil: 'domcontentloaded' });
       await expect(page).toHaveURL(/\/unauthorized/);
 
       // Try to access moderation API
@@ -118,7 +118,7 @@ test.describe('Listing Management E2E', () => {
       await TestHelpers.loginAsUser(page);
 
       // Attempt to edit
-      await page.goto(`/dashboard/listings/edit/${listingId}`).catch(() => undefined);
+      await page.goto(`/dashboard/listings/edit/${listingId}`, { waitUntil: 'domcontentloaded' });
       await expect(page).toHaveURL(/\/unauthorized/);
 
       // Attempt to delete
@@ -232,7 +232,7 @@ test.describe('Listing Management E2E', () => {
       await page2.goto('/profile');
 
       // Verify logged in state persists
-      await expect(page2.getByRole('heading', { name: displayName })).toBeVisible();
+      await expect(page2.getByRole('heading', { name: displayName, level: 1 })).toBeVisible();
     });
   });
 });

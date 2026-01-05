@@ -45,13 +45,14 @@ test.describe('[E2E] Favorites UI toggle - Authenticated', () => {
       const method = route.request().method();
       const url = route.request().url();
       const isSlugRequest = url.includes('/api/user/favorites/banyan-tree-phuket');
+      const isRootRequest = url.includes('/api/user/favorites') && !isSlugRequest;
 
       if (!isSlugRequest) {
         await route.continue();
         return;
       }
 
-      if (method === 'GET') {
+      if (method === 'GET' && isSlugRequest) {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -60,8 +61,18 @@ test.describe('[E2E] Favorites UI toggle - Authenticated', () => {
         return;
       }
 
-      if (method === 'POST') {
-        serverFavorited = !serverFavorited;
+      if (method === 'POST' && isRootRequest) {
+        serverFavorited = true;
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ favorited: serverFavorited }),
+        });
+        return;
+      }
+
+      if (method === 'DELETE' && isRootRequest) {
+        serverFavorited = false;
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -97,13 +108,14 @@ test.describe('[E2E] Favorites UI toggle - Authenticated', () => {
       const method = route.request().method();
       const url = route.request().url();
       const isSlugRequest = url.includes('/api/user/favorites/banyan-tree-phuket');
+      const isRootRequest = url.includes('/api/user/favorites') && !isSlugRequest;
 
       if (!isSlugRequest) {
         await route.continue();
         return;
       }
 
-      if (method === 'GET') {
+      if (method === 'GET' && isSlugRequest) {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -112,8 +124,19 @@ test.describe('[E2E] Favorites UI toggle - Authenticated', () => {
         return;
       }
 
-      if (method === 'POST') {
-        serverFavorited = !serverFavorited;
+      if (method === 'POST' && isRootRequest) {
+        serverFavorited = true;
+        observedStates.push(serverFavorited);
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ favorited: serverFavorited }),
+        });
+        return;
+      }
+
+      if (method === 'DELETE' && isRootRequest) {
+        serverFavorited = false;
         observedStates.push(serverFavorited);
         await route.fulfill({
           status: 200,
@@ -162,7 +185,7 @@ test.describe('[E2E] Favorites UI toggle - Unauthenticated', () => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({}),
+        body: 'null',
       });
     });
 

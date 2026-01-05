@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { BrowserContext, Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import { test as base, expect } from '@playwright/test';
 import {
   createTestData,
@@ -46,8 +46,6 @@ type StorageStateOrigin = {
   origin: string;
   localStorage: Array<{ name: string; value: string }>;
 };
-
-type CookiesInput = Parameters<BrowserContext['addCookies']>[0];
 
 type StorageStateParsed = {
   cookies?: Array<Record<string, unknown>>;
@@ -150,119 +148,19 @@ function assertStorageStateShape(parsed: unknown): asserts parsed is StorageStat
   }
 }
 
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 async function applySession(page: Page, role: Role) {
   const session = getSessionForRole(role);
   if (!session) {
     throw new Error(`Test session not found for role: ${role}`);
   }
 
-  // If a pre-generated storageState exists for this role, apply it for speed.
-  try {
-    const storagePath = path.resolve(process.cwd(), 'tests', 'storageStates', `${role}.json`);
-    if (fs.existsSync(storagePath)) {
-      const raw = fs.readFileSync(storagePath, 'utf-8');
-      const parsed = JSON.parse(raw);
-      assertStorageStateShape(parsed);
-
-      // Apply cookies (if any)
-      if (parsed.cookies && parsed.cookies.length > 0) {
-        // Ensure cookie expiry numbers are preserved
-        const cookies = parsed.cookies.map(cookie => ({ ...cookie })) as CookiesInput;
-        await page
-          .context()
-          .addCookies(cookies)
-          .catch(() => undefined);
-      }
-
-      // Apply localStorage entries for the base origin
-      const origin = baseUrl.origin;
-      const originEntry = parsed.origins?.find(
-        o => o.origin === origin || o.origin === `${origin}/`
-      );
-      let navigatedToOrigin = false;
-      if (originEntry?.localStorage?.length) {
-        // Navigate to origin so we can set localStorage
-        await page.goto(origin + '/', { waitUntil: 'domcontentloaded' }).catch(() => undefined);
-        navigatedToOrigin = true;
-        for (const item of originEntry.localStorage) {
-          await page
-            .evaluate(([k, v]) => window.localStorage.setItem(k, v), [item.name, item.value])
-            .catch(() => undefined);
-        }
-      }
-
-      // Navigate to origin if we didn't already (so reload affects the correct origin)
-      if (!navigatedToOrigin) {
-        await page.goto(baseUrl.origin + '/', { waitUntil: 'domcontentloaded' }).catch(() => undefined);
-      }
-
-      // Reload to ensure auth state is available
-      await page.reload({ waitUntil: 'domcontentloaded' }).catch(() => undefined);
-
-      // Also set compatibility token/localStorage used by some helpers
-      const encodedToken = await buildSessionToken(session.user);
-      await page.context().addInitScript(
-        ({ token, user }) => {
-          window.localStorage.setItem('token', token);
-          window.localStorage.setItem('currentUser', JSON.stringify(user));
-          window.sessionStorage.setItem('token', token);
-        },
-        {
-          token: encodedToken,
-          user: {
-            id: session.user.id,
-            email: session.user.email,
-            name: session.user.name,
-            role: session.user.role,
-            plan: session.user.plan,
-            image: session.user.image ?? null,
-          },
-        }
-      );
-
-      // Also add the session cookie used by server-side tests for explicitness
-      const cookie = {
-        name: TEST_SESSION_COOKIE_NAME,
-        value: encodedToken,
-        domain: baseUrl.hostname,
-        path: '/',
-        httpOnly: true,
-        secure: baseUrl.origin.startsWith('https'),
-        sameSite: 'Lax' as const,
-      } as const;
-      await page
-        .context()
-        .addCookies([cookie])
-        .catch(() => undefined);
-
-      // Reload to apply init script
-      await page.reload({ waitUntil: 'domcontentloaded' }).catch(() => undefined);
-
-      return { ...session, token: encodedToken };
-    }
-  } catch (err) {
-    // fall back to regular session build on any error
-
-    console.warn('applySession: failed to apply storageState, falling back to token build', err);
-  }
-
   const encodedToken = await buildSessionToken(session.user);
   const cookieOrigin = baseUrl?.origin ?? 'http://localhost:3000';
-  const hostname = baseUrl?.hostname ?? new URL(cookieOrigin).hostname;
-
-  const cookie = {
-    name: TEST_SESSION_COOKIE_NAME,
-    value: encodedToken,
-    // Use domain+path to avoid issues when the test runner resolves origins differently.
-    domain: hostname,
-    path: '/',
-    httpOnly: true,
-    secure: cookieOrigin.startsWith('https:'),
-    sameSite: 'Lax' as const,
-  } as const;
-
-  await page.context().addCookies([cookie]);
-
+  const origin = cookieOrigin;
   const serialisableUser = {
     id: session.user.id,
     email: session.user.email,
@@ -272,8 +170,42 @@ async function applySession(page: Page, role: Role) {
     image: session.user.image ?? null,
   };
 
+  let storageEntries: StorageStateOrigin['localStorage'] = [];
+  const storagePath = path.resolve(process.cwd(), 'tests', 'storageStates', `${role}.json`);
+  if (fs.existsSync(storagePath)) {
+    try {
+      const raw = fs.readFileSync(storagePath, 'utf-8');
+      const parsed = JSON.parse(raw);
+      assertStorageStateShape(parsed);
+      const originEntry = parsed.origins?.find(
+        o => o.origin === origin || o.origin === `${origin}/`
+      );
+      if (originEntry?.localStorage?.length) {
+        storageEntries = originEntry.localStorage;
+      }
+    } catch (err) {
+      console.warn('applySession: failed to read storageState, continuing with token auth', err);
+    }
+  }
+
+  if (page.isClosed()) {
+    throw new Error('applySession: cannot apply session to a closed page');
+  }
+
   await page.context().addInitScript(
-    ({ token, user }) => {
+    ({ token, user, storageEntries }) => {
+      if (Array.isArray(storageEntries)) {
+        for (const entry of storageEntries) {
+          if (
+            entry &&
+            typeof entry.name === 'string' &&
+            typeof entry.value === 'string'
+          ) {
+            window.localStorage.setItem(entry.name, entry.value);
+          }
+        }
+      }
+
       window.localStorage.setItem('token', token);
       window.localStorage.setItem('currentUser', JSON.stringify(user));
       window.sessionStorage.setItem('token', token);
@@ -281,15 +213,71 @@ async function applySession(page: Page, role: Role) {
     {
       token: encodedToken,
       user: serialisableUser,
+      storageEntries,
     }
   );
 
-  const origin = cookieOrigin;
+  const cookieUrl = {
+    name: TEST_SESSION_COOKIE_NAME,
+    value: encodedToken,
+    url: origin,
+    httpOnly: true,
+    secure: origin.startsWith('https:'),
+    sameSite: 'Lax' as const,
+  } as const;
+
+  await page.context().addCookies([cookieUrl]);
+  let cookies = await page.context().cookies(origin).catch(() => []);
+  if (!cookies.some(cookie => cookie.name === TEST_SESSION_COOKIE_NAME)) {
+    const cookieDomain = {
+      name: TEST_SESSION_COOKIE_NAME,
+      value: encodedToken,
+      domain: new URL(origin).hostname,
+      path: '/',
+      httpOnly: true,
+      secure: origin.startsWith('https:'),
+      sameSite: 'Lax' as const,
+    } as const;
+    await page.context().addCookies([cookieDomain]).catch(() => undefined);
+    cookies = await page.context().cookies(origin).catch(() => []);
+  }
+  if (!cookies.some(cookie => cookie.name === TEST_SESSION_COOKIE_NAME)) {
+    console.warn('applySession: session cookie missing after addCookies', {
+      origin,
+      cookieNames: cookies.map(cookie => cookie.name),
+    });
+  }
+
   const currentUrl = page.url();
   if (!currentUrl.startsWith(origin)) {
-    await page.goto(origin + '/', { waitUntil: 'domcontentloaded' }).catch(() => undefined);
+    // localStorage will be set on the next navigation via init script
   } else {
-    await page.reload({ waitUntil: 'domcontentloaded' }).catch(() => undefined);
+    await page
+      .evaluate(
+        ({ token, user, storageEntries }) => {
+          if (Array.isArray(storageEntries)) {
+            for (const entry of storageEntries) {
+              if (
+                entry &&
+                typeof entry.name === 'string' &&
+                typeof entry.value === 'string'
+              ) {
+                window.localStorage.setItem(entry.name, entry.value);
+              }
+            }
+          }
+
+          window.localStorage.setItem('token', token);
+          window.localStorage.setItem('currentUser', JSON.stringify(user));
+          window.sessionStorage.setItem('token', token);
+        },
+        {
+          token: encodedToken,
+          user: serialisableUser,
+          storageEntries,
+        }
+      )
+      .catch(() => undefined);
   }
 
   return { ...session, token: encodedToken };
@@ -306,6 +294,41 @@ async function loginViaForm(page: Page, email: string, password: string, redirec
   ]);
 }
 
+async function ensureServerSession(
+  page: Page,
+  session: { user: { email: string; role: Role; password?: string } },
+  redirectTo?: string
+) {
+  try {
+    const response = await page.request.get('/api/auth/session');
+    if (response.ok()) {
+      const data = (await response.json().catch(() => null)) as { user?: { email?: string } } | null;
+      if (data?.user?.email && data.user.email === session.user.email) {
+        return;
+      }
+    }
+  } catch {
+    // ignore and fall back to form login below
+  }
+
+  const roleDefaultPasswords: Record<string, string> = {
+    admin: process.env.E2E_ADMIN_PASSWORD ?? 'TestSecurePass123!',
+    user: process.env.E2E_USER_PASSWORD ?? 'TestSecurePass123!',
+    venueOwner: process.env.E2E_VENUE_OWNER_PASSWORD ?? 'TestSecurePass123!',
+    superAdmin: process.env.E2E_SUPERADMIN_PASSWORD ?? 'TestSecurePass123!',
+  };
+  const fallbackPassword =
+    session.user.password ?? roleDefaultPasswords[session.user.role] ?? 'TestSecurePass123!';
+
+  const targetPath = redirectTo
+    ? redirectTo.startsWith('http')
+      ? new URL(redirectTo).pathname
+      : redirectTo
+    : '/';
+  const pattern = new RegExp(escapeRegExp(targetPath));
+  await loginViaForm(page, session.user.email, fallbackPassword, pattern);
+}
+
 export async function loginAs(page: Page, role: Role, options: { redirectTo?: string } = {}) {
   const session = await applySession(page, role);
   if (options.redirectTo) {
@@ -314,6 +337,7 @@ export async function loginAs(page: Page, role: Role, options: { redirectTo?: st
       : `${baseUrl.origin}${options.redirectTo.startsWith('/') ? options.redirectTo : `/${options.redirectTo}`}`;
     await page.goto(target, { waitUntil: 'domcontentloaded' }).catch(() => undefined);
   }
+  await ensureServerSession(page, session, options.redirectTo);
   return session;
 }
 

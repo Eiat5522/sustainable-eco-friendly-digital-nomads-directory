@@ -8,7 +8,7 @@ import type { Role } from '@/models/User';
 const maskEmail = (email: string): string => {
   const parts = email.split('@');
   if (parts.length !== 2) return '[redacted-email]';
-  const [local, domain] = parts;
+  const [local = '', domain] = parts;
   if (!domain) return '[redacted-email]';
   const visible = local.length > 0 ? local[0] : '*';
   return `${visible}***@${domain}`;

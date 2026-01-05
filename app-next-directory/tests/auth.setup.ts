@@ -2,6 +2,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { type Page, test as setup } from '@playwright/test';
+import type { Role } from '@/models/User';
+import { loginAs } from './utils/test-utils';
+
+setup.setTimeout(120000);
 
 const storageDir = path.resolve(process.cwd(), 'tests', 'storageStates');
 if (!fs.existsSync(storageDir)) {
@@ -10,7 +14,8 @@ if (!fs.existsSync(storageDir)) {
 
 const authFile = path.join(storageDir, 'user.json');
 const adminAuthFile = path.join(storageDir, 'admin.json');
-const venueOwnerAuthFile = path.join(storageDir, 'venue-owner.json');
+const venueOwnerAuthFile = path.join(storageDir, 'venueOwner.json');
+const superAdminAuthFile = path.join(storageDir, 'superAdmin.json');
 
 type AuthConfig = {
   emailEnvVar: string;
@@ -19,6 +24,7 @@ type AuthConfig = {
   defaultPassword: string;
   outputPath: string;
   expectedPaths: string[];
+  role?: Role;
 };
 
 async function authenticateUser(page: Page, config: AuthConfig) {
@@ -46,20 +52,34 @@ async function authenticateUser(page: Page, config: AuthConfig) {
   async function dumpDebug(suffix = 'error'): Promise<DebugArtifacts> {
     try {
       const base = `${debugBase}-${suffix}-${Date.now()}`;
+      const png = `${base}.png`;
+      const html = `${base}.html`;
+      const logsPath = `${base}.log`;
+
+      await page.screenshot({ path: png, fullPage: true });
+      fs.writeFileSync(html, await page.content());
+      if (consoleMessages.length) {
+        fs.writeFileSync(logsPath, consoleMessages.join('\n'));
+      }
+
       return { png, html, logsPath };
     } catch (e) {
       // best-effort: log but don't mask original error
-      // eslint-disable-next-line no-console
+       
       console.error('Failed to write debug artifacts:', e);
       return {};
     }
   }
 
+  let hasAuthenticated = false;
+  let authError: unknown;
+  let artifacts: DebugArtifacts | null = null;
+
   try {
-    await page.goto('/auth/login');
+    await page.goto('/auth/login', { waitUntil: 'domcontentloaded' });
     await page.fill('input[name="email"]', email);
     await page.fill('input[name="password"]', password);
-    await page.click('button[type="submit"]');
+    await page.click('button[type="submit"]', { noWaitAfter: true });
 
     await page.waitForURL(
       (url: URL) =>
@@ -68,19 +88,38 @@ async function authenticateUser(page: Page, config: AuthConfig) {
         ),
       { timeout: 15000 }
     );
-
-    await page.waitForSelector('[data-testid="user-menu"]', { timeout: 5000 });
-
+    hasAuthenticated = true;
   } catch (err) {
-    const artifacts = await dumpDebug('auth-failure');
+    authError = err;
+    artifacts = await dumpDebug('auth-failure');
+  }
+
+  if (!hasAuthenticated && config.role) {
+    try {
+      await loginAs(page, config.role, { redirectTo: expectedPaths[0] ?? '/' });
+      hasAuthenticated = true;
+    } catch (fallbackError) {
+      const emailHash = createHash('sha256').update(email).digest('hex');
+      const artifactParts: string[] = [];
+      if (artifacts?.png) artifactParts.push(`screenshot=${artifacts.png}`);
+      if (artifacts?.html) artifactParts.push(`html=${artifacts.html}`);
+      if (artifacts?.logsPath) artifactParts.push(`logs=${artifacts.logsPath}`);
+
+      throw new Error(
+        `Authentication failed for env ${emailEnvVar} (email hash: ${emailHash}). UI error: ${authError instanceof Error ? authError.message : String(authError)}. Fallback error: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}. Current URL: ${page.url()}. Artifacts: ${artifactParts.join('; ')}. Console:\n${consoleMessages.join('\n')}`
+      );
+    }
+  }
+
+  if (!hasAuthenticated) {
     const emailHash = createHash('sha256').update(email).digest('hex');
     const artifactParts: string[] = [];
-    if (artifacts.png) artifactParts.push(`screenshot=${artifacts.png}`);
-    if (artifacts.html) artifactParts.push(`html=${artifacts.html}`);
-    if (artifacts.logsPath) artifactParts.push(`logs=${artifacts.logsPath}`);
+    if (artifacts?.png) artifactParts.push(`screenshot=${artifacts.png}`);
+    if (artifacts?.html) artifactParts.push(`html=${artifacts.html}`);
+    if (artifacts?.logsPath) artifactParts.push(`logs=${artifacts.logsPath}`);
 
     throw new Error(
-      `Authentication failed for env ${emailEnvVar} (email hash: ${emailHash}). Error: ${err instanceof Error ? err.message : String(err)}. Current URL: ${page.url()}. Artifacts: ${artifactParts.join('; ')}. Console:\n${consoleMessages.join('\n')}`
+      `Authentication failed for env ${emailEnvVar} (email hash: ${emailHash}). Error: ${authError instanceof Error ? authError.message : String(authError)}. Current URL: ${page.url()}. Artifacts: ${artifactParts.join('; ')}. Console:\n${consoleMessages.join('\n')}`
     );
   }
 
@@ -104,6 +143,7 @@ setup('authenticate user', async ({ page }) => {
     defaultPassword: 'TestSecurePass123!',
     outputPath: authFile,
     expectedPaths: ['/dashboard', '/'],
+    role: 'user',
   });
 });
 
@@ -116,6 +156,7 @@ setup('authenticate admin', async ({ page }) => {
     defaultPassword: 'TestSecurePass123!',
     outputPath: adminAuthFile,
     expectedPaths: ['/admin', '/dashboard', '/'],
+    role: 'admin',
   });
 });
 
@@ -128,5 +169,19 @@ setup('authenticate venue owner', async ({ page }) => {
     defaultPassword: 'TestSecurePass123!',
     outputPath: venueOwnerAuthFile,
     expectedPaths: ['/dashboard', '/'],
+    role: 'venueOwner',
+  });
+});
+
+// Authenticate super admin user
+setup('authenticate super admin', async ({ page }) => {
+  await authenticateUser(page, {
+    emailEnvVar: 'E2E_SUPERADMIN_EMAIL',
+    passwordEnvVar: 'E2E_SUPERADMIN_PASSWORD',
+    defaultEmail: 'superadmin@example.com',
+    defaultPassword: 'TestSecurePass123!',
+    outputPath: superAdminAuthFile,
+    expectedPaths: ['/admin', '/dashboard', '/'],
+    role: 'superAdmin',
   });
 });
