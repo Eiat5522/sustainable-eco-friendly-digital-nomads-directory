@@ -2,6 +2,8 @@ import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
 import { chromium, type Page } from '@playwright/test';
+import type { Role } from '@/models/User';
+import { loginAs } from './utils/test-utils';
 
 /**
  * Global setup for Playwright E2E tests.
@@ -26,21 +28,45 @@ async function captureDebugArtifacts(page: Page, prefix: string, storageDir: str
   }
 }
 
+const DEFAULT_E2E_PASSWORD = 'TestSecurePass123!';
+
+async function seedE2EUser(
+  baseURL: string,
+  { email, password, role }: { email: string; password: string; role: Role }
+) {
+  const endpoint = new URL('/api/e2e/setup-user', baseURL).toString();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, role }),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      console.warn(
+        `global-setup: failed to seed ${role} user (status ${response.status})`
+      );
+    }
+  } catch (error) {
+    console.warn(`global-setup: failed to seed ${role} user`, error);
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 export default async function globalSetup() {
   const storageDir = path.resolve(process.cwd(), 'tests', 'storageStates');
   if (!fs.existsSync(storageDir)) fs.mkdirSync(storageDir, { recursive: true });
 
   const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000';
 
-  // Validate required environment variables before allocating resources
-  const adminPassword = process.env.E2E_ADMIN_PASSWORD;
-  if (!adminPassword) {
-    throw new Error('E2E_ADMIN_PASSWORD environment variable is required');
-  }
-  const userPassword = process.env.E2E_USER_PASSWORD;
-  if (!userPassword) {
-    throw new Error('E2E_ADMIN_PASSWORD environment variable is required. Set it to your test admin password before running E2E tests.');
-  }
+  // Resolve credentials with defaults before allocating resources
+  const adminPassword = process.env.E2E_ADMIN_PASSWORD?.trim() || DEFAULT_E2E_PASSWORD;
+  const userPassword = process.env.E2E_USER_PASSWORD?.trim() || DEFAULT_E2E_PASSWORD;
 
   // Wait for the dev server to be reachable before launching the browser
   async function waitForServer(url: string, timeout = 60_000) {
@@ -49,12 +75,12 @@ export default async function globalSetup() {
       try {
         await new Promise<void>((res, rej) => {
           const req = http.get(url, r => {
-          // check for successful status codes
-          if (r.statusCode && r.statusCode >= 200 && r.statusCode < 400) {
-            res();
-          } else {
-            rej(new Error(`Server returned status ${r.statusCode}`));
-          }
+            // check for successful status codes
+            if (r.statusCode && r.statusCode >= 200 && r.statusCode < 400) {
+              res();
+            } else {
+              rej(new Error(`Server returned status ${r.statusCode}`));
+            }
             r.resume();
           });
           req.on('error', rej);
@@ -82,6 +108,11 @@ export default async function globalSetup() {
   const adminEmail = process.env.E2E_ADMIN_EMAIL ?? 'admin@example.com';
 
   try {
+    await seedE2EUser(baseURL, {
+      email: adminEmail,
+      password: adminPassword,
+      role: 'admin',
+    });
     // Navigate and perform login - adjust selectors if your app differs
     await page.goto('/auth/login');
     await page.fill('input[name="email"]', adminEmail);
@@ -91,10 +122,11 @@ export default async function globalSetup() {
     // Wait for a stable post-login URL or element (longer timeout + debug capture)
     try {
       // Wait for navigation to dashboard, admin, or home
-      await page.waitForURL(url => 
-        url.pathname.includes('/admin') || 
-        url.pathname.includes('/dashboard') || 
-        url.pathname === '/', 
+      await page.waitForURL(
+        url =>
+          url.pathname.includes('/admin') ||
+          url.pathname.includes('/dashboard') ||
+          url.pathname === '/',
         { timeout: 30000 }
       );
     } catch (err) {
@@ -109,6 +141,16 @@ export default async function globalSetup() {
   } catch (err) {
     // don't fail global setup hard; surface the error to logs
     console.warn('global-setup: failed to generate admin storageState', err);
+    try {
+      const adminPath = path.join(storageDir, 'admin.json');
+      await loginAs(page, 'admin', { redirectTo: '/admin' });
+      await context.storageState({ path: adminPath });
+    } catch (fallbackError) {
+      console.warn(
+        'global-setup: failed to generate admin storageState via token fallback',
+        fallbackError
+      );
+    }
   }
 
   // Also create a regular user storage state; require credentials in env
@@ -118,14 +160,18 @@ export default async function globalSetup() {
     const userContext = await browser.newContext({ baseURL });
     try {
       const userPage = await userContext.newPage();
+      await seedE2EUser(baseURL, {
+        email: userEmail,
+        password: userPassword,
+        role: 'user',
+      });
       await userPage.goto('/auth/login');
       await userPage.fill('input[name="email"]', userEmail);
       await userPage.fill('input[name="password"]', userPassword);
       await userPage.click('button[type="submit"]');
       try {
-        await userPage.waitForURL(url => 
-          url.pathname.includes('/dashboard') || 
-          url.pathname === '/', 
+        await userPage.waitForURL(
+          url => url.pathname.includes('/dashboard') || url.pathname === '/',
           { timeout: 30000 }
         );
       } catch (err) {
@@ -139,6 +185,22 @@ export default async function globalSetup() {
     }
   } catch (err) {
     console.warn('global-setup: failed to generate user storageState', err);
+    try {
+      const userContext = await browser.newContext({ baseURL });
+      try {
+        const userPage = await userContext.newPage();
+        const userPath = path.join(storageDir, 'user.json');
+        await loginAs(userPage, 'user', { redirectTo: '/dashboard' });
+        await userContext.storageState({ path: userPath });
+      } finally {
+        await userContext.close();
+      }
+    } catch (fallbackError) {
+      console.warn(
+        'global-setup: failed to generate user storageState via token fallback',
+        fallbackError
+      );
+    }
   }
   await context.close();
   await browser.close();

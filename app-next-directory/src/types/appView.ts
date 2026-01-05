@@ -140,7 +140,7 @@ export type AppListingDetail = AppListingCard & {
 };
 
 export type AppReview = {
-  id: string;
+  _id: string;
   listingId: string;
   userId: string;
   rating: number;

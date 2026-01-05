@@ -10,11 +10,11 @@
  * Run before E2E tests to ensure a clean, consistent state.
  *
  * Test Credentials (see tmp/playwright-local.env):
- * - admin@example.com / TestSecurePass123! (admin role)
- * - e2e-test@example.com / TestSecurePass123! (user role)
- * - venue@example.com / TestSecurePass123! (venueOwner role)
- * - user@example.com / TestSecurePass123! (user role)
- */
+ * - ad***@example.com / TestSecurePass123! (admin role)
+ * - e2***@example.com / TestSecurePass123! (user role)
+ * - ve***@example.com / TestSecurePass123! (venueOwner role)
+ * - us***@example.com / TestSecurePass123! (user role)
+*/
 
 import { MongoClient } from 'mongodb';
 

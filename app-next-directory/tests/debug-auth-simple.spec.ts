@@ -12,30 +12,43 @@ const sanitizeAuthResponse = (body: unknown): unknown => {
   if (!body || typeof body !== 'object') return '[redacted]';
   
   // Deep copy to avoid mutating original and handle nested structures
-  let copy;
+  // Prefer structuredClone when available (more robust), fall back to JSON for JSON-safe payloads
+  let copy: unknown;
   try {
-    copy = JSON.parse(JSON.stringify(body));
+    if (typeof (globalThis as any).structuredClone === 'function') {
+      copy = (globalThis as any).structuredClone(body);
+    } else {
+      copy = JSON.parse(JSON.stringify(body));
+    }
   } catch (error) {
     return '[redacted-circular-ref]';
   }
   
   const sensitiveFields = ['password', 'passwordHash', 'token', 'refreshToken', 'sessionToken', 'accessToken'];
   
-  const redact = (obj: any): void => {
+  const redact = (obj: Record<string, unknown> | Array<unknown>): void => {
     if (!obj || typeof obj !== 'object') return;
-    
+
+    if (Array.isArray(obj)) {
+      for (const item of obj) {
+        if (item && typeof item === 'object') redact(item as Record<string, unknown>);
+      }
+      return;
+    }
+
     for (const key of Object.keys(obj)) {
-      if (key === 'email' && typeof obj[key] === 'string') {
-        obj[key] = maskEmail(obj[key]);
+      const val = obj[key];
+      if (key === 'email' && typeof val === 'string') {
+        obj[key] = maskEmail(val);
       } else if (sensitiveFields.includes(key)) {
         obj[key] = '[redacted]';
-      } else if (typeof obj[key] === 'object') {
-        redact(obj[key]);
+      } else if (val && typeof val === 'object') {
+        redact(val as Record<string, unknown>);
       }
     }
   };
   
-  redact(copy);
+  redact(copy as Record<string, unknown> | Array<unknown>);
   return copy;
 };
 

@@ -391,7 +391,7 @@ const favorites: TestFavorite[] = [
 
 const reviews: AppReview[] = [
   {
-    id: 'review-bangkok-1',
+    _id: 'review-bangkok-1',
     listingId: 'listing-bangkok-eco-hub',
     userId: 'user-riley-regular',
     rating: 5,
@@ -404,7 +404,7 @@ const reviews: AppReview[] = [
     },
   },
   {
-    id: 'review-bangkok-2',
+    _id: 'review-bangkok-2',
     listingId: 'listing-bangkok-eco-hub',
     userId: 'user-vera-venue',
     rating: 4,
@@ -417,7 +417,7 @@ const reviews: AppReview[] = [
     },
   },
   {
-    id: 'review-lisbon-1',
+    _id: 'review-lisbon-1',
     listingId: 'listing-lisbon-earth-stay',
     userId: 'user-sam-superadmin',
     rating: 5,

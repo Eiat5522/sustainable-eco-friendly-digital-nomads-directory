@@ -28,13 +28,7 @@ const data = createTestData();
 const ok = <Body>(body: Body, status = 200) =>
   HttpResponse.json(body as Record<string, unknown>, { status });
 
-interface ListingItem {
-  _id: string;
-  name: string;
-  city: { name: string; slug?: { current: string } };
-  slug?: { current: string };
-  [key: string]: unknown;
-}
+
 
 /**
  * Internal API route handlers

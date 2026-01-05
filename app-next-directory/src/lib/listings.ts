@@ -165,7 +165,7 @@ export function mapSanityListingToAppListingDetail(raw: SanityListingRaw): AppLi
     lastVerifiedDate: raw.lastVerifiedDate,
     reviews: Array.isArray(raw.reviews)
       ? raw.reviews.filter(isSanityReviewRaw).map(review => ({
-          id: review?._id ?? '',
+          _id: review?._id ?? '',
           listingId: raw._id,
           userId: review?.user?._id ?? '',
           rating: typeof review?.rating === 'number' ? review.rating : 0,

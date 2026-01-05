@@ -62,12 +62,14 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   projects: [
+    // Setup project
+    { name: 'setup', testMatch: /.*\.setup\.ts/ },
     
-    { name: 'chromium', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } } },
-    { name: 'firefox', use: { ...devices['Desktop Firefox'], viewport: { width: 1280, height: 800 } } },
+    { name: 'chromium', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 }, storageState: 'playwright/.auth/user.json', }, dependencies: ['setup'], },
+    { name: 'firefox', use: { ...devices['Desktop Firefox'], viewport: { width: 1280, height: 800 }, storageState: 'playwright/.auth/user.json', }, dependencies: ['setup'], },
      ],  webServer: isLocal
       ? {
-        command: 'next dev --hostname ::1',        url: serverWaitURL.toString(),
+        command: 'next dev',        url: serverWaitURL.toString(),
         // Increase timeout for containerized environments (build + startup can take longer)
         timeout: 180_000,
         // In CI/E2E/Docker runs we should NOT reuse an existing server to avoid stale processes
