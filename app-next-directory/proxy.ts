@@ -6,6 +6,7 @@ import { structuredLogger } from '@/lib/logger';
 import type { UserRole } from '@/types/auth';
 
 const secret = process.env.NEXTAUTH_SECRET;
+const isMongoObjectId = (value: string): boolean => /^[0-9a-fA-F]{24}$/.test(value);
 
 /**
  * Attach security headers to all NextResponse objects.
@@ -53,23 +54,27 @@ export async function proxy(request: NextRequest) {
     // If token exists and has an id, revalidate role and tokenVersion against MongoDB
     if (token?.id) {
       try {
-        const dbUser = await getUserById(String(token.id));
-        if (dbUser) {
-          // If tokenVersion mismatch, treat as unauthenticated to force re-login
-          const tokenVersionInToken = (token as unknown as { tokenVersion?: number }).tokenVersion;
-          if (
-            typeof tokenVersionInToken === 'number' &&
-            typeof dbUser.tokenVersion === 'number' &&
-            tokenVersionInToken !== dbUser.tokenVersion
-          ) {
-            // Force re-login by treating token as absent
-            return withSecurityHeaders(
-              NextResponse.redirect(new URL('/auth/login', request.nextUrl.origin || request.url))
-            );
-          }
+        const tokenId = String(token.id);
+        if (isMongoObjectId(tokenId)) {
+          const dbUser = await getUserById(tokenId);
+          if (dbUser) {
+            // If tokenVersion mismatch, treat as unauthenticated to force re-login
+            const tokenVersionInToken = (token as unknown as { tokenVersion?: number })
+              .tokenVersion;
+            if (
+              typeof tokenVersionInToken === 'number' &&
+              typeof dbUser.tokenVersion === 'number' &&
+              tokenVersionInToken !== dbUser.tokenVersion
+            ) {
+              // Force re-login by treating token as absent
+              return withSecurityHeaders(
+                NextResponse.redirect(new URL('/auth/login', request.nextUrl.origin || request.url))
+              );
+            }
 
-          // Use DB role as canonical
-          userRole = dbUser.role as UserRole;
+            // Use DB role as canonical
+            userRole = dbUser.role as UserRole;
+          }
         }
       } catch (err) {
         structuredLogger.warn('[proxy] failed to revalidate token/user', err, {

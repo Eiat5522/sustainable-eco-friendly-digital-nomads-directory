@@ -14,7 +14,7 @@ const footerLinks = {
     { name: 'Find Listings', href: '/search' },
     { name: 'Blog', href: '/blog' },
     { name: 'Submit Your Business', href: '/contact-us' },
-    { name: 'Login / Register', href: '/auth/login' },
+    { name: 'Login / register', href: '/auth/login' },
   ],
   categories: [
     { name: 'Co-working Spaces', href: '/search/results?category=coworking' },
@@ -57,11 +57,11 @@ export function Footer({ showNewsletter = true }: FooterProps) {
                 highlights
               </p>
               <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-                <label htmlFor="newsletter-email" className="sr-only">
+                <label htmlFor="footer-newsletter-email" className="sr-only">
                   Email address
                 </label>
                 <NeoInput
-                  id="newsletter-email"
+                  id="footer-newsletter-email"
                   name="email"
                   type="email"
                   placeholder="Enter your email"

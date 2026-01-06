@@ -183,8 +183,19 @@ test.describe('Search & Filter UX', () => {
       await page.waitForURL(/\/search/);
 
       // Check either listings or no results message appears
-      const hasListings = (await page.locator('[data-testid="listing-card"]').count()) > 0;
-      const noResultsText = await page.locator('text=No results found').isVisible();
+      await Promise.race([
+        page.waitForSelector('[data-testid="search-results"]', { state: 'visible' }),
+        page.waitForSelector('[data-testid="no-results"]', { state: 'visible' }),
+      ]);
+
+      const hasListings = await page
+        .locator('[data-testid="search-results"]')
+        .isVisible()
+        .catch(() => false);
+      const noResultsText = await page
+        .locator('[data-testid="no-results"]')
+        .isVisible()
+        .catch(() => false);
 
       // At least one should be true (either show listings or no results)
       expect(hasListings || noResultsText).toBeTruthy();

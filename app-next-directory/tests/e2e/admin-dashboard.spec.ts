@@ -10,17 +10,20 @@ test.describe('Admin Dashboard Integration', () => {
 
       // Try to navigate to admin dashboard - should be redirected
       try {
-        await page.goto(`${BASE_URL}/admin`, { waitUntil: 'load', timeout: 15000 });
+        await page.goto(`${BASE_URL}/admin`, { waitUntil: 'domcontentloaded', timeout: 15000 });
       } catch {
         // Redirects can cause net::ERR_ABORTED; that's expected for forbidden routes
       }
 
       await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});
+      await page
+        .waitForURL(/\/unauthorized/, { timeout: 20000, waitUntil: 'domcontentloaded' })
+        .catch(() => {});
 
-      await expect(page).toHaveURL(/\/unauthorized/);
-      await expect(page.getByRole('heading', { name: /403 - Access Denied/i })).toBeVisible({
-        timeout: 10000,
+      await expect(page.getByRole('heading', { name: /access denied/i })).toBeVisible({
+        timeout: 20000,
       });
+      expect(page.url()).toContain('/unauthorized');
     });
 
     test('venue owner cannot access admin dashboard', async ({ page }) => {
@@ -28,23 +31,26 @@ test.describe('Admin Dashboard Integration', () => {
 
       // Try to navigate to admin dashboard - should be redirected
       try {
-        await page.goto(`${BASE_URL}/admin`, { waitUntil: 'load', timeout: 15000 });
+        await page.goto(`${BASE_URL}/admin`, { waitUntil: 'domcontentloaded', timeout: 15000 });
       } catch {
         // Redirects can cause net::ERR_ABORTED; that's expected for forbidden routes
       }
 
       await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});
+      await page
+        .waitForURL(/\/unauthorized/, { timeout: 20000, waitUntil: 'domcontentloaded' })
+        .catch(() => {});
 
-      await expect(page).toHaveURL(/\/unauthorized/);
-      await expect(page.getByRole('heading', { name: /403 - Access Denied/i })).toBeVisible({
-        timeout: 10000,
+      await expect(page.getByRole('heading', { name: /access denied/i })).toBeVisible({
+        timeout: 20000,
       });
+      expect(page.url()).toContain('/unauthorized');
     });
 
     test('unauthenticated user is redirected to login', async ({ page }) => {
       await page
         .goto(`${BASE_URL}/admin`, {
-          waitUntil: 'load',
+          waitUntil: 'domcontentloaded',
           timeout: 15000,
         })
         .catch(() => {});

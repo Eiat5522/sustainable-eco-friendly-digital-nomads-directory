@@ -284,12 +284,14 @@ async function applySession(page: Page, role: Role) {
 }
 
 async function loginViaForm(page: Page, email: string, password: string, redirectPattern: RegExp) {
-  await page.goto('/auth/login');
-  await page.getByLabel(/email/i).fill(email);
-  await page.getByLabel(/password/i).fill(password);
+  await page.goto('/auth/login', { waitUntil: 'domcontentloaded' });
+  await page.locator('input[name="email"]').first().fill(email);
+  await page.locator('input[name="password"]').first().fill(password);
   const submit = page.locator('button[type="submit"]');
   await Promise.all([
-    page.waitForURL(redirectPattern, { timeout: 15_000 }).catch(() => undefined),
+    page
+      .waitForURL(redirectPattern, { timeout: 15_000, waitUntil: 'domcontentloaded' })
+      .catch(() => undefined),
     submit.click(),
   ]);
 }
@@ -343,7 +345,7 @@ export async function loginAs(page: Page, role: Role, options: { redirectTo?: st
 
 export const test = base.extend<{ authenticatedPage: Page; adminPage: Page }>({
   authenticatedPage: async ({ page }, use) => {
-    await loginAs(page, 'user', { redirectTo: '/dashboard' });
+    await loginAs(page, 'user', { redirectTo: '/profile' });
     await use(page);
   },
   adminPage: async ({ page }, use) => {
@@ -372,10 +374,12 @@ async function loginByRole(
     };
     const pwd = password ?? roleDefaultPasswords[role] ?? 'TestSecurePass123!';
     await loginViaForm(page, email, pwd, new RegExp(fallbackPath));
+    await page.waitForLoadState('domcontentloaded').catch(() => undefined);
     return;
   }
 
   await loginAs(page, role, { redirectTo: fallbackPath });
+  await page.waitForLoadState('domcontentloaded').catch(() => undefined);
 }
 
 export const TestHelpers = {
@@ -422,11 +426,11 @@ export const TestHelpers = {
   },
 
   async loginAsUser(page: Page, email?: string, password?: string) {
-    await loginByRole(page, 'user', '/dashboard', email, password);
+    await loginByRole(page, 'user', '/profile', email, password);
   },
 
   async loginAsVenueOwner(page: Page, email?: string, password?: string) {
-    await loginByRole(page, 'venueOwner', '/dashboard/venues', email, password);
+    await loginByRole(page, 'venueOwner', '/dashboard/listings', email, password);
   },
 
   async loginAsPremium(page: Page, email?: string, password?: string) {
@@ -463,10 +467,12 @@ export const TestHelpers = {
 
   async makeAuthenticatedRequest(page: Page, endpoint: string, options: any = {}) {
     const token = await page.evaluate(() => window.localStorage.getItem('token'));
+    const { timeout = 15000, ...requestOptions } = options;
     return page.request.fetch(endpoint, {
-      ...options,
+      ...requestOptions,
+      timeout,
       headers: {
-        ...options.headers,
+        ...requestOptions.headers,
         Authorization: token ? `Bearer ${token}` : undefined,
       },
     });

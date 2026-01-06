@@ -24,9 +24,7 @@ Incorporate the new caching primitives at the top of your page component to stor
 * **Set Lifetime:** Use `cacheLife('max')` for infinite caching, as listing data typically changes only via specific edits.
 * **Apply Tags:** Implement `cacheTag(\`listing-${slug}\`)` to allow for precise, on-demand invalidation.
 
-#### Step 4: Implement Partial Prerendering (PPR) with
-
-`<Suspense>`
+#### Step 4: Implement Partial Prerendering (PPR) with `<Suspense>`
 
 Isolate dynamic or secondary content to prevent them from blocking the static shell.
 

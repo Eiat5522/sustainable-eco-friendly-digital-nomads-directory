@@ -1,40 +1,28 @@
-# Build Failure Investigation and Resolution
+# E2E Auth Tests Refactoring Task
 
-## Issue Summary
+## Objective
+Remove mocks from E2E auth tests and move them to integration tests to enable true E2E coverage with real backend endpoints.
 
-- **Error**: Failed to collect page data for /listings
-- **Context**: Next.js 16.1.0 with Turbopack and Cache Components enabled
-- **Root Cause**: Configuration collection failure for /listings route
+## Current Status
+- [x] Analyzed current auth.spec.ts file
+- [ ] Examine testing infrastructure and environment setup
+- [ ] Review existing integration test structure
+- [ ] Create new integration test for auth functionality
+- [ ] Modify E2E test to remove mocks (add TEST_INTEGRATION flag option)
+- [ ] Configure E2E test environment for real backend testing
+- [ ] Update test database configuration if needed
+- [ ] Verify E2E tests work with real endpoints
+- [ ] Update documentation and test scripts
 
-## Action Plan
+## Key Changes Required
+1. **Remove page.route mocks from auth.spec.ts**
+2. **Create integration test file with mocked responses**
+3. **Add TEST_INTEGRATION environment flag for optional mocking**
+4. **Configure E2E environment for real database/backend**
+5. **Ensure proper test isolation and cleanup**
 
-### Phase 1: Investigation and Setup
-
-- [ ] Set up next-devtools for build analysis
-- [ ] Examine the /listings route implementation and configuration
-- [ ] Analyze the error logs and identify specific failure points
-- [ ] Review cache-components related changes that may have introduced the issue
-
-### Phase 2: Problem Identification
-
-- [ ] Check for missing or invalid configurations in /listings route
-- [ ] Verify data fetching patterns and caching implementations
-- [ ] Identify any dependency conflicts or missing imports
-- [ ] Review Next.js configuration changes
-
-### Phase 3: Resolution
-
-- [ ] Fix identified configuration issues
-- [ ] Update caching implementations if needed
-- [ ] Test the build locally to verify fixes
-- [ ] Ensure cache-components functionality works correctly
-
-### Phase 4: Verification
-
-- [ ] Run production build to confirm success
-- [ ] Validate cache-components performance improvements
-- [ ] Document the resolution for future reference
-
-## Next Steps
-
-Start with setting up next-devtools and examining the /listings route implementation.
+## Files to Modify/Create
+- `app-next-directory/tests/e2e/auth.spec.ts` (modify)
+- `app-next-directory/src/__tests__/integration/auth.integration.test.ts` (create)
+- `app-next-directory/tests/e2e/.env.test` (create/modify)
+- `app-next-directory/jest.e2e.config.js` (check/modify)

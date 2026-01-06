@@ -22,7 +22,17 @@ Prioritized Fixes
 
 Example (add to `next.config.ts`):
 
-
+// next.config.ts
+export default {
+  experimental: {
+    cacheComponents: true,
+    cacheLife: {
+      default: { revalidate: 3600 },      // 1 hour
+      ecoTags: { revalidate: 86400 },     // 24 hours
+      listings: { revalidate: 3600 }      // 1 hour
+    }
+  }
+};
 
 Effort: low. Verify: `pnpm build` and visit Home; no runtime errors.
 

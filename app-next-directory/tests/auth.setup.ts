@@ -77,8 +77,8 @@ async function authenticateUser(page: Page, config: AuthConfig) {
 
   try {
     await page.goto('/auth/login', { waitUntil: 'domcontentloaded' });
-    await page.fill('input[name="email"]', email);
-    await page.fill('input[name="password"]', password);
+    await page.locator('input[name="email"]').first().fill(email);
+    await page.locator('input[name="password"]').first().fill(password);
     await page.click('button[type="submit"]', { noWaitAfter: true });
 
     await page.waitForURL(
@@ -86,7 +86,7 @@ async function authenticateUser(page: Page, config: AuthConfig) {
         expectedPaths.some(p =>
           p === '/' ? url.pathname === '/' : url.pathname === p || url.pathname.startsWith(p + '/')
         ),
-      { timeout: 15000 }
+      { timeout: 15000, waitUntil: 'domcontentloaded' }
     );
     hasAuthenticated = true;
   } catch (err) {
