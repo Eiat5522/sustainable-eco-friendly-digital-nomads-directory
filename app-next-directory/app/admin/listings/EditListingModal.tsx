@@ -26,11 +26,7 @@ type ListingResponse = ListingFormState;
 
 type SaveResponse = { message?: string };
 
-export function EditListingModal({
-  listingId,
-  listingName,
-  onUpdated,
-}: EditListingModalProps) {
+export function EditListingModal({ listingId, listingName, onUpdated }: EditListingModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [listing, setListing] = useState<ListingFormState | null>(null);
   const [loading, setLoading] = useState(false);

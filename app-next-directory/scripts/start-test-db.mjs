@@ -15,12 +15,15 @@ async function main() {
   const cleanup = () => {
     if (isCleaningUp) return;
     isCleaningUp = true;
-    mongod.stop().then(() => {
-      process.exit(0);
-    }).catch((err) => {
-      console.error('Error stopping MongoDB:', err);
-      process.exit(1);
-    });
+    mongod
+      .stop()
+      .then(() => {
+        process.exit(0);
+      })
+      .catch(err => {
+        console.error('Error stopping MongoDB:', err);
+        process.exit(1);
+      });
   };
 
   // Keep the process alive

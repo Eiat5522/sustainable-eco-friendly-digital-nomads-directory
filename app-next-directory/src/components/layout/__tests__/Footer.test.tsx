@@ -66,7 +66,7 @@ const footerLinks = () => [
   'Find Listings',
   'Blog',
   'Submit Your Business',
-  'Login / Register',
+  'Login / register',
   'Co-working Spaces',
   'Cafes',
   'Restaurants',

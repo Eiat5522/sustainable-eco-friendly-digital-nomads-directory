@@ -17,6 +17,7 @@ import {
   NeoCardHeader,
   NeoCardTitle,
 } from '@/components/ui/neo-card';
+import { useCachedUserProfile } from '@/hooks/useCachedUserProfile';
 import type { UserRole } from '@/types/auth';
 import type {
   DashboardTimeSeriesPointDTO,
@@ -24,7 +25,6 @@ import type {
   UserDashboardPayloadDTO,
   VenueOwnerDashboardDTO,
 } from '@/types/dto';
-import { useCachedUserProfile } from '@/hooks/useCachedUserProfile';
 import type { OwnerListingReviews } from './utils';
 import { formatDate, normaliseOwnerReviews, type OwnerReviewsResponse } from './utils';
 

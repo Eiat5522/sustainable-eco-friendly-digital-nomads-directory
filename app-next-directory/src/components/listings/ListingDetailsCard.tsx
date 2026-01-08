@@ -92,7 +92,10 @@ function renderSections({
         <Suspense
           fallback={
             <>
-              <div className="min-h-24 w-full rounded-lg bg-muted animate-pulse" aria-hidden="true" />
+              <div
+                className="min-h-24 w-full rounded-lg bg-muted animate-pulse"
+                aria-hidden="true"
+              />
               <span className="sr-only" role="status" aria-live="polite">
                 Loading description…
               </span>

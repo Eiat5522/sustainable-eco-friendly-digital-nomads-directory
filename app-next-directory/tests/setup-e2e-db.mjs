@@ -14,7 +14,7 @@
  * - e2***@example.com / TestSecurePass123! (user role)
  * - ve***@example.com / TestSecurePass123! (venueOwner role)
  * - us***@example.com / TestSecurePass123! (user role)
-*/
+ */
 
 import { MongoClient } from 'mongodb';
 

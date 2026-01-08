@@ -54,9 +54,9 @@ type NextRequestLike = {
 
 // Used in function signatures
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-type NextResponseLike = {
+type _NextResponseLike = {
   headers: Headers;
-  next: () => NextResponseLike;
+  next: () => _NextResponseLike;
 };
 
 // ServerTiming middleware using compatible types

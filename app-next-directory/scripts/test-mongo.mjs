@@ -44,16 +44,16 @@ async function run() {
     const assignedPort = typeof mongod.getPort === 'function' ? mongod.getPort() : port;
 
     structuredLogger.info('MongoMemoryServer started', { uri, port: assignedPort });
-    
+
     // Keep it running
     const shutdown = async () => {
       await mongod.stop();
       process.exit(0);
     };
-    
+
     process.on('SIGINT', shutdown);
     process.on('SIGTERM', shutdown);
-    
+
     // Wait forever
     await new Promise(() => {});
   } catch (err) {
@@ -62,7 +62,7 @@ async function run() {
   }
 }
 
-run().catch((err) => {
+run().catch(err => {
   structuredLogger.error('Unexpected error:', err);
   process.exit(1);
 });

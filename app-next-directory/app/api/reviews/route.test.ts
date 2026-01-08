@@ -428,7 +428,7 @@ describe('API /api/reviews POST', () => {
       })
     );
     if (jest.isMockFunction(revalidateTag)) {
-      expect(revalidateTag).toHaveBeenCalledWith('listing:listing-slug', 'max');
+      expect(revalidateTag).toHaveBeenCalledWith('listing-listing-slug', 'max');
     }
   });
 

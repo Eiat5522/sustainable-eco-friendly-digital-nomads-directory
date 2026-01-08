@@ -14,7 +14,7 @@ export function FavoriteButtonOverlay({
   listingSlug,
   listingTitle,
   initialIsFavorited,
-  className = "bg-white/90 hover:bg-white",
+  className = 'bg-white/90 hover:bg-white',
 }: FavoriteButtonOverlayProps): React.JSX.Element {
   return (
     <FavoriteButton

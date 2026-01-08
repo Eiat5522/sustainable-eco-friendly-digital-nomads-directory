@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, test } from '@jest/globals';
 
 // Client-side registration function that calls the API
 async function registerUser(name: string, email: string, password: string) {
@@ -43,10 +43,11 @@ describe('Authentication Integration Tests (Frontend with Mocked Backend)', () =
     // Mock global fetch with proper request validation
     const mockFetch = jest.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({
-        success: true,
-        data: { user: { email: 'test@example.com' } },
-      }),
+      json: () =>
+        Promise.resolve({
+          success: true,
+          data: { user: { email: 'test@example.com' } },
+        }),
     });
     global.fetch = mockFetch as unknown as typeof fetch;
 
@@ -68,11 +69,12 @@ describe('Authentication Integration Tests (Frontend with Mocked Backend)', () =
     // Mock global fetch with response shape matching registration (consistent API contract)
     const mockFetch = jest.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({
-        success: true,
-        data: { user: { email: 'test@example.com' } },
-        token: 'token123',
-      }),
+      json: () =>
+        Promise.resolve({
+          success: true,
+          data: { user: { email: 'test@example.com' } },
+          token: 'token123',
+        }),
     });
     global.fetch = mockFetch as unknown as typeof fetch;
 

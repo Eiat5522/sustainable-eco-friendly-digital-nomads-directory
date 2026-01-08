@@ -196,11 +196,7 @@ async function applySession(page: Page, role: Role) {
     ({ token, user, storageEntries }) => {
       if (Array.isArray(storageEntries)) {
         for (const entry of storageEntries) {
-          if (
-            entry &&
-            typeof entry.name === 'string' &&
-            typeof entry.value === 'string'
-          ) {
+          if (entry && typeof entry.name === 'string' && typeof entry.value === 'string') {
             window.localStorage.setItem(entry.name, entry.value);
           }
         }
@@ -227,7 +223,10 @@ async function applySession(page: Page, role: Role) {
   } as const;
 
   await page.context().addCookies([cookieUrl]);
-  let cookies = await page.context().cookies(origin).catch(() => []);
+  let cookies = await page
+    .context()
+    .cookies(origin)
+    .catch(() => []);
   if (!cookies.some(cookie => cookie.name === TEST_SESSION_COOKIE_NAME)) {
     const cookieDomain = {
       name: TEST_SESSION_COOKIE_NAME,
@@ -238,8 +237,14 @@ async function applySession(page: Page, role: Role) {
       secure: origin.startsWith('https:'),
       sameSite: 'Lax' as const,
     } as const;
-    await page.context().addCookies([cookieDomain]).catch(() => undefined);
-    cookies = await page.context().cookies(origin).catch(() => []);
+    await page
+      .context()
+      .addCookies([cookieDomain])
+      .catch(() => undefined);
+    cookies = await page
+      .context()
+      .cookies(origin)
+      .catch(() => []);
   }
   if (!cookies.some(cookie => cookie.name === TEST_SESSION_COOKIE_NAME)) {
     console.warn('applySession: session cookie missing after addCookies', {
@@ -257,11 +262,7 @@ async function applySession(page: Page, role: Role) {
         ({ token, user, storageEntries }) => {
           if (Array.isArray(storageEntries)) {
             for (const entry of storageEntries) {
-              if (
-                entry &&
-                typeof entry.name === 'string' &&
-                typeof entry.value === 'string'
-              ) {
+              if (entry && typeof entry.name === 'string' && typeof entry.value === 'string') {
                 window.localStorage.setItem(entry.name, entry.value);
               }
             }
@@ -304,7 +305,9 @@ async function ensureServerSession(
   try {
     const response = await page.request.get('/api/auth/session');
     if (response.ok()) {
-      const data = (await response.json().catch(() => null)) as { user?: { email?: string } } | null;
+      const data = (await response.json().catch(() => null)) as {
+        user?: { email?: string };
+      } | null;
       if (data?.user?.email && data.user.email === session.user.email) {
         return;
       }

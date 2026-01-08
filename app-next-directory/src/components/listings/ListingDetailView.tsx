@@ -1,7 +1,7 @@
 import type React from 'react';
 import type { CityDTO, ListingDetailDTO } from '@/types/dto';
-import GalleryGrid from './GalleryGrid';
 import { FavoriteButtonOverlay } from './FavoriteButtonOverlay';
+import GalleryGrid from './GalleryGrid';
 import { HeroSection } from './HeroSection';
 import { ListingDetailsCard } from './ListingDetailsCard';
 import { ListingViewTracker } from './ListingViewTracker';

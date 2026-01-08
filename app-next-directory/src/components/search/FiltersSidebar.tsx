@@ -8,7 +8,7 @@ import { DigitalNomadSearchFilter } from './DigitalNomadSearchFilter';
 
 type FiltersMap = Record<string, string[]>;
 
-const ignoredClearCommandPatterns = ['clear filters', 'reset filters', 'remove filters'] as const;
+const _ignoredClearCommandPatterns = ['clear filters', 'reset filters', 'remove filters'] as const;
 
 function normalizeText(value: string): string {
   return value
@@ -18,7 +18,7 @@ function normalizeText(value: string): string {
     .trim();
 }
 
-function ignoredTokenize(value: string): string[] {
+function _ignoredTokenize(value: string): string[] {
   return normalizeText(value).split(' ').filter(Boolean);
 }
 
@@ -43,7 +43,7 @@ function normalizeFilters(filters: FiltersMap): FiltersMap {
   return normalized;
 }
 
-function ignoredFilterToAllowedValues(
+function _ignoredFilterToAllowedValues(
   filters: FiltersMap,
   allowedByGroup: Map<string, Set<string>>
 ): FiltersMap {

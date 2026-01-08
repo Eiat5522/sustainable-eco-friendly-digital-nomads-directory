@@ -114,7 +114,7 @@ describe('listings library', () => {
       expect(detail.location).toEqual({ lat: 10, lng: 20 });
       expect(detail.reviews).toHaveLength(2);
       expect(detail.reviews[0]).toMatchObject({
-        id: 'review-1',
+        _id: 'review-1',
         listingId: 'sanity-1',
         userId: 'user-1',
         rating: 5,

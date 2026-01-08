@@ -1,8 +1,8 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import type { ErrorInfo, ReactNode } from 'react';
 import { Component, Suspense } from 'react';
-import dynamic from 'next/dynamic';
 
 const InteractiveMap = dynamic(
   () => import('@/components/ui/InteractiveMap').then(mod => mod.InteractiveMap),

@@ -47,9 +47,7 @@ async function seedE2EUser(
     });
 
     if (!response.ok) {
-      console.warn(
-        `global-setup: failed to seed ${role} user (status ${response.status})`
-      );
+      console.warn(`global-setup: failed to seed ${role} user (status ${response.status})`);
     }
   } catch (error) {
     console.warn(`global-setup: failed to seed ${role} user`, error);

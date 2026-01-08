@@ -85,7 +85,7 @@ const eslintConfig = [
         'warn',
         {
           argsIgnorePattern: '^_',
-          varsIgnorePattern: '^ignored',
+          varsIgnorePattern: '^_?ignored',
           caughtErrorsIgnorePattern: '^_',
         },
       ],

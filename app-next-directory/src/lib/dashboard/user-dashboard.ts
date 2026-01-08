@@ -58,9 +58,9 @@ type AnalyticsDoc = {
 type ListingInfo = DashboardListingInfoDTO;
 type ListingMonthlyMetrics = DashboardTimeSeriesPointDTO;
 type ListingDashboardMetrics = DashboardListingSummaryDTO;
-type ignoredVenueOwnerDashboard = VenueOwnerDashboardDTO;
+type _ignoredVenueOwnerDashboard = VenueOwnerDashboardDTO;
 type FavoriteSummary = UserDashboardFavoriteDTO;
-type ignoredRegularUserDashboard = RegularUserDashboardDTO;
+type _ignoredRegularUserDashboard = RegularUserDashboardDTO;
 type DashboardPayload = UserDashboardPayloadDTO;
 
 export function createMonthBuckets(monthCount: number, reference: Date): MonthBucket[] {

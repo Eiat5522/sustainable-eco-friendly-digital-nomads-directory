@@ -3,7 +3,14 @@ import { sanityFetch } from '@/lib/sanity/client';
 import type { SanityImage } from '@/types/sanity.types';
 
 type SanityImageWithHotspot = SanityImage & {
-  crop?: { top?: number; left?: number; right?: number; bottom?: number; width?: number; height?: number };
+  crop?: {
+    top?: number;
+    left?: number;
+    right?: number;
+    bottom?: number;
+    width?: number;
+    height?: number;
+  };
   hotspot?: { x?: number; y?: number; height?: number; width?: number };
 };
 

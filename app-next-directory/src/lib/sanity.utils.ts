@@ -16,17 +16,13 @@ const FETCH_BY_SLUG_QUERY = `*[_type == $type && slug.current == $slug][0]{
 }`;
 
 export async function fetchBySlug(type: string, slug: string, preview = false) {
-
   if (preview) {
-
     const client = await getSanityClient(true);
 
     return await client.fetch(FETCH_BY_SLUG_QUERY, { type, slug });
-
   }
 
   return await cachedClient.fetch(FETCH_BY_SLUG_QUERY, { type, slug });
-
 }
 
 export function validatePreviewToken(token: string | null): boolean {

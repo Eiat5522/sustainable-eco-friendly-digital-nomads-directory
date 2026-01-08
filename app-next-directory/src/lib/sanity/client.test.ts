@@ -81,7 +81,8 @@ describe('Sanity client module', () => {
         useCdn: false,
         token: 'test-token',
         ignoreBrowserTokenWarning: true,
-        maxRetries: 0,
+        maxRetries: 3,
+        perspective: 'previewDrafts',
       });
 
       expect(createClient).toHaveBeenCalledWith({
@@ -91,7 +92,7 @@ describe('Sanity client module', () => {
         useCdn: false,
         token: 'test-token',
         ignoreBrowserTokenWarning: true,
-        maxRetries: 0,
+        maxRetries: 3,
         perspective: 'previewDrafts',
       });
 
@@ -118,7 +119,8 @@ describe('Sanity client module', () => {
         dataset: 'placeholder-dataset',
         apiVersion: '2024-01-01',
         useCdn: false,
-        maxRetries: 0,
+        maxRetries: 3,
+        perspective: 'previewDrafts',
       });
 
       expect(createClient).toHaveBeenCalledWith({
@@ -126,7 +128,7 @@ describe('Sanity client module', () => {
         dataset: 'placeholder-dataset',
         apiVersion: '2024-01-01',
         useCdn: false,
-        maxRetries: 0,
+        maxRetries: 3,
         perspective: 'previewDrafts',
       });
 
@@ -506,7 +508,8 @@ describe('Sanity client module', () => {
         useCdn: false,
         token: 'partial-token',
         ignoreBrowserTokenWarning: true,
-        maxRetries: 0,
+        maxRetries: 3,
+        perspective: 'previewDrafts',
       });
 
       expect(createClient).toHaveBeenCalledWith({
@@ -516,7 +519,7 @@ describe('Sanity client module', () => {
         useCdn: false,
         token: 'partial-token',
         ignoreBrowserTokenWarning: true,
-        maxRetries: 0,
+        maxRetries: 3,
         perspective: 'previewDrafts',
       });
 

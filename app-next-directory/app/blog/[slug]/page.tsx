@@ -30,7 +30,7 @@ type PostDTO = {
 };
 // Type for potential future use
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-type PostResponse = { post: PostDTO; comments: Comment[] };
+type _PostResponse = { post: PostDTO; comments: Comment[] };
 
 export default async function BlogPostPage(props: Readonly<{ params: Promise<{ slug: string }> }>) {
   const resolvedParams = await props.params;

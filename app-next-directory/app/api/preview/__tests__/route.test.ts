@@ -79,37 +79,46 @@ describe('Preview Mode API - GET /api/preview', () => {
       expect(mockRedirect).toHaveBeenCalledWith('/listings/eco-workspace');
     });
 
-    it('should redirect to appropriate path for non-listing type', async () => {
+    it('should redirect to appropriate path for city type', async () => {
       mockValidatePreviewToken.mockReturnValueOnce(true);
 
       const request = new Request(
-        'http://localhost/api/preview?secret=valid-secret&slug=test-post&type=blog'
+        'http://localhost/api/preview?secret=valid-secret&slug=test-city&type=city'
       );
 
       try {
         await GET(request);
       } catch (error: any) {
-        expect(error.message).toContain('NEXT_REDIRECT:/blog/test-post');
+        expect(error.message).toContain('NEXT_REDIRECT:/cities/test-city');
       }
 
-      expect(mockRedirect).toHaveBeenCalledWith('/blog/test-post');
+      expect(mockRedirect).toHaveBeenCalledWith('/cities/test-city');
     });
 
-    it('should handle preview without type parameter', async () => {
+    it('should return error for invalid type parameter', async () => {
+      mockValidatePreviewToken.mockReturnValueOnce(true);
+
+      const request = new Request(
+        'http://localhost/api/preview?secret=valid-secret&slug=test-slug&type=blog'
+      );
+
+      const response = await GET(request);
+
+      expect(response.status).toBe(400);
+      expect(await response.text()).toBe('Invalid type parameter');
+    });
+
+    it('should return error when type parameter is missing', async () => {
       mockValidatePreviewToken.mockReturnValueOnce(true);
 
       const request = new Request(
         'http://localhost/api/preview?secret=valid-secret&slug=test-slug'
       );
 
-      try {
-        await GET(request);
-      } catch (error: any) {
-        expect(error.message).toContain('NEXT_REDIRECT');
-      }
+      const response = await GET(request);
 
-      expect(mockDraftMode).toHaveBeenCalled();
-      expect(mockEnable).toHaveBeenCalled();
+      expect(response.status).toBe(400);
+      expect(await response.text()).toBe('No type in the request');
     });
 
     it('should handle slug with hyphens', async () => {

@@ -317,7 +317,10 @@ export const structuredLogger = {
 
     type QueueEntry = { msg: string; error?: unknown; context?: LogContext };
 
-    const globalAny = globalThis as unknown as { __logQueue?: QueueEntry[]; __logFlushScheduled?: boolean };
+    const globalAny = globalThis as unknown as {
+      __logQueue?: QueueEntry[];
+      __logFlushScheduled?: boolean;
+    };
 
     if (!globalAny.__logQueue) globalAny.__logQueue = [];
 
@@ -346,7 +349,9 @@ export const structuredLogger = {
         } else if (typeof queueMicrotask === 'function') {
           queueMicrotask(flushFn);
         } else {
-          Promise.resolve().then(flushFn).catch(() => undefined);
+          Promise.resolve()
+            .then(flushFn)
+            .catch(() => undefined);
         }
       } catch (_e) {
         // As a last resort, perform synchronous logging

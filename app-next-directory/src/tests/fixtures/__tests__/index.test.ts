@@ -55,7 +55,7 @@ describe('tests/fixtures/index', () => {
     );
     expect(integrationUsers.map(user => user.id)).toEqual(expect.arrayContaining(expectedUserIds));
     expect(integrationCities.map(city => city.id)).toEqual(expect.arrayContaining(expectedCityIds));
-    expect(integrationReviews.map(review => review.id)).toEqual(
+    expect(integrationReviews.map(review => review._id)).toEqual(
       expect.arrayContaining(expectedReviewIds)
     );
     expect(integrationFavorites.map(favorite => favorite.id)).toEqual(

@@ -10,7 +10,7 @@ const maskEmail = (email: string): string => {
 
 const sanitizeAuthResponse = (body: unknown): unknown => {
   if (!body || typeof body !== 'object') return '[redacted]';
-  
+
   // Deep copy to avoid mutating original and handle nested structures
   // Prefer structuredClone when available (more robust), fall back to JSON for JSON-safe payloads
   let copy: unknown;
@@ -23,9 +23,16 @@ const sanitizeAuthResponse = (body: unknown): unknown => {
   } catch (error) {
     return '[redacted-circular-ref]';
   }
-  
-  const sensitiveFields = ['password', 'passwordHash', 'token', 'refreshToken', 'sessionToken', 'accessToken'];
-  
+
+  const sensitiveFields = [
+    'password',
+    'passwordHash',
+    'token',
+    'refreshToken',
+    'sessionToken',
+    'accessToken',
+  ];
+
   const redact = (obj: Record<string, unknown> | Array<unknown>): void => {
     if (!obj || typeof obj !== 'object') return;
 
@@ -47,7 +54,7 @@ const sanitizeAuthResponse = (body: unknown): unknown => {
       }
     }
   };
-  
+
   redact(copy as Record<string, unknown> | Array<unknown>);
   return copy;
 };
@@ -92,7 +99,9 @@ test.describe('Authentication Debug', () => {
 
     const responseBody = await response.json();
     structuredLogger.debug('Registration response status:', { status: response.status() });
-    structuredLogger.debug('Registration response body:', { body: sanitizeAuthResponse(responseBody) });
+    structuredLogger.debug('Registration response body:', {
+      body: sanitizeAuthResponse(responseBody),
+    });
 
     // Expect successful creation or user already exists
     expect([201, 409]).toContain(response.status());

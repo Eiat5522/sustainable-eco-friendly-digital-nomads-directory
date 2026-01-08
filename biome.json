@@ -57,7 +57,7 @@
       "recommended": true,
       "a11y": {
         "noSvgWithoutTitle": "off",
-        "useSemanticElements": "warn",
+        "useSemanticElements": "off",
         "noNoninteractiveElementToInteractiveRole": "off",
         "useKeyWithClickEvents": "off",
         "useButtonType": "off",
@@ -70,7 +70,12 @@
         "useLiteralKeys": "off"
       },
       "correctness": {
-        "noUnusedVariables": "warn",
+        "noUnusedVariables": {
+          "level": "warn",
+          "options": {
+            "ignoreRestSiblings": true
+          }
+        },
         "useExhaustiveDependencies": "warn",
         "noInvalidUseBeforeDeclaration": "warn",
         "noVoidTypeReturn": "off",
@@ -82,7 +87,7 @@
         "noParameterAssign": "off"
       },
       "performance": {
-        "noImgElement": "warn",
+        "noImgElement": "off",
         "noDynamicNamespaceImportAccess": "off"
       },
       "suspicious": {

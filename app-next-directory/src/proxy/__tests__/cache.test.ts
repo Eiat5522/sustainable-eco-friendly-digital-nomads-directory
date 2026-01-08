@@ -151,9 +151,9 @@ describe('cache middleware', () => {
 
       expect(mockSet).toHaveBeenCalledWith(
         'Cache-Control',
-        'public, max-age=86400, stale-while-revalidate=300'
+        'public, max-age=3600, stale-while-revalidate=60'
       );
-      expect(mockSet).toHaveBeenCalledWith('Surrogate-Control', 'max-age=86400');
+      expect(mockSet).toHaveBeenCalledWith('Surrogate-Control', 'max-age=3600');
     });
 
     it('should set cache headers for category pages', async () => {

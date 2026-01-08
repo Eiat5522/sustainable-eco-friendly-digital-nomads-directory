@@ -4,7 +4,7 @@ test.describe('Authentication (Playwright E2E)', () => {
   test('registers a new user and lands on the home page', async ({ page, baseURL }) => {
     // Optional mocking for testing without real API endpoints
     const useMocks = process.env.USE_API_MOCKS === 'true';
-    
+
     if (useMocks) {
       // Mock the register endpoint for integration testing
       await page.route('**/api/auth/register', async route => {
@@ -14,7 +14,13 @@ test.describe('Authentication (Playwright E2E)', () => {
           contentType: 'application/json',
           body: JSON.stringify({
             success: true,
-            data: { user: { _id: 'e2e-user', name: requestBody?.name || 'Test User', email: requestBody?.email || 'test@example.com' } },
+            data: {
+              user: {
+                _id: 'e2e-user',
+                name: requestBody?.name || 'Test User',
+                email: requestBody?.email || 'test@example.com',
+              },
+            },
           }),
         });
       });
@@ -45,8 +51,8 @@ test.describe('Authentication (Playwright E2E)', () => {
     await page.locator('input#email').fill(`test+${unique}@example.com`);
     await page.locator('input#password').fill('Password_123!Aa');
 
-    const registerPromise = page.waitForResponse(response => 
-      response.url().includes('/api/auth/register') && response.status() === 201
+    const registerPromise = page.waitForResponse(
+      response => response.url().includes('/api/auth/register') && response.status() === 201
     );
     await page.getByRole('button', { name: /sign up/i }).click();
     const response = await registerPromise;

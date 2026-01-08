@@ -19,7 +19,7 @@
  * // Build image URLs
  * const imageUrl = urlFor(listing.image).width(800).height(600).url();
  * ```
-*/
+ */
 
 import type { ClientConfig, ClientPerspective } from '@sanity/client';
 import * as SanityClient from '@sanity/client';
@@ -63,8 +63,11 @@ const clientConfig: ClientConfig = {
   // IMPORTANT: Disable retries during build to prevent HangingPromiseRejectionError.
   // When DISABLE_SANITY is true, the stub client is used anyway, but set to 0 for consistency.
   // In production, allow retries for transient network failures.
-  maxRetries: process.env.DISABLE_SANITY_DURING_BUILD === '1' || 
-              process.env.DISABLE_SANITY_DURING_BUILD === 'true' ? 0 : 3,
+  maxRetries:
+    process.env.DISABLE_SANITY_DURING_BUILD === '1' ||
+    process.env.DISABLE_SANITY_DURING_BUILD === 'true'
+      ? 0
+      : 3,
   ...(token ? { token, ignoreBrowserTokenWarning: true } : {}),
 };
 

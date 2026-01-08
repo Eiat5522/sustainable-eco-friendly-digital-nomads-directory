@@ -90,11 +90,17 @@ jest.mock('../ListingViewTracker', () => ({
 }));
 
 jest.mock('../FavoriteButtonOverlay', () => ({
-  FavoriteButtonOverlay: ({ listingSlug, isFavorited }: { listingSlug: string; isFavorited?: boolean }) => (
-    <button 
-      data-testid="favorite-button" 
-      data-listing-slug={listingSlug} 
-      aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"} 
+  FavoriteButtonOverlay: ({
+    listingSlug,
+    isFavorited,
+  }: {
+    listingSlug: string;
+    isFavorited?: boolean;
+  }) => (
+    <button
+      data-testid="favorite-button"
+      data-listing-slug={listingSlug}
+      aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
     />
   ),
 }));

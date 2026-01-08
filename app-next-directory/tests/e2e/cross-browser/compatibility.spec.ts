@@ -272,7 +272,10 @@ test.describe('Cross-Browser Compatibility Testing', () => {
 
     test('file upload works across browsers', async ({ page }) => {
       await page.goto('/dashboard/listings/new', { waitUntil: 'domcontentloaded', timeout: 15000 });
-      await page.waitForURL(/\/dashboard\/listings\/new/, { timeout: 15000, waitUntil: 'domcontentloaded' });
+      await page.waitForURL(/\/dashboard\/listings\/new/, {
+        timeout: 15000,
+        waitUntil: 'domcontentloaded',
+      });
       await expect(page.getByRole('heading', { name: 'Add New Listing' })).toBeVisible();
       await page.waitForSelector('input[type="file"]', { state: 'attached' });
 

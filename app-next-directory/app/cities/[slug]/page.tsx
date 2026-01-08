@@ -1,4 +1,4 @@
-'use cache'
+'use cache';
 
 import { CityDetailView } from '@/components/city/CityDetailView';
 import { Footer } from '@/components/layout/Footer';

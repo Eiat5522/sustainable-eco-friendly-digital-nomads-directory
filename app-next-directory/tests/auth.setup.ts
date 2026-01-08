@@ -1,6 +1,6 @@
+import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { createHash } from 'node:crypto';
 import { type Page, test as setup } from '@playwright/test';
 import type { Role } from '@/models/User';
 import { loginAs } from './utils/test-utils';
@@ -65,7 +65,7 @@ async function authenticateUser(page: Page, config: AuthConfig) {
       return { png, html, logsPath };
     } catch (e) {
       // best-effort: log but don't mask original error
-       
+
       console.error('Failed to write debug artifacts:', e);
       return {};
     }
