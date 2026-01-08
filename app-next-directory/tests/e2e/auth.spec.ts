@@ -1,25 +1,32 @@
 import { expect, test } from '@playwright/test';
 
-test.describe('Authentication (Playwright)', () => {
+test.describe('Authentication (Playwright E2E)', () => {
   test('registers a new user and lands on the home page', async ({ page, baseURL }) => {
-    await page.route('**/api/auth/register', async route => {
-      await route.fulfill({
-        status: 201,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: true,
-          data: { user: { _id: 'e2e-user', name: 'Test User', email: 'test@example.com' } },
-        }),
+    // Optional mocking for testing without real API endpoints
+    const useMocks = process.env.USE_API_MOCKS === 'true';
+    
+    if (useMocks) {
+      // Mock the register endpoint for integration testing
+      await page.route('**/api/auth/register', async route => {
+        const requestBody = route.request().postDataJSON();
+        await route.fulfill({
+          status: 201,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            success: true,
+            data: { user: { _id: 'e2e-user', name: requestBody?.name || 'Test User', email: requestBody?.email || 'test@example.com' } },
+          }),
+        });
       });
-    });
 
-    await page.route('**/api/auth/callback/credentials**', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ ok: true, url: '/' }),
+      await page.route('**/api/auth/callback/credentials**', async route => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ ok: true, url: '/' }),
+        });
       });
-    });
+    }
 
     const signupUrl = new URL('/auth/signup', baseURL ?? 'http://localhost:3000').toString();
     await page.goto(signupUrl);
