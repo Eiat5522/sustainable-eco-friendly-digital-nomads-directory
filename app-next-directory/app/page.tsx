@@ -8,7 +8,7 @@ import { FeaturedListings } from '@/components/sections/FeaturedListings';
 import { HeroSection } from '@/components/sections/HeroSection';
 import { getCities, getFeaturedListings } from '@/lib/data-access';
 import { structuredLogger } from '@/lib/logger';
-import type { CityDTO, FeaturedListingDTO } from '@/types/dto';
+import type { CityDTO, FeaturedListingDTO, Percentage0To100 } from '@/types/dto';
 
 const isE2ERun = process.env.NEXT_PUBLIC_E2E === '1' || process.env.E2E === '1';
 
@@ -47,7 +47,7 @@ const MOCK_CITIES: CityDTO[] = [
     slug: 'bali',
     country: 'Indonesia',
     description: 'Tropical paradise with thriving digital nomad community',
-    sustainabilityScore: 85,
+    sustainabilityScore: 85 as Percentage0To100,
     highlights: ['Eco-friendly villas', 'Organic food scene', 'Renewable energy initiatives'],
     imageUrl: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800',
   },
@@ -57,7 +57,7 @@ const MOCK_CITIES: CityDTO[] = [
     slug: 'barcelona',
     country: 'Spain',
     description: 'Vibrant city with strong sustainability focus',
-    sustainabilityScore: 78,
+    sustainabilityScore: 78 as Percentage0To100,
     highlights: ['Bike-friendly', 'Solar projects', 'Zero waste stores'],
     imageUrl: 'https://images.unsplash.com/photo-1583422409516-2895a77efded?w=800',
   },
@@ -67,7 +67,7 @@ const MOCK_CITIES: CityDTO[] = [
     slug: 'chiang-mai',
     country: 'Thailand',
     description: 'Cultural hub with affordable sustainable living',
-    sustainabilityScore: 72,
+    sustainabilityScore: 72 as Percentage0To100,
     highlights: ['Coworking spaces', 'Local crafts', 'Plant-based restaurants'],
     imageUrl: 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800',
   },

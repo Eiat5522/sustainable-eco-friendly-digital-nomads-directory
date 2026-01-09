@@ -220,7 +220,7 @@ export async function getUserDisplayInfo(
  *
  * @returns boolean indicating admin status
  */
-export async function isUserAdmin(): Promise<boolean> {
+export async function getIsUserAdmin(): Promise<boolean> {
   const authStatus = await getAuthStatus();
   return authStatus.isAdmin;
 }

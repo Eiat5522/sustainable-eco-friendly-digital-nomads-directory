@@ -88,7 +88,7 @@ function FavoriteButtonSkeleton({
         viewBox="0 0 24 24"
         strokeWidth={1.5}
         stroke="currentColor"
-        className={`${sizeClasses[size]} animate-pulse`}
+        className={`${SIZE_CLASSES[size]} animate-pulse`}
       >
         <path
           strokeLinecap="round"

@@ -12,6 +12,7 @@ import * as React from 'react';
 import { NeoButton } from '@/components/ui/neo-button';
 import { NeoCard } from '@/components/ui/neo-card';
 import { NeoInput } from '@/components/ui/neo-input';
+import { structuredLogger } from '@/lib/logger';
 
 export function NewsletterForm() {
   const router = useRouter();
