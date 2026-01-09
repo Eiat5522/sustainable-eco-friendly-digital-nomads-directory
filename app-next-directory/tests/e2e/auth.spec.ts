@@ -23,14 +23,14 @@ test.describe('Authentication (Playwright E2E)', () => {
         });
       });
 
-      // Mock NextAuth signin endpoint
-      await page.route('**/api/auth/signin/credentials', async route => {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({ url: '/' }),
-        });
+    // Mock NextAuth signin endpoint
+    await page.route('**/api/auth/signin/credentials', async route => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ url: '/' }),
       });
+    });
 
       // Mock NextAuth callback endpoint
       await page.route('**/api/auth/callback/credentials**', async route => {
@@ -42,20 +42,20 @@ test.describe('Authentication (Playwright E2E)', () => {
       });
     const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
-      // Mock NextAuth session endpoint
-      await page.route('**/api/auth/session**', async route => {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            user: {
-              name: 'Test User',
-              email: registeredEmail || 'test@example.com',
-            },
-            expires: new Date(Date.now() + ONE_DAY_MS).toISOString(),
-          }),
-        });
+    // Mock NextAuth session endpoint
+    await page.route('**/api/auth/session**', async route => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          user: {
+            name: 'Test User',
+            email: registeredEmail || 'test@example.com',
+          },
+          expires: new Date(Date.now() + ONE_DAY_MS).toISOString(),
+        }),
       });
+    });
 
     const signupUrl = new URL('/auth/signup', baseURL ?? 'http://localhost:3000').toString();
     await page.goto(signupUrl);

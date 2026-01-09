@@ -15,9 +15,6 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 import pluginJest from 'eslint-plugin-jest';
 
-// FORTEST: Temporarily disabled - eslint-plugin-jest-dom not in dependencies
-// import pluginJestDom from 'eslint-plugin-jest-dom';
-
 /** @type {import('eslint').Linter.FlatConfig[]} */
 const eslintConfig = [
   {
@@ -121,14 +118,6 @@ const eslintConfig = [
       '@typescript-eslint/ban-ts-comment': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
       'react/display-name': 'off',
-      // Relax some strict test-assertion rules that cause many CI failures
-      'jest-dom/prefer-in-document': 'off',
-      'jest-dom/prefer-empty': 'off',
-      'jest-dom/prefer-enabled-disabled': 'off',
-      'jest-dom/prefer-to-have-value': 'off',
-      'jest-dom/prefer-to-have-text-content': 'off',
-      'jest-dom/prefer-checked': 'off',
-      'jest-dom/prefer-focus': 'off',
       'jest/prefer-to-have-length': 'off',
     },
   },

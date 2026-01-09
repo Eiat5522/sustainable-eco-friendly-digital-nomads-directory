@@ -12,8 +12,8 @@
  */
 
 import { Suspense } from 'react';
+import { auth } from '@/lib/auth';
 import { checkIsFavorited } from '@/lib/data-access/favorites.dal';
-import { auth } from '../../../../auth';
 import { FavoriteButton } from './FavoriteButton';
 
 interface UserFavoriteStatusProps {
@@ -61,6 +61,12 @@ async function FavoriteStatusFetcher({
  * Loading fallback for the favorite button
  * Shows a placeholder heart icon while loading
  */
+const SIZE_CLASSES = {
+  sm: 'size-4',
+  md: 'size-6',
+  lg: 'size-8',
+} as const;
+
 function FavoriteButtonSkeleton({ 
   className,
   size = 'md',
@@ -68,6 +74,7 @@ function FavoriteButtonSkeleton({
   className?: string;
   size?: 'sm' | 'md' | 'lg';
 }) {
+
   return (
     <button
       type="button"
@@ -81,7 +88,7 @@ function FavoriteButtonSkeleton({
         viewBox="0 0 24 24"
         strokeWidth={1.5}
         stroke="currentColor"
-        className="size-6 animate-pulse"
+        className={`${sizeClasses[size]} animate-pulse`}
       >
         <path
           strokeLinecap="round"
@@ -107,7 +114,7 @@ export default function UserFavoriteStatus({
   size,
 }: UserFavoriteStatusProps) {
   return (
-    <Suspense fallback={<FavoriteButtonSkeleton className={className} />}>
+    <Suspense fallback={<FavoriteButtonSkeleton className={className} size={size} />}>
       <FavoriteStatusFetcher
         listingId={listingId}
         slug={slug}

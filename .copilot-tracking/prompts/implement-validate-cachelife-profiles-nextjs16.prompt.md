@@ -1,6 +1,6 @@
 ---
-mode: agent
-model: Claude Sonnet 4
+agent: agent
+model: Claude Sonnet 4.5
 ---
 <!-- markdownlint-disable-file -->
 # Implementation Prompt: Validate cacheLife Profiles in Next.js 16

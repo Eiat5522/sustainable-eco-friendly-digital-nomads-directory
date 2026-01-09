@@ -62,9 +62,16 @@ function ContactForm() {
 
   useEffect(() => {
     setEnquiryType(initialType);
-    const emailFromSession = sessionStorage.getItem('newsletterEmail');
-    setEmail(initialEmail || emailFromSession || '');
-  }, [initialType, initialEmail]);
+    const emailFromSession = sessionStorage.getItem('newsletter-email');
+    if (emailFromSession) {
+      setEmail(emailFromSession);
+      // Clear the email from sessionStorage after retrieval for privacy
+      sessionStorage.removeItem('newsletter-email');
+    } else {
+      setEmail(initialEmail || '');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const validate = () => {
     const schema = enquiryType === 'general' ? contactFormSchema : newsletterSchema;

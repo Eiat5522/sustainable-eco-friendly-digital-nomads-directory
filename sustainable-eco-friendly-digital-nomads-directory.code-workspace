@@ -53,7 +53,6 @@
     "playwright.reuseBrowser": true,
     "playwright.runGlobalSetupOnEachRun": true,
     "chat.useNestedAgentsMdFiles": true,
-    "cSpell.words": ["Prerendering"],
     "vscodeDebuggerMCP.licenseAccepted": true,
     "vscodeDebuggerMCP.transportType": "sse",
     "github.copilot.chat.languageContext.fix.typescript.enabled": true,
@@ -65,7 +64,15 @@
     "workbench.externalBrowser": "chrome",
     "coderabbit.agentType": "Clipboard",
     "coderabbit.autoReviewMode": "disabled",
-    "chat.useAgentSkills": true
+    "chat.useAgentSkills": true,
+    "cSpell.customDictionaries": {
+      "custom-dictionary-workspace": {
+        "name": "custom-dictionary-workspace",
+        "path": "${workspaceFolder:sustainable-eco-friendly-digital-nomads-directory}/.cspell/custom-dictionary-workspace.txt",
+        "addWords": true,
+        "scope": "workspace"
+      }
+    }
   },
   "extensions": {
     "recommendations": ["biomejs.biome", "dbaeumer.vscode-eslint", "prettier.prettier-vscode"]

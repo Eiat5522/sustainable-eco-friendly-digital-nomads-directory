@@ -150,10 +150,8 @@ function extractTagNames(tags?: RelatedListingRecord['ecoFocusTags']): string[] 
   if (!Array.isArray(tags)) return [];
   const names: string[] = [];
   for (const tag of tags) {
-    if (typeof tag === 'string' && tag.trim().length > 0) {
-      names.push(tag);
+    if (typeof tag === 'string')
       continue;
-    }
     if (
       tag &&
       typeof tag === 'object' &&

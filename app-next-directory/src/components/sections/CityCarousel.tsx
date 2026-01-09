@@ -11,7 +11,7 @@ import type { CityDTO } from '@/types/dto';
 
 type ApiResponse = { success?: boolean; cities?: CityDTO[] };
 type CityCarouselProps = {
-  initialCities?: CityDTO[];
+  initialCities?: CityDTO[] | null;
 };
 
 // Optimized data sanitization function

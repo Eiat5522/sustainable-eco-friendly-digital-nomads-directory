@@ -137,7 +137,7 @@ ListingCard.displayName = 'ListingCard';
 export function FeaturedListings({
   initialListings,
 }: {
-  initialListings?: FeaturedListingDTO[];
+  initialListings?: FeaturedListingDTO[] | null;
 }): React.JSX.Element {
   const hasInitialListings = Array.isArray(initialListings) && initialListings.length > 0;
   const [listings, setListings] = useState<FeaturedListingDTO[]>(initialListings ?? []);
