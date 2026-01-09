@@ -61,7 +61,13 @@ async function FavoriteStatusFetcher({
  * Loading fallback for the favorite button
  * Shows a placeholder heart icon while loading
  */
-function FavoriteButtonSkeleton({ className }: { className?: string }) {
+function FavoriteButtonSkeleton({ 
+  className,
+  size = 'md',
+}: { 
+  className?: string;
+  size?: 'sm' | 'md' | 'lg';
+}) {
   return (
     <button
       type="button"

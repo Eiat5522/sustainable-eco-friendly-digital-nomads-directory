@@ -16,6 +16,14 @@ sustainable-eco-friendly-digital-nomads-directory/
 └── tasks/                # Task management files
 ```
 
+### 🛡️ Data Access Layer (DAL)
+
+To optimize performance and security, we use a centralized Data Access Layer (DAL) for all content fetching:
+
+- **Location**: [app-next-directory/src/lib/data-access/](app-next-directory/src/lib/data-access/)
+- **Patterns**: Employs Next.js 16 `use cache` for static listing data and `use cache: private` for user-specific state.
+- **PPR Integration**: Components like [UserFavoriteStatus.tsx](app-next-directory/src/components/favorites/UserFavoriteStatus.tsx) utilize the DAL within Suspense boundaries to enable efficient Partial Prerendering (PPR) of the listing detail pages.
+
 ---
 
 ## 🌱 Key Features
@@ -69,6 +77,7 @@ sustainable-eco-friendly-digital-nomads-directory/
 ---
 
 ## 🔜 Next Steps
+
 - Finish the Next.js 16 upgrade by locking in Cache Component behaviors, finalizing the middleware/runtime helpers, and removing legacy Webpack flags so production builds run without forced FailFast errors.
 - Stabilize the Jest + Playwright suites for the new async route data model, refresh snapshots where required, and regenerate any mocks/fixtures that now expose Promise-based params.
 - Prepare the curated pilot content release by syncing Sanity drafts, verifying preview links, and publishing the refreshed marketing page once the Next.js 16 build is green.

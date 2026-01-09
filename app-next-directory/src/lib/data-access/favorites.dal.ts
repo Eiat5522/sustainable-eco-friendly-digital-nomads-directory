@@ -175,9 +175,9 @@ export async function getListingReviews(
   listingSlug: string,
   userId?: string
 ): Promise<Review[]> {
-  'use cache';
+  'use cache: private';
   cacheLife({ stale: 300 }); // Cache for 5 minutes
-  cacheTag(`reviews-${listingSlug}`);
+  cacheTag(userId ? `reviews-${listingSlug}-user-${userId}` : `reviews-${listingSlug}`);
 
   try {
     const collection = (await getCollection('reviews')) as Collection<ReviewDocument>;
