@@ -27,6 +27,16 @@ type AuthConfig = {
   role?: Role;
 };
 
+type DebugArtifacts = { png?: string; html?: string; logsPath?: string };
+
+function buildArtifactParts(artifacts: DebugArtifacts | null): string[] {
+  const parts: string[] = [];
+  if (artifacts?.png) parts.push(`screenshot=${artifacts.png}`);
+  if (artifacts?.html) parts.push(`html=${artifacts.html}`);
+  if (artifacts?.logsPath) parts.push(`logs=${artifacts.logsPath}`);
+  return parts;
+}
+
 async function authenticateUser(page: Page, config: AuthConfig) {
   const { emailEnvVar, passwordEnvVar, defaultEmail, defaultPassword, outputPath, expectedPaths } =
     config;
@@ -47,8 +57,6 @@ async function authenticateUser(page: Page, config: AuthConfig) {
 
   const debugBase = path.join(storageDir, path.basename(outputPath, path.extname(outputPath)));
 
-  type DebugArtifacts = { png?: string; html?: string; logsPath?: string };
-
   async function dumpDebug(suffix = 'error'): Promise<DebugArtifacts> {
     try {
       const base = `${debugBase}-${suffix}-${Date.now()}`;
@@ -62,7 +70,11 @@ async function authenticateUser(page: Page, config: AuthConfig) {
         fs.writeFileSync(logsPath, consoleMessages.join('\n'));
       }
 
-      return { png, html, logsPath };
+      const result: DebugArtifacts = { png, html };
+      if (consoleMessages.length) {
+        result.logsPath = logsPath;
+      }
+      return result;
     } catch (e) {
       // best-effort: log but don't mask original error
 
@@ -100,10 +112,7 @@ async function authenticateUser(page: Page, config: AuthConfig) {
       hasAuthenticated = true;
     } catch (fallbackError) {
       const emailHash = createHash('sha256').update(email).digest('hex');
-      const artifactParts: string[] = [];
-      if (artifacts?.png) artifactParts.push(`screenshot=${artifacts.png}`);
-      if (artifacts?.html) artifactParts.push(`html=${artifacts.html}`);
-      if (artifacts?.logsPath) artifactParts.push(`logs=${artifacts.logsPath}`);
+      const artifactParts = buildArtifactParts(artifacts);
 
       throw new Error(
         `Authentication failed for env ${emailEnvVar} (email hash: ${emailHash}). UI error: ${authError instanceof Error ? authError.message : String(authError)}. Fallback error: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}. Current URL: ${page.url()}. Artifacts: ${artifactParts.join('; ')}. Console:\n${consoleMessages.join('\n')}`
@@ -113,10 +122,7 @@ async function authenticateUser(page: Page, config: AuthConfig) {
 
   if (!hasAuthenticated) {
     const emailHash = createHash('sha256').update(email).digest('hex');
-    const artifactParts: string[] = [];
-    if (artifacts?.png) artifactParts.push(`screenshot=${artifacts.png}`);
-    if (artifacts?.html) artifactParts.push(`html=${artifacts.html}`);
-    if (artifacts?.logsPath) artifactParts.push(`logs=${artifacts.logsPath}`);
+    const artifactParts = buildArtifactParts(artifacts);
 
     throw new Error(
       `Authentication failed for env ${emailEnvVar} (email hash: ${emailHash}). Error: ${authError instanceof Error ? authError.message : String(authError)}. Current URL: ${page.url()}. Artifacts: ${artifactParts.join('; ')}. Console:\n${consoleMessages.join('\n')}`
@@ -127,9 +133,10 @@ async function authenticateUser(page: Page, config: AuthConfig) {
   try {
     await page.context().storageState({ path: outputPath });
   } catch (err) {
-    const artifacts = await dumpDebug('storageState-failure');
+    const storageStateArtifacts = await dumpDebug('storageState-failure');
+    const artifactParts = buildArtifactParts(storageStateArtifacts);
     throw new Error(
-      `Failed to write storage state to ${outputPath}: ${err instanceof Error ? err.message : String(err)}. Debug: ${JSON.stringify(artifacts)}. Console:\n${consoleMessages.join('\n')}`
+      `Failed to write storage state to ${outputPath}: ${err instanceof Error ? err.message : String(err)}. Artifacts: ${artifactParts.join('; ')}. Console:\n${consoleMessages.join('\n')}`
     );
   }
 }

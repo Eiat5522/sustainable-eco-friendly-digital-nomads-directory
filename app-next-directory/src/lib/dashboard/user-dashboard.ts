@@ -6,10 +6,8 @@ import type {
   DashboardListingInfoDTO,
   DashboardListingSummaryDTO,
   DashboardTimeSeriesPointDTO,
-  RegularUserDashboardDTO,
   UserDashboardFavoriteDTO,
   UserDashboardPayloadDTO,
-  VenueOwnerDashboardDTO,
 } from '@/types/dto';
 
 const DEFAULT_MONTHS = 3;
@@ -58,9 +56,7 @@ type AnalyticsDoc = {
 type ListingInfo = DashboardListingInfoDTO;
 type ListingMonthlyMetrics = DashboardTimeSeriesPointDTO;
 type ListingDashboardMetrics = DashboardListingSummaryDTO;
-type _ignoredVenueOwnerDashboard = VenueOwnerDashboardDTO;
 type FavoriteSummary = UserDashboardFavoriteDTO;
-type _ignoredRegularUserDashboard = RegularUserDashboardDTO;
 type DashboardPayload = UserDashboardPayloadDTO;
 
 export function createMonthBuckets(monthCount: number, reference: Date): MonthBucket[] {

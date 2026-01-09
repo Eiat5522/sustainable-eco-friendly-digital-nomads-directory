@@ -49,7 +49,6 @@
     "astGrep.configPath": "/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/sgconfig.yml",
     "astGrep.serverPath": "/home/eiat/.nvm/versions/node/v22.21.0/bin/typescript-language-server",
     "editor.defaultFormatter": "biomejs.biome",
-    "chat.useClaudeSkills": true,
     "playwright.pickLocatorCopyToClipboard": true,
     "playwright.reuseBrowser": true,
     "playwright.runGlobalSetupOnEachRun": true,
@@ -65,7 +64,8 @@
     "accessibility.voice.ignoreCodeBlocks": true,
     "workbench.externalBrowser": "chrome",
     "coderabbit.agentType": "Clipboard",
-    "coderabbit.autoReviewMode": "disabled"
+    "coderabbit.autoReviewMode": "disabled",
+    "chat.useAgentSkills": true
   },
   "extensions": {
     "recommendations": ["biomejs.biome", "dbaeumer.vscode-eslint", "prettier.prettier-vscode"]

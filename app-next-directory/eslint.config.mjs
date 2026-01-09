@@ -1,7 +1,15 @@
 import { fileURLToPath } from 'node:url';
-import { FlatCompat } from '@eslint/eslintrc';
-import js from '@eslint/js';
+import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
+import nextTypescript from "eslint-config-next/typescript";
 import requireReactFcTypeParametersRule from './eslint/rules/require-react-fc-type-parameters.js';
+
+// Normalize configs to arrays for safe spreading
+const _nextCoreWebVitals = Array.isArray(nextCoreWebVitals)
+  ? nextCoreWebVitals
+  : [nextCoreWebVitals];
+const _nextTypescript = Array.isArray(nextTypescript)
+  ? nextTypescript
+  : [nextTypescript];
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
@@ -10,37 +18,8 @@ import pluginJest from 'eslint-plugin-jest';
 // FORTEST: Temporarily disabled - eslint-plugin-jest-dom not in dependencies
 // import pluginJestDom from 'eslint-plugin-jest-dom';
 
-const jestConfig = {
-  // update this to match your test files
-  files: ['**/*.spec.js', '**/*.test.js', '**/*.test.*', '**/__tests__/**/*', '**/tests/**/*'],
-  plugins: { jest: pluginJest },
-  languageOptions: {
-    globals: pluginJest.environments.globals.globals,
-  },
-  rules: {
-    'jest/no-disabled-tests': 'warn',
-    'jest/no-focused-tests': 'error',
-    'jest/no-identical-title': 'error',
-    'jest/prefer-to-have-length': 'warn',
-    'jest/valid-expect': 'error',
-  },
-};
-
-// FORTEST: Temporarily disabled - eslint-plugin-jest-dom not in dependencies
-// const jestDomConfig = {
-//   files: [
-//     '**/*.spec.js', '**/*.test.js', '**/*.test.*', '**/__tests__/**/*', '**/tests/**/*'
-//   ],
-//   ...pluginJestDom.configs['flat/recommended'],
-// };
-// Use FlatCompat to convert eslint-config-next to flat config format
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-});
-
+/** @type {import('eslint').Linter.FlatConfig[]} */
 const eslintConfig = [
-  jestConfig /* jestDomConfig, */,
   {
     ignores: [
       '**/node_modules/**',
@@ -61,14 +40,29 @@ const eslintConfig = [
       '**/next-env.d.ts',
     ],
   },
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
   {
     // Help eslint-plugin-next resolve the project root correctly in monorepos
     settings: {
       next: {
-        // You can also set this to an array of roots if needed
         rootDir: __dirname,
       },
+    },
+  },
+  ..._nextCoreWebVitals,
+  ..._nextTypescript,
+  {
+    // Jest config
+    files: ['**/*.spec.js', '**/*.test.js', '**/*.test.*', '**/__tests__/**/*', '**/tests/**/*'],
+    plugins: { jest: pluginJest },
+    languageOptions: {
+      globals: pluginJest.environments.globals.globals,
+    },
+    rules: {
+      'jest/no-disabled-tests': 'warn',
+      'jest/no-focused-tests': 'error',
+      'jest/no-identical-title': 'error',
+      'jest/prefer-to-have-length': 'warn',
+      'jest/valid-expect': 'error',
     },
   },
   {
@@ -85,7 +79,7 @@ const eslintConfig = [
         'warn',
         {
           argsIgnorePattern: '^_',
-          varsIgnorePattern: '^_?ignored',
+          varsIgnorePattern: '^ignored',
           caughtErrorsIgnorePattern: '^_',
         },
       ],
@@ -96,15 +90,8 @@ const eslintConfig = [
       '@typescript-eslint/no-empty-object-type': 'warn',
       '@typescript-eslint/prefer-as-const': 'warn',
       '@typescript-eslint/no-require-imports': 'warn',
-      'react-hooks/rules-of-hooks': 'warn',
-      'react/no-unescaped-entities': 'warn',
-      'react/display-name': 'warn',
-      '@next/next/no-html-link-for-pages': 'warn',
-      'import/no-anonymous-default-export': 'warn',
       'no-var': 'warn',
       'prefer-const': 'warn',
-      'react/jsx-key': 'warn',
-      'react/jsx-no-comment-textnodes': 'warn',
       'local-react-strictness/require-react-fc-type-parameters': 'warn',
       camelcase: [
         'error',
@@ -134,7 +121,6 @@ const eslintConfig = [
       '@typescript-eslint/ban-ts-comment': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
       'react/display-name': 'off',
-      'react-hooks/rules-of-hooks': 'off',
       // Relax some strict test-assertion rules that cause many CI failures
       'jest-dom/prefer-in-document': 'off',
       'jest-dom/prefer-empty': 'off',

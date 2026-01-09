@@ -1,83 +1,101 @@
-### Objective: Implement Static Cache Optimization for Listing Detail Pages (`/listings/[slug]`)
+# Objective: Implement Static Cache Optimization for Listing Detail Pages (`/listings/[slug]`)
 
-Follow these steps to refactor the Listing Detail pages to leverage the Next.js 16 Data Cache and Partial Prerendering (PPR). This strategy ensures high performance through static delivery while maintaining data freshness via targeted revalidation.
+This plan captures the updated implementation approach used in the codebase: a small Data Access Layer (DAL) for public vs. user-specific data, Next.js 16 caching primitives, and Partial Prerendering (PPR) patterns for a fast static shell with safe per-user behavior.
 
-#### Step 1: Clean Up Legacy Configurations
+## Step 1: Clean Up Legacy Configurations
 
-Locate the `page.tsx` file for the listing details and remove outdated segment configurations.
+- **Action:** Remove `export const revalidate = ...` and `export const dynamic = ...` from `page.tsx`.
+- **Rationale:** Use `'use cache'` and `cacheLife` instead, which provide finer control and tag-based invalidation.
 
-* **Action:** Delete any instances of `export const revalidate = ...` or `export const dynamic = ...`.
-* **Rationale:** These are superseded by the more flexible `'use cache'` and `cacheLife` directives.
+## Step 2: Pre-generate Popular Listings via `generateStaticParams` (use Listings DAL)
 
-#### Step 2: Enable Static Pre-generation with `generateStaticParams`
+- **Implementation:** Use the Listings DAL (e.g., `getPopularListingSlugs()` in `src/lib/data-access/listings.dal.ts`) in `generateStaticParams` to pre-build popular listings.
+- **Fallback:** Paths not prebuilt are generated on first request and then cached.
 
-To achieve the best Time to First Byte (TTFB), pre-build popular or new listings at build time.
+## Step 3: Centralize Data Access in a DAL and Apply Cache Directives
 
-* **Implementation:** Use `generateStaticParams` to fetch slugs from your CMS (e.g., Sanity).
-* **Fallback:** Listings not pre-generated will be generated on the first request and subsequently cached.
+- **Listings DAL (public):** Move listing/detail/related fetches into `listings.dal.ts`. Use `'use cache'`, `cacheLife('max')` for long-lived public caching and `cacheTag(`listing-${slug}`)` for targeted revalidation.
+- **Favorites DAL (user-specific):** Create `favorites.dal.ts` with functions like `checkIsFavorited()` and `getListingReviews()`; use `'use cache: private'` for functions that require `cookies()` or headers and should be cached per-user for a short window.
+- **Best practice:** DAL functions should be small, typed, and return safe fallbacks (null/empty arrays) when a fetch fails during build/prerender.
 
-#### Step 3: Apply the `'use cache'` Directive and Tagging
+## Step 4: Use PPR with `<Suspense>` for Dynamic or Slow Subtrees
 
-Incorporate the new caching primitives at the top of your page component to store the output in the Full Route Cache.
+- **Action:** Wrap dynamic secondary sections in `<Suspense>` to allow the static shell to render immediately while the dynamic part streams in.
+- **Example:** Recommended venues, heavy maps, and third-party widgets.
 
-* **Add Directive:** Place `'use cache'` at the top of the component or data-fetching function.
-* **Set Lifetime:** Use `cacheLife('max')` for infinite caching, as listing data typically changes only via specific edits.
-* **Apply Tags:** Implement `cacheTag(\`listing-${slug}\`)` to allow for precise, on-demand invalidation.
+## Step 5: Serve Interactive User State via a Suspense-wrapped Server Component (private caching)
 
-#### Step 4: Implement Partial Prerendering (PPR) with `<Suspense>`
+- **Pattern:** Use a small **server** component `UserFavoriteStatus` that calls `checkIsFavorited(listingId, userId)` from `favorites.dal.ts`.
+  - `checkIsFavorited` should declare `'use cache: private'`, call `cookies()` (or `auth()`), set `cacheLife({ stale: 60 })`, and use `cacheTag(`user-${userId}-favorite-${listingId}`)`.
+  - Wrap `UserFavoriteStatus` in `<Suspense>` and render the client `FavoriteButton` with `initialIsFavorited` passed in.
+- **Client interactions:** `FavoriteButton` is `use client` and performs the mutation via API route; server-side logic should invalidate the per-user favorite tags after a toggle.
 
-Isolate dynamic or secondary content to prevent them from blocking the static shell.
+## Step 6: On-Demand Revalidation & Tag Strategy
 
-* **Action:** Wrap sections that depend on live data (e.g., "Recommended nearby venues") in a `<Suspense>` boundary with a fallback spinner or skeleton.
-* **Result:** The main listing details (title, images, description) will render immediately from the static cache while the dynamic parts stream in later.
+- **CMS edits:** Call `revalidateTag(`listing-${slug}`)` from the CMS webhook to refresh listing content.
+- **Review publishes:** Call `updateTag('reviews')` or `revalidateTag('reviews')` so the reviews section is refreshed.
+- **Favorites toggles:** Invalidate per-user favorite tags `user-${userId}-favorite-${listingId}` upon toggle to avoid stale per-user cache.
 
-#### Step 5: Isolate Interactive Elements
+## Cache Strategy Summary
 
-Maintain the "public" status of the cached page by keeping user-specific logic in client components.
+| Data Type | Directive | Location | Duration |
+| --- | --- | --- | --- |
+| Listing details | `use cache` | Server + CDN | max (long) |
+| Related listings | `use cache` | Server + CDN | max (long) |
+| Reviews | `use cache` | Server + CDN | 5 minutes |
+| User favorites (initial state) | `use cache: private` | Browser-only per-user cache | ~60 seconds |
 
-* **Favorites/Save Button:** Render a generic button on the server. Use a small `'use client'` component to update its state (e.g., "filled") based on user data fetched on the client side.
-* **Galleries/Maps:** Ensure large data presentation sections remain Server Components to keep the client JS bundle small.
+## Implementation Checklist
 
-#### Step 6: Configure On-Demand Revalidation
+- [x] Create `src/lib/data-access/` and follow DAL pattern
+- [x] Implement `listings.dal.ts` with `getListingBySlug()`, `getRelatedListings()`, `getPopularListingSlugs()` using `use cache` + `cacheTag`
+- [x] Implement `favorites.dal.ts` with `checkIsFavorited()` (using `use cache: private`) and `getListingReviews()`
+- [x] Add `UserFavoriteStatus` server component wrapped in `<Suspense>` and a `FavoriteButton` client component that accepts `initialIsFavorited`
+- [x] Update `app/listings/[slug]/page.tsx` to call DAL functions and render `UserFavoriteStatus` in the interactive area
+- [x] Add webhook handler that calls `revalidateTag('listing-{slug}')` on listing edits and `updateTag('reviews')` on review state changes
+- [ ] Add unit/integration tests for DAL and cache invalidation flows
 
-Set up a mechanism to purge the cache when listing data is updated in the CMS.
+## Example (simplified)
 
-* **Webhook Trigger:** Call `revalidateTag(\`listing-${slug}\`)` within a CMS webhook handler or admin action.
-* **Review Submission:** If users can post reviews, use `updateTag('reviews')` in the server action to instantly refresh the reviews section for that listing.
+Listing page (server):
 
-### Sample Implementation Snippet
-
-```typescript
-import { cacheLife, cacheTag } from 'next/cache';
+```tsx
+import { cacheTag, cacheLife } from 'next/cache';
 import { Suspense } from 'react';
+import { getListingBySlug } from '@/lib/data-access/listings.dal';
+import UserFavoriteStatus from '@/components/favorites/UserFavoriteStatus';
 
-// Step 2: Pre-build paths
-export async function generateStaticParams() {
-  const listings = await fetchAllListingSlugs();
-  return listings.map((slug) => ({ slug }));
-}
-
-export default async function ListingPage({ params }: { params: { slug: string } }) {
-  // Step 3: Caching Directives
+export default async function ListingPage({ params: { slug } }) {
   'use cache';
   cacheLife('max');
-  cacheTag(`listing-${params.slug}`);
+  cacheTag(`listing-${slug}`);
 
-  const listingData = await getListingDetail(params.slug);
+  const listing = await getListingBySlug(slug);
 
   return (
     <div>
-      <h1>{listingData.title}</h1>
-      {/* Static content renders immediately */}
-      
-      {/* Step 4: PPR for dynamic/slow content */}
-      <Suspense fallback={<p>Loading recommendations...</p>}>
-        <NearbyVenues slug={params.slug} />
-      </Suspense>
-
-      {/* Step 5: Interactive client components */}
-      <FavoriteButton listingId={listingData.id} />
+      <h1>{listing.name}</h1>
+      <section>
+        <Suspense fallback={<span>Loading...</span>}>
+          <UserFavoriteStatus listingId={listing.id} slug={listing.slug} />
+        </Suspense>
+      </section>
     </div>
   );
 }
 ```
+
+Favorites DAL (key points):
+
+```ts
+export async function checkIsFavorited(listingId: string, userId?: string) {
+  'use cache: private';
+  cacheLife({ stale: 60 });
+  cacheTag(`user-${userId}-favorite-${listingId}`);
+  // call cookies()/auth() and return boolean
+}
+```
+
+---
+
+If you'd like, I can open a PR with this updated plan and add the checklist items as issues. Let me know and I'll prepare the branch and PR.

@@ -2,13 +2,11 @@ import { expect, test } from '@playwright/test';
 
 test.describe('Authentication (Playwright E2E)', () => {
   test('registers a new user and lands on the home page', async ({ page, baseURL }) => {
-    // Optional mocking for testing without real API endpoints
-    const useMocks = process.env.USE_API_MOCKS === 'true';
-
-    if (useMocks) {
-      // Mock the register endpoint for integration testing
-      await page.route('**/api/auth/register', async route => {
+    let registeredEmail = '';
+    // Mock the register endpoint for integration testing
+    await page.route('**/api/auth/register', async route => {
         const requestBody = route.request().postDataJSON();
+        registeredEmail = requestBody?.email || 'test@example.com';
         await route.fulfill({
           status: 201,
           contentType: 'application/json',
@@ -25,6 +23,16 @@ test.describe('Authentication (Playwright E2E)', () => {
         });
       });
 
+      // Mock NextAuth signin endpoint
+      await page.route('**/api/auth/signin/credentials', async route => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ url: '/' }),
+        });
+      });
+
+      // Mock NextAuth callback endpoint
       await page.route('**/api/auth/callback/credentials**', async route => {
         await route.fulfill({
           status: 200,
@@ -32,7 +40,22 @@ test.describe('Authentication (Playwright E2E)', () => {
           body: JSON.stringify({ ok: true, url: '/' }),
         });
       });
-    }
+    const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+      // Mock NextAuth session endpoint
+      await page.route('**/api/auth/session**', async route => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            user: {
+              name: 'Test User',
+              email: registeredEmail || 'test@example.com',
+            },
+            expires: new Date(Date.now() + ONE_DAY_MS).toISOString(),
+          }),
+        });
+      });
 
     const signupUrl = new URL('/auth/signup', baseURL ?? 'http://localhost:3000').toString();
     await page.goto(signupUrl);

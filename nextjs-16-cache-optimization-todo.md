@@ -56,6 +56,42 @@
 - [x] Verify PPR streaming works correctly
 - [x] Monitor memory usage with new caching strategy
 
+## Phase 4: Data Access Layer (DAL) Pattern - ✅ COMPLETED
+
+### DAL Implementation
+
+- [x] Create centralized DAL structure in `src/lib/data-access/`
+- [x] Implement `listings.dal.ts` with `use cache` + `cacheLife('max')` for public data
+- [x] Implement `favorites.dal.ts` with `use cache: private` for user-specific data
+- [x] Create barrel export in `src/lib/data-access/index.ts`
+
+### Listings DAL (`listings.dal.ts`)
+
+- [x] `getListingBySlug()` - Cached listing detail fetch with `cacheTag('listing-{slug}')`
+- [x] `getRelatedListings()` - Cached related listings by city
+- [x] `getPopularListingSlugs()` - For `generateStaticParams`
+- [x] Proper error handling with build-mode awareness
+
+### Favorites DAL (`favorites.dal.ts`)
+
+- [x] `checkIsFavorited()` - Uses `use cache: private` for user-specific caching
+- [x] `getListingReviews()` - Cached reviews with user-specific pending review handling
+- [x] Cookie access within private cache scope
+- [x] Cache tags for invalidation: `user-{userId}-favorite-{listingId}`
+
+### Suspense Integration
+
+- [x] Create `UserFavoriteStatus` server component with Suspense wrapper
+- [x] Loading skeleton for favorite button
+- [x] Passes initial state to client `FavoriteButton`
+- [x] Protects static shell during PPR
+
+### Page Refactoring
+
+- [x] Refactor `/listings/[slug]/page.tsx` to use DAL imports
+- [x] Remove inline data fetching functions (moved to DAL)
+- [x] Maintain E2E test fixtures support
+
 ## 🎉 IMPLEMENTATION COMPLETE
 
 All major Next.js 16 cache optimization features have been successfully implemented:
@@ -68,9 +104,34 @@ All major Next.js 16 cache optimization features have been successfully implemen
 - **Performance**: Added PPR for better perceived performance and streaming
 - **Security**: Ensured user-specific data is properly keyed to prevent data leakage
 - **Testing**: Created comprehensive test suite for cache invalidation validation
+- **DAL Pattern**: Centralized data access with Next.js 16 cache directives
+- **Private Caching**: User-specific data uses `use cache: private` for browser-only caching
+
+### Files Created/Modified
+
+#### New DAL Files
+- `src/lib/data-access/listings.dal.ts` - Public listing data with `use cache`
+- `src/lib/data-access/favorites.dal.ts` - User data with `use cache: private`
+- `src/lib/data-access/index.ts` - Barrel export
+
+#### New Components
+- `src/components/favorites/UserFavoriteStatus.tsx` - Suspense-wrapped favorite status
+
+#### Refactored Pages
+- `app/listings/[slug]/page.tsx` - Now uses DAL imports
+
+### Cache Strategy Summary
+
+| Data Type | Directive | Cache Location | Duration |
+|-----------|-----------|----------------|----------|
+| Listing details | `use cache` | Server + CDN | max (long) |
+| Related listings | `use cache` | Server + CDN | max (long) |
+| User favorites | `use cache: private` | Browser only | 60 seconds |
+| Reviews | `use cache` | Server + CDN | 5 minutes |
 
 ### Next Steps
 
 - Configure Sanity webhooks with proper authentication tokens
 - Run the test suite to validate cache performance
 - Monitor memory usage in production environment
+- Consider adding `cacheTag` invalidation to API routes for real-time updates

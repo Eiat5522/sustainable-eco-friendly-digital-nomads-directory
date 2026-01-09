@@ -75,9 +75,6 @@ export const serverTimingMiddleware = (_request: NextRequestLike) => {
 
   response.headers.set('Server-Timing', timing.getHeaderValue());
 
-  if (process.env.NODE_ENV === 'development') {
-  }
-
   return response;
 };
 
