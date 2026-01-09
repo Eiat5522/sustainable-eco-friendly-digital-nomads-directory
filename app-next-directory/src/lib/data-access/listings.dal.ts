@@ -150,8 +150,13 @@ function extractTagNames(tags?: RelatedListingRecord['ecoFocusTags']): string[] 
   if (!Array.isArray(tags)) return [];
   const names: string[] = [];
   for (const tag of tags) {
-    if (typeof tag === 'string')
+    if (typeof tag === 'string') {
+      logger.warn('Unexpected string tag encountered in ecoFocusTags', {
+        component: 'listings.dal',
+        tag,
+      });
       continue;
+    }
     if (
       tag &&
       typeof tag === 'object' &&

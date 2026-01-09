@@ -41,12 +41,11 @@ const CityCard = memo(
     city: CityDTO & { _originalSlug: string; _fallbackId: string };
     index: number;
   }) => {
-    const key = city._originalSlug || city._fallbackId || city.name || `city-${index}`;
     const slugSegment = city.slug;
     const displayName = city.name && city.name.length > 0 ? city.name : 'Explore City';
 
     return (
-      <div key={key} role="listitem" className="flex-none w-[85%] sm:w-[55%] lg:w-1/3 xl:w-1/4">
+      <div role="listitem" className="flex-none w-[85%] sm:w-[55%] lg:w-1/3 xl:w-1/4">
         <Link
           href={`/cities/${encodeURIComponent(slugSegment)}`}
           className="group block rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"

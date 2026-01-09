@@ -8,13 +8,26 @@ export default function MobileMenu(): React.JSX.Element {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
+   const handleEscape = (e: KeyboardEvent) => {
+     if (e.key === 'Escape' && open) {
+       setOpen(false);
+     }
+   };
+   
+   document.addEventListener('keydown', handleEscape);
+
     // Prevent background scroll when menu is open
     if (open) document.body.style.overflow = 'hidden';
     else document.body.style.overflow = '';
     return () => {
+      document.removeEventListener('keydown', handleEscape);
       document.body.style.overflow = '';
     };
   }, [open]);
+
+  const handleLinkClick = () => {
+    setOpen(false);
+  };
 
   return (
     <>
@@ -53,17 +66,17 @@ export default function MobileMenu(): React.JSX.Element {
             </div>
 
             <nav className="mt-4 flex flex-col gap-3">
-              <Link href="/" onClick={() => setOpen(false)} className="body-md">
-                Home
+              <Link href="/" onClick={handleLinkClick}>
+                <span className="body-md">Home</span>
               </Link>
-              <Link href="/search" onClick={() => setOpen(false)} className="body-md">
-                Search
+              <Link href="/search" onClick={handleLinkClick}>
+                <span className="body-md">Search</span>
               </Link>
-              <Link href="/blog" onClick={() => setOpen(false)} className="body-md">
-                Blog
+              <Link href="/blog" onClick={handleLinkClick}>
+                <span className="body-md">Blog</span>
               </Link>
-              <Link href="/contact-us" onClick={() => setOpen(false)} className="body-md">
-                Contact Us
+              <Link href="/contact-us" onClick={handleLinkClick}>
+                <span className="body-md">Contact Us</span>
               </Link>
             </nav>
           </div>

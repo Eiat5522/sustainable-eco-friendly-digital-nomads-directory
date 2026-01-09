@@ -25,7 +25,7 @@ interface UserAuthStatusProps {
  */
 async function AuthStatusFetcher({ className }: UserAuthStatusProps) {
   let authStatus;
-  let displayInfo = null;
+  const displayInfo = getUserDisplayInfo;
   
   try {
     authStatus = await getAuthStatus();

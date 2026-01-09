@@ -22,9 +22,9 @@ export function HeaderServer(): React.JSX.Element {
   return (
     <header className="w-full bg-background border-b-4 border-neo-border">
       <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
+        <div className="grid grid-cols-3 items-center gap-4">
           {/* Left: Logo + Mobile Menu */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 justify-self-start">
             <Link href="/" aria-label="Go to homepage">
               <span className="inline-flex items-center" aria-hidden="true">
                 <Image
@@ -42,7 +42,7 @@ export function HeaderServer(): React.JSX.Element {
           </div>
 
           {/* Center: Navigation (desktop) */}
-          <nav className="hidden md:flex items-center gap-6 absolute left-1/2 transform -translate-x-1/2">
+          <nav className="hidden md:flex items-center gap-6 justify-self-center">
               <Link
                 href="/"
                 className={navLinkClass}
@@ -70,8 +70,12 @@ export function HeaderServer(): React.JSX.Element {
             </nav>
  
            {/* Right: Auth Status */}
-           <div className="hidden md:flex items-center">
-             <Suspense fallback={<div className="h-10 w-24 animate-pulse bg-gray-200 rounded" />}>
+           <div className="hidden md:flex items-center justify-self-end">
+             <Suspense fallback={
+               <div className="h-10 w-24 animate-pulse bg-gray-200 rounded" role="status">
+                 <span className="sr-only">Loading authentication status</span>
+               </div>
+             }>
                <UserAuthStatus />
              </Suspense>
            </div>            

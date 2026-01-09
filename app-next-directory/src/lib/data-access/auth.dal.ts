@@ -56,7 +56,7 @@ export function isValidRole(role: unknown): role is AuthUser['role'] {
 /**
  * Check if a role has admin access (admin or superAdmin).
  */
-export function isUserAdmin(role: string): boolean {
+export function checkUserAdminRole(role: string): boolean {
   return isValidRole(role) && (role === 'admin' || role === 'superAdmin');
 }
 
@@ -69,7 +69,7 @@ export function hasPrivilege(role: string, privilege: string): boolean {
   // extensible privilege logic
   switch (privilege) {
     case 'admin':
-      return isUserAdmin(role);
+      return checkUserAdminRole(role);
     default:
       return false;
   }
@@ -155,7 +155,7 @@ export async function getAuthStatus(): Promise<AuthStatus> {
     cacheTag(`user-${userId}-auth`);
 
     const role = isValidRole(session.user.role) ? session.user.role : 'user';
-    const isAdmin = isUserAdmin(role);
+    const isAdmin = checkUserAdminRole(role);
 
     return {
       isAuthenticated: true,
