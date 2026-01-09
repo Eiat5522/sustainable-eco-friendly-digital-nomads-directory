@@ -9,7 +9,7 @@ The system SHALL render the listing detail route (`/listings/[slug]`) as a cache
 - **WHEN** the listing detail page is rendered
 - **THEN** it SHALL declare `use cache`, set `cacheLife('max')`, and apply `cacheTag(\`listing-${slug}\`)` for the requested slug
 
-### Requirement: Server-rendered shell with client islands isolated by Suspense
+## Requirement: Server-rendered shell with client islands isolated by Suspense
 
 The system SHALL keep non-interactive listing detail sections as Server Components and isolate any required client components behind `<Suspense>` to protect the static shell.
 
@@ -23,7 +23,7 @@ The system SHALL keep non-interactive listing detail sections as Server Componen
 - **WHEN** client-only components such as favorites, reviews, gallery carousel, or map are used
 - **THEN** they SHALL be loaded as client components wrapped in `<Suspense>` with appropriate fallbacks so the static shell streams without waiting on them
 
-### Requirement: Review submissions trigger immediate cache updates
+## Requirement: Review submissions trigger immediate cache updates
 
 Review submission flows MUST trigger cache updates so new reviews appear without stale cached content.
 
