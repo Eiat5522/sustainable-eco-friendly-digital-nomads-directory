@@ -263,8 +263,9 @@ export async function getFeaturedListings(limit = 10): Promise<FeaturedListingDT
       .map(mapFeaturedListingRecordToDTO)
       .filter((listing): listing is FeaturedListingDTO => listing !== null);
   } catch (error) {
-    structuredLogger.error('Failed to fetch featured listings', error, {
+    structuredLogger.error('Failed to fetch featured listings', {
       component: 'home.dal',
+      error,
       limit,
     });
     return [];

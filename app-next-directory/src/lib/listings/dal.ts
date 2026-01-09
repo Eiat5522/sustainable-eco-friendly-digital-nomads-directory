@@ -226,9 +226,9 @@ export async function fetchRelatedListings(cityId?: string, excludeId?: string) 
       const priceRange = isPriceRange(record.priceRange) ? record.priceRange : 'moderate';
 
       return {
-        id: record._id ?? '',
-        name: record.name ?? '',
-        slug: record.slug ?? '',
+        id: record._id!,
+        name: record.name!,
+        slug: record.slug!,
         imageUrl: record.imageUrl ?? '',
         city: mapCityRecordToDTO(record.city),
         priceRange,

@@ -60,16 +60,17 @@ function ContactForm() {
   const [submitMessage, setSubmitMessage] = useState('');
   const [submitStatus, setSubmitStatus] = useState<'success' | 'error' | null>(null);
 
-  useEffect(() => {
-    setEnquiryType(initialType);
+useEffect(() => {
+  try {
     const emailFromSession = sessionStorage.getItem('newsletter-email');
     if (emailFromSession) {
       setEmail(emailFromSession);
-      // Clear the email from sessionStorage after retrieval for privacy
       sessionStorage.removeItem('newsletter-email');
-    } else {
-      setEmail(initialEmail || '');
     }
+  } catch (error) {
+    // sessionStorage not available or blocked - gracefully degrade
+    structuredLogger.warn('sessionStorage access failed:', error);
+  }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

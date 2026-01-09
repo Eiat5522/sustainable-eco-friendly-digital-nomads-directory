@@ -11,8 +11,8 @@ export {
   type AuthUser,
   getAuthStatus,
   getCurrentUserId,
+  getIsUserAdmin,
   getUserDisplayInfo,
-  isUserAdmin,
   type UserDisplayInfo,
 } from './auth.dal';
 

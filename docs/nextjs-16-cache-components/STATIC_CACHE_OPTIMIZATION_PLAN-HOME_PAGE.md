@@ -1,6 +1,7 @@
-## Cache Components Migration Plan — Home Page Optimization
+# Cache Components Migration Plan — Home Page Optimization
 
 Summary
+
 -------
 
 Convert the Home page to use Next.js Cache Components to mix static shell and cached dynamic data. Move client-side data fetching into server components or server helpers with `use cache` and `cacheTag`, define `cacheLife` profiles in `next.config.*`, and reduce reliance on Upstash/Redis where Next.js built-in cache suffices.
@@ -8,7 +9,8 @@ Convert the Home page to use Next.js Cache Components to mix static shell and ca
 **Status:** ✅ **Phase 5 Complete** — DAL Pattern with PPR support implemented.
 
 Architecture Overview (Updated)
---------------------------------
+
+-------
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -71,7 +73,7 @@ export default {
 
 Effort: low. Verify: `pnpm build` and visit Home; no runtime errors.
 
-2) Move data fetching into server helpers with `use cache` and `cacheTag`
+1) Move data fetching into server helpers with `use cache` and `cacheTag`
 
 - Create server helper `src/lib/featuredListings.ts` (Server Component helper) and mark `use cache` at top. Use `cacheTag('featured-listings')` when caching.
 
@@ -90,25 +92,25 @@ export async function getFeaturedListings() {
 
 Effort: medium. Risk: medium (ensure server-only APIs). Verify: server-side render uses helper; LCP improve.
 
-3) Replace client fetches to `/api/*` with server component data or use Server Actions/Route Handlers where necessary
+1) Replace client fetches to `/api/*` with server component data or use Server Actions/Route Handlers where necessary
 
 - Update `app/page.tsx` to import server helper and pass data to client components as props. Wrap dynamic parts in `Suspense`.
 
 Effort: medium. Verify: Network requests reduced on first paint; LCP reduced.
 
-4) Introduce `cacheTag` + revalidation for writes/IMS
+1) Introduce `cacheTag` + revalidation for writes/IMS
 
 - For content update flows, call revalidation endpoints to `revalidateTag('featured-listings')` on content changes (e.g., webhook or admin updates).
 
 Effort: medium. Verify: updating content invalidates cache and shows new content.
 
-5) Audit and remove Upstash/Redis dependency where Next.js cache suffices
+1) Audit and remove Upstash/Redis dependency where Next.js cache suffices
 
 - Replace simple read-mostly caching (featured lists, homepage promos) with `use cache`/`cacheTag`. Keep Upstash for session-like or long-tail use cases only.
 
 Effort: medium–high. Risk: medium (ensure session flows unaffected). Verify: functional parity + lower external calls.
 
-6) Image & font optimizations
+1) Image & font optimizations
 
 - Convert large banner images to Next `Image` with appropriate widths, serve AVIF/WebP, add `priority` for above-the-fold LCP images.
 

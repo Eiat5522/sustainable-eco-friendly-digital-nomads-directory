@@ -38,13 +38,14 @@ export function NewsletterForm() {
               return;
             }
             setErrors({ email: '' });
-              // Store email in sessionStorage to avoid exposing PII in URL
-              try {
-                sessionStorage.setItem('newsletter-email', trimmed);
-              } catch (error) {
-                structuredLogger.warn('Failed to store email in sessionStorage:', error);
-              }
+            // Store email in sessionStorage to avoid exposing PII in URL
+            try {
+              sessionStorage.setItem('newsletter-email', trimmed);
               router.push('/contact-us?type=newsletter');
+            } catch (error) {
+              structuredLogger.warn('Failed to store email in sessionStorage:', error);
+              setErrors({ email: 'Unable to proceed. Please try again or enable storage in your browser.' });
+            }
           }}
         >
           <label htmlFor="footer-newsletter-email" className="sr-only">
