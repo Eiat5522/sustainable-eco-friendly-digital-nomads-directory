@@ -12,7 +12,7 @@
  */
 
 import { Suspense } from 'react';
-import { getAuthStatus, getUserDisplayInfo } from '@/lib/data-access/auth.dal';
+import { getAuthStatus } from '@/lib/data-access/auth.dal';
 import { HeaderAuthClient } from './HeaderAuthClient';
 
 interface UserAuthStatusProps {

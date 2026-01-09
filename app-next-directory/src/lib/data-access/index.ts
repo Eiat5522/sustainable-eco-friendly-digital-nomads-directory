@@ -38,3 +38,21 @@ export {
   getPopularListingSlugs,
   getRelatedListings,
 } from './listings.dal';
+
+// Search DAL - search with 'use cache' and cacheLife('minutes')
+export {
+  buildSearchHref,
+  buildSearchParams,
+  buildWhereClause,
+  DEFAULT_PAGE_SIZES,
+  executeSearch,
+  getPageNumbers,
+  getSearchFacets,
+  getSearchPageData,
+  MAX_PARAM_VALUE_LENGTH,
+  type SearchFacets,
+  type SearchFetchError,
+  type SearchFetchResult,
+  type SearchFetchSuccess,
+  type SearchPagination,
+} from './search.dal';
