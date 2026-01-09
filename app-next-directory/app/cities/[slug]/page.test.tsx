@@ -98,8 +98,24 @@ describe('CityPage', () => {
     },
   ];
 
+  const originalE2E = process.env.NEXT_PUBLIC_E2E;
+  const originalE2EEnv = process.env.E2E;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    // Reset E2E environment variables
+    delete process.env.NEXT_PUBLIC_E2E;
+    delete process.env.E2E;
+  });
+
+  afterEach(() => {
+    // Restore original E2E environment variables
+    if (originalE2E !== undefined) {
+      process.env.NEXT_PUBLIC_E2E = originalE2E;
+    }
+    if (originalE2EEnv !== undefined) {
+      process.env.E2E = originalE2EEnv;
+    }
   });
 
   it('should render the city details and listings when data is fetched successfully', async () => {
@@ -181,6 +197,116 @@ describe('CityPage', () => {
         validationError: expect.any(String),
       }
     );
+  });
+
+  it('should log an error when listings fetch fails and continue with empty listings', async () => {
+    (getCityDetailBySlug as jest.Mock).mockResolvedValue(mockCity);
+    (getListingsByCityId as jest.Mock).mockRejectedValue(new Error('Listings fetch error'));
+
+    const Page = await CityPage({ params: Promise.resolve({ slug: 'test-city' }) });
+    render(Page);
+
+    expect(structuredLogger.error).toHaveBeenCalledWith(
+      'Listings fetch failed',
+      {
+        message: 'Listings fetch error',
+        name: 'Error',
+        stack: expect.any(String),
+      },
+      {
+        component: 'city-page',
+        operation: 'fetch_city_listings',
+        cityId: '1',
+        slug: 'test-city',
+      }
+    );
+    expect(screen.getByTestId('city-name')).toHaveTextContent('Test City');
+    expect(screen.getByTestId('listings')).toBeEmptyDOMElement();
+  });
+
+  it('should sanitize non-Error objects for logging', async () => {
+    (getCityDetailBySlug as jest.Mock).mockRejectedValue('string error');
+
+    const Page = await CityPage({ params: Promise.resolve({ slug: 'test-city' }) });
+    render(Page);
+
+    expect(structuredLogger.error).toHaveBeenCalledWith(
+      'City fetch failed',
+      {
+        message: 'string error',
+        type: 'string',
+      },
+      {
+        component: 'city-page',
+        operation: 'fetch_city_data',
+        slug: 'test-city',
+      }
+    );
+  });
+
+  it('should render fallback city when both detail and basic city DTO validation fails', async () => {
+    // Return an object that will fail both CityDetailDTO and CityDTO schema validation
+    const invalidCity = {
+      id: '1',
+      name: 'Invalid City',
+      // Missing required fields like slug
+    };
+    (getCityDetailBySlug as jest.Mock).mockResolvedValue(invalidCity);
+    (getListingsByCityId as jest.Mock).mockResolvedValue([]);
+
+    const Page = await CityPage({ params: Promise.resolve({ slug: 'invalid-city' }) });
+    render(Page);
+
+    expect(structuredLogger.error).toHaveBeenCalledWith(
+      'Invalid city DTO validation failed',
+      null,
+      {
+        component: 'city-page',
+        operation: 'validate_city_dto',
+        slug: 'invalid-city',
+        validationErrors: {
+          detailError: expect.any(String),
+          basicError: expect.any(String),
+        },
+      }
+    );
+    expect(screen.getByTestId('city-name')).toHaveTextContent('Invalid City');
+    expect(screen.getByTestId('city-description')).toHaveTextContent(
+      'Preview data: city details unavailable.'
+    );
+  });
+
+  it('should render city with basic DTO when detail validation fails but basic succeeds', async () => {
+    // Return a basic city that passes CityDTO but not CityDetailDTO
+    const basicCity = {
+      id: '1',
+      name: 'Basic City',
+      slug: 'basic-city',
+      country: 'Test Country',
+      highlights: [],
+      imageUrl: null,
+      imageDimensions: null,
+      description: 'A basic city',
+    };
+    (getCityDetailBySlug as jest.Mock).mockResolvedValue(basicCity);
+    (getListingsByCityId as jest.Mock).mockResolvedValue([]);
+
+    const Page = await CityPage({ params: Promise.resolve({ slug: 'basic-city' }) });
+    render(Page);
+
+    expect(screen.getByTestId('city-name')).toHaveTextContent('Basic City');
+    expect(screen.getByTestId('city-description')).toHaveTextContent('A basic city');
+  });
+
+  it('should handle acronyms in slug-to-title conversion', async () => {
+    (getCityDetailBySlug as jest.Mock).mockResolvedValue(null);
+    (getCityBySlug as jest.Mock).mockResolvedValue(null);
+
+    const Page = await CityPage({ params: Promise.resolve({ slug: 'nyc-usa' }) });
+    render(Page);
+
+    // The toTitleCaseFromSlug function should convert acronyms to uppercase
+    expect(screen.getByTestId('city-name')).toHaveTextContent('NYC USA');
   });
 });
 
