@@ -8,7 +8,7 @@ import { FeaturedListings } from '@/components/sections/FeaturedListings';
 import { HeroSection } from '@/components/sections/HeroSection';
 import { getCities, getFeaturedListings } from '@/lib/data-access';
 import { structuredLogger } from '@/lib/logger';
-import { MOCK_FEATURED_LISTINGS, MOCK_CITIES } from '__mocks__/homePageData';
+import { MOCK_FEATURED_LISTINGS, MOCK_CITIES } from '../__mocks__/homePageData';
 
 const isE2ERun = process.env.NEXT_PUBLIC_E2E === '1' || process.env.E2E === '1';
 
