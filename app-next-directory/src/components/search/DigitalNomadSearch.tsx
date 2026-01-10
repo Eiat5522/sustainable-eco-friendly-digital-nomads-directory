@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import type React from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import { NeoButton } from '@/components/ui/neo-button';
 import { NeoInput } from '@/components/ui/neo-input';
 
@@ -17,12 +17,7 @@ export function DigitalNomadSearch({
 }: DigitalNomadSearchProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [value, setValue] = useState<string>('');
-
-  useEffect(() => {
-    const q = searchParams.get('q') || '';
-    setValue(q);
-  }, [searchParams]);
+  const initialQuery = searchParams.get('q') ?? '';
 
   const performSearch = useCallback(
     (q: string) => {
@@ -37,21 +32,26 @@ export function DigitalNomadSearch({
     [router, searchParams, onSearch]
   );
 
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    performSearch(value);
-  };
+  const onSubmit = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      const formData = new FormData(e.currentTarget);
+      const q = formData.get('q');
+      performSearch(typeof q === 'string' ? q : '');
+    },
+    [performSearch]
+  );
 
   return (
     <form
+      key={initialQuery}
       onSubmit={onSubmit}
       className="flex gap-3 w-full"
       role="search"
       aria-label="Search listings"
     >
       <NeoInput
-        value={value}
-        onChange={e => setValue(e.target.value)}
+        defaultValue={initialQuery}
         placeholder={placeholder}
         aria-label="Search query"
         name="q"

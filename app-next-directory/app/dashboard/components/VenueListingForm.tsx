@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { type ChangeEvent, useEffect, useState } from 'react';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { useFieldArray, useForm, useWatch } from 'react-hook-form';
 import * as z from 'zod';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -208,6 +208,7 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
     control: form.control,
     name: 'coworkingDetails.pricingPlans',
   });
+  const listingType = useWatch({ control: form.control, name: 'type' });
 
   useEffect(() => {
     const fetchCities = async () => {
@@ -529,7 +530,7 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
           )}
         />
 
-        {form.watch('type') === 'accommodation' && (
+        {listingType === 'accommodation' && (
           <div className="space-y-8 rounded-lg border border-gray-200 p-4">
             <h3 className="text-lg font-medium">Accommodation Details</h3>
             <FormField
@@ -616,7 +617,7 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
           </div>
         )}
 
-        {form.watch('type') === 'activities' && (
+        {listingType === 'activities' && (
           <div className="space-y-8 rounded-lg border border-gray-200 p-4">
             <h3 className="text-lg font-medium">Activities Details</h3>
             <FormField
@@ -881,7 +882,7 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
           </div>
         )}
 
-        {form.watch('type') === 'cafe' && (
+        {listingType === 'cafe' && (
           <div className="space-y-8 rounded-lg border border-gray-200 p-4">
             <h3 className="text-lg font-medium">Cafe Details</h3>
             <FormField
@@ -1052,7 +1053,7 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
           </div>
         )}
 
-        {form.watch('type') === 'coworking' && (
+        {listingType === 'coworking' && (
           <div className="space-y-8 rounded-lg border border-gray-200 p-4">
             <h3 className="text-lg font-medium">Coworking Details</h3>
             <div>
@@ -1159,7 +1160,7 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
           </div>
         )}
 
-        {form.watch('type') === 'restaurant' && (
+        {listingType === 'restaurant' && (
           <div className="space-y-8 rounded-lg border border-gray-200 p-4">
             <h3 className="text-lg font-medium">Restaurant Details</h3>
             <FormField

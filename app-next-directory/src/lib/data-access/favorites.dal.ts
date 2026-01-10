@@ -124,10 +124,7 @@ const DEFAULT_REVIEWS_LIMIT = 10;
  * @param userId - The user ID (from session)
  * @returns boolean indicating if the listing is favorited
  */
-export async function checkIsFavorited(
-  listingId: string,
-  userId?: string
-): Promise<boolean> {
+export async function checkIsFavorited(listingId: string, userId?: string): Promise<boolean> {
   'use cache: private';
   cacheLife({ stale: 60 }); // Cache for 60 seconds per user
 
@@ -148,10 +145,10 @@ export async function checkIsFavorited(
   cacheTag(`user-${userId}-favorite-${listingId}`);
 
   try {
-    const favorite = await fetchFromSanity<{ _id?: string | null } | null>(
-      FAVORITE_CHECK_QUERY,
-      { userId, listingId }
-    );
+    const favorite = await fetchFromSanity<{ _id?: string | null } | null>(FAVORITE_CHECK_QUERY, {
+      userId,
+      listingId,
+    });
     return Boolean(favorite?._id);
   } catch (error) {
     logger.error('Failed to check favorite status', error, {
@@ -171,10 +168,7 @@ export async function checkIsFavorited(
  * @param userId - Optional user ID for seeing own pending reviews
  * @returns Array of reviews
  */
-export async function getListingReviews(
-  listingSlug: string,
-  userId?: string
-): Promise<Review[]> {
+export async function getListingReviews(listingSlug: string, userId?: string): Promise<Review[]> {
   'use cache: private';
   cacheLife({ stale: 300 }); // Cache for 5 minutes
   cacheTag(userId ? `reviews-${listingSlug}-user-${userId}` : `reviews-${listingSlug}`);

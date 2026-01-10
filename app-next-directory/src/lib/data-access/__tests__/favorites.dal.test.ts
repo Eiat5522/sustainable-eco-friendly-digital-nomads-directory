@@ -39,8 +39,8 @@ jest.mock('@/utils/db-helpers', () => ({
 
 // Import mocked modules
 import { cookies } from 'next/headers';
-import { client } from '@/lib/sanity/client';
 import { structuredLogger } from '@/lib/logger';
+import { client } from '@/lib/sanity/client';
 import { getCollection } from '@/utils/db-helpers';
 
 const mockCookies = cookies as jest.MockedFunction<typeof cookies>;
@@ -221,10 +221,7 @@ describe('favorites.dal', () => {
       });
       expect(mockCollection.find).toHaveBeenCalledWith({
         listingSlug: 'test-listing',
-        $or: [
-          { status: 'approved' },
-          { status: 'pending', user: 'user-1' },
-        ],
+        $or: [{ status: 'approved' }, { status: 'pending', user: 'user-1' }],
       });
     });
 

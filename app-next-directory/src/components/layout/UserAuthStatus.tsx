@@ -12,7 +12,7 @@
  */
 
 import { Suspense } from 'react';
-import { getAuthStatus, getUserDisplayInfo } from '@/lib/data-access/auth.dal';
+import { getAuthStatus } from '@/lib/data-access/auth.dal';
 import { HeaderAuthClient } from './HeaderAuthClient';
 
 interface UserAuthStatusProps {
@@ -25,7 +25,7 @@ interface UserAuthStatusProps {
  */
 async function AuthStatusFetcher({ className }: UserAuthStatusProps) {
   let authStatus;
-  const displayInfo = getUserDisplayInfo;
+  let displayInfo = null;
   
   try {
     authStatus = await getAuthStatus();
@@ -33,7 +33,7 @@ async function AuthStatusFetcher({ className }: UserAuthStatusProps) {
     // Handle error - user is not authenticated
     authStatus = { isAuthenticated: false, isAdmin: false, user: null };
   }
-  
+
   return (
     <HeaderAuthClient
       isAuthenticated={authStatus.isAuthenticated}

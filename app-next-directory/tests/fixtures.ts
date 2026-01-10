@@ -60,34 +60,34 @@ const createAuthenticatedContext = async (
 };
 
 export const test = base.extend<TestFixtures>({
-  authenticatedPage: async ({ browser }, use) => {
+  authenticatedPage: async ({ browser }, runFixture) => {
     const { context, page } = await createAuthenticatedContext(browser, 'customer');
     try {
-      await use(page);
+      await runFixture(page);
     } finally {
       await context.close();
     }
   },
-  adminPage: async ({ browser }, use) => {
+  adminPage: async ({ browser }, runFixture) => {
     const { context, page } = await createAuthenticatedContext(browser, 'admin');
     try {
-      await use(page);
+      await runFixture(page);
     } finally {
       await context.close();
     }
   },
-  superAdminPage: async ({ browser }, use) => {
+  superAdminPage: async ({ browser }, runFixture) => {
     const { context, page } = await createAuthenticatedContext(browser, 'superAdmin');
     try {
-      await use(page);
+      await runFixture(page);
     } finally {
       await context.close();
     }
   },
-  venueOwnerPage: async ({ browser }, use) => {
+  venueOwnerPage: async ({ browser }, runFixture) => {
     const { context, page } = await createAuthenticatedContext(browser, 'venueOwner');
     try {
-      await use(page);
+      await runFixture(page);
     } finally {
       await context.close();
     }

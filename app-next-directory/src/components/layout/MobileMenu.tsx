@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { Menu, X } from 'lucide-react';
 import Link from 'next/link';
@@ -47,10 +47,7 @@ export default function MobileMenu(): React.JSX.Element {
           aria-label="Mobile navigation menu"
           className="fixed inset-0 z-50 flex"
         >
-          <div
-            className="absolute inset-0 bg-black/40"
-            onClick={() => setOpen(false)}
-          />
+          <div className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
 
           <div className="relative ml-auto w-64 max-w-full bg-background p-4 border-l border-neo-border shadow-lg">
             <div className="flex items-center justify-between">

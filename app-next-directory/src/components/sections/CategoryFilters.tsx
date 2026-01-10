@@ -2,7 +2,7 @@
 
 import type { LucideIcon } from 'lucide-react';
 import { Bed, Coffee, Laptop, Mountain, UtensilsCrossed } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { NeoBadge } from '@/components/ui/neo-badge';
 
 type Category = {
@@ -31,12 +31,8 @@ export function CategoryFilters({
   onChange?: (next: string[]) => void;
   items?: ReadonlyArray<Category>;
 }): React.JSX.Element {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(value ?? defaultValue);
-
-  // keep internal state in sync when controlled
-  useEffect(() => {
-    if (value) setSelectedCategories(value);
-  }, [value]);
+  const [uncontrolledCategories, setUncontrolledCategories] = useState<string[]>(defaultValue);
+  const selectedCategories = value ?? uncontrolledCategories;
 
   const list = items ?? categories;
   const toggleCategory = (categoryId: string) => {
@@ -48,7 +44,7 @@ export function CategoryFilters({
     onChange?.(next);
 
     if (value === undefined) {
-      setSelectedCategories(next);
+      setUncontrolledCategories(next);
     }
   };
 

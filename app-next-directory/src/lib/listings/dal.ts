@@ -223,18 +223,18 @@ export async function fetchRelatedListings(cityId?: string, excludeId?: string) 
     return records
       .filter(record => record._id && record.name && record.slug)
       .map(record => {
-      const priceRange = isPriceRange(record.priceRange) ? record.priceRange : 'moderate';
+        const priceRange = isPriceRange(record.priceRange) ? record.priceRange : 'moderate';
 
-      return {
-        id: record._id!,
-        name: record.name!,
-        slug: record.slug!,
-        imageUrl: record.imageUrl ?? '',
-        city: mapCityRecordToDTO(record.city),
-        priceRange,
-        ecoFocusTags: extractTagNames(record.ecoFocusTags),
-      };
-    });
+        return {
+          id: record._id ?? '',
+          name: record.name ?? '',
+          slug: record.slug ?? '',
+          imageUrl: record.imageUrl ?? '',
+          city: mapCityRecordToDTO(record.city),
+          priceRange,
+          ecoFocusTags: extractTagNames(record.ecoFocusTags),
+        };
+      });
   } catch (error) {
     logger.error('Failed to fetch related listings', error, {
       component: 'listings/dal',
@@ -251,12 +251,12 @@ export async function fetchReviews(listingSlug: string, userId?: string): Promis
 
     const filter: Filter<ReviewDocument> = { listingSlug };
     if (userId) {
-        filter.$or = [
-            { status: 'approved' },
-            { status: 'pending', user: userId },
-            { status: 'pending', 'user.id': userId },
-            { status: 'pending', 'user._id': userId }
-        ];
+      filter.$or = [
+        { status: 'approved' },
+        { status: 'pending', user: userId },
+        { status: 'pending', 'user.id': userId },
+        { status: 'pending', 'user._id': userId },
+      ];
     } else {
       filter.status = 'approved';
     }

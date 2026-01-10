@@ -53,16 +53,6 @@ function deriveInitialValues(params: SearchParamRecord): DerivedInitialValues {
   };
 }
 
-function derivedInitialValuesEqual(a: DerivedInitialValues, b: DerivedInitialValues): boolean {
-  return (
-    a.searchTerm === b.searchTerm &&
-    a.limit === b.limit &&
-    arraysEqual(a.cities, b.cities) &&
-    arraysEqual(a.categories, b.categories) &&
-    arraysEqual(a.amenities, b.amenities)
-  );
-}
-
 function recordToParams(record: SearchParamRecord): URLSearchParams {
   const params = new URLSearchParams();
   const entries = Object.entries(record);
@@ -93,11 +83,10 @@ export function SearchFiltersForm({
 }: SearchFiltersFormProps) {
   const router = useRouter();
 
-  const lastAppliedInitialsRef = React.useRef<DerivedInitialValues | null>(null);
-  if (lastAppliedInitialsRef.current === null) {
-    lastAppliedInitialsRef.current = deriveInitialValues(initialParams);
-  }
-  const initialValues = lastAppliedInitialsRef.current!;
+  const initialValues = React.useMemo(
+    () => deriveInitialValues(initialParams),
+    [initialParams]
+  );
 
   const [searchTerm, setSearchTerm] = React.useState(initialValues.searchTerm);
   const [selectedCities, setSelectedCities] = React.useState<string[]>(initialValues.cities);
@@ -114,29 +103,22 @@ export function SearchFiltersForm({
   const [amenityOptions, setAmenityOptions] = React.useState<Option[]>([]);
 
   React.useEffect(() => {
-    const nextInitials = deriveInitialValues(initialParams);
-    const previousInitials = lastAppliedInitialsRef.current;
-
-    if (previousInitials && derivedInitialValuesEqual(previousInitials, nextInitials)) {
-      return;
-    }
-
-    lastAppliedInitialsRef.current = nextInitials;
-
     setSearchTerm(previous =>
-      previous === nextInitials.searchTerm ? previous : nextInitials.searchTerm
+      previous === initialValues.searchTerm ? previous : initialValues.searchTerm
     );
     setSelectedCities(previous =>
-      arraysEqual(previous, nextInitials.cities) ? previous : nextInitials.cities
+      arraysEqual(previous, initialValues.cities) ? previous : initialValues.cities
     );
     setSelectedCategories(previous =>
-      arraysEqual(previous, nextInitials.categories) ? previous : nextInitials.categories
+      arraysEqual(previous, initialValues.categories) ? previous : initialValues.categories
     );
     setSelectedAmenities(previous =>
-      arraysEqual(previous, nextInitials.amenities) ? previous : nextInitials.amenities
+      arraysEqual(previous, initialValues.amenities) ? previous : initialValues.amenities
     );
-    setInitialLimit(previous => (previous === nextInitials.limit ? previous : nextInitials.limit));
-  }, [initialParams]);
+    setInitialLimit(previous =>
+      previous === initialValues.limit ? previous : initialValues.limit
+    );
+  }, [initialValues]);
 
   React.useEffect(() => {
     let cancelled = false;

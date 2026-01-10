@@ -66,13 +66,11 @@ useEffect(() => {
     if (emailFromSession) {
       setEmail(emailFromSession);
       sessionStorage.removeItem('newsletter-email');
+    } else {
+      setEmail(initialEmail || '');
     }
-  } catch (error) {
-    // sessionStorage not available or blocked - gracefully degrade
-    structuredLogger.warn('sessionStorage access failed:', error);
-  }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+     
+  }, [initialEmail, initialType]);
 
   const validate = () => {
     const schema = enquiryType === 'general' ? contactFormSchema : newsletterSchema;

@@ -142,7 +142,9 @@ async function fetchFromSanity<T>(
   }
 }
 
-function isPriceRange(value: string | null | undefined): value is 'budget' | 'moderate' | 'premium' {
+function isPriceRange(
+  value: string | null | undefined
+): value is 'budget' | 'moderate' | 'premium' {
   return value === 'budget' || value === 'moderate' || value === 'premium';
 }
 
@@ -151,7 +153,7 @@ function extractTagNames(tags?: RelatedListingRecord['ecoFocusTags']): string[] 
   const names: string[] = [];
   for (const tag of tags) {
     if (typeof tag === 'string') {
-      logger.warn('Unexpected string tag encountered in ecoFocusTags', {
+      structuredLogger.warn('Unexpected string tag encountered in ecoFocusTags', {
         component: 'listings.dal',
         tag,
       });

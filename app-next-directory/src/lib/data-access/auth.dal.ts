@@ -121,8 +121,8 @@ export async function getAuthStatus(): Promise<AuthStatus> {
   // Verify session cookie exists
   try {
     const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get('authjs.session-token') ||
-      cookieStore.get('__Secure-authjs.session-token');
+    const sessionCookie =
+      cookieStore.get('authjs.session-token') || cookieStore.get('__Secure-authjs.session-token');
 
     if (!sessionCookie) {
       return {
@@ -187,9 +187,7 @@ export async function getAuthStatus(): Promise<AuthStatus> {
  * @param fallbackLabel - Label to use when not authenticated
  * @returns UserDisplayInfo object
  */
-export async function getUserDisplayInfo(
-  fallbackLabel = 'your account'
-): Promise<UserDisplayInfo> {
+export async function getUserDisplayInfo(fallbackLabel = 'your account'): Promise<UserDisplayInfo> {
   'use cache: private';
   cacheLife({ stale: 60 });
 

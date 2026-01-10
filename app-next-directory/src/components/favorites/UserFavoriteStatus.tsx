@@ -67,14 +67,13 @@ const SIZE_CLASSES = {
   lg: 'size-8',
 } as const;
 
-function FavoriteButtonSkeleton({ 
+function FavoriteButtonSkeleton({
   className,
   size = 'md',
-}: { 
+}: {
   className?: string;
   size?: 'sm' | 'md' | 'lg';
 }) {
-
   return (
     <button
       type="button"

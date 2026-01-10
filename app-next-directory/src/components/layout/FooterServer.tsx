@@ -88,7 +88,7 @@ export function FooterServer({ showNewsletter = true }: FooterServerProps) {
           <div>
             <h4 className="heading-sm text-white mb-4">Quick Links</h4>
             <ul className="space-y-2">
-              {footerLinks.quickLinks.map((link) => (
+              {footerLinks.quickLinks.map(link => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
@@ -105,7 +105,7 @@ export function FooterServer({ showNewsletter = true }: FooterServerProps) {
           <div>
             <h4 className="heading-sm text-white mb-4">Categories</h4>
             <ul className="space-y-2">
-              {footerLinks.categories.map((link) => (
+              {footerLinks.categories.map(link => (
                 <li key={link.name}>
                   <Link
                     href={link.href}

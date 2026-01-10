@@ -12,7 +12,7 @@ type MockListingPage = {
 // Extend the base test type with our custom fixtures
 export const test = base.extend<{ mockListingPage: MockListingPage }>({
   // Set up a mock listing page with search functionality
-  mockListingPage: async ({ page }, use) => {
+  mockListingPage: async ({ page }, runFixture) => {
     // Mock the API response for listings
     await page.route('**/api/test-listings', async route => {
       await route.fulfill({
@@ -35,7 +35,7 @@ export const test = base.extend<{ mockListingPage: MockListingPage }>({
       listings: mockListings,
     };
 
-    await use(mockPage);
+    await runFixture(mockPage);
   },
 });
 

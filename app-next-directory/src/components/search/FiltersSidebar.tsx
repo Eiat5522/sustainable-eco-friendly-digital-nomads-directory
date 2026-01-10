@@ -1,26 +1,12 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { FilterDefinition } from '@/hooks/useFilters';
 import { ListingCategory } from '@/types/enums';
 import { DigitalNomadSearchFilter } from './DigitalNomadSearchFilter';
 
 type FiltersMap = Record<string, string[]>;
-
-const _ignoredClearCommandPatterns = ['clear filters', 'reset filters', 'remove filters'] as const;
-
-function normalizeText(value: string): string {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-function _ignoredTokenize(value: string): string[] {
-  return normalizeText(value).split(' ').filter(Boolean);
-}
 
 type FiltersMapEntry = [groupId: string, values: string[]];
 
@@ -41,20 +27,6 @@ function normalizeFilters(filters: FiltersMap): FiltersMap {
     if (unique.length) normalized[groupId] = unique;
   });
   return normalized;
-}
-
-function _ignoredFilterToAllowedValues(
-  filters: FiltersMap,
-  allowedByGroup: Map<string, Set<string>>
-): FiltersMap {
-  const sanitized: FiltersMap = {};
-  Object.entries(filters).forEach(([groupId, values]) => {
-    const allowed = allowedByGroup.get(groupId);
-    if (!allowed) return;
-    const unique = Array.from(new Set(values)).filter(value => allowed.has(value));
-    if (unique.length) sanitized[groupId] = unique;
-  });
-  return sanitized;
 }
 
 const defaultDefinitions: FilterDefinition[] = [
@@ -127,18 +99,8 @@ export function FiltersSidebar({ definitions = defaultDefinitions }: FiltersSide
     return initial;
   }, [allowedByGroup, definitions, searchParams]);
 
-  const [controlledFilters, setControlledFilters] = useState<FiltersMap>(initialFilters);
-  const [filtersKey, setFiltersKey] = useState(() => createFiltersKey(initialFilters));
+  const filtersKey = useMemo(() => createFiltersKey(initialFilters), [initialFilters]);
   const filtersKeyRef = useRef(filtersKey);
-
-  useEffect(() => {
-    const nextKey = createFiltersKey(initialFilters);
-    if (nextKey !== filtersKeyRef.current) {
-      filtersKeyRef.current = nextKey;
-      setControlledFilters(initialFilters);
-      setFiltersKey(nextKey);
-    }
-  }, [initialFilters]);
 
   useEffect(() => {
     filtersKeyRef.current = filtersKey;
@@ -151,8 +113,6 @@ export function FiltersSidebar({ definitions = defaultDefinitions }: FiltersSide
       if (nextKey === filtersKeyRef.current) return;
 
       filtersKeyRef.current = nextKey;
-      setControlledFilters(normalized);
-      setFiltersKey(nextKey);
 
       const params = new URLSearchParams(Array.from(searchParams.entries()));
       definitions.forEach(group => params.delete(group.id));
@@ -178,7 +138,7 @@ export function FiltersSidebar({ definitions = defaultDefinitions }: FiltersSide
       <DigitalNomadSearchFilter
         key={filtersKey}
         definitions={definitions}
-        initialFilters={controlledFilters}
+        initialFilters={initialFilters}
         onChange={handleChange}
         title="Filter Results"
       />

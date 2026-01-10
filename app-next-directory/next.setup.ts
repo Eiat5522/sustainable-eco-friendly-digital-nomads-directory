@@ -2,9 +2,6 @@ import 'whatwg-fetch';
 import { TextDecoder, TextEncoder } from 'node:util';
 import { jest } from '@jest/globals';
 
-// Type for headers compatibility
-type _ignoredHeadersLike = HeadersInit | Record<string, string> | [string, string][];
-
 type NextResponseInit = { status?: number; headers?: HeadersInit };
 
 if (!globalThis.TextEncoder) {

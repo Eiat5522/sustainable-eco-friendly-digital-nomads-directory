@@ -5,5 +5,10 @@ declare module 'next/image' {
 
 declare module 'next/link' {
   import type { LinkProps as NextLinkProps } from 'next/dist/client/link';
-  export default function Link(props: NextLinkProps & { children?: React.ReactNode }): JSX.Element;
+  export default function Link(
+    props: NextLinkProps &
+      React.AnchorHTMLAttributes<HTMLAnchorElement> & {
+        children?: React.ReactNode;
+      }
+  ): JSX.Element;
 }

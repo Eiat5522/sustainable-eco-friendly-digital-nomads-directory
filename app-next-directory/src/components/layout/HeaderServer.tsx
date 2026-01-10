@@ -16,7 +16,8 @@ import { Suspense } from 'react';
 import MobileMenu from './MobileMenu';
 import UserAuthStatus from './UserAuthStatus';
 
-const navLinkClass = "body-md hover:text-neo-primary font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary rounded-sm px-1 py-1";
+const navLinkClass =
+  'body-md hover:text-neo-primary font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary rounded-sm px-1 py-1';
 
 export function HeaderServer(): React.JSX.Element {
   return (
@@ -42,45 +43,29 @@ export function HeaderServer(): React.JSX.Element {
           </div>
 
           {/* Center: Navigation (desktop) */}
-          <nav className="hidden md:flex items-center gap-6 justify-self-center">
-              <Link
-                href="/"
-                className={navLinkClass}
-              >
-                Home
-              </Link>
-              <Link
-                href="/search"
-                className={navLinkClass}
-              >
-                Search
-              </Link>
-              <Link
-                href="/blog"
-                className={navLinkClass}
-              >
-                Blog
-              </Link>
-              <Link
-                href="/contact-us"
-                className={navLinkClass}
-              >
-                Contact Us
-              </Link>
-            </nav>
- 
-           {/* Right: Auth Status */}
-           <div className="hidden md:flex items-center justify-self-end">
-             <Suspense fallback={
-               <div className="h-10 w-24 animate-pulse bg-gray-200 rounded" role="status">
-                 <span className="sr-only">Loading authentication status</span>
-               </div>
-             }>
-               <UserAuthStatus />
-             </Suspense>
-           </div>            
+          <nav className="hidden md:flex items-center gap-6 absolute left-1/2 transform -translate-x-1/2">
+            <Link href="/" className={navLinkClass}>
+              Home
+            </Link>
+            <Link href="/search" className={navLinkClass}>
+              Search
+            </Link>
+            <Link href="/blog" className={navLinkClass}>
+              Blog
+            </Link>
+            <Link href="/contact-us" className={navLinkClass}>
+              Contact Us
+            </Link>
+          </nav>
+
+          {/* Right: Auth Status */}
+          <div className="hidden md:flex items-center">
+            <Suspense fallback={<div className="h-10 w-24 animate-pulse bg-gray-200 rounded" />}>
+              <UserAuthStatus />
+            </Suspense>
           </div>
         </div>
+      </div>
     </header>
   );
 }

@@ -1,4 +1,4 @@
-import type { HTMLAttributes } from 'react';
+import type { AnchorHTMLAttributes, HTMLAttributes, ReactNode } from 'react';
 
 declare global {
   namespace JSX {
@@ -11,11 +11,10 @@ declare global {
 declare module 'next/link' {
   import type { LinkProps as NextLinkProps } from 'next/dist/client/link';
 
-  export interface LinkProps extends NextLinkProps {
-    className?: string;
-    children: React.ReactNode;
-    href: string;
-  }
+  export type LinkProps = NextLinkProps &
+    AnchorHTMLAttributes<HTMLAnchorElement> & {
+      children?: ReactNode;
+    };
 
   export default function Link(props: LinkProps): JSX.Element;
 }

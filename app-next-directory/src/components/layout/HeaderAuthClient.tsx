@@ -49,16 +49,15 @@ export function HeaderAuthClient({
     }
   }, [signingOut]);
 
-const accountLabel = isAuthenticated ? `Signed in as ${displayInfo?.displayName ?? 'User'}` : 'Sign in';
+  const accountLabel = isAuthenticated
+    ? `Signed in as ${displayInfo?.displayName ?? 'User'}`
+    : 'Sign in';
 
   return (
     <div className={`flex items-center space-x-4 ${className ?? ''}`}>
       {isAuthenticated && (
         <span className="hidden md:inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700">
-          <span
-            className="inline-flex h-2 w-2 rounded-full bg-emerald-500"
-            aria-hidden="true"
-          />
+          <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
           {displayInfo?.shortName ? `Welcome, ${displayInfo.shortName}!` : 'Signed in'}
         </span>
       )}
@@ -87,9 +86,7 @@ const accountLabel = isAuthenticated ? `Signed in as ${displayInfo?.displayName 
                   </span>
                 )}
               </span>
-              <span className="hidden sm:inline text-xs text-neo-text-secondary">
-                Account
-              </span>
+              <span className="hidden sm:inline text-xs text-neo-text-secondary">Account</span>
               <ChevronDown className="h-4 w-4 text-neo-text-secondary" aria-hidden="true" />
             </button>
           </DropdownMenu.Trigger>
@@ -125,7 +122,7 @@ const accountLabel = isAuthenticated ? `Signed in as ${displayInfo?.displayName 
             <DropdownMenu.Separator className="my-2 h-px bg-neo-border/60" />
             <DropdownMenu.Item
               disabled={signingOut}
-              onSelect={(event) => {
+              onSelect={event => {
                 event.preventDefault();
                 if (!signingOut) {
                   void handleSignOut();

@@ -40,9 +40,8 @@ jest.mock('next/image', () => {
 });
 
 // Mock next/link
-jest.mock('next/link', () => ({
-  __esModule: true,
-  default: ({ children, href, ...props }: any) => {
+jest.mock('next/link', () => {
+  const MockLink = ({ children, href, ...props }: any) => {
     const { useRouter } = require('next/navigation');
     const router = useRouter();
 
@@ -58,8 +57,15 @@ jest.mock('next/link', () => ({
         {children}
       </a>
     );
-  },
-}));
+  };
+
+  MockLink.displayName = 'MockLink';
+
+  return {
+    __esModule: true,
+    default: MockLink,
+  };
+});
 
 jest.mock('next/navigation', () => ({
   __esModule: true,

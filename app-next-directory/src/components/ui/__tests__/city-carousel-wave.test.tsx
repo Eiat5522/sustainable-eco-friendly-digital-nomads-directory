@@ -29,9 +29,8 @@ jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
 }));
 
-jest.mock('next/link', () => ({
-  __esModule: true,
-  default: ({ href, children, ...props }: any) => {
+jest.mock('next/link', () => {
+  const MockLink = ({ href, children, ...props }: any) => {
     const { useRouter } = require('next/navigation');
     const router = useRouter();
 
@@ -47,8 +46,15 @@ jest.mock('next/link', () => ({
         {children}
       </a>
     );
-  },
-}));
+  };
+
+  MockLink.displayName = 'MockLink';
+
+  return {
+    __esModule: true,
+    default: MockLink,
+  };
+});
 
 const mockCities: CityDTO[] = [
   {

@@ -27,9 +27,9 @@ export function NewsletterForm() {
           Get weekly updates on new sustainable venues, eco-travel tips, and nomad community
           highlights
         </p>
-        <form 
+        <form
           className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto"
-          onSubmit={(e) => {
+          onSubmit={e => {
             e.preventDefault();
             const trimmed = email.trim();
             const isValid = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(trimmed);
@@ -41,11 +41,10 @@ export function NewsletterForm() {
             // Store email in sessionStorage to avoid exposing PII in URL
             try {
               sessionStorage.setItem('newsletter-email', trimmed);
-              router.push('/contact-us?type=newsletter');
             } catch (error) {
               structuredLogger.warn('Failed to store email in sessionStorage:', error);
-              setErrors({ email: 'Unable to proceed. Please try again or enable storage in your browser.' });
             }
+            router.push('/contact-us?type=newsletter');
           }}
         >
           <label htmlFor="footer-newsletter-email" className="sr-only">
@@ -59,7 +58,7 @@ export function NewsletterForm() {
             autoComplete="email"
             inputMode="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={e => setEmail(e.target.value)}
             aria-invalid={!!errors.email}
             aria-describedby="newsletter-help"
             aria-errormessage="newsletter-error"
@@ -71,12 +70,8 @@ export function NewsletterForm() {
               {errors.email}
             </p>
           )}
-          <NeoButton 
-            type="submit"
-            variant="secondary" 
-            size="md"
-          >              
-             Subscribe
+          <NeoButton type="submit" variant="secondary" size="md">
+            Subscribe
           </NeoButton>
         </form>
         <p id="newsletter-help" className="sr-only">

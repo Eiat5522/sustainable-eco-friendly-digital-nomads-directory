@@ -5,23 +5,23 @@ test.describe('Authentication (Playwright E2E)', () => {
     let registeredEmail = '';
     // Mock the register endpoint for integration testing
     await page.route('**/api/auth/register', async route => {
-        const requestBody = route.request().postDataJSON();
-        registeredEmail = requestBody?.email || 'test@example.com';
-        await route.fulfill({
-          status: 201,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            success: true,
-            data: {
-              user: {
-                _id: 'e2e-user',
-                name: requestBody?.name || 'Test User',
-                email: requestBody?.email || 'test@example.com',
-              },
+      const requestBody = route.request().postDataJSON();
+      registeredEmail = requestBody?.email || 'test@example.com';
+      await route.fulfill({
+        status: 201,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          data: {
+            user: {
+              _id: 'e2e-user',
+              name: requestBody?.name || 'Test User',
+              email: requestBody?.email || 'test@example.com',
             },
-          }),
-        });
+          },
+        }),
       });
+    });
 
     // Mock NextAuth signin endpoint
     await page.route('**/api/auth/signin/credentials', async route => {
@@ -32,14 +32,14 @@ test.describe('Authentication (Playwright E2E)', () => {
       });
     });
 
-      // Mock NextAuth callback endpoint
-      await page.route('**/api/auth/callback/credentials**', async route => {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({ ok: true, url: '/' }),
-        });
+    // Mock NextAuth callback endpoint
+    await page.route('**/api/auth/callback/credentials**', async route => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ ok: true, url: '/' }),
       });
+    });
     const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
     // Mock NextAuth session endpoint

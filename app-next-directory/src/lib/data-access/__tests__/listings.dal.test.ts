@@ -5,11 +5,7 @@
 
 import { jest } from '@jest/globals';
 import type { SanityListing } from '@/types/sanity.types';
-import {
-  getListingBySlug,
-  getPopularListingSlugs,
-  getRelatedListings,
-} from '../listings.dal';
+import { getListingBySlug, getPopularListingSlugs, getRelatedListings } from '../listings.dal';
 
 // Mock dependencies
 jest.mock('@/lib/sanity/client', () => ({
@@ -38,13 +34,13 @@ jest.mock('next/cache', () => ({
 }));
 
 jest.mock('react', () => ({
-  cache: jest.fn((fn) => fn),
+  cache: jest.fn(fn => fn),
 }));
 
-// Import mocked modules
-import { client } from '@/lib/sanity/client';
 import { transformToDetailDTO } from '@/lib/dto-transformer';
 import { structuredLogger } from '@/lib/logger';
+// Import mocked modules
+import { client } from '@/lib/sanity/client';
 
 const mockFetch = client.fetch as jest.MockedFunction<typeof client.fetch>;
 const mockTransformToDetailDTO = transformToDetailDTO as jest.MockedFunction<

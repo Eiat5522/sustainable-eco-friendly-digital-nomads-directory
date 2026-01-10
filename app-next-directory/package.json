@@ -233,10 +233,5 @@
       "version": "^22.21.0",
       "onFail": "download"
     }
-  },
-  "pnpm": {
-    "overrides": {
-      "@types/react": "19.2.7"
-    }
   }
 }
