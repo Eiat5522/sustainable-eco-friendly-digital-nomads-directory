@@ -1,6 +1,6 @@
 /**
- * Unit tests for app/search/page.tsx
- * Tests the search page server component with Next.js 16 Cache Components optimizations
+ * Unit tests for app/search/results/page.tsx
+ * Tests the search results page server component with Next.js 16 Cache Components optimizations
  */
 
 /** @jest-environment jsdom */
@@ -40,12 +40,10 @@ jest.mock('@/components/listings/ListingGrid', () => ({
   ),
 }));
 
-// Mock SearchFiltersForm
+// Mock SearchFiltersForm (note: no resultsPath prop in results page)
 jest.mock('@/components/search/SearchFiltersForm', () => ({
-  SearchFiltersForm: ({ initialParams, resultsPath }: { initialParams: any; resultsPath?: string }) => (
-    <div data-testid="search-filters-form" data-results-path={resultsPath}>
-      {JSON.stringify(initialParams)}
-    </div>
+  SearchFiltersForm: ({ initialParams }: { initialParams: any }) => (
+    <div data-testid="search-filters-form">{JSON.stringify(initialParams)}</div>
   ),
 }));
 
@@ -73,11 +71,11 @@ jest.mock('next/link', () => ({
   ),
 }));
 
-describe('app/search/page.tsx', () => {
+describe('app/search/results/page.tsx', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.resetModules();
-    
+
     // Default mock implementation for buildSearchHref
     mockBuildSearchHref.mockImplementation((basePath: string, params: any, overrides: any = {}) => {
       const merged = { ...params, ...overrides };
@@ -102,8 +100,8 @@ describe('app/search/page.tsx', () => {
       };
       mockExecuteSearch.mockResolvedValue(successResult);
 
-      const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({}) }));
+      const ResultsPage = (await import('../page')).default;
+      render(await ResultsPage({ searchParams: {} }));
 
       expect(screen.getByTestId('page-layout-server')).toBeInTheDocument();
     });
@@ -113,26 +111,40 @@ describe('app/search/page.tsx', () => {
     const mockListings = [
       {
         id: 'listing-1',
-        name: 'Test Cafe',
-        slug: 'test-cafe',
+        name: 'Eco Cafe',
+        slug: 'eco-cafe',
         type: 'cafe' as const,
         city: {
           id: 'city-1',
-          name: 'Bangkok',
-          slug: 'bangkok',
+          name: 'Chiang Mai',
+          slug: 'chiang-mai',
           country: 'Thailand',
         },
-        imageUrl: 'https://example.com/image.jpg',
-        featured: false,
+        imageUrl: 'https://example.com/eco-cafe.jpg',
+        featured: true,
       },
       {
         id: 'listing-2',
-        name: 'Coworking Space',
-        slug: 'coworking-space',
+        name: 'Green Coworking',
+        slug: 'green-coworking',
         type: 'coworking' as const,
+        city: {
+          id: 'city-2',
+          name: 'Porto',
+          slug: 'porto',
+          country: 'Portugal',
+        },
+        imageUrl: 'https://example.com/green-coworking.jpg',
+        featured: false,
+      },
+      {
+        id: 'listing-3',
+        name: 'Sustainable Stay',
+        slug: 'sustainable-stay',
+        type: 'accommodation' as const,
         city: null,
-        imageUrl: 'https://example.com/image2.jpg',
-        featured: true,
+        imageUrl: null,
+        featured: false,
       },
     ];
 
@@ -141,29 +153,29 @@ describe('app/search/page.tsx', () => {
         ok: true,
         listings: mockListings,
         pagination: {
-          page: 2,
-          totalPages: 5,
+          page: 3,
+          totalPages: 10,
           hasMore: true,
-          limit: 12,
-          total: 50,
+          limit: 24,
+          total: 240,
         },
         pageSizeOptions: [12, 24, 48, 96],
-        pages: [1, 2, 3, '…', 5],
+        pages: [1, 2, 3, 4, '…', 10],
       };
       mockExecuteSearch.mockResolvedValue(successResult);
     });
 
     it('should call executeSearch from DAL', async () => {
-      const searchParams = { q: 'coffee', category: 'cafe' };
-      const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve(searchParams) }));
+      const searchParams = { q: 'eco', category: ['cafe', 'coworking'] };
+      const ResultsPage = (await import('../page')).default;
+      render(await ResultsPage({ searchParams }));
 
       expect(mockExecuteSearch).toHaveBeenCalledWith(searchParams);
     });
 
     it('should render search results grid', async () => {
-      const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({ q: 'coffee' }) }));
+      const ResultsPage = (await import('../page')).default;
+      render(await ResultsPage({ searchParams: { q: 'eco' } }));
 
       const resultsContainer = screen.getByTestId('search-results');
       expect(resultsContainer).toBeInTheDocument();
@@ -171,44 +183,46 @@ describe('app/search/page.tsx', () => {
       const listingGrid = screen.getByTestId('listing-grid');
       expect(listingGrid).toBeInTheDocument();
 
-      expect(screen.getByTestId('listing-listing-1')).toHaveTextContent('Test Cafe');
-      expect(screen.getByTestId('listing-listing-2')).toHaveTextContent('Coworking Space');
+      expect(screen.getByTestId('listing-listing-1')).toHaveTextContent('Eco Cafe');
+      expect(screen.getByTestId('listing-listing-2')).toHaveTextContent('Green Coworking');
+      expect(screen.getByTestId('listing-listing-3')).toHaveTextContent('Sustainable Stay');
     });
 
     it('should show pagination info', async () => {
-      const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({}) }));
+      const ResultsPage = (await import('../page')).default;
+      render(await ResultsPage({ searchParams: {} }));
 
-      expect(screen.getByText(/showing page 2 of 5/i)).toBeInTheDocument();
+      expect(screen.getByText(/showing page 3 of 10/i)).toBeInTheDocument();
     });
 
     it('should render pagination links with page numbers', async () => {
-      const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({}) }));
+      const ResultsPage = (await import('../page')).default;
+      render(await ResultsPage({ searchParams: {} }));
 
       // Check for navigation buttons
       expect(screen.getByText('Prev')).toBeInTheDocument();
       expect(screen.getByText('Next')).toBeInTheDocument();
 
-      // Check for page numbers and ellipsis
+      // Check for page numbers
       expect(screen.getByText('1')).toBeInTheDocument();
       expect(screen.getByText('2')).toBeInTheDocument();
       expect(screen.getByText('3')).toBeInTheDocument();
-      expect(screen.getByText('5')).toBeInTheDocument();
-      
+      expect(screen.getByText('4')).toBeInTheDocument();
+      expect(screen.getByText('10')).toBeInTheDocument();
+
       // Check for ellipsis
       const ellipsisElements = screen.getAllByText('…');
       expect(ellipsisElements.length).toBeGreaterThan(0);
     });
 
     it('should generate correct prev link when not on first page', async () => {
-      const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({ page: 2, q: 'test' }) }));
+      const ResultsPage = (await import('../page')).default;
+      render(await ResultsPage({ searchParams: { page: 3, q: 'eco' } }));
 
       expect(mockBuildSearchHref).toHaveBeenCalledWith(
-        '/search',
-        { page: 2, q: 'test' },
-        { page: '1' }
+        '/search/results',
+        { page: 3, q: 'eco' },
+        { page: '2' }
       );
 
       const prevLink = screen.getByText('Prev').closest('a');
@@ -217,13 +231,13 @@ describe('app/search/page.tsx', () => {
     });
 
     it('should generate correct next link when hasMore is true', async () => {
-      const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({ page: 2 }) }));
+      const ResultsPage = (await import('../page')).default;
+      render(await ResultsPage({ searchParams: { page: 3 } }));
 
       expect(mockBuildSearchHref).toHaveBeenCalledWith(
-        '/search',
-        { page: 2 },
-        { page: '3' }
+        '/search/results',
+        { page: 3 },
+        { page: '4' }
       );
 
       const nextLink = screen.getByText('Next').closest('a');
@@ -235,13 +249,13 @@ describe('app/search/page.tsx', () => {
       mockExecuteSearch.mockResolvedValue({
         ok: true,
         listings: mockListings,
-        pagination: { page: 1, totalPages: 5, hasMore: true, limit: 12, total: 50 },
+        pagination: { page: 1, totalPages: 10, hasMore: true, limit: 24, total: 240 },
         pageSizeOptions: [12, 24, 48, 96],
-        pages: [1, 2, 3, '…', 5],
+        pages: [1, 2, 3, '…', 10],
       });
 
-      const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({ page: 1 }) }));
+      const ResultsPage = (await import('../page')).default;
+      render(await ResultsPage({ searchParams: { page: 1 } }));
 
       const prevLink = screen.getByText('Prev').closest('a');
       expect(prevLink).toHaveAttribute('aria-disabled', 'true');
@@ -251,44 +265,49 @@ describe('app/search/page.tsx', () => {
       mockExecuteSearch.mockResolvedValue({
         ok: true,
         listings: mockListings,
-        pagination: { page: 5, totalPages: 5, hasMore: false, limit: 12, total: 50 },
+        pagination: { page: 10, totalPages: 10, hasMore: false, limit: 24, total: 240 },
         pageSizeOptions: [12, 24, 48, 96],
-        pages: [1, '…', 4, 5],
+        pages: [1, '…', 8, 9, 10],
       });
 
-      const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({ page: 5 }) }));
+      const ResultsPage = (await import('../page')).default;
+      render(await ResultsPage({ searchParams: { page: 10 } }));
 
       const nextLink = screen.getByText('Next').closest('a');
       expect(nextLink).toHaveAttribute('aria-disabled', 'true');
     });
 
     it('should highlight current page in pagination', async () => {
-      const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({ page: 2 }) }));
+      const ResultsPage = (await import('../page')).default;
+      render(await ResultsPage({ searchParams: { page: 3 } }));
 
       const pageLinks = screen.getAllByRole('link');
       const currentPageLink = pageLinks.find(
-        (link) => link.textContent === '2' && link.getAttribute('aria-current') === 'page'
+        (link) => link.textContent === '3' && link.getAttribute('aria-current') === 'page'
       );
       expect(currentPageLink).toBeDefined();
     });
 
-    it('should render SearchFiltersForm with initialParams', async () => {
-      const searchParams = { q: 'coffee', category: 'cafe' };
-      const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve(searchParams) }));
+    it('should integrate SearchFiltersForm with initialParams', async () => {
+      const searchParams = {
+        q: 'sustainable',
+        category: 'cafe',
+        destination: 'Bangkok',
+        amenities: ['wifi', 'coffee'],
+      };
+      const ResultsPage = (await import('../page')).default;
+      render(await ResultsPage({ searchParams }));
 
       const filtersForm = screen.getByTestId('search-filters-form');
       expect(filtersForm).toBeInTheDocument();
-      expect(filtersForm).toHaveTextContent('"q":"coffee"');
+      expect(filtersForm).toHaveTextContent('"q":"sustainable"');
       expect(filtersForm).toHaveTextContent('"category":"cafe"');
-      expect(filtersForm).toHaveAttribute('data-results-path', '/search');
+      expect(filtersForm).toHaveTextContent('"destination":"Bangkok"');
     });
 
     it('should render page size selector with options', async () => {
-      const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({}) }));
+      const ResultsPage = (await import('../page')).default;
+      render(await ResultsPage({ searchParams: {} }));
 
       const pageSizeLabel = screen.getByText(/per page/i);
       expect(pageSizeLabel).toBeInTheDocument();
@@ -301,6 +320,14 @@ describe('app/search/page.tsx', () => {
       expect(options.map((o) => o.textContent)).toEqual(['12', '24', '48', '96']);
     });
 
+    it('should show selected page size in selector', async () => {
+      const ResultsPage = (await import('../page')).default;
+      render(await ResultsPage({ searchParams: { limit: 24 } }));
+
+      const pageSizeSelect = screen.getByRole('combobox', { name: /per page/i }) as HTMLSelectElement;
+      expect(pageSizeSelect.value).toBe('24');
+    });
+
     it('should display no results message when listings array is empty', async () => {
       mockExecuteSearch.mockResolvedValue({
         ok: true,
@@ -310,12 +337,26 @@ describe('app/search/page.tsx', () => {
         pages: [1],
       });
 
-      const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({ q: 'nonexistent' }) }));
+      const ResultsPage = (await import('../page')).default;
+      render(await ResultsPage({ searchParams: { q: 'nonexistent-keyword' } }));
 
       expect(screen.queryByTestId('search-results')).not.toBeInTheDocument();
       expect(screen.getByTestId('no-results')).toBeInTheDocument();
       expect(screen.getByText('No results found.')).toBeInTheDocument();
+    });
+
+    it('should handle array parameters correctly', async () => {
+      const searchParams = {
+        category: ['cafe', 'coworking', 'restaurant'],
+        amenities: ['wifi', 'outdoor-seating'],
+      };
+      const ResultsPage = (await import('../page')).default;
+      render(await ResultsPage({ searchParams }));
+
+      expect(mockExecuteSearch).toHaveBeenCalledWith(searchParams);
+
+      const filtersForm = screen.getByTestId('search-filters-form');
+      expect(filtersForm).toHaveTextContent('"category":["cafe","coworking","restaurant"]');
     });
   });
 
@@ -324,13 +365,13 @@ describe('app/search/page.tsx', () => {
       const errorResult: SearchFetchError = {
         ok: false,
         reason: 'response',
-        status: 500,
-        statusText: 'Internal Server Error',
+        status: 503,
+        statusText: 'Service Unavailable',
       };
       mockExecuteSearch.mockResolvedValue(errorResult);
 
-      const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({}) }));
+      const ResultsPage = (await import('../page')).default;
+      render(await ResultsPage({ searchParams: {} }));
 
       const errorState = screen.getByTestId('search-error-state');
       expect(errorState).toBeInTheDocument();
@@ -346,8 +387,8 @@ describe('app/search/page.tsx', () => {
       };
       mockExecuteSearch.mockResolvedValue(errorResult);
 
-      const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({}) }));
+      const ResultsPage = (await import('../page')).default;
+      render(await ResultsPage({ searchParams: {} }));
 
       const retryButton = screen.getByTestId('search-retry-button');
       expect(retryButton).toBeInTheDocument();
@@ -358,34 +399,34 @@ describe('app/search/page.tsx', () => {
       const errorResult: SearchFetchError = {
         ok: false,
         reason: 'response',
-        status: 503,
+        status: 500,
       };
       mockExecuteSearch.mockResolvedValue(errorResult);
 
-      const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({ retry: '2' }) }));
+      const ResultsPage = (await import('../page')).default;
+      render(await ResultsPage({ searchParams: { retry: '3' } }));
 
       expect(mockBuildSearchHref).toHaveBeenCalledWith(
-        '/search',
-        { retry: '2' },
-        { retry: '3' }
+        '/search/results',
+        { retry: '3' },
+        { retry: '4' }
       );
     });
 
-    it('should start retry count at 1 when not present', async () => {
+    it('should handle retry count as array and use last value', async () => {
       const errorResult: SearchFetchError = {
         ok: false,
         reason: 'exception',
       };
       mockExecuteSearch.mockResolvedValue(errorResult);
 
-      const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({}) }));
+      const ResultsPage = (await import('../page')).default;
+      render(await ResultsPage({ searchParams: { retry: ['1', '2', '5'] } }));
 
       expect(mockBuildSearchHref).toHaveBeenCalledWith(
-        '/search',
-        {},
-        { retry: '1' }
+        '/search/results',
+        { retry: ['1', '2', '5'] },
+        { retry: '6' }
       );
     });
 
@@ -396,15 +437,15 @@ describe('app/search/page.tsx', () => {
       const errorResult: SearchFetchError = {
         ok: false,
         reason: 'response',
-        status: 404,
-        statusText: 'Not Found',
+        status: 502,
+        statusText: 'Bad Gateway',
       };
       mockExecuteSearch.mockResolvedValue(errorResult);
 
-      const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({}) }));
+      const ResultsPage = (await import('../page')).default;
+      render(await ResultsPage({ searchParams: {} }));
 
-      expect(screen.getByText(/Error: 404 Not Found/i)).toBeInTheDocument();
+      expect(screen.getByText(/Error: 502 Bad Gateway/i)).toBeInTheDocument();
 
       process.env.NODE_ENV = originalEnv;
     });
@@ -419,10 +460,31 @@ describe('app/search/page.tsx', () => {
       };
       mockExecuteSearch.mockResolvedValue(errorResult);
 
-      const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({}) }));
+      const ResultsPage = (await import('../page')).default;
+      render(await ResultsPage({ searchParams: {} }));
 
       expect(screen.getByText(/Unexpected error occurred/i)).toBeInTheDocument();
+
+      process.env.NODE_ENV = originalEnv;
+    });
+
+    it('should not show error details in production mode', async () => {
+      const originalEnv = process.env.NODE_ENV;
+      process.env.NODE_ENV = 'production';
+
+      const errorResult: SearchFetchError = {
+        ok: false,
+        reason: 'response',
+        status: 500,
+        statusText: 'Internal Server Error',
+      };
+      mockExecuteSearch.mockResolvedValue(errorResult);
+
+      const ResultsPage = (await import('../page')).default;
+      render(await ResultsPage({ searchParams: {} }));
+
+      expect(screen.queryByText(/Error: 500/i)).not.toBeInTheDocument();
+      expect(screen.getByTestId('error-message')).toBeInTheDocument();
 
       process.env.NODE_ENV = originalEnv;
     });

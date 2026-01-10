@@ -1,13 +1,14 @@
 import Link from 'next/link';
-import { Footer } from '@/components/layout/Footer';
-import { Header } from '@/components/layout/Header';
+import { PageLayoutServer } from '@/components/layout/PageLayoutServer';
 import { ListingGrid } from '@/components/listings/ListingGrid';
 import { SearchFiltersForm } from '@/components/search/SearchFiltersForm';
 import { NeoButton } from '@/components/ui/neo-button';
+import {
+  buildSearchHref,
+  executeSearch,
+  MAX_PARAM_VALUE_LENGTH,
+} from '@/lib/data-access/search.dal';
 import type { SearchParamRecord } from '@/types/search';
-
-import { fetchSearchResults } from './results/server';
-import { buildSearchHref, MAX_PARAM_VALUE_LENGTH } from './results/shared';
 
 type SearchPageProps = { searchParams?: Promise<SearchParamRecord> };
 
@@ -23,7 +24,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     retry: String(nextRetryCount),
   });
 
-  const result = await fetchSearchResults(resolvedSearchParams);
+  const result = await executeSearch(resolvedSearchParams);
 
   let mainContent;
   if (result.ok) {
@@ -158,11 +159,5 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main>{mainContent}</main>
-      <Footer />
-    </div>
-  );
+  return <PageLayoutServer>{mainContent}</PageLayoutServer>;
 }

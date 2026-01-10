@@ -1,12 +1,15 @@
 import Link from 'next/link';
 
+import { PageLayoutServer } from '@/components/layout/PageLayoutServer';
 import { ListingGrid } from '@/components/listings/ListingGrid';
 import { SearchFiltersForm } from '@/components/search/SearchFiltersForm';
 import { NeoButton } from '@/components/ui/neo-button';
+import {
+  buildSearchHref,
+  executeSearch,
+  MAX_PARAM_VALUE_LENGTH,
+} from '@/lib/data-access/search.dal';
 import type { SearchParamRecord } from '@/types/search';
-
-import { fetchSearchResults } from './server';
-import { buildSearchHref, MAX_PARAM_VALUE_LENGTH } from './shared';
 
 type ResultsPageProps = { searchParams: SearchParamRecord | Promise<SearchParamRecord> };
 
@@ -22,7 +25,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
     retry: String(nextRetryCount),
   });
 
-  const result = await fetchSearchResults(resolvedSearchParams);
+  const result = await executeSearch(resolvedSearchParams);
 
   if (!result.ok) {
     const showDetails = process.env.NODE_ENV === 'development';
@@ -32,17 +35,19 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         : 'Unexpected error occurred. Check server logs for details.';
 
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col gap-4" data-testid="search-error-state">
-          <p className="text-red-500" data-testid="error-message">
-            Failed to load search results. Please try again later.
-          </p>
-          <NeoButton asChild variant="outline" size="sm" data-testid="search-retry-button">
-            <Link href={retryLink}>Retry search</Link>
-          </NeoButton>
+      <PageLayoutServer>
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex flex-col gap-4" data-testid="search-error-state">
+            <p className="text-red-500" data-testid="error-message">
+              Failed to load search results. Please try again later.
+            </p>
+            <NeoButton asChild variant="outline" size="sm" data-testid="search-retry-button">
+              <Link href={retryLink}>Retry search</Link>
+            </NeoButton>
+          </div>
+          {showDetails && <p className="text-sm text-gray-500 mt-2">{detailMessage}</p>}
         </div>
-        {showDetails && <p className="text-sm text-gray-500 mt-2">{detailMessage}</p>}
-      </div>
+      </PageLayoutServer>
     );
   }
 
@@ -57,24 +62,25 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       : null;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-10">
-        <h1 className="heading-xl mb-8 text-center">Search for Sustainable Venues</h1>
-        <SearchFiltersForm initialParams={resolvedSearchParams} />
-      </div>
-      <h2 className="heading-lg mb-4">Search Results</h2>
-      <div className="flex items-center justify-between gap-4 mb-4">
-        <div className="body-sm text-neo-text-secondary">
-          Showing page {page} of {totalPages}
+    <PageLayoutServer>
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-10">
+          <h1 className="heading-xl mb-8 text-center">Search for Sustainable Venues</h1>
+          <SearchFiltersForm initialParams={resolvedSearchParams} />
         </div>
-        <form action={basePath} method="get" className="flex items-center gap-2">
-          {Object.entries(resolvedSearchParams).map(([key, value]) => {
-            if (!/^[a-zA-Z0-9_-]+$/.test(key)) return null;
-            return Array.isArray(value)
-              ? value.map((entry, index) => (
-                  <input
-                    key={`${key}-${index}`}
-                    type="hidden"
+        <h2 className="heading-lg mb-4">Search Results</h2>
+        <div className="flex items-center justify-between gap-4 mb-4">
+          <div className="body-sm text-neo-text-secondary">
+            Showing page {page} of {totalPages}
+          </div>
+          <form action={basePath} method="get" className="flex items-center gap-2">
+            {Object.entries(resolvedSearchParams).map(([key, value]) => {
+              if (!/^[a-zA-Z0-9_-]+$/.test(key)) return null;
+              return Array.isArray(value)
+                ? value.map((entry, index) => (
+                    <input
+                      key={`${key}-${index}`}
+                      type="hidden"
                     name={key}
                     value={String(entry).slice(0, MAX_PARAM_VALUE_LENGTH)}
                   />
@@ -154,5 +160,6 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         </NeoButton>
       </div>
     </div>
+    </PageLayoutServer>
   );
 }
