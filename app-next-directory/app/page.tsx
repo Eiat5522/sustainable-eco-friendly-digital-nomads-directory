@@ -1,4 +1,3 @@
-import { cacheLife, cacheTag } from 'next/cache';
 import { Suspense } from 'react';
 import { PageLayoutServer } from '@/components/layout/PageLayoutServer';
 import { CityCarousel } from '@/components/sections/CityCarousel';
@@ -51,13 +50,9 @@ async function CityCarouselSection() {
   return <CityCarousel initialCities={cities} />;
 }
 
-async function HomePageContent() {
-  'use cache';
-  cacheLife('days');
-  cacheTag('home');
-
+export default async function HomePage() {
   return (
-    <>
+    <PageLayoutServer>
       <HeroSection />
       <Suspense
         fallback={
@@ -81,14 +76,6 @@ async function HomePageContent() {
       >
         <CityCarouselSection />
       </Suspense>
-    </>
-  );
-}
-
-export default async function HomePage() {
-  return (
-    <PageLayoutServer>
-      <HomePageContent />
     </PageLayoutServer>
   );
 }
