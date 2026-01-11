@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import { existsSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { type Browser, test as base, type Page } from '@playwright/test';
