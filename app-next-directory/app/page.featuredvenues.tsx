@@ -2,7 +2,7 @@
 
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
-import { FeaturedListings } from '@/components/sections/FeaturedListings';
+import { FeaturedListings } from '@/components/sections/FeaturedListingsLegacy';
 
 export default function FeaturedVenuesPreview() {
   return (

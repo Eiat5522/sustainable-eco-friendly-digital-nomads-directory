@@ -49,11 +49,20 @@ jest.mock('@/components/sections/HeroSection', () => ({
   HeroSection: () => <div data-testid="hero-section">Hero Section</div>,
 }));
 
-// Mock FeaturedListings
-jest.mock('@/components/sections/FeaturedListings', () => ({
+// Mock FeaturedListings Legacy (for E2E)
+jest.mock('@/components/sections/FeaturedListingsLegacy', () => ({
   FeaturedListings: ({ initialListings }: { initialListings: any[] | null }) => (
+    <div data-testid="featured-listings-legacy">
+      Featured Listings Legacy: {initialListings ? `${initialListings.length} items` : 'loading'}
+    </div>
+  ),
+}));
+
+// Mock FeaturedListings Server (new)
+jest.mock('@/components/sections/FeaturedListingsServer', () => ({
+  FeaturedListings: ({ listings }: { listings: any[] }) => (
     <div data-testid="featured-listings">
-      Featured Listings: {initialListings ? `${initialListings.length} items` : 'loading'}
+      Featured Listings: {listings.length} items
     </div>
   ),
 }));
