@@ -4,7 +4,8 @@
  */
 
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
+import { getUserDisplayInfo } from '@/lib/user-display';
 import UserAuthStatus from '../UserAuthStatus';
 
 // Mock HeaderAuthClient
@@ -23,10 +24,16 @@ jest.mock('../HeaderAuthClient', () => ({
   ),
 }));
 
-// Mock auth DAL - note these are async functions
+// Mock auth DAL
 jest.mock('@/lib/data-access/auth.dal', () => ({
-  getAuthStatus: jest.fn().mockResolvedValue({ isAuthenticated: true, isAdmin: false }),
-  getUserDisplayInfo: jest.fn().mockResolvedValue({ displayName: 'Test User' }),
+  getAuthStatus: jest
+    .fn()
+    .mockResolvedValue({ isAuthenticated: true, isAdmin: false, user: { name: 'Test User' } }),
+}));
+
+// Mock user display info
+jest.mock('@/lib/user-display', () => ({
+  getUserDisplayInfo: jest.fn(() => ({ displayName: 'Test User' })),
 }));
 
 describe('UserAuthStatus', () => {
@@ -71,6 +78,16 @@ describe('UserAuthStatus', () => {
 
   it('should render HeaderAuthClient with mocked auth data after loading', async () => {
     render(<UserAuthStatus />);
+
+    it('should call getUserDisplayInfo with user data', async () => {
+      await act(async () => {
+        render(<UserAuthStatus />);
+      });
+
+      await screen.findByTestId('header-auth-client');
+
+      expect(getUserDisplayInfo).toHaveBeenCalledWith({ name: 'Test User' });
+    });
 
     const authClient = await screen.findByTestId('header-auth-client');
     expect(authClient).toBeInTheDocument();

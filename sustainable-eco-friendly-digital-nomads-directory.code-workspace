@@ -72,7 +72,11 @@
         "addWords": true,
         "scope": "workspace"
       }
-    }
+    },
+    "chat.customAgentInSubagent.enabled": true,
+    "chat.edits2.enabled": true,
+    "chat.math.enabled": true,
+    "chat.mcp.gallery.enabled": true
   },
   "extensions": {
     "recommendations": ["biomejs.biome", "dbaeumer.vscode-eslint", "prettier.prettier-vscode"]

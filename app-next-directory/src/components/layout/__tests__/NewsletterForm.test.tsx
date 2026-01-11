@@ -245,6 +245,7 @@ describe('NewsletterForm', () => {
     expect(structuredLogger.warn).toHaveBeenCalledTimes(1);
     expect(structuredLogger.warn).toHaveBeenCalledWith(
       'Failed to store email in sessionStorage:',
+      expect.any(Error)
     );
     expect(screen.queryByText(/unable to proceed/i)).not.toBeInTheDocument();
   });

@@ -25,6 +25,7 @@ export default function MobileMenu(): React.JSX.Element {
         <button
           type="button"
           aria-label="Open navigation menu"
+          data-testid="mobile-menu-toggle"
           className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-md border border-neo-border hover:bg-neo-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
         >
           <Menu size={20} aria-hidden="true" focusable="false" />
@@ -38,9 +39,7 @@ export default function MobileMenu(): React.JSX.Element {
           aria-describedby={undefined}
         >
           <div className="flex items-center justify-between">
-            <Dialog.Title className="font-semibold">
-            Menu
-            </Dialog.Title>
+            <Dialog.Title className="font-semibold">Menu</Dialog.Title>
             <Dialog.Close asChild>
               <button
                 type="button"
@@ -52,7 +51,7 @@ export default function MobileMenu(): React.JSX.Element {
             </Dialog.Close>
           </div>
 
-          <nav className="mt-4 flex flex-col gap-3">
+          <nav className="mt-4 flex flex-col gap-3" data-testid="mobile-menu">
             {navigationItems.map(({ href, label }) => (
               <Link
                 key={href}

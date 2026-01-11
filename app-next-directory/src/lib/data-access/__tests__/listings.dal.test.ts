@@ -257,7 +257,7 @@ describe('listings.dal', () => {
       const result = await getPopularListingSlugs();
 
       expect(result).toEqual([{ slug: 'popular-1' }, { slug: 'popular-2' }]);
-      expect(mockFetch).toHaveBeenCalledWith(expect.any(String));
+      expect(mockFetch).toHaveBeenCalledWith(expect.any(String), undefined);
     });
 
     it('should fallback to first published listing if no popular listings', async () => {
@@ -272,7 +272,7 @@ describe('listings.dal', () => {
 
       expect(result).toEqual([{ slug: 'fallback-1' }]);
       expect(mockFetch).toHaveBeenCalledTimes(2);
-      expect(mockFetch).toHaveBeenCalledWith(expect.any(String));
+      expect(mockFetch).toHaveBeenCalledWith(expect.any(String), undefined);
     });
 
     it('should return placeholder if no listings exist', async () => {
@@ -284,7 +284,7 @@ describe('listings.dal', () => {
       const result = await getPopularListingSlugs();
 
       expect(result).toEqual([{ slug: 'placeholder-listing' }]);
-      expect(mockFetch).toHaveBeenCalledWith(expect.any(String));
+      expect(mockFetch).toHaveBeenCalledWith(expect.any(String), undefined);
     });
 
     it('should handle errors and return placeholder', async () => {
@@ -294,7 +294,7 @@ describe('listings.dal', () => {
       const result = await getPopularListingSlugs();
 
       expect(result).toEqual([{ slug: 'placeholder-listing' }]);
-      expect(mockFetch).toHaveBeenCalledWith(expect.any(String));
+      expect(mockFetch).toHaveBeenCalledWith(expect.any(String), undefined);
       expect(structuredLogger.error).toHaveBeenCalledWith(
         'Failed to generate static params for listings',
         mockError,

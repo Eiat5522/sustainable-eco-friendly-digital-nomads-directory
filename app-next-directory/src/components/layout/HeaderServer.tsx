@@ -43,7 +43,10 @@ export function HeaderServer(): React.JSX.Element {
           </div>
 
           {/* Center: Navigation (desktop) */}
-          <nav className="hidden md:flex items-center gap-6 absolute left-1/2 transform -translate-x-1/2">
+          <nav
+            aria-label="Primary navigation"
+            className="hidden md:flex items-center gap-6 absolute left-1/2 transform -translate-x-1/2"
+          >
             <Link href="/" className={navLinkClass}>
               Home
             </Link>

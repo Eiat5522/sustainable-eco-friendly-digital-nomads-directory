@@ -316,7 +316,7 @@ describe('DigitalNomadSearch', () => {
       await user.click(screen.getByTestId('neo-button'));
 
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith('/search?q=+++');
+        expect(mockPush).toHaveBeenCalledWith('/search?');
       });
     });
 

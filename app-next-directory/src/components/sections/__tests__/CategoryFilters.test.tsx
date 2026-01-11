@@ -38,14 +38,18 @@ describe('CategoryFilters', () => {
     const user = userEvent.setup();
     const handleChange = jest.fn();
 
-    const { rerender } = render(<CategoryFilters value={['cafe']} onChange={handleChange} />);
+    const { rerender } = render(
+      <CategoryFilters value={['cafe']} onSelectionChangeAction={handleChange} />
+    );
 
     const coworkingButton = screen.getByRole('button', { name: /Coworking/ });
     await user.click(coworkingButton);
 
     expect(handleChange).toHaveBeenCalledWith(['cafe', 'coworking']);
 
-    rerender(<CategoryFilters value={['cafe', 'coworking']} onChange={handleChange} />);
+    rerender(
+      <CategoryFilters value={['cafe', 'coworking']} onSelectionChangeAction={handleChange} />
+    );
     expect(coworkingButton).toHaveAttribute('aria-pressed', 'true');
   });
 
@@ -55,7 +59,7 @@ describe('CategoryFilters', () => {
       return (
         <CategoryFilters
           value={value}
-          onChange={setValue}
+          onSelectionChangeAction={setValue}
           items={[
             {
               id: 'custom',

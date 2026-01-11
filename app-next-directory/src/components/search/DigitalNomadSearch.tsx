@@ -22,14 +22,13 @@ export function DigitalNomadSearch({
 }: DigitalNomadSearchProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialQuery = searchParams.get('q') ?? '';
-  const [query, setQuery] = useState(initialQuery);
+  const urlQuery = searchParams.get('q') ?? '';
+  const [query, setQuery] = useState(urlQuery);
 
   // Sync with URL changes (e.g., back/forward navigation)
   useEffect(() => {
-  const urlQuery = searchParams.get('q') ?? '';
-  setQuery(urlQuery);
-  }, [searchParams]);
+    setQuery(urlQuery);
+  }, [urlQuery]);
 
   const performSearch = useCallback(
     (q: string) => {
@@ -62,7 +61,7 @@ export function DigitalNomadSearch({
     >
       <NeoInput
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={e => setQuery(e.target.value)}
         placeholder={placeholder}
         aria-label="Search query"
         name="q"
