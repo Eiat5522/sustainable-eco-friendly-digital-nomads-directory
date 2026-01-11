@@ -4,7 +4,7 @@ import { Mail, MessageSquare, Type } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import type React from 'react';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { z } from 'zod';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
@@ -47,8 +47,11 @@ const newsletterSchema = z.object({
 
 function ContactForm() {
   const searchParams = useSearchParams();
-  const initialType = searchParams.get('type') === 'newsletter' ? 'newsletter' : 'general';
-  const initialEmail = searchParams.get('email') || '';
+  const initialType = useMemo(
+    () => (searchParams.get('type') === 'newsletter' ? 'newsletter' : 'general'),
+    [searchParams]
+  );
+  const initialEmail = useMemo(() => searchParams.get('email') || '', [searchParams]);
 
   const [enquiryType, setEnquiryType] = useState<EnquiryType>(initialType);
   const [name, setName] = useState('');
@@ -59,6 +62,7 @@ function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
   const [submitStatus, setSubmitStatus] = useState<'success' | 'error' | null>(null);
+  const previousInitialTypeRef = useRef<EnquiryType>(initialType);
 
   useEffect(() => {
     const emailFromSession = sessionStorage.getItem('newsletter-email');
@@ -66,9 +70,16 @@ function ContactForm() {
       setEmail(emailFromSession);
       sessionStorage.removeItem('newsletter-email');
     } else {
-      setEmail(initialEmail || '');
+      setEmail(initialEmail);
     }
   }, [initialEmail]);
+
+  useEffect(() => {
+    if (previousInitialTypeRef.current !== initialType) {
+      previousInitialTypeRef.current = initialType;
+      setEnquiryType(initialType);
+    }
+  }, [initialType]);
 
   const validate = () => {
     const schema = enquiryType === 'general' ? contactFormSchema : newsletterSchema;

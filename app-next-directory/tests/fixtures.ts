@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { existsSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { type Browser, test as base, type Page } from '@playwright/test';
@@ -58,36 +59,36 @@ const createAuthenticatedContext = async (
 
   return { context, page };
 };
+const createAuthenticatedPageFixture = (role: PlaywrightRole) => async ({ browser }: { browser: Browser }, use: (page: Page) => Promise<void>) => {
+  const { context, page } = await createAuthenticatedContext(browser, role);
+  try {
+    await use(page);
+  } finally {
+    await context.close();
+  }
+};
 
 export const test = base.extend<TestFixtures>({
-  authenticatedPage: async ({ browser }, runFixture) => {
-    const { context, page } = await createAuthenticatedContext(browser, 'customer');
-    try {
-      await runFixture(page);
-    } finally {
-      await context.close();
-    }
-  },
-  adminPage: async ({ browser }, runFixture) => {
+  adminPage: async ({ browser }, use) => {
     const { context, page } = await createAuthenticatedContext(browser, 'admin');
     try {
-      await runFixture(page);
+      await use(page);
     } finally {
       await context.close();
     }
   },
-  superAdminPage: async ({ browser }, runFixture) => {
+  superAdminPage: async ({ browser }, use) => {
     const { context, page } = await createAuthenticatedContext(browser, 'superAdmin');
     try {
-      await runFixture(page);
+      await use(page);
     } finally {
       await context.close();
     }
   },
-  venueOwnerPage: async ({ browser }, runFixture) => {
+  venueOwnerPage: async ({ browser }, use) => {
     const { context, page } = await createAuthenticatedContext(browser, 'venueOwner');
     try {
-      await runFixture(page);
+      await use(page);
     } finally {
       await context.close();
     }

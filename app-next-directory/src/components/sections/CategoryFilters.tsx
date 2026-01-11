@@ -23,12 +23,12 @@ const categories = [
 export function CategoryFilters({
   value,
   defaultValue = [],
-  onChange,
+  onSelectionChangeAction,
   items,
 }: {
   value?: string[];
   defaultValue?: string[];
-  onChange?: (next: string[]) => void;
+  onSelectionChangeAction?: (next: string[]) => void;
   items?: ReadonlyArray<Category>;
 }): React.JSX.Element {
   const [uncontrolledCategories, setUncontrolledCategories] = useState<string[]>(defaultValue);
@@ -36,12 +36,11 @@ export function CategoryFilters({
 
   const list = items ?? categories;
   const toggleCategory = (categoryId: string) => {
-    const currentSelection = value !== undefined ? value : selectedCategories;
-    const next = currentSelection.includes(categoryId)
-      ? currentSelection.filter(id => id !== categoryId)
-      : [...currentSelection, categoryId];
+    const next = selectedCategories.includes(categoryId)
+      ? selectedCategories.filter(id => id !== categoryId)
+      : [...selectedCategories, categoryId];
 
-    onChange?.(next);
+    onSelectionChangeAction?.(next);
 
     if (value === undefined) {
       setUncontrolledCategories(next);

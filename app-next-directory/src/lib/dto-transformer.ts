@@ -270,13 +270,14 @@ export function transformToSummaryDTO(
   const websiteRaw = listing.website;
   let website: string | undefined;
   if (typeof websiteRaw === 'string') {
-    try {
-      // new URL will throw for invalid URLs
-      new URL(websiteRaw, 'https://example.com');
-      // If provided string already absolute, keep it; if it was relative, drop it
-      if (/^https?:\/\//i.test(websiteRaw)) website = websiteRaw;
-    } catch {
-      /* ignore invalid */
+    // Only accept absolute HTTP(S) URLs
+    if (/^https?:\/\//i.test(websiteRaw)) {
+      try {
+        new URL(websiteRaw);
+        website = websiteRaw;
+      } catch {
+        /* ignore invalid */
+      }
     }
   }
 
@@ -287,9 +288,7 @@ export function transformToSummaryDTO(
         name: listing.city.name,
         slug: listing.city.slug?.current ?? '',
         country: listing.city.country,
-        sustainabilityScore: toPercentage0To100(listing.city.sustainabilityScore) as
-          | Percentage0To100
-          | undefined,
+        sustainabilityScore: toPercentage0To100(listing.city.sustainabilityScore),
         highlights: listing.city.highlights,
       }
     : null;

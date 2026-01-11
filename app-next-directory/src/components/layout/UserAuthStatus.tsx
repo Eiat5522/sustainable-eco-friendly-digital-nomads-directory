@@ -13,7 +13,14 @@
 
 import { Suspense } from 'react';
 import { getAuthStatus } from '@/lib/data-access/auth.dal';
+import { getUserDisplayInfo } from '@/lib/user-display';
 import { HeaderAuthClient } from './HeaderAuthClient';
+
+/**
+ * Default fallback text for user display when name is unavailable.
+ * Extracted as a constant for easier internationalization (i18n) support.
+ */
+const DEFAULT_USER_DISPLAY_FALLBACK = 'your account';
 
 interface UserAuthStatusProps {
   className?: string;
@@ -25,14 +32,16 @@ interface UserAuthStatusProps {
  */
 async function AuthStatusFetcher({ className }: UserAuthStatusProps) {
   let authStatus;
-  const displayInfo = null;
-
   try {
     authStatus = await getAuthStatus();
   } catch {
     // Handle error - user is not authenticated
     authStatus = { isAuthenticated: false, isAdmin: false, user: null };
   }
+
+  const displayInfo = authStatus.isAuthenticated && authStatus.user
+    ? getUserDisplayInfo(authStatus.user, DEFAULT_USER_DISPLAY_FALLBACK)
+    : null;
 
   return (
     <HeaderAuthClient

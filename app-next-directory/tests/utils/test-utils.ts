@@ -347,13 +347,13 @@ export async function loginAs(page: Page, role: Role, options: { redirectTo?: st
 }
 
 export const test = base.extend<{ authenticatedPage: Page; adminPage: Page }>({
-  authenticatedPage: async ({ page }, runFixture) => {
+  authenticatedPage: async ({ page }, use) => {
     await loginAs(page, 'user', { redirectTo: '/profile' });
-    await runFixture(page);
+    await use(page);
   },
-  adminPage: async ({ page }, runFixture) => {
+  adminPage: async ({ page }, use) => {
     await loginAs(page, 'admin', { redirectTo: '/admin' });
-    await runFixture(page);
+    await use(page);
   },
 });
 

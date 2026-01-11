@@ -6,6 +6,7 @@ import * as React from 'react';
 import { FilterMultiSelect, type Option } from '@/components/ui/filter-multi-select';
 import { NeoButton } from '@/components/ui/neo-button';
 import { NeoInput } from '@/components/ui/neo-input';
+import { structuredLogger } from '@/lib/logger';
 import type {
   Amenity,
   AmenityResponse,
@@ -14,7 +15,6 @@ import type {
   CityResponse,
 } from '@/types/api-responses';
 import type { SearchParamRecord } from '@/types/search';
-import { structuredLogger } from '@/lib/logger'
 
 function toStringArray(value: string | string[] | undefined): string[] {
   if (value === undefined) return [];
@@ -83,8 +83,11 @@ export function SearchFiltersForm({
   className,
 }: SearchFiltersFormProps) {
   const router = useRouter();
-
-  const initialValues = React.useMemo(() => deriveInitialValues(initialParams), [initialParams]);
+ 
+  const initialValues = React.useMemo(
+    () => deriveInitialValues(initialParams),
+    [initialParams, q, destination, category, amenities, limit]
+  );
 
   const [searchTerm, setSearchTerm] = React.useState(initialValues.searchTerm);
   const [selectedCities, setSelectedCities] = React.useState<string[]>(initialValues.cities);

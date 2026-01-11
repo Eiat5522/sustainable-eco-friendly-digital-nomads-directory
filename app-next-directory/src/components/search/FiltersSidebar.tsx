@@ -99,12 +99,11 @@ export function FiltersSidebar({ definitions = defaultDefinitions }: FiltersSide
     return initial;
   }, [allowedByGroup, definitions, searchParams]);
 
-  const filtersKey = useMemo(() => createFiltersKey(initialFilters), [initialFilters]);
-  const filtersKeyRef = useRef(filtersKey);
+  const filtersKeyRef = useRef(createFiltersKey(initialFilters));
 
   useEffect(() => {
-    filtersKeyRef.current = filtersKey;
-  }, [filtersKey]);
+    filtersKeyRef.current = createFiltersKey(initialFilters);
+  }, [initialFilters]);
 
   const applyFilters = useCallback(
     (filters: FiltersMap) => {
@@ -126,20 +125,12 @@ export function FiltersSidebar({ definitions = defaultDefinitions }: FiltersSide
     [definitions, router, searchParams]
   );
 
-  const handleChange = useCallback(
-    (filters: FiltersMap) => {
-      applyFilters(filters);
-    },
-    [applyFilters]
-  );
-
   return (
     <div className="space-y-4">
       <DigitalNomadSearchFilter
-        key={filtersKey}
         definitions={definitions}
         initialFilters={initialFilters}
-        onChange={handleChange}
+        onChange={applyFilters}
         title="Filter Results"
       />
     </div>

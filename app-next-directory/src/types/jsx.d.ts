@@ -12,7 +12,7 @@ declare module 'next/link' {
   import type { LinkProps as NextLinkProps } from 'next/dist/client/link';
 
   export type LinkProps = NextLinkProps &
-    AnchorHTMLAttributes<HTMLAnchorElement> & {
+    Omit<AnchorHTMLAttributes<HTMLAnchorElement>, keyof NextLinkProps> & {
       children?: ReactNode;
     };
 

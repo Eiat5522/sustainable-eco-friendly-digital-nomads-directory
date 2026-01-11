@@ -268,6 +268,7 @@ export async function fetchReviews(listingSlug: string, userId?: string): Promis
       .toArray();
 
     const reviews: Review[] = [];
+    const MAX_RATING = 5;
 
     for (const review of documents) {
       const id =
@@ -278,7 +279,6 @@ export async function fetchReviews(listingSlug: string, userId?: string): Promis
             : null;
 
       const rating = Number((review as ReviewDocument)?.rating);
-      const MAX_RATING = 5;
       if (!id || !Number.isFinite(rating) || rating <= 0 || rating > MAX_RATING) {
         continue;
       }

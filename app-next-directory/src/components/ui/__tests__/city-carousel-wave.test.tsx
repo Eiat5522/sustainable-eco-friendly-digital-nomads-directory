@@ -30,8 +30,9 @@ jest.mock('next/navigation', () => ({
 }));
 
 jest.mock('next/link', () => {
+  const { useRouter } = require('next/navigation');
+
   const MockLink = ({ href, children, ...props }: any) => {
-    const { useRouter } = require('next/navigation');
     const router = useRouter();
 
     return (

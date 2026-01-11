@@ -2,12 +2,17 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import type React from 'react';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { NeoButton } from '@/components/ui/neo-button';
 import { NeoInput } from '@/components/ui/neo-input';
 
 interface DigitalNomadSearchProps {
   placeholder?: string;
+  /**
+   * Callback invoked when the user submits a search.
+   * ⚠️ Performance: Parents should memoize this callback with useCallback
+   * to prevent `performSearch` from being redefined on every render.
+   */
   onSearch?: (query: string) => void;
 }
 
@@ -18,16 +23,24 @@ export function DigitalNomadSearch({
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get('q') ?? '';
+  const [query, setQuery] = useState(initialQuery);
+
+  // Sync with URL changes (e.g., back/forward navigation)
+  useEffect(() => {
+  const urlQuery = searchParams.get('q') ?? '';
+  setQuery(urlQuery);
+  }, [searchParams]);
 
   const performSearch = useCallback(
     (q: string) => {
+      const trimmedQuery = q.trim();
       // Update query string and notify parent
       const params = new URLSearchParams(Array.from(searchParams.entries()));
-      if (q) params.set('q', q);
+      if (trimmedQuery) params.set('q', trimmedQuery);
       else params.delete('q');
       params.delete('page');
       router.push(`/search?${params.toString()}`);
-      onSearch?.(q);
+      onSearch?.(trimmedQuery);
     },
     [router, searchParams, onSearch]
   );
@@ -35,23 +48,21 @@ export function DigitalNomadSearch({
   const onSubmit = useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      const formData = new FormData(e.currentTarget);
-      const q = formData.get('q');
-      performSearch(typeof q === 'string' ? q : '');
+      performSearch(query);
     },
-    [performSearch]
+    [performSearch, query]
   );
 
   return (
     <form
-      key={initialQuery}
       onSubmit={onSubmit}
       className="flex gap-3 w-full"
       role="search"
       aria-label="Search listings"
     >
       <NeoInput
-        defaultValue={initialQuery}
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
         placeholder={placeholder}
         aria-label="Search query"
         name="q"
