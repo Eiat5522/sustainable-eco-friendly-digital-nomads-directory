@@ -8,6 +8,73 @@ import type React from 'react';
 import HomePage from '../page';
 
 // Mock the home page data module using the root alias
+jest.mock('../../__mocks__/homePageData', () => ({
+  MOCK_FEATURED_LISTINGS: [{ id: 'mock-1', name: 'Mock Listing 1', slug: 'mock-1' }],
+  MOCK_CITIES: [{ id: 'mock-city-1', name: 'Mock City 1', slug: 'mock-city-1' }],
+}));
+
+// Mock DAL instead of queries
+jest.mock('@/lib/data-access/home.dal', () => ({
+  getFeaturedListings: jest.fn(() => Promise.resolve([])),
+  getCities: jest.fn(() => Promise.resolve([])),
+}));
+
+jest.mock('@/lib/data-access', () => ({
+  getFeaturedListings: jest.fn(() => Promise.resolve([])),
+  getCities: jest.fn(() => Promise.resolve([])),
+}));
+
+jest.mock('@/lib/logger', () => ({
+  structuredLogger: {
+    error: jest.fn(),
+    warn: jest.fn(),
+  },
+}));
+
+jest.mock('next/cache', () => ({
+  cacheLife: jest.fn(),
+  cacheTag: jest.fn(),
+}));
+
+// Mock PageLayoutServer (not PageLayout)
+jest.mock('@/components/layout/PageLayoutServer', () => ({
+  PageLayoutServer: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="page-layout-server">{children}</div>
+  ),
+}));
+
+// Mock HeroSection
+jest.mock('@/components/sections/HeroSection', () => ({
+  HeroSection: () => <div data-testid="hero-section">Hero Section</div>,
+}));
+
+// Mock FeaturedListings Legacy (for E2E)
+jest.mock('@/components/sections/FeaturedListingsLegacy', () => ({
+  FeaturedListings: ({ initialListings }: { initialListings: any[] | null }) => (
+    <div data-testid="featured-listings-legacy">
+      Featured Listings Legacy: {initialListings ? `${initialListings.length} items` : 'loading'}
+    </div>
+  ),
+}));
+
+// Mock FeaturedListings Server (new)
+jest.mock('@/components/sections/FeaturedListingsServer', () => ({
+  FeaturedListings: ({ listings }: { listings: any[] }) => (
+    <div data-testid="featured-listings">
+      Featured Listings: {listings.length} items
+    </div>
+  ),
+}));
+
+// Mock CityCarousel
+jest.mock('@/components/sections/CityCarousel', () => ({
+  CityCarousel: ({ initialCities }: { initialCities: any[] | null }) => (
+    <div data-testid="city-carousel">
+      City Carousel: {initialCities ? `${initialCities.length} items` : 'loading'}
+    </div>
+  ),
+}));
+
 describe('HomePage', () => {
   beforeEach(() => {
     jest.clearAllMocks();

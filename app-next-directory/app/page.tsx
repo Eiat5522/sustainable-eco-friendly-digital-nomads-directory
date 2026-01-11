@@ -1,8 +1,8 @@
-import { cacheLife, cacheTag } from 'next/cache';
 import { Suspense } from 'react';
 import { PageLayoutServer } from '@/components/layout/PageLayoutServer';
 import { CityCarousel } from '@/components/sections/CityCarousel';
-import { FeaturedListings } from '@/components/sections/FeaturedListings';
+import { FeaturedListings as FeaturedListingsLegacy } from '@/components/sections/FeaturedListingsLegacy';
+import { FeaturedListings } from '@/components/sections/FeaturedListingsServer';
 import { HeroSection } from '@/components/sections/HeroSection';
 import { getCities, getFeaturedListings } from '@/lib/data-access';
 import { structuredLogger } from '@/lib/logger';
@@ -17,7 +17,7 @@ const isE2ERun = process.env.NEXT_PUBLIC_E2E === '1' || process.env.E2E === '1';
 async function FeaturedListingsSection() {
   if (isE2ERun) {
     // Pass mock data for E2E tests - ensures data fetching logic (DTO mapping, etc.) is tested
-    return <FeaturedListings initialListings={MOCK_FEATURED_LISTINGS} />;
+    return <FeaturedListingsLegacy initialListings={MOCK_FEATURED_LISTINGS} />;
   }
 
   let listings: Awaited<ReturnType<typeof getFeaturedListings>> | null = null;
@@ -26,7 +26,9 @@ async function FeaturedListingsSection() {
   } catch (error) {
     structuredLogger.error('Failed to fetch featured listings:', { error });
   }
-  return <FeaturedListings initialListings={listings} />;
+  
+  // Use new server component with pre-fetched data
+  return <FeaturedListings listings={listings ?? []} />;
 }
 
 /**
@@ -48,19 +50,19 @@ async function CityCarouselSection() {
   return <CityCarousel initialCities={cities} />;
 }
 
-async function HomePageContent() {
-  'use cache';
-  cacheLife('days');
-  cacheTag('home');
-
+export default async function HomePage() {
   return (
-    <>
+    <PageLayoutServer>
       <HeroSection />
       <Suspense
         fallback={
-          <div className="text-center py-12">
-            <p className="body-lg">Loading featured venues...</p>
-          </div>
+          <section className="py-16 bg-background">
+            <div className="container mx-auto px-4">
+              <div className="text-center py-12">
+                <p className="body-lg">Loading featured venues...</p>
+              </div>
+            </div>
+          </section>
         }
       >
         <FeaturedListingsSection />
@@ -74,14 +76,6 @@ async function HomePageContent() {
       >
         <CityCarouselSection />
       </Suspense>
-    </>
-  );
-}
-
-export default async function HomePage() {
-  return (
-    <PageLayoutServer>
-      <HomePageContent />
     </PageLayoutServer>
   );
 }

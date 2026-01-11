@@ -3,12 +3,12 @@ import userEvent from '@testing-library/user-event';
 import { HttpResponse, http } from 'msw';
 import type { FeaturedListingDTO } from '@/types/dto';
 import { server } from '../../../test-helpers/msw-server-bridge';
-import { FeaturedListings } from '../FeaturedListings';
+import { FeaturedListings } from '../FeaturedListingsLegacy';
 import { mockFeaturedVenues } from '../featuredVenuesMockData';
 
 const mockListings: FeaturedListingDTO[] = mockFeaturedVenues;
 
-describe('FeaturedListings', () => {
+describe('FeaturedListings (Legacy)', () => {
   // Server lifecycle is handled globally in jest.setup.ts
   afterEach(() => {
     server.resetHandlers();

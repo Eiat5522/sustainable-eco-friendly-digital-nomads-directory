@@ -13,7 +13,7 @@ jest.mock('@/components/layout/Footer', () => ({
 }));
 
 // Mock FeaturedListings
-jest.mock('@/components/sections/FeaturedListings', () => ({
+jest.mock('@/components/sections/FeaturedListingsLegacy', () => ({
   FeaturedListings: () => <div data-testid="featured-listings">Featured Listings</div>,
 }));
 
