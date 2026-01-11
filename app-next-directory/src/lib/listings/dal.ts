@@ -60,6 +60,7 @@ type ReviewDocument = {
 };
 
 const DEFAULT_REVIEWS_LIMIT = 10;
+const MAX_RATING = 5;
 
 const LISTING_QUERY = groq`*[_type == "listing" && moderation.status == "published" && slug.current == $slug][0]{
     _id,

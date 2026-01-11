@@ -69,30 +69,9 @@ const createAuthenticatedPageFixture = (role: PlaywrightRole) => async ({ browse
 };
 
 export const test = base.extend<TestFixtures>({
-  adminPage: async ({ browser }, use) => {
-    const { context, page } = await createAuthenticatedContext(browser, 'admin');
-    try {
-      await use(page);
-    } finally {
-      await context.close();
-    }
-  },
-  superAdminPage: async ({ browser }, use) => {
-    const { context, page } = await createAuthenticatedContext(browser, 'superAdmin');
-    try {
-      await use(page);
-    } finally {
-      await context.close();
-    }
-  },
-  venueOwnerPage: async ({ browser }, use) => {
-    const { context, page } = await createAuthenticatedContext(browser, 'venueOwner');
-    try {
-      await use(page);
-    } finally {
-      await context.close();
-    }
-  },
+  adminPage: createAuthenticatedPageFixture('admin'),
+  superAdminPage: createAuthenticatedPageFixture('superAdmin'),
+  venueOwnerPage: createAuthenticatedPageFixture('venueOwner'),
 });
 
 export { expect } from '@playwright/test';

@@ -62,7 +62,6 @@ function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
   const [submitStatus, setSubmitStatus] = useState<'success' | 'error' | null>(null);
-  const previousInitialTypeRef = useRef<EnquiryType>(initialType);
 
   useEffect(() => {
     const emailFromSession = sessionStorage.getItem('newsletter-email');
@@ -74,12 +73,12 @@ function ContactForm() {
     }
   }, [initialEmail]);
 
+
   useEffect(() => {
-    if (previousInitialTypeRef.current !== initialType) {
-      previousInitialTypeRef.current = initialType;
+    if (enquiryType !== initialType && initialType) {
       setEnquiryType(initialType);
     }
-  }, [initialType]);
+  }, [initialType, enquiryType]);
 
   const validate = () => {
     const schema = enquiryType === 'general' ? contactFormSchema : newsletterSchema;

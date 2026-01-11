@@ -1,6 +1,5 @@
 'use client';
 
-import { useCallback } from 'react';
 import { NeoCard } from '@/components/ui/neo-card';
 import { DigitalNomadSearch } from './DigitalNomadSearch';
 

@@ -58,9 +58,9 @@ export default function MobileMenu(): React.JSX.Element {
                 key={href}
                 href={href}
                 onClick={handleLinkClick}
-                className="rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
+                className="body-md rounded-md px-2 py-1.5 hover:bg-neo-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
               >
-                <span className="body-md">{label}</span>
+                {label}
               </Link>
             ))}
           </nav>

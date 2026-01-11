@@ -86,7 +86,7 @@ export function SearchFiltersForm({
  
   const initialValues = React.useMemo(
     () => deriveInitialValues(initialParams),
-    [initialParams, q, destination, category, amenities, limit]
+    [initialParams]
   );
 
   const [searchTerm, setSearchTerm] = React.useState(initialValues.searchTerm);

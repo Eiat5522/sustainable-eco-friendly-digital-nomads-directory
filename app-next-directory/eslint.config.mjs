@@ -116,7 +116,7 @@ const eslintConfig = [
       '@typescript-eslint/ban-ts-comment': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
       'react/display-name': 'off',
-      "react-hooks/rules-of-hooks": "off",
+      'react-hooks/rules-of-hooks': 'off',
       'jest/prefer-to-have-length': 'off',
     },
   },

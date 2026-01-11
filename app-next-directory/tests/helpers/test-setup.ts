@@ -35,7 +35,10 @@ export const test = base.extend<{ mockListingPage: MockListingPage }>({
     // Create a helper function to perform search
     const performSearch = async (searchTerm: string) => {
       const responsePromise = page.waitForResponse(
-        resp => resp.url().includes('/api/search') && resp.status() === 200,
+        resp => {
+          const url = new URL(resp.url());
+          return url.pathname === '/api/search' && resp.status() === 200;
+        },
         { timeout: responseTimeout }
       );
       await page.fill('[data-testid="search-input"]', searchTerm);
