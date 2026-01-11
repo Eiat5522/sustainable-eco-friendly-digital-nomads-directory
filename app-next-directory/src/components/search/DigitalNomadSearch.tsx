@@ -24,11 +24,21 @@ export function DigitalNomadSearch({
   const searchParams = useSearchParams();
   const urlQuery = searchParams.get('q') ?? '';
   const [query, setQuery] = useState(urlQuery);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Sync with URL changes (e.g., back/forward navigation)
   useEffect(() => {
     setQuery(urlQuery);
+    setIsSubmitting(false);
   }, [urlQuery]);
+
+  // Safety net to re-enable the button if navigation doesn't change params
+  useEffect(() => {
+    if (!isSubmitting) return undefined;
+
+    const timeoutId = window.setTimeout(() => setIsSubmitting(false), 800);
+    return () => window.clearTimeout(timeoutId);
+  }, [isSubmitting]);
 
   const performSearch = useCallback(
     (q: string) => {
@@ -47,9 +57,11 @@ export function DigitalNomadSearch({
   const onSubmit = useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
+      if (isSubmitting) return;
+      setIsSubmitting(true);
       performSearch(query);
     },
-    [performSearch, query]
+    [performSearch, query, isSubmitting]
   );
 
   return (
@@ -66,8 +78,8 @@ export function DigitalNomadSearch({
         aria-label="Search query"
         name="q"
       />
-      <NeoButton type="submit" variant="primary">
-        Search
+      <NeoButton type="submit" variant="primary" disabled={isSubmitting}>
+        {isSubmitting ? 'Searching...' : 'Search'}
       </NeoButton>
     </form>
   );

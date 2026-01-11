@@ -320,21 +320,23 @@ describe('DigitalNomadSearch', () => {
       });
     });
 
-    it('should handle rapid form submissions', async () => {
+    it('should prevent rapid repeated submissions once submitting', async () => {
       const user = userEvent.setup();
       render(<DigitalNomadSearch />);
 
       const input = screen.getByTestId('neo-input');
       await user.type(input, 'test');
 
-      // Submit multiple times
-      await user.click(screen.getByTestId('neo-button'));
-      await user.click(screen.getByTestId('neo-button'));
-      await user.click(screen.getByTestId('neo-button'));
+      const button = screen.getByTestId('neo-button');
+      await user.click(button);
+      await user.click(button);
+      await user.click(button);
 
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledTimes(3);
+        expect(mockPush).toHaveBeenCalledTimes(1);
       });
+      expect(button).toBeDisabled();
+      expect(button).toHaveTextContent('Searching...');
     });
   });
 
