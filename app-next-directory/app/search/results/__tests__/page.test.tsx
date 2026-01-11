@@ -261,8 +261,8 @@ describe('app/search/results/page.tsx', () => {
       const ResultsPage = (await import('../page')).default;
       render(await ResultsPage({ searchParams: { page: 1 } }));
 
-      const prevLink = screen.getByText('Prev').closest('a');
-      expect(prevLink).toHaveAttribute('aria-disabled', 'true');
+      const prevButton = screen.getByRole('button', { name: /prev/i });
+      expect(prevButton).toBeDisabled();
     });
 
     it('should disable next link on last page', async () => {
@@ -277,8 +277,8 @@ describe('app/search/results/page.tsx', () => {
       const ResultsPage = (await import('../page')).default;
       render(await ResultsPage({ searchParams: { page: 10 } }));
 
-      const nextLink = screen.getByText('Next').closest('a');
-      expect(nextLink).toHaveAttribute('aria-disabled', 'true');
+      const nextButton = screen.getByRole('button', { name: /next/i });
+      expect(nextButton).toBeDisabled();
     });
 
     it('should highlight current page in pagination', async () => {

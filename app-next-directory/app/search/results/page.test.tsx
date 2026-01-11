@@ -259,8 +259,8 @@ describe('Search results page module', () => {
     render(ui);
 
     expect(screen.getByText('Showing page 1 of 1')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /prev/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /next/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /prev/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /next/i })).toBeDisabled();
     const pageButtons = screen.getAllByRole('link', { name: /^[1]$/ });
     expect(pageButtons).toHaveLength(1);
   });
