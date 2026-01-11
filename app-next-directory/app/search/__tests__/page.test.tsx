@@ -6,9 +6,9 @@
 /** @jest-environment jsdom */
 
 import '@testing-library/jest-dom';
-import { render, screen, within } from '@testing-library/react';
 import { jest } from '@jest/globals';
-import type { SearchFetchSuccess, SearchFetchError } from '@/lib/data-access/search.dal';
+import { render, screen, within } from '@testing-library/react';
+import type { SearchFetchError, SearchFetchSuccess } from '@/lib/data-access/search.dal';
 
 // Mock the DAL functions
 const mockExecuteSearch = jest.fn();
@@ -31,7 +31,7 @@ jest.mock('@/components/layout/PageLayoutServer', () => ({
 jest.mock('@/components/listings/ListingGrid', () => ({
   ListingGrid: ({ listings }: { listings: any[] }) => (
     <div data-testid="listing-grid">
-      {listings.map((listing) => (
+      {listings.map(listing => (
         <div key={listing.id} data-testid={`listing-${listing.id}`}>
           {listing.name}
         </div>
@@ -42,7 +42,13 @@ jest.mock('@/components/listings/ListingGrid', () => ({
 
 // Mock SearchFiltersForm
 jest.mock('@/components/search/SearchFiltersForm', () => ({
-  SearchFiltersForm: ({ initialParams, resultsPath }: { initialParams: any; resultsPath?: string }) => (
+  SearchFiltersForm: ({
+    initialParams,
+    resultsPath,
+  }: {
+    initialParams: any;
+    resultsPath?: string;
+  }) => (
     <div data-testid="search-filters-form" data-results-path={resultsPath}>
       {JSON.stringify(initialParams)}
     </div>
@@ -53,7 +59,11 @@ jest.mock('@/components/search/SearchFiltersForm', () => ({
 jest.mock('@/components/ui/neo-button', () => ({
   NeoButton: ({ children, asChild, disabled, variant, size, type, ...props }: any) => {
     if (asChild) {
-      return <span data-variant={variant} data-size={size} {...props}>{children}</span>;
+      return (
+        <span data-variant={variant} data-size={size} {...props}>
+          {children}
+        </span>
+      );
     }
     return (
       <button type={type} disabled={disabled} data-variant={variant} data-size={size} {...props}>
@@ -77,7 +87,7 @@ describe('app/search/page.tsx', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.resetModules();
-    
+
     // Default mock implementation for buildSearchHref
     mockBuildSearchHref.mockImplementation((basePath: string, params: any, overrides: any = {}) => {
       const merged = { ...params, ...overrides };
@@ -195,7 +205,7 @@ describe('app/search/page.tsx', () => {
       expect(screen.getByText('2')).toBeInTheDocument();
       expect(screen.getByText('3')).toBeInTheDocument();
       expect(screen.getByText('5')).toBeInTheDocument();
-      
+
       // Check for ellipsis
       const ellipsisElements = screen.getAllByText('…');
       expect(ellipsisElements.length).toBeGreaterThan(0);
@@ -220,11 +230,7 @@ describe('app/search/page.tsx', () => {
       const SearchPage = (await import('../page')).default;
       render(await SearchPage({ searchParams: Promise.resolve({ page: 2 }) }));
 
-      expect(mockBuildSearchHref).toHaveBeenCalledWith(
-        '/search',
-        { page: 2 },
-        { page: '3' }
-      );
+      expect(mockBuildSearchHref).toHaveBeenCalledWith('/search', { page: 2 }, { page: '3' });
 
       const nextLink = screen.getByText('Next').closest('a');
       expect(nextLink).toHaveAttribute('href');
@@ -269,7 +275,7 @@ describe('app/search/page.tsx', () => {
 
       const pageLinks = screen.getAllByRole('link');
       const currentPageLink = pageLinks.find(
-        (link) => link.textContent === '2' && link.getAttribute('aria-current') === 'page'
+        link => link.textContent === '2' && link.getAttribute('aria-current') === 'page'
       );
       expect(currentPageLink).toBeDefined();
     });
@@ -298,7 +304,7 @@ describe('app/search/page.tsx', () => {
 
       const options = within(pageSizeSelect as HTMLElement).getAllByRole('option');
       expect(options).toHaveLength(4);
-      expect(options.map((o) => o.textContent)).toEqual(['12', '24', '48', '96']);
+      expect(options.map(o => o.textContent)).toEqual(['12', '24', '48', '96']);
     });
 
     it('should display no results message when listings array is empty', async () => {
@@ -365,11 +371,7 @@ describe('app/search/page.tsx', () => {
       const SearchPage = (await import('../page')).default;
       render(await SearchPage({ searchParams: Promise.resolve({ retry: '2' }) }));
 
-      expect(mockBuildSearchHref).toHaveBeenCalledWith(
-        '/search',
-        { retry: '2' },
-        { retry: '3' }
-      );
+      expect(mockBuildSearchHref).toHaveBeenCalledWith('/search', { retry: '2' }, { retry: '3' });
     });
 
     it('should start retry count at 1 when not present', async () => {
@@ -382,11 +384,7 @@ describe('app/search/page.tsx', () => {
       const SearchPage = (await import('../page')).default;
       render(await SearchPage({ searchParams: Promise.resolve({}) }));
 
-      expect(mockBuildSearchHref).toHaveBeenCalledWith(
-        '/search',
-        {},
-        { retry: '1' }
-      );
+      expect(mockBuildSearchHref).toHaveBeenCalledWith('/search', {}, { retry: '1' });
     });
 
     it('should show error details in development mode', async () => {

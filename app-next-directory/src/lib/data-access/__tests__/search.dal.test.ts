@@ -28,20 +28,13 @@ jest.mock('next/cache', () => ({
   cacheTag: jest.fn(),
 }));
 
+import { cacheLife, cacheTag } from 'next/cache';
+import { structuredLogger } from '@/lib/logger';
 // Import mocked modules
 import { client } from '@/lib/sanity/client';
-import { structuredLogger } from '@/lib/logger';
-import { cacheLife, cacheTag } from 'next/cache';
 
 // Now import the module under test (this will import the mocked dependencies)
-import {
-  getSearchFacets,
-  buildSearchParams,
-  buildSearchHref,
-  getPageNumbers,
-  buildWhereClause,
-  DEFAULT_PAGE_SIZES,
-} from '../search.dal';
+import { buildWhereClause, getPageNumbers, getSearchFacets } from '../search.dal';
 
 const mockFetch = client.fetch as jest.MockedFunction<typeof client.fetch>;
 const mockCacheLife = cacheLife as jest.MockedFunction<typeof cacheLife>;
@@ -65,10 +58,7 @@ describe('search.dal', () => {
       const result = await getSearchFacets();
 
       expect(result).toEqual(mockFacets);
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('array::unique'),
-        undefined
-      );
+      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('array::unique'), undefined);
       // Verify cache directives are called (they are in the function body)
       expect(mockCacheTag).toHaveBeenCalledWith('search-facets', 'listings');
       expect(mockCacheLife).toHaveBeenCalledWith('hours');

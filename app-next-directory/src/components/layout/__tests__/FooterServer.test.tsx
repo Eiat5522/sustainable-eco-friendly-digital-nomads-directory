@@ -68,8 +68,14 @@ describe('FooterServer', () => {
     expect(screen.getByRole('link', { name: 'Home' })).toHaveAttribute('href', '/');
     expect(screen.getByRole('link', { name: 'Find Listings' })).toHaveAttribute('href', '/search');
     expect(screen.getByRole('link', { name: 'Blog' })).toHaveAttribute('href', '/blog');
-    expect(screen.getByRole('link', { name: 'Submit Your Business' })).toHaveAttribute('href', '/contact-us');
-    expect(screen.getByRole('link', { name: 'Login / Register' })).toHaveAttribute('href', '/auth/login');
+    expect(screen.getByRole('link', { name: 'Submit Your Business' })).toHaveAttribute(
+      'href',
+      '/contact-us'
+    );
+    expect(screen.getByRole('link', { name: 'Login / Register' })).toHaveAttribute(
+      'href',
+      '/auth/login'
+    );
   });
 
   it('should render all category links', () => {

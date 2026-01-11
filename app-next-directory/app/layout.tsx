@@ -1,5 +1,6 @@
 import './globals.css';
 import type React from 'react';
+import { Suspense } from 'react';
 
 import { rootLayoutMetadata } from './layout.metadata';
 export { rootLayoutMetadata as metadata };
@@ -19,7 +20,9 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning data-test-mode={isServerTestMode ? 'true' : undefined}>
       <head>{/* Theme support removed: no script injected here anymore */}</head>
       <body className={BODY_FONT_CLASS}>
-        <ClientRootLayout>{children}</ClientRootLayout>
+        <Suspense fallback={<div className={BODY_FONT_CLASS}>Loading...</div>}>
+          <ClientRootLayout>{children}</ClientRootLayout>
+        </Suspense>
       </body>
     </html>
   );

@@ -1,5 +1,3 @@
-'use cache';
-
 import { cacheLife, cacheTag } from 'next/cache';
 import { Suspense } from 'react';
 import { PageLayoutServer } from '@/components/layout/PageLayoutServer';
@@ -8,7 +6,7 @@ import { FeaturedListings } from '@/components/sections/FeaturedListings';
 import { HeroSection } from '@/components/sections/HeroSection';
 import { getCities, getFeaturedListings } from '@/lib/data-access';
 import { structuredLogger } from '@/lib/logger';
-import { MOCK_FEATURED_LISTINGS, MOCK_CITIES } from '../__mocks__/homePageData';
+import { MOCK_CITIES, MOCK_FEATURED_LISTINGS } from '../__mocks__/homePageData';
 
 const isE2ERun = process.env.NEXT_PUBLIC_E2E === '1' || process.env.E2E === '1';
 
@@ -50,12 +48,13 @@ async function CityCarouselSection() {
   return <CityCarousel initialCities={cities} />;
 }
 
-export default async function HomePage() {
+async function HomePageContent() {
+  'use cache';
   cacheLife('days');
   cacheTag('home');
 
   return (
-    <PageLayoutServer>
+    <>
       <HeroSection />
       <Suspense
         fallback={
@@ -75,6 +74,14 @@ export default async function HomePage() {
       >
         <CityCarouselSection />
       </Suspense>
+    </>
+  );
+}
+
+export default async function HomePage() {
+  return (
+    <PageLayoutServer>
+      <HomePageContent />
     </PageLayoutServer>
   );
 }

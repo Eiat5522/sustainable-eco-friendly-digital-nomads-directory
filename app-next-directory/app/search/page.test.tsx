@@ -1,9 +1,11 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
+import type { ReactNode } from 'react';
 import type { SearchParamRecord } from '@/types/search';
 
-const headerRenderMock = jest.fn(() => <header data-testid="header" />);
-const footerRenderMock = jest.fn(() => <footer data-testid="footer" />);
+const pageLayoutRenderMock = jest.fn(({ children }: { children: ReactNode }) => (
+  <div data-testid="page-layout">{children}</div>
+));
 const searchFiltersFormMock = jest.fn(
   (props: { initialParams: SearchParamRecord; resultsPath?: string }) => (
     <div
@@ -17,16 +19,11 @@ const listingGridRenderMock = jest.fn(({ listings }: { listings: unknown[] }) =>
   <div data-testid="listing-grid">{JSON.stringify(listings)}</div>
 ));
 
-const fetchSearchResultsMock = jest.fn();
+const executeSearchMock = jest.fn();
 
-jest.mock('@/components/layout/Header', () => ({
+jest.mock('@/components/layout/PageLayoutServer', () => ({
   __esModule: true,
-  Header: headerRenderMock,
-}));
-
-jest.mock('@/components/layout/Footer', () => ({
-  __esModule: true,
-  Footer: footerRenderMock,
+  PageLayoutServer: (props: { children: ReactNode }) => pageLayoutRenderMock(props),
 }));
 
 jest.mock('@/components/search/SearchFiltersForm', () => ({
@@ -45,9 +42,13 @@ jest.mock('@/components/ui/neo-button', () => ({
     asChild ? children : <button {...rest}>{children}</button>,
 }));
 
-jest.mock('./results/server', () => ({
-  fetchSearchResults: (...args: unknown[]) => fetchSearchResultsMock(...args),
-}));
+jest.mock('@/lib/data-access/search.dal', () => {
+  const actual = jest.requireActual('@/lib/data-access/search.dal');
+  return {
+    ...actual,
+    executeSearch: executeSearchMock,
+  };
+});
 
 let SearchPage: typeof import('./page').default;
 let dynamicExport: string | undefined;
@@ -68,7 +69,7 @@ describe('SearchPage', () => {
   });
 
   it('renders search results using backend data and forwards params to filters', async () => {
-    fetchSearchResultsMock.mockResolvedValueOnce({
+    executeSearchMock.mockResolvedValueOnce({
       ok: true,
       listings: [{ id: '1', name: 'Eco Hub' }],
       pagination: { page: 2, totalPages: 3, hasMore: true, limit: 24, total: 60 },
@@ -84,8 +85,13 @@ describe('SearchPage', () => {
     const page = await SearchPage({ searchParams });
     render(page);
 
-    expect(headerRenderMock).toHaveBeenCalledTimes(1);
-    expect(footerRenderMock).toHaveBeenCalledTimes(1);
+    expect(executeSearchMock).toHaveBeenCalledWith({
+      q: 'eco hubs',
+      destination: ['bangkok'],
+      limit: '24',
+    });
+
+    expect(screen.getByTestId('page-layout')).toBeInTheDocument();
 
     expect(searchFiltersFormMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -111,7 +117,7 @@ describe('SearchPage', () => {
   });
 
   it('defaults to empty params when searchParams is undefined', async () => {
-    fetchSearchResultsMock.mockResolvedValueOnce({
+    executeSearchMock.mockResolvedValueOnce({
       ok: true,
       listings: [],
       pagination: { page: 1, totalPages: 1, hasMore: false, limit: 12, total: 0 },
@@ -122,14 +128,14 @@ describe('SearchPage', () => {
     const page = await SearchPage({});
     render(page);
 
-    expect(fetchSearchResultsMock).toHaveBeenCalledWith({});
+    expect(executeSearchMock).toHaveBeenCalledWith({});
     expect(searchFiltersFormMock).toHaveBeenCalledWith(
       expect.objectContaining({ initialParams: {}, resultsPath: '/search' })
     );
   });
 
   it('handles backend errors by showing a retry state', async () => {
-    fetchSearchResultsMock.mockResolvedValueOnce({
+    executeSearchMock.mockResolvedValueOnce({
       ok: false,
       reason: 'response',
       status: 500,

@@ -272,6 +272,7 @@ describe('listings.dal', () => {
 
       expect(result).toEqual([{ slug: 'fallback-1' }]);
       expect(mockFetch).toHaveBeenCalledTimes(2);
+      expect(mockFetch).toHaveBeenCalledWith(expect.any(String));
     });
 
     it('should return placeholder if no listings exist', async () => {
@@ -283,6 +284,7 @@ describe('listings.dal', () => {
       const result = await getPopularListingSlugs();
 
       expect(result).toEqual([{ slug: 'placeholder-listing' }]);
+      expect(mockFetch).toHaveBeenCalledWith(expect.any(String));
     });
 
     it('should handle errors and return placeholder', async () => {
@@ -292,6 +294,7 @@ describe('listings.dal', () => {
       const result = await getPopularListingSlugs();
 
       expect(result).toEqual([{ slug: 'placeholder-listing' }]);
+      expect(mockFetch).toHaveBeenCalledWith(expect.any(String));
       expect(structuredLogger.error).toHaveBeenCalledWith(
         'Failed to generate static params for listings',
         mockError,

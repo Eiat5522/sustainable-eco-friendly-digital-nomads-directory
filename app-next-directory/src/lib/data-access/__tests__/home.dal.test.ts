@@ -4,12 +4,7 @@
  */
 
 import { jest } from '@jest/globals';
-import {
-  getFeaturedListings,
-  getCities,
-  getEcoTags,
-  getHomePageData,
-} from '../home.dal';
+import { getCities, getEcoTags, getFeaturedListings, getHomePageData } from '../home.dal';
 
 // Mock dependencies
 jest.mock('@/lib/sanity/client', () => ({
@@ -33,9 +28,9 @@ jest.mock('next/cache', () => ({
   cacheTag: jest.fn(),
 }));
 
+import { structuredLogger } from '@/lib/logger';
 // Import mocked modules
 import { client } from '@/lib/sanity/client';
-import { structuredLogger } from '@/lib/logger';
 
 const mockFetch = client.fetch as jest.MockedFunction<typeof client.fetch>;
 
@@ -124,7 +119,7 @@ describe('home.dal', () => {
       const result = await getFeaturedListings();
 
       expect(result).toHaveLength(2);
-      expect(result.map((l) => l.id)).toEqual(['listing-1', 'listing-3']);
+      expect(result.map(l => l.id)).toEqual(['listing-1', 'listing-3']);
     });
 
     it('should handle different city formats', async () => {
@@ -461,9 +456,7 @@ describe('home.dal', () => {
       ];
 
       // First call for listings, second for cities
-      mockFetch
-        .mockResolvedValueOnce(mockListings)
-        .mockResolvedValueOnce(mockCities);
+      mockFetch.mockResolvedValueOnce(mockListings).mockResolvedValueOnce(mockCities);
 
       const result = await getHomePageData(10, 8);
 
@@ -475,9 +468,7 @@ describe('home.dal', () => {
     });
 
     it('should use default limits when not provided', async () => {
-      mockFetch
-        .mockResolvedValueOnce([])
-        .mockResolvedValueOnce([]);
+      mockFetch.mockResolvedValueOnce([]).mockResolvedValueOnce([]);
 
       const result = await getHomePageData();
 

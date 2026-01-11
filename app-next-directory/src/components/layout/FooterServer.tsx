@@ -44,8 +44,6 @@ interface FooterServerProps {
 }
 
 export function FooterServer({ showNewsletter = true }: FooterServerProps) {
-  const year = new Date().getFullYear();
-
   return (
     <footer
       id="footer-content"
@@ -157,7 +155,7 @@ export function FooterServer({ showNewsletter = true }: FooterServerProps) {
         {/* Bottom Bar */}
         <div className="border-t border-white/20 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="body-sm text-gray-400 mb-4 md:mb-0">
-            © {year} SustainableNomads. All rights reserved.
+            © {new Date().getFullYear()} SustainableNomads. All rights reserved.
           </p>
           <div className="flex items-center space-x-4">
             <span className="body-sm text-gray-400">Made with</span>

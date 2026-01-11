@@ -1,7 +1,7 @@
 'use client';
 
-import { SessionProvider } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
+import { SessionProvider } from 'next-auth/react';
 import type { ReactNode } from 'react';
 import { useEffect } from 'react';
 

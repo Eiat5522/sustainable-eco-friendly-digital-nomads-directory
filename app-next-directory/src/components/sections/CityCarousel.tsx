@@ -36,10 +36,8 @@ const sanitizeCityData = (cities: CityDTO[]) => {
 const CityCard = memo(
   ({
     city,
-    index,
   }: {
     city: CityDTO & { _originalSlug: string; _fallbackId: string };
-    index: number;
   }) => {
     const slugSegment = city.slug;
     const displayName = city.name && city.name.length > 0 ? city.name : 'Explore City';
@@ -226,7 +224,6 @@ export function CityCarousel({ initialCities }: CityCarouselProps = {}): React.J
                   <CityCard
                     key={city._originalSlug || city._fallbackId || city.name || `city-${index}`}
                     city={city}
-                    index={index}
                   />
                 ))}
               </div>

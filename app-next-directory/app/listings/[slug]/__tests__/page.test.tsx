@@ -1,33 +1,32 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 
-const mockClientFetch = jest.fn();
-const mockTransformToDetailDTO = jest.fn();
 const mockAuth = jest.fn();
 const mockNotFound = jest.fn(() => {
   throw new Error('NOT_FOUND_TRIGGERED');
 });
 const renderListingDetailView = jest.fn();
-const mockGetCollection = jest.fn();
-
-jest.mock('@/lib/sanity/client', () => ({
-  client: { fetch: mockClientFetch },
-}));
-
-jest.mock('@/lib/dto-transformer', () => ({
-  transformToDetailDTO: mockTransformToDetailDTO,
-}));
+const mockGetListingBySlug = jest.fn();
+const mockGetRelatedListings = jest.fn();
+const mockGetPopularListingSlugs = jest.fn();
+const mockGetListingReviews = jest.fn();
 
 jest.mock('@/lib/auth', () => ({
   auth: mockAuth,
 }));
 
-jest.mock('next/navigation', () => ({
-  notFound: mockNotFound,
+jest.mock('@/lib/data-access/listings.dal', () => ({
+  getListingBySlug: (...args: unknown[]) => mockGetListingBySlug(...args),
+  getRelatedListings: (...args: unknown[]) => mockGetRelatedListings(...args),
+  getPopularListingSlugs: (...args: unknown[]) => mockGetPopularListingSlugs(...args),
 }));
 
-jest.mock('@/utils/db-helpers', () => ({
-  getCollection: mockGetCollection,
+jest.mock('@/lib/data-access/favorites.dal', () => ({
+  getListingReviews: (...args: unknown[]) => mockGetListingReviews(...args),
+}));
+
+jest.mock('next/navigation', () => ({
+  notFound: mockNotFound,
 }));
 
 jest.mock('@/components/listings/ListingDetailView', () => ({
@@ -45,7 +44,6 @@ jest.mock('@/components/layout/Footer', () => ({
   Footer: () => <div data-testid="mock-footer" />,
 }));
 
-const originalFetch = global.fetch;
 const originalStructuredClone = global.structuredClone;
 
 const structuredClonePolyfill = <T,>(value: T): T => JSON.parse(JSON.stringify(value));
@@ -59,13 +57,13 @@ beforeAll(() => {
 describe('app/listings/[slug]/page', () => {
   beforeEach(() => {
     jest.resetModules();
-    mockClientFetch.mockReset();
-    mockTransformToDetailDTO.mockReset();
     mockAuth.mockReset();
+    mockGetListingBySlug.mockReset();
+    mockGetRelatedListings.mockReset();
+    mockGetPopularListingSlugs.mockReset();
+    mockGetListingReviews.mockReset();
     renderListingDetailView.mockReset();
     mockNotFound.mockClear();
-    mockGetCollection.mockReset();
-    global.fetch = jest.fn() as unknown as typeof fetch;
     if (typeof global.structuredClone !== 'function') {
       (global as any).structuredClone = structuredClonePolyfill as typeof structuredClone;
     }
@@ -77,7 +75,6 @@ describe('app/listings/[slug]/page', () => {
   });
 
   afterAll(() => {
-    global.fetch = originalFetch;
     if (originalStructuredClone) {
       (global as any).structuredClone = originalStructuredClone;
     } else {
@@ -92,6 +89,19 @@ describe('app/listings/[slug]/page', () => {
     });
     return imported as typeof import('../page');
   }
+
+  it('generates static params from popular listing slugs', async () => {
+    const popularSlugs = [{ slug: 'eco-stay' }, { slug: 'forest-lodge' }];
+    mockGetPopularListingSlugs.mockResolvedValue(popularSlugs);
+
+    const pageModule = await importPageModule();
+    const params = await pageModule.generateStaticParams();
+
+    expect(mockGetPopularListingSlugs).toHaveBeenCalledTimes(1);
+    expect(mockGetPopularListingSlugs).toHaveBeenCalledWith();
+    await expect(mockGetPopularListingSlugs.mock.results[0]?.value).resolves.toEqual(popularSlugs);
+    expect(params).toEqual(popularSlugs);
+  });
 
   it('uses fixture data when E2E flag is enabled', async () => {
     process.env.NEXT_PUBLIC_E2E = '1';
@@ -124,13 +134,13 @@ describe('app/listings/[slug]/page', () => {
 
   it('invokes notFound when listing is not found', async () => {
     const pageModule = await importPageModule();
-    mockClientFetch.mockResolvedValue(null);
+    mockGetListingBySlug.mockResolvedValue(null);
 
     await expect(
       pageModule.default({ params: Promise.resolve({ slug: 'not-a-real-slug' }) })
     ).rejects.toThrow('NOT_FOUND_TRIGGERED');
 
-    expect(mockClientFetch).toHaveBeenCalled();
+    expect(mockGetListingBySlug).toHaveBeenCalledWith('not-a-real-slug');
     expect(mockNotFound).toHaveBeenCalled();
   });
 
@@ -143,61 +153,46 @@ describe('app/listings/[slug]/page', () => {
       city: { id: 'city-1', name: 'Chiang Mai', slug: 'chiang-mai' },
       galleryImages: ['/hero.jpg'],
     };
+    const relatedListings = [
+      {
+        id: 'rel-1',
+        name: 'Forest Escape',
+        slug: 'forest-escape',
+        priceRange: 'premium',
+        imageUrl: 'https://cdn.test/forest.jpg',
+        ecoFocusTags: ['Solar', 'Zero waste'],
+        city: { id: 'city-1', name: 'Chiang Mai', country: 'Thailand', slug: 'chiang-mai' },
+      },
+    ];
+    const reviews = [
+      {
+        id: 'review-1',
+        rating: 5,
+        comment: 'Amazing stay',
+        createdAt: '2024-03-01T00:00:00.000Z',
+        status: 'approved',
+        user: { name: 'Alice', image: 'https://cdn.test/alice.jpg', id: 'user-42' },
+      },
+    ];
 
-    mockClientFetch.mockImplementation((query: unknown) => {
-      if (typeof query === 'string' && query.includes('moderation.status == "published"')) {
-        return Promise.resolve({ _id: 'listing-raw' });
-      }
-      if (typeof query === 'string' && query.includes('city._ref == $cityId')) {
-        return Promise.resolve([
-          {
-            _id: 'rel-1',
-            name: 'Forest Escape',
-            slug: 'forest-escape',
-            priceRange: 'premium',
-            imageUrl: 'https://cdn.test/forest.jpg',
-            ecoFocusTags: ['Solar', { name: 'Zero waste' }],
-            city: { name: 'Chiang Mai', country: 'Thailand', slug: 'chiang-mai' },
-          },
-        ]);
-      }
-      if (typeof query === 'string' && query.includes('userFavorite')) {
-        return Promise.resolve({ _id: 'favorite-1' });
-      }
-      return Promise.resolve(null);
-    });
-
-    mockTransformToDetailDTO.mockReturnValue(listing);
     mockAuth.mockResolvedValue({ user: { id: 'user-1', role: 'member' } });
-
-    // Mock MongoDB collection for reviews
-    const mockCollection = {
-      find: jest.fn().mockReturnThis(),
-      sort: jest.fn().mockReturnThis(),
-      limit: jest.fn().mockReturnThis(),
-      toArray: jest.fn().mockResolvedValue([
-        {
-          id: 'review-1',
-          rating: 5,
-          comment: 'Amazing stay',
-          createdAt: '2024-03-01T00:00:00.000Z',
-          status: 'approved',
-          user: { name: 'Alice', image: 'https://cdn.test/alice.jpg', id: 'user-42' },
-        },
-      ]),
-    };
-    mockGetCollection.mockResolvedValue(mockCollection);
+    mockGetListingBySlug.mockResolvedValue(listing);
+    mockGetRelatedListings.mockResolvedValue(relatedListings);
+    mockGetListingReviews.mockResolvedValue(reviews);
 
     const element = await pageModule.default({ params: Promise.resolve({ slug: 'eco-retreat' }) });
     render(element);
 
-    expect(mockTransformToDetailDTO).toHaveBeenCalledWith({ _id: 'listing-raw' });
-    expect(mockGetCollection).toHaveBeenCalledWith('reviews');
+    expect(mockGetListingBySlug).toHaveBeenCalledWith('eco-retreat');
+    expect(mockGetRelatedListings).toHaveBeenCalledWith('city-1', 'listing-123');
+    expect(mockGetListingReviews).toHaveBeenCalledWith('eco-retreat', 'user-1');
     expect(renderListingDetailView).toHaveBeenCalledWith(
       expect.objectContaining({
         listing,
         isSignedIn: true,
-        isFavorited: true,
+        isFavorited: false,
+        userId: 'user-1',
+        relatedListings,
         reviews: [
           expect.objectContaining({
             id: 'review-1',
@@ -209,24 +204,36 @@ describe('app/listings/[slug]/page', () => {
     );
   });
 
-  it('handles transform errors by logging and calling notFound', async () => {
-    mockClientFetch.mockResolvedValueOnce({ _id: 'broken' });
-    mockTransformToDetailDTO.mockImplementationOnce(() => {
-      throw new Error('bad transform');
-    });
-
+  it('renders a signed-out view when no session is available', async () => {
     const pageModule = await importPageModule();
+    const listing = {
+      id: 'listing-404',
+      name: 'Quiet Lodge',
+      slug: 'quiet-lodge',
+      city: { id: 'city-9', name: 'Reykjavik', slug: 'reykjavik' },
+      galleryImages: ['/hero.jpg'],
+    };
 
-    await expect(
-      pageModule.default({ params: Promise.resolve({ slug: 'broken-listing' }) })
-    ).rejects.toThrow('NOT_FOUND_TRIGGERED');
+    mockAuth.mockResolvedValue(null);
+    mockGetListingBySlug.mockResolvedValue(listing);
+    mockGetRelatedListings.mockResolvedValue([]);
+    mockGetListingReviews.mockResolvedValue([]);
 
-    // structuredLogger.error is called, but we don't verify the exact call here
-    expect(mockNotFound).toHaveBeenCalled();
+    const element = await pageModule.default({ params: Promise.resolve({ slug: 'quiet-lodge' }) });
+    render(element);
+
+    expect(renderListingDetailView).toHaveBeenCalledWith(
+      expect.objectContaining({
+        listing,
+        isSignedIn: false,
+        isFavorited: false,
+        userId: undefined,
+      })
+    );
   });
 
   it('returns graceful metadata when listing is missing', async () => {
-    mockClientFetch.mockResolvedValueOnce(null);
+    mockGetListingBySlug.mockResolvedValueOnce(null);
 
     const pageModule = await importPageModule();
     const metadata = await pageModule.generateMetadata({
@@ -237,8 +244,7 @@ describe('app/listings/[slug]/page', () => {
   });
 
   it('builds metadata from listing details', async () => {
-    mockClientFetch.mockResolvedValueOnce({ _id: 'listing-raw' });
-    mockTransformToDetailDTO.mockReturnValue({
+    mockGetListingBySlug.mockResolvedValueOnce({
       id: 'listing-321',
       name: 'Ocean Escape',
       shortDescription: 'A breezy coastal stay',
@@ -265,24 +271,17 @@ describe('app/listings/[slug]/page', () => {
   it('recovers from related listing and review errors gracefully', async () => {
     const pageModule = await importPageModule();
 
-    mockClientFetch
-      .mockResolvedValueOnce({ _id: 'listing-raw' })
-      .mockRejectedValueOnce(new Error('related failed'))
-      .mockResolvedValueOnce(null);
-
-    mockTransformToDetailDTO.mockReturnValue({
+    const listing = {
       id: 'listing-999',
       name: 'Mountain Base',
       city: { id: 'city-1' },
       galleryImages: [],
-    });
+      slug: 'mountain-base',
+    };
     mockAuth.mockResolvedValue({ user: { id: 'user-7', role: 'venueOwner' } });
-
-    (global.fetch as unknown as jest.Mock).mockResolvedValueOnce({
-      ok: false,
-      status: 500,
-      json: async () => ({ error: 'boom' }),
-    });
+    mockGetListingBySlug.mockResolvedValue(listing);
+    mockGetRelatedListings.mockResolvedValue([]);
+    mockGetListingReviews.mockResolvedValue([]);
 
     const element = await pageModule.default({
       params: Promise.resolve({ slug: 'mountain-base' }),

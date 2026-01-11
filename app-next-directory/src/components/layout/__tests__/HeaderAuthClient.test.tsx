@@ -7,8 +7,8 @@ import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { signOut } from 'next-auth/react';
-import { HeaderAuthClient } from '../HeaderAuthClient';
 import type { AuthUser } from '@/lib/data-access/auth.dal';
+import { HeaderAuthClient } from '../HeaderAuthClient';
 
 // Mock next-auth
 jest.mock('next-auth/react', () => ({
@@ -28,7 +28,8 @@ jest.mock('next/link', () => ({
 // Mock next/image
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: ({ alt, src, ...props }: any) => <img alt={alt} src={src} {...props} />,
+  default: ({ alt, src, ...props }: any) =>
+    require('react').createElement('img', { alt, src, ...props }),
 }));
 
 // Mock lucide-react icons
@@ -71,12 +72,7 @@ describe('HeaderAuthClient', () => {
   describe('Unauthenticated state', () => {
     it('should render sign-in button when not authenticated', () => {
       render(
-        <HeaderAuthClient
-          isAuthenticated={false}
-          isAdmin={false}
-          user={null}
-          displayInfo={null}
-        />
+        <HeaderAuthClient isAuthenticated={false} isAdmin={false} user={null} displayInfo={null} />
       );
 
       const signInLink = screen.getByLabelText('Sign in to your account');
@@ -86,12 +82,7 @@ describe('HeaderAuthClient', () => {
 
     it('should render user icon in sign-in button', () => {
       render(
-        <HeaderAuthClient
-          isAuthenticated={false}
-          isAdmin={false}
-          user={null}
-          displayInfo={null}
-        />
+        <HeaderAuthClient isAuthenticated={false} isAdmin={false} user={null} displayInfo={null} />
       );
 
       expect(screen.getByTestId('icon-user')).toBeInTheDocument();
@@ -239,7 +230,7 @@ describe('HeaderAuthClient', () => {
     it('should show "Signing out..." text while signing out', async () => {
       const user = userEvent.setup();
       let resolveSignOut: () => void;
-      const signOutPromise = new Promise<void>((resolve) => {
+      const signOutPromise = new Promise<void>(resolve => {
         resolveSignOut = resolve;
       });
       mockSignOut.mockReturnValueOnce(signOutPromise as any);
@@ -283,7 +274,7 @@ describe('HeaderAuthClient', () => {
       await user.click(accountButton);
 
       const signOutButton = screen.getByText('Sign out');
-      
+
       // Click multiple times quickly
       await user.click(signOutButton);
       await user.click(signOutButton);

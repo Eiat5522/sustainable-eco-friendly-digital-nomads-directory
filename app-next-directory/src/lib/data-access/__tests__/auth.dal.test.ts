@@ -6,13 +6,13 @@
 import { jest } from '@jest/globals';
 import type { Session } from 'next-auth';
 import {
-  getAuthStatus,
-  getUserDisplayInfo,
-  getIsUserAdmin,
-  getCurrentUserId,
-  isValidRole,
   checkUserAdminRole,
+  getAuthStatus,
+  getCurrentUserId,
+  getIsUserAdmin,
+  getUserDisplayInfo,
   hasPrivilege,
+  isValidRole,
 } from '../auth.dal';
 
 // Mock dependencies
@@ -36,9 +36,9 @@ jest.mock('next/cache', () => ({
   cacheTag: jest.fn(),
 }));
 
+import { cookies } from 'next/headers';
 // Import mocked modules
 import { auth } from '@/lib/auth';
-import { cookies } from 'next/headers';
 import { structuredLogger } from '@/lib/logger';
 
 const mockAuth = auth as jest.MockedFunction<typeof auth>;
@@ -170,7 +170,8 @@ describe('auth.dal', () => {
 
     it('should handle secure cookie token', async () => {
       const mockCookieStore = {
-        get: jest.fn()
+        get: jest
+          .fn()
           .mockReturnValueOnce(undefined) // First call returns undefined
           .mockReturnValueOnce({ value: 'secure-session-token' }), // Second call returns secure token
       };

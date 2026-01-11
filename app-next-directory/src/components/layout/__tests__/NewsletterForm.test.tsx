@@ -8,6 +8,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
+import { structuredLogger } from '@/lib/logger';
 import { NewsletterForm } from '../NewsletterForm';
 
 // Mock next/navigation
@@ -238,12 +239,14 @@ describe('NewsletterForm', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/unable to proceed\. please try again or enable storage/i)
-      ).toBeInTheDocument();
+      expect(mockPush).toHaveBeenCalledWith('/contact-us?type=newsletter');
     });
 
-    expect(mockPush).not.toHaveBeenCalled();
+    expect(structuredLogger.warn).toHaveBeenCalledTimes(1);
+    expect(structuredLogger.warn).toHaveBeenCalledWith(
+      'Failed to store email in sessionStorage:',
+    );
+    expect(screen.queryByText(/unable to proceed/i)).not.toBeInTheDocument();
   });
 
   it('should have aria-invalid attribute initially set to false', () => {
@@ -256,9 +259,7 @@ describe('NewsletterForm', () => {
   it('should render newsletter description', () => {
     render(<NewsletterForm />);
 
-    expect(
-      screen.getByText(/get weekly updates on new sustainable venues/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/get weekly updates on new sustainable venues/i)).toBeInTheDocument();
   });
 
   it('should have screen reader help text', () => {

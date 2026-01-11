@@ -14,6 +14,7 @@ import type {
   CityResponse,
 } from '@/types/api-responses';
 import type { SearchParamRecord } from '@/types/search';
+import { structuredLogger } from '@/lib/logger'
 
 function toStringArray(value: string | string[] | undefined): string[] {
   if (value === undefined) return [];
@@ -83,10 +84,7 @@ export function SearchFiltersForm({
 }: SearchFiltersFormProps) {
   const router = useRouter();
 
-  const initialValues = React.useMemo(
-    () => deriveInitialValues(initialParams),
-    [initialParams]
-  );
+  const initialValues = React.useMemo(() => deriveInitialValues(initialParams), [initialParams]);
 
   const [searchTerm, setSearchTerm] = React.useState(initialValues.searchTerm);
   const [selectedCities, setSelectedCities] = React.useState<string[]>(initialValues.cities);
@@ -229,6 +227,7 @@ export function SearchFiltersForm({
         setAmenityOptions(amenityOpts);
       } catch (_error) {
         if (process.env.NODE_ENV === 'development') {
+          structuredLogger.warn('Failed to load filter options:', _error);
         }
       }
     }

@@ -6,9 +6,9 @@
 /** @jest-environment jsdom */
 
 import '@testing-library/jest-dom';
-import { render, screen, within } from '@testing-library/react';
 import { jest } from '@jest/globals';
-import type { SearchFetchSuccess, SearchFetchError } from '@/lib/data-access/search.dal';
+import { render, screen, within } from '@testing-library/react';
+import type { SearchFetchError, SearchFetchSuccess } from '@/lib/data-access/search.dal';
 
 // Mock the DAL functions
 const mockExecuteSearch = jest.fn();
@@ -31,7 +31,7 @@ jest.mock('@/components/layout/PageLayoutServer', () => ({
 jest.mock('@/components/listings/ListingGrid', () => ({
   ListingGrid: ({ listings }: { listings: any[] }) => (
     <div data-testid="listing-grid">
-      {listings.map((listing) => (
+      {listings.map(listing => (
         <div key={listing.id} data-testid={`listing-${listing.id}`}>
           {listing.name}
         </div>
@@ -51,7 +51,11 @@ jest.mock('@/components/search/SearchFiltersForm', () => ({
 jest.mock('@/components/ui/neo-button', () => ({
   NeoButton: ({ children, asChild, disabled, variant, size, type, ...props }: any) => {
     if (asChild) {
-      return <span data-variant={variant} data-size={size} {...props}>{children}</span>;
+      return (
+        <span data-variant={variant} data-size={size} {...props}>
+          {children}
+        </span>
+      );
     }
     return (
       <button type={type} disabled={disabled} data-variant={variant} data-size={size} {...props}>
@@ -283,7 +287,7 @@ describe('app/search/results/page.tsx', () => {
 
       const pageLinks = screen.getAllByRole('link');
       const currentPageLink = pageLinks.find(
-        (link) => link.textContent === '3' && link.getAttribute('aria-current') === 'page'
+        link => link.textContent === '3' && link.getAttribute('aria-current') === 'page'
       );
       expect(currentPageLink).toBeDefined();
     });
@@ -317,14 +321,16 @@ describe('app/search/results/page.tsx', () => {
 
       const options = within(pageSizeSelect as HTMLElement).getAllByRole('option');
       expect(options).toHaveLength(4);
-      expect(options.map((o) => o.textContent)).toEqual(['12', '24', '48', '96']);
+      expect(options.map(o => o.textContent)).toEqual(['12', '24', '48', '96']);
     });
 
     it('should show selected page size in selector', async () => {
       const ResultsPage = (await import('../page')).default;
       render(await ResultsPage({ searchParams: { limit: 24 } }));
 
-      const pageSizeSelect = screen.getByRole('combobox', { name: /per page/i }) as HTMLSelectElement;
+      const pageSizeSelect = screen.getByRole('combobox', {
+        name: /per page/i,
+      }) as HTMLSelectElement;
       expect(pageSizeSelect.value).toBe('24');
     });
 

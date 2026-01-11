@@ -13,6 +13,29 @@ import type { SearchParamRecord } from '@/types/search';
 
 type ResultsPageProps = { searchParams: SearchParamRecord | Promise<SearchParamRecord> };
 
+function PaginationButton({
+  label,
+  href,
+  disabled,
+}: {
+  label: string;
+  href?: string | null;
+  disabled?: boolean;
+}) {
+  if (disabled || !href) {
+    return (
+      <NeoButton variant="outline" size="sm" disabled>
+        {label}
+      </NeoButton>
+    );
+  }
+  return (
+    <NeoButton asChild variant="outline" size="sm">
+      <Link href={href}>{label}</Link>
+    </NeoButton>
+  );
+}
+
 export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   const resolvedSearchParams = (await searchParams) ?? {};
   const basePath = '/search/results';
@@ -81,85 +104,77 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
                     <input
                       key={`${key}-${index}`}
                       type="hidden"
-                    name={key}
-                    value={String(entry).slice(0, MAX_PARAM_VALUE_LENGTH)}
-                  />
-                ))
-              : value !== undefined && (
-                  <input
-                    key={key}
-                    type="hidden"
-                    name={key}
-                    value={String(value).slice(0, MAX_PARAM_VALUE_LENGTH)}
-                  />
-                );
-          })}
-          <label htmlFor="page-size" className="body-sm">
-            Per page
-          </label>
-          <select
-            id="page-size"
-            name="limit"
-            defaultValue={String(limit)}
-            className="neo-input border-2 border-neo-border rounded px-2 py-1"
-          >
-            {pageSizeOptions.map(size => (
-              <option key={size} value={size}>
-                {size}
-              </option>
-            ))}
-          </select>
-          <input type="hidden" name="page" value="1" />
-          <NeoButton type="submit" variant="outline" size="sm">
-            Apply
-          </NeoButton>
-        </form>
-      </div>
-
-      {listings.length === 0 ? (
-        <p className="text-neo-text-secondary" data-testid="no-results">
-          No results found.
-        </p>
-      ) : (
-        <div data-testid="search-results">
-          <ListingGrid listings={listings} />
-        </div>
-      )}
-
-      <div className="flex items-center justify-center gap-2 mt-8">
-        <NeoButton asChild variant="outline" size="sm" disabled={!prevLink}>
-          <Link href={prevLink || '#'} aria-disabled={!prevLink}>
-            Prev
-          </Link>
-        </NeoButton>
-        {pages.map((value, index) =>
-          value === '…' ? (
-            <span key={`ellipsis-${index}`} className="px-2">
-              …
-            </span>
-          ) : (
-            <NeoButton
-              key={`page-${value}`}
-              asChild
-              variant={value === page ? 'primary' : 'outline'}
-              size="sm"
+                      name={key}
+                      value={String(entry).slice(0, MAX_PARAM_VALUE_LENGTH)}
+                    />
+                  ))
+                : value !== undefined && (
+                    <input
+                      key={key}
+                      type="hidden"
+                      name={key}
+                      value={String(value).slice(0, MAX_PARAM_VALUE_LENGTH)}
+                    />
+                  );
+            })}
+            <label htmlFor="page-size" className="body-sm">
+              Per page
+            </label>
+            <select
+              id="page-size"
+              name="limit"
+              defaultValue={String(limit)}
+              className="neo-input border-2 border-neo-border rounded px-2 py-1"
             >
-              <Link
-                href={buildSearchHref(basePath, resolvedSearchParams, { page: String(value) })}
-                aria-current={value === page ? 'page' : undefined}
-              >
-                {value}
-              </Link>
+              {pageSizeOptions.map(size => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+            <input type="hidden" name="page" value="1" />
+            <NeoButton type="submit" variant="outline" size="sm">
+              Apply
             </NeoButton>
-          )
+          </form>
+        </div>
+
+        {listings.length === 0 ? (
+          <p className="text-neo-text-secondary" data-testid="no-results">
+            No results found.
+          </p>
+        ) : (
+          <div data-testid="search-results">
+            <ListingGrid listings={listings} />
+          </div>
         )}
-        <NeoButton asChild variant="outline" size="sm" disabled={!nextLink}>
-          <Link href={nextLink || '#'} aria-disabled={!nextLink}>
-            Next
-          </Link>
-        </NeoButton>
+
+        <div className="flex items-center justify-center gap-2 mt-8">
+          <PaginationButton label="Prev" href={prevLink} />
+          {pages.map((value, index) =>
+            value === '…' ? (
+              <span key={`ellipsis-${index}`} className="px-2">
+                …
+              </span>
+            ) : (
+              <NeoButton
+                key={`page-${value}`}
+                asChild
+                variant={value === page ? 'primary' : 'outline'}
+                size="sm"
+              >
+                <Link
+                  href={buildSearchHref(basePath, resolvedSearchParams, { page: String(value) })}
+                  aria-current={value === page ? 'page' : undefined}
+                >
+                  {value}
+                </Link>
+              </NeoButton>
+            )
+          )}
+          <PaginationButton label="Next" href={nextLink} />
+        </div>
       </div>
-    </div>
     </PageLayoutServer>
   );
 }

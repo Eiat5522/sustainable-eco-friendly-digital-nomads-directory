@@ -460,9 +460,7 @@ export async function getSearchFacets(): Promise<SearchFacets> {
  * @param searchParams - The search parameters
  * @returns SearchFetchResult with listings or error
  */
-export async function executeSearch(
-  searchParams: SearchParamRecord
-): Promise<SearchFetchResult> {
+export async function executeSearch(searchParams: SearchParamRecord): Promise<SearchFetchResult> {
   'use cache';
   cacheLife('minutes'); // Short cache for search results
   cacheTag('search-results', 'listings');
@@ -570,10 +568,7 @@ export async function getSearchPageData(searchParams: SearchParamRecord): Promis
   results: SearchFetchResult;
 }> {
   // Fetch facets and results in parallel
-  const [facets, results] = await Promise.all([
-    getSearchFacets(),
-    executeSearch(searchParams),
-  ]);
+  const [facets, results] = await Promise.all([getSearchFacets(), executeSearch(searchParams)]);
 
   return { facets, results };
 }

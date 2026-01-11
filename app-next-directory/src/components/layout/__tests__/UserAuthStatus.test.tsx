@@ -25,8 +25,8 @@ jest.mock('../HeaderAuthClient', () => ({
 
 // Mock auth DAL - note these are async functions
 jest.mock('@/lib/data-access/auth.dal', () => ({
-  getAuthStatus: jest.fn(),
-  getUserDisplayInfo: jest.fn(),
+  getAuthStatus: jest.fn().mockResolvedValue({ isAuthenticated: true, isAdmin: false }),
+  getUserDisplayInfo: jest.fn().mockResolvedValue({ displayName: 'Test User' }),
 }));
 
 describe('UserAuthStatus', () => {
@@ -43,7 +43,7 @@ describe('UserAuthStatus', () => {
 
     const skeleton = screen.getByRole('status', { hidden: true });
     expect(skeleton).toHaveAttribute('aria-busy', 'true');
-    
+
     const srText = screen.getByText('Loading authentication status');
     expect(srText).toHaveClass('sr-only');
   });
@@ -69,10 +69,13 @@ describe('UserAuthStatus', () => {
     );
   });
 
-  it('should wrap content in Suspense boundary', () => {
-    const { container } = render(<UserAuthStatus />);
+  it('should render HeaderAuthClient with mocked auth data after loading', async () => {
+    render(<UserAuthStatus />);
 
-    // Suspense renders a fallback, which is our skeleton
-    expect(container.querySelector('[role="status"]')).toBeInTheDocument();
+    const authClient = await screen.findByTestId('header-auth-client');
+    expect(authClient).toBeInTheDocument();
+
+    expect(screen.getByTestId('is-authenticated')).toHaveTextContent('true');
+    expect(screen.getByTestId('is-admin')).toHaveTextContent('false');
   });
 });

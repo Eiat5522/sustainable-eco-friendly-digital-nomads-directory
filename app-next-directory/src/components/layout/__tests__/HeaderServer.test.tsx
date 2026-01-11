@@ -20,9 +20,8 @@ jest.mock('../UserAuthStatus', () => ({
 
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: ({ alt, src, ...props }: any) => (
-    <img alt={alt} src={src} data-testid="next-image" {...props} />
-  ),
+  default: ({ alt, src, ...props }: any) =>
+    require('react').createElement('img', { alt, src, 'data-testid': 'next-image', ...props }),
 }));
 
 jest.mock('next/link', () => ({
@@ -47,10 +46,10 @@ describe('HeaderServer', () => {
     render(<HeaderServer />);
 
     const links = screen.getAllByRole('link');
-    const homeLink = links.find((link) => link.textContent === 'Home');
-    const searchLink = links.find((link) => link.textContent === 'Search');
-    const blogLink = links.find((link) => link.textContent === 'Blog');
-    const contactLink = links.find((link) => link.textContent === 'Contact Us');
+    const homeLink = links.find(link => link.textContent === 'Home');
+    const searchLink = links.find(link => link.textContent === 'Search');
+    const blogLink = links.find(link => link.textContent === 'Blog');
+    const contactLink = links.find(link => link.textContent === 'Contact Us');
 
     expect(homeLink).toHaveAttribute('href', '/');
     expect(searchLink).toHaveAttribute('href', '/search');
@@ -97,7 +96,7 @@ describe('HeaderServer', () => {
     render(<HeaderServer />);
 
     const links = screen.getAllByRole('link');
-    const homeLink = links.find((link) => link.textContent === 'Home');
+    const homeLink = links.find(link => link.textContent === 'Home');
     expect(homeLink).toHaveClass('body-md', 'hover:text-neo-primary');
   });
 });

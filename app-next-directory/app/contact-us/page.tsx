@@ -60,8 +60,7 @@ function ContactForm() {
   const [submitMessage, setSubmitMessage] = useState('');
   const [submitStatus, setSubmitStatus] = useState<'success' | 'error' | null>(null);
 
-useEffect(() => {
-  try {
+  useEffect(() => {
     const emailFromSession = sessionStorage.getItem('newsletter-email');
     if (emailFromSession) {
       setEmail(emailFromSession);
@@ -69,8 +68,7 @@ useEffect(() => {
     } else {
       setEmail(initialEmail || '');
     }
-     
-  }, [initialEmail, initialType]);
+  }, [initialEmail]);
 
   const validate = () => {
     const schema = enquiryType === 'general' ? contactFormSchema : newsletterSchema;

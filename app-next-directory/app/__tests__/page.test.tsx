@@ -10,9 +10,7 @@ import HomePage from '../page';
 
 // Mock the home page data module using the root alias
 jest.mock('../../__mocks__/homePageData', () => ({
-  MOCK_FEATURED_LISTINGS: [
-    { id: 'mock-1', name: 'Mock Listing 1', slug: 'mock-1' },
-  ],
+  MOCK_FEATURED_LISTINGS: [{ id: 'mock-1', name: 'Mock Listing 1', slug: 'mock-1' }],
   MOCK_CITIES: [{ id: 'mock-city-1', name: 'Mock City 1', slug: 'mock-city-1' }],
 }));
 
@@ -101,7 +99,7 @@ describe('HomePage', () => {
   it('renders all sections in correct order', async () => {
     const page = await HomePage();
     const { container } = render(page);
-    
+
     // Check that key sections exist
     expect(screen.getByTestId('page-layout-server')).toBeInTheDocument();
     expect(screen.getByTestId('hero-section')).toBeInTheDocument();
@@ -112,7 +110,7 @@ describe('HomePage', () => {
   it('uses Suspense boundaries for dynamic sections', async () => {
     const page = await HomePage();
     const { container } = render(page);
-    
+
     // Suspense fallbacks should be visible
     expect(screen.getByText(/loading featured venues/i)).toBeInTheDocument();
     expect(screen.getByText(/loading cities/i)).toBeInTheDocument();
@@ -121,10 +119,10 @@ describe('HomePage', () => {
   it('wraps sections in PageLayoutServer', async () => {
     const page = await HomePage();
     render(page);
-    
+
     const layout = screen.getByTestId('page-layout-server');
     expect(layout).toBeInTheDocument();
-    
+
     // Hero and suspense content should be children of the layout
     expect(layout).toContainElement(screen.getByTestId('hero-section'));
   });

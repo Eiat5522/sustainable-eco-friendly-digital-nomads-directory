@@ -12,7 +12,7 @@ const searchFiltersRenderMock = jest.fn(({ initialParams }: any) => (
   <div data-testid="search-filters-form">{JSON.stringify(initialParams)}</div>
 ));
 
-const fetchSearchResultsMock = jest.fn();
+const executeSearchMock = jest.fn();
 
 jest.mock('@/components/ui/neo-button', () => ({
   NeoButton: ({ children, asChild = false, ...props }: any) =>
@@ -36,9 +36,13 @@ jest.mock('next/link', () => ({
   ),
 }));
 
-jest.mock('./server', () => ({
-  fetchSearchResults: (...args: unknown[]) => fetchSearchResultsMock(...args),
-}));
+jest.mock('@/lib/data-access/search.dal', () => {
+  const actual = jest.requireActual('@/lib/data-access/search.dal');
+  return {
+    ...actual,
+    executeSearch: (...args: unknown[]) => executeSearchMock(...args),
+  };
+});
 
 describe('Search results page module', () => {
   let ResultsPage: typeof import('./page')['default'];
@@ -61,7 +65,7 @@ describe('Search results page module', () => {
   });
 
   it('renders listings when the backend returns results', async () => {
-    fetchSearchResultsMock.mockResolvedValueOnce({
+    executeSearchMock.mockResolvedValueOnce({
       ok: true,
       listings: [
         {
@@ -77,14 +81,14 @@ describe('Search results page module', () => {
       pages: [1, 2, 3],
     });
 
-    const ui = await ResultsPage({ searchParams: Promise.resolve({ city: 'lisbon' }) });
+    const ui = await ResultsPage({ searchParams: Promise.resolve({ destination: 'lisbon' }) });
     render(ui);
 
     const listings = JSON.parse(screen.getByTestId('listing-grid').textContent || '[]');
     expect(listings).toHaveLength(1);
     expect(listings[0]).toMatchObject({ id: 'listing-123', name: 'Eco Hub', slug: 'eco-hub' });
     expect(searchFiltersRenderMock).toHaveBeenCalledWith(
-      expect.objectContaining({ initialParams: { city: 'lisbon' } })
+      expect.objectContaining({ initialParams: { destination: 'lisbon' } })
     );
 
     expect(screen.getByText('Showing page 2 of 3')).toBeInTheDocument();
@@ -99,7 +103,7 @@ describe('Search results page module', () => {
   });
 
   it('renders an error state when the backend returns an error response', async () => {
-    fetchSearchResultsMock.mockResolvedValueOnce({
+    executeSearchMock.mockResolvedValueOnce({
       ok: false,
       reason: 'response',
       status: 500,
@@ -131,7 +135,7 @@ describe('Search results page module', () => {
   });
 
   it('handles thrown errors from the backend helper', async () => {
-    fetchSearchResultsMock.mockResolvedValueOnce({
+    executeSearchMock.mockResolvedValueOnce({
       ok: false,
       reason: 'exception',
     });
@@ -158,7 +162,7 @@ describe('Search results page module', () => {
   });
 
   it('builds pagination links and preserves existing search parameters', async () => {
-    fetchSearchResultsMock.mockResolvedValueOnce({
+    executeSearchMock.mockResolvedValueOnce({
       ok: true,
       listings: [
         {
@@ -173,7 +177,7 @@ describe('Search results page module', () => {
     });
 
     const searchParams = Promise.resolve({
-      city: 'lisbon',
+      destination: 'lisbon',
       tags: ['wifi', 'vegan'],
       page: '2',
       limit: '24',
@@ -185,7 +189,7 @@ describe('Search results page module', () => {
     expect(screen.getByText('Showing page 2 of 4')).toBeInTheDocument();
     const prevLink = screen.getByRole('link', { name: /prev/i });
     expect(prevLink).toHaveAttribute('href', expect.stringContaining('page=1'));
-    expect(prevLink).toHaveAttribute('href', expect.stringContaining('city=lisbon'));
+    expect(prevLink).toHaveAttribute('href', expect.stringContaining('destination=lisbon'));
     expect(prevLink).toHaveAttribute('href', expect.stringContaining('tags=wifi'));
 
     const nextLink = screen.getByRole('link', { name: /next/i });
@@ -243,7 +247,7 @@ describe('Search results page module', () => {
   });
 
   it('handles single-page results gracefully', async () => {
-    fetchSearchResultsMock.mockResolvedValueOnce({
+    executeSearchMock.mockResolvedValueOnce({
       ok: true,
       listings: [{ id: '1', name: 'Single Listing', slug: 'single-listing', category: 'cafe' }],
       pagination: { page: 1, totalPages: 1, hasMore: false, limit: 12, total: 1 },
@@ -262,7 +266,7 @@ describe('Search results page module', () => {
   });
 
   it('sanitizes the retry search parameter', async () => {
-    fetchSearchResultsMock.mockResolvedValueOnce({
+    executeSearchMock.mockResolvedValueOnce({
       ok: false,
       reason: 'response',
       status: 500,
@@ -276,7 +280,7 @@ describe('Search results page module', () => {
   });
 
   it('displays a message when no results are found', async () => {
-    fetchSearchResultsMock.mockResolvedValueOnce({
+    executeSearchMock.mockResolvedValueOnce({
       ok: true,
       listings: [],
       pagination: { page: 1, totalPages: 1, hasMore: false, limit: 12, total: 0 },
@@ -287,6 +291,6 @@ describe('Search results page module', () => {
     const ui = await ResultsPage({ searchParams: Promise.resolve({}) });
     render(ui);
 
-    expect(screen.getByText('No results found.')).toBeInTheDocument();
+    expect(screen.getByTestId('no-results')).toBeInTheDocument();
   });
 });

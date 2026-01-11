@@ -83,7 +83,7 @@ describe('SearchFiltersForm', () => {
       return Promise.reject(new Error('not found'));
     });
 
-    render(<SearchFiltersForm />);
+    render(<SearchFiltersForm initialParams={{}} />);
 
     await waitFor(() => {
       expect(screen.getByText('Select cities')).toBeInTheDocument();
@@ -94,10 +94,22 @@ describe('SearchFiltersForm', () => {
 
   it('submits the form and navigates to the results page', async () => {
     fetchMock.mockResolvedValue(new Response(JSON.stringify({}), { status: 200 }));
-    render(<SearchFiltersForm />);
+    render(<SearchFiltersForm initialParams={{}} />);
 
-    fireEvent.change(screen.getByPlaceholderText('Search by name, city, or amenities'), {
+    const searchInput = screen.getByPlaceholderText('Search by name, city, or amenities');
+
+await waitFor(() => {
+  expect(screen.getByTestId('filter-select-cities')).toBeInTheDocument();
+  expect(screen.getByTestId('filter-select-workspace-types')).toBeInTheDocument();
+  expect(screen.getByTestId('filter-select-amenities')).toBeInTheDocument();
+});
+
+    fireEvent.change(searchInput, {
       target: { value: 'new search' },
+    });
+
+    await waitFor(() => {
+      expect(searchInput).toHaveValue('new search');
     });
 
     fireEvent.submit(screen.getByTestId('search-form'));
@@ -115,16 +127,30 @@ describe('SearchFiltersForm', () => {
 
   it('submits the form with filters and navigates to the results page', async () => {
     fetchMock.mockResolvedValue(new Response(JSON.stringify({}), { status: 200 }));
-    render(<SearchFiltersForm />);
+    render(<SearchFiltersForm initialParams={{}} />);
 
-    fireEvent.change(screen.getByTestId('filter-select-cities'), {
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(3);
+    });
+
+    const citiesInput = screen.getByTestId('filter-select-cities');
+    const categoriesInput = screen.getByTestId('filter-select-workspace-types');
+    const amenitiesInput = screen.getByTestId('filter-select-amenities');
+
+    fireEvent.change(citiesInput, {
       target: { value: 'Testville' },
     });
-    fireEvent.change(screen.getByTestId('filter-select-workspace-types'), {
+    fireEvent.change(categoriesInput, {
       target: { value: 'Coworking' },
     });
-    fireEvent.change(screen.getByTestId('filter-select-amenities'), {
+    fireEvent.change(amenitiesInput, {
       target: { value: 'WiFi' },
+    });
+
+    await waitFor(() => {
+      expect(citiesInput).toHaveValue('Testville');
+      expect(categoriesInput).toHaveValue('Coworking');
+      expect(amenitiesInput).toHaveValue('WiFi');
     });
 
     fireEvent.submit(screen.getByTestId('search-form'));

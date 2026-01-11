@@ -3,20 +3,21 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import SearchPage from '../page';
+import React from 'react';
 
 // Mock the SearchFiltersForm component
 jest.mock('@/components/search/SearchFiltersForm', () => ({
-  SearchFiltersForm: jest.fn(({ initialParams }) => (
-    <div data-testid="search-filters-form">{JSON.stringify(initialParams)}</div>
-  )),
+  SearchFiltersForm: jest.fn(({ initialParams }) =>
+    React.createElement('div', { 'data-testid': 'search-filters-form' }, JSON.stringify(initialParams))
+  ),
 }));
 
 // Mock Header and Footer
 jest.mock('@/components/layout/Header', () => ({
-  Header: () => <header data-testid="header" />,
+ Header: () => React.createElement('header', { 'data-testid': 'header' }),
 }));
 jest.mock('@/components/layout/Footer', () => ({
-  Footer: () => <footer data-testid="footer" />,
+ Footer: () => React.createElement('footer', { 'data-testid': 'footer' }),
 }));
 
 describe('SearchPage', () => {

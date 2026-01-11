@@ -121,13 +121,15 @@ describe('ContactUsPage', () => {
   });
 
   it('prefills newsletter email from session storage and validates newsletter schema', async () => {
-    sessionStorage.setItem('newsletterEmail', 'stored@example.com');
+    sessionStorage.setItem('newsletter-email', 'stored@example.com');
     mockUseSearchParams.mockReturnValue(new URLSearchParams('type=newsletter'));
 
     render(<ContactUsPage />);
 
     const emailInput = await screen.findByTestId('contact-email');
-    expect((emailInput as HTMLInputElement).value).toBe('stored@example.com');
+    await waitFor(() => {
+      expect((emailInput as HTMLInputElement).value).toBe('stored@example.com');
+    });
 
     fireEvent.change(emailInput, { target: { value: 'invalid-email' } });
     fireEvent.click(screen.getByTestId('contact-submit'));

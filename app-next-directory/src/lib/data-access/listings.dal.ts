@@ -17,7 +17,7 @@ import { cacheLife, cacheTag } from 'next/cache';
 import { groq } from 'next-sanity';
 import { cache } from 'react';
 import { transformToDetailDTO } from '@/lib/dto-transformer';
-import { structuredLogger as logger } from '@/lib/logger';
+import { structuredLogger } from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
 import type { CityDTO, ListingDetailDTO } from '@/types/dto';
 import type { SanityListing } from '@/types/sanity.types';
@@ -129,12 +129,12 @@ async function fetchFromSanity<T>(
     return await fetchClient.fetch<T>(query, params);
   } catch (err: unknown) {
     if (isBuildMode && isPrerenderRejection(err)) {
-      logger.warn('Sanity fetch rejected during prerender; using fallback', {
+      structuredLogger.warn('Sanity fetch rejected during prerender; using fallback', {
         component: 'listings.dal',
       });
       return null;
     }
-    logger.error('Sanity fetch failed', {
+    structuredLogger.error('Sanity fetch failed', {
       component: 'listings.dal',
       error: err,
     });
@@ -206,14 +206,14 @@ export const getListingBySlug = cache(async (slug: string): Promise<ListingDetai
     try {
       return transformToDetailDTO(raw);
     } catch (e) {
-      logger.error('Failed to transform listing payload', e, {
+      structuredLogger.error('Failed to transform listing payload', e, {
         slug,
         component: 'listings.dal',
       });
       return null;
     }
   } catch (error) {
-    logger.error('Failed to fetch listing details', error, {
+    structuredLogger.error('Failed to fetch listing details', error, {
       component: 'listings.dal',
       slug,
     });
@@ -261,7 +261,7 @@ export async function getRelatedListings(
       };
     });
   } catch (error) {
-    logger.error('Failed to fetch related listings', error, {
+    structuredLogger.error('Failed to fetch related listings', error, {
       component: 'listings.dal',
       cityId,
       excludeId,
@@ -297,7 +297,7 @@ export async function getPopularListingSlugs(): Promise<Array<{ slug: string }>>
     // If no listings exist at all, return a placeholder
     return [{ slug: 'placeholder-listing' }];
   } catch (error) {
-    logger.error('Failed to generate static params for listings', error, {
+    structuredLogger.error('Failed to generate static params for listings', error, {
       component: 'listings.dal',
     });
     return [{ slug: 'placeholder-listing' }];
