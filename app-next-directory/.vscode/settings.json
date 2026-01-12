@@ -18,5 +18,9 @@
   "editor.experimental.preferTreeSitter.typescript": true,
   "[json]": {
     "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
+  },
+  "sonarlint.connectedMode.project": {
+    "connectionId": "eiat5522",
+    "projectKey": "Eiat5522_sustainable-eco-friendly-digital-nomads-directory"
   }
 }

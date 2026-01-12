@@ -16,21 +16,20 @@ interface DigitalNomadSearchProps {
   onSearch?: (query: string) => void;
 }
 
-export function DigitalNomadSearch({
-  placeholder = 'Search listings...',
+function DigitalNomadSearchForm({
+  urlQuery,
+  placeholder,
   onSearch,
-}: DigitalNomadSearchProps) {
+  searchParams,
+}: {
+  urlQuery: string;
+  placeholder: string;
+  onSearch?: (query: string) => void;
+  searchParams: ReturnType<typeof useSearchParams>;
+}) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const urlQuery = searchParams.get('q') ?? '';
   const [query, setQuery] = useState(urlQuery);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Sync with URL changes (e.g., back/forward navigation)
-  useEffect(() => {
-    setQuery(urlQuery);
-    setIsSubmitting(false);
-  }, [urlQuery]);
 
   // Safety net to re-enable the button if navigation doesn't change params
   useEffect(() => {
@@ -43,7 +42,6 @@ export function DigitalNomadSearch({
   const performSearch = useCallback(
     (q: string) => {
       const trimmedQuery = q.trim();
-      // Update query string and notify parent
       const params = new URLSearchParams(Array.from(searchParams.entries()));
       if (trimmedQuery) params.set('q', trimmedQuery);
       else params.delete('q');
@@ -82,6 +80,24 @@ export function DigitalNomadSearch({
         {isSubmitting ? 'Searching...' : 'Search'}
       </NeoButton>
     </form>
+  );
+}
+
+export function DigitalNomadSearch({
+  placeholder = 'Search listings...',
+  onSearch,
+}: DigitalNomadSearchProps) {
+  const searchParams = useSearchParams();
+  const urlQuery = searchParams.get('q') ?? '';
+
+  return (
+    <DigitalNomadSearchForm
+      key={urlQuery}
+      urlQuery={urlQuery}
+      placeholder={placeholder}
+      onSearch={onSearch}
+      searchParams={searchParams}
+    />
   );
 }
 

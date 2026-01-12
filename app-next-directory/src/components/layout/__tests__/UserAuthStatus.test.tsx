@@ -2,10 +2,9 @@
  * Unit tests for UserAuthStatus.tsx
  * Tests the server component that fetches auth status and wraps it in Suspense
  */
-
 import '@testing-library/jest-dom';
 import { act, render, screen } from '@testing-library/react';
-import { getUserDisplayInfo } from '@/lib/user-display';
+import { getUserDisplayInfo } from '../../../lib/user-display';
 import UserAuthStatus from '../UserAuthStatus';
 
 // Mock HeaderAuthClient
@@ -13,11 +12,17 @@ jest.mock('../HeaderAuthClient', () => ({
   HeaderAuthClient: ({
     isAuthenticated,
     isAdmin,
+    user: _user,
+    displayInfo: _displayInfo,
+    className,
   }: {
     isAuthenticated: boolean;
     isAdmin: boolean;
+    user?: unknown;
+    displayInfo?: unknown;
+    className?: string;
   }) => (
-    <div data-testid="header-auth-client">
+    <div data-testid="header-auth-client" className={className}>
       <span data-testid="is-authenticated">{String(isAuthenticated)}</span>
       <span data-testid="is-admin">{String(isAdmin)}</span>
     </div>
@@ -76,17 +81,22 @@ describe('UserAuthStatus', () => {
     );
   });
 
+  it('should call getUserDisplayInfo with user data', async () => {
+    await act(async () => {
+      render(<UserAuthStatus />);
+    });
+
+    await screen.findByTestId('header-auth-client');
+
+    expect(getUserDisplayInfo).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Test User' }),
+      'your account'
+    );
+  });
+
   it('should render HeaderAuthClient with mocked auth data after loading', async () => {
-    render(<UserAuthStatus />);
-
-    it('should call getUserDisplayInfo with user data', async () => {
-      await act(async () => {
-        render(<UserAuthStatus />);
-      });
-
-      await screen.findByTestId('header-auth-client');
-
-      expect(getUserDisplayInfo).toHaveBeenCalledWith({ name: 'Test User' });
+    await act(async () => {
+      render(<UserAuthStatus />);
     });
 
     const authClient = await screen.findByTestId('header-auth-client');

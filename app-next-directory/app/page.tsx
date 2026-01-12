@@ -14,8 +14,11 @@ const isE2ERun = process.env.NEXT_PUBLIC_E2E === '1' || process.env.E2E === '1';
  * Featured listings section with data from DAL
  * Uses 'use cache' via DAL for optimal caching
  */
-async function FeaturedListingsSection() {
+async function FeaturedListingsSection({ forceFeaturedFetch }: { forceFeaturedFetch: boolean }) {
   if (isE2ERun) {
+    if (forceFeaturedFetch) {
+      return <FeaturedListingsLegacy initialListings={null} />;
+    }
     // Pass mock data for E2E tests - ensures data fetching logic (DTO mapping, etc.) is tested
     return <FeaturedListingsLegacy initialListings={MOCK_FEATURED_LISTINGS} />;
   }
@@ -26,7 +29,7 @@ async function FeaturedListingsSection() {
   } catch (error) {
     structuredLogger.error('Failed to fetch featured listings:', { error });
   }
-  
+
   // Use new server component with pre-fetched data
   return <FeaturedListings listings={listings ?? []} />;
 }
@@ -50,7 +53,15 @@ async function CityCarouselSection() {
   return <CityCarousel initialCities={cities} />;
 }
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams?: { forceFeaturedFetch?: string | string[] };
+}) {
+  const forceFeaturedFetch = Array.isArray(searchParams?.forceFeaturedFetch)
+    ? searchParams?.forceFeaturedFetch.includes('1')
+    : searchParams?.forceFeaturedFetch === '1';
+
   return (
     <PageLayoutServer>
       <HeroSection />
@@ -65,7 +76,7 @@ export default async function HomePage() {
           </section>
         }
       >
-        <FeaturedListingsSection />
+        <FeaturedListingsSection forceFeaturedFetch={forceFeaturedFetch} />
       </Suspense>
       <Suspense
         fallback={

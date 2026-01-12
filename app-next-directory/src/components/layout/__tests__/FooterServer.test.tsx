@@ -12,6 +12,10 @@ jest.mock('../NewsletterForm', () => ({
   NewsletterForm: () => <div data-testid="newsletter-form">Newsletter Form</div>,
 }));
 
+jest.mock('../FooterYear', () => ({
+  FooterYear: () => <span data-testid="footer-year">2024</span>,
+}));
+
 jest.mock('next/link', () => ({
   __esModule: true,
   default: ({ children, href, ...props }: any) => (
@@ -33,11 +37,6 @@ jest.mock('lucide-react', () => ({
 }));
 
 describe('FooterServer', () => {
-  beforeEach(() => {
-    // Mock the current year to be consistent
-    jest.spyOn(Date.prototype, 'getFullYear').mockReturnValue(2024);
-  });
-
   afterEach(() => {
     jest.restoreAllMocks();
   });
@@ -138,7 +137,9 @@ describe('FooterServer', () => {
   it('should display current year in copyright', () => {
     render(<FooterServer />);
 
-    expect(screen.getByText(/© 2024 SustainableNomads/i)).toBeInTheDocument();
+    expect(screen.getByTestId('footer-year')).toBeInTheDocument();
+    expect(screen.getByTestId('footer-year')).toHaveTextContent('2024');
+    expect(screen.getByText(/SustainableNomads\. All rights reserved\./i)).toBeInTheDocument();
   });
 
   it('should render brand name and tagline', () => {

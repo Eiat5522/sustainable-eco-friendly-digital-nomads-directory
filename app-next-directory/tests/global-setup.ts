@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
 import { chromium, type Page } from '@playwright/test';
-import type { Role } from '@/models/User';
+import type { Role } from '../src/models/User';
 import { loginAs } from './utils/test-utils';
 
 /**
@@ -28,7 +28,7 @@ async function captureDebugArtifacts(page: Page, prefix: string, storageDir: str
   }
 }
 
-const DEFAULT_E2E_PASSWORD = 'TestSecurePass123!';
+const DEFAULT_E2E_PASSWORD = process.env.E2E_DEFAULT_PASSWORD?.trim() || 'TestSecurePass123!';
 
 async function seedE2EUser(
   baseURL: string,
@@ -56,6 +56,37 @@ async function seedE2EUser(
   }
 }
 
+// Wait for the dev server to be reachable before launching the browser
+async function waitForServer(url: string, timeout = 60_000) {
+  const start = Date.now();
+  while (Date.now() - start < timeout) {
+    try {
+      await new Promise<void>((res, rej) => {
+        const req = http.get(url, r => {
+          // check for successful status codes
+          if (r.statusCode && r.statusCode >= 200 && r.statusCode < 400) {
+            res();
+          } else {
+            rej(new Error(`Server returned status ${r.statusCode}`));
+          }
+          r.resume();
+        });
+        req.on('error', rej);
+        req.setTimeout(3000, () => {
+          req.destroy();
+          rej(new Error('timeout'));
+        });
+      });
+      return;
+    } catch (e) {
+      // log the failure, wait a bit and retry
+      console.debug('waitForServer attempt failed:', e);
+      await new Promise(r => setTimeout(r, 1000));
+    }
+  }
+  throw new Error(`Server did not become reachable at ${url} within ${timeout}ms`);
+}
+
 export default async function globalSetup() {
   const storageDir = path.resolve(process.cwd(), 'tests', 'storageStates');
   if (!fs.existsSync(storageDir)) fs.mkdirSync(storageDir, { recursive: true });
@@ -66,35 +97,8 @@ export default async function globalSetup() {
   const adminPassword = process.env.E2E_ADMIN_PASSWORD?.trim() || DEFAULT_E2E_PASSWORD;
   const userPassword = process.env.E2E_USER_PASSWORD?.trim() || DEFAULT_E2E_PASSWORD;
 
-  // Wait for the dev server to be reachable before launching the browser
-  async function waitForServer(url: string, timeout = 60_000) {
-    const start = Date.now();
-    while (Date.now() - start < timeout) {
-      try {
-        await new Promise<void>((res, rej) => {
-          const req = http.get(url, r => {
-            // check for successful status codes
-            if (r.statusCode && r.statusCode >= 200 && r.statusCode < 400) {
-              res();
-            } else {
-              rej(new Error(`Server returned status ${r.statusCode}`));
-            }
-            r.resume();
-          });
-          req.on('error', rej);
-          req.setTimeout(3000, () => {
-            req.destroy();
-            rej(new Error('timeout'));
-          });
-        });
-        return;
-      } catch (e) {
-        // wait a bit and retry
-        await new Promise(r => setTimeout(r, 1000));
-      }
-    }
-    throw new Error(`Server did not become reachable at ${url} within ${timeout}ms`);
-  }
+
+ 
 
   await waitForServer(baseURL);
 
@@ -127,10 +131,11 @@ export default async function globalSetup() {
           url.pathname === '/',
         { timeout: 30000 }
       );
-    } catch (err) {
-      // capture debug artifacts to help diagnose flakiness
+    } catch (err: unknown) {
+      // capture debug artifacts to help diagnose flakiness, then rethrow
       await captureDebugArtifacts(page, 'debug-admin', storageDir);
-      throw err;
+      if (err instanceof Error) throw err;
+      throw new Error(String(err));
     }
 
     // Save admin storage state
@@ -172,9 +177,10 @@ export default async function globalSetup() {
           url => url.pathname.includes('/dashboard') || url.pathname === '/',
           { timeout: 30000 }
         );
-      } catch (err) {
+      } catch (err: unknown) {
         await captureDebugArtifacts(userPage, 'debug-user', storageDir);
-        throw err;
+        if (err instanceof Error) throw err;
+        throw new Error(String(err));
       }
       const userPath = path.join(storageDir, 'user.json');
       await userContext.storageState({ path: userPath });
