@@ -46,8 +46,6 @@ test.describe('Listing Management E2E', () => {
     });
 
     test('admin can see all listings including flagged ones', async ({ page }) => {
-      await loginAs(page, 'admin');
-
       await page.route('**/api/admin/listings**', async route => {
         const url = route.request().url();
         if (url.includes('/api/admin/listings/stats')) {
@@ -98,8 +96,10 @@ test.describe('Listing Management E2E', () => {
         });
       });
 
+      await loginAs(page, 'admin', { redirectTo: '/admin/listings' });
+
       await page
-        .goto('/admin/listings', { waitUntil: 'domcontentloaded', timeout: 15000 })
+        .waitForURL(/\/admin\/listings/, { waitUntil: 'domcontentloaded', timeout: 15000 })
         .catch(() => {});
       await page.waitForLoadState('domcontentloaded').catch(() => {});
 

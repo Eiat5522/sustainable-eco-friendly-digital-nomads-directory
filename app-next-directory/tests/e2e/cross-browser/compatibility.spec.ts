@@ -163,7 +163,9 @@ test.describe('Cross-Browser Compatibility Testing', () => {
           await page.goto('/');
 
           // Test touch interactions
-          const searchButton = page.locator('button[type="submit"]');
+          const searchButton = page
+            .getByRole('search', { name: /search listings/i })
+            .getByRole('button', { name: /^search$/i });
           await searchButton.tap();
 
           // Test mobile navigation

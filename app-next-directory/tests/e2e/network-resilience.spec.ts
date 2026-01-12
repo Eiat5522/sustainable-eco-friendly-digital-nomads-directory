@@ -48,7 +48,7 @@ test.describe('[E2E] Network resilience', () => {
       });
     });
 
-    await page.goto('/');
+    await page.goto('/?forceFeaturedFetch=1');
 
     await expect(page.getByRole('heading', { name: 'Featured Sustainable Venues' })).toBeVisible();
 
