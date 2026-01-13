@@ -19,7 +19,7 @@ const nextConfig = {
     fetches: {
       fullUrl: true, // Logs the full URL of fetch requests
       hmrRefreshes: true, // Logs fetches even during HMR refreshes
-        },
+    },
   },
   experimental: {
     // Enable rendering of Next.js 401 unauthorized page.

@@ -168,7 +168,7 @@ test.describe('Listing Management E2E', () => {
 
   // Concurrency Tests
   test.describe('concurrent operations', () => {
-    test('handles simultaneous reviews correctly', async ({ page, context }) => {
+    test('handles simultaneous reviews correctly', async ({ context }) => {
       test.setTimeout(120000);
       const listingSlug = 'banyan-tree-phuket';
 

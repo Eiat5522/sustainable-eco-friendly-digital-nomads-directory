@@ -12,9 +12,6 @@ import { expect, test } from '@playwright/test';
  */
 
 test.describe('ReviewsSection E2E Tests', () => {
-  // Test using the home page initially to see if we can create a simple test page
-  const testPageUrl = '/';
-
   test.beforeEach(async ({ page }) => {
     // Mock auth session for different test scenarios
     await page.route('**/api/auth/session', async route => {

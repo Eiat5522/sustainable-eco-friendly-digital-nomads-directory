@@ -115,6 +115,12 @@ export async function loginAs(page: Page, email: string, password: string) {
   const filledEmail = await fillFirst(emailSelectors, email);
   const filledPassword = await fillFirst(passwordSelectors, password);
 
+  if (!filledEmail || !filledPassword) {
+    throw new Error(
+      `Failed to fill login form: email=${filledEmail}, password=${filledPassword}`
+    );
+  }
+
   const roleSubmit = page.getByRole('button', {
     name: /log in|sign in|sign in with email|continue/i,
   });

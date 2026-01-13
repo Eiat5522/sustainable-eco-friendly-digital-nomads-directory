@@ -32,22 +32,28 @@ export async function cleanupTestListings(ids: string[]) {
   void ids.length;
 }
 
-export function validateListingResult(listing: any) {
+export function validateListingResult(listing: Record<string, unknown>) {
   expect(listing).toHaveProperty('_id');
   expect(listing).toHaveProperty('name');
   expect(listing).toHaveProperty('type');
 
-  if (listing.type === 'coworking' || listing.type === 'cafe') {
+  const listingType = listing.type;
+  if (listingType === 'coworking' || listingType === 'cafe') {
     expect(listing).toHaveProperty('wifiSpeed');
-    if (listing.wifiSpeed) {
-      expect(typeof listing.wifiSpeed).toBe('number');
+    const wifiSpeed = listing.wifiSpeed;
+    if (typeof wifiSpeed === 'number') {
+      expect(typeof wifiSpeed).toBe('number');
     }
   }
 
-  if (listing.location) {
-    expect(listing.location).toHaveProperty('coordinates');
-    expect(listing.location.coordinates).toHaveProperty('lat');
-    expect(listing.location.coordinates).toHaveProperty('lng');
+  const location = listing.location;
+  if (location && typeof location === 'object') {
+    expect(location).toHaveProperty('coordinates');
+    const coordinates = (location as { coordinates?: unknown }).coordinates;
+    if (coordinates && typeof coordinates === 'object') {
+      expect(coordinates).toHaveProperty('lat');
+      expect(coordinates).toHaveProperty('lng');
+    }
   }
 
   return true;

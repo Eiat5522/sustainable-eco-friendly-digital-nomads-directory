@@ -9,6 +9,14 @@ interface PerformanceMetrics {
   largestContentfulPaint: number;
 }
 
+type PerformanceMemory = {
+  usedJSHeapSize: number;
+};
+
+type PerformanceWithMemory = Performance & {
+  memory?: PerformanceMemory;
+};
+
 async function getPerformanceMetrics(page: Page): Promise<PerformanceMetrics> {
   const performanceEntries = await page.evaluate(() => {
     const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
@@ -92,9 +100,10 @@ test.describe('Preview Mode Performance Tests', () => {
 
   test('memory usage in preview mode', async ({ page }) => {
     // Get initial memory usage
-    const initialMemory = await page.evaluate(
-      () => (performance as any).memory?.usedJSHeapSize || 0
-    );
+    const initialMemory = await page.evaluate(() => {
+      const performanceWithMemory = performance as PerformanceWithMemory;
+      return performanceWithMemory.memory?.usedJSHeapSize ?? 0;
+    });
 
     // Enable preview mode
     await page.goto('/api/preview?redirect=/');
@@ -109,7 +118,10 @@ test.describe('Preview Mode Performance Tests', () => {
     }
 
     // Get final memory usage
-    const finalMemory = await page.evaluate(() => (performance as any).memory?.usedJSHeapSize || 0);
+    const finalMemory = await page.evaluate(() => {
+      const performanceWithMemory = performance as PerformanceWithMemory;
+      return performanceWithMemory.memory?.usedJSHeapSize ?? 0;
+    });
 
     // Log memory usage
     structuredLogger.debug('Memory Usage:', {

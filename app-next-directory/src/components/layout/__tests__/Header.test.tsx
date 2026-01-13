@@ -26,6 +26,7 @@ jest.mock('next/image', () => {
     const resolvedSrc = typeof src === 'string' ? src : (src?.src ?? '');
     return (
       // eslint-disable-next-line @next/next/no-img-element
+      // biome-ignore lint/performance/noImgElement: test-only Next/Image mock
       <img
         alt={alt}
         src={resolvedSrc}

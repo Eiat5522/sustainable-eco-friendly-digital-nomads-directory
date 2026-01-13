@@ -20,7 +20,7 @@ export function handleAuthCallbackUrl(req: {
   try {
     // Prevent double-encoding: decode until stable
     let decoded = urlParam;
-    let prev;
+    let prev = '';
     do {
       prev = decoded;
       decoded = decodeURIComponent(decoded);

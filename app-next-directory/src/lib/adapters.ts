@@ -52,7 +52,9 @@ export function jsonToSanityListing(json: JsonListing): SanityListing {
     : [];
 
   // Build location with coordinates if present
-  let location;
+  let location:
+    | { lat: number; lng: number; coordinates: [number, number] }
+    | undefined;
   if (
     json.location &&
     typeof json.location.lat === 'number' &&

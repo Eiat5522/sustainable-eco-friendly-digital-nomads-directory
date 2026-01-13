@@ -30,6 +30,8 @@ type AuthConfig = {
 };
 
 type DebugArtifacts = { png?: string; html?: string; logsPath?: string };
+type DebugDumper = (suffix?: string) => Promise<DebugArtifacts>;
+type PrimaryAuthResult = { success: boolean; error: unknown; artifacts: DebugArtifacts | null };
 
 function buildArtifactParts(artifacts: DebugArtifacts | null): string[] {
   const parts: string[] = [];
@@ -39,27 +41,8 @@ function buildArtifactParts(artifacts: DebugArtifacts | null): string[] {
   return parts;
 }
 
-async function authenticateUser(page: Page, config: AuthConfig) {
-  const { emailEnvVar, passwordEnvVar, defaultEmail, defaultPassword, outputPath, expectedPaths } =
-    config;
-
-  // Collect console messages and page errors for richer debugging
-  const consoleMessages: string[] = [];
-  page.on('console', msg => consoleMessages.push(`${msg.type()}: ${msg.text()}`));
-  page.on('pageerror', err => consoleMessages.push(`pageerror: ${err.message}`));
-
-  const email = process.env[emailEnvVar] || defaultEmail;
-  const password = process.env[passwordEnvVar] || defaultPassword;
-
-  if (!email || !password) {
-    throw new Error(
-      `Missing credentials for env vars ${emailEnvVar}/${passwordEnvVar}. Email present: ${Boolean(email)}, Password present: ${Boolean(password)}`
-    );
-  }
-
-  const debugBase = path.join(storageDir, path.basename(outputPath, path.extname(outputPath)));
-
-  async function dumpDebug(suffix = 'error'): Promise<DebugArtifacts> {
+function createDebugDumper(page: Page, debugBase: string, consoleMessages: string[]): DebugDumper {
+  return async (suffix = 'error') => {
     try {
       const base = `${debugBase}-${suffix}-${Date.now()}`;
       const png = `${base}.png`;
@@ -79,16 +62,60 @@ async function authenticateUser(page: Page, config: AuthConfig) {
       return result;
     } catch (e) {
       // best-effort: log but don't mask original error
-
       console.error('Failed to write debug artifacts:', e);
       return {};
     }
+  };
+}
+
+function resolveCredentials(config: AuthConfig): { email: string; password: string } {
+  const email = process.env[config.emailEnvVar] || config.defaultEmail;
+  const password = process.env[config.passwordEnvVar] || config.defaultPassword;
+
+  if (!email || !password) {
+    throw new Error(
+      `Missing credentials for env vars ${config.emailEnvVar}/${config.passwordEnvVar}. Email present: ${Boolean(email)}, Password present: ${Boolean(password)}`
+    );
   }
 
-  let hasAuthenticated = false;
-  let authError: unknown;
-  let artifacts: DebugArtifacts | null = null;
+  return { email, password };
+}
 
+function formatError(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+function createEmailHash(email: string): string {
+  return createHash('sha256').update(email).digest('hex');
+}
+
+function buildAuthFailureMessage(options: {
+  emailEnvVar: string;
+  email: string;
+  authError: unknown;
+  artifacts: DebugArtifacts | null;
+  consoleMessages: string[];
+  currentUrl: string;
+  fallbackError?: unknown;
+}): string {
+  const emailHash = createEmailHash(options.email);
+  const artifactParts = buildArtifactParts(options.artifacts);
+  const baseErrorLabel = options.fallbackError ? 'UI error' : 'Error';
+  const fallbackMessage = options.fallbackError
+    ? ` Fallback error: ${formatError(options.fallbackError)}.`
+    : '';
+
+  return `Authentication failed for env ${options.emailEnvVar} (email hash: ${emailHash}). ${baseErrorLabel}: ${formatError(options.authError)}.${fallbackMessage} Current URL: ${options.currentUrl}. Artifacts: ${artifactParts.join('; ')}. Console:\n${options.consoleMessages.join('\n')}`;
+}
+
+async function tryPrimaryAuthentication(options: {
+  page: Page;
+  email: string;
+  password: string;
+  expectedPaths: string[];
+  dumpDebug: DebugDumper;
+}): Promise<PrimaryAuthResult> {
+  const { page, email, password, expectedPaths, dumpDebug } = options;
   try {
     await page.goto('/auth/login', { waitUntil: 'domcontentloaded' });
     await page.locator('input[name="email"]').first().fill(email);
@@ -102,45 +129,110 @@ async function authenticateUser(page: Page, config: AuthConfig) {
         ),
       { timeout: 15000, waitUntil: 'domcontentloaded' }
     );
-    hasAuthenticated = true;
-  } catch (err) {
-    authError = err;
-    artifacts = await dumpDebug('auth-failure');
+    return { success: true, error: null, artifacts: null };
+  } catch (error) {
+    const artifacts = await dumpDebug('auth-failure');
+    return { success: false, error, artifacts };
   }
+}
 
-  if (!hasAuthenticated && config.role) {
-    try {
-      await loginAs(page, config.role, { redirectTo: expectedPaths[0] ?? '/' });
-      hasAuthenticated = true;
-    } catch (fallbackError) {
-      const emailHash = createHash('sha256').update(email).digest('hex');
-      const artifactParts = buildArtifactParts(artifacts);
-
-      throw new Error(
-        `Authentication failed for env ${emailEnvVar} (email hash: ${emailHash}). UI error: ${authError instanceof Error ? authError.message : String(authError)}. Fallback error: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}. Current URL: ${page.url()}. Artifacts: ${artifactParts.join('; ')}. Console:\n${consoleMessages.join('\n')}`
-      );
-    }
-  }
-
-  if (!hasAuthenticated) {
-    const emailHash = createHash('sha256').update(email).digest('hex');
-    const artifactParts = buildArtifactParts(artifacts);
-
+async function attemptFallbackLogin(options: {
+  page: Page;
+  role: Role;
+  expectedPath: string;
+  authError: unknown;
+  artifacts: DebugArtifacts | null;
+  consoleMessages: string[];
+  email: string;
+  emailEnvVar: string;
+}): Promise<boolean> {
+  const { page, role, expectedPath, authError, artifacts, consoleMessages, email, emailEnvVar } =
+    options;
+  try {
+    await loginAs(page, role, { redirectTo: expectedPath });
+    return true;
+  } catch (fallbackError) {
     throw new Error(
-      `Authentication failed for env ${emailEnvVar} (email hash: ${emailHash}). Error: ${authError instanceof Error ? authError.message : String(authError)}. Current URL: ${page.url()}. Artifacts: ${artifactParts.join('; ')}. Console:\n${consoleMessages.join('\n')}`
+      buildAuthFailureMessage({
+        emailEnvVar,
+        email,
+        authError,
+        fallbackError,
+        artifacts,
+        consoleMessages,
+        currentUrl: page.url(),
+      })
     );
   }
+}
 
-  // Save storage state after successful authentication
+async function saveStorageState(options: {
+  page: Page;
+  outputPath: string;
+  dumpDebug: DebugDumper;
+  consoleMessages: string[];
+}): Promise<void> {
+  const { page, outputPath, dumpDebug, consoleMessages } = options;
   try {
     await page.context().storageState({ path: outputPath });
-  } catch (err) {
+  } catch (error) {
     const storageStateArtifacts = await dumpDebug('storageState-failure');
     const artifactParts = buildArtifactParts(storageStateArtifacts);
     throw new Error(
-      `Failed to write storage state to ${outputPath}: ${err instanceof Error ? err.message : String(err)}. Artifacts: ${artifactParts.join('; ')}. Console:\n${consoleMessages.join('\n')}`
+      `Failed to write storage state to ${outputPath}: ${formatError(error)}. Artifacts: ${artifactParts.join('; ')}. Console:\n${consoleMessages.join('\n')}`
     );
   }
+}
+
+async function authenticateUser(page: Page, config: AuthConfig) {
+  const { emailEnvVar, outputPath, expectedPaths, role } = config;
+
+  // Collect console messages and page errors for richer debugging
+  const consoleMessages: string[] = [];
+  page.on('console', msg => consoleMessages.push(`${msg.type()}: ${msg.text()}`));
+  page.on('pageerror', err => consoleMessages.push(`pageerror: ${err.message}`));
+
+  const { email, password } = resolveCredentials(config);
+  const debugBase = path.join(storageDir, path.basename(outputPath, path.extname(outputPath)));
+  const dumpDebug = createDebugDumper(page, debugBase, consoleMessages);
+
+  const primaryResult = await tryPrimaryAuthentication({
+    page,
+    email,
+    password,
+    expectedPaths,
+    dumpDebug,
+  });
+
+  let hasAuthenticated = primaryResult.success;
+
+  if (!hasAuthenticated && role) {
+    hasAuthenticated = await attemptFallbackLogin({
+      page,
+      role,
+      expectedPath: expectedPaths[0] ?? '/',
+      authError: primaryResult.error,
+      artifacts: primaryResult.artifacts,
+      consoleMessages,
+      email,
+      emailEnvVar,
+    });
+  }
+
+  if (!hasAuthenticated) {
+    throw new Error(
+      buildAuthFailureMessage({
+        emailEnvVar,
+        email,
+        authError: primaryResult.error,
+        artifacts: primaryResult.artifacts,
+        consoleMessages,
+        currentUrl: page.url(),
+      })
+    );
+  }
+
+  await saveStorageState({ page, outputPath, dumpDebug, consoleMessages });
 }
 
 // Authenticate regular user

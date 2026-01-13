@@ -17,7 +17,7 @@ const testUser = {
   password: 'testPassword123!',
 };
 
-const testListing = {
+const _testListing = {
   name: 'Test Eco Coworking Space',
   description: 'A sustainable coworking space for digital nomads',
   city: 'Bangkok',

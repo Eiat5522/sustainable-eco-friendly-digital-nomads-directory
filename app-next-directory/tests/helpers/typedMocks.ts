@@ -1,11 +1,7 @@
 // Robust, type-safe mock helpers for Jest and TypeScript.
 
-type MethodKeys<T> = {
-  [K in keyof T]: T[K] extends (...args: any[]) => any ? K : never;
-}[keyof T];
-
 export type Mocked<T> = {
-  [K in keyof T]: T[K] extends (...args: any[]) => any
+  [K in keyof T]: T[K] extends (...args: unknown[]) => unknown
     ? jest.Mock<ReturnType<T[K]>, Parameters<T[K]>>
     : T[K];
 };

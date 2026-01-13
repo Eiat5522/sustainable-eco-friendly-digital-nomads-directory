@@ -15,12 +15,13 @@ const sanitizeAuthResponse = (body: unknown): unknown => {
   // Prefer structuredClone when available (more robust), fall back to JSON for JSON-safe payloads
   let copy: unknown;
   try {
-    if (typeof (globalThis as any).structuredClone === 'function') {
-      copy = (globalThis as any).structuredClone(body);
+    const structuredCloneFn = globalThis.structuredClone;
+    if (typeof structuredCloneFn === 'function') {
+      copy = structuredCloneFn(body);
     } else {
       copy = JSON.parse(JSON.stringify(body));
     }
-  } catch (error) {
+  } catch (_error) {
     return '[redacted-circular-ref]';
   }
 

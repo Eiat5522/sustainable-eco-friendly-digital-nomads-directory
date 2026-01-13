@@ -5,13 +5,33 @@ import { structuredLogger } from '@/lib/logger';
 
 const URL = 'http://localhost:3000/listings/banyan-tree-phuket';
 
+type ConsoleMessageEntry = {
+  type: string;
+  text: string;
+  location: { url?: string; lineNumber?: number; columnNumber?: number };
+};
+
+type RequestEventEntry = {
+  url: string;
+  resourceType: string;
+  stage: 'request' | 'finished' | 'failed';
+  method?: string;
+  status?: number | null;
+  error?: string;
+  failure?: string;
+};
+
+type LeafletWindow = Window & {
+  L?: { version?: string };
+};
+
 test('leaflet map debug', async ({ page }) => {
-  const consoleMessages: any[] = [];
+  const consoleMessages: ConsoleMessageEntry[] = [];
   page.on('console', msg => {
     consoleMessages.push({ type: msg.type(), text: msg.text(), location: msg.location() });
   });
 
-  const requests: any[] = [];
+  const requests: RequestEventEntry[] = [];
   page.on('request', req => {
     requests.push({
       url: req.url(),
@@ -23,12 +43,7 @@ test('leaflet map debug', async ({ page }) => {
   page.on('requestfinished', async req => {
     try {
       const res = req.response();
-      const status =
-        res && typeof (res as any).status === 'function'
-          ? await (res as any).status()
-          : res
-            ? (res as any).status
-            : null;
+      const status = res?.status() ?? null;
       requests.push({
         url: req.url(),
         status,
@@ -89,7 +104,7 @@ test('leaflet map debug', async ({ page }) => {
 
     // Check if Leaflet JS exists
 
-    const L = (window as any).L;
+    const L = (window as LeafletWindow).L;
     const leafletVersion = L?.version || null;
 
     return {
@@ -111,7 +126,7 @@ test('leaflet map debug', async ({ page }) => {
   const outDir = path.join(process.cwd(), 'playwright-debug-output');
   try {
     fs.mkdirSync(outDir);
-  } catch (e) {
+  } catch (_e) {
     /* ok */
   }
   const fullShot = path.join(outDir, 'leaflet-fullpage.png');
@@ -123,7 +138,7 @@ test('leaflet map debug', async ({ page }) => {
     if (mapEl) {
       await mapEl.screenshot({ path: path.join(outDir, 'leaflet-map.png') });
     }
-  } catch (e) {
+  } catch (_e) {
     // ignore
   }
 

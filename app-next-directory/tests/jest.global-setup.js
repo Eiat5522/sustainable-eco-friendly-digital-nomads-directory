@@ -3,6 +3,8 @@
 const { execSync } = require('node:child_process');
 
 module.exports = async () => {
+/** @type {() => Promise<void>} */
+const runLintAndTypeCheck = async () => {
   try {
     console.log('Running lint and type-check before unit tests...');
     // Run lint and type checking; these commands should exist in the workspace scripts.
@@ -14,3 +16,6 @@ module.exports = async () => {
     throw err;
   }
 };
+
+module.exports = runLintAndTypeCheck;
+}

@@ -3,6 +3,57 @@ import { createTestData, getTestData, TEST_SESSION_COOKIE_NAME } from '../config
 
 const seeded = getTestData();
 
+type LeafletPopupContent = HTMLElement | string;
+
+type LeafletBounds = {
+  getNorth: () => number;
+  getSouth: () => number;
+  getEast: () => number;
+  getWest: () => number;
+};
+
+type LeafletMapInstance = {
+  _el: HTMLElement;
+  setView: () => LeafletMapInstance;
+  remove: () => void;
+  addLayer: () => LeafletMapInstance;
+  on: () => LeafletMapInstance;
+  off: () => LeafletMapInstance;
+  getBounds: () => LeafletBounds;
+  panTo: () => LeafletMapInstance;
+};
+
+type LeafletMapLike = {
+  _el?: HTMLElement;
+};
+
+type LeafletMarkerInstance = {
+  addTo: () => LeafletMarkerInstance;
+  bindPopup: (content: LeafletPopupContent) => LeafletMarkerInstance;
+  getPopup: () => { setContent: (inner: LeafletPopupContent) => void };
+  setIcon: () => LeafletMarkerInstance;
+  remove: () => void;
+};
+
+type LeafletMarkerFactory = {
+  addTo: (target: LeafletMapLike) => LeafletMarkerFactory | LeafletMarkerInstance;
+};
+
+type LeafletIconOptions = Record<string, unknown>;
+
+type LeafletMock = {
+  map: (container: HTMLElement | string) => LeafletMapInstance;
+  tileLayer: () => { addTo: () => unknown };
+  marker: (position: [number, number], options?: { icon?: { html?: string } }) => LeafletMarkerFactory;
+  divIcon: (opts: LeafletIconOptions) => LeafletIconOptions;
+  icon: (opts: LeafletIconOptions) => LeafletIconOptions;
+};
+
+type TestWindow = Window & {
+  __TEST_DATA__?: unknown;
+  L?: LeafletMock;
+};
+
 const json = (data: unknown, status = 200) => ({
   status,
   contentType: 'application/json',
@@ -18,11 +69,12 @@ export async function globalSetup() {
 export default setup('seed reusable test data', async ({ page }) => {
   await page.addInitScript(
     payload => {
+      const testWindow = window as TestWindow;
       // Expose dataset for interactive debugging and component smoke tests
-      (window as any).__TEST_DATA__ = payload;
+      testWindow.__TEST_DATA__ = payload;
 
-      if (!(window as any).L) {
-        const mapInstances = new Set<any>();
+      if (!testWindow.L) {
+        const mapInstances = new Set<LeafletMapInstance>();
         const createBounds = () => ({
           getNorth: () => 0,
           getSouth: () => 0,
@@ -40,11 +92,11 @@ export default setup('seed reusable test data', async ({ page }) => {
           const popupEl = document.createElement('div');
           popupEl.className = 'marker-popup hidden';
           mapEl.appendChild(popupEl);
-          return {
+          const markerInstance: LeafletMarkerInstance = {
             addTo() {
               return this;
             },
-            bindPopup(content: any) {
+            bindPopup(content: LeafletPopupContent) {
               popupEl.classList.remove('hidden');
               popupEl.innerHTML = '';
               if (content instanceof HTMLElement) {
@@ -56,7 +108,7 @@ export default setup('seed reusable test data', async ({ page }) => {
             },
             getPopup() {
               return {
-                setContent(inner: any) {
+                setContent(inner: LeafletPopupContent) {
                   popupEl.innerHTML = '';
                   if (inner instanceof HTMLElement) {
                     popupEl.appendChild(inner);
@@ -74,9 +126,10 @@ export default setup('seed reusable test data', async ({ page }) => {
               popupEl.remove();
             },
           };
+          return markerInstance;
         };
 
-        (window as any).L = {
+        testWindow.L = {
           map: (container: HTMLElement | string) => {
             const element =
               typeof container === 'string' ? document.getElementById(container) : container;
@@ -84,7 +137,7 @@ export default setup('seed reusable test data', async ({ page }) => {
               throw new Error('Unable to initialise mock map: container not found');
             }
             element.setAttribute('data-testid', 'mock-leaflet-map');
-            const instance = {
+            const instance: LeafletMapInstance = {
               _el: element,
               setView() {
                 return instance;
@@ -120,19 +173,20 @@ export default setup('seed reusable test data', async ({ page }) => {
           marker(position: [number, number], options?: { icon?: { html?: string } }) {
             const [lat, lng] = position;
             const iconHtml = options?.icon?.html ?? `${lat.toFixed(2)},${lng.toFixed(2)}`;
-            return {
-              addTo(target: any) {
+            const markerFactory: LeafletMarkerFactory = {
+              addTo(target: LeafletMapLike) {
                 if (target?._el instanceof HTMLElement) {
                   return createMarker(target._el, iconHtml);
                 }
                 return this;
               },
             };
+            return markerFactory;
           },
-          divIcon(opts: any) {
+          divIcon(opts: LeafletIconOptions) {
             return { ...opts };
           },
-          icon(opts: any) {
+          icon(opts: LeafletIconOptions) {
             return { ...opts };
           },
         };

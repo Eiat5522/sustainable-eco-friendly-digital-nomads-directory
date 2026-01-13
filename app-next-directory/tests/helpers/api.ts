@@ -7,7 +7,10 @@ import type { APIRequestContext } from '@playwright/test';
  * if your project exposes different routes for test fixtures.
  */
 
-export async function createTestUser(request: APIRequestContext, user: any) {
+export async function createTestUser(
+  request: APIRequestContext,
+  user: Record<string, unknown>
+) {
   const res = await request.post('/api/test/users', { data: user });
   if (!res.ok()) throw new Error(`createTestUser failed: ${res.status()}`);
   return res.json();
@@ -19,7 +22,10 @@ export async function deleteTestUser(request: APIRequestContext, email: string) 
   return res.json().catch(() => ({}));
 }
 
-export async function createTestListing(request: APIRequestContext, listing: any) {
+export async function createTestListing(
+  request: APIRequestContext,
+  listing: Record<string, unknown>
+) {
   const res = await request.post('/api/test/listings', { data: listing });
   if (!res.ok()) throw new Error(`createTestListing failed: ${res.status()}`);
   return res.json();

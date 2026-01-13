@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noConsole: intentional console */
 import { MongoClient } from 'mongodb';
 
 (async function main() {

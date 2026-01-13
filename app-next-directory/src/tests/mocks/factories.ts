@@ -9,7 +9,7 @@ export function makeMockRequest(pathname: string): NextRequest {
   } as unknown as NextRequest;
 }
 
-export function makeMockResponse(extra: Record<string, any> = {}) {
+export function makeMockResponse(extra: Record<string, unknown> = {}) {
   return {
     headers: { set: jest.fn() },
     ...extra,

@@ -1,3 +1,5 @@
+/** biome-ignore-all lint/suspicious/noConsole: intentional console */
+
 import { expect, test } from '@playwright/test';
 
 test.describe('Authentication (Playwright E2E)', () => {
@@ -84,7 +86,7 @@ test.describe('Authentication (Playwright E2E)', () => {
     // Wait for navigation or timeout, then verify we're on the home page
     try {
       await page.waitForURL('**/', { waitUntil: 'domcontentloaded', timeout: 15000 });
-    } catch (error) {
+    } catch (_error) {
       // If auto-navigation didn't occur, manually navigate
       console.warn('Auto-navigation timed out, manually navigating to home page');
       await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 15000 });

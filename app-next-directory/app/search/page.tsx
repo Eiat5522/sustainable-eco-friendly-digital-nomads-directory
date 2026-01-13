@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import { PageLayoutServer } from '@/components/layout/PageLayoutServer';
 import { ListingGrid } from '@/components/listings/ListingGrid';
 import { SearchFiltersForm } from '@/components/search/SearchFiltersForm';
@@ -26,7 +27,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   const result = await executeSearch(resolvedSearchParams);
 
-  let mainContent;
+  let mainContent: ReactNode;
   if (result.ok) {
     const { pagination, pageSizeOptions, listings, pages } = result;
     const prevLink =

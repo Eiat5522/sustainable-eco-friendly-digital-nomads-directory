@@ -1,4 +1,5 @@
 /** biome-ignore-all lint/suspicious/noConsole: false positive */
+/** biome-ignore-all lint/nursery/noUnusedExpressions: deprecated but needed for fallback */
 /**
  * Test utilities for E2E testing
  */

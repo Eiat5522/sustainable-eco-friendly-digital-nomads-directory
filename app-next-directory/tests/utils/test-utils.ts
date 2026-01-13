@@ -4,13 +4,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { Page } from '@playwright/test';
 import { test as base, expect } from '@playwright/test';
+import { encode } from 'next-auth/jwt';
 import {
   createTestData,
   getSessionForRole,
   TEST_SESSION_COOKIE_NAME,
-} from '@tests/helpers/test-data';
-import { encode } from 'next-auth/jwt';
-import type { Role } from '@/models/User';
+} from '@/tests/helpers/test-data';
+import type { Listing } from '@/types/listings';
+import type { Role } from '../src/models/User';
 
 const baseUrl = new URL(
   process.env.BASE_URL ?? process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000'
@@ -75,7 +76,7 @@ function describeValue(value: unknown) {
 
 function assertStorageStateShape(parsed: unknown): asserts parsed is StorageStateParsed {
   if (!isPlainObject(parsed)) {
-    throw new Error(
+    throw new TypeError(
       `Invalid storageState. Expected object with schema ${expectedStorageStateSchema}. Received ${describeValue(parsed)}.`
     );
   }
@@ -84,13 +85,13 @@ function assertStorageStateShape(parsed: unknown): asserts parsed is StorageStat
 
   if (cookies !== undefined) {
     if (!Array.isArray(cookies)) {
-      throw new Error(
+      throw new TypeError(
         `Invalid storageState.cookies. Expected array. Received ${describeValue(cookies)}.`
       );
     }
     cookies.forEach((cookie, index) => {
       if (!isPlainObject(cookie)) {
-        throw new Error(
+        throw new TypeError(
           `Invalid storageState.cookies[${index}]. Expected object. Received ${describeValue(cookie)}.`
         );
       }
@@ -99,25 +100,25 @@ function assertStorageStateShape(parsed: unknown): asserts parsed is StorageStat
 
   if (origins !== undefined) {
     if (!Array.isArray(origins)) {
-      throw new Error(
+      throw new TypeError(
         `Invalid storageState.origins. Expected array. Received ${describeValue(origins)}.`
       );
     }
     origins.forEach((originEntry, index) => {
       if (!isPlainObject(originEntry)) {
-        throw new Error(
+        throw new TypeError(
           `Invalid storageState.origins[${index}]. Expected object. Received ${describeValue(originEntry)}.`
         );
       }
       const origin = originEntry.origin;
       if (typeof origin !== 'string') {
-        throw new Error(
+        throw new TypeError(
           `Invalid storageState.origins[${index}].origin. Expected string. Received ${describeValue(origin)}.`
         );
       }
       const localStorage = originEntry.localStorage;
       if (!Array.isArray(localStorage)) {
-        throw new Error(
+        throw new TypeError(
           `Invalid storageState.origins[${index}].localStorage. Expected array. Received ${describeValue(
             localStorage
           )}.`
@@ -125,21 +126,21 @@ function assertStorageStateShape(parsed: unknown): asserts parsed is StorageStat
       }
       localStorage.forEach((entry, entryIndex) => {
         if (!isPlainObject(entry)) {
-          throw new Error(
+          throw new TypeError(
             `Invalid storageState.origins[${index}].localStorage[${entryIndex}]. Expected object. Received ${describeValue(
               entry
             )}.`
           );
         }
         if (typeof entry.name !== 'string') {
-          throw new Error(
+          throw new TypeError(
             `Invalid storageState.origins[${index}].localStorage[${entryIndex}].name. Expected string. Received ${describeValue(
               entry.name
             )}.`
           );
         }
         if (typeof entry.value !== 'string') {
-          throw new Error(
+          throw new TypeError(
             `Invalid storageState.origins[${index}].localStorage[${entryIndex}].value. Expected string. Received ${describeValue(
               entry.value
             )}.`
@@ -151,7 +152,8 @@ function assertStorageStateShape(parsed: unknown): asserts parsed is StorageStat
 }
 
 function escapeRegExp(value: string) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  // Use String.raw in the replacement to avoid double-escaping backslashes
+  return value.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 }
 
 async function applySession(page: Page, role: Role) {
@@ -387,9 +389,28 @@ async function loginByRole(
   await page.waitForLoadState('domcontentloaded').catch(() => undefined);
 }
 
+type ListingFormData = {
+  name?: string;
+  description?: string;
+  category?: string;
+  city?: string;
+  address?: string;
+};
+
+type VerifyListingData = {
+  name: string;
+  category?: string;
+  city: string;
+};
+
+type ReviewData = {
+  rating?: number;
+  comment?: string;
+};
+
 export const TestHelpers = {
-  async fillListingForm(page: Page, data: any = {}) {
-    const defaultData = {
+  async fillListingForm(page: Page, data: ListingFormData = {}) {
+    const defaultData: Required<ListingFormData> = {
       name: 'Test Eco Space',
       description: 'A sustainable coworking space',
       category: 'coworking',
@@ -405,14 +426,16 @@ export const TestHelpers = {
     await page.fill('input[name="address"]', defaultData.address);
   },
 
-  async verifyListingCard(page: Page, data: any) {
+  async verifyListingCard(page: Page, data: VerifyListingData) {
     const card = page.locator('[data-testid="listing-card"]').filter({ hasText: data.name });
     await expect(card).toBeVisible();
-    await expect(card.locator('[data-testid="listing-category"]')).toHaveText(data.category);
+    if (data.category !== undefined) {
+      await expect(card.locator('[data-testid="listing-category"]')).toHaveText(data.category);
+    }
     await expect(card.locator('[data-testid="listing-city"]')).toHaveText(data.city);
   },
 
-  async submitReview(page: Page, data: any = {}) {
+  async submitReview(page: Page, data: ReviewData = {}) {
     const defaultData = {
       rating: 5,
       comment: 'Great eco-friendly space!',
@@ -446,7 +469,7 @@ export const TestHelpers = {
     await loginByRole(page, 'admin', '/admin', email, password);
   },
 
-  async createListing(page: Page, data: any = {}) {
+  async createListing(page: Page, data: ListingFormData = {}): Promise<Listing> {
     await page.goto('/dashboard/listings/new');
     await TestHelpers.fillListingForm(page, data);
     await page.click('button[type="submit"]');
@@ -466,19 +489,34 @@ export const TestHelpers = {
     if (!response.ok()) {
       throw new Error(`Failed to fetch listing: ${response.status()} ${response.statusText()}`);
     }
-    const listing = await response.json();
+    const listing = (await response.json()) as Listing;
     return listing;
   },
 
-  async makeAuthenticatedRequest(page: Page, endpoint: string, options: any = {}) {
+  async makeAuthenticatedRequest(
+    page: Page,
+    endpoint: string,
+    options: {
+      timeout?: number;
+      headers?: Record<string, string>;
+      method?: string;
+      body?: string;
+    } = {}
+  ) {
     const token = await page.evaluate(() => window.localStorage.getItem('token'));
     const { timeout = 15000, ...requestOptions } = options;
+    const { headers, ...restOptions } = requestOptions as {
+      headers?: Record<string, string>;
+      method?: string;
+      body?: string;
+    };
+
     return page.request.fetch(endpoint, {
-      ...requestOptions,
+      ...restOptions,
       timeout,
       headers: {
-        ...requestOptions.headers,
-        Authorization: token ? `Bearer ${token}` : undefined,
+        ...(headers ?? {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     });
   },

@@ -17,6 +17,7 @@ jest.mock('next/image', () => ({
     const { fill: _fill, priority: _priority, sizes: _sizes, ...imgProps } = props;
     return (
       // eslint-disable-next-line @next/next/no-img-element
+      // biome-ignore lint/performance/noImgElement: test-only Next/Image mock
       <img alt={alt} src={src} onError={onError} data-testid="testimonial-avatar" {...imgProps} />
     );
   },

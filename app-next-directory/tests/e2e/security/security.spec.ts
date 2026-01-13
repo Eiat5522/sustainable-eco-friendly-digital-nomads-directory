@@ -1,3 +1,5 @@
+/** biome-ignore-all lint/suspicious/noConsole: intentional console */
+
 import { expect, test } from '@playwright/test';
 
 import { getOptionalTestEnvVar } from '../../helpers/env';
@@ -17,7 +19,7 @@ const parseJsonStringArray = (value: string | undefined, fallback: string[]) => 
     if (Array.isArray(parsed) && parsed.every(item => typeof item === 'string')) {
       return parsed;
     }
-  } catch (error) {
+  } catch (_error) {
     // Fallback to defaults if JSON parsing fails
   }
 
@@ -240,7 +242,7 @@ test.describe('Security Testing', () => {
       }
     });
 
-    test('prevents CSRF attacks', async ({ page, context }) => {
+    test('prevents CSRF attacks', async ({ page }) => {
       // This test verifies that API endpoints require authentication
       // CSRF tokens are typically handled by the auth framework (NextAuth.js)
 
@@ -260,7 +262,7 @@ test.describe('Security Testing', () => {
       // This test verifies that the application has file upload functionality
       // Note: This page requires authentication, so we check if it redirects or loads
 
-      const response = await page.goto(TEST_CONFIG.urls.createListing);
+      const _response = await page.goto(TEST_CONFIG.urls.createListing);
 
       // Check if we got redirected to login (expected for unauth user)
       if (page.url().includes('login') || page.url().includes('signin')) {
@@ -278,7 +280,7 @@ test.describe('Security Testing', () => {
               `Found ${fileInputCount} file input(s) - file upload functionality present`
             );
           }
-        } catch (error) {
+        } catch (_error) {
           // Page might still be loading complex components - that's okay
           console.log('Page loaded but may still be initializing components');
         }
@@ -389,7 +391,7 @@ test.describe('Security Testing', () => {
           } else {
             errorCount++;
           }
-        } catch (error) {
+        } catch (_error) {
           // Request timed out or failed - this might indicate server is overwhelmed (good for rate limiting)
           errorCount++;
           if (errorCount > 2) {

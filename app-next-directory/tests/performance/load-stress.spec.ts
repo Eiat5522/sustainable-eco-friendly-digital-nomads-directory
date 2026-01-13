@@ -1,6 +1,14 @@
 import { expect, test } from '@playwright/test';
 import { structuredLogger } from '@/lib/logger';
 
+type PerformanceMemory = {
+  usedJSHeapSize: number;
+};
+
+type PerformanceWithMemory = Performance & {
+  memory?: PerformanceMemory;
+};
+
 test.describe('Performance & Load Testing', () => {
   test.describe('Page Load Performance', () => {
     test('home page loads within acceptable time limits', async ({ page }) => {
@@ -131,7 +139,8 @@ test.describe('Performance & Load Testing', () => {
 
       // Monitor memory usage during image loading
       const initialMemory = await page.evaluate(() => {
-        return (performance as any).memory?.usedJSHeapSize || 0;
+        const performanceWithMemory = performance as PerformanceWithMemory;
+        return performanceWithMemory.memory?.usedJSHeapSize ?? 0;
       });
 
       // Scroll through image gallery to trigger lazy loading
@@ -141,7 +150,8 @@ test.describe('Performance & Load Testing', () => {
       await page.waitForTimeout(2000); // Allow images to load
 
       const afterImagesMemory = await page.evaluate(() => {
-        return (performance as any).memory?.usedJSHeapSize || 0;
+        const performanceWithMemory = performance as PerformanceWithMemory;
+        return performanceWithMemory.memory?.usedJSHeapSize ?? 0;
       });
 
       // Memory increase should be reasonable (less than 50MB)

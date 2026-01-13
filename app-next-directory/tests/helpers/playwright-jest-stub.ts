@@ -37,6 +37,51 @@ let exportedRequest: typeof import('@playwright/test').request;
 const noopAsync = async () => undefined;
 const noopSync = () => undefined;
 
+type NoopModifiers = {
+  skip: () => void;
+  only: () => void;
+  fixme: () => void;
+  fail: () => void;
+  slow: () => void;
+  step: (...args: unknown[]) => Promise<void>;
+  setTimeout: (timeout?: number) => void;
+};
+
+type NoopModifiableFn = ((...args: unknown[]) => unknown) & Partial<NoopModifiers>;
+
+type NoopDescribe = ((...args: unknown[]) => void) & {
+  only: () => void;
+  skip: () => void;
+  parallel: () => void;
+  serial: () => void;
+  configure: () => void;
+};
+
+type NoopTestFn = ((...args: unknown[]) => void) &
+  NoopModifiers & {
+    beforeAll: () => Promise<void>;
+    afterAll: () => Promise<void>;
+    beforeEach: () => Promise<void>;
+    afterEach: () => Promise<void>;
+    use: () => void;
+    extend: () => NoopTestFn;
+    describe: NoopDescribe;
+    info: () => {
+      project: { name: string; use: Record<string, unknown> };
+      workerIndex: number;
+      config: Record<string, unknown>;
+      retries: number;
+      retry: number;
+      title: string;
+      testId: string;
+      relativeArtifactsPath: string;
+      outputDir: string;
+      snapshotDir: string;
+      repeatEachIndex: number;
+      expectedStatus: 'passed';
+    };
+  };
+
 const createNoopRequest = () =>
   new Proxy(
     {},
@@ -45,7 +90,7 @@ const createNoopRequest = () =>
     }
   ) as unknown as typeof import('@playwright/test').request;
 
-const attachNoopModifiers = (fn: any) => {
+const attachNoopModifiers = (fn: NoopModifiableFn) => {
   fn.skip = noopSync;
   fn.only = noopSync;
   fn.fixme = noopSync;
@@ -57,17 +102,17 @@ const attachNoopModifiers = (fn: any) => {
 };
 
 const createNoopDescribe = () => {
-  const describe = (..._args: unknown[]) => undefined;
-  (describe as any).only = noopSync;
-  (describe as any).skip = noopSync;
-  (describe as any).parallel = noopSync;
-  (describe as any).serial = noopSync;
-  (describe as any).configure = noopSync;
+  const describe = ((..._args: unknown[]) => undefined) as NoopDescribe;
+  describe.only = noopSync;
+  describe.skip = noopSync;
+  describe.parallel = noopSync;
+  describe.serial = noopSync;
+  describe.configure = noopSync;
   return describe;
 };
 
 const createNoopTest = () => {
-  const testFn: any = (..._args: unknown[]) => undefined;
+  const testFn = ((..._args: unknown[]) => undefined) as NoopTestFn;
 
   testFn.beforeAll = noopAsync;
   testFn.afterAll = noopAsync;
