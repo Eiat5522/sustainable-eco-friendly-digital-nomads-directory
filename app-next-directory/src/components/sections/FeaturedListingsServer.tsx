@@ -6,7 +6,7 @@ import { FeaturedListingsCarousel } from './FeaturedListingsCarousel';
  * Server component for featured listings section.
  * Receives pre-fetched data from the page and delegates carousel rendering
  * to the client component.
- * 
+ *
  * This component is intentionally kept as a server component to:
  * 1. Minimize client-side JavaScript bundle
  * 2. Render static shell (section header) immediately

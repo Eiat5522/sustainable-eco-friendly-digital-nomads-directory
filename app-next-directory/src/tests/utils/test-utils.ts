@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noConsole: false positive */
 /**
  * Test utilities for E2E testing
  */

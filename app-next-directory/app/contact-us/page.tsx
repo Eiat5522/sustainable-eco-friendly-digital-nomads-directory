@@ -73,7 +73,6 @@ function ContactForm() {
     }
   }, [initialEmail]);
 
-
   useEffect(() => {
     if (enquiryType !== initialType && initialType) {
       setEnquiryType(initialType);

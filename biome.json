@@ -78,7 +78,7 @@
         },
         "useExhaustiveDependencies": "warn",
         "noInvalidUseBeforeDeclaration": "warn",
-        "noVoidTypeReturn": "off",
+        "noVoidTypeReturn": "warn",
         "noUnsafeFinally": "off"
       },
       "style": {
@@ -87,7 +87,7 @@
         "noParameterAssign": "off"
       },
       "performance": {
-        "noImgElement": "off",
+        "noImgElement": "warn",
         "noDynamicNamespaceImportAccess": "off"
       },
       "suspicious": {
@@ -96,7 +96,7 @@
         "noConsole": "warn",
         "noExportsInTest": "off",
         "noRedeclare": "off",
-        "noImplicitAnyLet": "off",
+        "noImplicitAnyLet": "error",
         "noTemplateCurlyInString": "off",
         "useIterableCallbackReturn": "off",
         "noGlobalIsNan": "off",
@@ -110,22 +110,7 @@
   },
   "overrides": [
     {
-      "includes": ["**/*.test.*", "**/__mocks__/**/*"],
-      "linter": {
-        "rules": {
-          "suspicious": {
-            "noExplicitAny": "off",
-            "noConsole": "warn"
-          },
-          "correctness": {
-            "noUnusedVariables": "off",
-            "noUnusedFunctionParameters": "off"
-          }
-        }
-      }
-    },
-    {
-      "includes": ["**/__mocks__/**/*"],
+      "includes": ["**/tests/**/*", "**/__mocks__/**/*"],
       "linter": {
         "rules": {
           "suspicious": {
@@ -140,7 +125,7 @@
       }
     },
     {
-      "includes": ["**/__tests__/**/*", "**/tests/**/*"],
+      "includes": ["**/__tests__/**/*", "**/*.test.*"],
       "linter": {
         "rules": {
           "suspicious": {

@@ -13,6 +13,7 @@
 
 import { Suspense } from 'react';
 import { getAuthStatus } from '@/lib/data-access/auth.dal';
+import structuredLogger from '@/lib/logger';
 import { getUserDisplayInfo } from '@/lib/user-display';
 import { HeaderAuthClient } from './HeaderAuthClient';
 
@@ -23,25 +24,28 @@ import { HeaderAuthClient } from './HeaderAuthClient';
 const DEFAULT_USER_DISPLAY_FALLBACK = 'your account';
 
 interface UserAuthStatusProps {
-  className?: string;
+  readonly className?: string;
 }
 
 /**
  * Inner component that does the actual auth status fetching
  * Separated to allow Suspense to catch the async boundary
  */
-async function AuthStatusFetcher({ className }: UserAuthStatusProps) {
-  let authStatus;
+async function AuthStatusFetcher(props: Readonly<UserAuthStatusProps>) {
+  const { className } = props;
+  let authStatus: Awaited<ReturnType<typeof getAuthStatus>>;
   try {
     authStatus = await getAuthStatus();
-  } catch {
+  } catch (err) {
     // Handle error - user is not authenticated
-    authStatus = { isAuthenticated: false, isAdmin: false, user: null };
+    structuredLogger.error('[UserAuthStatus] Auth status fetch failed:', err);
+    authStatus = { isAuthenticated: false, isAdmin: false, user: null } as const;
   }
 
-  const displayInfo = authStatus.isAuthenticated && authStatus.user
-    ? getUserDisplayInfo(authStatus.user, DEFAULT_USER_DISPLAY_FALLBACK)
-    : null;
+  const displayInfo =
+    authStatus.isAuthenticated && authStatus.user
+      ? getUserDisplayInfo(authStatus.user, DEFAULT_USER_DISPLAY_FALLBACK)
+      : null;
 
   return (
     <HeaderAuthClient
@@ -58,17 +62,19 @@ async function AuthStatusFetcher({ className }: UserAuthStatusProps) {
  * Loading skeleton for auth UI
  * Shows a placeholder while authentication status loads
  */
-function AuthSkeleton({ className }: { className?: string }) {
+function AuthSkeleton(props: Readonly<UserAuthStatusProps>) {
+  const { className } = props;
   return (
     <div className={`flex items-center space-x-4 ${className ?? ''}`}>
       {/* Placeholder for sign-in button */}
-      <div
+      <output
         className="inline-flex w-10 h-10 bg-gray-200 animate-pulse rounded-full items-center justify-center"
-        role="status"
         aria-busy="true"
+        aria-live="polite"
+        aria-atomic="true"
       >
         <span className="sr-only">Loading authentication status</span>
-      </div>
+      </output>
     </div>
   );
 }
@@ -78,10 +84,10 @@ function AuthSkeleton({ className }: { className?: string }) {
  * Allows the static shell to render immediately while
  * user-specific auth status loads asynchronously
  */
-export default function UserAuthStatus({ className }: UserAuthStatusProps) {
+export default function UserAuthStatus(props: Readonly<UserAuthStatusProps>) {
   return (
-    <Suspense fallback={<AuthSkeleton className={className} />}>
-      <AuthStatusFetcher className={className} />
+    <Suspense fallback={<AuthSkeleton className={props.className} />}>
+      <AuthStatusFetcher className={props.className} />
     </Suspense>
   );
 }

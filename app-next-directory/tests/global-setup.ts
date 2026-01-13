@@ -1,3 +1,5 @@
+/** biome-ignore-all lint/suspicious/noConsole: false positive */
+
 import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
@@ -96,9 +98,6 @@ export default async function globalSetup() {
   // Resolve credentials with defaults before allocating resources
   const adminPassword = process.env.E2E_ADMIN_PASSWORD?.trim() || DEFAULT_E2E_PASSWORD;
   const userPassword = process.env.E2E_USER_PASSWORD?.trim() || DEFAULT_E2E_PASSWORD;
-
-
- 
 
   await waitForServer(baseURL);
 

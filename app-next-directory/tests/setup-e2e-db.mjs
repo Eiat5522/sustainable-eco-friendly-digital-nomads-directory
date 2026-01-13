@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+/** biome-ignore-all lint/suspicious/noConsole: intentional console
+
 /**
  * E2E Test Setup Script
  *

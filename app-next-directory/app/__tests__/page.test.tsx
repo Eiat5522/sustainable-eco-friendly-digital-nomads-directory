@@ -60,9 +60,7 @@ jest.mock('@/components/sections/FeaturedListingsLegacy', () => ({
 // Mock FeaturedListings Server (new)
 jest.mock('@/components/sections/FeaturedListingsServer', () => ({
   FeaturedListings: ({ listings }: { listings: any[] }) => (
-    <div data-testid="featured-listings">
-      Featured Listings: {listings.length} items
-    </div>
+    <div data-testid="featured-listings">Featured Listings: {listings.length} items</div>
   ),
 }));
 
@@ -81,7 +79,7 @@ describe('HomePage', () => {
   });
 
   it('renders without throwing errors', async () => {
-    const page = await HomePage();
+    const page = await HomePage({ searchParams: {} });
     expect(page).toBeDefined();
   });
 });

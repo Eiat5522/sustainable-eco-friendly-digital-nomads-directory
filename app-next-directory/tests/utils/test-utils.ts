@@ -1,3 +1,5 @@
+/** biome-ignore-all lint/suspicious/noConsole: intentional console */
+
 import fs from 'node:fs';
 import path from 'node:path';
 import type { Page } from '@playwright/test';

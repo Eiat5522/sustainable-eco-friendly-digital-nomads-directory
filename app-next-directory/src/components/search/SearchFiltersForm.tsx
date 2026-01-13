@@ -83,11 +83,8 @@ export function SearchFiltersForm({
   className,
 }: SearchFiltersFormProps) {
   const router = useRouter();
- 
-  const initialValues = React.useMemo(
-    () => deriveInitialValues(initialParams),
-    [initialParams]
-  );
+
+  const initialValues = React.useMemo(() => deriveInitialValues(initialParams), [initialParams]);
 
   const [searchTerm, setSearchTerm] = React.useState(initialValues.searchTerm);
   const [selectedCities, setSelectedCities] = React.useState<string[]>(initialValues.cities);

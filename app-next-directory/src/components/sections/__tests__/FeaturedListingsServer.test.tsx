@@ -46,7 +46,7 @@ jest.mock('../FeaturedListingsCarousel', () => ({
 describe('FeaturedListings (Server Component)', () => {
   it('renders section with header', () => {
     render(<FeaturedListings listings={mockListings} />);
-    
+
     expect(
       screen.getByRole('heading', { name: /Featured Sustainable Venues/i, level: 2 })
     ).toBeInTheDocument();
@@ -54,7 +54,7 @@ describe('FeaturedListings (Server Component)', () => {
 
   it('renders section description', () => {
     render(<FeaturedListings listings={mockListings} />);
-    
+
     expect(
       screen.getByText(/Handpicked eco-friendly spaces that prioritize sustainability/i)
     ).toBeInTheDocument();
@@ -62,13 +62,13 @@ describe('FeaturedListings (Server Component)', () => {
 
   it('renders carousel when listings are provided', () => {
     render(<FeaturedListings listings={mockListings} />);
-    
+
     expect(screen.getByTestId('featured-listings-carousel')).toBeInTheDocument();
   });
 
   it('renders all listings in carousel', () => {
     render(<FeaturedListings listings={mockListings} />);
-    
+
     for (const listing of mockListings) {
       expect(screen.getByText(listing.name)).toBeInTheDocument();
     }
@@ -76,21 +76,19 @@ describe('FeaturedListings (Server Component)', () => {
 
   it('renders empty state when no listings provided', () => {
     render(<FeaturedListings listings={[]} />);
-    
-    expect(
-      screen.getByText(/No featured listings available at the moment/i)
-    ).toBeInTheDocument();
+
+    expect(screen.getByText(/No featured listings available at the moment/i)).toBeInTheDocument();
   });
 
   it('does not render carousel when listings array is empty', () => {
     render(<FeaturedListings listings={[]} />);
-    
+
     expect(screen.queryByTestId('featured-listings-carousel')).not.toBeInTheDocument();
   });
 
   it('has correct section structure', () => {
     const { container } = render(<FeaturedListings listings={mockListings} />);
-    
+
     const section = container.querySelector('section');
     expect(section).toBeInTheDocument();
     expect(section).toHaveClass('py-16', 'bg-background');
@@ -98,7 +96,7 @@ describe('FeaturedListings (Server Component)', () => {
 
   it('wraps content in container with padding', () => {
     const { container } = render(<FeaturedListings listings={mockListings} />);
-    
+
     const containerDiv = container.querySelector('.container');
     expect(containerDiv).toBeInTheDocument();
     expect(containerDiv).toHaveClass('mx-auto', 'px-4');

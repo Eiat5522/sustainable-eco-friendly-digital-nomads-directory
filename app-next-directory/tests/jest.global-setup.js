@@ -1,3 +1,5 @@
+/** biome-ignore-all lint/suspicious/noConsole: false positive */
+
 const { execSync } = require('node:child_process');
 
 module.exports = async () => {

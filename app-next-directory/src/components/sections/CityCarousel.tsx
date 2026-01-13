@@ -34,11 +34,7 @@ const sanitizeCityData = (cities: CityDTO[]) => {
 
 // Memoized CityCard component to prevent unnecessary re-renders
 const CityCard = memo(
-  ({
-    city,
-  }: {
-    city: CityDTO & { _originalSlug: string; _fallbackId: string };
-  }) => {
+  ({ city }: { city: CityDTO & { _originalSlug: string; _fallbackId: string } }) => {
     const slugSegment = city.slug;
     const displayName = city.name && city.name.length > 0 ? city.name : 'Explore City';
 

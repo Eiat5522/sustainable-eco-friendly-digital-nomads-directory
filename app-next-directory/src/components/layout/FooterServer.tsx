@@ -11,11 +11,11 @@
  * - Optimized for partial prerendering
  */
 
-import { FooterYear } from '@/components/layout/FooterYear';
-import { NewsletterForm } from '@/components/layout/NewsletterForm';
 import { Instagram, Leaf, Linkedin, Mail, MapPin, MessageSquare, Twitter } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
+import { FooterYear } from '@/components/layout/FooterYear';
+import { NewsletterForm } from '@/components/layout/NewsletterForm';
 
 const footerLinks = {
   quickLinks: [
@@ -156,9 +156,13 @@ export function FooterServer({ showNewsletter = true }: FooterServerProps) {
 
         {/* Bottom Bar */}
         <div className="border-t border-white/20 pt-8 flex flex-col md:flex-row justify-between items-center">
-+          <p className="body-sm text-gray-400 mb-4 md:mb-0">
-+            © <Suspense fallback={<span>...</span>}><FooterYear /></Suspense> SustainableNomads. All rights reserved.
-+          </p>
+          <p className="body-sm text-gray-400 mb-4 md:mb-0">
+            ©{' '}
+            <Suspense fallback={<span>...</span>}>
+              <FooterYear />
+            </Suspense>{' '}
+            SustainableNomads. All rights reserved.
+          </p>
           <div className="flex items-center space-x-4">
             <span className="body-sm text-gray-400">Made with</span>
             <Leaf size={16} className="text-neo-success" />

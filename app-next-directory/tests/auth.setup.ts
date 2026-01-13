@@ -1,3 +1,5 @@
+/** biome-ignore-all lint/suspicious/noConsole: false positive */
+
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';

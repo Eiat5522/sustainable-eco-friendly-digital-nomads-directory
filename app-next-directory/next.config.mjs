@@ -19,9 +19,13 @@ const nextConfig = {
     fetches: {
       fullUrl: true, // Logs the full URL of fetch requests
       hmrRefreshes: true, // Logs fetches even during HMR refreshes
-    },
+        },
   },
   experimental: {
+    // Enable rendering of Next.js 401 unauthorized page.
+    authInterrupts: true,
+    // Support for statically typed links (requires TypeScript)
+    typedRoutes: true,
     // Enable filesystem caching for `next dev`
     turbopackFileSystemCacheForDev: true,
     // Enable filesystem caching for `next build`
@@ -54,7 +58,7 @@ const nextConfig = {
   ],
   reactStrictMode: false,
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   // `eslint` config is now managed via the project ESLint config (eslint.config.mjs)
   // Remove this entry for Next.js 16 compatibility.

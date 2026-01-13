@@ -14,7 +14,8 @@ export const test = base.extend<{ mockListingPage: MockListingPage }>({
   // Set up a mock listing page with search functionality
   mockListingPage: async ({ page }, use) => {
     const parsedTimeout = Number(process.env.TEST_TIMEOUT);
-    const responseTimeout = Number.isFinite(parsedTimeout) && parsedTimeout > 0 ? parsedTimeout : 10000;
+    const responseTimeout =
+      Number.isFinite(parsedTimeout) && parsedTimeout > 0 ? parsedTimeout : 10000;
 
     // Mock the API response for listings
     await page.route('**/api/test-listings', async route => {

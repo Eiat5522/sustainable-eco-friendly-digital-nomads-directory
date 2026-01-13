@@ -98,11 +98,11 @@ describe('SearchFiltersForm', () => {
 
     const searchInput = screen.getByPlaceholderText('Search by name, city, or amenities');
 
-await waitFor(() => {
-  expect(screen.getByTestId('filter-select-cities')).toBeInTheDocument();
-  expect(screen.getByTestId('filter-select-workspace-types')).toBeInTheDocument();
-  expect(screen.getByTestId('filter-select-amenities')).toBeInTheDocument();
-});
+    await waitFor(() => {
+      expect(screen.getByTestId('filter-select-cities')).toBeInTheDocument();
+      expect(screen.getByTestId('filter-select-workspace-types')).toBeInTheDocument();
+      expect(screen.getByTestId('filter-select-amenities')).toBeInTheDocument();
+    });
 
     fireEvent.change(searchInput, {
       target: { value: 'new search' },
