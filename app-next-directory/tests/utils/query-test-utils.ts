@@ -42,7 +42,7 @@ export function validateListingResult(listing: Record<string, unknown>) {
     expect(listing).toHaveProperty('wifiSpeed');
     const wifiSpeed = listing.wifiSpeed;
     if (typeof wifiSpeed === 'number') {
-      expect(typeof wifiSpeed).toBe('number');
+      expect(wifiSpeed).toBeGreaterThanOrEqual(0);
     }
   }
 

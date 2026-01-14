@@ -17,15 +17,6 @@ const testUser = {
   password: 'testPassword123!',
 };
 
-const _testListing = {
-  name: 'Test Eco Coworking Space',
-  description: 'A sustainable coworking space for digital nomads',
-  city: 'Bangkok',
-  country: 'Thailand',
-  ecoCertifications: ['LEED Gold', 'Energy Star'],
-  amenities: ['WiFi', 'Coffee', 'Solar Power'],
-};
-
 test.describe('API Integration Testing - Workstream E.1', () => {
   test.describe('Authentication Endpoints', () => {
     test('POST /api/auth/signup - User Registration', async ({ request }) => {

@@ -118,8 +118,8 @@ test.describe('Cross-Browser Compatibility Testing', () => {
       });
 
       // All modern features should be supported
-      Object.entries(jsFeatures).forEach(([_feature, supported]) => {
-        expect(supported).toBeTruthy();
+      Object.entries(jsFeatures).forEach(([feature, supported]) => {
+        expect(supported, `JS feature '${feature}' should be supported`).toBeTruthy();
       });
     });
 
@@ -145,8 +145,8 @@ test.describe('Cross-Browser Compatibility Testing', () => {
       });
 
       // All CSS features should be supported
-      Object.entries(cssFeatures).forEach(([_feature, supported]) => {
-        expect(supported).toBeTruthy();
+      Object.entries(cssFeatures).forEach(([feature, supported]) => {
+        expect(supported, `CSS feature '${feature}' should be supported`).toBeTruthy();
       });
     });
   });
@@ -162,19 +162,25 @@ test.describe('Cross-Browser Compatibility Testing', () => {
 
           await page.goto('/');
 
-          // Test touch interactions
-          const searchButton = page
-            .getByRole('search', { name: /search listings/i })
-            .getByRole('button', { name: /^search$/i });
-          await searchButton.tap();
-
-          // Test mobile navigation
           const mobileMenuToggle = page.locator('[data-testid="mobile-menu-toggle"]');
           if (await mobileMenuToggle.isVisible()) {
             await mobileMenuToggle.tap();
             const mobileMenu = page.locator('[data-testid="mobile-menu"]');
             await expect(mobileMenu).toBeVisible();
+
+            // Now click the 'Search' link within the mobile menu
+            await mobileMenu.getByRole('link', { name: 'Search' }).click();
+            await page.waitForURL(/.*\/search/, { timeout: 20000, waitUntil: 'domcontentloaded' });
+            // Verify that the mobile menu closes after navigation
+            await expect(mobileMenu).not.toBeVisible();
           }
+
+          // Search functionality (now on the search page)
+          await page.waitForLoadState('networkidle'); // Add this line
+          await page.getByLabel('Search venues').fill('coworking');
+          await page.getByRole('button', { name: 'Search' }).click();
+
+          await page.waitForURL('**/search**', { timeout: 20000, waitUntil: 'domcontentloaded' });
 
           await context.close();
         });

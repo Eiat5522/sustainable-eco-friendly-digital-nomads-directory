@@ -73,8 +73,8 @@ export default defineConfig({
         url: serverWaitURL.toString(),
         // Increase timeout for containerized environments (build + startup can take longer)
         timeout: 180_000,
-        // In CI/E2E/Docker runs we should NOT reuse an existing server to avoid stale processes
-        reuseExistingServer: !(process.env.CI || process.env.E2E || process.env.NEXT_PUBLIC_E2E),
+        // Reuse existing dev server to avoid waiting for slow cold starts
+        reuseExistingServer: true,
         env: {
           // Load .env.e2e file for isolated test environment
           NODE_ENV: 'development',

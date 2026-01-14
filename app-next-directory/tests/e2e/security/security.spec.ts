@@ -262,7 +262,7 @@ test.describe('Security Testing', () => {
       // This test verifies that the application has file upload functionality
       // Note: This page requires authentication, so we check if it redirects or loads
 
-      const _response = await page.goto(TEST_CONFIG.urls.createListing);
+      await page.goto(TEST_CONFIG.urls.createListing);
 
       // Check if we got redirected to login (expected for unauth user)
       if (page.url().includes('login') || page.url().includes('signin')) {

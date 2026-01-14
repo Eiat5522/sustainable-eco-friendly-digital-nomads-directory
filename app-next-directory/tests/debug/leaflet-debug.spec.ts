@@ -40,7 +40,7 @@ test('leaflet map debug', async ({ page }) => {
       stage: 'request',
     });
   });
-  page.on('requestfinished', async req => {
+  page.on('requestfinished', req => {
     try {
       const res = req.response();
       const status = res?.status() ?? null;
@@ -74,8 +74,12 @@ test('leaflet map debug', async ({ page }) => {
   // Navigate
   await page.goto(URL, { waitUntil: 'networkidle' });
 
-  // Wait a bit for any tiles to load
-  await page.waitForTimeout(2500);
+  // Wait for map tiles to load
+  await page.waitForSelector('.leaflet-tile', { state: 'attached' });
+  await page.waitForFunction(() => {
+    const tiles = Array.from(document.querySelectorAll('.leaflet-tile')) as HTMLImageElement[];
+    return tiles.length > 0 && tiles.every(tile => tile.complete);
+  });
 
   // Capture DOM info about Leaflet
   const mapInfo = await page.evaluate(() => {
@@ -124,11 +128,7 @@ test('leaflet map debug', async ({ page }) => {
 
   // Save screenshot of full page and map element
   const outDir = path.join(process.cwd(), 'playwright-debug-output');
-  try {
-    fs.mkdirSync(outDir);
-  } catch (_e) {
-    /* ok */
-  }
+  fs.mkdirSync(outDir, { recursive: true });
   const fullShot = path.join(outDir, 'leaflet-fullpage.png');
   await page.screenshot({ path: fullShot, fullPage: true });
 

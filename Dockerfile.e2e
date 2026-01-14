@@ -11,7 +11,7 @@ RUN apk add --no-cache \
     freetype \
     harfbuzz \
     ca-certificates \
-    ttf-freefont
+    ttf-dejavu
 
 # Set Playwright to use system chromium
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1

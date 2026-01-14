@@ -56,11 +56,12 @@ async function CityCarouselSection() {
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams?: { forceFeaturedFetch?: string | string[] };
+  searchParams?: Promise<{ forceFeaturedFetch?: string | string[] }>;
 }) {
-  const forceFeaturedFetch = Array.isArray(searchParams?.forceFeaturedFetch)
-    ? searchParams?.forceFeaturedFetch.includes('1')
-    : searchParams?.forceFeaturedFetch === '1';
+  const resolvedSearchParams = (await searchParams) ?? {};
+  const forceFeaturedFetch = Array.isArray(resolvedSearchParams.forceFeaturedFetch)
+    ? resolvedSearchParams.forceFeaturedFetch.includes('1')
+    : resolvedSearchParams.forceFeaturedFetch === '1';
 
   return (
     <PageLayoutServer>

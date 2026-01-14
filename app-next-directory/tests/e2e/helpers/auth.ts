@@ -142,7 +142,7 @@ export async function loginAs(page: Page, email: string, password: string) {
     // Wait for navigation with a race between URL change and network idle
     await Promise.race([
       page.waitForURL(/\/(dashboard|account|home|admin)(\/)?(?=$|[?#])/, { timeout: 45000 }),
-      page.waitForNavigation({ waitUntil: 'networkidle', timeout: 45000 }),
+      page.waitForLoadState('networkidle', { timeout: 45000 }),
       // Also accept staying on the same page if login was successful (e.g., redirect via JS)
       page.waitForFunction(() => !document.querySelector('[aria-disabled="true"]'), {
         timeout: 45000,

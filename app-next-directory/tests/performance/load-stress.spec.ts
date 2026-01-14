@@ -1,13 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { structuredLogger } from '@/lib/logger';
-
-type PerformanceMemory = {
-  usedJSHeapSize: number;
-};
-
-type PerformanceWithMemory = Performance & {
-  memory?: PerformanceMemory;
-};
+import type { PerformanceWithMemory } from './types/performance';
 
 test.describe('Performance & Load Testing', () => {
   test.describe('Page Load Performance', () => {

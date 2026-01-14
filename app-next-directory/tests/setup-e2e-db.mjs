@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-/** biome-ignore-all lint/suspicious/noConsole: intentional console */
-/** biome-ignore-all lint/security/noSecrets: test password hash for E2E tests */
+// biome-ignore-all lint/suspicious/noConsole: intentional console
+// biome-ignore-all lint/security/noSecrets: test password hash for E2E tests
 /**
  * E2E Test Setup Script
  *
@@ -19,7 +19,6 @@
  */
 
 import { MongoClient } from 'mongodb';
-import structuredLogger from '@/lib/logger';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/e2e_test';
 const DB_NAME = 'e2e_test';
@@ -148,6 +147,6 @@ async function setupE2EDatabase() {
 
 // Run setup
 setupE2EDatabase().catch(err => {
-  structuredLogger.error(err);
+  console.error(err);
   process.exit(1);
 });
