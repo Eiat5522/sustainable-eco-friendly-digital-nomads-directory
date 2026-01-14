@@ -91,9 +91,11 @@ const CityCard = memo(
 CityCard.displayName = 'CityCard';
 
 export function CityCarousel({ initialCities }: CityCarouselProps = {}): React.JSX.Element {
+  // Check if initialCities was explicitly provided (even if empty) to avoid client-side fetch
+  const initialCitiesProvided = initialCities !== undefined && initialCities !== null;
   const hasInitialCities = Array.isArray(initialCities) && initialCities.length > 0;
   const [cities, setCities] = useState<CityDTO[]>(initialCities ?? []);
-  const [loading, setLoading] = useState(!hasInitialCities);
+  const [loading, setLoading] = useState(!initialCitiesProvided);
   const [error, setError] = useState<string | null>(null);
 
   // Embla carousel setup - memoized
@@ -134,7 +136,8 @@ export function CityCarousel({ initialCities }: CityCarouselProps = {}): React.J
   const sanitizedCities = useMemo(() => sanitizeCityData(cities), [cities]);
 
   useEffect(() => {
-    if (hasInitialCities) return;
+    // Don't fetch if initialCities was explicitly provided (even if empty)
+    if (initialCitiesProvided) return;
 
     let cancelled = false;
     const controller = new AbortController();
@@ -168,7 +171,7 @@ export function CityCarousel({ initialCities }: CityCarouselProps = {}): React.J
       cancelled = true;
       controller.abort();
     };
-  }, [hasInitialCities]);
+  }, [initialCitiesProvided]);
 
   // Memoized button handlers to reduce re-renders
   const handleMouseEnter = useCallback(() => autoplay.current?.stop(), []);

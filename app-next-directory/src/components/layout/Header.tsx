@@ -66,7 +66,7 @@ export function Header(): React.JSX.Element {
   return (
     <header className="w-full bg-background border-b-4 border-neo-border">
       <div className="container mx-auto px-4 py-4">
-        <div className="relative flex items-center justify-between">
+        <div className="flex items-center justify-between">
           {/* Left: Logo + Mobile Menu */}
           <div className="flex items-center gap-3">
             <Link href="/" aria-label="Go to homepage">
@@ -94,7 +94,7 @@ export function Header(): React.JSX.Element {
           {/* Center: Navigation (desktop) */}
           <nav
             aria-label="Primary navigation"
-            className="hidden md:flex items-center space-x-8 absolute left-1/2 -translate-x-1/2"
+            className="hidden md:flex items-center space-x-8"
           >
             <Link
               href="/"
