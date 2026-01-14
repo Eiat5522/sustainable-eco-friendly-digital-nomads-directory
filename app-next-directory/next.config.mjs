@@ -21,11 +21,11 @@ const nextConfig = {
       hmrRefreshes: true, // Logs fetches even during HMR refreshes
     },
   },
+  // Support for statically typed links (requires TypeScript)
+  typedRoutes: true,  
   experimental: {
     // Enable rendering of Next.js 401 unauthorized page.
     authInterrupts: true,
-    // Support for statically typed links (requires TypeScript)
-    typedRoutes: true,
     // Enable filesystem caching for `next dev`
     turbopackFileSystemCacheForDev: true,
     // Enable filesystem caching for `next build`

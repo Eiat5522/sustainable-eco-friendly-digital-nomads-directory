@@ -31,6 +31,13 @@ async function captureDebugArtifacts(page: Page, prefix: string, storageDir: str
 }
 
 const DEFAULT_E2E_PASSWORD = process.env.E2E_DEFAULT_PASSWORD?.trim() || 'TestSecurePass123!';
+const parseEnvFlag = (value: string | undefined, defaultValue: boolean) => {
+  if (value == null) return defaultValue;
+  const normalized = value.trim().toLowerCase();
+  if (['1', 'true', 'yes', 'on'].includes(normalized)) return true;
+  if (['0', 'false', 'no', 'off'].includes(normalized)) return false;
+  return defaultValue;
+};
 
 async function seedE2EUser(
   baseURL: string,
@@ -94,6 +101,11 @@ export default async function globalSetup() {
   if (!fs.existsSync(storageDir)) fs.mkdirSync(storageDir, { recursive: true });
 
   const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000';
+  const allowTokenFallback = parseEnvFlag(process.env.E2E_ALLOW_TOKEN_FALLBACK, true);
+  const failOnUiLoginFailure = parseEnvFlag(
+    process.env.E2E_FAIL_ON_UI_LOGIN_FAILURE,
+    false
+  );
 
   // Resolve credentials with defaults before allocating resources
   const adminPassword = process.env.E2E_ADMIN_PASSWORD?.trim() || DEFAULT_E2E_PASSWORD;
@@ -143,15 +155,22 @@ export default async function globalSetup() {
   } catch (err) {
     // don't fail global setup hard; surface the error to logs
     console.warn('global-setup: failed to generate admin storageState', err);
-    try {
-      const adminPath = path.join(storageDir, 'admin.json');
-      await loginAs(page, 'admin', { redirectTo: '/admin' });
-      await context.storageState({ path: adminPath });
-    } catch (fallbackError) {
-      console.warn(
-        'global-setup: failed to generate admin storageState via token fallback',
-        fallbackError
-      );
+    if (failOnUiLoginFailure) {
+      throw err;
+    }
+    if (!allowTokenFallback) {
+      console.warn('global-setup: token fallback disabled via E2E_ALLOW_TOKEN_FALLBACK');
+    } else {
+      try {
+        const adminPath = path.join(storageDir, 'admin.json');
+        await loginAs(page, 'admin', { redirectTo: '/admin' });
+        await context.storageState({ path: adminPath });
+      } catch (fallbackError) {
+        console.warn(
+          'global-setup: failed to generate admin storageState via token fallback',
+          fallbackError
+        );
+      }
     }
   }
 
@@ -188,21 +207,28 @@ export default async function globalSetup() {
     }
   } catch (err) {
     console.warn('global-setup: failed to generate user storageState', err);
-    try {
-      const userContext = await browser.newContext({ baseURL });
+    if (failOnUiLoginFailure) {
+      throw err;
+    }
+    if (!allowTokenFallback) {
+      console.warn('global-setup: token fallback disabled via E2E_ALLOW_TOKEN_FALLBACK');
+    } else {
       try {
-        const userPage = await userContext.newPage();
-        const userPath = path.join(storageDir, 'user.json');
-        await loginAs(userPage, 'user', { redirectTo: '/dashboard' });
-        await userContext.storageState({ path: userPath });
-      } finally {
-        await userContext.close();
+        const userContext = await browser.newContext({ baseURL });
+        try {
+          const userPage = await userContext.newPage();
+          const userPath = path.join(storageDir, 'user.json');
+          await loginAs(userPage, 'user', { redirectTo: '/dashboard' });
+          await userContext.storageState({ path: userPath });
+        } finally {
+          await userContext.close();
+        }
+      } catch (fallbackError) {
+        console.warn(
+          'global-setup: failed to generate user storageState via token fallback',
+          fallbackError
+        );
       }
-    } catch (fallbackError) {
-      console.warn(
-        'global-setup: failed to generate user storageState via token fallback',
-        fallbackError
-      );
     }
   }
   await context.close();

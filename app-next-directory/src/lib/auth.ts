@@ -274,6 +274,9 @@ const callbacks = {
   },
 } as NextAuthConfig['callbacks'];
 
+console.log('NextAuth Config:');
+console.log('  NEXTAUTH_SECRET (first 5 chars):', process.env.NEXTAUTH_SECRET?.substring(0, 5));
+console.log('  NODE_ENV:', process.env.NODE_ENV);
 export const authOptions: NextAuthConfig = {
   // Use adapter only when a valid Mongo URI is configured to avoid dev crashes
   ...(adapter ? { adapter } : {}),

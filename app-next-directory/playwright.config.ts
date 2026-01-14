@@ -67,35 +67,4 @@ export default defineConfig({
       dependencies: ['setup'],
     },
   ],
-  webServer: isLocal
-    ? {
-        command: 'next dev',
-        url: serverWaitURL.toString(),
-        // Increase timeout for containerized environments (build + startup can take longer)
-        timeout: 180_000,
-        // Reuse existing dev server to avoid waiting for slow cold starts
-        reuseExistingServer: true,
-        env: {
-          // Load .env.e2e file for isolated test environment
-          NODE_ENV: 'development',
-          PORT: String(resolvedPort),
-          E2E: '1',
-          NEXT_PUBLIC_E2E: '1',
-          ENABLE_TEST_PAGES: 'true',
-          USE_REAL_MONGODB_FOR_E2E: '1',
-          // Use isolated test credentials
-          NEXT_PUBLIC_SANITY_PROJECT_ID: 'test-project-id',
-          NEXT_PUBLIC_SANITY_DATASET: 'test',
-          NEXT_TELEMETRY_DISABLED: '1',
-          MONGODB_URI: process.env.MONGODB_URI ?? 'mongodb://127.0.0.1:27017/e2e_test',
-          NEXTAUTH_SECRET: 'e2e-test-secret-for-testing-only-not-production',
-          NEXTAUTH_URL: resolvedBaseURL.toString(),
-          NEXT_PUBLIC_FRONTEND_URL: resolvedBaseURL.toString(),
-          // Disable external services for E2E
-          RESEND_API_TOKEN: '',
-          UPSTASH_REDIS_REST_URL: '',
-          UPSTASH_REDIS_REST_TOKEN: '',
-        },
-      }
-    : undefined,
 });

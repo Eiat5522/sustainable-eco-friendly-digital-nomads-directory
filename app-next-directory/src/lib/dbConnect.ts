@@ -1,4 +1,5 @@
 import mongoose, { type Mongoose } from 'mongoose';
+import { structuredLogger } from '@/lib/logger';
 
 const MONGODB_URI = process.env.MONGODB_URI;
 // FORTEST: Support both SKIP_DB_CONNECT and DISABLE_MONGODB_DURING_BUILD for build-time safety
@@ -15,6 +16,13 @@ const shouldRequireMongoUri =
 
 // FORTEST: Move error throw into function call to prevent module-scope exceptions during build
 function validateMongoUri() {
+  structuredLogger.info('DB Connect: Validating MONGODB_URI', {
+    shouldRequireMongoUri,
+    MONGODB_URI: MONGODB_URI ? '****** (present)' : '(not present)',
+    isJestEnvironment,
+    shouldUseRealMongoDuringTests,
+    skipDbConnect,
+  });
   if (shouldRequireMongoUri && !MONGODB_URI) {
     throw new Error('MONGODB_URI environment variable is required');
   }
@@ -47,12 +55,15 @@ async function connectWithCaching(): Promise<Mongoose> {
       bufferCommands: false,
     };
 
+    structuredLogger.info('DB Connect: Attempting to connect to MongoDB...');
     cached.promise = mongoose.connect(MONGODB_URI!, opts);
   }
 
   try {
     cached.conn = await cached.promise;
+    structuredLogger.info('DB Connect: Successfully connected to MongoDB.');
   } catch (error) {
+    structuredLogger.error('DB Connect: Failed to connect to MongoDB', error);
     cached.promise = null;
     throw error;
   }
