@@ -50,7 +50,8 @@ async function CityCarouselSection() {
   } catch (error) {
     structuredLogger.error('Failed to fetch cities:', { error });
   }
-  return <CityCarousel initialCities={cities} />;
+  // Pass empty array instead of null to prevent client-side fetch attempts
+  return <CityCarousel initialCities={cities ?? []} />;
 }
 
 export default async function HomePage({
