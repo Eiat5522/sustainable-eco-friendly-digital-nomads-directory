@@ -102,10 +102,7 @@ export default async function globalSetup() {
 
   const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000';
   const allowTokenFallback = parseEnvFlag(process.env.E2E_ALLOW_TOKEN_FALLBACK, true);
-  const failOnUiLoginFailure = parseEnvFlag(
-    process.env.E2E_FAIL_ON_UI_LOGIN_FAILURE,
-    false
-  );
+  const failOnUiLoginFailure = parseEnvFlag(process.env.E2E_FAIL_ON_UI_LOGIN_FAILURE, false);
 
   // Resolve credentials with defaults before allocating resources
   const adminPassword = process.env.E2E_ADMIN_PASSWORD?.trim() || DEFAULT_E2E_PASSWORD;

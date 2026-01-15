@@ -89,7 +89,7 @@ test.describe('Authentication (Playwright E2E)', () => {
       await page.waitForURL('**/', { waitUntil: 'domcontentloaded', timeout: 15000 });
     } catch (error) {
       // If auto-navigation didn't occur, manually navigate
-     structuredLogger.warn('Auto-navigation timed out, manually navigating to home page:', error);
+      structuredLogger.warn('Auto-navigation timed out, manually navigating to home page:', error);
       await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 15000 });
     }
 

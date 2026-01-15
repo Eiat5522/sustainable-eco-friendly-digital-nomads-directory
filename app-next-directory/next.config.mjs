@@ -22,7 +22,7 @@ const nextConfig = {
     },
   },
   // Support for statically typed links (requires TypeScript)
-  typedRoutes: true,  
+  typedRoutes: true,
   experimental: {
     // Enable rendering of Next.js 401 unauthorized page.
     authInterrupts: true,
@@ -56,19 +56,17 @@ const nextConfig = {
     'typescript',
     'webpack',
   ],
-  reactStrictMode: false,
+  reactStrictMode: true,
   typescript: {
     ignoreBuildErrors: false,
   },
   // `eslint` config is now managed via the project ESLint config (eslint.config.mjs)
   // Remove this entry for Next.js 16 compatibility.
   env: {
-    // Prefer per-environment env var; dev-only fallback.
+    // Prefer per-environment env var; provide dev-only fallback.
     NEXT_PUBLIC_API_URL:
       process.env.NEXT_PUBLIC_API_URL ||
-      (process.env.NODE_ENV === 'development'
-        ? 'http://localhost:3000'
-        : process.env.NEXT_PUBLIC_API_URL),
+      (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : undefined),
   },
   images: {
     remotePatterns: [
@@ -80,7 +78,7 @@ const nextConfig = {
       // Use the active Vercel deployment host to allow previews and production without over-broad wildcards
       {
         protocol: 'https',
-        hostname: process.env.VERCEL_URL || 'your-app.vercel.app',
+        hostname: process.env.VERCEL_URL || 'localhost',
         pathname: '/**',
       },
     ],

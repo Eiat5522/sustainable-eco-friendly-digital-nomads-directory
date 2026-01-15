@@ -1,5 +1,5 @@
 import { devices, expect, test } from '@playwright/test';
-import { structuredLogger } from '@/lib/logger';
+import { structuredLogger } from '@/src/lib/logger';
 import { loginAs } from '../helpers/auth';
 
 test.describe('Cross-Browser Compatibility Testing', () => {
@@ -60,19 +60,25 @@ test.describe('Cross-Browser Compatibility Testing', () => {
         await expect(primaryNav).toBeVisible();
 
         // Explicitly wait for the link to be actionable before clicking
-        await primaryNav.getByRole('link', { name: 'Search' }).waitFor({ state: 'visible', timeout: 10000 });
+        await primaryNav
+          .getByRole('link', { name: 'Search' })
+          .waitFor({ state: 'visible', timeout: 10000 });
         await primaryNav.getByRole('link', { name: 'Search' }).click();
         await page.waitForURL(/.*\/search/, { timeout: 20000, waitUntil: 'domcontentloaded' });
 
         const searchNav = page.getByRole('navigation', { name: 'Primary navigation' });
         // Explicitly wait for the link to be actionable before clicking
-        await searchNav.getByRole('link', { name: 'Blog' }).waitFor({ state: 'visible', timeout: 10000 });
+        await searchNav
+          .getByRole('link', { name: 'Blog' })
+          .waitFor({ state: 'visible', timeout: 10000 });
         await searchNav.getByRole('link', { name: 'Blog' }).click();
         await page.waitForURL(/.*\/blog/, { timeout: 20000, waitUntil: 'domcontentloaded' });
 
         const blogNav = page.getByRole('navigation', { name: 'Primary navigation' });
         // Explicitly wait for the link to be actionable before clicking
-        await blogNav.getByRole('link', { name: 'Contact Us' }).waitFor({ state: 'visible', timeout: 10000 });
+        await blogNav
+          .getByRole('link', { name: 'Contact Us' })
+          .waitFor({ state: 'visible', timeout: 10000 });
         await blogNav.getByRole('link', { name: 'Contact Us' }).click();
         await page.waitForURL(/\/contact-us\/?(?:\?.*)?(?:#.*)?$/, {
           timeout: 20000,
@@ -172,20 +178,25 @@ test.describe('Cross-Browser Compatibility Testing', () => {
           const mobileMenuToggle = page.locator('[data-testid="mobile-menu-toggle"]');
           if (await mobileMenuToggle.isVisible()) {
             // Use click instead of tap and wait for the menu to appear
-            await page.screenshot({ path: `test-results/${deviceName}-before-menu-toggle.png` });
+            await page.screenshot({
+              path: test.info().outputPath(`${deviceName}-before-menu-toggle.png`),
+            });
             await mobileMenuToggle.click();
             const mobileMenu = page.locator('[data-testid="mobile-menu"]');
             // Wait for the mobile menu to become visible, checking its computed style
+            const menuHandle = await mobileMenu.elementHandle();
             await page.waitForFunction(
-              (menu) => {
+              menu => {
                 const style = window.getComputedStyle(menu);
                 return style.visibility !== 'hidden' && style.opacity !== '0';
               },
-              mobileMenu.elementHandle(), // Pass the element handle to the function
+              menuHandle,
               { timeout: 10000 }
             );
             await expect(mobileMenu).toBeVisible();
-            await page.screenshot({ path: `test-results/${deviceName}-after-menu-toggle.png` });
+            await page.screenshot({
+              path: test.info().outputPath(`${deviceName}-after-menu-toggle.png`),
+            });
 
             // Now click the 'Search' link within the mobile menu
             await mobileMenu.getByRole('link', { name: 'Search' }).click();

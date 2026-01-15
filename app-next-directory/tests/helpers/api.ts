@@ -7,10 +7,7 @@ import type { APIRequestContext } from '@playwright/test';
  * if your project exposes different routes for test fixtures.
  */
 
-export async function createTestUser(
-  request: APIRequestContext,
-  user: Record<string, unknown>
-) {
+export async function createTestUser(request: APIRequestContext, user: Record<string, unknown>) {
   const res = await request.post('/api/test/users', { data: user });
   if (!res.ok()) throw new Error(`createTestUser failed: ${res.status()}`);
   return res.json();

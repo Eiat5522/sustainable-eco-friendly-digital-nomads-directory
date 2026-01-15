@@ -44,7 +44,10 @@ type LeafletIconOptions = Record<string, unknown>;
 type LeafletMock = {
   map: (container: HTMLElement | string) => LeafletMapInstance;
   tileLayer: () => { addTo: () => unknown };
-  marker: (position: [number, number], options?: { icon?: { html?: string } }) => LeafletMarkerFactory;
+  marker: (
+    position: [number, number],
+    options?: { icon?: { html?: string } }
+  ) => LeafletMarkerFactory;
   divIcon: (opts: LeafletIconOptions) => LeafletIconOptions;
   icon: (opts: LeafletIconOptions) => LeafletIconOptions;
 };
