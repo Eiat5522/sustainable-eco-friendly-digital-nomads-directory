@@ -92,10 +92,7 @@ export function Header(): React.JSX.Element {
           </div>
 
           {/* Center: Navigation (desktop) */}
-          <nav
-            aria-label="Primary navigation"
-            className="hidden md:flex items-center space-x-8"
-          >
+          <nav aria-label="Primary navigation" className="hidden md:flex items-center space-x-8">
             <Link
               href="/"
               className="body-md hover:text-neo-primary font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary rounded-sm px-1 py-1"

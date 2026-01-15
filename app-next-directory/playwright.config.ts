@@ -3,17 +3,12 @@
 import { defineConfig, devices } from '@playwright/test';
 import {
   PLAYWRIGHT_BASE_URL,
-  PLAYWRIGHT_ENV,
-  PLAYWRIGHT_IS_LOCAL,
-  PLAYWRIGHT_PORT,
 } from './tests/config/environment';
 
 // NOTE: This config will start the Next dev server before running tests and stop it after.
 // If your dev server uses a different port, update `PLAYWRIGHT_BASE_URL` via env vars.
 const resolvedBaseURL = PLAYWRIGHT_BASE_URL;
-const _isLocal = PLAYWRIGHT_IS_LOCAL;
-const _resolvedPort = PLAYWRIGHT_PORT;
-const _serverWaitURL = PLAYWRIGHT_ENV.serverWaitURL;
+
 
 export default defineConfig({
   // Run Playwright tests from the project tests directory using .spec.ts extension only

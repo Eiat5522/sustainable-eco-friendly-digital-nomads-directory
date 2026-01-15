@@ -1,4 +1,5 @@
 import 'server-only';
+ 
 import type { Model } from 'mongoose';
 import NextAuth, { type NextAuthConfig, type Session } from 'next-auth';
 import type { JWT } from 'next-auth/jwt';
@@ -8,9 +9,8 @@ import Google from 'next-auth/providers/google';
 // Additional OAuth providers can be added here when their credentials are available.
 import { createAuthAdapter } from '@/lib/auth/adapter';
 import { isAdminEmail } from '@/lib/auth/config';
-import { getUserById } from '@/lib/auth/dal';
+import { authenticateUserCredentials, getUserById } from '@/lib/auth/dal';
 import { enforceLoginRateLimit, recordLoginAttempt } from '@/lib/auth/rateLimit';
-import { authenticateUser } from '@/lib/auth/serverAuth';
 import { syncUserToSanity } from '@/lib/auth/userService';
 import dbConnect from '@/lib/dbConnect';
 import { structuredLogger } from '@/lib/logger';
@@ -55,7 +55,7 @@ const providers: NextAuthConfig['providers'] = [
           throw new Error('Too many login attempts. Please try again later.');
         }
 
-        const user = await authenticateUser(email, password);
+        const user = await authenticateUserCredentials(email, password);
         await recordLoginAttempt({
           email,
           ip,
@@ -94,8 +94,7 @@ const parseBooleanEnv = (value?: string): boolean => {
 };
 
 const trustHostEnvRaw = process.env.AUTH_TRUST_HOST ?? process.env.NEXTAUTH_TRUST_HOST;
-const trustHostEnv =
-  typeof trustHostEnvRaw === 'undefined' ? undefined : parseBooleanEnv(trustHostEnvRaw);
+const trustHostEnv = trustHostEnvRaw === undefined ? undefined : parseBooleanEnv(trustHostEnvRaw);
 const trustHostFallback =
   Boolean(
     process.env.AUTH_URL ||
@@ -138,8 +137,8 @@ const callbacks = {
 
       // Only apply to OAuth providers; credentials flow already enforces verification.
       if (shouldCheckDb) {
-        // TODO(auth): Reinstate rate-limit enforcement for OAuth verification
-        // callbacks once the shared rate limiter is ready for this flow.
+        // Note: rate-limit enforcement for OAuth verification callbacks
+        // is intentionally omitted until the shared rate limiter is available.
 
         // Heuristics across providers
         const p = (profile ?? {}) as Record<string, unknown>;
@@ -247,13 +246,13 @@ const callbacks = {
 
       // Explicitly sync name and image from token to session user
       // This ensures client-side updates via update() are reflected immediately
-      if (token?.name) s.user.name = token.name as string;
-      if (token?.picture) s.user.image = token.picture as string;
+      if (token?.name) s.user.name = token.name;
+      if (token?.picture) s.user.image = token.picture;
 
       if (user?.role) {
-        s.user.role = user.role as UserRole;
+        s.user.role = user.role;
       } else if (!user && token?.role) {
-        s.user.role = token.role as UserRole;
+        s.user.role = token.role;
       } else {
         delete s.user.role;
       }
@@ -273,13 +272,13 @@ const callbacks = {
     return s;
   },
 } as NextAuthConfig['callbacks'];
-if (process.env.NODE_ENV !== 'production');
-structuredLogger.log('NextAuth Config:');
-structuredLogger.log(
-  '  NEXTAUTH_SECRET (first 5 chars):',
-  process.env.NEXTAUTH_SECRET?.substring(0, 5)
-);
-structuredLogger.log('  NODE_ENV:', process.env.NODE_ENV);
+if (process.env.NODE_ENV !== 'production') {
+  structuredLogger.debug('NextAuth Config:', { component: 'auth' });
+  structuredLogger.debug('NEXTAUTH_SECRET (first 5 chars):', {
+    component: 'auth',
+    secretPreview: process.env.NEXTAUTH_SECRET?.substring(0, 5) ?? null,
+  });
+  structuredLogger.debug('NODE_ENV:', { component: 'auth', nodeEnv: process.env.NODE_ENV });
 }
 export const authOptions: NextAuthConfig = {
   // Use adapter only when a valid Mongo URI is configured to avoid dev crashes
@@ -476,8 +475,8 @@ async function ensureAllowlistedAdminPromotionFlow({
   userId,
   currentRole,
 }: AllowlistedAdminPromotionContext): Promise<void> {
-  if (typeof window !== 'undefined') {
-    throw new Error('Admin allowlist checks must never run on the client runtime');
+  if (globalThis.window !== undefined) {
+    throw new TypeError('Admin allowlist checks must never run on the client runtime');
   }
 
   if (!email || !userId) return;

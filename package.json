@@ -30,7 +30,7 @@
     "dev:clean": "bash ./scripts/clean-build-artifacts.sh && pnpm dev:next",
     "dev:sanity": "pnpm --filter sanity dev",
     "dev": "pnpm dev:next",
-    "dev:debug": "pnpm dev:next --inspect --",
+    "dev:debug": "pnpm dev:next --inspect",
     "build:next": "NEXT_BUILD_MODE=true DISABLE_UPSTASH_DURING_BUILD=1 pnpm --filter app-next-directory build",
     "build:next:mock": "NEXT_PUBLIC_MOCK_SANITY_DATA=true NEXT_BUILD_MODE=true DISABLE_UPSTASH_DURING_BUILD=1 pnpm --filter app-next-directory build",
     "build:sanity": "pnpm --filter sanity build",

@@ -1,8 +1,13 @@
 import type { APIRequestContext } from '@playwright/test';
 import { expect, test } from '@playwright/test';
 
-const DEFAULT_EMAIL = process.env.E2E_USER_EMAIL?.trim() || 'e2e-test@example.com';
-const DEFAULT_PASSWORD = process.env.E2E_USER_PASSWORD?.trim() || 'TestSecurePass123!';
+// Use globalThis.process to avoid referencing the Node global `process` symbol
+// directly so TypeScript doesn't require @types/node in the test TS scope.
+type ProcessLike = { env: Record<string, string | undefined> };
+const _proc: ProcessLike = (globalThis as { process?: ProcessLike }).process ?? { env: {} };
+
+const DEFAULT_EMAIL = _proc.env.E2E_USER_EMAIL?.trim() || 'e2e-test@example.com';
+const DEFAULT_PASSWORD = _proc.env.E2E_USER_PASSWORD?.trim() || 'TestSecurePass123!';
 
 async function seedUser(
   request: APIRequestContext,
@@ -31,9 +36,23 @@ async function seedUser(
 }
 
 test.describe('Auth UI smoke', () => {
+  test.afterEach(async ({ request, baseURL }) => {
+    const resolvedBaseURL =
+      baseURL ?? _proc.env.E2E_BASE_URL ?? _proc.env.BASE_URL ?? 'http://localhost:3000';
+
+    try {
+      await request.delete(new URL('/api/e2e/setup-user', resolvedBaseURL).toString(), {
+        data: { email: DEFAULT_EMAIL },
+        timeout: 3000,
+      });
+    } catch {
+      // Cleanup failures should not fail the test.
+    }
+  });
+
   test('logs in via the UI form', async ({ page, baseURL, request }) => {
     const resolvedBaseURL =
-      baseURL ?? process.env.E2E_BASE_URL ?? process.env.BASE_URL ?? 'http://localhost:3000';
+      baseURL ?? _proc.env.E2E_BASE_URL ?? _proc.env.BASE_URL ?? 'http://localhost:3000';
     const email = DEFAULT_EMAIL;
     const password = DEFAULT_PASSWORD;
 

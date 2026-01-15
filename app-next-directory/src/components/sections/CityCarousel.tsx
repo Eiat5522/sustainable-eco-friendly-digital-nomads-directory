@@ -93,7 +93,7 @@ CityCard.displayName = 'CityCard';
 export function CityCarousel({ initialCities }: CityCarouselProps = {}): React.JSX.Element {
   // Check if initialCities was explicitly provided (even if empty) to avoid client-side fetch
   const initialCitiesProvided = initialCities !== undefined && initialCities !== null;
-  const hasInitialCities = Array.isArray(initialCities) && initialCities.length > 0;
+
   const [cities, setCities] = useState<CityDTO[]>(initialCities ?? []);
   const [loading, setLoading] = useState(!initialCitiesProvided);
   const [error, setError] = useState<string | null>(null);
