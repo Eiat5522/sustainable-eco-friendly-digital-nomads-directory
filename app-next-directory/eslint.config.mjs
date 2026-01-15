@@ -1,7 +1,6 @@
+import { fileURLToPath } from 'node:url';
 import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
 import nextTypescript from 'eslint-config-next/typescript';
-import pluginJest from 'eslint-plugin-jest';
-import { fileURLToPath } from 'node:url';
 import requireReactFcTypeParametersRule from './eslint/rules/require-react-fc-type-parameters.js';
 
 // Normalize configs to arrays for safe spreading
@@ -11,8 +10,9 @@ const _nextCoreWebVitals = Array.isArray(nextCoreWebVitals)
 const _nextTypescript = Array.isArray(nextTypescript) ? nextTypescript : [nextTypescript];
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
+
 import pluginJest from 'eslint-plugin-jest';
-/** @type {import('eslint').Linter.FlatConfig[]} */
+
 const eslintConfig = [
   {
     ignores: [

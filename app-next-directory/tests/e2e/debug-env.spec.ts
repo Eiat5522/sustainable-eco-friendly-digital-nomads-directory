@@ -8,7 +8,12 @@ test('Debug: Check environment variables exposed to Next.js server', async ({ pa
   structuredLogger.log('--- Debug Environment Variables ---');
   structuredLogger.log(envVars);
   structuredLogger.log('-----------------------------------');
-  const parsedEnv = JSON.parse(envVars || '{}');
+  let parsedEnv: Record<string, string> = {};
+  try {
+    parsedEnv = JSON.parse(envVars || '{}');
+  } catch {
+    throw new Error(`Expected JSON from /api/debug-env but got: ${envVars?.slice(0, 100)}`);
+  }
 
   expect(parsedEnv.NEXTAUTH_SECRET).toEqual('e2e-test-secret-for-testing-only-not-production');
   expect(parsedEnv.NEXT_PUBLIC_SANITY_PROJECT_ID).toEqual('test-project-id');

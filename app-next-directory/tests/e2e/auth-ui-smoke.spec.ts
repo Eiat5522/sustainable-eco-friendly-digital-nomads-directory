@@ -34,11 +34,13 @@ async function seedUser(
     });
   }
 }
+function getResolvedBaseURL(baseURL: string | undefined): string {
+  return baseURL ?? _proc.env.E2E_BASE_URL ?? _proc.env.BASE_URL ?? 'http://localhost:3000';
+}
 
 test.describe('Auth UI smoke', () => {
   test.afterEach(async ({ request, baseURL }) => {
-    const resolvedBaseURL =
-      baseURL ?? _proc.env.E2E_BASE_URL ?? _proc.env.BASE_URL ?? 'http://localhost:3000';
+    const resolvedBaseURL = getResolvedBaseURL(baseURL);
 
     try {
       await request.delete(new URL('/api/e2e/setup-user', resolvedBaseURL).toString(), {
@@ -46,13 +48,16 @@ test.describe('Auth UI smoke', () => {
         timeout: 3000,
       });
     } catch {
-      // Cleanup failures should not fail the test.
+      // Cleanup failures should not fail the test, but log for debugging.
+      test.info().annotations.push({
+        type: 'info',
+        description: `Cleanup of user ${DEFAULT_EMAIL} failed (may not exist)`,
+      });
     }
   });
 
   test('logs in via the UI form', async ({ page, baseURL, request }) => {
-    const resolvedBaseURL =
-      baseURL ?? _proc.env.E2E_BASE_URL ?? _proc.env.BASE_URL ?? 'http://localhost:3000';
+    const resolvedBaseURL = getResolvedBaseURL(baseURL);
     const email = DEFAULT_EMAIL;
     const password = DEFAULT_PASSWORD;
 

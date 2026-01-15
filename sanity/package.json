@@ -24,8 +24,8 @@
   ],
   "dependencies": {
     "@auth/mongodb-adapter": "^3.10.0",
-    "@sanity/code-input": "^6.0.3",
-    "@sanity/vision": "^4.22.0",
+
+    "@sanity/vision": "^5.3.1",
     "leaflet.markercluster": "^1.5.3",
     "node-fetch": "^3.3.2",
     "react": "^19.2.3",
@@ -34,8 +34,8 @@
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^15.5.5",
-    "@sanity/codegen": "latest",
-    "@sanity/eslint-config-studio": "latest",
+    "@sanity/codegen": "^5.3.1",
+    "@sanity/eslint-config-studio": "^6.0.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@types/leaflet": "^1.9.18",
     "@types/react": "^19.1.13",
@@ -43,7 +43,7 @@
     "dotenv": "^16.5.0",
     "eslint": "^9.29.0",
     "prettier": "^3.6.0",
-    "sanity": "latest",
+    "sanity": "5.3.1",
     "typescript": "^5.8.3"
   },
   "prettier": {

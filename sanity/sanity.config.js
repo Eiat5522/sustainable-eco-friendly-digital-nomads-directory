@@ -1,4 +1,3 @@
-import { codeInput } from '@sanity/code-input'; // Import codeInput
 import { visionTool } from '@sanity/vision';
 import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
@@ -14,7 +13,7 @@ export default defineConfig({
   title: 'sustainable-nomads',
   projectId,
   dataset,
-  plugins: [structureTool(), visionTool(), codeInput()], // Add codeInput to plugins
+  plugins: [structureTool(), visionTool()],
   schema: {
     types: schemaTypes,
   },
