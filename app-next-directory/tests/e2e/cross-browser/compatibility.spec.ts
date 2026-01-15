@@ -163,8 +163,12 @@ test.describe('Cross-Browser Compatibility Testing', () => {
           await page.goto('/');
 
           // Test touch interactions
-          const searchForm = page.locator('form[role="search"]').first();
+          const searchInput = page.getByLabel('Search venues');
+          const searchForm = page
+            .locator('form[role="search"]')
+            .filter({ has: searchInput });
           const searchButton = searchForm.getByRole('button', { name: /^search$/i });
+          await searchInput.scrollIntoViewIfNeeded();
           await expect(searchButton).toBeVisible();
           await searchButton.tap();
 
