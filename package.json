@@ -29,7 +29,7 @@
   "dependencies": {
     "@sanity/client": "^7.3.0",
     "@sanity/code-input": "^5.1.2",
-    "bcrypt": "^5.1.0",
+    "bcrypt": "^6.0.0",
     "clsx": "^2.1.1",
     "react-hook-form": "^7.56.4",
     "resend": "^4.5.1",
