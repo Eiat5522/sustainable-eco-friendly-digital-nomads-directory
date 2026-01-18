@@ -7,7 +7,8 @@ export const isPrerenderRejection = (error: unknown): boolean => {
       : '';
   if (message.includes('During prerendering')) return true;
   if (typeof error === 'object' && 'digest' in error) {
-    return (error as { digest?: unknown; }).digest === 'HANGING_PROMISE_REJECTION';
+    const digest = (error as { digest?: unknown }).digest;
+    return digest === 'HANGING_PROMISE_REJECTION' || digest === 'DYNAMIC_SERVER_USAGE';
   }
   return false;
 };

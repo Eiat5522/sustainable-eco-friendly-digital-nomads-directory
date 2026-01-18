@@ -35,7 +35,7 @@ function updateElementStyles(element: HTMLElement) {
 }
 ```
 
-**Better: use CSS classes**
+## Better: use CSS classes
 
 ```css
 .highlighted-box {

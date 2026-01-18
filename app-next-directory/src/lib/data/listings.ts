@@ -95,7 +95,7 @@ export async function getAllListings(params: {
       return true;
     });
     return filtered.map(toSummaryDTO);
-  } catch (_err) {
+  } catch (err_: unknown) {
     return [];
   }
 }

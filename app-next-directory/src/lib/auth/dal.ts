@@ -228,7 +228,7 @@ export async function updateUserRole(userId: string, newRole: UserRole): Promise
     }
 
     // Validate role
-    if (!ROLE_VALUES.includes(newRole as (typeof ROLE_VALUES)[number])) {
+    if (!ROLE_VALUES.includes(newRole)) {
       return false;
     }
 
@@ -269,7 +269,7 @@ export async function updateUserStatus(
     }
 
     // Validate status
-    if (!STATUS_VALUES.includes(newStatus as (typeof STATUS_VALUES)[number])) {
+    if (!STATUS_VALUES.includes(newStatus)) {
       return false;
     }
 
@@ -301,7 +301,7 @@ export async function createUser(userData: {
   name: string;
   email: string;
   password: string;
-  image?: string;
+  image?: string | null;
   role?: UserRole;
   status?: 'active' | 'suspended' | 'pending';
 }): Promise<AuthUser | null> {
