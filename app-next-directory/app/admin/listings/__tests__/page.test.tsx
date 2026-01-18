@@ -4,6 +4,11 @@ jest.mock('@/lib/auth', () => ({
   auth: jest.fn(),
 }));
 
+jest.mock('../data', () => ({
+  getAdminListings: jest.fn(),
+  getAdminListingStats: jest.fn(),
+}));
+
 const redirectMock = jest.fn();
 
 jest.mock('next/navigation', () => ({
@@ -22,6 +27,11 @@ jest.mock('../ListingsManagementTable', () => ({
 const mockAuth = jest.requireMock('@/lib/auth').auth as jest.MockedFunction<
   () => Promise<{ user?: unknown } | null>
 >;
+const mockGetAdminListings = jest.requireMock('../data').getAdminListings as jest.MockedFunction<
+  () => Promise<unknown>
+>;
+const mockGetAdminListingStats = jest.requireMock('../data')
+  .getAdminListingStats as jest.MockedFunction<() => Promise<unknown>>;
 
 describe('Admin listings page', () => {
   beforeEach(() => {
@@ -32,6 +42,31 @@ describe('Admin listings page', () => {
     mockAuth.mockResolvedValueOnce({
       user: { id: 'admin-1', role: 'admin' },
     });
+    mockGetAdminListings.mockResolvedValueOnce({
+      listings: [],
+      pagination: {
+        page: 1,
+        limit: 20,
+        totalCount: 0,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPrevPage: false,
+      },
+      filters: {
+        search: '',
+        status: null,
+        type: null,
+      },
+    });
+    mockGetAdminListingStats.mockResolvedValueOnce({
+      totalListings: 0,
+      publishedListings: 0,
+      unpublishedListings: 0,
+      pendingListings: 0,
+      draftListings: 0,
+      featuredListings: 0,
+      listingsByType: {},
+    });
 
     const AdminListingsPage = (await import('../page')).default;
     const element = await AdminListingsPage();
@@ -41,8 +76,31 @@ describe('Admin listings page', () => {
     expect(screen.getByTestId('admin-listings-title')).toHaveTextContent('Listing Management');
     expect(screen.getByTestId('listings-management-table')).toBeInTheDocument();
     expect(listingsTableMock).toHaveBeenCalledWith({
-      currentUserRole: 'admin',
-      currentUserId: 'admin-1',
+      initialData: {
+        listings: [],
+        pagination: {
+          page: 1,
+          limit: 20,
+          totalCount: 0,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPrevPage: false,
+        },
+        filters: {
+          search: '',
+          status: null,
+          type: null,
+        },
+      },
+      initialStats: {
+        totalListings: 0,
+        publishedListings: 0,
+        unpublishedListings: 0,
+        pendingListings: 0,
+        draftListings: 0,
+        featuredListings: 0,
+        listingsByType: {},
+      },
     });
     expect(redirectMock).not.toHaveBeenCalled();
   });

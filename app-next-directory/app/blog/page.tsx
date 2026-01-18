@@ -21,31 +21,10 @@ function placeholderDataUri(width = 800, height = 450) {
 import type { Metadata } from 'next';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
+import { getBaseUrl } from '@/lib/absolute-url';
+import { getSafeHeaders } from '@/lib/server/headers';
+import type { Post } from './data';
 import { getPostsCached } from './data';
-
-export type Post = {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt?: string | null;
-  tags?: string[];
-  imageUrl?: string | null;
-};
-
-type BlogApiResponse = {
-  posts: Post[];
-  pagination: {
-    page: number;
-    limit: number;
-    totalCount: number;
-    totalPages: number;
-    hasNextPage: boolean;
-    hasPrevPage: boolean;
-    nextPage: number | null;
-    prevPage: number | null;
-  };
-  filters: { tag: string | null; search: string | null };
-};
 
 // Use cached server helper to avoid uncached fetches during prerender
 
@@ -62,11 +41,13 @@ export default async function BlogPage(
   const { page = '1', limit = '10', tag = '', search = '' } = (await props.searchParams) || {};
   const searchParamsForPosts = { page, limit, tag, search };
 
+  // Resolve request headers outside cached scopes.
+  const requestHeaders = await getSafeHeaders();
+  const baseUrl = await getBaseUrl(requestHeaders);
+
   // Fetch posts directly in the page component so errors propagate
-  const result = await getPostsCached(searchParamsForPosts);
-  const posts = result.posts as Post[];
-  const pagination = result.pagination as BlogApiResponse['pagination'];
-  const uniqueTags = (result.uniqueTags ?? []) as string[];
+  const result = await getPostsCached({ ...searchParamsForPosts, baseUrl });
+  const { posts, pagination, uniqueTags } = result;
 
   return (
     <>

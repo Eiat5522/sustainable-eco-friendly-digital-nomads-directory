@@ -1,14 +1,11 @@
 /// <reference types="node" />
 
 import { defineConfig, devices } from '@playwright/test';
-import {
-  PLAYWRIGHT_BASE_URL,
-} from './tests/config/environment';
+import { PLAYWRIGHT_BASE_URL } from './tests/config/environment';
 
 // NOTE: This config will start the Next dev server before running tests and stop it after.
 // If your dev server uses a different port, update `PLAYWRIGHT_BASE_URL` via env vars.
 const resolvedBaseURL = PLAYWRIGHT_BASE_URL;
-
 
 export default defineConfig({
   // Run Playwright tests from the project tests directory using .spec.ts extension only

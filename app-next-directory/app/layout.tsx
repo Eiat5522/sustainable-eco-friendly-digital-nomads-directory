@@ -2,8 +2,7 @@ import './globals.css';
 import type React from 'react';
 import { Suspense } from 'react';
 
-import { rootLayoutMetadata } from './layout.metadata';
-export { rootLayoutMetadata as metadata };
+export { rootLayoutMetadata as metadata } from './layout.metadata';
 
 import ClientRootLayout from './ClientRootLayout';
 

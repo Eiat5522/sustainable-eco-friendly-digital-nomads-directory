@@ -11,6 +11,10 @@ jest.mock('@/lib/auth', () => ({
   auth: jest.fn(),
 }));
 
+jest.mock('../data', () => ({
+  getAdminSettings: jest.fn(),
+}));
+
 jest.mock('../SettingsForm', () => ({
   SettingsForm: jest.fn(() => <div data-testid="settings-form-mock">Settings Form</div>),
 }));
@@ -18,16 +22,35 @@ jest.mock('../SettingsForm', () => ({
 describe('AdminSettingsPage', () => {
   const mockAuth = auth as jest.MockedFunction<typeof auth>;
   const mockRedirect = redirect as jest.MockedFunction<typeof redirect>;
+  const mockGetAdminSettings = jest.requireMock('../data').getAdminSettings as jest.MockedFunction<
+    () => Promise<unknown>
+  >;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockGetAdminSettings.mockResolvedValue({
+      siteName: 'Admin Console',
+      siteDescription: 'Configured',
+      maintenanceMode: false,
+      allowRegistrations: true,
+      emailNotifications: true,
+      adminEmail: 'admin@example.com',
+      autoModeration: false,
+      moderationThreshold: 3,
+      postsPerPage: 20,
+      enableComments: true,
+      requireEmailVerification: false,
+      sessionTimeout: 60,
+      autoBackup: true,
+      backupFrequency: 'weekly',
+      lastBackupDate: null,
+    });
   });
 
   it('should render the settings page for admin users', async () => {
     mockAuth.mockResolvedValue({
       user: { id: 'admin-1', role: 'admin' },
     } as never);
-
     const page = await AdminSettingsPage();
     const { container } = render(page);
 

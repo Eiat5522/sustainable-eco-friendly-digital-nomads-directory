@@ -1,5 +1,7 @@
 # Custom Dictionary Words
 authjs
+FORTEST
 groq
 NEXTAUTH
+openspec
 Watthana

@@ -1,5 +1,5 @@
 import 'server-only';
- 
+
 import type { Model } from 'mongoose';
 import NextAuth, { type NextAuthConfig, type Session } from 'next-auth';
 import type { JWT } from 'next-auth/jwt';

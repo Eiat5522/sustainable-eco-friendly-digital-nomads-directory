@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { cacheLife } from 'next/cache';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
@@ -18,6 +19,12 @@ function ensureAdmin(
 ): sessionUser is { id: string; role: 'admin' | 'superAdmin' } {
   const role = sessionUser?.role;
   return role === 'admin' || role === 'superAdmin';
+}
+
+async function getCachedUser(id: string) {
+  'use cache: private';
+  cacheLife({ stale: 30, expire: 120 });
+  return getUserById(id);
 }
 
 export default async function EditUserPage({ params }: { params: Promise<{ id: string }> }) {
@@ -40,7 +47,7 @@ export default async function EditUserPage({ params }: { params: Promise<{ id: s
     redirect(`/auth/login?callbackUrl=/admin/user/${id}`);
   }
 
-  const user = await getUserById(id);
+  const user = await getCachedUser(id);
 
   if (!user) {
     return (

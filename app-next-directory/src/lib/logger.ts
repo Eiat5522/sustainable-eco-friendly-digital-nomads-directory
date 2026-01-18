@@ -1,4 +1,3 @@
- 
 import pino from 'pino';
 
 // Environment check for safe logging configuration

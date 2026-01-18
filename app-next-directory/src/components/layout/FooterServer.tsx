@@ -11,7 +11,7 @@
  * - Optimized for partial prerendering
  */
 
-import { Instagram, Leaf, Linkedin, Mail, MapPin, MessageSquare, Twitter } from 'lucide-react';
+import { Leaf, Mail, MapPin, MessageSquare, XIcon } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { FooterYear } from '@/components/layout/FooterYear';
@@ -35,17 +35,15 @@ const footerLinks = {
 };
 
 const socialLinks = [
-  { icon: Twitter, href: 'https://twitter.com/sustainablenomads', label: 'Twitter' },
-  { icon: Instagram, href: 'https://instagram.com/sustainablenomads', label: 'Instagram' },
-  { icon: Linkedin, href: 'https://linkedin.com/company/sustainablenomads', label: 'LinkedIn' },
+  { icon: XIcon, href: 'https://twitter.com/sustainablenomads', label: 'Twitter' },
   { icon: Mail, href: 'mailto:hello@sustainablenomads.com', label: 'Email' },
 ];
 
 interface FooterServerProps {
-  showNewsletter?: boolean;
+  readonly showNewsletter?: boolean;
 }
 
-export function FooterServer({ showNewsletter = true }: FooterServerProps) {
+export function FooterServer({ showNewsletter = true }: Readonly<FooterServerProps>) {
   return (
     <footer
       id="footer-content"

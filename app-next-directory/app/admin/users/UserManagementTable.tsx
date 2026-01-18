@@ -2,41 +2,17 @@
 
 import Link from 'next/link';
 import type React from 'react';
-import { useCallback, useEffect, useState, useTransition } from 'react';
+import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import { getUserFacingMessage } from '@/lib/client-utils';
 import { fetchJsonWithRetry, getDefaultTimeout, RequestTimeoutError } from '@/lib/http/request';
 import type { UserRole } from '@/types/auth';
 import { CreateUserModal } from './CreateUserModal';
-
-type UserListItem = {
-  id: string;
-  name: string | null;
-  email: string | null;
-  role: UserRole;
-  createdAt: string;
-  lastActiveAt: string | null;
-  status: 'active' | 'inactive';
-};
+import type { UserListItem, UsersResponse } from './types';
 
 type UserManagementTableProps = {
   currentUserRole: 'admin' | 'superAdmin';
   currentUserId: string;
-};
-
-type UsersResponse = {
-  users: UserListItem[];
-  pagination: {
-    page: number;
-    limit: number;
-    totalCount: number;
-    totalPages: number;
-    hasNextPage: boolean;
-    hasPrevPage: boolean;
-  };
-  filters: {
-    search: string | null;
-    role: UserRole | null;
-  };
+  initialData?: UsersResponse;
 };
 
 const ROLE_OPTIONS: { value: UserRole; label: string; description: string }[] = [
@@ -160,23 +136,38 @@ function StatusBadge({ status }: { status: 'active' | 'inactive' }) {
   );
 }
 
-export function UserManagementTable({ currentUserRole, currentUserId }: UserManagementTableProps) {
-  const [users, setUsers] = useState<UserListItem[]>([]);
-  const [pagination, setPagination] = useState({
-    page: 1,
-    totalPages: 1,
-    totalCount: 0,
-    hasNextPage: false,
-    hasPrevPage: false,
-  });
-  const [search, setSearch] = useState('');
-  const [roleFilter, setRoleFilter] = useState<UserRole | ''>('');
-  const [loading, setLoading] = useState(true);
+export function UserManagementTable({
+  currentUserRole,
+  currentUserId,
+  initialData,
+}: UserManagementTableProps) {
+  const [users, setUsers] = useState<UserListItem[]>(initialData?.users ?? []);
+  const [pagination, setPagination] = useState(
+    initialData?.pagination ?? {
+      page: 1,
+      totalPages: 1,
+      totalCount: 0,
+      hasNextPage: false,
+      hasPrevPage: false,
+    }
+  );
+  const [search, setSearch] = useState(initialData?.filters.search ?? '');
+  const [roleFilter, setRoleFilter] = useState<UserRole | ''>(initialData?.filters.role ?? '');
+  const [loading, setLoading] = useState(!initialData);
   const [error, setError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const feedbackTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const skipInitialLoadRef = useRef(Boolean(initialData));
 
   const canChangeRoles = currentUserRole === 'superAdmin';
+
+  const scheduleFeedbackClear = useCallback((delayMs: number) => {
+    if (feedbackTimeoutRef.current) {
+      clearTimeout(feedbackTimeoutRef.current);
+    }
+    feedbackTimeoutRef.current = setTimeout(() => setFeedback(null), delayMs);
+  }, []);
 
   const loadUsers = useCallback(
     async (page = 1) => {
@@ -200,17 +191,31 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
   );
 
   useEffect(() => {
+    if (skipInitialLoadRef.current) {
+      skipInitialLoadRef.current = false;
+      return;
+    }
     loadUsers(1);
   }, [loadUsers]);
+
+  useEffect(() => {
+    return () => {
+      if (feedbackTimeoutRef.current) {
+        clearTimeout(feedbackTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleRoleChange = (userId: string, newRole: UserRole) => {
     if (!canChangeRoles) {
       setFeedback('Only Super Admins can change user roles');
+      scheduleFeedbackClear(3000);
       return;
     }
 
     if (userId === currentUserId && currentUserRole === 'superAdmin' && newRole !== 'superAdmin') {
       setFeedback('Cannot change your own Super Admin role');
+      scheduleFeedbackClear(4000);
       return;
     }
 
@@ -220,11 +225,10 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
         setFeedback(`User role updated to ${newRole}`);
         await loadUsers(pagination.page);
 
-        // Clear feedback after 3 seconds
-        setTimeout(() => setFeedback(null), 3000);
+        scheduleFeedbackClear(3000);
       } catch (err) {
         setFeedback(getUserFacingMessage(err, 'Failed to update user role'));
-        setTimeout(() => setFeedback(null), 4000);
+        scheduleFeedbackClear(4000);
       }
     });
   };
@@ -232,7 +236,7 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
   const handleStatusChange = (userId: string, newStatus: 'active' | 'inactive') => {
     if (!canChangeRoles) {
       setFeedback('Only Super Admins can change user status');
-      setTimeout(() => setFeedback(null), 4000);
+      scheduleFeedbackClear(4000);
       return;
     }
     startTransition(async () => {
@@ -241,11 +245,10 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
         setFeedback(`User ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`);
         await loadUsers(pagination.page);
 
-        // Clear feedback after 3 seconds
-        setTimeout(() => setFeedback(null), 3000);
+        scheduleFeedbackClear(3000);
       } catch (err) {
         setFeedback(getUserFacingMessage(err, 'Failed to update user status'));
-        setTimeout(() => setFeedback(null), 4000);
+        scheduleFeedbackClear(4000);
       }
     });
   };
@@ -253,13 +256,13 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
   const handleDeleteUser = (userId: string, userName: string | null) => {
     if (!canChangeRoles) {
       setFeedback('Only Super Admins can delete users');
-      setTimeout(() => setFeedback(null), 4000);
+      scheduleFeedbackClear(4000);
       return;
     }
 
     if (userId === currentUserId) {
       setFeedback('You cannot delete your own account');
-      setTimeout(() => setFeedback(null), 4000);
+      scheduleFeedbackClear(4000);
       return;
     }
 
@@ -277,10 +280,10 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
         await deleteUser(userId);
         setFeedback('User deleted successfully');
         await loadUsers(pagination.page);
-        setTimeout(() => setFeedback(null), 3000);
+        scheduleFeedbackClear(3000);
       } catch (err) {
         setFeedback(getUserFacingMessage(err, 'Failed to delete user'));
-        setTimeout(() => setFeedback(null), 4000);
+        scheduleFeedbackClear(4000);
       }
     });
   };

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useState, useTransition } from 'react';
+import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import { NeoButton } from '@/components/ui/neo-button';
 import { getUserFacingMessage } from '@/lib/client-utils';
 import { fetchJsonWithRetry, getDefaultTimeout, RequestTimeoutError } from '@/lib/http/request';
@@ -15,20 +15,11 @@ import {
   type ListingWorkflowStatus,
 } from '@/types/listings';
 import { EditListingModal } from './EditListingModal';
+import type { ListingStats } from './types';
 
 type ListingsManagementTableProps = {
-  currentUserRole?: 'admin' | 'superAdmin';
-  currentUserId?: string;
-};
-
-type ListingStats = {
-  totalListings: number;
-  publishedListings: number;
-  unpublishedListings: number;
-  pendingListings: number;
-  draftListings: number;
-  featuredListings: number;
-  listingsByType: Record<string, number>;
+  initialData?: ListingManagementResponse;
+  initialStats?: ListingStats;
 };
 
 async function fetchListings(
@@ -148,29 +139,43 @@ function ModerationBadge({ status }: { status: 'pending' | 'approved' | 'rejecte
   );
 }
 
-export function ListingsManagementTable(_props: ListingsManagementTableProps) {
-  const [listings, setListings] = useState<ListingManagementItem[]>([]);
-  const [stats, setStats] = useState<ListingStats | null>(null);
-  const [pagination, setPagination] = useState<ListingManagementPagination>({
-    page: 1,
-    limit: 20,
-    totalCount: 0,
-    totalPages: 0,
-    hasNextPage: false,
-    hasPrevPage: false,
-  });
-  const [filters, setFilters] = useState<ListingManagementFilters>({
-    search: '',
-    status: null,
-    type: null,
-  });
-  const [loading, setLoading] = useState(true);
+export function ListingsManagementTable({
+  initialData,
+  initialStats,
+}: ListingsManagementTableProps) {
+  const [listings, setListings] = useState<ListingManagementItem[]>(initialData?.listings ?? []);
+  const [stats, setStats] = useState<ListingStats | null>(initialStats ?? null);
+  const [pagination, setPagination] = useState<ListingManagementPagination>(
+    initialData?.pagination ?? {
+      page: 1,
+      limit: 20,
+      totalCount: 0,
+      totalPages: 0,
+      hasNextPage: false,
+      hasPrevPage: false,
+    }
+  );
+  const [filters, setFilters] = useState<ListingManagementFilters>(
+    initialData?.filters ?? {
+      search: '',
+      status: null,
+      type: null,
+    }
+  );
+  const [loading, setLoading] = useState(!initialData);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [actionStatus, setActionStatus] = useState<{ listingId: string; message: string } | null>(
     null
   );
   const [statsError, setStatsError] = useState<string | null>(null);
+  const actionStatusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scheduleActionStatusClear = useCallback((delayMs: number) => {
+    if (actionStatusTimeoutRef.current) {
+      clearTimeout(actionStatusTimeoutRef.current);
+    }
+    actionStatusTimeoutRef.current = setTimeout(() => setActionStatus(null), delayMs);
+  }, []);
 
   const loadListings = useCallback(
     async (
@@ -214,9 +219,21 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
   }, []);
 
   useEffect(() => {
-    void loadListings(1, '', null, null);
-    void loadStats();
-  }, [loadListings, loadStats]);
+    if (!initialData) {
+      void loadListings(1, '', null, null);
+    }
+    if (!initialStats) {
+      void loadStats();
+    }
+  }, [initialData, initialStats, loadListings, loadStats]);
+
+  useEffect(() => {
+    return () => {
+      if (actionStatusTimeoutRef.current) {
+        clearTimeout(actionStatusTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleSearch = (searchValue: string) => {
     setFilters(prev => ({ ...prev, search: searchValue }));
@@ -261,14 +278,13 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
         loadListings(pagination.page, filters.search, filters.status, filters.type),
         loadStats(),
       ]);
-
-      setTimeout(() => setActionStatus(null), 2000);
+      scheduleActionStatusClear(2000);
     } catch (err) {
       setActionStatus({
         listingId,
         message: getUserFacingMessage(err, 'Failed to update listing'),
       });
-      setTimeout(() => setActionStatus(null), 3000);
+      scheduleActionStatusClear(3000);
     }
   };
 
@@ -289,14 +305,13 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
         loadListings(pagination.page, filters.search, filters.status, filters.type),
         loadStats(),
       ]);
-
-      setTimeout(() => setActionStatus(null), 2000);
+      scheduleActionStatusClear(2000);
     } catch (err) {
       setActionStatus({
         listingId,
         message: getUserFacingMessage(err, 'Failed to delete listing'),
       });
-      setTimeout(() => setActionStatus(null), 3000);
+      scheduleActionStatusClear(3000);
     }
   };
 
@@ -405,12 +420,17 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
           data-testid="type-filter"
         >
           <option value="">All Types</option>
-          {stats &&
+          {stats ? (
             Object.keys(stats.listingsByType).map(type => (
               <option key={type} value={type}>
                 {type}
               </option>
-            ))}
+            ))
+          ) : (
+            <option value="loading" disabled>
+              Loading types...
+            </option>
+          )}
         </select>
       </div>
 

@@ -4,7 +4,9 @@ import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
+import { getAdminListingStats, getAdminListings } from './data';
 import { ListingsManagementTable } from './ListingsManagementTable';
+import { structuredLogger } from '@/lib/logger';
 
 export const metadata: Metadata = {
   title: 'Listing Management - Admin Dashboard',
@@ -40,6 +42,43 @@ export default async function AdminListingsPage() {
     redirect('/auth/login?callbackUrl=/admin/listings');
   }
 
+  const [listingsResult, statsResult] = await Promise.allSettled([
+    getAdminListings(),
+    getAdminListingStats(),
+  ]);
+  const initialListings = listingsResult.status === 'fulfilled' ? listingsResult.value : null;
+  const initialStats = statsResult.status === 'fulfilled' ? statsResult.value : null;
+
+  if (listingsResult.status === 'rejected') {
+    structuredLogger.error?.('Failed to fetch admin listings', {
+      error: listingsResult.reason instanceof Error
+        ? { name: listingsResult.reason.name, message: listingsResult.reason.message }
+        : String(listingsResult.reason),
+    });
+  }
+  if (statsResult.status === 'rejected') {
+    structuredLogger.error?.('Failed to fetch admin listing stats', {
+      error: statsResult.reason instanceof Error
+        ? { name: statsResult.reason.name, message: statsResult.reason.message }
+        : String(statsResult.reason),
+    });
+  }
+
+  if (listingsResult.status === 'rejected') {
+    structuredLogger.error?.('Failed to fetch admin listings', {
+      error: listingsResult.reason instanceof Error
+        ? { name: listingsResult.reason.name, message: listingsResult.reason.message }
+        : String(listingsResult.reason),
+    });
+  }
+  if (statsResult.status === 'rejected') {
+    structuredLogger.error?.('Failed to fetch admin listing stats', {
+      error: statsResult.reason instanceof Error
+        ? { name: statsResult.reason.name, message: statsResult.reason.message }
+        : String(statsResult.reason),
+    });
+  }
+
   return (
     <Suspense fallback={<div>Loading listings management...</div>}>
       <section className="space-y-6" data-testid="admin-listings-page">
@@ -52,8 +91,8 @@ export default async function AdminListingsPage() {
 
         <div className="neo-card rounded-2xl bg-neo-surface p-4 md:p-6">
           <ListingsManagementTable
-            currentUserRole={sessionUser.role}
-            currentUserId={sessionUser.id}
+            initialData={initialListings ?? undefined}
+            initialStats={initialStats ?? undefined}
           />
         </div>
       </section>

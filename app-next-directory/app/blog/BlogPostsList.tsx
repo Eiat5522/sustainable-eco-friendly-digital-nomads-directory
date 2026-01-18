@@ -1,7 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { getBaseUrl } from '@/lib/absolute-url';
+import { getSafeHeaders } from '@/lib/server/headers';
 import { getPostsCached } from './data'; // Assuming data.ts is in the same directory
-import type { Post } from './page'; // Assuming Post type is exported from page.tsx or shared
 
 // Placeholder SVG data URI for images if not available
 const placeholderCache = new Map<string, string>();
@@ -23,28 +24,12 @@ type BlogPostsListProps = {
   searchParams: SearchParams;
 };
 
-// Re-export or re-define types if they are not exported from ./data or ./page
-// For simplicity, assuming Post type is available or can be defined here
-// If Post type is complex, import it from its actual location.
-// Example: type Post = { id: string; title: string; slug: string; excerpt?: string | null; tags?: string[]; imageUrl?: string | null; };
-
-type PaginationType = {
-  page: number;
-  limit: number;
-  totalCount: number;
-  totalPages: number;
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
-  nextPage: number | null;
-  prevPage: number | null;
-};
-
-export async function BlogPostsList({ searchParams }: BlogPostsListProps) {
+export async function BlogPostsList({ searchParams }: Readonly<BlogPostsListProps>) {
   const { page, limit, tag, search } = searchParams;
-  const result = await getPostsCached({ page, limit, tag, search });
-  const posts = result.posts as Post[];
-  const pagination = result.pagination as PaginationType;
-  const uniqueTags = result.uniqueTags as string[];
+  const requestHeaders = await getSafeHeaders();
+  const baseUrl = await getBaseUrl(requestHeaders);
+  const result = await getPostsCached({ baseUrl, page, limit, tag, search });
+  const { posts, pagination, uniqueTags } = result;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -102,7 +87,7 @@ export async function BlogPostsList({ searchParams }: BlogPostsListProps) {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {posts.map((post: Post, idx: number) => {
+        {posts.map((post, idx) => {
           const imageUrl = post.imageUrl ?? null;
           const usingPlaceholder = !imageUrl;
           const src = imageUrl ?? placeholderDataUri(800, 450);

@@ -305,8 +305,8 @@ test.describe('Cross-Browser Compatibility Testing', () => {
     test.beforeEach(async ({ page }) => {
       await loginAs(
         page,
-        process.env.E2E_VENUE_OWNER_EMAIL ?? 'venue@example.com',
-        process.env.E2E_VENUE_OWNER_PASSWORD ?? 'TestSecurePass123!'
+        process.env.E2E_VENUE_OWNER_EMAIL!,
+        process.env.E2E_VENUE_OWNER_PASSWORD!
       );
     });
 
@@ -410,8 +410,11 @@ test.describe('Cross-Browser Compatibility Testing', () => {
           };
         });
 
-        // Should not have horizontal overflow
-        expect(bodyOverflow.scrollWidth).toBeLessThanOrEqual(bodyOverflow.clientWidth + 30);
+        // Allow a small tolerance for subpixel rounding and scrollbar differences across engines.
+        const horizontalOverflowTolerancePx = 8;
+        expect(bodyOverflow.scrollWidth).toBeLessThanOrEqual(
+          bodyOverflow.clientWidth + horizontalOverflowTolerancePx
+        );
       });
     });
   });
@@ -429,7 +432,7 @@ test.describe('Cross-Browser Compatibility Testing', () => {
       structuredLogger.debug(`${browserName} load time: ${loadTime}ms`);
 
       // All browsers should load within reasonable time
-      expect(loadTime).toBeLessThan(20000);
+      expect(loadTime).toBeLessThan(5000); // 5 seconds
 
       // Check Core Web Vitals
       const webVitals = await page.evaluate(() => {

@@ -10,11 +10,15 @@ import { MOCK_CITIES, MOCK_FEATURED_LISTINGS } from '../__mocks__/homePageData';
 
 const isE2ERun = process.env.NEXT_PUBLIC_E2E === '1' || process.env.E2E === '1';
 
+interface FeaturedListingsSectionProps {
+  readonly forceFeaturedFetch: boolean;
+}
+
 /**
  * Featured listings section with data from DAL
  * Uses 'use cache' via DAL for optimal caching
  */
-async function FeaturedListingsSection({ forceFeaturedFetch }: { forceFeaturedFetch: boolean }) {
+async function FeaturedListingsSection({ forceFeaturedFetch }: FeaturedListingsSectionProps) {
   if (isE2ERun) {
     if (forceFeaturedFetch) {
       return <FeaturedListingsLegacy initialListings={null} />;
@@ -54,11 +58,11 @@ async function CityCarouselSection() {
   return <CityCarousel initialCities={cities ?? []} />;
 }
 
-export default async function HomePage({
-  searchParams,
-}: {
-  searchParams?: Promise<{ forceFeaturedFetch?: string | string[] }>;
-}) {
+interface HomePageProps {
+  readonly searchParams?: Promise<{ forceFeaturedFetch?: string | string[] }>;
+}
+
+export default async function HomePage({ searchParams }: HomePageProps) {
   const resolvedSearchParams = (await searchParams) ?? {};
   const forceFeaturedFetch = Array.isArray(resolvedSearchParams.forceFeaturedFetch)
     ? resolvedSearchParams.forceFeaturedFetch.includes('1')

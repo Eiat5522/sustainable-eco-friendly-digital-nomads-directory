@@ -15,7 +15,6 @@ const GeometricShapes = memo(() => (
     <div
       className="absolute top-20 left-20 w-32 h-32 bg-neo-secondary rounded-full opacity-80 will-change-transform"
       aria-hidden="true"
-      role="presentation"
       style={{ transform: 'translateZ(0)' }} // Force hardware acceleration
     >
       <div className="absolute inset-4 bg-neo-border rounded-full"></div>

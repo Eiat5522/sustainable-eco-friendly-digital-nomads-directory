@@ -1,6 +1,7 @@
 'use client';
 
-import { Instagram, Leaf, Linkedin, Mail, MapPin, MessageSquare, Twitter } from 'lucide-react';
+import { RiInstagramLine, RiLinkedinLine } from '@remixicon/react';
+import { Leaf, Mail, MapPin, MessageSquare, XIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
@@ -26,9 +27,13 @@ const footerLinks = {
 };
 
 const socialLinks = [
-  { icon: Twitter, href: 'https://twitter.com/sustainablenomads', label: 'Twitter' },
-  { icon: Instagram, href: 'https://instagram.com/sustainablenomads', label: 'Instagram' },
-  { icon: Linkedin, href: 'https://linkedin.com/company/sustainablenomads', label: 'LinkedIn' },
+  { icon: XIcon, href: 'https://twitter.com/sustainablenomads', label: 'X (formerly Twitter)' },
+  { icon: RiInstagramLine, href: 'https://instagram.com/sustainablenomads', label: 'Instagram' },
+  {
+    icon: RiLinkedinLine,
+    href: 'https://linkedin.com/company/sustainablenomads',
+    label: 'LinkedIn',
+  },
   { icon: Mail, href: 'mailto:hello@sustainablenomads.com', label: 'Email' },
 ];
 

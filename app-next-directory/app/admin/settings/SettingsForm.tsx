@@ -1,18 +1,21 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import type React from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type {
-  AdminSettings,
   AdminSettingsError,
   AdminSettingsResponse,
   AdminSettingsSaveResponse,
 } from '@/types/admin-settings';
+import type { SettingsFormData } from './types';
 
-type SettingsFormData = Omit<AdminSettings, '_id' | '_type' | '_createdAt' | '_updatedAt'>;
+type SettingsFormProps = {
+  initialSettings?: SettingsFormData;
+};
 
-export function SettingsForm() {
-  const [settings, setSettings] = useState<SettingsFormData | null>(null);
-  const [loading, setLoading] = useState(true);
+export function SettingsForm({ initialSettings }: SettingsFormProps) {
+  const [settings, setSettings] = useState<SettingsFormData | null>(initialSettings ?? null);
+  const [loading, setLoading] = useState(!initialSettings);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -21,8 +24,10 @@ export function SettingsForm() {
     message: string;
   } | null>(null);
   const [backupRunning, setBackupRunning] = useState(false);
+  const successTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const backupTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const fetchSettings = React.useCallback(async () => {
+  const fetchSettings = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -59,8 +64,21 @@ export function SettingsForm() {
 
   // Fetch settings on component mount
   useEffect(() => {
-    fetchSettings();
-  }, [fetchSettings]);
+    if (!initialSettings) {
+      fetchSettings();
+    }
+  }, [fetchSettings, initialSettings]);
+
+  useEffect(() => {
+    return () => {
+      if (successTimeoutRef.current) {
+        clearTimeout(successTimeoutRef.current);
+      }
+      if (backupTimeoutRef.current) {
+        clearTimeout(backupTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -102,8 +120,10 @@ export function SettingsForm() {
         } = data.settings;
         setSettings(formData);
 
-        // Clear success message after 3 seconds
-        setTimeout(() => setSuccessMessage(null), 3000);
+        if (successTimeoutRef.current) {
+          clearTimeout(successTimeoutRef.current);
+        }
+        successTimeoutRef.current = setTimeout(() => setSuccessMessage(null), 3000);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save settings');
@@ -169,13 +189,19 @@ export function SettingsForm() {
         type: 'success',
         message: data.message ?? 'Backup completed successfully',
       });
-      setTimeout(() => setBackupStatus(null), 4000);
+      if (backupTimeoutRef.current) {
+        clearTimeout(backupTimeoutRef.current);
+      }
+      backupTimeoutRef.current = setTimeout(() => setBackupStatus(null), 4000);
     } catch (err) {
       setBackupStatus({
         type: 'error',
         message: err instanceof Error ? err.message : 'Failed to run backup',
       });
-      setTimeout(() => setBackupStatus(null), 5000);
+      if (backupTimeoutRef.current) {
+        clearTimeout(backupTimeoutRef.current);
+      }
+      backupTimeoutRef.current = setTimeout(() => setBackupStatus(null), 5000);
     } finally {
       setBackupRunning(false);
     }

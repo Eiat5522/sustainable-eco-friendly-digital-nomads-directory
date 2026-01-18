@@ -4,6 +4,10 @@ jest.mock('@/lib/auth', () => ({
   auth: jest.fn(),
 }));
 
+jest.mock('../data', () => ({
+  getAdminUsers: jest.fn(),
+}));
+
 const redirectMock = jest.fn();
 
 jest.mock('next/navigation', () => ({
@@ -22,6 +26,9 @@ jest.mock('../UserManagementTable', () => ({
 const mockAuth = jest.requireMock('@/lib/auth').auth as jest.MockedFunction<
   () => Promise<{ user?: unknown } | null>
 >;
+const mockGetAdminUsers = jest.requireMock('../data').getAdminUsers as jest.MockedFunction<
+  () => Promise<unknown>
+>;
 
 describe('Admin users page', () => {
   beforeEach(() => {
@@ -31,6 +38,21 @@ describe('Admin users page', () => {
   it('renders the user management interface for admins', async () => {
     mockAuth.mockResolvedValueOnce({
       user: { id: 'admin-1', role: 'superAdmin' },
+    });
+    mockGetAdminUsers.mockResolvedValueOnce({
+      users: [],
+      pagination: {
+        page: 1,
+        limit: 20,
+        totalCount: 0,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPrevPage: false,
+      },
+      filters: {
+        search: null,
+        role: null,
+      },
     });
 
     const AdminUsersPage = (await import('../page')).default;
@@ -43,6 +65,21 @@ describe('Admin users page', () => {
     expect(userTableMock).toHaveBeenCalledWith({
       currentUserRole: 'superAdmin',
       currentUserId: 'admin-1',
+      initialData: {
+        users: [],
+        pagination: {
+          page: 1,
+          limit: 20,
+          totalCount: 0,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPrevPage: false,
+        },
+        filters: {
+          search: null,
+          role: null,
+        },
+      },
     });
     expect(redirectMock).not.toHaveBeenCalled();
   });
@@ -51,6 +88,7 @@ describe('Admin users page', () => {
     mockAuth.mockResolvedValueOnce({
       user: { id: 'user-99', role: 'user' },
     });
+    mockGetAdminUsers.mockResolvedValueOnce([]);
     redirectMock.mockImplementation(() => {
       throw new Error('redirect');
     });

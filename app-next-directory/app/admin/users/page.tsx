@@ -3,7 +3,9 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { auth } from '@/lib/auth';
+import { structuredLogger } from '@/lib/logger';
 import type { UserRole } from '@/types/auth';
+import { getAdminUsers } from './data';
 import { UserManagementTable } from './UserManagementTable';
 
 export const metadata: Metadata = {
@@ -40,6 +42,16 @@ export default async function AdminUsersPage() {
     redirect('/auth/login?callbackUrl=/admin/users');
   }
 
+  let initialUsers = null as Awaited<ReturnType<typeof getAdminUsers>> | null;
+  try {
+    initialUsers = await getAdminUsers();
+  } catch (error) {
+    structuredLogger.error?.('Failed to fetch admin users', {
+      error: error instanceof Error ? { name: error.name, message: error.message } : String(error),
+    });
+    initialUsers = null;
+  }
+
   return (
     <Suspense fallback={<div>Loading user management...</div>}>
       <section className="space-y-6" data-testid="admin-users-page">
@@ -51,7 +63,11 @@ export default async function AdminUsersPage() {
         </header>
 
         <div className="neo-card rounded-2xl bg-neo-surface p-4 md:p-6">
-          <UserManagementTable currentUserRole={sessionUser.role} currentUserId={sessionUser.id} />
+          <UserManagementTable
+            currentUserRole={sessionUser.role}
+            currentUserId={sessionUser.id}
+            initialData={initialUsers ?? undefined}
+          />
         </div>
       </section>
     </Suspense>

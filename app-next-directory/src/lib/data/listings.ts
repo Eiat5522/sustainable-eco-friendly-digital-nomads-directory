@@ -1,6 +1,7 @@
 import { groq } from 'next-sanity';
 import { ALLOWED_CATEGORIES } from '@/lib/constants/categories';
 import { imageOrFallback } from '@/lib/dto-transformer';
+import { structuredLogger } from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
 import type { ListingSummaryDTO } from '@/types/dto';
 
@@ -48,6 +49,9 @@ const normalizePriceRange = (value: string | null | undefined): PriceRange | und
   return undefined;
 };
 
+const toStringList = (values: Array<string | null | undefined>): string[] =>
+  values.filter((v): v is string => typeof v === 'string' && v.length > 0);
+
 const toSummaryDTO = (listing: ListingRecord): ListingSummaryDTO => ({
   id: listing._id,
   name: listing.name,
@@ -62,9 +66,7 @@ const toSummaryDTO = (listing: ListingRecord): ListingSummaryDTO => ({
       }
     : null,
   imageUrl: imageOrFallback(listing.primaryImage, 500, 300),
-  ecoFocusTags: (listing.ecoFocusTags ?? [])
-    .map(getEcoTagName)
-    .filter((name): name is string => Boolean(name)),
+  ecoFocusTags: toStringList((listing.ecoFocusTags ?? []).map(getEcoTagName)),
   priceRange: normalizePriceRange(listing.priceRange),
 });
 
@@ -87,15 +89,14 @@ export async function getAllListings(params: {
       if (params.type && r.type !== params.type) return false;
       if (params.priceRange && r.priceRange !== params.priceRange) return false;
       if (params.ecoTags && params.ecoTags.length > 0) {
-        const tagNames = (r.ecoFocusTags ?? [])
-          .map(getEcoTagName)
-          .filter((name): name is string => Boolean(name));
-        if (!params.ecoTags.some(t => tagNames.includes(t))) return false;
+        const tagNames = new Set(toStringList((r.ecoFocusTags ?? []).map(getEcoTagName)));
+        if (!params.ecoTags.some(tag => tagNames.has(tag))) return false;
       }
       return true;
     });
     return filtered.map(toSummaryDTO);
-  } catch (err_: unknown) {
+  } catch (error: unknown) {
+    structuredLogger.error('Failed to fetch listings', error, { component: 'listings', params });
     return [];
   }
 }
