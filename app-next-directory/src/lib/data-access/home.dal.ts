@@ -50,6 +50,7 @@ const FEATURED_LISTINGS_QUERY = groq`
 const CITIES_QUERY = groq`
   *[_type == "city"] | order(_createdAt desc)[0...$limit] {
     _id,
+    name,
     title,
     "slug": slug.current,
     country,
@@ -87,6 +88,7 @@ const ECO_TAGS_QUERY = groq`
 
 interface SanityCityRecord {
   _id?: string;
+  name?: string;
   title?: string;
   slug?: string | { current?: string };
   country?: string;
@@ -172,6 +174,7 @@ async function fetchFromSanity<T>(
 // ============================================================================
 
 const mapCityRecordToDTO = (city: SanityCityRecord): CityDTO | null => {
+  const cityName = city.name ?? city.title;
   const slugValue =
     typeof city.slug === 'string'
       ? city.slug
@@ -179,7 +182,7 @@ const mapCityRecordToDTO = (city: SanityCityRecord): CityDTO | null => {
         ? city.slug.current
         : undefined;
 
-  if (!city?._id || !city.title || !slugValue) {
+  if (!city?._id || !cityName || !slugValue) {
     return null;
   }
 
@@ -197,7 +200,7 @@ const mapCityRecordToDTO = (city: SanityCityRecord): CityDTO | null => {
 
   return {
     id: city._id,
-    name: city.title,
+    name: cityName,
     slug: slugValue,
     country: city.country ?? '',
     description: city.description,

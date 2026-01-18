@@ -62,7 +62,7 @@ export function HeaderServer(): React.JSX.Element {
           </nav>
 
           {/* Right: Auth Status */}
-          <div className="hidden md:flex items-center">
+          <div className="hidden md:flex items-center col-start-3 justify-self-end">
             <Suspense fallback={<div className="h-10 w-24 animate-pulse bg-gray-200 rounded" />}>
               <UserAuthStatus />
             </Suspense>

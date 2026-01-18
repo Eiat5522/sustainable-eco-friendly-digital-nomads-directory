@@ -1,5 +1,5 @@
 import { devices, expect, test } from '@playwright/test';
-import { structuredLogger } from '@/src/lib/logger';
+import { structuredLogger } from '@/lib/logger';
 import { loginAs } from '../helpers/auth';
 
 test.describe('Cross-Browser Compatibility Testing', () => {

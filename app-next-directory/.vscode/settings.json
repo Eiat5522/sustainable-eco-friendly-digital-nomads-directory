@@ -22,5 +22,8 @@
   "sonarlint.connectedMode.project": {
     "connectionId": "eiat5522",
     "projectKey": "Eiat5522_sustainable-eco-friendly-digital-nomads-directory"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
   }
 }
