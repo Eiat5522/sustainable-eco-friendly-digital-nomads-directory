@@ -12,7 +12,6 @@ export async function getAdminSettings(): Promise<SettingsFormData> {
 
   const baseUrl = await getBaseUrl();
   const controller = new AbortController();
-  const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 10000);
 
   const cookieHeader = await getCookieHeader();
@@ -20,17 +19,6 @@ export async function getAdminSettings(): Promise<SettingsFormData> {
   try {
     response = await fetch(`${baseUrl}/api/admin/settings`, {
       headers: cookieHeader ? { cookie: cookieHeader } : undefined,
-      signal: controller.signal,
-    });
-  } finally {
-    clearTimeout(timeoutId);
-  }
-      headers: cookieHeader ? { cookie: cookieHeader } : undefined,
-      signal: controller.signal,
-    });
-  } finally {
-    clearTimeout(timeoutId);
-  }
       signal: controller.signal,
     });
   } finally {

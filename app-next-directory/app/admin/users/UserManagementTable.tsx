@@ -8,6 +8,8 @@ import { fetchJsonWithRetry, getDefaultTimeout, RequestTimeoutError } from '@/li
 import type { UserRole } from '@/types/auth';
 import { CreateUserModal } from './CreateUserModal';
 import type { UserListItem, UsersResponse } from './types';
+import { useDeferredValue } from 'react';
+
 
 type UserManagementTableProps = {
   currentUserRole: 'admin' | 'superAdmin';
@@ -151,7 +153,8 @@ export function UserManagementTable({
       hasPrevPage: false,
     }
   );
-  const [search, setSearch] = useState(initialData?.filters.search ?? '');
+  const [searchInput, setSearchInput] = useState(initialData?.filters.search ?? '');
+  const search = useDeferredValue(searchInput);
   const [roleFilter, setRoleFilter] = useState<UserRole | ''>(initialData?.filters.role ?? '');
   const [loading, setLoading] = useState(!initialData);
   const [error, setError] = useState<string | null>(null);

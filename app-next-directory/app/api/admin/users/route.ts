@@ -1,3 +1,4 @@
+import { revalidateTag } from 'next/cache';
 import { type NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { updateUserRole, updateUserStatus } from '@/lib/auth/dal';
@@ -219,6 +220,10 @@ export async function PATCH(request: NextRequest, _context: RouteContext) {
     if (derivedStatus) updates.status = derivedStatus;
     updates.updatedAt = new Date().toISOString();
     updates.updatedBy = sessionUser?.id;
+
+    if (userIdValue) {
+      revalidateTag(`user:${userIdValue}`, 'max');
+    }
 
     return NextResponse.json({
       message: 'User updated successfully',

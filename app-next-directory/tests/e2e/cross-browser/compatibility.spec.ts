@@ -185,11 +185,17 @@ test.describe('Cross-Browser Compatibility Testing', () => {
             const mobileMenu = page.locator('[data-testid="mobile-menu"]');
             // Wait for the mobile menu to become visible, checking its computed style
             const menuHandle = await mobileMenu.elementHandle();
+            if (!menuHandle) {
+              throw new Error('Mobile menu element not found');
+            }
             await page.waitForFunction(
               menu => {
                 const style = window.getComputedStyle(menu);
                 return style.visibility !== 'hidden' && style.opacity !== '0';
               },
+              menuHandle,
+              { timeout: 10000 }
+            );
               menuHandle,
               { timeout: 10000 }
             );
@@ -284,16 +290,31 @@ test.describe('Cross-Browser Compatibility Testing', () => {
         return {
           webkit_scrollbar: (() => {
             try {
-              const style = document.createElement('style');
-              style.textContent = '::-webkit-scrollbar { width: 10px; }';
-              return true;
+    // Check if webkit scrollbar styling is supported via computed style
+    const style = document.createElement('style');
+    style.textContent = '::-webkit-scrollbar { width: 10px; }';
+    document.head.appendChild(style);
+    const testEl = document.createElement('div');
+    testEl.style.overflow = 'scroll';
+    document.body.appendChild(testEl);
+    const hasSupport = getComputedStyle(testEl, '::-webkit-scrollbar').width === '10px';
+    document.head.removeChild(style);
+    return hasSupport;
+    document.body.removeChild(testEl);
             } catch (_e) {
               return false;
-            }
-          })(),
-          webkit_mask: CSS.supports('-webkit-mask', 'none'),
-          chrome_available: 'chrome' in window,
-        };
+      const email = process.env.E2E_VENUE_OWNER_EMAIL;
+      const password = process.env.E2E_VENUE_OWNER_PASSWORD;
+      if (!email || !password) {
+        throw new Error(
+          'E2E_VENUE_OWNER_EMAIL and E2E_VENUE_OWNER_PASSWORD environment variables must be set'
+        );
+      }
+      await loginAs(
+        page,
+        email,
+        password
+      );
       });
 
       // Chrome-specific features should work

@@ -118,4 +118,22 @@ describe('Admin listings page', () => {
     await expect(AdminListingsPage()).rejects.toThrow('redirect');
     expect(redirectMock).toHaveBeenCalledWith('/auth/login?callbackUrl=/admin/listings');
   });
+
+  it('handles data fetch errors gracefully', async () => {
+    mockAuth.mockResolvedValueOnce({
+      user: { id: 'admin-1', role: 'admin' },
+    });
+    mockGetAdminListings.mockRejectedValueOnce(new Error('Network error'));
+    mockGetAdminListingStats.mockRejectedValueOnce(new Error('Network error'));
+
+    const AdminListingsPage = (await import('../page')).default;
+    const element = await AdminListingsPage();
+    render(element);
+
+    expect(screen.getByTestId('admin-listings-page')).toBeInTheDocument();
+    expect(listingsTableMock).toHaveBeenCalledWith({
+      initialData: undefined,
+      initialStats: undefined,
+    });
+  });
 });

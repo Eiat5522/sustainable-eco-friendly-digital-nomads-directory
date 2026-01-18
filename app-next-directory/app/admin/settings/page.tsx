@@ -3,10 +3,10 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { auth } from '@/lib/auth';
+import { structuredLogger } from '@/lib/logger';
 import type { UserRole } from '@/types/auth';
 import { getAdminSettings } from './data';
 import { SettingsForm } from './SettingsForm';
-import { structuredLogger } from '@/lib/logger';
 
 // MIGRATED: Removed `export const dynamic = 'force-dynamic'` to be compatible
 // with `cacheComponents`. This route is dynamic-by-default under Cache Components.

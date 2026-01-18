@@ -87,10 +87,19 @@ export async function getAdminListings(
     searchParams.set('type', params.type);
   }
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
+
   const cookieHeader = await getCookieHeader();
-  const response = await fetch(`${baseUrl}/api/admin/listings?${searchParams.toString()}`, {
-    headers: cookieHeader ? { cookie: cookieHeader } : undefined,
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${baseUrl}/api/admin/listings?${searchParams.toString()}`, {
+      headers: cookieHeader ? { cookie: cookieHeader } : undefined,
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({}));

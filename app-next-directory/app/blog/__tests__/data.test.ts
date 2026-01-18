@@ -87,19 +87,19 @@ describe('getPostsCached runtime validation', () => {
   });
 
   it('resolves when payload is valid', async () => {
-  fetchMock.mockResolvedValue(
-    mockResponse({
-      success: true,
-      data: {
-        posts: [validPost],
-        pagination: validPagination,
-        uniqueTags: ['eco'],
-      },
-    })
-  );
+    fetchMock.mockResolvedValue(
+      mockResponse({
+        success: true,
+        data: {
+          posts: [validPost],
+          pagination: validPagination,
+          uniqueTags: ['eco'],
+        },
+      })
+    );
 
-  const result = await getPostsCached({ baseUrl: 'https://example.com' });
-  expect(result.posts).toHaveLength(1);
-  expect(result.posts[0].id).toBe('post-1');
-});
+    const result = await getPostsCached({ baseUrl: 'https://example.com' });
+    expect(result.posts).toHaveLength(1);
+    expect(result.posts[0].id).toBe('post-1');
+  });
 });

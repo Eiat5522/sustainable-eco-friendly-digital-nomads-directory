@@ -88,7 +88,21 @@ describe('Admin users page', () => {
     mockAuth.mockResolvedValueOnce({
       user: { id: 'user-99', role: 'user' },
     });
-    mockGetAdminUsers.mockResolvedValueOnce([]);
+    mockGetAdminUsers.mockResolvedValueOnce({
+      users: [],
+      pagination: {
+        page: 1,
+        limit: 20,
+        totalCount: 0,
+        totalPages: 0,
+        hasNextPage: false,
+        hasPrevPage: false,
+      },
+      filters: {
+        search: null,
+        role: null,
+      },
+    });
     redirectMock.mockImplementation(() => {
       throw new Error('redirect');
     });

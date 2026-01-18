@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { cacheLife } from 'next/cache';
+import { cacheLife, cacheTag } from 'next/cache';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
@@ -24,6 +24,7 @@ function ensureAdmin(
 async function getCachedUser(id: string) {
   'use cache: private';
   cacheLife({ stale: 30, expire: 120 });
+  cacheTag(`user:${id}`);
   return getUserById(id);
 }
 

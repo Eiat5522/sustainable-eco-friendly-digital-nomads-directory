@@ -35,15 +35,15 @@ const footerLinks = {
 };
 
 const socialLinks = [
-  { icon: XIcon, href: 'https://twitter.com/sustainablenomads', label: 'Twitter' },
+  { icon: XIcon, href: 'https://twitter.com/sustainablenomads', label: 'X (formerly Twitter)' },
   { icon: Mail, href: 'mailto:hello@sustainablenomads.com', label: 'Email' },
 ];
 
 interface FooterServerProps {
-  readonly showNewsletter?: boolean;
+  showNewsletter?: boolean;
 }
 
-export function FooterServer({ showNewsletter = true }: Readonly<FooterServerProps>) {
+export function FooterServer({ showNewsletter = true }: FooterServerProps) {
   return (
     <footer
       id="footer-content"

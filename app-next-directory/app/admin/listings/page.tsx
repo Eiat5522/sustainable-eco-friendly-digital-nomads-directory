@@ -3,10 +3,10 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { auth } from '@/lib/auth';
+import { structuredLogger } from '@/lib/logger';
 import type { UserRole } from '@/types/auth';
 import { getAdminListingStats, getAdminListings } from './data';
 import { ListingsManagementTable } from './ListingsManagementTable';
-import { structuredLogger } from '@/lib/logger';
 
 export const metadata: Metadata = {
   title: 'Listing Management - Admin Dashboard',
@@ -51,31 +51,18 @@ export default async function AdminListingsPage() {
 
   if (listingsResult.status === 'rejected') {
     structuredLogger.error?.('Failed to fetch admin listings', {
-      error: listingsResult.reason instanceof Error
-        ? { name: listingsResult.reason.name, message: listingsResult.reason.message }
-        : String(listingsResult.reason),
+      error:
+        listingsResult.reason instanceof Error
+          ? { name: listingsResult.reason.name, message: listingsResult.reason.message }
+          : String(listingsResult.reason),
     });
   }
   if (statsResult.status === 'rejected') {
     structuredLogger.error?.('Failed to fetch admin listing stats', {
-      error: statsResult.reason instanceof Error
-        ? { name: statsResult.reason.name, message: statsResult.reason.message }
-        : String(statsResult.reason),
-    });
-  }
-
-  if (listingsResult.status === 'rejected') {
-    structuredLogger.error?.('Failed to fetch admin listings', {
-      error: listingsResult.reason instanceof Error
-        ? { name: listingsResult.reason.name, message: listingsResult.reason.message }
-        : String(listingsResult.reason),
-    });
-  }
-  if (statsResult.status === 'rejected') {
-    structuredLogger.error?.('Failed to fetch admin listing stats', {
-      error: statsResult.reason instanceof Error
-        ? { name: statsResult.reason.name, message: statsResult.reason.message }
-        : String(statsResult.reason),
+      error:
+        statsResult.reason instanceof Error
+          ? { name: statsResult.reason.name, message: statsResult.reason.message }
+          : String(statsResult.reason),
     });
   }
 
