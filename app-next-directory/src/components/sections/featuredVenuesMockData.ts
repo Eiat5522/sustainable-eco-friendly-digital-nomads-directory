@@ -8,14 +8,6 @@ export const mockFeaturedVenues: FeaturedListingDTO[] = [
     slug: 'banyan-tree-phuket',
     imageUrl: '/placeholder_image.png',
     city: 'Phuket',
-    amenityNames: [
-      'Solar Powered',
-      'Zero Waste',
-      'Local Sourcing',
-      'High-Speed WiFi',
-      'Coworking Space',
-      'Meeting Rooms',
-    ],
   },
   {
     id: 'katathani-phuket-beach-resort',
@@ -23,14 +15,6 @@ export const mockFeaturedVenues: FeaturedListingDTO[] = [
     slug: 'katathani-phuket-beach-resort',
     imageUrl: '/placeholder_image.png',
     city: 'Phuket',
-    amenityNames: [
-      'Ocean Conservation',
-      'Renewable Energy',
-      'Sustainable Tourism',
-      'Business Center',
-      'WiFi Throughout',
-      'Quiet Work Areas',
-    ],
   },
   {
     id: 'alt-chiangmai-coworking',
@@ -38,14 +22,6 @@ export const mockFeaturedVenues: FeaturedListingDTO[] = [
     slug: 'alt-chiangmai-coworking',
     imageUrl: '/placeholder_image.png',
     city: 'Chiang Mai',
-    amenityNames: [
-      'Green Building',
-      'Community Garden',
-      'Bike Friendly',
-      '24/7 Access',
-      'High-Speed Internet',
-      'Community Events',
-    ],
   },
   {
     id: 'the-yard-hostel',
@@ -53,14 +29,6 @@ export const mockFeaturedVenues: FeaturedListingDTO[] = [
     slug: 'the-yard-hostel',
     imageUrl: '/placeholder_image.png',
     city: 'Bangkok',
-    amenityNames: [
-      'Recycled Materials',
-      'Urban Garden',
-      'Composting',
-      'Community Kitchen',
-      'Free Bicycles',
-      'High-Speed WiFi',
-    ],
   },
   {
     id: 'd-well-hostel',
@@ -68,14 +36,6 @@ export const mockFeaturedVenues: FeaturedListingDTO[] = [
     slug: 'd-well-hostel',
     imageUrl: '/placeholder_image.png',
     city: 'Chiang Mai',
-    amenityNames: [
-      'Energy-Efficient',
-      'Water Conservation',
-      'Rooftop Terrace',
-      'Coworking Area',
-      'High-Speed WiFi',
-      'Secure Lockers',
-    ],
   },
   {
     id: 'green-tiger-house',
@@ -83,14 +43,6 @@ export const mockFeaturedVenues: FeaturedListingDTO[] = [
     slug: 'green-tiger-house',
     imageUrl: '/placeholder_image.png',
     city: 'Chiang Mai',
-    amenityNames: [
-      'Vegetarian Restaurant',
-      'Solar Hot Water',
-      'No Single-Use Plastic',
-      'Yoga Classes',
-      'Free WiFi',
-      'Tour Desk',
-    ],
   },
   {
     id: 'hub53',
@@ -98,14 +50,6 @@ export const mockFeaturedVenues: FeaturedListingDTO[] = [
     slug: 'hub53',
     imageUrl: '/placeholder_image.png',
     city: 'Chiang Mai',
-    amenityNames: [
-      '24/7 Access',
-      'Ergonomic Chairs',
-      'Meeting Rooms',
-      'Call Rooms',
-      'High-Speed WiFi',
-      'Community Events',
-    ],
   },
   {
     id: 'ko-hub',
@@ -113,13 +57,5 @@ export const mockFeaturedVenues: FeaturedListingDTO[] = [
     slug: 'koh-hub',
     imageUrl: '/placeholder_image.png',
     city: 'Koh Lanta',
-    amenityNames: [
-      'Beachfront',
-      'Coworking Space',
-      'Coliving',
-      'Restaurant',
-      'High-Speed WiFi',
-      'Weekly Talks',
-    ],
   },
 ];

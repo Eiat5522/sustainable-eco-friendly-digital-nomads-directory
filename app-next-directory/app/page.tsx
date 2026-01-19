@@ -1,7 +1,6 @@
 import { Suspense } from 'react';
 import { PageLayoutServer } from '@/components/layout/PageLayoutServer';
 import { CityCarousel } from '@/components/sections/CityCarousel';
-import { FeaturedListings as FeaturedListingsLegacy } from '@/components/sections/FeaturedListingsLegacy';
 import { FeaturedListings } from '@/components/sections/FeaturedListingsServer';
 import { HeroSection } from '@/components/sections/HeroSection';
 import { getCities, getFeaturedListings } from '@/lib/data-access';
@@ -10,21 +9,14 @@ import { MOCK_CITIES, MOCK_FEATURED_LISTINGS } from '../__mocks__/homePageData';
 
 const isE2ERun = process.env.NEXT_PUBLIC_E2E === '1' || process.env.E2E === '1';
 
-interface FeaturedListingsSectionProps {
-  readonly forceFeaturedFetch: boolean;
-}
-
 /**
  * Featured listings section with data from DAL
  * Uses 'use cache' via DAL for optimal caching
  */
-async function FeaturedListingsSection({ forceFeaturedFetch }: FeaturedListingsSectionProps) {
+async function FeaturedListingsSection() {
   if (isE2ERun) {
-    if (forceFeaturedFetch) {
-      return <FeaturedListingsLegacy initialListings={null} />;
-    }
     // Pass mock data for E2E tests - ensures data fetching logic (DTO mapping, etc.) is tested
-    return <FeaturedListingsLegacy initialListings={MOCK_FEATURED_LISTINGS} />;
+    return <FeaturedListings listings={MOCK_FEATURED_LISTINGS} />;
   }
 
   let listings: Awaited<ReturnType<typeof getFeaturedListings>> | null = null;
@@ -58,16 +50,7 @@ async function CityCarouselSection() {
   return <CityCarousel initialCities={cities ?? []} />;
 }
 
-interface HomePageProps {
-  readonly searchParams?: Promise<{ forceFeaturedFetch?: string | string[] }>;
-}
-
-export default async function HomePage({ searchParams }: HomePageProps) {
-  const resolvedSearchParams = (await searchParams) ?? {};
-  const forceFeaturedFetch = Array.isArray(resolvedSearchParams.forceFeaturedFetch)
-    ? resolvedSearchParams.forceFeaturedFetch.includes('1')
-    : resolvedSearchParams.forceFeaturedFetch === '1';
-
+export default async function HomePage() {
   return (
     <PageLayoutServer>
       <HeroSection />
@@ -82,7 +65,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           </section>
         }
       >
-        <FeaturedListingsSection forceFeaturedFetch={forceFeaturedFetch} />
+        <FeaturedListingsSection />
       </Suspense>
       <Suspense
         fallback={

@@ -31,7 +31,7 @@ jest.mock('lucide-react', () => ({
   Mail: () => <span data-testid="icon-mail">Mail</span>,
   MapPin: () => <span data-testid="icon-mappin">MapPin</span>,
   MessageSquare: () => <span data-testid="icon-messagesquare">MessageSquare</span>,
-  X: () => <span data-testid="icon-x">X</span>,
+  XIcon: () => <span data-testid="icon-x">X</span>,
 }));
 
 describe('FooterServer', () => {

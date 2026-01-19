@@ -69,7 +69,6 @@ describe('home.dal', () => {
         slug: 'test-listing-1',
         imageUrl: 'https://example.com/image1.jpg',
         city: 'Bangkok',
-        amenityNames: [],
       });
       expect(result[1]).toEqual({
         id: 'listing-2',
@@ -77,7 +76,6 @@ describe('home.dal', () => {
         slug: 'test-listing-2',
         imageUrl: 'https://example.com/image2.jpg',
         city: 'Chiang Mai',
-        amenityNames: [],
       });
       expect(mockFetch).toHaveBeenCalledWith(expect.any(String), { limit: 10 });
     });

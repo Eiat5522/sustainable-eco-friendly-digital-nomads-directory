@@ -27,6 +27,9 @@ interface UserAuthStatusProps {
   readonly className?: string;
 }
 
+const isBuildMode =
+  typeof process !== 'undefined' && process.env.NEXT_BUILD_MODE === 'true';
+
 /**
  * Inner component that does the actual auth status fetching
  * Separated to allow Suspense to catch the async boundary
@@ -85,6 +88,9 @@ function AuthSkeleton(props: Readonly<UserAuthStatusProps>) {
  * user-specific auth status loads asynchronously
  */
 export default function UserAuthStatus(props: Readonly<UserAuthStatusProps>) {
+  if (isBuildMode) {
+    return <AuthSkeleton className={props.className} />;
+  }
   return (
     <Suspense fallback={<AuthSkeleton className={props.className} />}>
       <AuthStatusFetcher className={props.className} />

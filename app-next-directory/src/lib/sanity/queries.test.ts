@@ -7,7 +7,6 @@ import {
   getAllCities,
   getAllEcoTags,
   getCity,
-  getFeaturedListings,
   getLatestBlogPosts,
   getListingBySlug,
 } from './queries';
@@ -301,108 +300,6 @@ describe('queries.ts', () => {
       mockClient.fetch.mockResolvedValue([]);
 
       const result = await getLatestBlogPosts();
-
-      expect(result).toEqual([]);
-    });
-  });
-
-  describe('getFeaturedListings', () => {
-    it('should fetch featured listings with default limit', async () => {
-      const mockListings = [
-        {
-          _id: 'listing-1',
-          name: 'Featured Listing 1',
-          slug: 'featured-1',
-          primaryImage: { asset: { url: 'https://example.com/1.jpg' } },
-          galleryImages: [{ asset: { url: 'https://example.com/1-gallery.jpg' } }],
-          location: { lat: 0, lng: 0 },
-          city: { _id: 'city-1', name: 'Chiang Mai', country: 'Thailand' },
-          priceRange: '$$',
-        },
-      ];
-
-      mockClient.fetch.mockResolvedValue(mockListings);
-
-      const result = await getFeaturedListings();
-
-      expect(mockClient.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('moderation.featured == true'),
-        { limit: 10 }
-      );
-      expect(result).toEqual(mockListings);
-    });
-
-    it('should fetch featured listings with custom limit', async () => {
-      mockClient.fetch.mockResolvedValue([]);
-
-      await getFeaturedListings(5);
-
-      expect(mockClient.fetch).toHaveBeenCalledWith(expect.anything(), { limit: 5 });
-    });
-
-    it('should only fetch published listings', async () => {
-      mockClient.fetch.mockResolvedValue([]);
-
-      await getFeaturedListings();
-
-      const query = mockClient.fetch.mock.calls[0][0];
-      expect(query).toContain('moderation.status == "published"');
-    });
-
-    it('should handle preview mode', async () => {
-      mockClient.fetch.mockResolvedValue([]);
-
-      await getFeaturedListings(10, true);
-
-      expect(mockClient.fetch).toHaveBeenCalled();
-    });
-
-    it('should order listings by creation date descending', async () => {
-      mockClient.fetch.mockResolvedValue([]);
-
-      await getFeaturedListings();
-
-      const query = mockClient.fetch.mock.calls[0][0];
-      expect(query).toContain('order(_createdAt desc)');
-    });
-
-    it('should include gallery images and city details', async () => {
-      const mockListings = [
-        {
-          _id: 'listing-full',
-          name: 'Full Featured Listing',
-          slug: 'full-featured',
-          primaryImage: { asset: { url: 'https://example.com/primary.jpg' } },
-          galleryImages: [
-            { asset: { url: 'https://example.com/gallery1.jpg' } },
-            { asset: { url: 'https://example.com/gallery2.jpg' } },
-          ],
-          location: { lat: 18.7883, lng: 98.9853 },
-          city: {
-            _id: 'city-cm',
-            name: 'Chiang Mai',
-            country: 'Thailand',
-          },
-          priceRange: '$$$',
-        },
-      ];
-
-      mockClient.fetch.mockResolvedValue(mockListings);
-
-      const result = await getFeaturedListings();
-
-      expect(result[0]).toMatchObject({
-        galleryImages: expect.arrayContaining([
-          expect.objectContaining({ asset: expect.any(Object) }),
-        ]),
-        city: expect.objectContaining({ name: 'Chiang Mai', country: 'Thailand' }),
-      });
-    });
-
-    it('should return empty array when no featured listings exist', async () => {
-      mockClient.fetch.mockResolvedValue([]);
-
-      const result = await getFeaturedListings();
 
       expect(result).toEqual([]);
     });

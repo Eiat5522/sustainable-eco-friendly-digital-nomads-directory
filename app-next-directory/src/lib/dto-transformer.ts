@@ -240,7 +240,6 @@ export function transformToFeaturedDTO(sanityListing: SanityListing): FeaturedLi
     slug: sanityListing.slug?.current ?? '',
     imageUrl,
     city: sanityListing.city?.name || '',
-    amenityNames: toNames(sanityListing.amenities),
   };
 }
 

@@ -197,10 +197,12 @@ export async function getOwnerReviewsForProfile(
                 branches: [
                   {
                     case: { $eq: [{ $type: '$slug' }, 'string'] },
+                    // biome-ignore lint/suspicious/noThenProperty: MongoDB aggregation syntax
                     then: { $trim: { input: '$slug' } },
                   },
                   {
                     case: { $eq: [{ $type: '$slug.current' }, 'string'] },
+                    // biome-ignore lint/suspicious/noThenProperty: MongoDB aggregation syntax
                     then: { $trim: { input: '$slug.current' } },
                   },
                 ],

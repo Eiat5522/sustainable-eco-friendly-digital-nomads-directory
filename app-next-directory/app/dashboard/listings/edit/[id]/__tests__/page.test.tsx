@@ -37,6 +37,12 @@ const { mockFormSubmission } = jest.requireMock('../../../../components/VenueLis
 
 describe('EditListingPage', () => {
   const getPageContent = async () => (await import('../page')).EditListingContent;
+  const mockListing = {
+    name: 'Original Listing',
+    shortDescription: 'Short',
+    type: 'coworking',
+    city: 'city-1',
+  };
 
   beforeEach(() => {
     pushMock.mockReset();
@@ -55,23 +61,21 @@ describe('EditListingPage', () => {
     });
   });
 
-  it('shows error when user is not authenticated', async () => {
+  it('shows sign-in prompt when user is not authenticated', async () => {
     const Page = await getPageContent();
     authMock.mockResolvedValue(null);
 
     const view = await Page({ params: { id: 'listing-1' } });
     render(view);
 
-    await screen.findByText(
-      'Unable to load this listing. Please check the link or contact support.'
-    );
+    await screen.findByText('Please sign in to edit listings.');
   });
 
   it('loads the listing details and saves updates', async () => {
     const Page = await getPageContent();
     const user = userEvent.setup();
 
-    getManagedListingMock.mockResolvedValue({ name: 'Original Listing' });
+    getManagedListingMock.mockResolvedValue(mockListing);
     updateListingMock.mockResolvedValue({ success: true });
 
     const view = await Page({ params: { id: 'listing-1' } });
@@ -96,28 +100,20 @@ describe('EditListingPage', () => {
     const view = await Page({ params: { id: 'listing-1' } });
     render(view);
 
-    await screen.findByText(
-      'Unable to load this listing. Please check the link or contact support.'
-    );
+    await screen.findByText("Listing not found or you don't have permission to edit it.");
     expect(pushMock).not.toHaveBeenCalled();
-  });
-  it('shows sign-in prompt when user is not authenticated', async () => {
-    const Page = await getPageContent();
-
-    authMock.mockResolvedValue({ user: undefined });
-
-    const view = await Page({ params: { id: 'listing-1' } });
-    render(view);
-
-    await screen.findByText('Please sign in to edit listings.');
-    expect(getManagedListingMock).not.toHaveBeenCalled();
   });
 
   it('surfaces save errors returned by the API', async () => {
     const Page = await getPageContent();
     const user = userEvent.setup();
 
-    getManagedListingMock.mockResolvedValue({ name: 'Original Listing' });
+    getManagedListingMock.mockResolvedValue({
+      name: 'Original Listing',
+      shortDescription: 'Short',
+      type: 'coworking',
+      city: 'city-1',
+    });
     updateListingMock.mockRejectedValue(new Error('Failed to update listing'));
 
     const view = await Page({ params: { id: 'listing-1' } });

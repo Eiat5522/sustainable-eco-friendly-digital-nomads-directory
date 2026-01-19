@@ -31,14 +31,10 @@ const FEATURED_LISTINGS_QUERY = groq`
     name,
     "slug": slug.current,
     "primaryImage": primaryImage{
-      ...,
-      asset->
+      asset->{
+        url
+      }
     },
-    galleryImages[]{
-      ...,
-      asset->
-    },
-    location,
     "city": city->{
       _id,
       name,
@@ -213,11 +209,8 @@ const mapCityRecordToDTO = (city: SanityCityRecord): CityDTO | null => {
 /**
  * Maps a Sanity featured listing record to a FeaturedListingDTO.
  *
- * Note: `amenityNames` is intentionally returned as an empty array for home page
- * featured listings. The home page carousel displays minimal listing info (name,
- * image, city) for performance; amenities are not shown and are omitted from the
- * GROQ query to reduce payload size. Full amenity data is fetched in the listing
- * detail page via `listing.dal.ts` -> `getListingBySlug()`.
+ * Note: Featured listings only include minimal fields (id, name, slug, image, city)
+ * to keep the home page payload light. Full listing data is fetched on detail pages.
  */
 const mapFeaturedListingRecordToDTO = (
   listing: SanityFeaturedListingRecord
@@ -234,7 +227,6 @@ const mapFeaturedListingRecordToDTO = (
     slug: listing.slug,
     imageUrl: listing.primaryImage?.asset?.url,
     city,
-    amenityNames: [], // Intentionally empty – see JSDoc above
   };
 };
 
@@ -294,9 +286,10 @@ export async function getCities(limit = 8): Promise<CityDTO[]> {
 
     return rawCities.map(mapCityRecordToDTO).filter((city): city is CityDTO => city !== null);
   } catch (error) {
-    structuredLogger.error('Failed to fetch cities', error, {
+    structuredLogger.error('Failed to fetch cities', {
       component: 'home.dal',
       limit,
+      error,
     });
     return [];
   }

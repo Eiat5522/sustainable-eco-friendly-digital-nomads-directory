@@ -9,7 +9,9 @@ import HomePage from '../page';
 
 // Mock the home page data module using the root alias
 jest.mock('../../__mocks__/homePageData', () => ({
-  MOCK_FEATURED_LISTINGS: [{ id: 'mock-1', name: 'Mock Listing 1', slug: 'mock-1' }],
+  MOCK_FEATURED_LISTINGS: [
+    { id: 'mock-1', name: 'Mock Listing 1', slug: 'mock-1', imageUrl: '', city: 'Test City' },
+  ],
   MOCK_CITIES: [{ id: 'mock-city-1', name: 'Mock City 1', slug: 'mock-city-1' }],
 }));
 
@@ -48,15 +50,6 @@ jest.mock('@/components/sections/HeroSection', () => ({
   HeroSection: () => <div data-testid="hero-section">Hero Section</div>,
 }));
 
-// Mock FeaturedListings Legacy (for E2E)
-jest.mock('@/components/sections/FeaturedListingsLegacy', () => ({
-  FeaturedListings: ({ initialListings }: { initialListings: any[] | null }) => (
-    <div data-testid="featured-listings-legacy">
-      Featured Listings Legacy: {initialListings ? `${initialListings.length} items` : 'loading'}
-    </div>
-  ),
-}));
-
 // Mock FeaturedListings Server (new)
 jest.mock('@/components/sections/FeaturedListingsServer', () => ({
   FeaturedListings: ({ listings }: { listings: any[] }) => (
@@ -79,7 +72,7 @@ describe('HomePage', () => {
   });
 
   it('renders without throwing errors', async () => {
-    const page = await HomePage({ searchParams: {} });
+    const page = await HomePage();
     expect(page).toBeDefined();
   });
 });

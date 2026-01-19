@@ -128,6 +128,7 @@ describe('VenueListingForm', () => {
       const url = typeof input === 'string' ? input : input.toString();
       if (url === '/api/cities') {
         return {
+          ok: true,
           json: async () => ({
             cities: [{ _id: 'city-1', name: 'Bangkok' }, { _id: 'city-2' }, 'ignored'],
           }),
@@ -135,6 +136,7 @@ describe('VenueListingForm', () => {
       }
       if (url === '/api/eco-tags') {
         return {
+          ok: true,
           json: async () => ({
             ecoTags: [{ _id: 'eco-1', name: 'Eco Tag Valid' }, { _id: 'eco-2' }, 'skip-tag'],
           }),
@@ -142,6 +144,7 @@ describe('VenueListingForm', () => {
       }
       if (url === '/api/digital-nomad-features') {
         return {
+          ok: true,
           json: async () => ({
             features: [
               { _id: 'feature-1', name: 'Feature Valid' },
@@ -153,12 +156,13 @@ describe('VenueListingForm', () => {
       }
       if (url === '/api/amenities') {
         return {
+          ok: true,
           json: async () => ({
             amenities: [{ _id: 'amenity-1', name: 'Amenity Valid' }, null, { _id: 'amenity-2' }],
           }),
         } as Response;
       }
-      return { json: async () => ({}) } as Response;
+      return { ok: true, json: async () => ({}) } as Response;
     });
     global.fetch = fetchMock as unknown as typeof fetch;
 
@@ -218,20 +222,24 @@ describe('VenueListingForm', () => {
         uploadCall += 1;
         const assetId = uploadCall === 1 ? 'upload-primary' : `upload-gallery-${uploadCall - 1}`;
         return {
+          ok: true,
           json: async () => ({ asset: { _id: assetId } }),
         } as Response;
       }
       if (url === '/api/cities') {
-        return { json: async () => ({ cities: [{ _id: 'city-1', name: 'Bangkok' }] }) } as Response;
+        return {
+          ok: true,
+          json: async () => ({ cities: [{ _id: 'city-1', name: 'Bangkok' }] }),
+        } as Response;
       }
       if (url === '/api/eco-tags') {
-        return { json: async () => ({ ecoTags: [] }) } as Response;
+        return { ok: true, json: async () => ({ ecoTags: [] }) } as Response;
       }
       if (url === '/api/digital-nomad-features') {
-        return { json: async () => ({ features: [] }) } as Response;
+        return { ok: true, json: async () => ({ features: [] }) } as Response;
       }
       if (url === '/api/amenities') {
-        return { json: async () => ({ amenities: [] }) } as Response;
+        return { ok: true, json: async () => ({ amenities: [] }) } as Response;
       }
       return { json: async () => ({}) } as Response;
     });
@@ -309,6 +317,16 @@ describe('VenueListingForm', () => {
       expect.objectContaining({ method: 'POST' })
     );
   });
+
+const createMockResponse = (data: unknown): Response => ({
+  ok: true,
+  json: async () => data,
+} as Response);
+
+// Then use throughout:
+if (url === '/api/cities') {
+  return createMockResponse({ cities: [{ _id: 'city-1', name: 'Bangkok' }] });
+}
 
   it('submits without image selections and keeps image fields undefined', async () => {
     const fetchMock = jest.fn(async (input: RequestInfo | URL) => {
@@ -574,18 +592,21 @@ describe('VenueListingForm', () => {
         throw uploadError;
       }
       if (url === '/api/cities') {
-        return { json: async () => ({ cities: [{ _id: 'city-1', name: 'Bangkok' }] }) } as Response;
+        return {
+          ok: true,
+          json: async () => ({ cities: [{ _id: 'city-1', name: 'Bangkok' }] }),
+        } as Response;
       }
       if (url === '/api/eco-tags') {
-        return { json: async () => ({ ecoTags: [] }) } as Response;
+        return { ok: true, json: async () => ({ ecoTags: [] }) } as Response;
       }
       if (url === '/api/digital-nomad-features') {
-        return { json: async () => ({ features: [] }) } as Response;
+        return { ok: true, json: async () => ({ features: [] }) } as Response;
       }
       if (url === '/api/amenities') {
-        return { json: async () => ({ amenities: [] }) } as Response;
+        return { ok: true, json: async () => ({ amenities: [] }) } as Response;
       }
-      return { json: async () => ({}) } as Response;
+      return { ok: true, json: async () => ({}) } as Response;
     });
     global.fetch = fetchMock as unknown as typeof fetch;
 

@@ -195,7 +195,7 @@ export function UserManagementTable({
       return;
     }
     loadUsers(1);
-  }, [loadUsers, initialData, search, roleFilter]);
+  }, [loadUsers, initialData, search, roleFilter, pagination.page]);
 
   useEffect(() => {
     return () => {

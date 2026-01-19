@@ -112,10 +112,7 @@ export interface ListingSummaryDTO extends BaseListingDTO {
 
 // Featured listings DTO (minimal fields for homepage)
 export type FeaturedListingDTO = Pick<BaseListingDTO, 'id' | 'name' | 'slug' | 'imageUrl'> & {
-  city: string; // Just city name for simple display
-  amenityNames: string[]; // Just amenity names
-  ecoFocusTags?: string[]; // Optional eco features/tags
-  featured?: boolean; // Flag used for star badge on cards
+  city: string;
 };
 
 // Full detail DTO as a discriminated union keyed by `type`

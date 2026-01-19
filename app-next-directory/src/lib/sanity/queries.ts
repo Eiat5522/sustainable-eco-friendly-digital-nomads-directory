@@ -1,35 +1,6 @@
 import { unstable_cache } from 'next/cache';
 import { client } from './client';
 
-// Cache featured listings for 1 hour, revalidate with tag
-const getCachedFeaturedListings = unstable_cache(
-  async (limit: number) => {
-    const query = `*[_type == "listing" && moderation.featured == true && moderation.status == "published"] | order(_createdAt desc)[0...$limit] {
-      _id,
-      name,
-      "slug": slug.current,
-      "primaryImage": primaryImage{
-        ...,
-        asset->
-      },
-      galleryImages[]{
-        ...,
-        asset->
-      },
-      location,
-      "city": city->{
-        _id,
-        name,
-        country
-      },
-      priceRange
-    }`;
-    return await client.fetch(query, { limit });
-  },
-  ['featured-listings'],
-  { revalidate: 3600, tags: ['featured-listings'] }
-);
-
 // Cache cities for 1 hour, revalidate with tag
 const getCachedAllCities = unstable_cache(
   async () => {
@@ -140,13 +111,8 @@ async function getLatestBlogPosts(limit = 3, _preview = false) {
   return await sanityClient.fetch(query, { limit: limit - 1 });
 }
 
-// Get featured listings (uses cached version)
-async function getFeaturedListings(limit = 10, _preview = false) {
-  return getCachedFeaturedListings(limit);
-}
-
 // Export all functions
-export { getAllCities, getAllEcoTags, getLatestBlogPosts, getListingBySlug, getFeaturedListings };
+export { getAllCities, getAllEcoTags, getLatestBlogPosts, getListingBySlug };
 
 // Additional alias export
 export const getCity = getListingBySlug;

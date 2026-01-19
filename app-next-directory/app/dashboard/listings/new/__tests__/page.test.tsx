@@ -7,6 +7,7 @@ import userEvent from '@testing-library/user-event';
 const pushMock = jest.fn();
 const createListingMock = jest.fn();
 const getListingFormOptionsMock = jest.fn();
+const authMock = jest.fn();
 
 jest.mock('next/navigation', () => ({
   __esModule: true,
@@ -23,6 +24,10 @@ jest.mock('@/lib/data-access/listing-form-options.dal', () => ({
   getListingFormOptions: () => getListingFormOptionsMock(),
 }));
 
+jest.mock('@/lib/auth', () => ({
+  auth: (...args: unknown[]) => authMock(...args),
+}));
+
 jest.mock('../../../components/VenueListingForm');
 
 const { mockFormSubmission } = jest.requireMock('../../../components/VenueListingForm');
@@ -34,12 +39,24 @@ describe('NewListingPage', () => {
     pushMock.mockReset();
     createListingMock.mockReset();
     getListingFormOptionsMock.mockReset();
+    authMock.mockReset();
     getListingFormOptionsMock.mockResolvedValue({
       cities: [],
       ecoTags: [],
       digitalNomadFeatures: [],
       amenities: [],
     });
+    authMock.mockResolvedValue({ user: { id: 'owner-1' } });
+  });
+
+  it('shows sign-in prompt when user is not authenticated', async () => {
+    authMock.mockResolvedValueOnce({ user: undefined });
+
+    const Page = await getPage();
+    const view = await Page();
+    render(view);
+
+    expect(screen.getByText('Please sign in to create listings.')).toBeInTheDocument();
   });
 
   it('creates a new listing and navigates back to the listings dashboard on success', async () => {

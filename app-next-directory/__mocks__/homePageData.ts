@@ -8,7 +8,6 @@ export const MOCK_FEATURED_LISTINGS: FeaturedListingDTO[] = [
     slug: 'eco-haven-co-working',
     imageUrl: 'https://images.unsplash.com/photo-1449844908441-8829872d2607?w=800',
     city: 'Bali',
-    amenityNames: ['Solar Power', 'Zero Waste', 'Organic Food'],
   },
   {
     id: 'e2e-mock-listing-2',
@@ -16,7 +15,6 @@ export const MOCK_FEATURED_LISTINGS: FeaturedListingDTO[] = [
     slug: 'green-office-barcelona',
     imageUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800',
     city: 'Barcelona',
-    amenityNames: ['Carbon Neutral', 'Recycling Program'],
   },
   {
     id: 'e2e-mock-listing-3',
@@ -24,7 +22,6 @@ export const MOCK_FEATURED_LISTINGS: FeaturedListingDTO[] = [
     slug: 'sustainable-hub-chiang-mai',
     imageUrl: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800',
     city: 'Chiang Mai',
-    amenityNames: ['Community Garden', 'Plastic Free'],
   },
 ];
 

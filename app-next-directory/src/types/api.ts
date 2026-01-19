@@ -1,4 +1,5 @@
 import type { SanityImage } from './appView';
+import type { FeaturedListingDTO } from './dto';
 
 export interface CitiesApiResponse {
   cities: CityDto[];
@@ -24,58 +25,6 @@ export interface CityDto {
 }
 
 export interface FeaturedListingsApiResponse {
-  listings: FeaturedListingDto[];
+  listings: FeaturedListingDTO[];
   success: boolean;
-  metadata: {
-    total: number;
-    queryTime: string;
-    performance: {
-      totalTimeMs: string;
-      queryTimeMs: string;
-    };
-  };
-}
-
-export interface FeaturedListingDto {
-  _id: string;
-  name: string;
-  slug: string;
-  city?: {
-    _id?: string;
-    name?: string;
-    slug?: string;
-    country?: string;
-  };
-  ecoFocusTags?: string[];
-  digitalNomadFeatures?: string[];
-  amenities?: Array<{
-    _id: string;
-    name: string;
-    description?: string;
-    badge?: SanityImage;
-  }>;
-  contactPhone?: string;
-  contactEmail?: string;
-  website?: string;
-  priceRange?: string;
-  type?: string;
-  shortDescription?: string;
-  address?: string;
-  category?: string;
-  location?: { lat: number; lng: number };
-  primaryImage?: SanityImage;
-  galleryImages?: SanityImage[];
-  imageUrl?: string | null;
-  coworkingDetails?: {
-    capacity?: number;
-    pricingPlans?: Array<{ type: string; price: number; period: string }>;
-    openingHours?: Array<{ day: string; opens: string; closes: string }>;
-  };
-  accommodationDetails?: {
-    pricePerNightThb?: { min?: number; max?: number };
-    openingHours?: Array<{ day: string; opens: string; closes: string }>;
-  };
-  cafeDetails?: {
-    openingHours?: Array<{ day: string; opens: string; closes: string }>;
-  };
 }

@@ -19,14 +19,11 @@ jest.mock('next/image', () => {
 });
 
 const mockVenue: FeaturedListingDTO = {
-  _id: '1',
+  id: '1',
   name: 'Test Venue',
   slug: 'test-venue',
   imageUrl: '/test-image.jpg',
   city: 'Test City',
-  featured: true,
-  ecoFocusTags: ['Solar Power', 'Zero Waste'],
-  amenityNames: ['WiFi', '24/7 Access'],
 };
 
 describe('VenueCard', () => {
@@ -40,25 +37,6 @@ describe('VenueCard', () => {
     render(<VenueCard venue={mockVenue} />);
     const link = screen.getByRole('link');
     expect(link).toHaveAttribute('href', '/listings/test-venue');
-  });
-
-  it('renders the featured badge if the venue is featured', () => {
-    render(<VenueCard venue={mockVenue} />);
-    expect(screen.getByText('Featured')).toBeInTheDocument();
-  });
-
-  it('does not render the featured badge if the venue is not featured', () => {
-    const nonFeaturedVenue = { ...mockVenue, featured: false };
-    render(<VenueCard venue={nonFeaturedVenue} />);
-    expect(screen.queryByText('Featured')).not.toBeInTheDocument();
-  });
-
-  it('renders the eco and amenity tags', () => {
-    render(<VenueCard venue={mockVenue} />);
-    expect(screen.getByText('Solar Power')).toBeInTheDocument();
-    expect(screen.getByText('Zero Waste')).toBeInTheDocument();
-    expect(screen.getByText('WiFi')).toBeInTheDocument();
-    expect(screen.getByText('24/7 Access')).toBeInTheDocument();
   });
 
   it('truncates long venue names', () => {

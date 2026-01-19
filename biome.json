@@ -101,8 +101,8 @@
         "useIterableCallbackReturn": "off",
         "noGlobalIsNan": "off",
         "noAssignInExpressions": "off",
-        "noFocusedTests": "off"
-      },
+        "noFocusedTests": "error"
+    },
       "security": {
         "noDangerouslySetInnerHtml": "warn"
       }

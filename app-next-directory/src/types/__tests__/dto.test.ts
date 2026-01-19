@@ -228,22 +228,8 @@ describe('dto types', () => {
         slug: 'featured-space',
         imageUrl: 'https://example.com/img.jpg',
         city: 'Bangkok',
-        amenityNames: ['WiFi'],
       };
       expect(featured.city).toBe('Bangkok');
-    });
-
-    it('should accept optional fields', () => {
-      const featured: FeaturedListingDTO = {
-        id: 'listing-1',
-        name: 'Featured',
-        slug: 'featured',
-        city: 'Bangkok',
-        amenityNames: ['WiFi'],
-        ecoFocusTags: ['solar'],
-        featured: true,
-      };
-      expect(featured.featured).toBe(true);
     });
   });
 

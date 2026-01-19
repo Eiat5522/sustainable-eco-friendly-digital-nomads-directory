@@ -17,6 +17,8 @@ import { loginAs } from './utils/test-utils';
  * - PLAYWRIGHT_BASE_URL: base URL for the running app (defaults to http://localhost:3000)
  * - E2E_ADMIN_EMAIL / E2E_ADMIN_PASSWORD
  * - E2E_USER_EMAIL / E2E_USER_PASSWORD
+ * - E2E_ALLOW_TOKEN_FALLBACK: allow token login fallback when UI login fails (default false)
+ * - E2E_FAIL_ON_UI_LOGIN_FAILURE: fail global setup when UI login fails (default false)
  */
 
 async function captureDebugArtifacts(page: Page, prefix: string, storageDir: string) {
@@ -101,7 +103,7 @@ export default async function globalSetup() {
   if (!fs.existsSync(storageDir)) fs.mkdirSync(storageDir, { recursive: true });
 
   const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000';
-  const allowTokenFallback = parseEnvFlag(process.env.E2E_ALLOW_TOKEN_FALLBACK, true);
+  const allowTokenFallback = parseEnvFlag(process.env.E2E_ALLOW_TOKEN_FALLBACK, false);
   const failOnUiLoginFailure = parseEnvFlag(process.env.E2E_FAIL_ON_UI_LOGIN_FAILURE, false);
 
   // Resolve credentials with defaults before allocating resources
@@ -159,6 +161,9 @@ export default async function globalSetup() {
       console.warn('global-setup: token fallback disabled via E2E_ALLOW_TOKEN_FALLBACK');
     } else {
       try {
+        console.warn(
+          'global-setup: UI login failed, using token fallback (set E2E_FAIL_ON_UI_LOGIN_FAILURE=true to fail)'
+        );
         const adminPath = path.join(storageDir, 'admin.json');
         await loginAs(page, 'admin', { redirectTo: '/admin' });
         await context.storageState({ path: adminPath });
@@ -215,6 +220,9 @@ export default async function globalSetup() {
         try {
           const userPage = await userContext.newPage();
           const userPath = path.join(storageDir, 'user.json');
+          console.warn(
+            'global-setup: UI login failed, using token fallback (set E2E_FAIL_ON_UI_LOGIN_FAILURE=true to fail)'
+          );
           await loginAs(userPage, 'user', { redirectTo: '/dashboard' });
           await userContext.storageState({ path: userPath });
         } finally {

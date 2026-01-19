@@ -1,11 +1,9 @@
-import { Star } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import * as React from 'react';
-import { NeoCard, NeoCardContent, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
+import { NeoCard, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
 import { cn } from '@/lib/utils';
 import type { FeaturedListingDTO } from '@/types/dto';
-import { getTagColorClasses } from '@/utils/tag-styles';
 
 interface VenueCardProps {
   venue: FeaturedListingDTO;
@@ -50,13 +48,6 @@ export function VenueCard({ venue, className, priority = false }: Readonly<Venue
             />
           )}
 
-          {/* Featured star badge */}
-          {venue.featured && (
-            <div className="absolute top-3 right-3 flex items-center gap-1 bg-yellow-400 text-black px-2 py-1 rounded-full shadow">
-              <Star size={14} className="fill-black" aria-hidden />
-              <span className="text-xs font-bold">Featured</span>
-            </div>
-          )}
         </div>
 
         <NeoCardHeader className="flex-grow">
@@ -65,55 +56,6 @@ export function VenueCard({ venue, className, priority = false }: Readonly<Venue
           </NeoCardTitle>
           {cityLabel && <p className="body-sm text-neo-text-secondary mt-1">{cityLabel}</p>}
         </NeoCardHeader>
-
-        {(Array.isArray(venue.ecoFocusTags) && venue.ecoFocusTags.length > 0) ||
-        (Array.isArray(venue.amenityNames) && venue.amenityNames.length > 0) ? (
-          <NeoCardContent className="mt-auto">
-            {/* Eco feature badges */}
-            {Array.isArray(venue.ecoFocusTags) && venue.ecoFocusTags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-2">
-                {venue.ecoFocusTags.slice(0, 3).map((tag, idx) => (
-                  <span
-                    key={`eco-${idx}`}
-                    className={cn(
-                      'px-2 py-1 text-xs rounded-lg font-medium',
-                      getTagColorClasses(tag, 'eco')
-                    )}
-                  >
-                    {tag}
-                  </span>
-                ))}
-                {venue.ecoFocusTags.length > 3 && (
-                  <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-lg font-medium">
-                    +{venue.ecoFocusTags.length - 3} more
-                  </span>
-                )}
-              </div>
-            )}
-
-            {/* Amenity badges */}
-            {Array.isArray(venue.amenityNames) && venue.amenityNames.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {venue.amenityNames.slice(0, 3).map((name, idx) => (
-                  <span
-                    key={`amenity-${idx}`}
-                    className={cn(
-                      'px-2 py-1 text-xs rounded-lg font-medium',
-                      getTagColorClasses(name, 'amenity')
-                    )}
-                  >
-                    {name}
-                  </span>
-                ))}
-                {venue.amenityNames.length > 3 && (
-                  <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-lg font-medium">
-                    +{venue.amenityNames.length - 3} more
-                  </span>
-                )}
-              </div>
-            )}
-          </NeoCardContent>
-        ) : null}
       </NeoCard>
     </Link>
   );

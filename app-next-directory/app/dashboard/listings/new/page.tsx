@@ -7,6 +7,7 @@ import {
   NeoCardHeader,
   NeoCardTitle,
 } from '@/components/ui/neo-card';
+import { auth } from '@/lib/auth';
 import { getListingFormOptions } from '@/lib/data-access/listing-form-options.dal';
 import { createListingAction } from '../actions';
 import { ListingFormController } from '../components/ListingFormController';
@@ -26,7 +27,7 @@ export default async function NewListingPage() {
     );
   }
 
-  let options;
+  let options: Awaited<ReturnType<typeof getListingFormOptions>>;
 
   try {
     options = await getListingFormOptions();
