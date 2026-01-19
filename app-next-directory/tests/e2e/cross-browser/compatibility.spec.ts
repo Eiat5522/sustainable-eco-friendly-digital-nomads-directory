@@ -196,9 +196,6 @@ test.describe('Cross-Browser Compatibility Testing', () => {
               menuHandle,
               { timeout: 10000 }
             );
-              menuHandle,
-              { timeout: 10000 }
-            );
             await expect(mobileMenu).toBeVisible();
             await page.screenshot({
               path: test.info().outputPath(`${deviceName}-after-menu-toggle.png`),
@@ -290,34 +287,41 @@ test.describe('Cross-Browser Compatibility Testing', () => {
         return {
           webkit_scrollbar: (() => {
             try {
-    // Check if webkit scrollbar styling is supported via computed style
-    const style = document.createElement('style');
-    style.textContent = '::-webkit-scrollbar { width: 10px; }';
-    document.head.appendChild(style);
-    const testEl = document.createElement('div');
-    testEl.style.overflow = 'scroll';
-    document.body.appendChild(testEl);
-    const hasSupport = getComputedStyle(testEl, '::-webkit-scrollbar').width === '10px';
-    document.head.removeChild(style);
-    return hasSupport;
-    document.body.removeChild(testEl);
+              // Detect webkit scrollbar support by checking if scrollbar styling is applied
+              const outer = document.createElement('div');
+              outer.style.cssText = 'width:100px;height:100px;overflow:scroll;position:absolute;top:-9999px';
+              document.body.appendChild(outer);
+              const defaultScrollbarWidth = outer.offsetWidth - outer.clientWidth;
+
+              const style = document.createElement('style');
+              style.textContent = '::-webkit-scrollbar { width: 0px; }';
+              document.head.appendChild(style);
+
+              // Force reflow
+              void outer.offsetWidth;
+              const styledScrollbarWidth = outer.offsetWidth - outer.clientWidth;
+
+              document.head.removeChild(style);
+              document.body.removeChild(outer);
+
+              // If webkit scrollbar is supported, width should change to 0
+              // On overlay scrollbar systems, both widths are 0, but styling is still supported
+              if (defaultScrollbarWidth === 0) {
+                // Overlay scrollbars - check CSS.supports for webkit prefix as fallback
+                return CSS.supports('-webkit-overflow-scrolling', 'touch') || 
+                       CSS.supports('-webkit-text-size-adjust', '100%');
+              }
+              return styledScrollbarWidth === 0;
             } catch (_e) {
               return false;
-      const email = process.env.E2E_VENUE_OWNER_EMAIL;
-      const password = process.env.E2E_VENUE_OWNER_PASSWORD;
-      if (!email || !password) {
-        throw new Error(
-          'E2E_VENUE_OWNER_EMAIL and E2E_VENUE_OWNER_PASSWORD environment variables must be set'
-        );
-      }
-      await loginAs(
-        page,
-        email,
-        password
-      );
+            }
+          })(),
+          webkit_mask: CSS.supports('-webkit-mask-image', 'linear-gradient(#000, #fff)'),
+        };
       });
 
       // Chrome-specific features should work
+      expect(chromeFeatures.webkit_scrollbar).toBeTruthy();
       expect(chromeFeatures.webkit_mask).toBeTruthy();
     });
   });

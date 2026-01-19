@@ -2,14 +2,12 @@
 
 import Link from 'next/link';
 import type React from 'react';
-import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
+import { useCallback, useDeferredValue, useEffect, useRef, useState, useTransition } from 'react';
 import { getUserFacingMessage } from '@/lib/client-utils';
 import { fetchJsonWithRetry, getDefaultTimeout, RequestTimeoutError } from '@/lib/http/request';
 import type { UserRole } from '@/types/auth';
 import { CreateUserModal } from './CreateUserModal';
 import type { UserListItem, UsersResponse } from './types';
-import { useDeferredValue } from 'react';
-
 
 type UserManagementTableProps = {
   currentUserRole: 'admin' | 'superAdmin';
@@ -153,15 +151,14 @@ export function UserManagementTable({
       hasPrevPage: false,
     }
   );
-  const [searchInput, setSearchInput] = useState(initialData?.filters.search ?? '');
+  const [searchInput, setSearchInput] = useState(initialData?.filters?.search ?? '');
   const search = useDeferredValue(searchInput);
-  const [roleFilter, setRoleFilter] = useState<UserRole | ''>(initialData?.filters.role ?? '');
+  const [roleFilter, setRoleFilter] = useState<UserRole | ''>(initialData?.filters?.role ?? '');
   const [loading, setLoading] = useState(!initialData);
   const [error, setError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const feedbackTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const skipInitialLoadRef = useRef(Boolean(initialData));
 
   const canChangeRoles = currentUserRole === 'superAdmin';
 
@@ -194,12 +191,11 @@ export function UserManagementTable({
   );
 
   useEffect(() => {
-    if (skipInitialLoadRef.current) {
-      skipInitialLoadRef.current = false;
+    if (initialData && pagination.page === 1 && !search && !roleFilter) {
       return;
     }
     loadUsers(1);
-  }, [loadUsers]);
+  }, [loadUsers, initialData, search, roleFilter]);
 
   useEffect(() => {
     return () => {
@@ -271,7 +267,7 @@ export function UserManagementTable({
 
     const displayName = userName || 'this user';
     if (
-      !window.confirm(
+      !globalThis.confirm(
         `Are you sure you want to permanently delete ${displayName}? This action cannot be undone.`
       )
     ) {
@@ -309,8 +305,8 @@ export function UserManagementTable({
               type="text"
               id="search"
               placeholder="Search by name or email..."
-              value={search}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
+              value={searchInput}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchInput(e.target.value)}
               className="w-full sm:w-64 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>

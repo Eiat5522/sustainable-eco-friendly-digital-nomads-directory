@@ -1,8 +1,4 @@
-'use client';
-
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 import { NeoButton } from '@/components/ui/neo-button';
 import {
   NeoCard,
@@ -11,31 +7,68 @@ import {
   NeoCardHeader,
   NeoCardTitle,
 } from '@/components/ui/neo-card';
-import type { ListingFormValues } from '../../components/VenueListingForm';
-import { VenueListingForm } from '../../components/VenueListingForm';
-export default function NewListingPage() {
-  const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
+import { getListingFormOptions } from '@/lib/data-access/listing-form-options.dal';
+import { createListingAction } from '../actions';
+import { ListingFormController } from '../components/ListingFormController';
+import { structuredLogger } from '@/lib/logger';
 
-  const handleSave = async (data: ListingFormValues & Record<string, unknown>) => {
-    try {
-      const response = await fetch('/api/listings/manage', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
+export default async function NewListingPage() {
+  const session = await auth();
+  const sessionUser = session?.user as { id?: string } | undefined;
 
-      if (!response.ok) {
-        throw new Error('Failed to create listing');
-      }
+  if (!sessionUser?.id) {
+    return (
+      <div className="min-h-screen bg-neo-surface/70 px-4 py-12">
+        <div className="mx-auto max-w-3xl rounded-2xl border-4 border-amber-200 bg-amber-50 p-6 text-amber-700">
+          Please sign in to create listings.
+        </div>
+      </div>
+    );
+  }
 
-      router.push('/dashboard/listings');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create listing');
-    }
-  };
+  let options;
+
+  try {
+    options = await getListingFormOptions();
+  } catch (error) {
+    structuredLogger.error('Failed to load listing form options', error);
+
+    return (
+      <div className="min-h-screen bg-neo-surface/70 px-4 py-12">
+        <div className="mx-auto flex w-full max-w-3xl flex-col gap-8">
+          <header className="space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-neo-text-tertiary">
+              Venue owner workspace
+            </p>
+            <h1 className="heading-xl text-neo-text-primary">Add New Listing</h1>
+            <p className="text-sm text-neo-text-secondary">
+              We ran into an issue loading the listing form. Please retry or come back later.
+            </p>
+          </header>
+
+          <NeoCard
+            variant="elevated"
+            className="border-4 border-neo-border bg-white/95 shadow-[12px_12px_0px_0px_rgba(15,23,42,0.3)]"
+          >
+            <NeoCardHeader className="space-y-2">
+              <NeoCardTitle>Unable to load form</NeoCardTitle>
+              <NeoCardDescription className="text-sm text-neo-text-secondary">
+                Check your connection and try again, or return to your listings.
+              </NeoCardDescription>
+            </NeoCardHeader>
+            <NeoCardContent className="flex flex-wrap gap-3">
+              <NeoButton asChild className="shadow-[4px_4px_0px_0px_#0f172a]">
+                <Link href="/dashboard/listings/new">Retry</Link>
+              </NeoButton>
+              <NeoButton asChild variant="secondary" className="shadow-[4px_4px_0px_0px_#0f172a]">
+                <Link href="/dashboard/listings">Back to listings</Link>
+              </NeoButton>
+            </NeoCardContent>
+          </NeoCard>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-neo-surface/70 px-4 py-12">
@@ -66,12 +99,12 @@ export default function NewListingPage() {
             </NeoCardDescription>
           </NeoCardHeader>
           <NeoCardContent className="space-y-6">
-            {error && (
-              <div className="rounded-2xl border-4 border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                {error}
-              </div>
-            )}
-            <VenueListingForm onSave={handleSave} />
+            <ListingFormController
+              onSave={createListingAction}
+              redirectTo="/dashboard/listings"
+              errorFallback="Failed to create listing"
+              options={options}
+            />
           </NeoCardContent>
         </NeoCard>
       </div>

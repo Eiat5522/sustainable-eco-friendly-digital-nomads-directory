@@ -5,12 +5,22 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 const pushMock = jest.fn();
+const createListingMock = jest.fn();
+const getListingFormOptionsMock = jest.fn();
 
 jest.mock('next/navigation', () => ({
   __esModule: true,
   useRouter: () => ({
     push: pushMock,
   }),
+}));
+
+jest.mock('../../actions', () => ({
+  createListingAction: (...args: unknown[]) => createListingMock(...args),
+}));
+
+jest.mock('@/lib/data-access/listing-form-options.dal', () => ({
+  getListingFormOptions: () => getListingFormOptionsMock(),
 }));
 
 jest.mock('../../../components/VenueListingForm');
@@ -22,30 +32,28 @@ describe('NewListingPage', () => {
 
   beforeEach(() => {
     pushMock.mockReset();
-    (global as any).fetch = jest.fn();
+    createListingMock.mockReset();
+    getListingFormOptionsMock.mockReset();
+    getListingFormOptionsMock.mockResolvedValue({
+      cities: [],
+      ecoTags: [],
+      digitalNomadFeatures: [],
+      amenities: [],
+    });
   });
 
   it('creates a new listing and navigates back to the listings dashboard on success', async () => {
     const Page = await getPage();
     const user = userEvent.setup();
 
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: jest.fn().mockResolvedValue({ id: 'listing-1' }),
-    });
+    createListingMock.mockResolvedValueOnce({ id: 'listing-1' });
 
-    render(<Page />);
+    const view = await Page();
+    render(view);
 
     await user.click(screen.getByRole('button', { name: /trigger-save/i }));
 
-    expect(global.fetch).toHaveBeenCalledWith(
-      '/api/listings/manage',
-      expect.objectContaining({
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(mockFormSubmission),
-      })
-    );
+    expect(createListingMock).toHaveBeenCalledWith(mockFormSubmission);
     expect(pushMock).toHaveBeenCalledWith('/dashboard/listings');
   });
 
@@ -53,12 +61,10 @@ describe('NewListingPage', () => {
     const Page = await getPage();
     const user = userEvent.setup();
 
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: false,
-      json: jest.fn().mockResolvedValue({ message: 'nope' }),
-    });
+    createListingMock.mockRejectedValueOnce(new Error('Failed to create listing'));
 
-    render(<Page />);
+    const view = await Page();
+    render(view);
 
     await user.click(screen.getByRole('button', { name: /trigger-save/i }));
 
@@ -70,9 +76,10 @@ describe('NewListingPage', () => {
     const Page = await getPage();
     const user = userEvent.setup();
 
-    (global.fetch as jest.Mock).mockRejectedValueOnce('boom');
+    createListingMock.mockRejectedValueOnce('boom');
 
-    render(<Page />);
+    const view = await Page();
+    render(view);
 
     await user.click(screen.getByRole('button', { name: /trigger-save/i }));
 

@@ -39,7 +39,7 @@ jest.mock('next-auth/providers/google', () => ({
 
 const mockAdapter = { type: 'adapter' } as const;
 const createAuthAdapter = jest.fn(() => mockAdapter);
-const authenticateUser = jest.fn();
+const authenticateUserCredentials = jest.fn();
 const getUserById = jest.fn();
 const enforceLoginRateLimit = jest.fn();
 const recordLoginAttempt = jest.fn();
@@ -53,11 +53,10 @@ jest.mock('@/lib/auth/adapter', () => ({
 }));
 
 jest.mock('@/lib/auth/dal', () => ({
+  authenticateUserCredentials: jest.fn((...args: unknown[]) =>
+    authenticateUserCredentials(...args)
+  ),
   getUserById: jest.fn((...args: unknown[]) => getUserById(...args)),
-}));
-
-jest.mock('@/lib/auth/serverAuth', () => ({
-  authenticateUser: jest.fn((...args: unknown[]) => authenticateUser(...args)),
 }));
 
 jest.mock('@/lib/auth/rateLimit', () => ({
@@ -99,10 +98,10 @@ const importAuthModule = async () => {
     createAuthAdapter: jest.fn((...args: unknown[]) => createAuthAdapter(...args)),
   }));
   jest.doMock('@/lib/auth/dal', () => ({
+    authenticateUserCredentials: jest.fn((...args: unknown[]) =>
+      authenticateUserCredentials(...args)
+    ),
     getUserById: jest.fn((...args: unknown[]) => getUserById(...args)),
-  }));
-  jest.doMock('@/lib/auth/serverAuth', () => ({
-    authenticateUser: jest.fn((...args: unknown[]) => authenticateUser(...args)),
   }));
   jest.doMock('@/lib/auth/rateLimit', () => ({
     enforceLoginRateLimit: jest.fn((...args: unknown[]) => enforceLoginRateLimit(...args)),
@@ -161,7 +160,7 @@ describe('auth module', () => {
         image: 'img.png',
         role: 'member',
       };
-      authenticateUser.mockResolvedValue(authenticatedUser);
+      authenticateUserCredentials.mockResolvedValue(authenticatedUser);
       recordLoginAttempt.mockResolvedValue(undefined);
 
       const { authOptions } = await importAuthModule();
@@ -178,7 +177,7 @@ describe('auth module', () => {
       );
 
       expect(enforceLoginRateLimit).toHaveBeenCalledWith('jane@example.com:203.0.113.5');
-      expect(authenticateUser).toHaveBeenCalledWith('jane@example.com', 'secret');
+      expect(authenticateUserCredentials).toHaveBeenCalledWith('jane@example.com', 'secret');
       expect(recordLoginAttempt).toHaveBeenCalledWith({
         email: 'jane@example.com',
         ip: '203.0.113.5',
@@ -217,7 +216,7 @@ describe('auth module', () => {
 
     it('returns null when authentication fails without throwing', async () => {
       enforceLoginRateLimit.mockResolvedValue({ success: true });
-      authenticateUser.mockResolvedValue(null);
+      authenticateUserCredentials.mockResolvedValue(null);
       recordLoginAttempt.mockResolvedValue(undefined);
       const { authOptions } = await importAuthModule();
       const provider = extractCredentialsProvider(authOptions);
@@ -238,7 +237,7 @@ describe('auth module', () => {
 
     it('swallows unexpected errors and returns null', async () => {
       enforceLoginRateLimit.mockResolvedValue({ success: true });
-      authenticateUser.mockRejectedValue(new Error('database unreachable'));
+      authenticateUserCredentials.mockRejectedValue(new Error('database unreachable'));
       const { authOptions } = await importAuthModule();
       const provider = extractCredentialsProvider(authOptions);
 

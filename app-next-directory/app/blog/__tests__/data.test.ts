@@ -39,16 +39,16 @@ const mockResponse = (payload: unknown): Response =>
   }) as unknown as Response;
 
 describe('getPostsCached runtime validation', () => {
-  const originalFetch = global.fetch;
+  const originalFetch = globalThis.fetch;
   let fetchMock: jest.MockedFunction<typeof fetch>;
 
   beforeEach(() => {
     fetchMock = jest.fn();
-    global.fetch = fetchMock as typeof fetch;
+    globalThis.fetch = fetchMock as typeof fetch;
   });
 
   afterEach(() => {
-    global.fetch = originalFetch;
+    globalThis.fetch = originalFetch;
     jest.clearAllMocks();
   });
 

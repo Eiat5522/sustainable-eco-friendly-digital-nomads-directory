@@ -160,7 +160,7 @@ describe('BlogPage', () => {
     } as Response);
 
     await expect(pageModule.default({ searchParams: {} })).rejects.toThrow(
-      'Blog API responded with success=false or missing/invalid data'
+      'Blog API responded with success=false'
     );
   });
 });

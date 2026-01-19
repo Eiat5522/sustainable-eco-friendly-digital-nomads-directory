@@ -1,16 +1,34 @@
 /** @jest-environment jsdom */
 
 import '@testing-library/jest-dom';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 const pushMock = jest.fn();
-let paramsValue: any = { id: 'listing-1' };
+const updateListingMock = jest.fn();
+const getListingFormOptionsMock = jest.fn();
+const getManagedListingMock = jest.fn();
+const authMock = jest.fn();
 
 jest.mock('next/navigation', () => ({
   __esModule: true,
   useRouter: () => ({ push: pushMock }),
-  useParams: () => paramsValue,
+}));
+
+jest.mock('../../../actions', () => ({
+  updateListingAction: (...args: unknown[]) => updateListingMock(...args),
+}));
+
+jest.mock('@/lib/data-access/listing-form-options.dal', () => ({
+  getListingFormOptions: () => getListingFormOptionsMock(),
+}));
+
+jest.mock('@/lib/data-access/listing-management.dal', () => ({
+  getManagedListingForEdit: (...args: unknown[]) => getManagedListingMock(...args),
+}));
+
+jest.mock('@/lib/auth', () => ({
+  auth: (...args: unknown[]) => authMock(...args),
 }));
 
 jest.mock('../../../../components/VenueListingForm');
@@ -18,31 +36,46 @@ jest.mock('../../../../components/VenueListingForm');
 const { mockFormSubmission } = jest.requireMock('../../../../components/VenueListingForm');
 
 describe('EditListingPage', () => {
-  const getPage = async () => (await import('../page')).default;
+  const getPageContent = async () => (await import('../page')).EditListingContent;
 
   beforeEach(() => {
     pushMock.mockReset();
-    paramsValue = { id: 'listing-1' };
-    (global as any).fetch = jest.fn();
+    updateListingMock.mockReset();
+    getListingFormOptionsMock.mockReset();
+    getManagedListingMock.mockReset();
+    authMock.mockReset();
+    authMock.mockResolvedValue({
+      user: { id: 'owner-1', role: 'venueOwner' },
+    });
+    getListingFormOptionsMock.mockResolvedValue({
+      cities: [],
+      ecoTags: [],
+      digitalNomadFeatures: [],
+      amenities: [],
+    });
+  });
+
+  it('shows error when user is not authenticated', async () => {
+    const Page = await getPageContent();
+    authMock.mockResolvedValue(null);
+
+    const view = await Page({ params: { id: 'listing-1' } });
+    render(view);
+
+    await screen.findByText(
+      'Unable to load this listing. Please check the link or contact support.'
+    );
   });
 
   it('loads the listing details and saves updates', async () => {
-    const Page = await getPage();
+    const Page = await getPageContent();
     const user = userEvent.setup();
 
-    (global.fetch as jest.Mock)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: jest.fn().mockResolvedValue({ name: 'Original Listing' }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: jest.fn().mockResolvedValue({ success: true }),
-      });
+    getManagedListingMock.mockResolvedValue({ name: 'Original Listing' });
+    updateListingMock.mockResolvedValue({ success: true });
 
-    render(<Page />);
-
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    const view = await Page({ params: { id: 'listing-1' } });
+    render(view);
 
     await screen.findByText('Edit Listing');
     expect(screen.getByTestId('listing-name')).toHaveTextContent('Original Listing');
@@ -50,75 +83,50 @@ describe('EditListingPage', () => {
     await user.click(screen.getByRole('button', { name: /trigger-save/i }));
 
     await waitFor(() =>
-      expect(global.fetch).toHaveBeenCalledWith(
-        '/api/listings/manage/listing-1',
-        expect.objectContaining({
-          method: 'PUT',
-          body: JSON.stringify(mockFormSubmission),
-        })
-      )
+      expect(updateListingMock).toHaveBeenCalledWith('listing-1', mockFormSubmission)
     );
     expect(pushMock).toHaveBeenCalledWith('/dashboard/listings');
   });
 
   it('shows an error message when the listing cannot be loaded', async () => {
-    const Page = await getPage();
+    const Page = await getPageContent();
 
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: false,
-      json: jest.fn().mockResolvedValue({}),
-    });
+    getManagedListingMock.mockResolvedValue(null);
 
-    render(<Page />);
+    const view = await Page({ params: { id: 'listing-1' } });
+    render(view);
 
-    await screen.findByText('Error: Failed to fetch listing');
+    await screen.findByText(
+      'Unable to load this listing. Please check the link or contact support.'
+    );
     expect(pushMock).not.toHaveBeenCalled();
+  });
+  it('shows sign-in prompt when user is not authenticated', async () => {
+    const Page = await getPageContent();
+
+    authMock.mockResolvedValue({ user: undefined });
+
+    const view = await Page({ params: { id: 'listing-1' } });
+    render(view);
+
+    await screen.findByText('Please sign in to edit listings.');
+    expect(getManagedListingMock).not.toHaveBeenCalled();
   });
 
   it('surfaces save errors returned by the API', async () => {
-    const Page = await getPage();
+    const Page = await getPageContent();
     const user = userEvent.setup();
 
-    (global.fetch as jest.Mock)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: jest.fn().mockResolvedValue({ name: 'Original Listing' }),
-      })
-      .mockResolvedValueOnce({
-        ok: false,
-        json: jest.fn().mockResolvedValue({}),
-      });
+    getManagedListingMock.mockResolvedValue({ name: 'Original Listing' });
+    updateListingMock.mockRejectedValue(new Error('Failed to update listing'));
 
-    render(<Page />);
+    const view = await Page({ params: { id: 'listing-1' } });
+    render(view);
     await screen.findByText('Edit Listing');
 
     await user.click(screen.getByRole('button', { name: /trigger-save/i }));
 
-    await screen.findByText('Error: Failed to update listing');
-    expect(pushMock).not.toHaveBeenCalled();
-  });
-
-  it('guards against missing listing identifiers during save attempts', async () => {
-    const Page = await getPage();
-    const user = userEvent.setup();
-
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: jest.fn().mockResolvedValue({ name: 'Original Listing' }),
-    });
-
-    const view = render(<Page />);
-    await screen.findByText('Edit Listing');
-
-    paramsValue = { id: undefined };
-    await act(async () => {
-      view.rerender(<Page />);
-    });
-
-    await user.click(screen.getByRole('button', { name: /trigger-save/i }));
-
-    await screen.findByText('Error: Listing identifier is missing');
-    expect(global.fetch).toHaveBeenCalledTimes(1);
+    await screen.findByText('Failed to update listing');
     expect(pushMock).not.toHaveBeenCalled();
   });
 });

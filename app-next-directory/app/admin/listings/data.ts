@@ -117,12 +117,13 @@ export async function getAdminListings(
 }
 
 const ListingStatsSchema = z.object({
-  total: z.number(),
-  published: z.number(),
-  pending: z.number(),
-  draft: z.number(),
+  totalListings: z.number(),
+  publishedListings: z.number(),
+  unpublishedListings: z.number(),
+  pendingListings: z.number(),
+  draftListings: z.number(),
+  featuredListings: z.number(),
   listingsByType: z.record(z.number()),
-  // adjust fields based on actual ListingStats type
 });
 
 export async function getAdminListingStats(): Promise<ListingStats> {
@@ -131,9 +132,23 @@ export async function getAdminListingStats(): Promise<ListingStats> {
 
   const baseUrl = await getBaseUrl();
   const cookieHeader = await getCookieHeader();
-  const response = await fetch(`${baseUrl}/api/admin/listings/stats`, {
-    headers: cookieHeader ? { cookie: cookieHeader } : undefined,
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+  let response: Response;
+  try {
+    response = await fetch(`${baseUrl}/api/admin/listings/stats`, {
+      headers: cookieHeader ? { cookie: cookieHeader } : undefined,
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('Request timed out while fetching listing statistics');
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({}));

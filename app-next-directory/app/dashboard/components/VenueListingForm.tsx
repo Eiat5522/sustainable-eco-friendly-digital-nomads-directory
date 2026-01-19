@@ -3,7 +3,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { type ChangeEvent, useEffect, useState } from 'react';
 import { useFieldArray, useForm, useWatch } from 'react-hook-form';
-import * as z from 'zod';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Form,
@@ -24,116 +23,9 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { structuredLogger } from '@/lib/logger';
+import { listingFormSchema, type ListingFormValues } from './listing-form.schema';
 
-const listingFormSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  shortDescription: z.string().optional(),
-  longDescription: z.string().optional(),
-  type: z.enum(['coworking', 'cafe', 'accommodation', 'restaurant', 'activities']),
-  address: z.string().optional(),
-  contactPhone: z.string().optional(),
-  contactEmail: z.string().email().optional(),
-  website: z.string().url().optional(),
-  city: z.string().min(1, 'City is required'),
-  ecoFocusTags: z.array(z.string()).optional(),
-  digitalNomadFeatures: z.array(z.string()).optional(),
-  amenities: z.array(z.string()).optional(),
-  accommodationDetails: z
-    .object({
-      accommodationType: z.string().optional(),
-      pricePerNightThb: z
-        .object({
-          min: z.number().optional(),
-          max: z.number().optional(),
-        })
-        .optional(),
-      roomTypesAvailable: z
-        .array(
-          z.object({
-            type: z.string(),
-            pricePerNight: z.number(),
-            features: z.array(z.string()).optional(),
-          })
-        )
-        .optional(),
-      minimumStay: z.number().optional(),
-    })
-    .optional(),
-  activitiesDetails: z
-    .object({
-      activityType: z.string().optional(),
-      pricePerPerson: z
-        .object({
-          min: z.number().optional(),
-          max: z.number().optional(),
-        })
-        .optional(),
-      duration: z
-        .object({
-          value: z.number().optional(),
-          unit: z.string().optional(),
-        })
-        .optional(),
-      groupSize: z
-        .object({
-          min: z.number().optional(),
-          max: z.number().optional(),
-        })
-        .optional(),
-      sustainabilityPractices: z.array(z.string()).optional(),
-      skillLevel: z.string().optional(),
-      languages: z.array(z.string()).optional(),
-    })
-    .optional(),
-  cafeDetails: z
-    .object({
-      priceIndication: z.string().optional(),
-      menuHighlights: z.array(z.string()).optional(),
-      workspaceAmenities: z.array(z.string()).optional(),
-      maxRecommendedStay: z.number().optional(),
-      noiseLevel: z.string().optional(),
-    })
-    .optional(),
-  coworkingDetails: z
-    .object({
-      pricingPlans: z
-        .array(
-          z.object({
-            type: z.string(),
-            price: z.number(),
-            period: z.string(),
-          })
-        )
-        .optional(),
-      internetSpeed: z
-        .object({
-          download: z.number().optional(),
-          upload: z.number().optional(),
-        })
-        .optional(),
-    })
-    .optional(),
-  restaurantDetails: z
-    .object({
-      cuisineType: z.array(z.string()).optional(),
-      priceRange: z.string().optional(),
-      operatingHours: z.string().optional(),
-      sustainabilityInitiatives: z.array(z.string()).optional(),
-      dietaryOptions: z.array(z.string()).optional(),
-      seating: z.array(z.string()).optional(),
-      workFriendly: z.array(z.string()).optional(),
-      averageMealPriceThb: z
-        .object({
-          min: z.number().optional(),
-          max: z.number().optional(),
-        })
-        .optional(),
-    })
-    .optional(),
-});
-
-export type ListingFormValues = z.infer<typeof listingFormSchema>;
-export type VenueListingFormValues = ListingFormValues;
+export type { ListingFormValues, VenueListingFormValues } from './listing-form.schema';
 
 type Option = { _id: string; name: string };
 
@@ -146,6 +38,10 @@ type VenueListingFormProps = {
   listing?: Partial<ListingFormValues> | null;
   onSave?: (values: ListingFormValues & Record<string, unknown>) => Promise<void> | void;
   saving?: boolean;
+  cities?: Option[];
+  ecoTags?: Option[];
+  digitalNomadFeatures?: Option[];
+  amenities?: Option[];
 };
 
 const handleNumberChange =
@@ -178,11 +74,20 @@ function toOptions(value: unknown): Option[] {
     .filter((option): option is Option => option !== null);
 }
 
-export function VenueListingForm({ listing, onSave, saving = false }: VenueListingFormProps) {
-  const [cities, setCities] = useState<Option[]>([]);
-  const [ecoTags, setEcoTags] = useState<Option[]>([]);
-  const [digitalNomadFeatures, setDigitalNomadFeatures] = useState<Option[]>([]);
-  const [amenities, setAmenities] = useState<Option[]>([]);
+export function VenueListingForm({
+  listing,
+  onSave,
+  saving = false,
+  cities: citiesProp,
+  ecoTags: ecoTagsProp,
+  digitalNomadFeatures: digitalNomadFeaturesProp,
+  amenities: amenitiesProp,
+}: VenueListingFormProps) {
+  const [fetchedCities, setFetchedCities] = useState<Option[]>([]);
+  const [fetchedEcoTags, setFetchedEcoTags] = useState<Option[]>([]);
+  const [fetchedDigitalNomadFeatures, setFetchedDigitalNomadFeatures] = useState<Option[]>([]);
+  const [fetchedAmenities, setFetchedAmenities] = useState<Option[]>([]);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const form = useForm<ListingFormExtendedValues>({
     resolver: zodResolver(listingFormSchema),
     defaultValues: {
@@ -210,47 +115,160 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
   });
   const listingType = useWatch({ control: form.control, name: 'type' });
 
+  const cities = citiesProp ?? fetchedCities;
+  const ecoTags = ecoTagsProp ?? fetchedEcoTags;
+  const digitalNomadFeatures = digitalNomadFeaturesProp ?? fetchedDigitalNomadFeatures;
+  const amenities = amenitiesProp ?? fetchedAmenities;
+
   useEffect(() => {
+    const shouldFetchCities = citiesProp === undefined;
+    const shouldFetchEcoTags = ecoTagsProp === undefined;
+    const shouldFetchFeatures = digitalNomadFeaturesProp === undefined;
+    const shouldFetchAmenities = amenitiesProp === undefined;
+
+    if (
+      !shouldFetchCities &&
+      !shouldFetchEcoTags &&
+      !shouldFetchFeatures &&
+      !shouldFetchAmenities
+    ) {
+      return;
+    }
+
     const fetchCities = async () => {
       try {
         const response = await fetch('/api/cities');
+        if (!response.ok) {
+          structuredLogger.error('Failed to fetch cities', new Error('Non-OK response'), {
+            component: 'VenueListingForm',
+            status: response.status,
+          });
+          setFetchError('Failed to load cities. Please refresh and try again.');
+          return;
+        }
         const data = (await response.json()) as { cities?: unknown };
-        setCities(toOptions(data?.cities));
-      } catch (_error) {}
+        if (Array.isArray(data?.cities)) {
+          setFetchedCities(toOptions(data?.cities));
+          return;
+        }
+        structuredLogger.error('Failed to fetch cities', new Error('Invalid response payload'), {
+          component: 'VenueListingForm',
+          status: response.status,
+        });
+        setFetchError('Failed to load cities. Please refresh and try again.');
+      } catch (error) {
+        structuredLogger.error('Failed to fetch cities', error, {
+          component: 'VenueListingForm',
+        });
+        setFetchError('Failed to load cities. Please refresh and try again.');
+      }
     };
 
     const fetchEcoTags = async () => {
       try {
         const response = await fetch('/api/eco-tags');
+        if (!response.ok) {
+          structuredLogger.error('Failed to fetch eco tags', new Error('Non-OK response'), {
+            component: 'VenueListingForm',
+            status: response.status,
+          });
+          setFetchError('Failed to load eco tags. Please refresh and try again.');
+          return;
+        }
         const data = (await response.json()) as { ecoTags?: unknown; tags?: unknown };
-        setEcoTags(toOptions(data?.ecoTags ?? data?.tags));
-      } catch (_error) {}
+        const rawTags = data?.ecoTags ?? data?.tags;
+        if (Array.isArray(rawTags)) {
+          setFetchedEcoTags(toOptions(rawTags));
+          return;
+        }
+        structuredLogger.error('Failed to fetch eco tags', new Error('Invalid response payload'), {
+          component: 'VenueListingForm',
+          status: response.status,
+        });
+        setFetchError('Failed to load eco tags. Please refresh and try again.');
+      } catch (error) {
+        structuredLogger.error('Failed to fetch eco tags', error, {
+          component: 'VenueListingForm',
+        });
+        setFetchError('Failed to load eco tags. Please refresh and try again.');
+      }
     };
 
     const fetchDigitalNomadFeatures = async () => {
       try {
         const response = await fetch('/api/digital-nomad-features');
+        if (!response.ok) {
+          structuredLogger.error(
+            'Failed to fetch digital nomad features',
+            new Error('Non-OK response'),
+            {
+              component: 'VenueListingForm',
+              status: response.status,
+            }
+          );
+          setFetchError('Failed to load digital nomad features. Please refresh and try again.');
+          return;
+        }
         const data = (await response.json()) as {
           digitalNomadFeatures?: unknown;
           features?: unknown;
         };
-        setDigitalNomadFeatures(toOptions(data?.digitalNomadFeatures ?? data?.features));
-      } catch (_error) {}
+        const rawFeatures = data?.digitalNomadFeatures ?? data?.features;
+        if (Array.isArray(rawFeatures)) {
+          setFetchedDigitalNomadFeatures(toOptions(rawFeatures));
+          return;
+        }
+        structuredLogger.error(
+          'Failed to fetch digital nomad features',
+          new Error('Invalid response payload'),
+          {
+            component: 'VenueListingForm',
+            status: response.status,
+          }
+        );
+        setFetchError('Failed to load digital nomad features. Please refresh and try again.');
+      } catch (error) {
+        structuredLogger.error('Failed to fetch digital nomad features', error, {
+          component: 'VenueListingForm',
+        });
+        setFetchError('Failed to load digital nomad features. Please refresh and try again.');
+      }
     };
 
     const fetchAmenities = async () => {
       try {
         const response = await fetch('/api/amenities');
+        if (!response.ok) {
+          structuredLogger.error('Failed to fetch amenities', new Error('Non-OK response'), {
+            component: 'VenueListingForm',
+            status: response.status,
+          });
+          setFetchError('Failed to load amenities. Please refresh and try again.');
+          return;
+        }
         const data = (await response.json()) as { amenities?: unknown };
-        setAmenities(toOptions(data?.amenities));
-      } catch (_error) {}
+        if (Array.isArray(data?.amenities)) {
+          setFetchedAmenities(toOptions(data?.amenities));
+          return;
+        }
+        structuredLogger.error('Failed to fetch amenities', new Error('Invalid response payload'), {
+          component: 'VenueListingForm',
+          status: response.status,
+        });
+        setFetchError('Failed to load amenities. Please refresh and try again.');
+      } catch (error) {
+        structuredLogger.error('Failed to fetch amenities', error, {
+          component: 'VenueListingForm',
+        });
+        setFetchError('Failed to load amenities. Please refresh and try again.');
+      }
     };
 
-    fetchCities();
-    fetchEcoTags();
-    fetchDigitalNomadFeatures();
-    fetchAmenities();
-  }, []);
+    if (shouldFetchCities) fetchCities();
+    if (shouldFetchEcoTags) fetchEcoTags();
+    if (shouldFetchFeatures) fetchDigitalNomadFeatures();
+    if (shouldFetchAmenities) fetchAmenities();
+  }, [amenitiesProp, citiesProp, digitalNomadFeaturesProp, ecoTagsProp]);
 
   const onSubmit = async (data: ListingFormExtendedValues) => {
     try {
@@ -314,6 +332,11 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        {fetchError ? (
+          <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            {fetchError}
+          </div>
+        ) : null}
         <FormField
           control={form.control}
           name="name"

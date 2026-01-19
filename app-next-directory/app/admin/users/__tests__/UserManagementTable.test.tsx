@@ -405,67 +405,59 @@ describe('UserManagementTable', () => {
       },
     ];
 
-    fetchMock
-      .mockResolvedValueOnce(
-        Promise.resolve({
-          ok: true,
-          json: jest.fn().mockResolvedValue(
-            createUsersResponse(baseUsers, {
-              pagination: { page: 2, totalPages: 3, hasNextPage: true, hasPrevPage: true },
-            })
-          ),
-        })
-      )
-      .mockResolvedValueOnce(
-        Promise.resolve({
-          ok: true,
-          json: jest.fn().mockResolvedValue(
-            createUsersResponse(baseUsers, {
-              pagination: { page: 1, totalPages: 3, hasNextPage: true, hasPrevPage: false },
-            })
-          ),
-        })
-      )
-      .mockResolvedValueOnce(
-        Promise.resolve({
-          ok: true,
-          json: jest.fn().mockResolvedValue(
-            createUsersResponse(baseUsers, {
-              pagination: { page: 2, totalPages: 3, hasNextPage: true, hasPrevPage: true },
-            })
-          ),
-        })
-      );
+    const buildResponse = (page: number) =>
+      Promise.resolve({
+        ok: true,
+        json: jest.fn().mockResolvedValue(
+          createUsersResponse(baseUsers, {
+            pagination: {
+              page,
+              totalPages: 3,
+              hasNextPage: page < 3,
+              hasPrevPage: page > 1,
+            },
+          })
+        ),
+      });
+
+    fetchMock.mockImplementation((input: RequestInfo | URL) => {
+      const url = typeof input === 'string' ? input : input.toString();
+      const pageParam = new URL(url, 'https://example.com').searchParams.get('page');
+      const page = Number(pageParam ?? 1);
+      return buildResponse(Number.isNaN(page) ? 1 : page);
+    });
 
     render(<UserManagementTable currentUserRole="superAdmin" currentUserId="super-1" />);
 
     await screen.findByTestId('user-row-paged-user');
-    const pageIndicators = screen.getAllByText(
-      (_, element) => element?.textContent?.replace(/\s+/g, ' ').trim() === 'Showing page 2 of 3'
+    const initialIndicators = screen.getAllByText(
+      (_, element) => element?.textContent?.replace(/\s+/g, ' ').trim() === 'Showing page 1 of 3'
     );
-    expect(pageIndicators.length).toBeGreaterThan(0);
-
-    const previousButtons = screen.getAllByRole('button', { name: 'Previous' });
-    fireEvent.click(previousButtons[0]);
-
-    await waitFor(() => {
-      expect(fetchMock).toHaveBeenNthCalledWith(
-        2,
-        expect.stringContaining('page=1'),
-        expect.any(Object)
-      );
-    });
-    await screen.findByTestId('user-row-paged-user');
+    expect(initialIndicators.length).toBeGreaterThan(0);
 
     const nextButtons = screen.getAllByRole('button', { name: 'Next' });
     fireEvent.click(nextButtons[0]);
 
     await waitFor(() => {
-      expect(fetchMock).toHaveBeenNthCalledWith(
-        3,
-        expect.stringContaining('page=2'),
-        expect.any(Object)
-      );
+      const calledPageTwo = fetchMock.mock.calls.some(([url]) => String(url).includes('page=2'));
+      expect(calledPageTwo).toBe(true);
+    });
+    await screen.findByTestId('user-row-paged-user');
+
+    const pageTwoIndicators = screen.getAllByText(
+      (_, element) => element?.textContent?.replace(/\s+/g, ' ').trim() === 'Showing page 2 of 3'
+    );
+    expect(pageTwoIndicators.length).toBeGreaterThan(0);
+
+    const callsBeforeClick = fetchMock.mock.calls.length;
+    const previousButtons = screen.getAllByRole('button', { name: 'Previous' });
+    fireEvent.click(previousButtons[0]);
+
+    await waitFor(() => {
+      // Verify a NEW call to page=1 occurred after clicking Previous
+      const newCalls = fetchMock.mock.calls.slice(callsBeforeClick);
+      const calledPageOne = newCalls.some(([url]) => String(url).includes('page=1'));
+      expect(calledPageOne).toBe(true);
     });
     await screen.findByTestId('user-row-paged-user');
   });

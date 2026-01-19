@@ -27,13 +27,11 @@ jest.mock('next/link', () => ({
 
 // Mock lucide-react icons
 jest.mock('lucide-react', () => ({
-  Instagram: () => <span data-testid="icon-instagram">Instagram</span>,
   Leaf: () => <span data-testid="icon-leaf">Leaf</span>,
-  Linkedin: () => <span data-testid="icon-linkedin">LinkedIn</span>,
   Mail: () => <span data-testid="icon-mail">Mail</span>,
   MapPin: () => <span data-testid="icon-mappin">MapPin</span>,
   MessageSquare: () => <span data-testid="icon-messagesquare">MessageSquare</span>,
-  Twitter: () => <span data-testid="icon-twitter">Twitter</span>,
+  X: () => <span data-testid="icon-x">X</span>,
 }));
 
 describe('FooterServer', () => {
@@ -105,16 +103,10 @@ describe('FooterServer', () => {
   it('should render social links with correct attributes', () => {
     render(<FooterServer />);
 
-    const twitterLink = screen.getByLabelText('Twitter');
-    expect(twitterLink).toHaveAttribute('href', 'https://twitter.com/sustainablenomads');
-    expect(twitterLink).toHaveAttribute('target', '_blank');
-    expect(twitterLink).toHaveAttribute('rel', 'noopener noreferrer');
-
-    const instagramLink = screen.getByLabelText('Instagram');
-    expect(instagramLink).toHaveAttribute('href', 'https://instagram.com/sustainablenomads');
-
-    const linkedinLink = screen.getByLabelText('LinkedIn');
-    expect(linkedinLink).toHaveAttribute('href', 'https://linkedin.com/company/sustainablenomads');
+    const xLink = screen.getByLabelText('X (formerly Twitter)');
+    expect(xLink).toHaveAttribute('href', 'https://twitter.com/sustainablenomads');
+    expect(xLink).toHaveAttribute('target', '_blank');
+    expect(xLink).toHaveAttribute('rel', 'noopener noreferrer');
 
     const emailLink = screen.getByLabelText('Email');
     expect(emailLink).toHaveAttribute('href', 'mailto:hello@sustainablenomads.com');
@@ -168,9 +160,7 @@ describe('FooterServer', () => {
     render(<FooterServer />);
 
     expect(screen.getAllByTestId('icon-leaf').length).toBeGreaterThanOrEqual(2); // Brand and footer
-    expect(screen.getAllByTestId('icon-twitter').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByTestId('icon-instagram').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByTestId('icon-linkedin').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByTestId('icon-x').length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByTestId('icon-mail').length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByTestId('icon-mappin').length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByTestId('icon-messagesquare').length).toBeGreaterThanOrEqual(1);

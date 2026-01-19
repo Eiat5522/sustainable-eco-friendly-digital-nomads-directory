@@ -14,7 +14,8 @@ const UsersResponseSchema = z.object({
       name: z.string().nullable(),
       email: z.string(),
       role: z.enum(['user', 'editor', 'venueOwner', 'admin', 'superAdmin']),
-      status: z.enum(['active', 'inactive']),
+      status: z.enum(['active', 'inactive', 'suspended', 'pending']),
+      createdAt: z.string(),
       lastActiveAt: z.string().nullable(),
     })
   ),
@@ -25,6 +26,10 @@ const UsersResponseSchema = z.object({
     totalPages: z.number(),
     hasNextPage: z.boolean(),
     hasPrevPage: z.boolean(),
+  }),
+  filters: z.object({
+    search: z.string().nullable(),
+    role: z.enum(['user', 'editor', 'venueOwner', 'admin', 'superAdmin']).nullable(),
   }),
 });
 
@@ -69,5 +74,13 @@ export async function getAdminUsers(params: AdminUsersParams = {}): Promise<User
   if (!parsed.success) {
     throw new Error('Invalid admin users response payload');
   }
-  return parsed.data;
+  // Admin UI only supports active/inactive toggles; treat suspended/pending as inactive.
+  const normalized: UsersResponse = {
+    ...parsed.data,
+    users: parsed.data.users.map(user => ({
+      ...user,
+      status: user.status === 'active' ? 'active' : 'inactive',
+    })),
+  };
+  return normalized;
 }
