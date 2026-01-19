@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { structuredLogger } from '@/lib/logger';
-import { listingFormSchema, type ListingFormValues } from './listing-form.schema';
+import { type ListingFormValues, listingFormSchema } from './listing-form.schema';
 
 export type { ListingFormValues, VenueListingFormValues } from './listing-form.schema';
 

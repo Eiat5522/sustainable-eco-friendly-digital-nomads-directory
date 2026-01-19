@@ -46,8 +46,7 @@ export async function EditListingContent({ params }: PageProps) {
     return (
       <div className="min-h-screen bg-neo-surface/70 px-4 py-12">
         <div className="mx-auto max-w-3xl rounded-2xl border-4 border-rose-200 bg-rose-50 p-6 text-rose-700">
-          We could not load this listing for editing. Please contact support if the issue
-          persists.
+          We could not load this listing for editing. Please contact support if the issue persists.
         </div>
       </div>
     );

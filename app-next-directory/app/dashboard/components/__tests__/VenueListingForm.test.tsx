@@ -318,16 +318,6 @@ describe('VenueListingForm', () => {
     );
   });
 
-const createMockResponse = (data: unknown): Response => ({
-  ok: true,
-  json: async () => data,
-} as Response);
-
-// Then use throughout:
-if (url === '/api/cities') {
-  return createMockResponse({ cities: [{ _id: 'city-1', name: 'Bangkok' }] });
-}
-
   it('submits without image selections and keeps image fields undefined', async () => {
     const fetchMock = jest.fn(async (input: RequestInfo | URL) => {
       const url = typeof input === 'string' ? input : input.toString();

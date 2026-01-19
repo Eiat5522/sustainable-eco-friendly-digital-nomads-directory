@@ -102,7 +102,7 @@
         "noGlobalIsNan": "off",
         "noAssignInExpressions": "off",
         "noFocusedTests": "error"
-    },
+      },
       "security": {
         "noDangerouslySetInnerHtml": "warn"
       }

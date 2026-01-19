@@ -27,8 +27,7 @@ interface UserAuthStatusProps {
   readonly className?: string;
 }
 
-const isBuildMode =
-  typeof process !== 'undefined' && process.env.NEXT_BUILD_MODE === 'true';
+const isBuildMode = typeof process !== 'undefined' && process.env.NEXT_BUILD_MODE === 'true';
 
 /**
  * Inner component that does the actual auth status fetching

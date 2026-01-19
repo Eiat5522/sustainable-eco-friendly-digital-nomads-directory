@@ -1,7 +1,7 @@
+import type { NextRequest } from 'next/server';
 import { getFeaturedListings } from '@/lib/data-access/home.dal';
 import { structuredLogger } from '@/lib/logger';
 import { ApiResponseHandler } from '@/utils/api-response';
-import type { NextRequest } from 'next/server';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);

@@ -9,9 +9,9 @@ import {
 } from '@/components/ui/neo-card';
 import { auth } from '@/lib/auth';
 import { getListingFormOptions } from '@/lib/data-access/listing-form-options.dal';
+import { structuredLogger } from '@/lib/logger';
 import { createListingAction } from '../actions';
 import { ListingFormController } from '../components/ListingFormController';
-import { structuredLogger } from '@/lib/logger';
 
 export default async function NewListingPage() {
   const session = await auth();

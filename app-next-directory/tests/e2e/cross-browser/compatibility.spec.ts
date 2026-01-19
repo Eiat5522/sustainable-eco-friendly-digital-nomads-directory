@@ -289,7 +289,8 @@ test.describe('Cross-Browser Compatibility Testing', () => {
             try {
               // Detect webkit scrollbar support by checking if scrollbar styling is applied
               const outer = document.createElement('div');
-              outer.style.cssText = 'width:100px;height:100px;overflow:scroll;position:absolute;top:-9999px';
+              outer.style.cssText =
+                'width:100px;height:100px;overflow:scroll;position:absolute;top:-9999px';
               document.body.appendChild(outer);
               const defaultScrollbarWidth = outer.offsetWidth - outer.clientWidth;
 
@@ -308,8 +309,10 @@ test.describe('Cross-Browser Compatibility Testing', () => {
               // On overlay scrollbar systems, both widths are 0, but styling is still supported
               if (defaultScrollbarWidth === 0) {
                 // Overlay scrollbars - check CSS.supports for webkit prefix as fallback
-                return CSS.supports('-webkit-overflow-scrolling', 'touch') || 
-                       CSS.supports('-webkit-text-size-adjust', '100%');
+                return (
+                  CSS.supports('-webkit-overflow-scrolling', 'touch') ||
+                  CSS.supports('-webkit-text-size-adjust', '100%')
+                );
               }
               return styledScrollbarWidth === 0;
             } catch (_e) {

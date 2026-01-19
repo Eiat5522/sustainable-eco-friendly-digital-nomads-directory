@@ -157,9 +157,8 @@ async function fetchFromSanity<T>(
       });
       return null;
     }
-    structuredLogger.error('Sanity fetch failed', {
+    structuredLogger.error('Sanity fetch failed', err, {
       component: 'home.dal',
-      error: err,
     });
     throw err;
   }
@@ -258,9 +257,8 @@ export async function getFeaturedListings(limit = 10): Promise<FeaturedListingDT
       .map(mapFeaturedListingRecordToDTO)
       .filter((listing): listing is FeaturedListingDTO => listing !== null);
   } catch (error) {
-    structuredLogger.error('Failed to fetch featured listings', {
+    structuredLogger.error('Failed to fetch featured listings', error, {
       component: 'home.dal',
-      error,
       limit,
     });
     return [];
@@ -286,10 +284,9 @@ export async function getCities(limit = 8): Promise<CityDTO[]> {
 
     return rawCities.map(mapCityRecordToDTO).filter((city): city is CityDTO => city !== null);
   } catch (error) {
-    structuredLogger.error('Failed to fetch cities', {
+    structuredLogger.error('Failed to fetch cities', error, {
       component: 'home.dal',
       limit,
-      error,
     });
     return [];
   }

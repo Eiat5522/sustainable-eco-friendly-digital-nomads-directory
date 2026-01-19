@@ -4,8 +4,8 @@
 
 import { jest } from '@jest/globals';
 import { NextRequest } from 'next/server';
-import { structuredLogger } from '@/lib/logger';
 import { getFeaturedListings } from '@/lib/data-access/home.dal';
+import { structuredLogger } from '@/lib/logger';
 import { GET } from './route';
 
 jest.mock('@/lib/data-access/home.dal', () => ({
@@ -27,7 +27,13 @@ describe('Featured Listings API - GET /api/featured-listings', () => {
 
   it('returns featured listings from DAL with default limit', async () => {
     mockedGetFeaturedListings.mockResolvedValueOnce([
-      { id: '1', name: 'Green Coworking Space', slug: 'green-coworking', imageUrl: '', city: 'BKK' },
+      {
+        id: '1',
+        name: 'Green Coworking Space',
+        slug: 'green-coworking',
+        imageUrl: '',
+        city: 'BKK',
+      },
     ]);
 
     const response = await GET(new NextRequest('http://localhost/api/featured-listings'));

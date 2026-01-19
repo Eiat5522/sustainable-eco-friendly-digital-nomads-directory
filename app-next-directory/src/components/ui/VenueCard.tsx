@@ -47,7 +47,6 @@ export function VenueCard({ venue, className, priority = false }: Readonly<Venue
               onError={() => setImgErr(true)}
             />
           )}
-
         </div>
 
         <NeoCardHeader className="flex-grow">
