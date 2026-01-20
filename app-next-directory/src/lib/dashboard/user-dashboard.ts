@@ -107,12 +107,13 @@ export async function getUserDashboardData(
   }
 
   const { id, role, name, email } = sessionUser;
+  const isJestEnvironment = Boolean(process.env.JEST_WORKER_ID);
   const months = Math.max(1, options.months ?? DEFAULT_MONTHS);
   const referenceDate = new Date();
   const buckets = createMonthBuckets(months, referenceDate);
   const rangeStart = buckets[0]?.start ?? referenceDate;
   const isVenueOwner = role === 'venueOwner' || role === 'admin';
-  if (isE2ERun()) {
+  if (isE2ERun() && !isJestEnvironment) {
     const emptyMonthly = buckets.map(bucket => ({
       month: bucket.key,
       label: bucket.label,

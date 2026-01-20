@@ -5,7 +5,8 @@ import { getClient } from '@/lib/sanity';
 
 export async function GET() {
   try {
-    if (isE2ERun()) {
+    const isJestEnvironment = Boolean(process.env.JEST_WORKER_ID);
+    if (isE2ERun() && !isJestEnvironment) {
       return NextResponse.json({ amenities: e2eFilterMetadata.amenities });
     }
     const sanityClient = getClient();

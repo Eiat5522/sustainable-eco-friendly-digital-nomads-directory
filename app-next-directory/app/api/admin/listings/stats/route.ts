@@ -27,7 +27,8 @@ function ensureAdmin(sessionUser: SessionUser): boolean {
 export async function GET(_request: NextRequest, _context: RouteContext) {
   try {
     const isE2E = process.env.E2E === '1' || process.env.NEXT_PUBLIC_E2E === '1';
-    if (isE2E) {
+    const isJestEnvironment = Boolean(process.env.JEST_WORKER_ID);
+    if (isE2E && !isJestEnvironment) {
       const session = await auth().catch(() => null);
       const sessionUser = session?.user as SessionUser;
       if (!ensureAdmin(sessionUser)) {
