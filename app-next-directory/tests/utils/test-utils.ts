@@ -290,8 +290,29 @@ async function applySession(page: Page, role: Role) {
 
 async function loginViaForm(page: Page, email: string, password: string, redirectPattern: RegExp) {
   await page.goto('/auth/login', { waitUntil: 'domcontentloaded' });
-  await page.locator('input[name="email"]').first().fill(email);
-  await page.locator('input[name="password"]').first().fill(password);
+  const emailInput = page.locator('input[name="email"]').first();
+  const passwordInput = page.locator('input[name="password"]').first();
+  const loginReady = Promise.all([
+    emailInput.waitFor({ state: 'visible', timeout: 5000 }),
+    passwordInput.waitFor({ state: 'visible', timeout: 5000 }),
+  ])
+    .then(() => 'form')
+    .catch(() => 'timeout');
+  const redirected = page
+    .waitForURL(url => !url.pathname.startsWith('/auth/login'), {
+      timeout: 5000,
+      waitUntil: 'domcontentloaded',
+    })
+    .then(() => 'redirect')
+    .catch(() => 'timeout');
+  const result = await Promise.race([loginReady, redirected]);
+
+  if (result !== 'form') {
+    return;
+  }
+
+  await emailInput.fill(email);
+  await passwordInput.fill(password);
   const submit = page.locator('button[type="submit"]');
   await Promise.all([
     page

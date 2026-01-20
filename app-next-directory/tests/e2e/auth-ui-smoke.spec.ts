@@ -1,7 +1,5 @@
 import type { APIRequestContext } from '@playwright/test';
 import { expect, test } from '@playwright/test';
-import { loginAs } from '../utils/test-utils';
-
 // Use globalThis.process to avoid referencing the Node global `process` symbol
 // directly so TypeScript doesn't require @types/node in the test TS scope.
 type ProcessLike = { env: Record<string, string | undefined> };

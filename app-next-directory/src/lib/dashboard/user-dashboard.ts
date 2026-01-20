@@ -1,6 +1,7 @@
 import { getLifetimeViewCounts, getMonthlyViewCounts } from '@/lib/metrics/listing-views';
 import { client } from '@/lib/sanity/client';
 import { ensureSanityUser } from '@/lib/sanity/user';
+import { isE2ERun } from '@/data/e2e/discovery-fixtures';
 import type { UserRole } from '@/types/auth';
 import type {
   DashboardListingInfoDTO,
@@ -110,10 +111,61 @@ export async function getUserDashboardData(
   const referenceDate = new Date();
   const buckets = createMonthBuckets(months, referenceDate);
   const rangeStart = buckets[0]?.start ?? referenceDate;
+  const isVenueOwner = role === 'venueOwner' || role === 'admin';
+  if (isE2ERun()) {
+    const emptyMonthly = buckets.map(bucket => ({
+      month: bucket.key,
+      label: bucket.label,
+      reviewCount: 0,
+      avgRating: null,
+      favoritesCount: 0,
+      monthlyViewCount: null,
+    }));
+
+    const basePayload = {
+      user: { id, role, name: name ?? null, email: email ?? null },
+      generatedAt: toISODate(referenceDate),
+      range: {
+        months,
+        from: toISODate(rangeStart),
+        to: toISODate(referenceDate),
+      },
+    };
+
+    if (isVenueOwner) {
+      return {
+        ...basePayload,
+        data: {
+          kind: 'venueOwner',
+          listings: [],
+          totals: {
+            avgRating: null,
+            reviewCount: 0,
+            favoritesCount: 0,
+            viewCount: null,
+          },
+          monthlyTotals: emptyMonthly,
+          notices: [],
+        },
+      };
+    }
+
+    return {
+      ...basePayload,
+      data: {
+        kind: 'user',
+        favorites: [],
+        metrics: {
+          favoritesCount: 0,
+          reviewsWritten: 0,
+          avgRatingGiven: null,
+        },
+        monthly: emptyMonthly,
+      },
+    };
+  }
 
   await ensureSanityUser({ id, name: name ?? null, email: email ?? null });
-
-  const isVenueOwner = role === 'venueOwner' || role === 'admin';
 
   if (!isVenueOwner) {
     type RawFavoriteDoc = {

@@ -29,8 +29,6 @@ test.describe('Cross-Browser Compatibility Testing', () => {
       }) => {
         test.skip(actualBrowser !== browserName, `This test is for ${browserName} only`);
 
-        await page.goto('/contact-us');
-
         await page.route('**/api/contact', route => {
           route.fulfill({
             status: 200,
@@ -39,12 +37,16 @@ test.describe('Cross-Browser Compatibility Testing', () => {
           });
         });
 
+        await page.goto('/contact-us');
+
         await page.getByTestId('contact-name').fill('Test User');
         await page.getByTestId('contact-email').fill('test@example.com');
         await page.getByTestId('contact-subject').fill('Interested in sustainable stays');
         await page.getByTestId('contact-message').fill('Test message about sustainable travel.');
 
+        const responsePromise = page.waitForResponse('**/api/contact');
         await page.getByTestId('contact-submit').click();
+        await responsePromise;
 
         await expect(page.getByTestId('contact-success')).toBeVisible();
       });

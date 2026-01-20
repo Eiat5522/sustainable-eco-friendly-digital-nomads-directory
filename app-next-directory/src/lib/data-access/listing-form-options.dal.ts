@@ -7,6 +7,11 @@
 import 'server-only';
 
 import { cacheLife, cacheTag } from 'next/cache';
+import {
+  e2eDiscoveryListings,
+  e2eFilterMetadata,
+  isE2ERun,
+} from '@/data/e2e/discovery-fixtures';
 import { getCitiesList } from '@/lib/data/city';
 import { getEcoTags } from '@/lib/data-access/home.dal';
 import { structuredLogger } from '@/lib/logger';
@@ -39,10 +44,52 @@ function toFormOptions(value: unknown): FormOption[] {
     .filter((option): option is FormOption => option !== null);
 }
 
+function toFormOptionsFromNames(values: readonly string[]): FormOption[] {
+  return values.map(value => ({
+    _id: value,
+    name: value,
+  }));
+}
+
+function buildE2EFormOptions(): OptionsResponse {
+  const ecoTags = Array.from(
+    new Set(
+      e2eDiscoveryListings
+        .flatMap(listing => listing.ecoFocusTags ?? [])
+        .map(tag => tag.trim())
+        .filter(Boolean)
+    )
+  );
+  const digitalNomadFeatures = Array.from(
+    new Set(
+      e2eDiscoveryListings
+        .flatMap(listing => listing.digitalNomadFeatures ?? [])
+        .map(feature => feature.trim())
+        .filter(Boolean)
+    )
+  );
+
+  return {
+    cities: e2eFilterMetadata.cities.map(city => ({
+      _id: city._id,
+      name: city.name,
+    })),
+    ecoTags: toFormOptionsFromNames(ecoTags),
+    digitalNomadFeatures: toFormOptionsFromNames(digitalNomadFeatures),
+    amenities: toFormOptionsFromNames(
+      e2eFilterMetadata.amenities.map(amenity => amenity.name)
+    ),
+  };
+}
+
 async function getDigitalNomadFeatures(): Promise<FormOption[]> {
   'use cache';
   cacheLife('days');
   cacheTag('digital-nomad-features');
+
+  if (isE2ERun()) {
+    return buildE2EFormOptions().digitalNomadFeatures;
+  }
 
   try {
     const features = await client.fetch(
@@ -62,6 +109,10 @@ async function getAmenities(): Promise<FormOption[]> {
   cacheLife('days');
   cacheTag('amenities');
 
+  if (isE2ERun()) {
+    return buildE2EFormOptions().amenities;
+  }
+
   try {
     const amenities = await client.fetch(`*[_type == "amenity"] | order(name asc) { _id, name }`);
     return toFormOptions(amenities);
@@ -77,6 +128,10 @@ export async function getListingFormOptions(): Promise<OptionsResponse> {
   'use cache';
   cacheLife('days');
   cacheTag('listing-form-options');
+
+  if (isE2ERun()) {
+    return buildE2EFormOptions();
+  }
 
   const [cities, ecoTags, digitalNomadFeatures, amenities] = await Promise.all([
     getCitiesList(80),

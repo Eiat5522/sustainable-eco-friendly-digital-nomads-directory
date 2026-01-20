@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
+import { e2eFilterMetadata, isE2ERun } from '@/data/e2e/discovery-fixtures';
 import { cacheHelpers } from '@/lib/cache-strategy';
 import { getClient } from '@/lib/sanity';
 
 export async function GET() {
   try {
+    if (isE2ERun()) {
+      return NextResponse.json({ amenities: e2eFilterMetadata.amenities });
+    }
     const sanityClient = getClient();
     const amenities = await cacheHelpers.amenities(async () => {
       return await sanityClient.fetch(`*[_type == "amenity"] | order(name asc) {

@@ -44,13 +44,13 @@ const e2eFixtures: Record<string, ListingFixture> = {
 function cloneFixture(fixture: ListingFixture) {
   const listing = structuredClone(fixture.listing);
   if (!Array.isArray(listing.galleryImages) || listing.galleryImages.length === 0) {
-    listing.galleryImages = ['/test-gallery-1.jpg', '/test-gallery-2.jpg'];
+    listing.galleryImages = ['/test-images/gallery-1.svg', '/test-images/gallery-2.svg'];
   } else {
     listing.galleryImages = listing.galleryImages.map((src, index) => {
       if (typeof src === 'string' && src.trim().length > 0) {
-        return src === '/placeholder_image.png' ? `/test-gallery-${index + 1}.jpg` : src;
+        return src === '/placeholder_image.png' ? `/test-images/gallery-${index + 1}.svg` : src;
       }
-      return `/test-gallery-${index + 1}.jpg`;
+      return `/test-images/gallery-${index + 1}.svg`;
     });
   }
 
@@ -146,6 +146,34 @@ export default async function ListingPage({ params }: Props) {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+
+  if (isE2ETest) {
+    if (slug === E2E_ERROR_SLUG) {
+      return { title: 'Listing error' };
+    }
+
+    const fixture = e2eFixtures[slug];
+    if (!fixture) {
+      return { title: 'Listing not found' };
+    }
+
+    const summary =
+      fixture.listing.shortDescription ?? fixture.listing.longDescription ?? 'Listing details';
+    const description = summary ? summary.slice(0, 160) : undefined;
+    const primaryImage =
+      fixture.listing.galleryImages?.[0] ?? fixture.listing.imageUrl ?? undefined;
+
+    return {
+      title: fixture.listing.name,
+      description,
+      openGraph: {
+        title: fixture.listing.name,
+        description,
+        images: primaryImage ? [primaryImage] : undefined,
+      },
+    };
+  }
+
   const listing = await getListingBySlug(slug);
 
   if (!listing) {

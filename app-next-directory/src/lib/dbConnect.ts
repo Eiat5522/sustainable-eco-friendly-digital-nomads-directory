@@ -2,11 +2,15 @@ import mongoose, { type Mongoose } from 'mongoose';
 import { structuredLogger } from '@/lib/logger';
 
 const MONGODB_URI = process.env.MONGODB_URI;
+const isE2EEnvironment = process.env.E2E === '1' || process.env.NEXT_PUBLIC_E2E === '1';
+const shouldUseRealMongoInE2E =
+  isE2EEnvironment && process.env.USE_REAL_MONGODB_FOR_E2E === '1';
 // FORTEST: Support both SKIP_DB_CONNECT and DISABLE_MONGODB_DURING_BUILD for build-time safety
 const skipDbConnect =
-  process.env.SKIP_DB_CONNECT === '1' ||
-  process.env.DISABLE_MONGODB_DURING_BUILD === '1' ||
-  process.env.DISABLE_MONGODB_DURING_BUILD === 'true';
+  (process.env.SKIP_DB_CONNECT === '1' ||
+    process.env.DISABLE_MONGODB_DURING_BUILD === '1' ||
+    process.env.DISABLE_MONGODB_DURING_BUILD === 'true') &&
+  !shouldUseRealMongoInE2E;
 const isJestEnvironment = Boolean(process.env?.JEST_WORKER_ID);
 const shouldUseRealMongoDuringTests =
   isJestEnvironment && process.env.JEST_USE_REAL_MONGOOSE === '1';
