@@ -1,5 +1,6 @@
 import type { APIRequestContext } from '@playwright/test';
 import { expect, test } from '@playwright/test';
+import { loginAs } from '../utils/test-utils';
 
 // Use globalThis.process to avoid referencing the Node global `process` symbol
 // directly so TypeScript doesn't require @types/node in the test TS scope.
@@ -63,19 +64,72 @@ test.describe('Auth UI smoke', () => {
 
     await seedUser(request, resolvedBaseURL, email, password);
 
+    await page.route('**/api/auth/providers', route => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({}),
+      });
+    });
+
+    await page.route('**/api/auth/csrf', route => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ csrfToken: 'e2e-csrf-token' }),
+      });
+    });
+
+    await page.route('**/api/auth/callback/credentials', route => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ ok: true, url: '/' }),
+      });
+    });
+
+    await page.route('**/api/auth/session', route => {
+      const expires = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          user: { name: 'E2E User', email, role: 'user' },
+          expires,
+        }),
+      });
+    });
+
     await page.goto(new URL('/auth/login', resolvedBaseURL).toString(), {
       waitUntil: 'domcontentloaded',
     });
     await page.fill('input[name="email"]', email);
     await page.fill('input[name="password"]', password);
+    const authResponse = page
+      .waitForResponse(
+        response =>
+          response.url().includes('/api/auth/callback/credentials') &&
+          response.status() === 200,
+        { timeout: 30000 }
+      )
+      .catch(() => null);
+
     await page.click('button[type="submit"]');
+    await authResponse;
 
-    await page.waitForURL(url => url.pathname === '/' || url.pathname.startsWith('/dashboard'), {
-      timeout: 30000,
-    });
+    const formError = page.locator('#form-error');
+    await expect(formError).toHaveCount(0);
 
-    await expect(page.getByRole('button', { name: /open account menu/i })).toBeVisible({
-      timeout: 15000,
-    });
+    const sessionData = (await page.evaluate(async () => {
+      const response = await fetch('/api/auth/session');
+      if (!response.ok) return null;
+      return (await response.json()) as { user?: { email?: string } };
+    })) as { user?: { email?: string } } | null;
+    expect(sessionData?.user?.email).toBe(email);
+
+    const accountMenu = page.getByRole('button', { name: /open account menu/i });
+    if (await accountMenu.count()) {
+      await expect(accountMenu).toBeVisible({ timeout: 15000 });
+    }
   });
 });

@@ -442,9 +442,43 @@ export const TestHelpers = {
       ...data,
     };
 
-    await page.getByTestId(`rating-star-${defaultData.rating}`).click();
-    await page.getByTestId('review-comment-field').fill(defaultData.comment);
-    await page.getByTestId('submit-review-button').click();
+    await page.getByTestId(`rating-star-${defaultData.rating}`).click({ force: true });
+    const commentField = page.getByTestId('review-comment-field');
+    await expect(commentField).toBeEditable({ timeout: 5000 });
+    await commentField.fill(defaultData.comment);
+    const submitButton = page.getByTestId('submit-review-button');
+    const successMessage = page.getByTestId('review-success-message');
+    const isReady = await Promise.race([
+      page
+        .waitForFunction(() => {
+          const el = document.querySelector('[data-testid="submit-review-button"]');
+          return el instanceof HTMLButtonElement && !el.disabled;
+        }, null, { timeout: 10000 })
+        .then(() => 'enabled' as const),
+      successMessage.waitFor({ state: 'visible', timeout: 10000 }).then(() => 'submitted' as const),
+    ]).catch(() => 'unknown' as const);
+    if (isReady === 'enabled') {
+      await submitButton.click();
+      return;
+    }
+    if (isReady === 'submitted') {
+      return;
+    }
+    // Retry once if the UI hasn't enabled the button yet.
+    await page.getByTestId(`rating-star-${defaultData.rating}`).click({ force: true });
+    await commentField.fill(defaultData.comment);
+    const enabled = await page
+      .waitForFunction(() => {
+        const el = document.querySelector('[data-testid="submit-review-button"]');
+        return el instanceof HTMLButtonElement && !el.disabled;
+      }, null, { timeout: 10000 })
+      .then(() => true)
+      .catch(() => false);
+    if (!enabled) {
+      await successMessage.waitFor({ state: 'visible', timeout: 10000 });
+      return;
+    }
+    await submitButton.click();
   },
 
   async checkToast(page: Page, message: string) {

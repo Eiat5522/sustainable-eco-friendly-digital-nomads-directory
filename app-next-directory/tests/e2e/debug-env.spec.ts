@@ -5,9 +5,9 @@ test('Debug: Check environment variables exposed to Next.js server', async ({ pa
   await page.goto('/api/debug-env');
   const envVars = await page.evaluate(() => document.body.textContent);
 
-  structuredLogger.log('--- Debug Environment Variables ---');
-  structuredLogger.log(envVars);
-  structuredLogger.log('-----------------------------------');
+  structuredLogger.info('--- Debug Environment Variables ---');
+  structuredLogger.info(envVars);
+  structuredLogger.info('-----------------------------------');
   let parsedEnv: Record<string, string> = {};
   try {
     parsedEnv = JSON.parse(envVars || '{}');
