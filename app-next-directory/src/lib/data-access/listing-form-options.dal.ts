@@ -12,7 +12,7 @@ import {
   e2eFilterMetadata,
   isE2ERun,
 } from '@/data/e2e/discovery-fixtures';
-import { getCitiesList } from '@/lib/data/city';
+import { getCitiesList } from '@/lib/data-access/cities.dal';
 import { getEcoTags } from '@/lib/data-access/home.dal';
 import { structuredLogger } from '@/lib/logger';
 import { client } from '@/lib/sanity/client';

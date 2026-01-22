@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { getE2ECityDetail } from '@/data/e2e/discovery-fixtures';
-import { getCityBySlug } from '@/lib/data/city';
+import { getCityBySlug } from '@/lib/data-access/cities.dal';
 import { isSanityConfigured } from '@/lib/sanity/env';
 import { ApiResponseHandler } from '@/utils/api-response';
 

@@ -20,7 +20,7 @@ jest.mock('@/components/layout/Footer', () => ({
   Footer: () => <div data-testid="footer">Footer</div>,
 }));
 
-jest.mock('@/lib/data/city', () => ({
+jest.mock('@/lib/data-access/cities.dal', () => ({
   getCityBySlug: jest.fn(),
   getCityDetailBySlug: jest.fn(),
   getListingsByCityId: jest.fn(),
@@ -63,7 +63,7 @@ describe('CityPage', () => {
 
     const [pageModule, cityDataModule] = await Promise.all([
       import('../cities/[slug]/page'),
-      import('@/lib/data/city'),
+      import('@/lib/data-access/cities.dal'),
     ]);
 
     const getCityDetailBySlug = cityDataModule.getCityDetailBySlug as jest.Mock;
@@ -141,7 +141,7 @@ describe('CityPage', () => {
 
     const [pageModule, cityDataModule, loggerModule] = await Promise.all([
       import('../cities/[slug]/page'),
-      import('@/lib/data/city'),
+      import('@/lib/data-access/cities.dal'),
       import('@/lib/logger'),
     ]);
 
@@ -177,7 +177,7 @@ describe('CityPage', () => {
 
     const [pageModule, cityDataModule, loggerModule] = await Promise.all([
       import('../cities/[slug]/page'),
-      import('@/lib/data/city'),
+      import('@/lib/data-access/cities.dal'),
       import('@/lib/logger'),
     ]);
 
@@ -213,7 +213,7 @@ describe('CityPage', () => {
 
     const [pageModule, cityDataModule, loggerModule] = await Promise.all([
       import('../cities/[slug]/page'),
-      import('@/lib/data/city'),
+      import('@/lib/data-access/cities.dal'),
       import('@/lib/logger'),
     ]);
 

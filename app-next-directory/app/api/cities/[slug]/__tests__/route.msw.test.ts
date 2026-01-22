@@ -7,7 +7,7 @@ jest.mock('@/lib/sanity/env', () => ({
 }));
 
 // Mock getCityBySlug
-jest.mock('@/lib/data/city', () => ({
+jest.mock('@/lib/data-access/cities.dal', () => ({
   getCityBySlug: jest.fn(),
 }));
 
@@ -71,7 +71,7 @@ describe('Cities/[slug] API (MSW)', () => {
   });
 
   it('returns city data via Sanity MSW handler', async () => {
-    const { getCityBySlug } = await import('@/lib/data/city');
+    const { getCityBySlug } = await import('@/lib/data-access/cities.dal');
     (getCityBySlug as jest.Mock).mockResolvedValue(sampleCity);
 
     const response = await GET(createRequest('bangkok'), {
@@ -86,7 +86,7 @@ describe('Cities/[slug] API (MSW)', () => {
   });
 
   it('handles Sanity errors gracefully', async () => {
-    const { getCityBySlug } = await import('@/lib/data/city');
+    const { getCityBySlug } = await import('@/lib/data-access/cities.dal');
     (getCityBySlug as jest.Mock).mockRejectedValue(new Error('Sanity API error'));
 
     const response = await GET(createRequest('bangkok'), {
@@ -99,7 +99,7 @@ describe('Cities/[slug] API (MSW)', () => {
   });
 
   it('handles network errors from Sanity', async () => {
-    const { getCityBySlug } = await import('@/lib/data/city');
+    const { getCityBySlug } = await import('@/lib/data-access/cities.dal');
     (getCityBySlug as jest.Mock).mockRejectedValue(new Error('Network timeout'));
 
     const response = await GET(createRequest('bangkok'), {

@@ -1,5 +1,3 @@
-'use cache';
-
 import { CityDetailView } from '@/components/city/CityDetailView';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
@@ -8,7 +6,7 @@ import {
   getCityBySlug,
   getCityDetailBySlug,
   getListingsByCityId,
-} from '@/lib/data/city';
+} from '@/lib/data-access/cities.dal';
 import { structuredLogger } from '@/lib/logger';
 import type { CityDetailDTO, CityDTO, ListingSummaryDTO } from '@/types/dto';
 import {
@@ -159,9 +157,10 @@ const sanitizeErrorForLogging = (error: unknown): unknown => {
 };
 
 export default async function CityPage({ params }: Props) {
-  // Next.js 15 requires params to be awaited, but tests may pass a resolved object
+  // Next.js 15+ requires params to be awaited
   const { slug } = await params;
 
+  // Handle E2E test fixtures
   if (isE2ETest) {
     const fixture = e2eCityFixtures[slug];
     if (fixture) {
@@ -187,7 +186,6 @@ export default async function CityPage({ params }: Props) {
       component: 'city-page',
       operation: 'fetch_city_data',
       slug: slug,
-      // Note: slug is safe to log as it's public URL parameter
     });
   }
 
