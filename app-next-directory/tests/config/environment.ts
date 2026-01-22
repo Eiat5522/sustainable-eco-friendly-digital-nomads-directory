@@ -3,7 +3,11 @@ import { resolve } from 'node:path';
 
 import { config as loadEnv } from 'dotenv';
 
-const envFilePath = process.env.PLAYWRIGHT_DOTENV_PATH ?? resolve(process.cwd(), '.env.test');
+const defaultEnvPath = resolve(process.cwd(), '.env.e2e');
+const fallbackEnvPath = resolve(process.cwd(), '.env.test');
+const envFilePath =
+  process.env.PLAYWRIGHT_DOTENV_PATH ??
+  (existsSync(defaultEnvPath) ? defaultEnvPath : fallbackEnvPath);
 const localEnvFilePath = resolve(process.cwd(), '.env.local');
 
 if (existsSync(localEnvFilePath)) {
@@ -11,7 +15,7 @@ if (existsSync(localEnvFilePath)) {
 }
 
 if (!process.env.SKIP_PLAYWRIGHT_DOTENV && existsSync(envFilePath)) {
-  loadEnv({ path: envFilePath, override: true });
+  loadEnv({ path: envFilePath, override: false });
 }
 
 const rawBaseURL =

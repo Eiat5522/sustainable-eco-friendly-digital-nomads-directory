@@ -1,11 +1,12 @@
 /// <reference types="node" />
 
 import { defineConfig, devices } from '@playwright/test';
-import { PLAYWRIGHT_BASE_URL } from './tests/config/environment';
+import { PLAYWRIGHT_BASE_URL, PLAYWRIGHT_SERVER_WAIT_URL } from './tests/config/environment';
 
 // NOTE: This config will start the Next dev server before running tests and stop it after.
 // If your dev server uses a different port, update `PLAYWRIGHT_BASE_URL` via env vars.
 const resolvedBaseURL = PLAYWRIGHT_BASE_URL;
+const resolvedServerWaitURL = PLAYWRIGHT_SERVER_WAIT_URL.toString();
 
 export default defineConfig({
   // Run Playwright tests from the project tests directory using .spec.ts extension only
@@ -42,6 +43,17 @@ export default defineConfig({
     // Write JSON and last-run files to tmp/test-results to avoid permission issues
     ['json', { outputFile: 'tmp/test-results/test-results.json' }],
   ],
+  webServer: {
+    command: 'pnpm dev',
+    url: resolvedServerWaitURL,
+    reuseExistingServer: !process.env.CI,
+    timeout: 120_000,
+    env: {
+      ...process.env,
+      NEXTAUTH_URL: process.env.NEXTAUTH_URL ?? resolvedBaseURL,
+      NEXT_PUBLIC_FRONTEND_URL: process.env.NEXT_PUBLIC_FRONTEND_URL ?? resolvedBaseURL,
+    },
+  },
   use: {
     baseURL: resolvedBaseURL,
     headless: true,
