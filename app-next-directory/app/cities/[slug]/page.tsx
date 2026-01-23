@@ -1,3 +1,5 @@
+import { connection } from 'next/server';
+import { Suspense } from 'react';
 import { CityDetailView } from '@/components/city/CityDetailView';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
@@ -204,23 +206,20 @@ const sanitizeErrorForLogging = (error: unknown): unknown => {
   };
 };
 
-export default async function CityPage({ params }: Props) {
-  // Next.js 15+ requires params to be awaited
-  const { slug } = await params;
+/**
+ * Separate component for fetching city data
+ * This allows Suspense to handle the loading state at a granular level
+ */
+async function CityContent({ slug }: { slug: string }) {
+  // Access connection() first to opt-in to dynamic rendering before any logging
+  // This prevents Date.now() errors during prerendering
+  await connection();
 
   // Handle E2E test fixtures
   if (isE2ETest) {
     const fixture = e2eCityFixtures[slug];
     if (fixture) {
-      return (
-        <>
-          <Header />
-          <main>
-            <CityDetailView city={fixture.city} listings={fixture.listings} />
-          </main>
-          <Footer />
-        </>
-      );
+      return <CityDetailView city={fixture.city} listings={fixture.listings} />;
     }
   }
 
@@ -239,15 +238,7 @@ export default async function CityPage({ params }: Props) {
 
   if (!rawCity) {
     const fallbackCity = makeFallbackCity(slug);
-    return (
-      <>
-        <Header />
-        <main>
-          <CityDetailView city={fallbackCity} listings={[]} />
-        </main>
-        <Footer />
-      </>
-    );
+    return <CityDetailView city={fallbackCity} listings={[]} />;
   }
 
   // Validate using schema-first approach (detail → basic)
@@ -269,15 +260,7 @@ export default async function CityPage({ params }: Props) {
           basicError: basicResult.error.message,
         },
       });
-      return (
-        <>
-          <Header />
-          <main>
-            <CityDetailView city={makeFallbackCity(slug)} listings={[]} />
-          </main>
-          <Footer />
-        </>
-      );
+      return <CityDetailView city={makeFallbackCity(slug)} listings={[]} />;
     }
   }
 
@@ -306,13 +289,46 @@ export default async function CityPage({ params }: Props) {
     });
   }
 
+  return <CityDetailView city={city} listings={listings} />;
+}
+
+/**
+ * Loading fallback component for city content
+ */
+function CityLoadingFallback() {
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="text-center">
+        <div
+          className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+          role="status"
+        >
+          <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+            Loading...
+          </span>
+        </div>
+        <p className="mt-4 text-sm text-gray-600">Loading city information...</p>
+      </div>
+    </div>
+  );
+}
+
+export default async function CityPage({ params }: Props) {
+  const { slug } = await params;
+
   return (
     <>
-      <Header />
+      <Suspense fallback={<div className="h-16 bg-gray-100 animate-pulse" />}>
+        <Header />
+      </Suspense>
       <main>
-        <CityDetailView city={city} listings={listings} />
+        <Suspense fallback={<CityLoadingFallback />}>
+          <CityContent slug={slug} />
+        </Suspense>
       </main>
-      <Footer />
+      <Suspense fallback={<div className="h-32 bg-gray-100 animate-pulse" />}>
+        <Footer />
+      </Suspense>
     </>
   );
 }

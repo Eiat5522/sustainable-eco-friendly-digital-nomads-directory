@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { ReactNode } from 'react';
+import { Suspense } from 'react';
 import { PageLayoutServer } from '@/components/layout/PageLayoutServer';
 import { ListingGrid } from '@/components/listings/ListingGrid';
 import { SearchFiltersForm } from '@/components/search/SearchFiltersForm';
@@ -13,37 +13,39 @@ import type { SearchParamRecord } from '@/types/search';
 
 type SearchPageProps = { searchParams?: Promise<SearchParamRecord> };
 
-export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const resolvedSearchParams = (await searchParams) ?? {};
+/**
+ * Search results component with data fetching
+ * Wrapped in Suspense for granular loading control
+ */
+async function SearchResults({ searchParams }: { searchParams: SearchParamRecord }) {
   const basePath = '/search';
 
-  const retryRaw = resolvedSearchParams.retry;
+  const retryRaw = searchParams.retry;
   const retryValue = Array.isArray(retryRaw) ? retryRaw[retryRaw.length - 1] : retryRaw;
   const parsedRetry = Number.parseInt(String(retryValue ?? '0'), 10);
   const nextRetryCount = Number.isFinite(parsedRetry) ? parsedRetry + 1 : 1;
-  const retryLink = buildSearchHref(basePath, resolvedSearchParams, {
+  const retryLink = buildSearchHref(basePath, searchParams, {
     retry: String(nextRetryCount),
   });
 
-  const result = await executeSearch(resolvedSearchParams);
+  const result = await executeSearch(searchParams);
 
-  let mainContent: ReactNode;
   if (result.ok) {
     const { pagination, pageSizeOptions, listings, pages } = result;
     const prevLink =
       pagination.page > 1
-        ? buildSearchHref(basePath, resolvedSearchParams, { page: String(pagination.page - 1) })
+        ? buildSearchHref(basePath, searchParams, { page: String(pagination.page - 1) })
         : null;
     const nextLink =
       pagination.page < pagination.totalPages
-        ? buildSearchHref(basePath, resolvedSearchParams, { page: String(pagination.page + 1) })
+        ? buildSearchHref(basePath, searchParams, { page: String(pagination.page + 1) })
         : null;
 
-    mainContent = (
+    return (
       <div className="container mx-auto px-4 py-8">
         <div className="mb-10">
           <h1 className="heading-xl mb-8 text-center">Search for Sustainable Venues</h1>
-          <SearchFiltersForm initialParams={resolvedSearchParams} resultsPath={basePath} />
+          <SearchFiltersForm initialParams={searchParams} resultsPath={basePath} />
         </div>
         <h2 className="heading-lg mb-4">Search Results</h2>
         <div className="flex items-center justify-between gap-4 mb-4">
@@ -51,7 +53,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             Showing page {pagination.page} of {pagination.totalPages}
           </div>
           <form action={basePath} method="get" className="flex items-center gap-2">
-            {Object.entries(resolvedSearchParams).map(([key, value]) => {
+            {Object.entries(searchParams).map(([key, value]) => {
               if (!/^[a-zA-Z0-9_-]+$/.test(key)) return null;
               return Array.isArray(value)
                 ? value.map((entry, index) => (
@@ -122,7 +124,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 size="sm"
               >
                 <Link
-                  href={buildSearchHref(basePath, resolvedSearchParams, { page: String(value) })}
+                  href={buildSearchHref(basePath, searchParams, { page: String(value) })}
                   aria-current={value === pagination.page ? 'page' : undefined}
                 >
                   {value}
@@ -139,7 +141,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       </div>
     );
   } else {
-    mainContent = (
+    return (
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col gap-4" data-testid="search-error-state">
           <p className="text-red-500" data-testid="error-message">
@@ -159,6 +161,35 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       </div>
     );
   }
+}
 
-  return <PageLayoutServer>{mainContent}</PageLayoutServer>;
+/**
+ * Loading fallback for search results
+ */
+function SearchLoadingFallback() {
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-10">
+        <div className="h-12 bg-gray-200 rounded animate-pulse mb-8" />
+        <div className="h-32 bg-gray-100 rounded animate-pulse" />
+      </div>
+      <div className="space-y-4">
+        {[...Array(6)].map((_, i) => (
+          <div key={i} className="h-32 bg-gray-100 rounded animate-pulse" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default async function SearchPage({ searchParams }: SearchPageProps) {
+  const resolvedSearchParams = (await searchParams) ?? {};
+
+  return (
+    <PageLayoutServer>
+      <Suspense fallback={<SearchLoadingFallback />}>
+        <SearchResults searchParams={resolvedSearchParams} />
+      </Suspense>
+    </PageLayoutServer>
+  );
 }

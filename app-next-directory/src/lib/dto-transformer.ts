@@ -1,7 +1,7 @@
-import { structuredLogger } from '@/lib/logger';
-import { urlFor } from '@/lib/sanity/client';
 import type { PortableTextBlock } from '@portabletext/types';
 import { isImageAssetId } from '@sanity/asset-utils';
+import { structuredLogger } from '@/lib/logger';
+import { urlFor } from '@/lib/sanity/client';
 // Ensure we have a consistent image union for DTO mapping; add a dedicated type if
 // Sanity introduces a distinct gallery image schema in the future.
 import type {

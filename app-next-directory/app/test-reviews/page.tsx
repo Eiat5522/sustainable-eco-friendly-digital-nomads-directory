@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { ReviewsSection } from '@/components/listings/ReviewsSection';
 
 const sampleReviews = [
@@ -36,11 +37,13 @@ export default async function TestReviewsPage(props: { searchParams?: Promise<Se
     <div className="container mx-auto py-8">
       <h1 className="text-2xl font-bold mb-4">Test Reviews Section</h1>
       <div data-testid="test-reviews-section">
-        <ReviewsSection
-          reviews={initialReviews}
-          listingId="test-listing-123"
-          isSignedIn={isSignedIn}
-        />
+        <Suspense fallback={<div className="h-64 bg-gray-100 rounded animate-pulse" />}>
+          <ReviewsSection
+            reviews={initialReviews}
+            listingId="test-listing-123"
+            isSignedIn={isSignedIn}
+          />
+        </Suspense>
       </div>
     </div>
   );

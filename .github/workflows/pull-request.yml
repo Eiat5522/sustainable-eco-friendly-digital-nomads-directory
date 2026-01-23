@@ -13,45 +13,17 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Ensure pnpm (early)
-        run: |
-          # Make sure corepack is enabled and pnpm is available early so that
-          # later steps (and any actions that expect pnpm) don't fail.
-          corepack enable || true
-          corepack prepare pnpm@8 --activate || npm install -g pnpm@8
-          pnpm --version || true
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20.19.x"
-          # Use setup-node's pnpm cache. We activate pnpm early above so
-          # setup-node can safely use the pnpm cache. If the runner doesn't
-          # have pnpm available, the earlier Ensure pnpm step will activate
-          # or install it.
-          cache: "pnpm"
-          cache-dependency-path: "pnpm-lock.yaml"
-
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 8
 
-      - name: Activate pnpm (Corepack)
-        run: |
-          corepack enable
-          corepack prepare pnpm@8 --activate
-
-      - name: Ensure pnpm is available (fallback)
-        run: |
-          echo "Checking pnpm..."
-          if command -v pnpm >/dev/null 2>&1; then
-            echo "pnpm found: $(pnpm --version)"
-          else
-            echo "pnpm not found after action/setup and corepack; attempting global install as fallback"
-            npm install -g pnpm@8
-            echo "pnpm version after fallback: $(pnpm --version)"
-          fi
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.19.x"
+          cache: "pnpm"
+          cache-dependency-path: "pnpm-lock.yaml"
 
       - name: Install dependencies
         run: |
@@ -81,45 +53,17 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Ensure pnpm (early)
-        run: |
-          # Make sure corepack is enabled and pnpm is available early so that
-          # later steps (and any actions that expect pnpm) don't fail.
-          corepack enable || true
-          corepack prepare pnpm@8 --activate || npm install -g pnpm@8
-          pnpm --version || true
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20.19.x"
-          # Use setup-node's pnpm cache. We activate pnpm early above so
-          # setup-node can safely use the pnpm cache. If the runner doesn't
-          # have pnpm available, the earlier Ensure pnpm step will activate
-          # or install it.
-          cache: "pnpm"
-          cache-dependency-path: "pnpm-lock.yaml"
-
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 8
 
-      - name: Activate pnpm (Corepack)
-        run: |
-          corepack enable
-          corepack prepare pnpm@8 --activate
-
-      - name: Ensure pnpm is available (fallback)
-        run: |
-          echo "Checking pnpm..."
-          if command -v pnpm >/dev/null 2>&1; then
-            echo "pnpm found: $(pnpm --version)"
-          else
-            echo "pnpm not found after action/setup and corepack; attempting global install as fallback"
-            npm install -g pnpm@8
-            echo "pnpm version after fallback: $(pnpm --version)"
-          fi
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.19.x"
+          cache: "pnpm"
+          cache-dependency-path: "pnpm-lock.yaml"
 
       - name: Install dependencies
         run: |
