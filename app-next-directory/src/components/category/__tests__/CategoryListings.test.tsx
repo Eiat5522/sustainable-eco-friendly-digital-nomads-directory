@@ -169,8 +169,6 @@ describe('CategoryListings', () => {
 
       expect(mockSanityFetch).toHaveBeenCalledWith(
         expect.objectContaining({
-          query: expect.stringContaining('_type == "listing"'),
-          query: expect.stringContaining('category == $category'),
           query: expect.stringContaining('moderation.status == "published"'),
           params: { category: 'Eco Hotels' },
         })

@@ -492,7 +492,7 @@ export function transformToBlogDetailDTO(doc: RawBlogDocument): BlogDetailDTO {
   const related = Array.isArray(doc?.relatedPosts)
     ? (doc.relatedPosts as unknown[])
         .filter(Boolean)
-       +        .filter((p): p is RawBlogDocument => 
+        .filter((p): p is RawBlogDocument => 
           typeof p === 'object' && p !== null && '_id' in p
         )
         .map(p => transformToBlogSummaryDTO(p))
