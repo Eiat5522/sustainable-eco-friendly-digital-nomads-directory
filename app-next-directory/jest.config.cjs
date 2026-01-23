@@ -53,6 +53,7 @@ const moduleNameMapper = {
   '^next/font/google$': '<rootDir>/__mocks__/next/font/google.js',
   '^next/headers$': '<rootDir>/__mocks__/next/headers.js',
   '^next/cache$': '<rootDir>/__mocks__/next/cache.js',
+  '^next/server$': '<rootDir>/__mocks__/next/server.js',
   '^@sanity/client$': '<rootDir>/__mocks__/@sanity/client.ts',
   '^next-sanity$': '<rootDir>/__mocks__/next-sanity.js',
   '^@/mocks/server$': '<rootDir>/src/mocks/server.ts',

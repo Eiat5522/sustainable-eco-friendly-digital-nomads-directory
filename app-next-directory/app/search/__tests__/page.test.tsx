@@ -115,6 +115,8 @@ describe('app/search/page.tsx', () => {
       const SearchPage = (await import('../page')).default;
       render(await SearchPage({ searchParams: Promise.resolve({}) }));
 
+      // Wait for Suspense to resolve
+      await screen.findByTestId('page-layout-server');
       expect(screen.getByTestId('page-layout-server')).toBeInTheDocument();
     });
   });
@@ -168,6 +170,8 @@ describe('app/search/page.tsx', () => {
       const SearchPage = (await import('../page')).default;
       render(await SearchPage({ searchParams: Promise.resolve(searchParams) }));
 
+      // Wait for Suspense to resolve
+      await screen.findByTestId('search-results');
       expect(mockExecuteSearch).toHaveBeenCalledWith(searchParams);
     });
 
@@ -175,7 +179,8 @@ describe('app/search/page.tsx', () => {
       const SearchPage = (await import('../page')).default;
       render(await SearchPage({ searchParams: Promise.resolve({ q: 'coffee' }) }));
 
-      const resultsContainer = screen.getByTestId('search-results');
+      // Wait for Suspense to resolve
+      const resultsContainer = await screen.findByTestId('search-results');
       expect(resultsContainer).toBeInTheDocument();
 
       const listingGrid = screen.getByTestId('listing-grid');
@@ -189,6 +194,8 @@ describe('app/search/page.tsx', () => {
       const SearchPage = (await import('../page')).default;
       render(await SearchPage({ searchParams: Promise.resolve({}) }));
 
+      // Wait for Suspense to resolve
+      await screen.findByText(/showing page 2 of 5/i);
       expect(screen.getByText(/showing page 2 of 5/i)).toBeInTheDocument();
     });
 
@@ -196,6 +203,8 @@ describe('app/search/page.tsx', () => {
       const SearchPage = (await import('../page')).default;
       render(await SearchPage({ searchParams: Promise.resolve({}) }));
 
+      // Wait for Suspense to resolve
+      await screen.findByText('Prev');
       // Check for navigation buttons
       expect(screen.getByText('Prev')).toBeInTheDocument();
       expect(screen.getByText('Next')).toBeInTheDocument();
@@ -215,6 +224,8 @@ describe('app/search/page.tsx', () => {
       const SearchPage = (await import('../page')).default;
       render(await SearchPage({ searchParams: Promise.resolve({ page: 2, q: 'test' }) }));
 
+      // Wait for Suspense to resolve
+      await screen.findByText('Prev');
       expect(mockBuildSearchHref).toHaveBeenCalledWith(
         '/search',
         { page: 2, q: 'test' },
@@ -230,6 +241,8 @@ describe('app/search/page.tsx', () => {
       const SearchPage = (await import('../page')).default;
       render(await SearchPage({ searchParams: Promise.resolve({ page: 2 }) }));
 
+      // Wait for Suspense to resolve
+      await screen.findByText('Next');
       expect(mockBuildSearchHref).toHaveBeenCalledWith('/search', { page: 2 }, { page: '3' });
 
       const nextLink = screen.getByText('Next').closest('a');
@@ -249,6 +262,8 @@ describe('app/search/page.tsx', () => {
       const SearchPage = (await import('../page')).default;
       render(await SearchPage({ searchParams: Promise.resolve({ page: 1 }) }));
 
+      // Wait for Suspense to resolve
+      await screen.findByText('Prev');
       const prevLink = screen.getByText('Prev').closest('a');
       expect(prevLink).toHaveAttribute('aria-disabled', 'true');
     });
@@ -265,6 +280,8 @@ describe('app/search/page.tsx', () => {
       const SearchPage = (await import('../page')).default;
       render(await SearchPage({ searchParams: Promise.resolve({ page: 5 }) }));
 
+      // Wait for Suspense to resolve
+      await screen.findByText('Next');
       const nextLink = screen.getByText('Next').closest('a');
       expect(nextLink).toHaveAttribute('aria-disabled', 'true');
     });
@@ -273,6 +290,8 @@ describe('app/search/page.tsx', () => {
       const SearchPage = (await import('../page')).default;
       render(await SearchPage({ searchParams: Promise.resolve({ page: 2 }) }));
 
+      // Wait for Suspense to resolve
+      await screen.findByText('2');
       const pageLinks = screen.getAllByRole('link');
       const currentPageLink = pageLinks.find(
         link => link.textContent === '2' && link.getAttribute('aria-current') === 'page'
@@ -285,7 +304,8 @@ describe('app/search/page.tsx', () => {
       const SearchPage = (await import('../page')).default;
       render(await SearchPage({ searchParams: Promise.resolve(searchParams) }));
 
-      const filtersForm = screen.getByTestId('search-filters-form');
+      // Wait for Suspense to resolve
+      const filtersForm = await screen.findByTestId('search-filters-form');
       expect(filtersForm).toBeInTheDocument();
       expect(filtersForm).toHaveTextContent('"q":"coffee"');
       expect(filtersForm).toHaveTextContent('"category":"cafe"');
@@ -296,6 +316,8 @@ describe('app/search/page.tsx', () => {
       const SearchPage = (await import('../page')).default;
       render(await SearchPage({ searchParams: Promise.resolve({}) }));
 
+      // Wait for Suspense to resolve
+      await screen.findByText(/per page/i);
       const pageSizeLabel = screen.getByText(/per page/i);
       expect(pageSizeLabel).toBeInTheDocument();
 
@@ -319,6 +341,8 @@ describe('app/search/page.tsx', () => {
       const SearchPage = (await import('../page')).default;
       render(await SearchPage({ searchParams: Promise.resolve({ q: 'nonexistent' }) }));
 
+      // Wait for Suspense to resolve
+      await screen.findByTestId('no-results');
       expect(screen.queryByTestId('search-results')).not.toBeInTheDocument();
       expect(screen.getByTestId('no-results')).toBeInTheDocument();
       expect(screen.getByText('No results found.')).toBeInTheDocument();
@@ -338,7 +362,8 @@ describe('app/search/page.tsx', () => {
       const SearchPage = (await import('../page')).default;
       render(await SearchPage({ searchParams: Promise.resolve({}) }));
 
-      const errorState = screen.getByTestId('search-error-state');
+      // Wait for Suspense to resolve
+      const errorState = await screen.findByTestId('search-error-state');
       expect(errorState).toBeInTheDocument();
 
       const errorMessage = screen.getByTestId('error-message');
@@ -355,7 +380,8 @@ describe('app/search/page.tsx', () => {
       const SearchPage = (await import('../page')).default;
       render(await SearchPage({ searchParams: Promise.resolve({}) }));
 
-      const retryButton = screen.getByTestId('search-retry-button');
+      // Wait for Suspense to resolve
+      const retryButton = await screen.findByTestId('search-retry-button');
       expect(retryButton).toBeInTheDocument();
       expect(within(retryButton).getByText('Retry search')).toBeInTheDocument();
     });
@@ -371,6 +397,8 @@ describe('app/search/page.tsx', () => {
       const SearchPage = (await import('../page')).default;
       render(await SearchPage({ searchParams: Promise.resolve({ retry: '2' }) }));
 
+      // Wait for Suspense to resolve
+      await screen.findByTestId('search-error-state');
       expect(mockBuildSearchHref).toHaveBeenCalledWith('/search', { retry: '2' }, { retry: '3' });
     });
 
@@ -384,6 +412,8 @@ describe('app/search/page.tsx', () => {
       const SearchPage = (await import('../page')).default;
       render(await SearchPage({ searchParams: Promise.resolve({}) }));
 
+      // Wait for Suspense to resolve
+      await screen.findByTestId('search-error-state');
       expect(mockBuildSearchHref).toHaveBeenCalledWith('/search', {}, { retry: '1' });
     });
 
@@ -402,6 +432,8 @@ describe('app/search/page.tsx', () => {
       const SearchPage = (await import('../page')).default;
       render(await SearchPage({ searchParams: Promise.resolve({}) }));
 
+      // Wait for Suspense to resolve
+      await screen.findByText(/Error: 404 Not Found/i);
       expect(screen.getByText(/Error: 404 Not Found/i)).toBeInTheDocument();
 
       process.env.NODE_ENV = originalEnv;
@@ -420,6 +452,8 @@ describe('app/search/page.tsx', () => {
       const SearchPage = (await import('../page')).default;
       render(await SearchPage({ searchParams: Promise.resolve({}) }));
 
+      // Wait for Suspense to resolve
+      await screen.findByText(/Unexpected error occurred/i);
       expect(screen.getByText(/Unexpected error occurred/i)).toBeInTheDocument();
 
       process.env.NODE_ENV = originalEnv;

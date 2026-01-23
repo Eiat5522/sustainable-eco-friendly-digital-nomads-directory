@@ -93,6 +93,8 @@ describe('SearchPage', () => {
 
     expect(screen.getByTestId('page-layout')).toBeInTheDocument();
 
+    // Wait for Suspense to resolve
+    await screen.findByTestId('search-filters-form');
     expect(searchFiltersFormMock).toHaveBeenCalledWith(
       expect.objectContaining({
         initialParams: { q: 'eco hubs', destination: ['bangkok'], limit: '24' },
@@ -129,6 +131,8 @@ describe('SearchPage', () => {
     render(page);
 
     expect(executeSearchMock).toHaveBeenCalledWith({});
+    // Wait for Suspense to resolve
+    await screen.findByTestId('search-filters-form');
     expect(searchFiltersFormMock).toHaveBeenCalledWith(
       expect.objectContaining({ initialParams: {}, resultsPath: '/search' })
     );
@@ -147,6 +151,8 @@ describe('SearchPage', () => {
     });
     render(page);
 
+    // Wait for Suspense to resolve
+    await screen.findByTestId('search-error-state');
     const errorState = screen.getByTestId('search-error-state');
     expect(errorState).toBeInTheDocument();
     const retryLink = screen.getByRole('link', { name: 'Retry search' });

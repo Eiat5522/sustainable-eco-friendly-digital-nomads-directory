@@ -56,3 +56,7 @@ export function createMocks({ method, json, url }) {
 
 // Export NextResponse as the mock class
 export const NextResponse = MockNextResponse;
+
+// Mock the connection() function from next/server
+// This is used in Next.js 16 for dynamic rendering opt-in
+export const connection = jest.fn().mockResolvedValue(undefined);

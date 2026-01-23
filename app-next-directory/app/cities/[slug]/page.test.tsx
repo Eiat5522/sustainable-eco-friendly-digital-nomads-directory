@@ -125,6 +125,8 @@ describe('CityPage', () => {
     const Page = await CityPage({ params: Promise.resolve({ slug: 'test-city' }) });
     render(Page);
 
+    // Wait for Suspense to resolve
+    await screen.findByTestId('city-name');
     expect(screen.getByTestId('city-name')).toHaveTextContent('Test City');
     expect(screen.getByTestId('city-description')).toHaveTextContent('A city for testing.');
     expect(screen.getByTestId('listings')).toHaveTextContent('Test Listing 1');
@@ -138,6 +140,8 @@ describe('CityPage', () => {
     const Page = await CityPage({ params: Promise.resolve({ slug: 'test-city' }) });
     render(Page);
 
+    // Wait for Suspense to resolve
+    await screen.findByTestId('city-name');
     expect(screen.getByTestId('city-name')).toHaveTextContent('Test City');
     expect(screen.getByTestId('city-description')).toHaveTextContent('A city for testing.');
     expect(screen.getByTestId('listings')).toBeEmptyDOMElement();
@@ -151,6 +155,8 @@ describe('CityPage', () => {
     const Page = await CityPage({ params: Promise.resolve({ slug: 'test-city' }) });
     render(Page);
 
+    // Wait for Suspense to resolve
+    await screen.findByTestId('city-name');
     expect(screen.getByTestId('city-name')).toHaveTextContent('Test City');
     expect(screen.getByTestId('city-description')).toHaveTextContent(
       'Preview data: city details unavailable.'
@@ -163,6 +169,8 @@ describe('CityPage', () => {
     const Page = await CityPage({ params: Promise.resolve({ slug: 'test-city' }) });
     render(Page);
 
+    // Wait for Suspense to resolve
+    await screen.findByTestId('city-name');
     expect(structuredLogger.error).toHaveBeenCalledWith(
       'City fetch failed',
       {
@@ -186,6 +194,8 @@ describe('CityPage', () => {
     const Page = await CityPage({ params: Promise.resolve({ slug: 'test-city' }) });
     render(Page);
 
+    // Wait for Suspense to resolve
+    await screen.findByTestId('city-name');
     expect(structuredLogger.error).toHaveBeenCalledWith(
       'Invalid ListingSummaryDTO validation failed',
       null,
@@ -206,6 +216,8 @@ describe('CityPage', () => {
     const Page = await CityPage({ params: Promise.resolve({ slug: 'test-city' }) });
     render(Page);
 
+    // Wait for Suspense to resolve
+    await screen.findByTestId('city-name');
     expect(structuredLogger.error).toHaveBeenCalledWith(
       'Listings fetch failed',
       {
@@ -230,6 +242,8 @@ describe('CityPage', () => {
     const Page = await CityPage({ params: Promise.resolve({ slug: 'test-city' }) });
     render(Page);
 
+    // Wait for Suspense to resolve
+    await screen.findByTestId('city-name');
     expect(structuredLogger.error).toHaveBeenCalledWith(
       'City fetch failed',
       {
@@ -257,6 +271,8 @@ describe('CityPage', () => {
     const Page = await CityPage({ params: Promise.resolve({ slug: 'invalid-city' }) });
     render(Page);
 
+    // Wait for Suspense to resolve
+    await screen.findByTestId('city-name');
     expect(structuredLogger.error).toHaveBeenCalledWith(
       'Invalid city DTO validation failed',
       null,
@@ -294,6 +310,8 @@ describe('CityPage', () => {
     const Page = await CityPage({ params: Promise.resolve({ slug: 'basic-city' }) });
     render(Page);
 
+    // Wait for Suspense to resolve
+    await screen.findByTestId('city-name');
     expect(screen.getByTestId('city-name')).toHaveTextContent('Basic City');
     expect(screen.getByTestId('city-description')).toHaveTextContent('A basic city');
   });
@@ -305,6 +323,8 @@ describe('CityPage', () => {
     const Page = await CityPage({ params: Promise.resolve({ slug: 'nyc-usa' }) });
     render(Page);
 
+    // Wait for Suspense to resolve
+    await screen.findByTestId('city-name');
     // The toTitleCaseFromSlug function should convert acronyms to uppercase
     expect(screen.getByTestId('city-name')).toHaveTextContent('NYC USA');
   });
