@@ -68,11 +68,12 @@ const UserSchema: Schema<IUser> = new Schema(
         message: 'Please fill a valid email address',
       },
     },
-    // Store hashed password for credentials-based login.
-    // Excluded by default and only selected explicitly when needed.
+    // Store hashed password for the custom credentials flow even though the NextAuth adapter persists users.
+    // The field is optional (social logins don't use it) and is excluded by default; we select it explicitly when verifying credentials.
     password: {
       type: String,
       select: false,
+      required: false,
     },
     role: {
       type: String,

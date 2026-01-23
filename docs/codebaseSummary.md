@@ -7,9 +7,9 @@ This summary provides an up-to-date overview of the architecture, major modules,
 ## 🏗️ Architecture Overview
 
 - **Monorepo**: Next.js frontend, Sanity CMS backend, shared utilities, and testing.
-- **Frontend**: Next.js 15.3.2 (App Router), TypeScript, Tailwind CSS 4.1.6.
+- **Frontend**: Next.js 16.1.1 (App Router), TypeScript, Tailwind CSS 4.1.6.
 - **Backend**: Sanity CMS (content), MongoDB Atlas (user/session data), NextAuth.js (authentication).
-- **Testing**: Playwright (120+ E2E tests), Jest for unit tests.
+- **Testing**: Playwright (188 E2E tests; 172 passed, 16 skipped in latest run), Jest for unit tests.
 - **Deployment**: Vercel (frontend), Sanity Cloud (CMS), GitHub Actions (CI/CD).
 
 ---

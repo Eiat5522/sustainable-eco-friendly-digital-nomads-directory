@@ -77,12 +77,14 @@ app-next-directory/
 **Naming Convention:** `*.test.ts` or `*.test.tsx`
 
 **Characteristics:**
+
 - Fast execution (milliseconds)
 - Mocked dependencies
 - Focus on logic and behavior
 - High code coverage
 
 **Run Command:**
+
 ```bash
 npm run test:unit
 # or from root
@@ -90,6 +92,7 @@ pnpm --filter app-next-directory test:unit
 ```
 
 **Example:**
+
 ```typescript
 // src/components/search/__tests__/SearchForm.test.tsx
 import { render, screen, fireEvent } from '@testing-library/react';
@@ -123,12 +126,14 @@ describe('SearchForm', () => {
 **Naming Convention:** `*.integration.test.ts` or `*.int.test.ts`
 
 **Characteristics:**
+
 - Uses real MongoDB (mongodb-memory-server)
 - Tests data persistence and queries
 - Tests API route handlers
 - Slower than unit tests
 
 **Run Command:**
+
 ```bash
 npm run test:integration
 # or from root
@@ -136,6 +141,7 @@ pnpm --filter app-next-directory test:integration
 ```
 
 **Example:**
+
 ```typescript
 // src/models/__tests__/Listing.integration.test.ts
 import { MongoMemoryServer } from 'mongodb-memory-server';
@@ -179,12 +185,14 @@ describe('Listing Model Integration', () => {
 **Naming Convention:** `*.spec.ts`
 
 **Characteristics:**
+
 - Tests real browser behavior
 - Cross-browser testing
 - Simulates actual user interactions
 - Can mock API responses for consistency
 
 **Run Command:**
+
 ```bash
 npm run test:e2e
 # or from root
@@ -197,7 +205,10 @@ pnpm --filter app-next-directory test:e2e
 pnpm --filter app-next-directory run test:e2e:list
 ```
 
+**Latest Run (reference):** `tmp/e2e-test-output.txt` — **188** scheduled, **172** passed, **16** skipped (Total duration: 17.8m). Some MongoDB connection timeouts and Sanity 401s were observed in the run; see `docs/testing/CURRENT_STATUS.md` for details.
+
 **Example:**
+
 ```typescript
 // tests/e2e/search/search-ux.spec.ts
 import { test, expect } from '@playwright/test';
@@ -286,6 +297,7 @@ npm run test:integration src/models/__tests__/Listing.integration.test.ts
 ```
 
 ### E2E Tests
+
 `npm run test:e2e` reads `playwright.config.ts` and honors `testDir: './tests/e2e'`, so the Jest integration suites under `src/**/__tests__` remain untouched.
 
 ```bash
@@ -334,6 +346,7 @@ pnpm --filter app-next-directory test:e2e
 6. **Use data-testid attributes for reliable element selection**
 
 For detailed guidance on writing tests, see:
+
 - [WRITING_GUIDE.md](../../tests/WRITING_GUIDE.md) - Comprehensive test writing guide
 - [API-MOCKING.md](../../tests/API-MOCKING.md) - API mocking strategies
 
@@ -398,6 +411,7 @@ test.describe('Listing Search', () => {
 ### Jest Configuration
 
 **Unit Tests:** `jest.config.cjs`
+
 ```javascript
 module.exports = {
   testEnvironment: 'jsdom',
@@ -415,6 +429,7 @@ module.exports = {
 ```
 
 **Integration Tests:** `jest.integration.config.cjs`
+
 ```javascript
 module.exports = {
   testEnvironment: 'node',
@@ -431,6 +446,7 @@ module.exports = {
 **File:** `playwright.config.ts`
 
 Key settings:
+
 - Base URL: `http://localhost:3000`
 - Timeout: 30 seconds per test
 - Retries: 2 in CI, 0 locally
@@ -513,11 +529,13 @@ PLAYWRIGHT_BASE_URL=http://localhost:3000
 #### Jest Tests Failing
 
 **Issue:** Tests fail with module resolution errors
+
 ```
 Cannot find module '@/components/SearchForm'
 ```
 
 **Solution:** Check `moduleNameMapper` in `jest.config.cjs`:
+
 ```javascript
 moduleNameMapper: {
   '^@/(.*)$': '<rootDir>/src/$1'
@@ -527,13 +545,16 @@ moduleNameMapper: {
 #### Playwright Tests Timing Out
 
 **Issue:** Tests timeout waiting for elements
+
 ```
 Timeout 30000ms exceeded
 ```
 
 **Solutions:**
+
 1. Increase timeout in `playwright.config.ts`
 2. Use proper wait conditions:
+
 ```typescript
 await page.waitForLoadState('networkidle');
 await expect(page.locator('[data-testid="content"]')).toBeVisible();
@@ -542,11 +563,13 @@ await expect(page.locator('[data-testid="content"]')).toBeVisible();
 #### MongoDB Connection Issues
 
 **Issue:** Integration tests fail to connect to MongoDB
+
 ```
 MongooseError: Could not connect to any servers
 ```
 
 **Solution:** Ensure mongodb-memory-server is properly initialized:
+
 ```typescript
 let mongoServer: MongoMemoryServer;
 
@@ -566,6 +589,7 @@ afterAll(async () => {
 **Issue:** API mocking not working in tests
 
 **Solution:** Ensure MSW is initialized in test setup:
+
 ```typescript
 // jest.setup.ts
 import { server } from './__mocks__/server';
@@ -626,18 +650,21 @@ npx playwright show-report
 ### Current Testing Status
 
 **Unit Tests:**
+
 - ✅ Component tests (React Testing Library)
 - ✅ Utility function tests
 - ✅ Schema validation tests
 - ⚠️ API handler tests (partial coverage)
 
 **Integration Tests:**
+
 - ✅ Database model tests
 - ✅ MongoDB operations
 - ✅ API route integration tests
 - ⚠️ External service integration (partial)
 
 **E2E Tests:**
+
 - ✅ Authentication flows
 - ✅ Search and filtering
 - ✅ Listing management

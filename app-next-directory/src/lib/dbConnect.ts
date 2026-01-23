@@ -3,8 +3,7 @@ import { structuredLogger } from '@/lib/logger';
 
 const MONGODB_URI = process.env.MONGODB_URI;
 const isE2EEnvironment = process.env.E2E === '1' || process.env.NEXT_PUBLIC_E2E === '1';
-const shouldUseRealMongoInE2E =
-  isE2EEnvironment && process.env.USE_REAL_MONGODB_FOR_E2E === '1';
+const shouldUseRealMongoInE2E = isE2EEnvironment && process.env.USE_REAL_MONGODB_FOR_E2E === '1';
 // FORTEST: Support both SKIP_DB_CONNECT and DISABLE_MONGODB_DURING_BUILD for build-time safety
 const skipDbConnect =
   (process.env.SKIP_DB_CONNECT === '1' ||

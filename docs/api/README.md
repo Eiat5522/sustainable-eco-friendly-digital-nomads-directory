@@ -24,10 +24,6 @@ All API endpoints use **NextAuth.js v5** for authentication with comprehensive s
 ### **Authentication Status: ✅ COMPLETE & SECURE**
 
 Our API security implementation includes:
-- **Defense-in-depth**: Multiple security layers
-- **Comprehensive RBAC**: Full role hierarchy with granular permissions
-- **API Protection**: All protected endpoints validate authentication and authorization
-- **Security Testing**: 120+ E2E tests covering authentication flows and RBAC
 
 ### **Role Hierarchy & API Access**
 
@@ -70,6 +66,7 @@ API Access Levels:
 ```
 
 **Response**:
+
 ```json
 {
   "user": {
@@ -98,6 +95,7 @@ API Access Levels:
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -117,6 +115,7 @@ API Access Levels:
 **Headers**: `Authorization: Bearer <token>`
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -146,6 +145,7 @@ API Access Levels:
 - `featured` (boolean): Show only featured listings
 
 **Response**:
+
 ```json
 {
   "listings": [
@@ -188,6 +188,7 @@ API Access Levels:
 **Headers**: `Authorization: Bearer <token>`
 
 **Body**:
+
 ```json
 {
   "title": "New Eco Venue",
@@ -209,6 +210,7 @@ API Access Levels:
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -228,6 +230,7 @@ API Access Levels:
 **Parameters**: `id` - Listing ID
 
 **Response**:
+
 ```json
 {
   "listing": {
@@ -262,6 +265,7 @@ API Access Levels:
 **Body**: (Same structure as POST, partial updates allowed)
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -280,6 +284,7 @@ API Access Levels:
 **Headers**: `Authorization: Bearer <token>`
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -297,6 +302,7 @@ API Access Levels:
 **Access**: Public
 
 **Response**:
+
 ```json
 {
   "cities": [
@@ -324,6 +330,7 @@ API Access Levels:
 **Access**: Public
 
 **Response**:
+
 ```json
 {
   "city": {
@@ -357,6 +364,7 @@ API Access Levels:
 **Headers**: `Authorization: Bearer <token>`
 
 **Response**:
+
 ```json
 {
   "user": {
@@ -378,6 +386,7 @@ API Access Levels:
 **Headers**: `Authorization: Bearer <token>`
 
 **Body**:
+
 ```json
 {
   "name": "Updated Name",
@@ -392,6 +401,7 @@ API Access Levels:
 **Headers**: `Authorization: Bearer <token>`
 
 **Body**:
+
 ```json
 {
   "listingId": "listing_id",
@@ -410,6 +420,7 @@ API Access Levels:
 **Headers**: `Authorization: Bearer <token>`
 
 **Response**:
+
 ```json
 {
   "users": [
@@ -434,6 +445,7 @@ API Access Levels:
 **Headers**: `Authorization: Bearer <token>`
 
 **Body**:
+
 ```json
 {
   "role": "editor"
@@ -441,6 +453,7 @@ API Access Levels:
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -463,6 +476,7 @@ API Access Levels:
 **Headers**: `Authorization: Bearer <token>`
 
 **Body**:
+
 ```json
 {
   "rating": 5,
@@ -479,6 +493,7 @@ API Access Levels:
 **Access**: Public
 
 **Response**:
+
 ```json
 {
   "reviews": [
@@ -506,6 +521,7 @@ API Access Levels:
 ### **Standard Error Responses**
 
 #### Authentication Errors
+
 ```json
 {
   "error": "Unauthorized",
@@ -516,6 +532,7 @@ API Access Levels:
 ```
 
 #### Authorization Errors
+
 ```json
 {
   "error": "Forbidden",
@@ -527,6 +544,7 @@ API Access Levels:
 ```
 
 #### Validation Errors
+
 ```json
 {
   "error": "Validation Error",
@@ -543,6 +561,7 @@ API Access Levels:
 ```
 
 #### Rate Limiting
+
 ```json
 {
   "error": "Too Many Requests",
@@ -558,16 +577,19 @@ API Access Levels:
 ## 🔧 **Request/Response Headers**
 
 ### **Required Headers**
+
 - **Authentication**: `Authorization: Bearer <jwt_token>`
 - **Content Type**: `Content-Type: application/json`
 
 ### **Security Headers** (Automatic)
+
 - `X-Frame-Options: DENY`
 - `X-Content-Type-Options: nosniff`
 - `Referrer-Policy: strict-origin-when-cross-origin`
 - `Content-Security-Policy: ...`
 
 ### **Rate Limiting Headers**
+
 - `X-RateLimit-Limit: 100`
 - `X-RateLimit-Remaining: 95`
 - `X-RateLimit-Reset: 1640995200`
@@ -579,10 +601,12 @@ API Access Levels:
 ### **Standard Pagination Format**
 
 **Query Parameters**:
+
 - `page` (number): Page number (1-based, default: 1)
 - `limit` (number): Items per page (default: 20, max: 100)
 
 **Response Format**:
+
 ```json
 {
   "data": [...],
@@ -606,6 +630,7 @@ API Access Levels:
 ### **Postman Collection**
 
 A comprehensive Postman collection is available with:
+
 - Pre-configured requests for all endpoints
 - Environment variables for different stages
 - Authentication flows and token management
@@ -614,6 +639,7 @@ A comprehensive Postman collection is available with:
 ### **cURL Examples**
 
 #### Authentication
+
 ```bash
 # Login
 curl -X POST http://localhost:3000/api/auth/signin \
@@ -626,6 +652,7 @@ curl -X GET http://localhost:3000/api/users/profile \
 ```
 
 #### Create Listing
+
 ```bash
 curl -X POST http://localhost:3000/api/listings \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \

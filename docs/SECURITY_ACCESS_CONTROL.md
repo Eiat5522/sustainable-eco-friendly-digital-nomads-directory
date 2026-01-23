@@ -9,6 +9,7 @@ This document provides comprehensive information about the security architecture
 ### **Security Rating: A+ (Enterprise Grade)**
 
 Our platform implements **defense-in-depth** security with multiple layers:
+
 - ✅ **Authentication**: NextAuth.js v5 with JWT sessions
 - ✅ **Authorization**: Comprehensive role-based access control (RBAC)
 - ✅ **Middleware Protection**: Route-level security enforcement
@@ -20,6 +21,7 @@ Our platform implements **defense-in-depth** security with multiple layers:
 ## 👥 **User Roles & Hierarchy**
 
 ### **Role Hierarchy** (Lowest to Highest)
+
 ```
 unidentifiedUser → user → editor/venueOwner → moderator → admin → superAdmin
 ```
@@ -46,6 +48,7 @@ unidentifiedUser → user → editor/venueOwner → moderator → admin → supe
 **Security Level**: ✅ **SECURE**
 
 **Protection Mechanisms**:
+
 ```typescript
 // Client-side authentication check
 const { data: session, status } = useSession();
@@ -58,6 +61,7 @@ if (!isAuthenticated) {
 ```
 
 **Features Protected**:
+
 - Personal profile information
 - Favorites management
 - Review history
@@ -70,6 +74,7 @@ if (!isAuthenticated) {
 **Security Level**: ✅ **SECURE**
 
 **Server-Side Protection**:
+
 ```typescript
 export default async function DashboardPage() {
   const session = await auth();
@@ -86,6 +91,7 @@ export default async function DashboardPage() {
 ```
 
 **Protection Features**:
+
 - Server-side session validation
 - Role-based data filtering
 - Automatic redirects for unauthorized access
@@ -98,6 +104,7 @@ export default async function DashboardPage() {
 **Security Level**: ✅ **SECURE**
 
 **Strict Role Enforcement**:
+
 ```typescript
 export default async function VenueListingsPage() {
   const session = await auth();
@@ -111,6 +118,7 @@ export default async function VenueListingsPage() {
 ```
 
 **Protection Features**:
+
 - Explicit role validation
 - Server-side enforcement
 - Proper error handling
@@ -123,6 +131,7 @@ export default async function VenueListingsPage() {
 **Security Level**: ✅ **SECURE**
 
 **Multi-Layer Protection**:
+
 ```typescript
 // Layout-level protection
 function ensureAdmin(sessionUser: SessionUser): boolean {
@@ -153,6 +162,7 @@ if (newRole && !ensureSuperAdmin(sessionUser)) {
 ```
 
 **Protection Features**:
+
 - Layout-level access control
 - Page-level validation
 - API-level protection
@@ -186,6 +196,7 @@ if (!hasAccess(userRole, pathname)) {
 ### **API Endpoint Security**
 
 #### **User APIs** (`/api/user/*`)
+
 ```typescript
 export async function GET(request: NextRequest) {
   const session = await auth();
@@ -199,6 +210,7 @@ export async function GET(request: NextRequest) {
 ```
 
 #### **Admin APIs** (`/api/admin/*`)
+
 ```typescript
 export async function GET(request: NextRequest) {
   const session = await auth();
@@ -243,6 +255,7 @@ export async function GET(request: NextRequest) {
 ## 🚨 **Security Headers & Protection**
 
 ### **Middleware Security Headers**
+
 ```typescript
 function withSecurityHeaders(response) {
   response.headers.set('X-Frame-Options', 'DENY');
@@ -253,6 +266,7 @@ function withSecurityHeaders(response) {
 ```
 
 ### **Content Security Policy**
+
 - **Frame Protection**: Prevents clickjacking attacks
 - **Content Type**: Prevents MIME type sniffing
 - **Referrer Policy**: Protects against information leakage
@@ -262,12 +276,14 @@ function withSecurityHeaders(response) {
 ## 🧪 **Security Testing**
 
 ### **Test Coverage**
-- ✅ **120+ E2E Tests** with Playwright
+
+- ✅ **188 E2E tests** (172 passed, 16 skipped in latest run) with Playwright
 - ✅ **RBAC Test Suite** (`tests/e2e/rbac.spec.ts`)
 - ✅ **Admin Dashboard Tests** (`tests/e2e/admin-dashboard.spec.ts`)
 - ✅ **API Security Tests** (`tests/api-integration.spec.ts`)
 
 ### **Test Scenarios**
+
 ```typescript
 // Access control testing
 test('regular user cannot access admin dashboard', async ({ page }) => {
@@ -290,12 +306,14 @@ test('venue owner cannot access user management', async ({ page }) => {
 ### **Adding New Protected Routes**
 
 1. **Update Middleware**:
+
 ```typescript
 // Add to protected paths
 const protectedPaths = ['/dashboard', '/admin', '/profile', '/your-new-route'];
 ```
 
-2. **Add Server-Side Protection**:
+1. **Add Server-Side Protection**:
+
 ```typescript
 export default async function YourPage() {
   const session = await auth();
@@ -312,7 +330,8 @@ export default async function YourPage() {
 }
 ```
 
-3. **Update Access Control Matrix**:
+1. **Update Access Control Matrix**:
+
 ```typescript
 // In /types/auth.ts
 yourNewPage: { canView: true, canCreate: false, ... }

@@ -107,6 +107,9 @@ NODE_ENV=production
 # Optional: OAuth Providers
 GOOGLE_CLIENT_ID=production_google_client_id
 GOOGLE_CLIENT_SECRET=production_google_client_secret
+# GitHub OAuth (NextAuth expects GITHUB_CLIENT_ID/GITHUB_CLIENT_SECRET)
+GITHUB_CLIENT_ID=production_github_client_id
+GITHUB_CLIENT_SECRET=production_github_client_secret
 ```
 
 ### **2. CMS Deployment (Sanity Cloud)**

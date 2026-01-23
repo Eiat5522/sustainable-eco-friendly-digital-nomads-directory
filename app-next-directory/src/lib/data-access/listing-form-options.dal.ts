@@ -7,11 +7,7 @@
 import 'server-only';
 
 import { cacheLife, cacheTag } from 'next/cache';
-import {
-  e2eDiscoveryListings,
-  e2eFilterMetadata,
-  isE2ERun,
-} from '@/data/e2e/discovery-fixtures';
+import { e2eDiscoveryListings, e2eFilterMetadata, isE2ERun } from '@/data/e2e/discovery-fixtures';
 import { getCitiesList } from '@/lib/data-access/cities.dal';
 import { getEcoTags } from '@/lib/data-access/home.dal';
 import { structuredLogger } from '@/lib/logger';
@@ -76,9 +72,7 @@ function buildE2EFormOptions(): OptionsResponse {
     })),
     ecoTags: toFormOptionsFromNames(ecoTags),
     digitalNomadFeatures: toFormOptionsFromNames(digitalNomadFeatures),
-    amenities: toFormOptionsFromNames(
-      e2eFilterMetadata.amenities.map(amenity => amenity.name)
-    ),
+    amenities: toFormOptionsFromNames(e2eFilterMetadata.amenities.map(amenity => amenity.name)),
   };
 }
 

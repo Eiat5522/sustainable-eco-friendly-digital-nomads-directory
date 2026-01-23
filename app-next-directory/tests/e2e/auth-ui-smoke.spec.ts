@@ -1,5 +1,6 @@
 import type { APIRequestContext } from '@playwright/test';
 import { expect, test } from '@playwright/test';
+
 // Use globalThis.process to avoid referencing the Node global `process` symbol
 // directly so TypeScript doesn't require @types/node in the test TS scope.
 type ProcessLike = { env: Record<string, string | undefined> };
@@ -106,8 +107,7 @@ test.describe('Auth UI smoke', () => {
     const authResponse = page
       .waitForResponse(
         response =>
-          response.url().includes('/api/auth/callback/credentials') &&
-          response.status() === 200,
+          response.url().includes('/api/auth/callback/credentials') && response.status() === 200,
         { timeout: 30000 }
       )
       .catch(() => null);

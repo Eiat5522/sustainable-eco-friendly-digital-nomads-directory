@@ -18,7 +18,9 @@ jest.mock('@/lib/data-access/cities.dal', () => ({
 
 import { getE2ECityDetail } from '@/data/e2e/discovery-fixtures';
 
-const cityDataMockModule = jest.requireMock('@/lib/data-access/cities.dal') as { getCityBySlug: jest.Mock };
+const cityDataMockModule = jest.requireMock('@/lib/data-access/cities.dal') as {
+  getCityBySlug: jest.Mock;
+};
 
 let GET: typeof import('../route').GET;
 

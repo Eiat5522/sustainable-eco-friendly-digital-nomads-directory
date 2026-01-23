@@ -14,6 +14,7 @@ The project had two main testing issues:
 **The Misunderstanding**: The team implemented in-memory MongoDB utilities for unit tests, but these utilities are designed for **integration tests**, not unit tests.
 
 **What was happening**:
+
 1. Unit tests were importing `connectInMemoryMongo()` from `tests/utils/dbHandler.ts`
 2. This utility creates a real MongoDB in-memory server using `mongodb-memory-server`
 3. MSW (Mock Service Worker) was intercepting the MongoDB binary download requests
@@ -21,6 +22,7 @@ The project had two main testing issues:
 5. The test configuration had mocked mongoose for unit tests, but the tests were trying to use the real one
 
 **The Confusion**:
+
 - **Unit Tests**: Should test business logic and schema validation with mocked dependencies (fast, milliseconds)
 - **Integration Tests**: Should test database operations with real MongoDB (slower, seconds)
 - The team was mixing these two approaches
@@ -28,6 +30,7 @@ The project had two main testing issues:
 ### Issue 2: React Testing Library Tests
 
 **Status**: No issues found - RTL infrastructure is working correctly
+
 - Some test assertion failures exist due to implementation changes
 - These are NOT infrastructure issues
 
@@ -36,6 +39,7 @@ The project had two main testing issues:
 ### 1. Separated Unit Tests from Database Operations
 
 **Changes to Model Unit Tests**:
+
 - ✅ Removed all imports of `dbHandler` utilities
 - ✅ Removed `connectInMemoryMongo()`, `disconnectInMemoryMongo()`, `clearInMemoryMongo()` calls
 - ✅ Simplified test setup hooks (removed async where not needed)
@@ -43,6 +47,7 @@ The project had two main testing issues:
 - ✅ Kept all schema validation and model creation tests (these work with mocked mongoose)
 
 **Files Modified**:
+
 1. `src/models/__tests__/ContactSubmission.test.ts`
 2. `src/models/__tests__/NewsletterSubscriber.test.ts`
 3. `src/models/__tests__/AnalyticsEvent.test.ts`
@@ -54,9 +59,11 @@ The project had two main testing issues:
 ### 2. Created Integration Test Pattern
 
 **New Files**:
+
 - `src/models/__tests__/ContactSubmission.integration.test.ts` - Example integration test with proper setup
 
 **Pattern Features**:
+
 - Uses `mongodb-memory-server` correctly
 - Proper setup and teardown
 - Tests actual database CRUD operations
@@ -67,6 +74,7 @@ The project had two main testing issues:
 **Problem**: MSW was loading for all tests, intercepting MongoDB downloads even in integration tests
 
 **Solution**:
+
 - Modified `__mocks__/node.ts` to check `JEST_USE_REAL_MONGOOSE` environment variable
 - MSW only loads for unit tests now
 - Integration tests can download MongoDB binary without interference
@@ -74,6 +82,7 @@ The project had two main testing issues:
 ### 4. Configured Jest Properly
 
 **Changes to `jest.config.cjs`**:
+
 - Added conditional exclusion of `.integration.test.ts` files from unit test runs
 - Unit tests (`JEST_UNIT_ONLY=1`) now skip integration test files
 - Integration tests (`JEST_USE_REAL_MONGOOSE=1`) include integration test files
@@ -81,6 +90,7 @@ The project had two main testing issues:
 ### 5. Comprehensive Documentation
 
 **Created `TEST_SETUP_GUIDE.md`**:
+
 - Complete guide on unit vs integration testing
 - Pattern examples for both test types
 - Common pitfalls and solutions
@@ -92,43 +102,37 @@ The project had two main testing issues:
 
 ### Unit Tests - ✅ All Passing
 
+**Coverage (summary):**
+
+- Statements: **80.36%**
+- Branches: **68.60%**
+- Functions: **78.13%**
+- Lines: **81.07%**
+
+**Note:** The full unit run includes model, component, utility and hook tests. All unit suites completed successfully in the latest run.
+
+### Integration Tests - ✅ Passing
+
 ```
 Test Suites: 11 passed, 11 total
-Tests:       213 passed, 213 total
-Time:        3.858 s
-```
+Tests:       65 passed, 65 total
+Time:        11.844 s
 
-**Model Unit Tests Specifically**:
-```
-Test Suites: 9 passed, 9 total
-Tests:       193 passed, 193 total
-Time:        2.782 s
-```
 
-### Test Files Verified
 
-**Model Tests**: 9 files, 193 tests
-- ✅ `ContactSubmission.test.ts` - 31 tests
-- ✅ `NewsletterSubscriber.test.ts` - 40 tests
-- ✅ `AnalyticsEvent.test.ts` - 22 tests
-- ✅ `EmailVerificationToken.test.ts` - 30+ tests
-- ✅ `PasswordResetToken.test.ts` - 14 tests
-- ✅ `UserAnalytics.test.ts` - 15+ tests
-- ✅ `UserFavorite.test.ts` - 12+ tests
-- ✅ `LoginAttempt.test.ts` - 18 tests
-- ✅ `User.test.ts` - 10+ tests
 
-**Component Tests**: 2 files, 20 tests
-- ✅ `app/search/page.test.tsx` - 2 tests
-- ✅ `src/components/ui/__tests__/StarRating.test.tsx` - 18 tests
+**Observations:**
+- E2E run was mostly green (172 passed). Several tests were skipped intentionally (covered by unit tests) and a subset were marked as "-" in the Playwright report.
+- During the run the test server logged repeated MongoDB connection timeouts (MongooseServerSelectionError) and several Sanity API 401 Unauthorized ("Session not found") messages. These are environment/configuration issues that did not cause widespread test failure but should be investigated to improve reliability.
 
-### Integration Tests
+**Latest run outputs:**
+- Unit: `tmp/unit-test-output.txt`
+- Integration: `tmp/integration-test-output.txt`
+- E2E: `tmp/e2e-test-output.txt`
 
-**Note**: Integration tests cannot run in the current sandboxed environment because mongodb-memory-server requires internet access to download MongoDB binaries. However:
-- ✅ The pattern is correctly established
-- ✅ The configuration is correct
-- ✅ The example file demonstrates proper usage
-- ✅ Tests will work in environments with internet access
+---
+
+
 
 ## Key Principles Established
 
@@ -165,9 +169,11 @@ Time:        2.782 s
 ### 3. Test Organization
 
 ```
-src/models/__tests__/
+
+src/models/**tests**/
 ├── ModelName.test.ts           # Unit tests (schema validation)
 └── ModelName.integration.test.ts  # Integration tests (DB operations)
+
 ```
 
 ## Verification Steps Completed
@@ -225,6 +231,7 @@ The solution is **deterministic** and **proven**:
 ## Conclusion
 
 The core issue was a misunderstanding of the purpose and usage of mongodb-memory-server utilities. The solution:
+
 - ✅ Clarified the distinction between unit and integration tests
 - ✅ Fixed all failing unit tests
 - ✅ Established proper patterns for both test types

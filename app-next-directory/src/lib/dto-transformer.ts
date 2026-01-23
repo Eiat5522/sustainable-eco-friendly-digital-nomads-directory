@@ -1,6 +1,7 @@
+import { structuredLogger } from '@/lib/logger';
+import { urlFor } from '@/lib/sanity/client';
 import type { PortableTextBlock } from '@portabletext/types';
 import { isImageAssetId } from '@sanity/asset-utils';
-import { urlFor } from '@/lib/sanity/client';
 // Ensure we have a consistent image union for DTO mapping; add a dedicated type if
 // Sanity introduces a distinct gallery image schema in the future.
 import type {
@@ -140,9 +141,16 @@ export const imageOrFallback = (img: unknown, w: number, h: number): string => {
     const asset = obj.asset as Record<string, unknown> | undefined;
     const url = typeof asset?.url === 'string' ? asset.url : undefined;
     if (url) {
-      const hasQuery = url.includes('?');
-      const qp = `w=${w}&h=${h}&fit=crop&auto=format`;
-      return hasQuery ? `${url}&${qp}` : `${url}?${qp}`;
+      try {
+        const u = new URL(url);
+        u.searchParams.set('w', String(w));
+        u.searchParams.set('h', String(h));
+        u.searchParams.set('fit', 'crop');
+        u.searchParams.set('auto', 'format');
+        return u.toString();
+      } catch {
+        return url;
+      }
     }
   }
 
@@ -266,6 +274,11 @@ export function transformToSummaryDTO(
   // Validate listing type or fallback to a safe default to satisfy schema
   const rawType = listing.type;
   const type = ALLOWED_CATEGORIES.has(rawType) ? rawType : 'activities';
+  if (!ALLOWED_CATEGORIES.has(rawType)) {
+    structuredLogger.warn(
+      `[DTO] Unknown listing type "${rawType}" for listing ${listing._id}, defaulting to "activities"`
+    );
+  }
 
   // Only include website when it looks like a valid URL
   const websiteRaw = listing.website;
@@ -343,7 +356,7 @@ export function transformToDetailDTO(sanityListing: SanityListing): ListingDetai
           )
           .map(p => ({
             type: p.type,
-            price: toMoney(p.price, 'THB', 'hour') as Money,
+            price: toMoney(p.price, 'THB', 'hour')!,
             period: p.period,
             features: p.features,
           })),
@@ -479,7 +492,10 @@ export function transformToBlogDetailDTO(doc: RawBlogDocument): BlogDetailDTO {
   const related = Array.isArray(doc?.relatedPosts)
     ? (doc.relatedPosts as unknown[])
         .filter(Boolean)
-        .map((p: unknown) => transformToBlogSummaryDTO(p as RawBlogDocument))
+       +        .filter((p): p is RawBlogDocument => 
+          typeof p === 'object' && p !== null && '_id' in p
+        )
+        .map(p => transformToBlogSummaryDTO(p))
     : undefined;
   const authorImageUrl = imageOrFallback(doc?.authorImage, 96, 96);
   return {

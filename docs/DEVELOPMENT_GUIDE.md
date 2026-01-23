@@ -12,7 +12,7 @@ This is a **monorepo** containing a Next.js application with Sanity CMS backend,
 
 - **Frontend**: Next.js 14+ (App Router), TypeScript, Tailwind CSS
 - **Backend**: Sanity CMS, MongoDB Atlas, NextAuth.js
-- **Testing**: Playwright (120+ E2E tests)
+- **Testing**: Playwright (188 E2E tests; 172 passed, 16 skipped in latest run)
 - **Deployment**: Vercel (frontend), Sanity (CMS hosting)
 
 ## 🏗️ Monorepo Structure
@@ -86,6 +86,9 @@ sustainable-eco-friendly-digital-nomads-directory/
    # Optional: OAuth Providers
    GOOGLE_CLIENT_ID=your_google_client_id
    GOOGLE_CLIENT_SECRET=your_google_client_secret
+   # GitHub OAuth (NextAuth expects GITHUB_CLIENT_ID/GITHUB_CLIENT_SECRET)
+   GITHUB_CLIENT_ID=your_github_client_id
+   GITHUB_CLIENT_SECRET=your_github_client_secret
    ```
 
 ## 🚀 Development Workflow
@@ -186,6 +189,7 @@ pnpm lint
 #### Pre-commit Hooks
 
 The project uses **Husky** to automatically:
+
 1. Format code with Biome (`pnpm format`)
 2. Run TypeScript type checking (`pnpm type-check`)
 3. Run Biome linter with auto-fix (`pnpm lint:biome:fix`)
@@ -195,6 +199,7 @@ This ensures all committed code meets quality standards.
 #### CI/CD Integration
 
 The CI pipeline (`.github/workflows/pull-request.yml`) runs:
+
 1. TypeScript type checking (`pnpm type-check`)
 2. Biome linting (`pnpm lint:biome`)
 3. Biome formatting check (`pnpm format:check`)
@@ -212,6 +217,7 @@ Pull requests will fail if any of these checks don't pass.
 #### Verification
 
 Last verified: 2025-11-23
+
 - ✅ All Biome commands functional
 - ✅ Pre-commit hooks working
 - ✅ CI/CD integration confirmed
@@ -238,7 +244,7 @@ npm run deploy        # Deploy to Sanity hosting
 
 ### Test Coverage
 
-- **120+ Playwright test cases** covering authentication flows
+- **188 E2E tests; 172 passed, 16 skipped** covering authentication flows
 - **Cross-browser testing** (Chromium, Firefox, WebKit)
 - **Role-based access control** validation
 - **API endpoint security** testing
@@ -316,7 +322,7 @@ The authentication system is fully implemented with:
 - **MongoDB session storage**
 - **Role-based access control** (5 levels)
 - **Secure password hashing** with bcryptjs
-- **Comprehensive testing** (120+ test cases)
+- **Comprehensive testing** (188 E2E tests; 172 passed, 16 skipped)
 
 ### User Roles
 

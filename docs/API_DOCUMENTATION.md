@@ -18,10 +18,11 @@ All API endpoints use **NextAuth.js v5** for authentication with comprehensive s
 ### **Authentication Status: ✅ COMPLETE & SECURE**
 
 Our API security implementation includes:
+
 - **Defense-in-depth**: Multiple security layers
 - **Comprehensive RBAC**: Full role hierarchy with granular permissions
 - **API Protection**: All protected endpoints validate authentication and authorization
-- **Security Testing**: 120+ E2E tests covering authentication flows and RBAC
+- **Security Testing**: 188 E2E tests (172 passed, 16 skipped in latest run) covering authentication flows and RBAC
 
 ### **Role Hierarchy & API Access**
 
@@ -47,11 +48,13 @@ API Access Levels:
 ### **🔐 Authentication Endpoints**
 
 #### `POST /api/auth/signin`
+
 **Purpose**: User authentication  
 **Access**: Public  
 **Security**: Rate limited, bcrypt password validation  
 
 **Body**:
+
 ```json
 {
   "email": "user@example.com",
@@ -60,6 +63,7 @@ API Access Levels:
 ```
 
 **Response**:
+
 ```json
 {
   "user": {
@@ -75,11 +79,13 @@ API Access Levels:
 ### **👥 User Management APIs**
 
 #### `GET /api/user/dashboard`
+
 **Purpose**: Get user dashboard data  
 **Access**: Authenticated users only  
 **Security**: Server-side session validation, role-based data filtering  
 
 **Response**:
+
 ```json
 {
   "user": { "id": "user_id", "role": "user", "name": "User Name" },
@@ -92,6 +98,7 @@ API Access Levels:
 ```
 
 #### `PATCH /api/user/profile`
+
 **Purpose**: Update user profile  
 **Access**: Authenticated users (own profile only)  
 **Security**: User ID validation, input sanitization  
@@ -99,11 +106,13 @@ API Access Levels:
 ### **🏢 Admin Management APIs**
 
 #### `GET /api/admin/stats`
+
 **Purpose**: Platform statistics for admin dashboard  
 **Access**: admin, superAdmin only  
 **Security**: Role validation, comprehensive audit logging  
 
 **Response**:
+
 ```json
 {
   "totalUsers": 1275,
@@ -117,17 +126,20 @@ API Access Levels:
 ```
 
 #### `GET /api/admin/users`
+
 **Purpose**: User management (list, search, pagination)  
 **Access**: admin, superAdmin only  
 **Security**: Admin role validation, data filtering  
 
 **Query Parameters**:
+
 - `page`: Page number (default: 1)
 - `limit`: Results per page (max: 100, default: 20)
 - `search`: Search by name or email
 - `role`: Filter by user role
 
 **Response**:
+
 ```json
 {
   "users": [
@@ -149,11 +161,13 @@ API Access Levels:
 ```
 
 #### `PATCH /api/admin/users`
+
 **Purpose**: Update user role or status  
 **Access**: superAdmin only (for role changes), admin+ (for status changes)  
 **Security**: SuperAdmin role validation for role changes, prevents self-demotion  
 
 **Body**:
+
 ```json
 {
   "userId": "user_id",
@@ -165,16 +179,19 @@ API Access Levels:
 ### **📝 Content Moderation APIs**
 
 #### `GET /api/admin/moderation`
+
 **Purpose**: Get moderation queue  
 **Access**: admin, superAdmin only  
 **Security**: Admin role validation, item filtering  
 
 #### `POST /api/admin/moderation`
+
 **Purpose**: Perform moderation action  
 **Access**: admin, superAdmin only  
 **Security**: Action validation, audit trail  
 
 **Body**:
+
 ```json
 {
   "moderationId": "mod_id",

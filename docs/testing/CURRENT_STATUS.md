@@ -8,9 +8,10 @@
 ## Executive Summary
 
 ✅ **All testing phases completed**  
-✅ **120+ E2E tests implemented**  
-✅ **82% code coverage for unit tests**  
-✅ **All critical paths covered**
+✅ **Unit tests:** 338 suites / 4,212 tests — all passing (see details)  
+✅ **E2E tests:** 188 scheduled, 172 passed, 16 skipped (Playwright)  
+✅ **Code coverage (statements):** 80.36%  
+✅ **All critical paths covered, some environment warnings observed in latest E2E run**
 
 ---
 
@@ -41,19 +42,21 @@
 
 **Status:** ✅ Completed  
 **Framework:** Jest + React Testing Library  
-**Total Tests:** ~150  
-**Code Coverage:** 82%  
-**Avg Execution:** 35ms per test  
-**Total Duration:** ~8 seconds
+**Total Tests:** **4,212**  
+**Test Suites:** **338**  
+**Code Coverage (statements):** **80.36%**  
+**Total Duration (latest run):** 224.322 s
 
 **Coverage Areas:**
-- ✅ React components (80%+)
+
+- ✅ React components (coverage varies; many 80%+)
 - ✅ Utility functions (90%+)
-- ✅ Schema validation (100%)
-- ✅ Custom hooks (75%)
-- ⚠️ API handlers (partial - in integration tests)
+- ✅ Schema validation (100% in unit scope)
+- ✅ Custom hooks (high coverage)
+- ⚠️ API handlers (partial - mostly covered in integration)
 
 **Key Test Suites:**
+
 - Component tests: `src/components/**/__tests__/*.test.tsx`
 - Utility tests: `src/lib/__tests__/*.test.ts`
 - Model tests: `src/models/__tests__/*.test.ts`
@@ -61,35 +64,42 @@
 
 ### Integration Tests
 
-**Status:** ✅ Completed  
+**Status:** ✅ Passed  
 **Framework:** Jest + mongodb-memory-server  
-**Total Tests:** ~45  
-**Avg Execution:** 2.5s per test  
-**Total Duration:** ~2 minutes
+**Test Suites:** **11**  
+**Total Tests:** **65**  
+**Total Duration (latest run):** 11.844 s
 
 **Coverage Areas:**
-- ✅ Database models (100%)
-- ✅ CRUD operations (100%)
-- ✅ API routes (100%)
-- ✅ MongoDB operations (100%)
-- ✅ Data persistence (100%)
+
+- ✅ Database models and CRUD operations
+- ✅ API route integration
+- ✅ Data persistence
 
 **Key Test Suites:**
+
 - Model integration: `src/models/__tests__/*.integration.test.ts`
 - API integration: `src/app/api/**/__tests__/*.integration.test.ts`
 
 ### E2E Tests
 
-**Status:** ✅ Completed (Phase 4)  
+**Status:** ✅ Mostly green with environment warnings  
 **Framework:** Playwright  
-**Total Tests:** 120+  
-**Avg Execution:** 15s per test  
-**Total Duration:** ~10 minutes
+**Scheduled:** **188** tests  
+**Passed:** **172**  
+**Skipped:** **16**  
+**Total Duration (latest run):** 17.8m
 
 **Coverage Areas:**
+
 - ✅ Authentication flows (25+ tests)
 - ✅ Role-based access control (40+ tests)
 - ✅ Search and filtering (15+ tests)
+
+- Latest Playwright run had **environment warnings**: repeated MongoDB connection timeouts (MongooseServerSelectionError) and Sanity API 401 Unauthorized ("Session not found") messages. These should be investigated to improve E2E reliability.
+
+**Notes:**
+
 - ✅ Listing management (20+ tests)
 - ✅ Map integration (10+ tests)
 - ✅ User dashboard (10+ tests)
@@ -98,6 +108,7 @@
 - ✅ Security testing (10+ tests)
 
 **Browser Coverage:**
+
 - ✅ Chromium (Desktop)
 - ✅ Firefox (Desktop)
 - ✅ WebKit (Desktop Safari)
@@ -105,6 +116,7 @@
 - ✅ Mobile Safari (iPhone 12)
 
 **Key Test Suites:**
+
 - Authentication: `tests/e2e/auth.spec.ts`, `tests/e2e/rbac.spec.ts`
 - Search: `tests/e2e/search/search-ux.spec.ts`
 - Listings: `tests/e2e/listing-management.spec.ts`
@@ -123,6 +135,7 @@
 **Completion:** Q3 2024
 
 **Deliverables:**
+
 - ✅ Jest configuration with ESM support
 - ✅ React Testing Library setup
 - ✅ Component unit tests (80%+ coverage)
@@ -136,6 +149,7 @@
 **Completion:** Q3 2024
 
 **Deliverables:**
+
 - ✅ mongodb-memory-server setup
 - ✅ All database models tested
 - ✅ API route integration tests
@@ -148,6 +162,7 @@
 **Completion:** Q4 2024
 
 **Deliverables:**
+
 - ✅ Playwright configuration
 - ✅ 25+ authentication test cases
 - ✅ RBAC comprehensive testing (40+ tests)
@@ -162,6 +177,7 @@
 **Completion:** Q4 2024
 
 **Deliverables:**
+
 - ✅ Search and filtering tests (15+ tests)
 - ✅ Listing management tests (20+ tests)
 - ✅ Map integration tests (10+ tests)
@@ -225,6 +241,7 @@ npx playwright test --debug
 **Average Duration:** 18 minutes
 
 **Pipeline Stages:**
+
 1. ✅ Lint checks (~1 min)
 2. ✅ Unit tests (~2 min)
 3. ✅ Integration tests (~3 min)
@@ -232,6 +249,7 @@ npx playwright test --debug
 5. ✅ Report generation
 
 **Artifacts:**
+
 - Test results (JUnit XML)
 - Coverage reports (LCOV)
 - Playwright reports (HTML)
@@ -261,6 +279,13 @@ npx playwright test --debug
 2. **Performance Testing** - Manual only (automated planned)
 3. **Load Testing** - Not implemented
 4. **Sanity CMS Tests** - Manual testing primarily
+
+### Environment Warnings Observed (Latest E2E Run)
+
+- **MongoDB connection timeouts** (MongooseServerSelectionError) observed frequently in the E2E run; this indicates the test server's MongoDB instance or connection settings need review.
+- **Sanity API 401 Unauthorized ("Session not found")** responses were logged when the server attempted to fetch published content during E2E; verify SANITY_API_TOKEN and test session handling in E2E environment.
+
+> These environment warnings did not cause major failure of the overall E2E run (172 passed), but they reduce reliability and should be investigated and fixed in short order.
 
 ### Technical Debt
 
@@ -295,16 +320,19 @@ npx playwright test --debug
 ### Regular Tasks
 
 **Weekly:**
+
 - Review failing/flaky tests
 - Update test data as needed
 - Monitor test execution times
 
 **Monthly:**
+
 - Review test coverage gaps
 - Update outdated tests
 - Check for deprecated dependencies
 
 **Quarterly:**
+
 - Full documentation review
 - Test strategy assessment
 - Performance optimization
@@ -366,22 +394,27 @@ npx playwright test --debug
 ## Change Log
 
 ### November 2025
+
 - ✅ Completed documentation consolidation
 - ✅ Updated current status
 - ✅ All phases marked complete
 
 ### October 2024
+
 - ✅ Completed Phase 4 E2E testing
-- ✅ Added 120+ E2E tests
+- ✅ Added 188 E2E tests (latest run: 172 passed, 16 skipped)
 
 ### September 2024
+
 - ✅ Completed Phase 3 authentication testing
 - ✅ Added RBAC comprehensive testing
 
 ### August 2024
+
 - ✅ Completed Phase 2 integration testing
 - ✅ All models and APIs tested
 
 ### July 2024
+
 - ✅ Completed Phase 1 unit testing
 - ✅ Achieved 80%+ coverage

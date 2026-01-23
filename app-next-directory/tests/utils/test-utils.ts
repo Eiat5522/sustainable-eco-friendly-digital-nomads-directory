@@ -471,10 +471,14 @@ export const TestHelpers = {
     const successMessage = page.getByTestId('review-success-message');
     const isReady = await Promise.race([
       page
-        .waitForFunction(() => {
-          const el = document.querySelector('[data-testid="submit-review-button"]');
-          return el instanceof HTMLButtonElement && !el.disabled;
-        }, null, { timeout: 10000 })
+        .waitForFunction(
+          () => {
+            const el = document.querySelector('[data-testid="submit-review-button"]');
+            return el instanceof HTMLButtonElement && !el.disabled;
+          },
+          null,
+          { timeout: 10000 }
+        )
         .then(() => 'enabled' as const),
       successMessage.waitFor({ state: 'visible', timeout: 10000 }).then(() => 'submitted' as const),
     ]).catch(() => 'unknown' as const);
@@ -489,10 +493,14 @@ export const TestHelpers = {
     await page.getByTestId(`rating-star-${defaultData.rating}`).click({ force: true });
     await commentField.fill(defaultData.comment);
     const enabled = await page
-      .waitForFunction(() => {
-        const el = document.querySelector('[data-testid="submit-review-button"]');
-        return el instanceof HTMLButtonElement && !el.disabled;
-      }, null, { timeout: 10000 })
+      .waitForFunction(
+        () => {
+          const el = document.querySelector('[data-testid="submit-review-button"]');
+          return el instanceof HTMLButtonElement && !el.disabled;
+        },
+        null,
+        { timeout: 10000 }
+      )
       .then(() => true)
       .catch(() => false);
     if (!enabled) {

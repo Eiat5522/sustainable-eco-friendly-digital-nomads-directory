@@ -1,7 +1,7 @@
+import { isE2ERun } from '@/data/e2e/discovery-fixtures';
 import { getLifetimeViewCounts, getMonthlyViewCounts } from '@/lib/metrics/listing-views';
 import { client } from '@/lib/sanity/client';
 import { ensureSanityUser } from '@/lib/sanity/user';
-import { isE2ERun } from '@/data/e2e/discovery-fixtures';
 import type { UserRole } from '@/types/auth';
 import type {
   DashboardListingInfoDTO,

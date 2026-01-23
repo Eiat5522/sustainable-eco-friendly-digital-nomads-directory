@@ -68,18 +68,21 @@ This document describes the current test architecture for the `app-next-director
 **Status:** ✅ Completed
 
 **Scope:**
+
 - Component unit tests with React Testing Library
 - Utility function tests
 - Schema validation tests
 - Custom hook tests
 
 **Achievements:**
+
 - ✅ 80%+ code coverage for utilities
 - ✅ All critical components tested
 - ✅ Schema validation comprehensive
 - ✅ Mock setup infrastructure established
 
 **Key Files:**
+
 - `src/components/**/__tests__/*.test.tsx` - Component tests
 - `src/lib/__tests__/*.test.ts` - Utility tests
 - `src/models/__tests__/*.test.ts` - Schema tests
@@ -90,18 +93,21 @@ This document describes the current test architecture for the `app-next-director
 **Status:** ✅ Completed
 
 **Scope:**
+
 - Database model integration tests
 - API route integration tests
 - External service integration
 - Authentication flow integration
 
 **Achievements:**
+
 - ✅ mongodb-memory-server setup
 - ✅ All models tested with real database
 - ✅ API routes tested end-to-end
 - ✅ MongoDB operations validated
 
 **Key Files:**
+
 - `src/models/__tests__/*.integration.test.ts` - Model integration tests
 - `src/app/api/**/__tests__/*.integration.test.ts` - API route tests
 
@@ -111,18 +117,21 @@ This document describes the current test architecture for the `app-next-director
 **Status:** ✅ Completed
 
 **Scope:**
+
 - User authentication flows
 - Role-based access control (RBAC)
 - Session management
 - Security testing
 
 **Achievements:**
+
 - ✅ 25+ authentication test cases
 - ✅ RBAC comprehensive testing
 - ✅ Cross-browser testing
 - ✅ Mobile responsive testing
 
 **Key Files:**
+
 - `tests/e2e/auth.spec.ts` - Authentication tests
 - `tests/e2e/rbac.spec.ts` - Role-based access control
 - `tests/e2e/security/security.spec.ts` - Security tests
@@ -133,6 +142,7 @@ This document describes the current test architecture for the `app-next-director
 **Status:** ✅ Completed
 
 **Scope:**
+
 - Search and filtering
 - Listing management
 - Map integration
@@ -142,13 +152,16 @@ This document describes the current test architecture for the `app-next-director
 - Accessibility testing
 
 **Achievements:**
-- ✅ 120+ E2E test cases
+**Achievements:**
+
+- ✅ 188 E2E tests (172 passed, 16 skipped in latest run)
 - ✅ All critical user paths covered
 - ✅ Cross-browser testing (Chrome, Firefox, Safari)
 - ✅ Mobile device emulation
 - ✅ Accessibility compliance testing
 
 **Key Files:**
+
 - `tests/e2e/search/` - Search functionality
 - `tests/e2e/listing-management.spec.ts` - Listing CRUD
 - `tests/e2e/city/city-and-map.spec.ts` - Map integration
@@ -216,6 +229,7 @@ module.exports = {
 ```
 
 **Key Features:**
+
 - Excludes integration tests
 - Uses SWC for fast compilation
 - Configured for Next.js App Router
@@ -253,6 +267,7 @@ module.exports = {
 ```
 
 **Key Features:**
+
 - Node environment for database testing
 - Serial test execution
 - Extended timeouts
@@ -327,6 +342,7 @@ export default defineConfig({
 ```
 
 **Key Features:**
+
 - Multi-browser testing
 - Mobile device emulation
 - Automatic dev server startup
@@ -340,6 +356,7 @@ export default defineConfig({
 ### Unit Tests
 
 **Location Pattern:**
+
 ```
 src/
 ├── components/
@@ -364,6 +381,7 @@ src/
 ### Integration Tests
 
 **Location Pattern:**
+
 ```
 src/
 ├── models/
@@ -385,6 +403,7 @@ src/
 ### E2E Tests
 
 **Location Pattern:**
+
 ```
 tests/
 └── e2e/
@@ -657,18 +676,21 @@ jobs:
 ### Current Status (as of Nov 2025)
 
 **Unit Tests:**
+
 - Total Tests: ~150
 - Coverage: 82%
 - Avg Execution: 35ms per test
 - Total Duration: ~8 seconds
 
 **Integration Tests:**
+
 - Total Tests: ~45
 - Coverage: All models and API routes
 - Avg Execution: 2.5s per test
 - Total Duration: ~2 minutes
 
 **E2E Tests:**
+
 - Total Tests: 120+
 - Browser Coverage: Chrome, Firefox, Safari
 - Mobile Coverage: iOS, Android
