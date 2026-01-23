@@ -44,12 +44,14 @@ export default defineConfig({
     ['json', { outputFile: 'tmp/test-results/test-results.json' }],
   ],
   webServer: {
-    command: 'pnpm dev',
+    command: 'cross-env E2E=1 NEXT_PUBLIC_E2E=1 pnpm dev',
     url: resolvedServerWaitURL,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false, // Always start fresh with E2E env vars
     timeout: 120_000,
     env: {
       ...process.env,
+      E2E: '1',
+      NEXT_PUBLIC_E2E: '1',
       NEXTAUTH_URL: process.env.NEXTAUTH_URL ?? resolvedBaseURL,
       NEXT_PUBLIC_FRONTEND_URL: process.env.NEXT_PUBLIC_FRONTEND_URL ?? resolvedBaseURL,
     },

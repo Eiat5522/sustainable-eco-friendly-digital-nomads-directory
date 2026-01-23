@@ -213,6 +213,15 @@ test.describe('Security Testing', () => {
     test('prevents XSS in user-generated content', async ({ page }) => {
       const xssPayloads = TEST_CONFIG.payloads.xss;
 
+      // Mock API response to avoid rate limiting and speed up test
+      await page.route('**/api/contact', async route => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ message: 'Test message received' }),
+        });
+      });
+
       // Test in contact form
       await page.goto(TEST_CONFIG.urls.contact);
       await page.waitForLoadState('networkidle');
@@ -233,12 +242,20 @@ test.describe('Security Testing', () => {
         const dialog = await alertDialogPromise;
         expect(dialog).toBeNull(); // No alert should be triggered
 
-        // Wait a bit for any potential delayed scripts
-        await page.waitForTimeout(200);
+        // Wait for form submission to complete
+        await page.waitForTimeout(500);
 
-        // Clear form
-        await page.reload();
-        await page.waitForLoadState('networkidle');
+        // Verify no XSS was executed by checking page content
+        const pageContent = await page.content();
+        expect(pageContent).not.toContain('<script>alert');
+        expect(pageContent).not.toContain('onerror=');
+        expect(pageContent).not.toContain('javascript:alert');
+
+        // Clear form by filling with empty values (faster than reload)
+        await page.fill('input[name="name"]', '');
+        await page.fill('input[name="email"]', '');
+        await page.fill('input[name="subject"]', '');
+        await page.fill('textarea[name="enquiry"]', '');
       }
     });
 

@@ -67,6 +67,54 @@ const e2eCityFixtures: Record<
   { city: CityDTO | CityDetailDTO; listings: ListingSummaryDTO[] }
 > = isE2ETest
   ? {
+      bangkok: {
+        city: {
+          id: 'city-bangkok',
+          name: 'Bangkok',
+          slug: 'bangkok',
+          country: 'Thailand',
+          sustainabilityScore: 72 as CityDetailDTO['sustainabilityScore'],
+          highlights: ['Green rooftops', 'Bike lanes', 'River taxis'],
+          imageUrl: '/placeholder_image.png',
+          imageDimensions: null,
+          description:
+            'Bangkok is embracing sustainability through green rooftops, river revitalisation, and low-carbon mobility.',
+          shortDescription: 'High-energy capital with a growing network of sustainable work hubs.',
+          airQuality: 'Variable — improving during cooler seasons',
+          internetSpeed: 250,
+          costOfLiving: 'Moderate',
+          climate: 'Tropical',
+          safety: 'Generally safe with vibrant expat communities',
+          walkability: 'High in core neighbourhoods',
+          sustainabilityInitiatives: [
+            'Solar rooftops for coworking hubs',
+            'Expanded urban rail network',
+            'Community recycling drives',
+          ],
+          digitalNomadFeatures: ['Abundant coworking spaces', 'Night markets', 'Riverfront cafes'],
+          galleryImages: [],
+        },
+        listings: [
+          {
+            id: 'listing-green-cowork-bangkok',
+            name: 'Green Cowork Bangkok',
+            slug: 'green-cowork-bangkok',
+            type: 'coworking',
+            city: {
+              id: 'city-bangkok',
+              name: 'Bangkok',
+              slug: 'bangkok',
+              country: 'Thailand',
+            },
+            imageUrl: '/placeholder_image.png',
+            ecoFocusTags: ['Solar Powered', 'Zero Waste'],
+            digitalNomadFeatures: ['Fast WiFi', '24/7 Access'],
+            priceRange: 'moderate',
+            amenityNames: ['Fast WiFi', 'Quiet Zones', 'Solar Powered'],
+            shortDescription: 'A leafy coworking hub focused on renewable energy.',
+          },
+        ],
+      },
       testopolis: {
         city: {
           id: 'city-testopolis',

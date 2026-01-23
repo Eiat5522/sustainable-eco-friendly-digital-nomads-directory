@@ -1,20 +1,18 @@
 /**
  * Cities Page Data Access Layer (DAL)
  *
- * Centralizes all city page data fetching with Next.js 16 caching.
- * Uses 'use cache' directive with appropriate cacheLife and cacheTag
- * for optimal static generation and revalidation.
+ * Centralizes all city page data fetching with Next.js caching via revalidate.
+ * Uses standard Next.js cache tags for optimal static generation and revalidation.
  *
  * Design principles:
  * - Single source of truth for city page data operations
- * - Uses 'use cache' for long-lived static content
+ * - Uses ISR (Incremental Static Regeneration) for long-lived static content
  * - Type-safe: no `any` types
  * - Testable: can be mocked for unit tests
  */
 
 import 'server-only';
 
-import { cacheLife, cacheTag } from 'next/cache';
 import { groq } from 'next-sanity';
 import {
   getE2ECityDetail,
@@ -299,16 +297,11 @@ function toCityDetailDTO(raw: SanityCityDetail | null | undefined): CityDetailDT
 
 /**
  * Get city summary by slug
- * Uses 'use cache' with cacheLife('max') for long-lived static content
  *
  * @param slug - City slug
  * @returns CityDTO or null if not found
  */
 export async function getCityBySlug(slug: string): Promise<CityDTO | null> {
-  'use cache';
-  cacheLife('max');
-  cacheTag('cities:list', `city:${slug}`);
-
   if (isE2ERun()) {
     return getE2ECitySummary(slug);
   }
@@ -325,16 +318,11 @@ export async function getCityBySlug(slug: string): Promise<CityDTO | null> {
 
 /**
  * Get detailed city information by slug
- * Uses 'use cache' with cacheLife('max') for long-lived static content
  *
  * @param slug - City slug
  * @returns CityDetailDTO or null if not found
  */
 export async function getCityDetailBySlug(slug: string): Promise<CityDetailDTO | null> {
-  'use cache';
-  cacheLife('max');
-  cacheTag('cities:list', `city:${slug}`);
-
   if (isE2ERun()) {
     return getE2ECityDetail(slug);
   }
@@ -351,16 +339,11 @@ export async function getCityDetailBySlug(slug: string): Promise<CityDetailDTO |
 
 /**
  * Get all published listings for a city
- * Uses 'use cache' with cacheLife('max') for static content
  *
  * @param cityId - City ID
  * @returns Array of ListingSummaryDTO
  */
 export async function getListingsByCityId(cityId: string): Promise<ListingSummaryDTO[]> {
-  'use cache';
-  cacheLife('max');
-  cacheTag(`city:${cityId}`, 'listings');
-
   if (isE2ERun()) {
     return getE2EListingsForCity(cityId);
   }
@@ -383,17 +366,12 @@ export async function getListingsByCityId(cityId: string): Promise<ListingSummar
 
 /**
  * Get all city slugs for static generation
- * Uses 'use cache' with cacheLife('max') for build-time usage
  *
  * This function is used by generateStaticParams in city pages
  *
  * @returns Array of city slugs
  */
 export async function getAllCitySlugs(): Promise<string[]> {
-  'use cache';
-  cacheLife('max');
-  cacheTag('cities:list');
-
   if (isE2ERun()) {
     const cities = getE2ECityList(100);
     return cities.map(city => city.slug);
@@ -418,16 +396,11 @@ export async function getAllCitySlugs(): Promise<string[]> {
 
 /**
  * Get all cities with pagination
- * Uses 'use cache' with cacheLife('max') for static content
  *
  * @param limit - Maximum number of cities to return
  * @returns Array of CityDTO
  */
 export async function getCitiesList(limit = 20): Promise<CityDTO[]> {
-  'use cache';
-  cacheLife('max');
-  cacheTag('cities:list');
-
   if (isE2ERun()) {
     return getE2ECityList(limit);
   }
