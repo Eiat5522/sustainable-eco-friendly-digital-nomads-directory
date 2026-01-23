@@ -161,7 +161,6 @@ export default async function ListingPage({ params }: Props) {
     );
 
     if (sanityListing) {
-      console.log("Fetched Sanity Listing:", JSON.stringify(sanityListing, null, 2));
       // Render Sanity listing
       return (
         <main className="container mx-auto py-12 px-4 sm:px-6">

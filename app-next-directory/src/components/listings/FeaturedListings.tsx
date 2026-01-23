@@ -34,8 +34,6 @@ export default function FeaturedListings({}: FeaturedListingsProps) {
           throw Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        // FORTEST: Debug API response
-        console.log('DEBUG: Featured Listings API response:', data);
         if (data.success && data.data && Array.isArray(data.data.listings)) {
           setListings(data.data.listings);
         } else if (data.success && Array.isArray(data.listings)) {

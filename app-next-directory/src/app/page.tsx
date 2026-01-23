@@ -36,8 +36,6 @@ const HomePage = () => {
     const fetchCities = async () => {
       try {
         const data = await getAllCities();
-        console.log('Fetched cities data:', data);
-        console.log('First city mainImage:', data[0]?.mainImage);
         setCities(data);
       } catch (err) {
         console.error('Failed to fetch cities:', err);
