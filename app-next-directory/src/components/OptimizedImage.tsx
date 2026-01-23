@@ -75,10 +75,6 @@ export function OptimizedImage({
     rootMargin: '200px',
   })
 
-  // Debug logging for image data
-  console.log('OptimizedImage - Received image:', JSON.stringify(image, null, 2));
-  console.log('OptimizedImage - Alt text:', alt);
-
   // Generate optimized image URL with proper format negotiation
   const imageUrl = image ? builder
     .image(image)
@@ -86,9 +82,6 @@ export function OptimizedImage({
     .fit(objectFit)
     .quality(quality)
     .url() : null;
-
-  // Debug log the generated URL
-  console.log('OptimizedImage - Generated URL:', imageUrl);
 
   // Generate low-quality placeholder
   const blurDataUrl = image ? builder
@@ -112,7 +105,6 @@ export function OptimizedImage({
     return {};
   };
   const handleImageLoad = () => {
-    console.log('OptimizedImage - Image loaded successfully:', imageUrl);
     setLoaded(true);
     if (onLoad) {
       onLoad();
@@ -126,7 +118,6 @@ export function OptimizedImage({
   // Download image when in viewport
   useEffect(() => {
     if (inView && !loaded && imageUrl) {
-      console.log('OptimizedImage - Image is in view, starting to load:', imageUrl);
       const img = new window.Image()
       img.src = imageUrl
       img.onload = handleImageLoad

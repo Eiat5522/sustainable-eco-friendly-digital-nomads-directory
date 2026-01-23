@@ -30,17 +30,6 @@ export function CityCarousel({ cities, onCitySelect, className = '' }: CityCarou
   const [currentIndex, setCurrentIndex] = useState(0);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
-  useEffect(() => {
-    console.log("CityCarousel received cities prop:", JSON.stringify(cities, null, 2));
-    if (cities && cities.length > 0) {
-      cities.forEach((city, index) => {
-        console.log(`City ${index} - Name: ${city.name}, Image: ${JSON.stringify(city.image)}, listingCount: ${city.listingCount}`);
-      });
-    } else {
-      console.log("CityCarousel: cities prop is empty or undefined.");
-    }
-  }, [cities]);
-
   const nextSlide = () => {
     if (!cities || cities.length === 0) return;
     setCurrentIndex((prevIndex: number) => (prevIndex + 1) % cities.length);
@@ -105,10 +94,6 @@ export function CityCarousel({ cities, onCitySelect, className = '' }: CityCarou
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
             >
               {cities.map((city, index) => {
-                // Log individual city image data
-                if (index === currentIndex) { // Log for the currently visible city
-                  console.log(`CityCarousel: Image data for ${city.name || 'Unnamed City'} (current):`, JSON.stringify(city.image, null, 2));
-                }
                 return (
                   <motion.div
                     key={city._id || index} // Use index as fallback key if _id is missing
