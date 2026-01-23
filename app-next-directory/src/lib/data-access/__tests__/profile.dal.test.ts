@@ -4,7 +4,6 @@
  */
 
 import { jest } from '@jest/globals';
-import type { UserRole } from '@/types/auth';
 import { getOwnerReviewsForProfile, getUserDashboardForProfile } from '../profile.dal';
 
 // Mock dependencies
