@@ -73,6 +73,7 @@
   },
   "devDependencies": {
     "@eslint/config-array": "^0.20.0",
+    "@eslint/eslintrc": "^3.3.3",
     "@eslint/object-schema": "^2.1.6",
     "@hookform/resolvers": "^5.0.1",
     "@playwright/test": "^1.56.1",

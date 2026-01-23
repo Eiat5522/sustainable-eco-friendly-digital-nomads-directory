@@ -147,6 +147,9 @@ importers:
       '@eslint/config-array':
         specifier: ^0.20.0
         version: 0.20.1
+      '@eslint/eslintrc':
+        specifier: ^3.3.3
+        version: 3.3.3
       '@eslint/object-schema':
         specifier: ^2.1.6
         version: 2.1.7
