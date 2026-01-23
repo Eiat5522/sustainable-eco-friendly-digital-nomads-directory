@@ -1,5 +1,5 @@
 import { connection, NextResponse } from 'next/server';
-import { getCitiesList } from '@/lib/data/city';
+import { getCitiesList } from '@/lib/data-access/cities.dal';
 import type { CityDTO } from '@/types/dto';
 
 type CitiesFetcher = (limit?: number) => Promise<CityDTO[]>;

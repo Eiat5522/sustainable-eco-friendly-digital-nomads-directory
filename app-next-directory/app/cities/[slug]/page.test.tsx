@@ -7,11 +7,11 @@ import {
   getCityBySlug,
   getCityDetailBySlug,
   getListingsByCityId,
-} from '@/lib/data/city';
+} from '@/lib/data-access/cities.dal';
 import { structuredLogger } from '@/lib/logger';
 import CityPage, { generateStaticParams } from './page';
 
-jest.mock('@/lib/data/city', () => ({
+jest.mock('@/lib/data-access/cities.dal', () => ({
   getCityBySlug: jest.fn(),
   getCityDetailBySlug: jest.fn(),
   getListingsByCityId: jest.fn(),

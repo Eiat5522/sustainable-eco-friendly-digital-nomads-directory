@@ -14,7 +14,7 @@ import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals
 
 const mockGetCitiesList = jest.fn();
 
-jest.mock('@/lib/data/city', () => ({
+jest.mock('@/lib/data-access/cities.dal', () => ({
   getCitiesList: (...args: unknown[]) => mockGetCitiesList(...args),
 }));
 

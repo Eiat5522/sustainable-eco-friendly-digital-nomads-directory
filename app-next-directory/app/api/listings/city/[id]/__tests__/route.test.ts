@@ -13,7 +13,7 @@ import { getE2EListingsForCity } from '@/data/e2e/discovery-fixtures';
 // Mock the getListingsByCityId function
 const mockGetListingsByCityId = jest.fn();
 
-jest.mock('@/lib/data/city', () => ({
+jest.mock('@/lib/data-access/cities.dal', () => ({
   __esModule: true,
   getListingsByCityId: mockGetListingsByCityId,
 }));

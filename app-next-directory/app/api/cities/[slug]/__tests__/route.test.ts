@@ -11,14 +11,14 @@ import { beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals
 import type { NextRequest } from 'next/server';
 
 // Mock the city data module before importing
-jest.mock('@/lib/data/city', () => ({
+jest.mock('@/lib/data-access/cities.dal', () => ({
   __esModule: true,
   getCityBySlug: jest.fn(),
 }));
 
 import { getE2ECityDetail } from '@/data/e2e/discovery-fixtures';
 
-const cityDataMockModule = jest.requireMock('@/lib/data/city') as { getCityBySlug: jest.Mock };
+const cityDataMockModule = jest.requireMock('@/lib/data-access/cities.dal') as { getCityBySlug: jest.Mock };
 
 let GET: typeof import('../route').GET;
 
