@@ -7,8 +7,10 @@ import type { UserDashboardPayloadDTO } from '@/types/dto';
 // Mock Next.js components
 jest.mock('next/image', () => ({
   __esModule: true,
+  // biome-ignore lint/a11y/useAltText: Mock component for testing
+  // biome-ignore lint/performance/noImgElement: Mock component for testing
   default: (props: any) => {
-    // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
+    // eslint-disable-next-line jsx-a11y/alt-text
     return <img {...props} />;
   },
 }));
