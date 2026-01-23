@@ -487,6 +487,12 @@ export function transformToBlogSummaryDTO(doc: RawBlogDocument, w = 800, h = 450
   };
 }
 
+/**
+ * Create a BlogDetailDTO from a raw blog document.
+ *
+ * @param doc - Raw blog document (Sanity shape) containing id, title, slug, body, authorImage, relatedPosts, and other blog fields
+ * @returns A BlogDetailDTO containing the blog summary fields, `body` (an array; empty if missing), `authorImageUrl`, and `relatedPosts` (array of BlogSummaryDTO when present, otherwise `undefined`)
+ */
 export function transformToBlogDetailDTO(doc: RawBlogDocument): BlogDetailDTO {
   const summary = transformToBlogSummaryDTO(doc, 1200, 630);
   const related = Array.isArray(doc?.relatedPosts)
