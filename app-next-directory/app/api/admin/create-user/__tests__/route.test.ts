@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 // Mock dependencies BEFORE importing anything else
 jest.mock('@/lib/auth', () => ({
