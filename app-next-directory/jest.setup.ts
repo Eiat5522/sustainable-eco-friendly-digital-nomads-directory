@@ -72,22 +72,6 @@ import './jest.polyfills';
 // React 19 compatibility fix for act function - must be before other imports
 import React from 'react';
 
-// Mock Suspense to render children immediately in tests
-// This is needed because jsdom doesn't handle async Suspense boundaries
-// We also need to handle async children (server components)
-const OriginalSuspense = React.Suspense;
-React.Suspense = function MockSuspense({ children, fallback }: { children: React.ReactNode; fallback?: React.ReactNode }) {
-  // Check if children is a promise (async server component)
-  if (children && typeof (children as PromiseLike<unknown>).then === 'function') {
-    // Return the fallback for now - the test framework will handle the async resolution
-    return fallback ? React.createElement(React.Fragment, null, fallback) : null;
-  }
-  // For synchronous children, render them directly
-  return React.createElement(React.Fragment, null, children);
-} as typeof React.Suspense;
-// Keep a reference to restore if needed
-(React.Suspense as typeof React.Suspense & { __original?: typeof OriginalSuspense }).__original = OriginalSuspense;
-
 // Set React 19 act environment
 (global as Record<string, unknown>).IS_REACT_ACT_ENVIRONMENT = true;
 
