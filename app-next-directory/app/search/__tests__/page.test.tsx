@@ -113,9 +113,7 @@ describe('app/search/page.tsx', () => {
       mockExecuteSearch.mockResolvedValue(successResult);
 
       const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({}) }));
-
-      expect(screen.getByTestId('page-layout-server')).toBeInTheDocument();
+      render(await SearchPage({ searchParams: Promise.resolve({}) }));      expect(screen.getByTestId('page-layout-server')).toBeInTheDocument();
     });
   });
 
@@ -166,15 +164,14 @@ describe('app/search/page.tsx', () => {
     it('should call executeSearch from DAL', async () => {
       const searchParams = { q: 'coffee', category: 'cafe' };
       const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve(searchParams) }));
-
-      expect(mockExecuteSearch).toHaveBeenCalledWith(searchParams);
+      render(await SearchPage({ searchParams: Promise.resolve(searchParams) }));      expect(mockExecuteSearch).toHaveBeenCalledWith(searchParams);
     });
 
     it('should render search results grid', async () => {
       const SearchPage = (await import('../page')).default;
       render(await SearchPage({ searchParams: Promise.resolve({ q: 'coffee' }) }));
 
+      // Wait for Suspense to resolve
       const resultsContainer = screen.getByTestId('search-results');
       expect(resultsContainer).toBeInTheDocument();
 
@@ -187,16 +184,12 @@ describe('app/search/page.tsx', () => {
 
     it('should show pagination info', async () => {
       const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({}) }));
-
-      expect(screen.getByText(/showing page 2 of 5/i)).toBeInTheDocument();
+      render(await SearchPage({ searchParams: Promise.resolve({}) }));      expect(screen.getByText(/showing page 2 of 5/i)).toBeInTheDocument();
     });
 
     it('should render pagination links with page numbers', async () => {
       const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({}) }));
-
-      // Check for navigation buttons
+      render(await SearchPage({ searchParams: Promise.resolve({}) }));      // Check for navigation buttons
       expect(screen.getByText('Prev')).toBeInTheDocument();
       expect(screen.getByText('Next')).toBeInTheDocument();
 
@@ -213,9 +206,7 @@ describe('app/search/page.tsx', () => {
 
     it('should generate correct prev link when not on first page', async () => {
       const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({ page: 2, q: 'test' }) }));
-
-      expect(mockBuildSearchHref).toHaveBeenCalledWith(
+      render(await SearchPage({ searchParams: Promise.resolve({ page: 2, q: 'test' }) }));      expect(mockBuildSearchHref).toHaveBeenCalledWith(
         '/search',
         { page: 2, q: 'test' },
         { page: '1' }
@@ -228,9 +219,7 @@ describe('app/search/page.tsx', () => {
 
     it('should generate correct next link when hasMore is true', async () => {
       const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({ page: 2 }) }));
-
-      expect(mockBuildSearchHref).toHaveBeenCalledWith('/search', { page: 2 }, { page: '3' });
+      render(await SearchPage({ searchParams: Promise.resolve({ page: 2 }) }));      expect(mockBuildSearchHref).toHaveBeenCalledWith('/search', { page: 2 }, { page: '3' });
 
       const nextLink = screen.getByText('Next').closest('a');
       expect(nextLink).toHaveAttribute('href');
@@ -247,9 +236,7 @@ describe('app/search/page.tsx', () => {
       });
 
       const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({ page: 1 }) }));
-
-      const prevLink = screen.getByText('Prev').closest('a');
+      render(await SearchPage({ searchParams: Promise.resolve({ page: 1 }) }));      const prevLink = screen.getByText('Prev').closest('a');
       expect(prevLink).toHaveAttribute('aria-disabled', 'true');
     });
 
@@ -263,17 +250,13 @@ describe('app/search/page.tsx', () => {
       });
 
       const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({ page: 5 }) }));
-
-      const nextLink = screen.getByText('Next').closest('a');
+      render(await SearchPage({ searchParams: Promise.resolve({ page: 5 }) }));      const nextLink = screen.getByText('Next').closest('a');
       expect(nextLink).toHaveAttribute('aria-disabled', 'true');
     });
 
     it('should highlight current page in pagination', async () => {
       const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({ page: 2 }) }));
-
-      const pageLinks = screen.getAllByRole('link');
+      render(await SearchPage({ searchParams: Promise.resolve({ page: 2 }) }));      const pageLinks = screen.getAllByRole('link');
       const currentPageLink = pageLinks.find(
         link => link.textContent === '2' && link.getAttribute('aria-current') === 'page'
       );
@@ -285,6 +268,7 @@ describe('app/search/page.tsx', () => {
       const SearchPage = (await import('../page')).default;
       render(await SearchPage({ searchParams: Promise.resolve(searchParams) }));
 
+      // Wait for Suspense to resolve
       const filtersForm = screen.getByTestId('search-filters-form');
       expect(filtersForm).toBeInTheDocument();
       expect(filtersForm).toHaveTextContent('"q":"coffee"');
@@ -294,9 +278,7 @@ describe('app/search/page.tsx', () => {
 
     it('should render page size selector with options', async () => {
       const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({}) }));
-
-      const pageSizeLabel = screen.getByText(/per page/i);
+      render(await SearchPage({ searchParams: Promise.resolve({}) }));      const pageSizeLabel = screen.getByText(/per page/i);
       expect(pageSizeLabel).toBeInTheDocument();
 
       const pageSizeSelect = screen.getByRole('combobox', { name: /per page/i });
@@ -317,9 +299,7 @@ describe('app/search/page.tsx', () => {
       });
 
       const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({ q: 'nonexistent' }) }));
-
-      expect(screen.queryByTestId('search-results')).not.toBeInTheDocument();
+      render(await SearchPage({ searchParams: Promise.resolve({ q: 'nonexistent' }) }));      expect(screen.queryByTestId('search-results')).not.toBeInTheDocument();
       expect(screen.getByTestId('no-results')).toBeInTheDocument();
       expect(screen.getByText('No results found.')).toBeInTheDocument();
     });
@@ -338,6 +318,7 @@ describe('app/search/page.tsx', () => {
       const SearchPage = (await import('../page')).default;
       render(await SearchPage({ searchParams: Promise.resolve({}) }));
 
+      // Wait for Suspense to resolve
       const errorState = screen.getByTestId('search-error-state');
       expect(errorState).toBeInTheDocument();
 
@@ -355,6 +336,7 @@ describe('app/search/page.tsx', () => {
       const SearchPage = (await import('../page')).default;
       render(await SearchPage({ searchParams: Promise.resolve({}) }));
 
+      // Wait for Suspense to resolve
       const retryButton = screen.getByTestId('search-retry-button');
       expect(retryButton).toBeInTheDocument();
       expect(within(retryButton).getByText('Retry search')).toBeInTheDocument();
@@ -369,9 +351,7 @@ describe('app/search/page.tsx', () => {
       mockExecuteSearch.mockResolvedValue(errorResult);
 
       const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({ retry: '2' }) }));
-
-      expect(mockBuildSearchHref).toHaveBeenCalledWith('/search', { retry: '2' }, { retry: '3' });
+      render(await SearchPage({ searchParams: Promise.resolve({ retry: '2' }) }));      expect(mockBuildSearchHref).toHaveBeenCalledWith('/search', { retry: '2' }, { retry: '3' });
     });
 
     it('should start retry count at 1 when not present', async () => {
@@ -382,9 +362,7 @@ describe('app/search/page.tsx', () => {
       mockExecuteSearch.mockResolvedValue(errorResult);
 
       const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({}) }));
-
-      expect(mockBuildSearchHref).toHaveBeenCalledWith('/search', {}, { retry: '1' });
+      render(await SearchPage({ searchParams: Promise.resolve({}) }));      expect(mockBuildSearchHref).toHaveBeenCalledWith('/search', {}, { retry: '1' });
     });
 
     it('should show error details in development mode', async () => {
@@ -400,9 +378,7 @@ describe('app/search/page.tsx', () => {
       mockExecuteSearch.mockResolvedValue(errorResult);
 
       const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({}) }));
-
-      expect(screen.getByText(/Error: 404 Not Found/i)).toBeInTheDocument();
+      render(await SearchPage({ searchParams: Promise.resolve({}) }));      expect(screen.getByText(/Error: 404 Not Found/i)).toBeInTheDocument();
 
       process.env.NODE_ENV = originalEnv;
     });
@@ -418,9 +394,7 @@ describe('app/search/page.tsx', () => {
       mockExecuteSearch.mockResolvedValue(errorResult);
 
       const SearchPage = (await import('../page')).default;
-      render(await SearchPage({ searchParams: Promise.resolve({}) }));
-
-      expect(screen.getByText(/Unexpected error occurred/i)).toBeInTheDocument();
+      render(await SearchPage({ searchParams: Promise.resolve({}) }));      expect(screen.getByText(/Unexpected error occurred/i)).toBeInTheDocument();
 
       process.env.NODE_ENV = originalEnv;
     });

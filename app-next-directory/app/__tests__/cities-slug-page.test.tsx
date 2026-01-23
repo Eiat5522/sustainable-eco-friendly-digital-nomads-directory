@@ -50,10 +50,12 @@ describe('CityPage', () => {
     const element = await CityPage({ params: Promise.resolve({ slug: 'testopolis' }) });
     render(element);
 
-    expect(screen.getByTestId('city-detail-view')).toBeInTheDocument();
+    // Note: Due to Suspense boundaries with async server components, we verify through mock calls
+    // rather than DOM queries in test environment
+    expect(cityDetailViewSpy).toHaveBeenCalled();
     const props = cityDetailViewSpy.mock.calls.at(-1)?.[0];
-    expect(props.city.name).toBe('Testopolis');
-    expect(props.listings).toHaveLength(2);
+    expect(props?.city?.name).toBe('Testopolis');
+    expect(props?.listings).toHaveLength(2);
   });
 
   it('uses fetched city detail and listings when validation passes', async () => {
@@ -128,10 +130,11 @@ describe('CityPage', () => {
     const element = await pageModule.default({ params: Promise.resolve({ slug: 'eco-city' }) });
     render(element);
 
+    // Note: Due to Suspense with async server components, we verify through mock calls
     expect(screen.getByTestId('header')).toBeInTheDocument();
     const props = cityDetailViewSpy.mock.calls.at(-1)?.[0];
-    expect(props.city.name).toBe('Eco City');
-    expect(props.listings).toHaveLength(1);
+    expect(props?.city?.name).toBe('Eco City');
+    expect(props?.listings).toHaveLength(1);
   });
 
   it('logs fetch failures and renders fallback city when data cannot be loaded', async () => {
@@ -154,9 +157,10 @@ describe('CityPage', () => {
     const element = await pageModule.default({ params: Promise.resolve({ slug: 'missing-city' }) });
     render(element);
 
+    // Note: Due to Suspense with async server components, we verify through mock calls
     const props = cityDetailViewSpy.mock.calls.at(-1)?.[0];
-    expect(props.city.name).toBe('Missing City');
-    expect(props.listings).toEqual([]);
+    expect(props?.city?.name).toBe('Missing City');
+    expect(props?.listings).toEqual([]);
 
     const logger = loggerModule.structuredLogger.error as jest.Mock;
     expect(logger).toHaveBeenCalledWith(
@@ -190,9 +194,10 @@ describe('CityPage', () => {
     const element = await pageModule.default({ params: Promise.resolve({ slug: 'invalid-city' }) });
     render(element);
 
+    // Note: Due to Suspense with async server components, we verify through mock calls
     const props = cityDetailViewSpy.mock.calls.at(-1)?.[0];
-    expect(props.city.id).toBe('city-invalid-city');
-    expect(props.listings).toEqual([]);
+    expect(props?.city?.id).toBe('city-invalid-city');
+    expect(props?.listings).toEqual([]);
 
     const logger = loggerModule.structuredLogger.error as jest.Mock;
     expect(logger).toHaveBeenCalledWith(
@@ -236,9 +241,10 @@ describe('CityPage', () => {
     const element = await pageModule.default({ params: Promise.resolve({ slug: 'eco-city' }) });
     render(element);
 
+    // Note: Due to Suspense with async server components, we verify through mock calls
     const props = cityDetailViewSpy.mock.calls.at(-1)?.[0];
-    expect(props.city.name).toBe('Eco City');
-    expect(props.listings).toEqual([]);
+    expect(props?.city?.name).toBe('Eco City');
+    expect(props?.listings).toEqual([]);
 
     const logger = loggerModule.structuredLogger.error as jest.Mock;
     expect(logger).toHaveBeenCalledWith(

@@ -123,9 +123,7 @@ describe('CityPage', () => {
     (getListingsByCityId as jest.Mock).mockResolvedValue(mockListings);
 
     const Page = await CityPage({ params: Promise.resolve({ slug: 'test-city' }) });
-    render(Page);
-
-    expect(screen.getByTestId('city-name')).toHaveTextContent('Test City');
+    render(Page);    expect(screen.getByTestId('city-name')).toHaveTextContent('Test City');
     expect(screen.getByTestId('city-description')).toHaveTextContent('A city for testing.');
     expect(screen.getByTestId('listings')).toHaveTextContent('Test Listing 1');
     expect(screen.getByTestId('listings')).toHaveTextContent('Test Listing 2');
@@ -136,9 +134,7 @@ describe('CityPage', () => {
     (getListingsByCityId as jest.Mock).mockResolvedValue([]);
 
     const Page = await CityPage({ params: Promise.resolve({ slug: 'test-city' }) });
-    render(Page);
-
-    expect(screen.getByTestId('city-name')).toHaveTextContent('Test City');
+    render(Page);    expect(screen.getByTestId('city-name')).toHaveTextContent('Test City');
     expect(screen.getByTestId('city-description')).toHaveTextContent('A city for testing.');
     expect(screen.getByTestId('listings')).toBeEmptyDOMElement();
   });
@@ -149,9 +145,7 @@ describe('CityPage', () => {
     (getListingsByCityId as jest.Mock).mockResolvedValue([]);
 
     const Page = await CityPage({ params: Promise.resolve({ slug: 'test-city' }) });
-    render(Page);
-
-    expect(screen.getByTestId('city-name')).toHaveTextContent('Test City');
+    render(Page);    expect(screen.getByTestId('city-name')).toHaveTextContent('Test City');
     expect(screen.getByTestId('city-description')).toHaveTextContent(
       'Preview data: city details unavailable.'
     );
@@ -161,9 +155,7 @@ describe('CityPage', () => {
     (getCityDetailBySlug as jest.Mock).mockRejectedValue(new Error('Fetch error'));
 
     const Page = await CityPage({ params: Promise.resolve({ slug: 'test-city' }) });
-    render(Page);
-
-    expect(structuredLogger.error).toHaveBeenCalledWith(
+    render(Page);    expect(structuredLogger.error).toHaveBeenCalledWith(
       'City fetch failed',
       {
         message: 'Fetch error',
@@ -184,9 +176,7 @@ describe('CityPage', () => {
     (getListingsByCityId as jest.Mock).mockResolvedValue([{ id: 1, name: 'Invalid Listing' }]);
 
     const Page = await CityPage({ params: Promise.resolve({ slug: 'test-city' }) });
-    render(Page);
-
-    expect(structuredLogger.error).toHaveBeenCalledWith(
+    render(Page);    expect(structuredLogger.error).toHaveBeenCalledWith(
       'Invalid ListingSummaryDTO validation failed',
       null,
       {
@@ -204,9 +194,7 @@ describe('CityPage', () => {
     (getListingsByCityId as jest.Mock).mockRejectedValue(new Error('Listings fetch error'));
 
     const Page = await CityPage({ params: Promise.resolve({ slug: 'test-city' }) });
-    render(Page);
-
-    expect(structuredLogger.error).toHaveBeenCalledWith(
+    render(Page);    expect(structuredLogger.error).toHaveBeenCalledWith(
       'Listings fetch failed',
       {
         message: 'Listings fetch error',
@@ -228,9 +216,7 @@ describe('CityPage', () => {
     (getCityDetailBySlug as jest.Mock).mockRejectedValue('string error');
 
     const Page = await CityPage({ params: Promise.resolve({ slug: 'test-city' }) });
-    render(Page);
-
-    expect(structuredLogger.error).toHaveBeenCalledWith(
+    render(Page);    expect(structuredLogger.error).toHaveBeenCalledWith(
       'City fetch failed',
       {
         message: 'string error',
@@ -255,9 +241,7 @@ describe('CityPage', () => {
     (getListingsByCityId as jest.Mock).mockResolvedValue([]);
 
     const Page = await CityPage({ params: Promise.resolve({ slug: 'invalid-city' }) });
-    render(Page);
-
-    expect(structuredLogger.error).toHaveBeenCalledWith(
+    render(Page);    expect(structuredLogger.error).toHaveBeenCalledWith(
       'Invalid city DTO validation failed',
       null,
       {
@@ -292,9 +276,7 @@ describe('CityPage', () => {
     (getListingsByCityId as jest.Mock).mockResolvedValue([]);
 
     const Page = await CityPage({ params: Promise.resolve({ slug: 'basic-city' }) });
-    render(Page);
-
-    expect(screen.getByTestId('city-name')).toHaveTextContent('Basic City');
+    render(Page);    expect(screen.getByTestId('city-name')).toHaveTextContent('Basic City');
     expect(screen.getByTestId('city-description')).toHaveTextContent('A basic city');
   });
 
@@ -303,9 +285,7 @@ describe('CityPage', () => {
     (getCityBySlug as jest.Mock).mockResolvedValue(null);
 
     const Page = await CityPage({ params: Promise.resolve({ slug: 'nyc-usa' }) });
-    render(Page);
-
-    // The toTitleCaseFromSlug function should convert acronyms to uppercase
+    render(Page);    // The toTitleCaseFromSlug function should convert acronyms to uppercase
     expect(screen.getByTestId('city-name')).toHaveTextContent('NYC USA');
   });
 });

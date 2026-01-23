@@ -91,9 +91,7 @@ describe('SearchPage', () => {
       limit: '24',
     });
 
-    expect(screen.getByTestId('page-layout')).toBeInTheDocument();
-
-    expect(searchFiltersFormMock).toHaveBeenCalledWith(
+    expect(screen.getByTestId('page-layout')).toBeInTheDocument();    expect(searchFiltersFormMock).toHaveBeenCalledWith(
       expect.objectContaining({
         initialParams: { q: 'eco hubs', destination: ['bangkok'], limit: '24' },
         resultsPath: '/search',
@@ -128,8 +126,7 @@ describe('SearchPage', () => {
     const page = await SearchPage({});
     render(page);
 
-    expect(executeSearchMock).toHaveBeenCalledWith({});
-    expect(searchFiltersFormMock).toHaveBeenCalledWith(
+    expect(executeSearchMock).toHaveBeenCalledWith({});    expect(searchFiltersFormMock).toHaveBeenCalledWith(
       expect.objectContaining({ initialParams: {}, resultsPath: '/search' })
     );
   });
@@ -145,9 +142,7 @@ describe('SearchPage', () => {
     const page = await SearchPage({
       searchParams: Promise.resolve({ retry: '2' } as SearchParamRecord),
     });
-    render(page);
-
-    const errorState = screen.getByTestId('search-error-state');
+    render(page);    const errorState = screen.getByTestId('search-error-state');
     expect(errorState).toBeInTheDocument();
     const retryLink = screen.getByRole('link', { name: 'Retry search' });
     expect(retryLink).toHaveAttribute('href', '/search?retry=3');
