@@ -135,6 +135,12 @@
           "correctness": {
             "noUnusedVariables": "off",
             "noUnusedFunctionParameters": "off"
+          },
+          "a11y": {
+            "useAltText": "off"
+          },
+          "performance": {
+            "noImgElement": "off"
           }
         }
       }
