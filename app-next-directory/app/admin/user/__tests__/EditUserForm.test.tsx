@@ -289,16 +289,15 @@ describe('EditUserForm', () => {
       json: async () => ({ message: 'Success' }),
     });
 
+    const preventDefaultSpy = jest.spyOn(Event.prototype, 'preventDefault');
     render(<EditUserForm initialUser={mockUser} />);
 
     const form = screen.getByTestId('edit-user-form');
-    const mockSubmitEvent = jest.fn();
-    
-    form.addEventListener('submit', mockSubmitEvent);
-    fireEvent.submit(form);
+    const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+    form.dispatchEvent(submitEvent);
 
-    // Event should not propagate (preventDefault was called)
     await waitFor(() => {
+      expect(preventDefaultSpy).toHaveBeenCalled();
       expect(global.fetch).toHaveBeenCalled();
     });
   });

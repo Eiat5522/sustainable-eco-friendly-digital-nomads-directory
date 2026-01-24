@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import { CategoryListings } from '../CategoryListings';
 
 // Mock sanity client
@@ -371,6 +371,8 @@ describe('CategoryListings', () => {
 
       const component1 = await CategoryListings({ slug: 'slug-1' });
       render(component1);
+
+      cleanup();
 
       mockSanityFetch.mockResolvedValueOnce(['Vegan Cafes']).mockResolvedValueOnce([]);
 

@@ -136,11 +136,10 @@ async function ListingContent({ slug }: { slug: string }) {
     />
   );
 }
-
 /**
  * Loading skeleton for listing detail
  */
-function _ListingLoadingSkeleton() {
+function ListingLoadingSkeleton() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="space-y-6">
@@ -159,9 +158,6 @@ function _ListingLoadingSkeleton() {
         </div>
       </div>
     </div>
-  );
-}
-
 export default async function ListingPage({ params }: Props) {
   const { slug } = await params;
 
@@ -171,7 +167,7 @@ export default async function ListingPage({ params }: Props) {
         <Header />
       </Suspense>
       <main>
-        <Suspense fallback={<_ListingLoadingSkeleton />}>
+        <Suspense fallback={<ListingLoadingSkeleton />}>
           <ListingContent slug={slug} />
         </Suspense>
       </main>

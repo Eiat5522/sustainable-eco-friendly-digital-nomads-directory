@@ -509,7 +509,7 @@ describe('POST /api/admin/create-user', () => {
       expect(response.status).toBe(201);
       expect(mockDal.createUser).toHaveBeenCalledWith(
         expect.objectContaining({
-          email: '  test@example.com  ',
+          email: 'test@example.com',
         })
       );
     });

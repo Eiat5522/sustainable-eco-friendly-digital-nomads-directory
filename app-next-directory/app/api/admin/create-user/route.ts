@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     const newUser = await createUser({
       name,
-      email,
+      email: email.trim(),
       password,
       role: role as UserRole,
       status: status as 'active' | 'suspended' | 'pending',

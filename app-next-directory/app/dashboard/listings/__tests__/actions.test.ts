@@ -70,8 +70,11 @@ describe('Listing Actions', () => {
       expect(mockCreateManagedListing).not.toHaveBeenCalled();
     });
 
+    // Define a type for testing malformed sessions
+    type MalformedSession = { user: Partial<{ id: string; role: string }> };
+
     it('should throw error when session user has no id', async () => {
-      mockAuth.mockResolvedValue({ user: { role: 'venueOwner' } } as never);
+      mockAuth.mockResolvedValue({ user: { role: 'venueOwner' } } as unknown as MalformedSession);
 
       await expect(createListingAction(mockListingData)).rejects.toThrow('Unauthorized');
       expect(mockCreateManagedListing).not.toHaveBeenCalled();

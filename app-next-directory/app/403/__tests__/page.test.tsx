@@ -1,8 +1,15 @@
 import { render, screen } from '@testing-library/react';
+import type React from 'react';
 import ForbiddenPage from '../page';
 
 jest.mock('@/components/layout/PageLayout', () => ({
-  PageLayout: ({ children, showFooterNewsletter }: { children: React.ReactNode; showFooterNewsletter: boolean }) => (
+  PageLayout: ({
+    children,
+    showFooterNewsletter,
+  }: {
+    children: React.ReactNode;
+    showFooterNewsletter: boolean;
+  }) => (
     <div data-testid="page-layout" data-show-footer-newsletter={showFooterNewsletter}>
       {children}
     </div>
@@ -10,7 +17,17 @@ jest.mock('@/components/layout/PageLayout', () => ({
 }));
 
 jest.mock('@/components/ui/neo-button', () => ({
-  NeoButton: ({ children, asChild, variant, size }: { children: React.ReactNode; asChild?: boolean; variant?: string; size?: string }) => (
+  NeoButton: ({
+    children,
+    asChild,
+    variant,
+    size,
+  }: {
+    children: React.ReactNode;
+    asChild?: boolean;
+    variant?: string;
+    size?: string;
+  }) => (
     <div data-testid="neo-button" data-variant={variant} data-size={size} data-as-child={asChild}>
       {children}
     </div>
@@ -18,7 +35,15 @@ jest.mock('@/components/ui/neo-button', () => ({
 }));
 
 jest.mock('@/components/ui/neo-card', () => ({
-  NeoCard: ({ children, variant, className }: { children: React.ReactNode; variant?: string; className?: string }) => (
+  NeoCard: ({
+    children,
+    variant,
+    className,
+  }: {
+    children: React.ReactNode;
+    variant?: string;
+    className?: string;
+  }) => (
     <div data-testid="neo-card" data-variant={variant} className={className}>
       {children}
     </div>
@@ -50,7 +75,10 @@ describe('ForbiddenPage', () => {
     render(<ForbiddenPage />);
 
     expect(screen.getByTestId('page-layout')).toBeInTheDocument();
-    expect(screen.getByTestId('page-layout')).toHaveAttribute('data-show-footer-newsletter', 'false');
+    expect(screen.getByTestId('page-layout')).toHaveAttribute(
+      'data-show-footer-newsletter',
+      'false'
+    );
   });
 
   it('displays the 403 error message', () => {
@@ -67,12 +95,22 @@ describe('ForbiddenPage', () => {
     expect(neoCard).toBeInTheDocument();
     expect(neoCard).toHaveAttribute('data-variant', 'elevated');
   });
+  it('renders the card with relative positioning', () => {
+    render(<ForbiddenPage />);
+    
+    const card = screen.getByTestId('neo-card');
+    expect(card).toHaveClass('relative');
+  });
 
-  it('renders a link to go back home', () => {
+  it('renders the go back home link', () => {
     render(<ForbiddenPage />);
 
     const link = screen.getByTestId('next-link');
-    expect(link).toBeInTheDocument();
+    expect(link).toHaveAttribute('href', '/');
+    expect(link).toHaveTextContent('Go back home');
+  });
+
+    const link = screen.getByTestId('next-link');
     expect(link).toHaveAttribute('href', '/');
     expect(link).toHaveTextContent('Go back home');
   });
@@ -97,7 +135,33 @@ describe('ForbiddenPage', () => {
 
   it('contains the gradient background styling', () => {
     render(<ForbiddenPage />);
-    
+
+    const card = screen.getByTestId('neo-card');
+    expect(card).toHaveClass('relative');
+  });
+
+  it('shows the correct error title with styling classes', () => {
+    render(<ForbiddenPage />);
+
+    const title = screen.getByTestId('neo-card-title');
+    expect(title).toHaveClass('heading-xl', 'mb-2', 'text-neo-text-primary');
+  });
+});
+    expect(button).toHaveAttribute('data-size', 'lg');
+    expect(button).toHaveAttribute('data-as-child', 'true');
+  });
+
+  it('renders all card sections', () => {
+    render(<ForbiddenPage />);
+
+    expect(screen.getByTestId('neo-card-header')).toBeInTheDocument();
+    expect(screen.getByTestId('neo-card-title')).toBeInTheDocument();
+    expect(screen.getByTestId('neo-card-content')).toBeInTheDocument();
+  });
+
+  it('contains the gradient background styling', () => {
+    render(<ForbiddenPage />);
+
     const card = screen.getByTestId('neo-card');
     expect(card).toHaveClass('relative');
   });

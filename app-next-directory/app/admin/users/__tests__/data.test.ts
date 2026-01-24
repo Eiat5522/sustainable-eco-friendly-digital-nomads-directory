@@ -156,9 +156,7 @@ describe('getAdminUsers', () => {
   it('normalizes suspended status to inactive', async () => {
     const responseWithSuspended = {
       ...mockUsersResponse,
-      users: [
-        { ...mockUsersResponse.users[0], status: 'suspended' as const },
-      ],
+      users: [{ ...mockUsersResponse.users[0], status: 'suspended' as const }],
     };
 
     (global.fetch as jest.Mock).mockResolvedValueOnce({
@@ -174,9 +172,7 @@ describe('getAdminUsers', () => {
   it('normalizes pending status to inactive', async () => {
     const responseWithPending = {
       ...mockUsersResponse,
-      users: [
-        { ...mockUsersResponse.users[0], status: 'pending' as const },
-      ],
+      users: [{ ...mockUsersResponse.users[0], status: 'pending' as const }],
     };
 
     (global.fetch as jest.Mock).mockResolvedValueOnce({
@@ -192,9 +188,7 @@ describe('getAdminUsers', () => {
   it('keeps active status as active', async () => {
     const responseWithActive = {
       ...mockUsersResponse,
-      users: [
-        { ...mockUsersResponse.users[0], status: 'active' as const },
-      ],
+      users: [{ ...mockUsersResponse.users[0], status: 'active' as const }],
     };
 
     (global.fetch as jest.Mock).mockResolvedValueOnce({
@@ -210,9 +204,7 @@ describe('getAdminUsers', () => {
   it('normalizes inactive status to inactive', async () => {
     const responseWithInactive = {
       ...mockUsersResponse,
-      users: [
-        { ...mockUsersResponse.users[0], status: 'inactive' as const },
-      ],
+      users: [{ ...mockUsersResponse.users[0], status: 'inactive' as const }],
     };
 
     (global.fetch as jest.Mock).mockResolvedValueOnce({
@@ -312,7 +304,14 @@ describe('getAdminUsers', () => {
     const emptyResponse = {
       ...mockUsersResponse,
       users: [],
-    };
+const emptyResponse = {
+  ...mockUsersResponse,
+  users: [],
+  pagination: {
+    ...mockUsersResponse.pagination,
+    totalCount: 0,
+  },
+};
 
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
@@ -322,7 +321,7 @@ describe('getAdminUsers', () => {
     const result = await getAdminUsers();
 
     expect(result.users).toEqual([]);
-    expect(result.pagination.totalCount).toBe(2);
+    expect(result.pagination.totalCount).toBe(0);
   });
 
   it('ignores null role filter', async () => {
@@ -339,23 +338,21 @@ describe('getAdminUsers', () => {
     );
   });
 
-  it('handles all valid user roles', async () => {
-    const allRoles = ['user', 'editor', 'venueOwner', 'admin', 'superAdmin'] as const;
-    
-    for (const role of allRoles) {
-      jest.clearAllMocks();
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          ...mockUsersResponse,
-          users: [{ ...mockUsersResponse.users[0], role }],
-        }),
-      });
+it.each(['user', 'editor', 'venueOwner', 'admin', 'superAdmin'] as const)(
+  'handles %s role filter',
+  async (role) => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        ...mockUsersResponse,
+        users: [{ ...mockUsersResponse.users[0], role }],
+      }),
+    });
 
-      const result = await getAdminUsers({ role });
-      expect(result.users[0].role).toBe(role);
-    }
-  });
+    const result = await getAdminUsers({ role });
+    expect(result.users[0].role).toBe(role);
+  }
+);
 
   it('handles page parameter of 0', async () => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({

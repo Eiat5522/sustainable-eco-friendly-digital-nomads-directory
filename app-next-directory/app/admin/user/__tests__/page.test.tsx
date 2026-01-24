@@ -262,6 +262,11 @@ describe('EditUserPage', () => {
     render(element);
 
     expect(screen.getByTestId('edit-user-form-mock')).toBeInTheDocument();
-    // Just verify the form is rendered, the status is passed through from getUserById
+    expect(editUserFormMock).toHaveBeenCalledWith({
+      initialUser: expect.objectContaining({
+        id: 'user-status-test',
+        status: 'pending',
+      }),
+    });
   });
 });

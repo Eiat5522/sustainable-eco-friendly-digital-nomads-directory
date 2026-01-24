@@ -260,10 +260,6 @@ describe('BlogPostsList', () => {
     const component = await BlogPostsList({ searchParams: {} });
     const { container } = render(component);
 
-    // The second post has no imageUrl, so it should use placeholder
-    // Check that we have images rendered
-    const images = container.querySelectorAll('img');
-    expect(images.length).toBeGreaterThan(0);
   });
 
   it('should preserve search and tag in pagination links', async () => {

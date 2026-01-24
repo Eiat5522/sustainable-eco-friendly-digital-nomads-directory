@@ -247,7 +247,10 @@ describe('CreateUserModal', () => {
   });
 
   it('shows loading state during submission', async () => {
-    (global.fetch as jest.Mock).mockImplementation(() => new Promise(() => {}));
+    let resolvePromise: (value: unknown) => void;
+    (global.fetch as jest.Mock).mockImplementation(
+      () => new Promise((resolve) => { resolvePromise = resolve; })
+    );
 
     const user = userEvent.setup();
     render(<CreateUserModal onUserCreated={mockOnUserCreated} />);
@@ -266,6 +269,12 @@ describe('CreateUserModal', () => {
     });
 
     expect(submitButton).toBeDisabled();
+
+    // Clean up: resolve the promise to avoid pending async work
+    resolvePromise({ ok: true, json: async () => ({ success: true }) });
+    await waitFor(() => {
+      expect(screen.queryByText('Creating...')).not.toBeInTheDocument();
+    });
   });
 
   it('closes modal after successful submission', async () => {
@@ -323,7 +332,10 @@ describe('CreateUserModal', () => {
   });
 
   it('disables cancel button during submission', async () => {
-    (global.fetch as jest.Mock).mockImplementation(() => new Promise(() => {}));
+    let resolvePromise: (value: unknown) => void;
+    (global.fetch as jest.Mock).mockImplementation(
+      () => new Promise((resolve) => { resolvePromise = resolve; })
+    );
 
     const user = userEvent.setup();
     render(<CreateUserModal onUserCreated={mockOnUserCreated} />);
@@ -340,6 +352,13 @@ describe('CreateUserModal', () => {
     await waitFor(() => {
       const cancelButton = screen.getByRole('button', { name: /cancel/i });
       expect(cancelButton).toBeDisabled();
+    });
+
+    // Clean up: resolve the promise to avoid pending async work
+    resolvePromise({ ok: true, json: async () => ({ success: true }) });
+    await waitFor(() => {
+      const cancelButton = screen.getByRole('button', { name: /cancel/i });
+      expect(cancelButton).not.toBeDisabled();
     });
   });
 

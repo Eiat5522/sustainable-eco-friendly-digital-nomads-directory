@@ -17,7 +17,8 @@ jest.mock('@/components/category/CategoryListings', () => ({
   CategoryListings: ({ slug }: { slug: string }) => <div>Listings for {slug}</div>,
 }));
 
-const mockSanityFetch = require('@/lib/sanity/client').sanityFetch;
+import { sanityFetch } from '@/lib/sanity/client';
+const mockSanityFetch = sanityFetch as jest.MockedFunction<typeof sanityFetch>;
 
 describe('CategoryPage', () => {
   beforeEach(() => {
@@ -165,20 +166,30 @@ describe('CategoryPage', () => {
       });
     });
 
-    it('should render loading fallback initially', async () => {
-      const CategoryPage = (await import('../page')).default;
-      const pageElement = await CategoryPage({ params: Promise.resolve({ slug: 'hotel' }) });
-      
-      const { container } = render(
-        <Suspense fallback={<p>Loading listings...</p>}>
-          {pageElement}
-        </Suspense>
-      );
+    it('should render loading fallback initially', () => {
+      jest.isolateModules(() => {
+        jest.doMock('@/components/category/CategoryListings', () => ({
+          CategoryListings: () => {
+            throw new Promise(() => {}); // Pending promise to trigger suspension
+          },
+        }));
 
-      // The component should eventually render
-      await waitFor(() => {
-        expect(screen.getByText(/Category:/)).toBeInTheDocument();
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const CategoryPage = require('../page').default;
+
+        render(
+          <Suspense fallback={<p>Loading listings...</p>}>
+            <CategoryPage params={Promise.resolve({ slug: 'hotel' })} />
+          </Suspense>
+        );
+
+        expect(screen.getByText('Loading listings...')).toBeInTheDocument();
       });
+
+      // Restore the original mock
+      jest.doMock('@/components/category/CategoryListings', () => ({
+        CategoryListings: ({ slug }: { slug: string }) => <div>Listings for {slug}</div>,
+      }));
     });
 
     it('should apply correct CSS classes to container', async () => {
