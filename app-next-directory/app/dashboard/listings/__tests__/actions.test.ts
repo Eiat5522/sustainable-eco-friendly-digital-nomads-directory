@@ -81,7 +81,7 @@ describe('Listing Actions', () => {
     });
 
     it('should throw error when session user has no role', async () => {
-      mockAuth.mockResolvedValue({ user: { id: 'user-123' } } as never);
+      mockAuth.mockResolvedValue({ user: { id: 'user-123' } } as unknown as MalformedSession);
 
       await expect(createListingAction(mockListingData)).rejects.toThrow('Unauthorized');
       expect(mockCreateManagedListing).not.toHaveBeenCalled();
@@ -166,7 +166,7 @@ describe('Listing Actions', () => {
     });
 
     it('should throw error when session user has no role', async () => {
-      mockAuth.mockResolvedValue({ user: { id: 'user-123' } } as never);
+     mockAuth.mockResolvedValue({ user: { id: 'user-123' } } as unknown as MalformedSession);
 
       await expect(updateListingAction(mockListingId, mockListingData)).rejects.toThrow(
         'Unauthorized'
