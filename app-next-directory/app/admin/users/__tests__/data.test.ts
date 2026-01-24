@@ -304,14 +304,11 @@ describe('getAdminUsers', () => {
     const emptyResponse = {
       ...mockUsersResponse,
       users: [],
-const emptyResponse = {
-  ...mockUsersResponse,
-  users: [],
-  pagination: {
-    ...mockUsersResponse.pagination,
-    totalCount: 0,
-  },
-};
+      pagination: {
+        ...mockUsersResponse.pagination,
+        totalCount: 0,
+      },
+    };
 
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
@@ -338,9 +335,13 @@ const emptyResponse = {
     );
   });
 
-it.each(['user', 'editor', 'venueOwner', 'admin', 'superAdmin'] as const)(
-  'handles %s role filter',
-  async (role) => {
+  it.each([
+    'user',
+    'editor',
+    'venueOwner',
+    'admin',
+    'superAdmin',
+  ] as const)('handles %s role filter', async role => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
@@ -351,8 +352,7 @@ it.each(['user', 'editor', 'venueOwner', 'admin', 'superAdmin'] as const)(
 
     const result = await getAdminUsers({ role });
     expect(result.users[0].role).toBe(role);
-  }
-);
+  });
 
   it('handles page parameter of 0', async () => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({

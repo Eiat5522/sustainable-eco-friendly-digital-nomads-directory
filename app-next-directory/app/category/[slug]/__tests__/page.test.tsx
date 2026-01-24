@@ -18,6 +18,7 @@ jest.mock('@/components/category/CategoryListings', () => ({
 }));
 
 import { sanityFetch } from '@/lib/sanity/client';
+
 const mockSanityFetch = sanityFetch as jest.MockedFunction<typeof sanityFetch>;
 
 describe('CategoryPage', () => {
@@ -32,11 +33,7 @@ describe('CategoryPage', () => {
       const { generateStaticParams } = await import('../page');
       const params = await generateStaticParams();
 
-      expect(params).toEqual([
-        { slug: 'coworking-space' },
-        { slug: 'cafe' },
-        { slug: 'hotel' },
-      ]);
+      expect(params).toEqual([{ slug: 'coworking-space' }, { slug: 'cafe' }, { slug: 'hotel' }]);
     });
 
     it('should filter out empty strings', async () => {
@@ -49,7 +46,11 @@ describe('CategoryPage', () => {
     });
 
     it('should remove duplicate slugs', async () => {
-      mockSanityFetch.mockResolvedValueOnce(['Coworking Space', 'coworking space', 'COWORKING SPACE']);
+      mockSanityFetch.mockResolvedValueOnce([
+        'Coworking Space',
+        'coworking space',
+        'COWORKING SPACE',
+      ]);
 
       const { generateStaticParams } = await import('../page');
       const params = await generateStaticParams();
@@ -58,7 +59,11 @@ describe('CategoryPage', () => {
     });
 
     it('should slugify categories correctly', async () => {
-      mockSanityFetch.mockResolvedValueOnce(['Co-working Space!', 'Café & Restaurant', 'Hotel/Hostel']);
+      mockSanityFetch.mockResolvedValueOnce([
+        'Co-working Space!',
+        'Café & Restaurant',
+        'Hotel/Hostel',
+      ]);
 
       const { generateStaticParams } = await import('../page');
       const params = await generateStaticParams();
@@ -119,7 +124,9 @@ describe('CategoryPage', () => {
 
     it('should capitalize first letter of multi-word slug', async () => {
       const { generateMetadata } = await import('../page');
-      const metadata = await generateMetadata({ params: Promise.resolve({ slug: 'coworking-space' }) });
+      const metadata = await generateMetadata({
+        params: Promise.resolve({ slug: 'coworking-space' }),
+      });
 
       expect(metadata).toEqual({
         title: 'Coworking-space Category',
@@ -149,7 +156,7 @@ describe('CategoryPage', () => {
     it('should render page with category title', async () => {
       const CategoryPage = (await import('../page')).default;
       const pageElement = await CategoryPage({ params: Promise.resolve({ slug: 'coworking' }) });
-      
+
       render(pageElement);
 
       expect(screen.getByText('Category: coworking')).toBeInTheDocument();
@@ -158,7 +165,7 @@ describe('CategoryPage', () => {
     it('should render with Suspense boundary', async () => {
       const CategoryPage = (await import('../page')).default;
       const pageElement = await CategoryPage({ params: Promise.resolve({ slug: 'cafe' }) });
-      
+
       render(pageElement);
 
       await waitFor(() => {
@@ -174,7 +181,7 @@ describe('CategoryPage', () => {
           },
         }));
 
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
+         
         const CategoryPage = require('../page').default;
 
         render(
@@ -195,7 +202,7 @@ describe('CategoryPage', () => {
     it('should apply correct CSS classes to container', async () => {
       const CategoryPage = (await import('../page')).default;
       const pageElement = await CategoryPage({ params: Promise.resolve({ slug: 'coworking' }) });
-      
+
       const { container } = render(pageElement);
 
       const main = container.querySelector('main');
@@ -205,7 +212,7 @@ describe('CategoryPage', () => {
     it('should render h1 with correct styling', async () => {
       const CategoryPage = (await import('../page')).default;
       const pageElement = await CategoryPage({ params: Promise.resolve({ slug: 'coworking' }) });
-      
+
       render(pageElement);
 
       const heading = screen.getByText('Category: coworking');
@@ -216,7 +223,7 @@ describe('CategoryPage', () => {
     it('should pass correct slug to CategoryListings', async () => {
       const CategoryPage = (await import('../page')).default;
       const pageElement = await CategoryPage({ params: Promise.resolve({ slug: 'cafe' }) });
-      
+
       render(pageElement);
 
       expect(screen.getByText('Listings for cafe')).toBeInTheDocument();
@@ -224,8 +231,10 @@ describe('CategoryPage', () => {
 
     it('should handle different slug formats', async () => {
       const CategoryPage = (await import('../page')).default;
-      const pageElement = await CategoryPage({ params: Promise.resolve({ slug: 'co-working-space' }) });
-      
+      const pageElement = await CategoryPage({
+        params: Promise.resolve({ slug: 'co-working-space' }),
+      });
+
       render(pageElement);
 
       expect(screen.getByText('Category: co-working-space')).toBeInTheDocument();

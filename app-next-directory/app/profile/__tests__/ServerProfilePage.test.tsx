@@ -7,8 +7,6 @@ import type { UserDashboardPayloadDTO } from '@/types/dto';
 // Mock Next.js components
 jest.mock('next/image', () => ({
   __esModule: true,
-  // biome-ignore lint/a11y/useAltText: Mock component for testing
-  // biome-ignore lint/performance/noImgElement: Mock component for testing
   default: (props: any) => {
     // eslint-disable-next-line jsx-a11y/alt-text
     return <img {...props} />;
@@ -33,8 +31,13 @@ jest.mock('@/lib/dashboard/user-dashboard', () => ({
   getUserDashboardData: jest.fn(),
 }));
 
-const mockGetUserDashboardData = jest.requireMock('@/lib/dashboard/user-dashboard').getUserDashboardData as jest.MockedFunction<typeof import('@/lib/dashboard/user-dashboard').getUserDashboardData>;
-const mockRedirect = jest.requireMock('next/navigation').redirect as jest.MockedFunction<typeof import('next/navigation').redirect>;
+const mockGetUserDashboardData = jest.requireMock('@/lib/dashboard/user-dashboard')
+  .getUserDashboardData as jest.MockedFunction<
+  typeof import('@/lib/dashboard/user-dashboard').getUserDashboardData
+>;
+const mockRedirect = jest.requireMock('next/navigation').redirect as jest.MockedFunction<
+  typeof import('next/navigation').redirect
+>;
 
 describe('ServerProfilePage', () => {
   beforeEach(() => {
@@ -252,9 +255,9 @@ describe('ServerProfilePage', () => {
 
       render(component);
 
-      const activeListingsText = screen.getAllByText('0').find(el => 
-        el.parentElement?.textContent?.includes('Active Listings')
-      );
+      const activeListingsText = screen
+        .getAllByText('0')
+        .find(el => el.parentElement?.textContent?.includes('Active Listings'));
       expect(activeListingsText).toBeInTheDocument();
     });
   });

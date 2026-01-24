@@ -3,8 +3,8 @@
  * Tests re-export of image utility functions
  */
 
-import { getImageDimensions } from '../index';
 import type { ImageDimensions } from '../index';
+import { getImageDimensions } from '../index';
 
 // Mock the actual getImageDimensions module
 jest.mock('../getImageDimensions', () => ({

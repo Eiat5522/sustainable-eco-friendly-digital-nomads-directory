@@ -70,7 +70,9 @@ describe('EditListingModal', () => {
     });
 
     expect(screen.getByText('Admin workspace')).toBeInTheDocument();
-    expect(screen.getByText(/Update details, amenities, and sustainability highlights for Test Venue/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Update details, amenities, and sustainability highlights for Test Venue/)
+    ).toBeInTheDocument();
   });
 
   it('fetches listing data when modal opens', async () => {
@@ -484,6 +486,8 @@ describe('EditListingModal', () => {
       expect(screen.getByText('Listing details')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('Keep listing information up to date for the community.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Keep listing information up to date for the community.')
+    ).toBeInTheDocument();
   });
 });

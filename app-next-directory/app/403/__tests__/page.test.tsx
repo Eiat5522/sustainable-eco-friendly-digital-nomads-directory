@@ -95,9 +95,10 @@ describe('ForbiddenPage', () => {
     expect(neoCard).toBeInTheDocument();
     expect(neoCard).toHaveAttribute('data-variant', 'elevated');
   });
+
   it('renders the card with relative positioning', () => {
     render(<ForbiddenPage />);
-    
+
     const card = screen.getByTestId('neo-card');
     expect(card).toHaveClass('relative');
   });
@@ -110,43 +111,12 @@ describe('ForbiddenPage', () => {
     expect(link).toHaveTextContent('Go back home');
   });
 
-    const link = screen.getByTestId('next-link');
-    expect(link).toHaveAttribute('href', '/');
-    expect(link).toHaveTextContent('Go back home');
-  });
-
   it('renders the go back home button with correct styling', () => {
     render(<ForbiddenPage />);
 
     const button = screen.getByTestId('neo-button');
     expect(button).toBeInTheDocument();
     expect(button).toHaveAttribute('data-variant', 'primary');
-    expect(button).toHaveAttribute('data-size', 'lg');
-    expect(button).toHaveAttribute('data-as-child', 'true');
-  });
-
-  it('renders all card sections', () => {
-    render(<ForbiddenPage />);
-
-    expect(screen.getByTestId('neo-card-header')).toBeInTheDocument();
-    expect(screen.getByTestId('neo-card-title')).toBeInTheDocument();
-    expect(screen.getByTestId('neo-card-content')).toBeInTheDocument();
-  });
-
-  it('contains the gradient background styling', () => {
-    render(<ForbiddenPage />);
-
-    const card = screen.getByTestId('neo-card');
-    expect(card).toHaveClass('relative');
-  });
-
-  it('shows the correct error title with styling classes', () => {
-    render(<ForbiddenPage />);
-
-    const title = screen.getByTestId('neo-card-title');
-    expect(title).toHaveClass('heading-xl', 'mb-2', 'text-neo-text-primary');
-  });
-});
     expect(button).toHaveAttribute('data-size', 'lg');
     expect(button).toHaveAttribute('data-as-child', 'true');
   });

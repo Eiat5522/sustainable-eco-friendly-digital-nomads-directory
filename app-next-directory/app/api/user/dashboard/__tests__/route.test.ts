@@ -47,9 +47,9 @@ describe('/api/user/dashboard', () => {
   it('should use auth, getUserDashboardData, and structuredLogger', async () => {
     // This test verifies the module composes the handler with dependencies
     // by importing the module and checking it doesn't throw
-    const module = await import('../route');
-    expect(module.GET).toBeDefined();
-    
+    const routeModule = await import('../route');
+    expect(routeModule.GET).toBeDefined();
+
     // Verify the imported dependencies are available
     expect(mockAuthModule.auth).toBeDefined();
     expect(mockDashboardModule.getUserDashboardData).toBeDefined();

@@ -27,10 +27,13 @@ describe('/api/auth/session', () => {
         headers: new Headers(),
       } as Request;
 
-      const mockResponse = new Response(JSON.stringify({ user: { id: '1', email: 'test@example.com' } }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      const mockResponse = new Response(
+        JSON.stringify({ user: { id: '1', email: 'test@example.com' } }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
 
       mockAuthModule.GET.mockResolvedValue(mockResponse);
 

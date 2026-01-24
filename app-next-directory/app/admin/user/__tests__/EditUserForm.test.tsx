@@ -1,8 +1,8 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { EditUserForm } from '../EditUserForm';
 import type { UserRole } from '@/types/auth';
+import { EditUserForm } from '../EditUserForm';
 
 const mockUser = {
   id: 'user-123',
@@ -48,7 +48,7 @@ describe('EditUserForm', () => {
     render(<EditUserForm initialUser={mockUser} />);
 
     const roleSelect = screen.getByLabelText('Role') as HTMLSelectElement;
-    const options = Array.from(roleSelect.options).map((opt) => opt.value);
+    const options = Array.from(roleSelect.options).map(opt => opt.value);
 
     expect(options).toEqual(['user', 'editor', 'venueOwner', 'admin', 'superAdmin']);
   });
@@ -57,7 +57,7 @@ describe('EditUserForm', () => {
     render(<EditUserForm initialUser={mockUser} />);
 
     const statusSelect = screen.getByLabelText('Status') as HTMLSelectElement;
-    const options = Array.from(statusSelect.options).map((opt) => opt.value);
+    const options = Array.from(statusSelect.options).map(opt => opt.value);
 
     expect(options).toEqual(['active', 'suspended', 'pending']);
   });
@@ -293,7 +293,7 @@ describe('EditUserForm', () => {
 
     const form = screen.getByTestId('edit-user-form');
     const mockSubmitEvent = jest.fn();
-    
+
     form.addEventListener('submit', mockSubmitEvent);
     fireEvent.submit(form);
 

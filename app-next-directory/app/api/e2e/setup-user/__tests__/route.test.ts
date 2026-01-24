@@ -278,7 +278,11 @@ describe('/api/e2e/setup-user', () => {
 
       jest.resetModules();
       const { POST } = await import('../route');
-      const request = createRequest({ email: 'admin@example.com', password: 'password123', role: 'admin' });
+      const request = createRequest({
+        email: 'admin@example.com',
+        password: 'password123',
+        role: 'admin',
+      });
       const response = await POST(request);
       const data = await response.json();
 
@@ -301,7 +305,11 @@ describe('/api/e2e/setup-user', () => {
 
       jest.resetModules();
       const { POST } = await import('../route');
-      const request = createRequest({ email: 'test@example.com', password: 'password123', name: 'Custom Name' });
+      const request = createRequest({
+        email: 'test@example.com',
+        password: 'password123',
+        name: 'Custom Name',
+      });
       const response = await POST(request);
 
       expect(response.status).toBe(200);
@@ -330,7 +338,12 @@ describe('/api/e2e/setup-user', () => {
 
       jest.resetModules();
       const { POST } = await import('../route');
-      const request = createRequest({ email: 'test@example.com', password: 'password123', name: '', role: 'venueOwner' });
+      const request = createRequest({
+        email: 'test@example.com',
+        password: 'password123',
+        name: '',
+        role: 'venueOwner',
+      });
       const response = await POST(request);
 
       expect(response.status).toBe(200);
@@ -359,7 +372,11 @@ describe('/api/e2e/setup-user', () => {
 
       jest.resetModules();
       const { POST } = await import('../route');
-      const request = createRequest({ email: 'test@example.com', password: 'password123', role: 'invalidRole' });
+      const request = createRequest({
+        email: 'test@example.com',
+        password: 'password123',
+        role: 'invalidRole',
+      });
       const response = await POST(request);
       const data = await response.json();
 

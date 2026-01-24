@@ -124,7 +124,7 @@ describe('CreateUserModal', () => {
     await user.click(screen.getByRole('button', { name: /add new user/i }));
 
     const roleSelect = screen.getByLabelText('Role') as HTMLSelectElement;
-    const options = Array.from(roleSelect.options).map((opt) => opt.value);
+    const options = Array.from(roleSelect.options).map(opt => opt.value);
 
     expect(options).toEqual(['user', 'venueOwner', 'editor', 'admin', 'superAdmin']);
   });
@@ -136,7 +136,7 @@ describe('CreateUserModal', () => {
     await user.click(screen.getByRole('button', { name: /add new user/i }));
 
     const statusSelect = screen.getByLabelText('Status') as HTMLSelectElement;
-    const options = Array.from(statusSelect.options).map((opt) => opt.value);
+    const options = Array.from(statusSelect.options).map(opt => opt.value);
 
     expect(options).toEqual(['active', 'suspended', 'pending']);
   });
@@ -249,7 +249,10 @@ describe('CreateUserModal', () => {
   it('shows loading state during submission', async () => {
     let resolvePromise: (value: unknown) => void;
     (global.fetch as jest.Mock).mockImplementation(
-      () => new Promise((resolve) => { resolvePromise = resolve; })
+      () =>
+        new Promise(resolve => {
+          resolvePromise = resolve;
+        })
     );
 
     const user = userEvent.setup();
@@ -334,7 +337,10 @@ describe('CreateUserModal', () => {
   it('disables cancel button during submission', async () => {
     let resolvePromise: (value: unknown) => void;
     (global.fetch as jest.Mock).mockImplementation(
-      () => new Promise((resolve) => { resolvePromise = resolve; })
+      () =>
+        new Promise(resolve => {
+          resolvePromise = resolve;
+        })
     );
 
     const user = userEvent.setup();

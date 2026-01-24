@@ -18,7 +18,9 @@ jest.mock('next/navigation', () => ({
 
 jest.mock('../../../../../dashboard/components/VenueListingForm');
 
-const { mockFormSubmission } = jest.requireMock('../../../../../dashboard/components/VenueListingForm');
+const { mockFormSubmission } = jest.requireMock(
+  '../../../../../dashboard/components/VenueListingForm'
+);
 
 describe('AdminEditListingPage', () => {
   beforeEach(() => {
@@ -64,7 +66,9 @@ describe('AdminEditListingPage', () => {
     });
 
     expect(screen.getByText('Edit Listing')).toBeInTheDocument();
-    expect(screen.getByText('Update details, amenities, and sustainability highlights.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Update details, amenities, and sustainability highlights.')
+    ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Back to listings' })).toBeInTheDocument();
   });
 

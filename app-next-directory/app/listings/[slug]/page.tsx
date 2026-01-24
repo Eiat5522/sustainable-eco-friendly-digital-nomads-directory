@@ -139,38 +139,16 @@ async function ListingContent({ slug }: { slug: string }) {
 /**
  * Loading skeleton for listing detail
  */
-function ListingLoadingSkeleton() {
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="space-y-6">
-        <div className="h-12 bg-gray-200 rounded animate-pulse w-3/4" />
-        <div className="h-96 bg-gray-200 rounded animate-pulse" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-2 space-y-4">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-24 bg-gray-100 rounded animate-pulse" />
-            ))}
-          </div>
-          <div className="space-y-4">
-            <div className="h-48 bg-gray-100 rounded animate-pulse" />
-            <div className="h-32 bg-gray-100 rounded animate-pulse" />
-          </div>
-        </div>
-      </div>
-    </div>
 export default async function ListingPage({ params }: Props) {
   const { slug } = await params;
+  const listingContent = await ListingContent({ slug });
 
   return (
     <>
       <Suspense fallback={<div className="h-16 bg-gray-100 animate-pulse" />}>
         <Header />
       </Suspense>
-      <main>
-        <Suspense fallback={<ListingLoadingSkeleton />}>
-          <ListingContent slug={slug} />
-        </Suspense>
-      </main>
+      <main>{listingContent}</main>
       <Suspense fallback={<div className="h-32 bg-gray-100 animate-pulse" />}>
         <Footer />
       </Suspense>

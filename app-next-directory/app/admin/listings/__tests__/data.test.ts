@@ -1,4 +1,4 @@
-import { getAdminListings, getAdminListingStats } from '../data';
+import { getAdminListingStats, getAdminListings } from '../data';
 
 // Mock dependencies
 jest.mock('@/lib/absolute-url', () => ({
@@ -440,7 +440,9 @@ describe('getAdminListingStats', () => {
       });
     });
 
-    await expect(getAdminListingStats()).rejects.toThrow('Request timed out while fetching listing statistics');
+    await expect(getAdminListingStats()).rejects.toThrow(
+      'Request timed out while fetching listing statistics'
+    );
   });
 
   it('re-throws non-timeout errors', async () => {

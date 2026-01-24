@@ -2,8 +2,8 @@
 
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
-import SignupLoading from '../loading';
 import { testLoadingComponent } from '@/test-utils';
+import SignupLoading from '../loading';
 
 describe('SignupLoading', () => {
   testLoadingComponent(SignupLoading, 'Loading signup page...');

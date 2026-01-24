@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { NextResponse } from 'next/server';
 
 import { createDashboardHandler, normalizeMonthWindow } from '../route-helpers';
 
@@ -195,10 +194,7 @@ describe('/api/user/dashboard/route-helpers', () => {
       const response = await handler(mockRequest);
 
       expect(response.status).toBe(200);
-      expect(mockFetchDashboard).toHaveBeenCalledWith(
-        expect.any(Object),
-        { months: 3 }
-      );
+      expect(mockFetchDashboard).toHaveBeenCalledWith(expect.any(Object), { months: 3 });
     });
 
     it('should use custom months parameter when provided', async () => {
@@ -222,10 +218,7 @@ describe('/api/user/dashboard/route-helpers', () => {
       const response = await handler(mockRequest);
 
       expect(response.status).toBe(200);
-      expect(mockFetchDashboard).toHaveBeenCalledWith(
-        expect.any(Object),
-        { months: 6 }
-      );
+      expect(mockFetchDashboard).toHaveBeenCalledWith(expect.any(Object), { months: 6 });
     });
 
     it('should return 404 when dashboard is null', async () => {

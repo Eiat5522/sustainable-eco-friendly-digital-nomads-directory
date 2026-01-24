@@ -7,10 +7,7 @@ jest.mock('next/image', () => ({
   __esModule: true,
   default: (props: any) => {
     const { fill, priority, alt = '', ...rest } = props;
-    return (
-      // biome-ignore lint/performance/noImgElement: test-only Next/Image mock
-      <img {...rest} alt={alt} fill={fill?.toString()} priority={priority?.toString()} />
-    );
+    return <img {...rest} alt={alt} fill={fill?.toString()} priority={priority?.toString()} />;
   },
 }));
 

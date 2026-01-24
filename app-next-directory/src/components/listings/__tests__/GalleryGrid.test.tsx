@@ -7,10 +7,7 @@ jest.mock('next/image', () => ({
   __esModule: true,
   default: ({ alt, src, onError, ...rest }: any) => {
     const { fill: _fill, priority: _priority, sizes: _sizes, ...imgProps } = rest;
-    return (
-      // biome-ignore lint/performance/noImgElement: test-only Next/Image mock
-      <img alt={alt} src={src} onError={onError} data-mock-image {...imgProps} />
-    );
+    return <img alt={alt} src={src} onError={onError} data-mock-image {...imgProps} />;
   },
 }));
 

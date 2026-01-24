@@ -35,10 +35,7 @@ jest.mock('next/link', () => {
 
 jest.mock('next/image', () => {
   return ({ src, alt, fill, onError, ...props }: any) => {
-    return (
-      // biome-ignore lint/performance/noImgElement: test-only Next/Image mock
-      <img src={src} alt={alt} onError={onError} {...props} />
-    );
+    return <img src={src} alt={alt} onError={onError} {...props} />;
   };
 });
 

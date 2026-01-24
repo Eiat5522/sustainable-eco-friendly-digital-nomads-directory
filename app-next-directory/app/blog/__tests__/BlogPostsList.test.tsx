@@ -7,8 +7,6 @@ import { BlogPostsList } from '../BlogPostsList';
 // Mock Next.js components
 jest.mock('next/image', () => ({
   __esModule: true,
-  // biome-ignore lint/a11y/useAltText: Mock component for testing
-  // biome-ignore lint/performance/noImgElement: Mock component for testing
   default: (props: any) => {
     // eslint-disable-next-line jsx-a11y/alt-text
     return <img {...props} />;
@@ -134,9 +132,7 @@ describe('BlogPostsList', () => {
     render(component);
 
     const searchInput = screen.getByPlaceholderText('Search posts...') as HTMLInputElement;
-    const tagInput = screen.getByPlaceholderText(
-      'Tag (e.g. eco, remote-work)'
-    ) as HTMLInputElement;
+    const tagInput = screen.getByPlaceholderText('Tag (e.g. eco, remote-work)') as HTMLInputElement;
 
     expect(searchInput.defaultValue).toBe('nomad');
     expect(tagInput.defaultValue).toBe('eco');
@@ -259,7 +255,6 @@ describe('BlogPostsList', () => {
   it('should render placeholder for posts without imageUrl', async () => {
     const component = await BlogPostsList({ searchParams: {} });
     const { container } = render(component);
-
   });
 
   it('should preserve search and tag in pagination links', async () => {

@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import '@testing-library/jest-dom';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 const pushMock = jest.fn();
@@ -16,7 +16,9 @@ jest.mock('next/navigation', () => ({
 
 jest.mock('../../../../dashboard/components/VenueListingForm');
 
-const { mockFormSubmission } = jest.requireMock('../../../../dashboard/components/VenueListingForm');
+const { mockFormSubmission } = jest.requireMock(
+  '../../../../dashboard/components/VenueListingForm'
+);
 
 describe('AdminNewListingPage', () => {
   beforeEach(() => {
@@ -37,7 +39,9 @@ describe('AdminNewListingPage', () => {
 
     expect(screen.getByText('Admin workspace')).toBeInTheDocument();
     expect(screen.getByText('Add New Listing')).toBeInTheDocument();
-    expect(screen.getByText('Create listings on behalf of venue owners and contributors.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Create listings on behalf of venue owners and contributors.')
+    ).toBeInTheDocument();
     expect(screen.getByTestId('venue-form')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Back to listings' })).toBeInTheDocument();
   });
@@ -130,6 +134,8 @@ describe('AdminNewListingPage', () => {
     render(<Page />);
 
     expect(screen.getByText('Listing details')).toBeInTheDocument();
-    expect(screen.getByText('Fill in the essentials so the listing is ready for review.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Fill in the essentials so the listing is ready for review.')
+    ).toBeInTheDocument();
   });
 });

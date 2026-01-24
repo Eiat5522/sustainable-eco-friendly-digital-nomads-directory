@@ -174,10 +174,9 @@ describe('/api/listings/manage', () => {
 
       expect(response.status).toBe(200);
       expect(data.listings).toHaveLength(1);
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('*[_type == "listing"]'),
-        { userId: 'admin-123' }
-      );
+      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('*[_type == "listing"]'), {
+        userId: 'admin-123',
+      });
     });
 
     it('should return filtered listings for venue owner', async () => {
@@ -205,10 +204,9 @@ describe('/api/listings/manage', () => {
 
       expect(response.status).toBe(200);
       expect(data.listings).toHaveLength(1);
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('owner._ref == $userId'),
-        { userId: 'venue-123' }
-      );
+      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('owner._ref == $userId'), {
+        userId: 'venue-123',
+      });
     });
 
     it('should handle fetch errors', async () => {
@@ -233,11 +231,12 @@ describe('/api/listings/manage', () => {
   });
 
   describe('POST', () => {
-    const createMockRequest = (body: any) => ({
-      url: 'https://example.com/api/listings/manage',
-      headers: new Headers(),
-      json: async () => body,
-    }) as any;
+    const createMockRequest = (body: any) =>
+      ({
+        url: 'https://example.com/api/listings/manage',
+        headers: new Headers(),
+        json: async () => body,
+      }) as any;
 
     it('should return 204 when headers() is unavailable during prerender', async () => {
       mockAuth.mockRejectedValue(new Error('During prerendering failed'));
@@ -265,10 +264,12 @@ describe('/api/listings/manage', () => {
       });
 
       const { POST } = await import('../route');
-      const response = await POST(createMockRequest({
-        type: 'cafe',
-        city: 'city-123',
-      }));
+      const response = await POST(
+        createMockRequest({
+          type: 'cafe',
+          city: 'city-123',
+        })
+      );
       const data = await response.json();
 
       expect(response.status).toBe(400);
@@ -282,11 +283,13 @@ describe('/api/listings/manage', () => {
       mockIsListingTypeValue.mockReturnValue(false);
 
       const { POST } = await import('../route');
-      const response = await POST(createMockRequest({
-        name: 'Test Listing',
-        type: 'invalid',
-        city: 'city-123',
-      }));
+      const response = await POST(
+        createMockRequest({
+          name: 'Test Listing',
+          type: 'invalid',
+          city: 'city-123',
+        })
+      );
       const data = await response.json();
 
       expect(response.status).toBe(400);
@@ -300,10 +303,12 @@ describe('/api/listings/manage', () => {
       mockIsListingTypeValue.mockReturnValue(true);
 
       const { POST } = await import('../route');
-      const response = await POST(createMockRequest({
-        name: 'Test Listing',
-        type: 'cafe',
-      }));
+      const response = await POST(
+        createMockRequest({
+          name: 'Test Listing',
+          type: 'cafe',
+        })
+      );
       const data = await response.json();
 
       expect(response.status).toBe(400);
@@ -326,11 +331,13 @@ describe('/api/listings/manage', () => {
       });
 
       const { POST } = await import('../route');
-      const response = await POST(createMockRequest({
-        name: 'Test Listing',
-        type: 'cafe',
-        city: 'city-123',
-      }));
+      const response = await POST(
+        createMockRequest({
+          name: 'Test Listing',
+          type: 'cafe',
+          city: 'city-123',
+        })
+      );
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -350,11 +357,13 @@ describe('/api/listings/manage', () => {
       mockFetch.mockResolvedValueOnce(3);
 
       const { POST } = await import('../route');
-      const response = await POST(createMockRequest({
-        name: 'Test Listing',
-        type: 'cafe',
-        city: 'city-123',
-      }));
+      const response = await POST(
+        createMockRequest({
+          name: 'Test Listing',
+          type: 'cafe',
+          city: 'city-123',
+        })
+      );
       const data = await response.json();
 
       expect(response.status).toBe(403);
@@ -378,11 +387,13 @@ describe('/api/listings/manage', () => {
       });
 
       const { POST } = await import('../route');
-      const response = await POST(createMockRequest({
-        name: 'Test Listing',
-        type: 'cafe',
-        city: 'city-123',
-      }));
+      const response = await POST(
+        createMockRequest({
+          name: 'Test Listing',
+          type: 'cafe',
+          city: 'city-123',
+        })
+      );
 
       expect(response.status).toBe(200);
       expect(mockFetch).toHaveBeenCalledWith(
@@ -406,11 +417,13 @@ describe('/api/listings/manage', () => {
       });
 
       const { POST } = await import('../route');
-      const response = await POST(createMockRequest({
-        name: 'Test Listing',
-        type: 'cafe',
-        city: 'city-123',
-      }));
+      const response = await POST(
+        createMockRequest({
+          name: 'Test Listing',
+          type: 'cafe',
+          city: 'city-123',
+        })
+      );
 
       expect(response.status).toBe(200);
       expect(mockFetch).toHaveBeenCalledTimes(1);
@@ -431,18 +444,17 @@ describe('/api/listings/manage', () => {
       });
 
       const { POST } = await import('../route');
-      const response = await POST(createMockRequest({
-        name: 'Test Listing',
-        type: 'cafe',
-        city: 'city-123',
-        owner: 'other-user-123',
-      }));
+      const response = await POST(
+        createMockRequest({
+          name: 'Test Listing',
+          type: 'cafe',
+          city: 'city-123',
+          owner: 'other-user-123',
+        })
+      );
 
       expect(response.status).toBe(200);
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.any(String),
-        { id: 'other-user-123' }
-      );
+      expect(mockFetch).toHaveBeenCalledWith(expect.any(String), { id: 'other-user-123' });
     });
 
     it('should return 404 when target owner not found', async () => {
@@ -453,12 +465,14 @@ describe('/api/listings/manage', () => {
       mockFetch.mockResolvedValueOnce(null);
 
       const { POST } = await import('../route');
-      const response = await POST(createMockRequest({
-        name: 'Test Listing',
-        type: 'cafe',
-        city: 'city-123',
-        owner: 'nonexistent-user',
-      }));
+      const response = await POST(
+        createMockRequest({
+          name: 'Test Listing',
+          type: 'cafe',
+          city: 'city-123',
+          owner: 'nonexistent-user',
+        })
+      );
       const data = await response.json();
 
       expect(response.status).toBe(404);
@@ -480,18 +494,20 @@ describe('/api/listings/manage', () => {
       });
 
       const { POST } = await import('../route');
-      const response = await POST(createMockRequest({
-        name: 'Test Listing',
-        type: 'cafe',
-        city: 'city-123',
-        shortDescription: 'Short desc',
-        longDescription: 'Long desc',
-        address: '123 Main St',
-        contactPhone: '+1234567890',
-        contactEmail: 'test@example.com',
-        website: 'https://example.com',
-        priceRange: '$$',
-      }));
+      const response = await POST(
+        createMockRequest({
+          name: 'Test Listing',
+          type: 'cafe',
+          city: 'city-123',
+          shortDescription: 'Short desc',
+          longDescription: 'Long desc',
+          address: '123 Main St',
+          contactPhone: '+1234567890',
+          contactEmail: 'test@example.com',
+          website: 'https://example.com',
+          priceRange: '$$',
+        })
+      );
 
       expect(response.status).toBe(200);
       expect(mockCreateIfNotExists).toHaveBeenCalledWith(
@@ -522,16 +538,18 @@ describe('/api/listings/manage', () => {
       });
 
       const { POST } = await import('../route');
-      const response = await POST(createMockRequest({
-        name: 'Test Listing',
-        type: 'cafe',
-        city: 'city-123',
-        primaryImage: { _type: 'image', asset: { _ref: 'image-1' } },
-        galleryImages: [
-          { _type: 'image', asset: { _ref: 'image-2' } },
-          { _type: 'image', asset: { _ref: 'image-3' } },
-        ],
-      }));
+      const response = await POST(
+        createMockRequest({
+          name: 'Test Listing',
+          type: 'cafe',
+          city: 'city-123',
+          primaryImage: { _type: 'image', asset: { _ref: 'image-1' } },
+          galleryImages: [
+            { _type: 'image', asset: { _ref: 'image-2' } },
+            { _type: 'image', asset: { _ref: 'image-3' } },
+          ],
+        })
+      );
 
       expect(response.status).toBe(200);
       expect(mockCreateIfNotExists).toHaveBeenCalledWith(
@@ -560,12 +578,14 @@ describe('/api/listings/manage', () => {
       });
 
       const { POST } = await import('../route');
-      const response = await POST(createMockRequest({
-        name: 'Test Listing',
-        type: 'cafe',
-        city: 'city-123',
-        ecoFocusTags: ['tag-1', 'tag-2'],
-      }));
+      const response = await POST(
+        createMockRequest({
+          name: 'Test Listing',
+          type: 'cafe',
+          city: 'city-123',
+          ecoFocusTags: ['tag-1', 'tag-2'],
+        })
+      );
 
       expect(response.status).toBe(200);
       expect(mockCreateIfNotExists).toHaveBeenCalledWith(
@@ -593,12 +613,14 @@ describe('/api/listings/manage', () => {
       });
 
       const { POST } = await import('../route');
-      const response = await POST(createMockRequest({
-        name: 'Test Listing',
-        type: 'coworking',
-        city: 'city-123',
-        digitalNomadFeatures: ['feature-1', 'feature-2'],
-      }));
+      const response = await POST(
+        createMockRequest({
+          name: 'Test Listing',
+          type: 'coworking',
+          city: 'city-123',
+          digitalNomadFeatures: ['feature-1', 'feature-2'],
+        })
+      );
 
       expect(response.status).toBe(200);
       expect(mockCreateIfNotExists).toHaveBeenCalledWith(
@@ -626,12 +648,14 @@ describe('/api/listings/manage', () => {
       });
 
       const { POST } = await import('../route');
-      const response = await POST(createMockRequest({
-        name: 'Test Listing',
-        type: 'accommodation',
-        city: 'city-123',
-        amenities: ['amenity-1', 'amenity-2'],
-      }));
+      const response = await POST(
+        createMockRequest({
+          name: 'Test Listing',
+          type: 'accommodation',
+          city: 'city-123',
+          amenities: ['amenity-1', 'amenity-2'],
+        })
+      );
 
       expect(response.status).toBe(200);
       expect(mockCreateIfNotExists).toHaveBeenCalledWith(
@@ -659,15 +683,17 @@ describe('/api/listings/manage', () => {
       });
 
       const { POST } = await import('../route');
-      const response = await POST(createMockRequest({
-        name: 'Test Accommodation',
-        type: 'accommodation',
-        city: 'city-123',
-        accommodationDetails: {
-          bedrooms: 2,
-          bathrooms: 1,
-        },
-      }));
+      const response = await POST(
+        createMockRequest({
+          name: 'Test Accommodation',
+          type: 'accommodation',
+          city: 'city-123',
+          accommodationDetails: {
+            bedrooms: 2,
+            bathrooms: 1,
+          },
+        })
+      );
 
       expect(response.status).toBe(200);
       expect(mockCreateIfNotExists).toHaveBeenCalledWith(
@@ -688,11 +714,13 @@ describe('/api/listings/manage', () => {
       mockFetch.mockRejectedValue(new Error('Database error'));
 
       const { POST } = await import('../route');
-      const response = await POST(createMockRequest({
-        name: 'Test Listing',
-        type: 'cafe',
-        city: 'city-123',
-      }));
+      const response = await POST(
+        createMockRequest({
+          name: 'Test Listing',
+          type: 'cafe',
+          city: 'city-123',
+        })
+      );
       const data = await response.json();
 
       expect(response.status).toBe(500);
@@ -712,11 +740,13 @@ describe('/api/listings/manage', () => {
       mockCreateIfNotExists.mockRejectedValue(new Error('Sanity write failed'));
 
       const { POST } = await import('../route');
-      const response = await POST(createMockRequest({
-        name: 'Test Listing',
-        type: 'cafe',
-        city: 'city-123',
-      }));
+      const response = await POST(
+        createMockRequest({
+          name: 'Test Listing',
+          type: 'cafe',
+          city: 'city-123',
+        })
+      );
       const data = await response.json();
 
       expect(response.status).toBe(500);
@@ -738,11 +768,13 @@ describe('/api/listings/manage', () => {
       });
 
       const { POST } = await import('../route');
-      const response = await POST(createMockRequest({
-        name: 'Test Listing',
-        type: 'cafe',
-        city: 'city-123',
-      }));
+      const response = await POST(
+        createMockRequest({
+          name: 'Test Listing',
+          type: 'cafe',
+          city: 'city-123',
+        })
+      );
 
       expect(response.status).toBe(200);
     });

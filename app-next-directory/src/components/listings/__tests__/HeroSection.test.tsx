@@ -8,7 +8,6 @@ import { HeroSection } from '../HeroSection';
 jest.mock('next/image', () => {
   return function MockImage({ src, alt, fill, sizes, className, priority }: any) {
     return (
-      // biome-ignore lint/performance/noImgElement: test-only Next/Image mock
       <img
         src={src}
         alt={alt}
