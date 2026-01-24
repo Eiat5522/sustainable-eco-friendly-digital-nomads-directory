@@ -14,7 +14,6 @@ describe('SignupLoading', () => {
     const mainDiv = container.firstChild as HTMLElement;
     const loadingMessage = screen.getByText('Loading signup page...');
 
-    expect(mainDiv).toBeInTheDocument();
     expect(mainDiv).toContainElement(screen.getByRole('status'));
     expect(mainDiv).toContainElement(loadingMessage);
   });

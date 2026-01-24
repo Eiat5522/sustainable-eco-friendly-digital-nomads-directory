@@ -136,9 +136,7 @@ async function ListingContent({ slug }: { slug: string }) {
     />
   );
 }
-/**
- * Loading skeleton for listing detail
- */
+
 export default async function ListingPage({ params }: Props) {
   const { slug } = await params;
   const listingContent = await ListingContent({ slug });

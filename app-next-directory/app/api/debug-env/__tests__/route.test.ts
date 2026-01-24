@@ -3,7 +3,8 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 // Mock dependencies
 jest.mock('@/lib/auth');
 
-const mockAuthModule = jest.mocked(await import('@/lib/auth'));
+import * as authModule from '@/lib/auth';
+const mockAuthModule = jest.mocked(authModule);
 
 describe('/api/debug-env', () => {
   const originalEnv = process.env;

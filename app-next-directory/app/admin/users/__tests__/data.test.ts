@@ -341,7 +341,7 @@ describe('getAdminUsers', () => {
     'venueOwner',
     'admin',
     'superAdmin',
-  ] as const)('handles %s role filter', async role => {
+  ] as const)('handles %s role filter', async (role) => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => ({

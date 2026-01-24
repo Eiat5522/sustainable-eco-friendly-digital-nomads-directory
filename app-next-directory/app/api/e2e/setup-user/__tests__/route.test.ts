@@ -81,7 +81,6 @@ describe('/api/e2e/setup-user', () => {
       delete process.env.NEXT_PUBLIC_E2E;
 
       jest.resetModules();
-      jest.resetModules();
       const { POST } = await import('../route');
       const request = createRequest({ email: 'test@example.com', password: 'password123' });
       const response = await POST(request);
@@ -96,7 +95,9 @@ describe('/api/e2e/setup-user', () => {
       delete process.env.MONGODB_URI;
 
       jest.resetModules();
-      jest.resetModules();
+      const mockStructuredLoggerAfterReset = jest.requireMock('@/lib/logger').default as {
+        warn: jest.Mock;
+      };
       const { POST } = await import('../route');
       const request = createRequest({ email: 'test@example.com', password: 'password123' });
       const response = await POST(request);
@@ -106,7 +107,7 @@ describe('/api/e2e/setup-user', () => {
       expect(data.success).toBe(false);
       expect(data.error.code).toBe('MISSING_DB_CONFIG');
       expect(response.headers.get('Retry-After')).toBe('60');
-      expect(mockStructuredLogger.warn).toHaveBeenCalled();
+      expect(mockStructuredLoggerAfterReset.warn).toHaveBeenCalled();
     });
 
     it('should handle invalid JSON body', async () => {
@@ -215,16 +216,20 @@ describe('/api/e2e/setup-user', () => {
       process.env.E2E = '1';
       process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
 
-      mockConnect.mockResolvedValue(undefined);
-      mockBcrypt.hash.mockResolvedValue('hashed_password');
-      mockUser.findOneAndUpdate.mockResolvedValue({
+      jest.resetModules();
+      const mockConnectAfterReset = jest.requireMock('@/lib/dbConnect').default as jest.Mock;
+      const mockBcryptAfterReset = jest.requireMock('bcryptjs').default as { hash: jest.Mock };
+      const mockUserAfterReset = jest.requireMock('@/models/User').default as { findOneAndUpdate: jest.Mock };
+      
+      mockConnectAfterReset.mockResolvedValue(undefined);
+      mockBcryptAfterReset.hash.mockResolvedValue('hashed_password');
+      mockUserAfterReset.findOneAndUpdate.mockResolvedValue({
         _id: 'user-123',
         email: 'test@example.com',
         role: 'user',
         name: 'E2E user User',
       });
 
-      jest.resetModules();
       const { POST } = await import('../route');
       const request = createRequest({ email: 'test@example.com', password: 'password123' });
       const response = await POST(request);
@@ -234,30 +239,34 @@ describe('/api/e2e/setup-user', () => {
       expect(data.success).toBe(true);
       expect(data.data.user.email).toBe('test@example.com');
       expect(data.data.user.role).toBe('user');
-      expect(mockConnect).toHaveBeenCalled();
-      expect(mockBcrypt.hash).toHaveBeenCalledWith('password123', 10);
+      expect(mockConnectAfterReset).toHaveBeenCalled();
+      expect(mockBcryptAfterReset.hash).toHaveBeenCalledWith('password123', 10);
     });
 
     it('should normalize email to lowercase', async () => {
       process.env.E2E = '1';
       process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
 
-      mockConnect.mockResolvedValue(undefined);
-      mockBcrypt.hash.mockResolvedValue('hashed_password');
-      mockUser.findOneAndUpdate.mockResolvedValue({
+      jest.resetModules();
+      const mockConnectAfterReset = jest.requireMock('@/lib/dbConnect').default as jest.Mock;
+      const mockBcryptAfterReset = jest.requireMock('bcryptjs').default as { hash: jest.Mock };
+      const mockUserAfterReset = jest.requireMock('@/models/User').default as { findOneAndUpdate: jest.Mock };
+      
+      mockConnectAfterReset.mockResolvedValue(undefined);
+      mockBcryptAfterReset.hash.mockResolvedValue('hashed_password');
+      mockUserAfterReset.findOneAndUpdate.mockResolvedValue({
         _id: 'user-123',
         email: 'test@example.com',
         role: 'user',
       });
 
-      jest.resetModules();
       const { POST } = await import('../route');
       const request = createRequest({ email: '  TEST@EXAMPLE.COM  ', password: 'password123' });
       const response = await POST(request);
       const data = await response.json();
 
       expect(response.status).toBe(200);
-      expect(mockUser.findOneAndUpdate).toHaveBeenCalledWith(
+      expect(mockUserAfterReset.findOneAndUpdate).toHaveBeenCalledWith(
         { email: 'test@example.com' },
         expect.any(Object),
         expect.any(Object)
@@ -294,16 +303,20 @@ describe('/api/e2e/setup-user', () => {
       process.env.E2E = '1';
       process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
 
-      mockConnect.mockResolvedValue(undefined);
-      mockBcrypt.hash.mockResolvedValue('hashed_password');
-      mockUser.findOneAndUpdate.mockResolvedValue({
+      jest.resetModules();
+      const mockConnectAfterReset = jest.requireMock('@/lib/dbConnect').default as jest.Mock;
+      const mockBcryptAfterReset = jest.requireMock('bcryptjs').default as { hash: jest.Mock };
+      const mockUserAfterReset = jest.requireMock('@/models/User').default as { findOneAndUpdate: jest.Mock };
+      
+      mockConnectAfterReset.mockResolvedValue(undefined);
+      mockBcryptAfterReset.hash.mockResolvedValue('hashed_password');
+      mockUserAfterReset.findOneAndUpdate.mockResolvedValue({
         _id: 'user-123',
         email: 'test@example.com',
         role: 'user',
         name: 'Custom Name',
       });
 
-      jest.resetModules();
       const { POST } = await import('../route');
       const request = createRequest({
         email: 'test@example.com',
@@ -313,7 +326,7 @@ describe('/api/e2e/setup-user', () => {
       const response = await POST(request);
 
       expect(response.status).toBe(200);
-      expect(mockUser.findOneAndUpdate).toHaveBeenCalledWith(
+      expect(mockUserAfterReset.findOneAndUpdate).toHaveBeenCalledWith(
         { email: 'test@example.com' },
         expect.objectContaining({
           $set: expect.objectContaining({
@@ -328,15 +341,19 @@ describe('/api/e2e/setup-user', () => {
       process.env.E2E = '1';
       process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
 
-      mockConnect.mockResolvedValue(undefined);
-      mockBcrypt.hash.mockResolvedValue('hashed_password');
-      mockUser.findOneAndUpdate.mockResolvedValue({
+      jest.resetModules();
+      const mockConnectAfterReset = jest.requireMock('@/lib/dbConnect').default as jest.Mock;
+      const mockBcryptAfterReset = jest.requireMock('bcryptjs').default as { hash: jest.Mock };
+      const mockUserAfterReset = jest.requireMock('@/models/User').default as { findOneAndUpdate: jest.Mock };
+      
+      mockConnectAfterReset.mockResolvedValue(undefined);
+      mockBcryptAfterReset.hash.mockResolvedValue('hashed_password');
+      mockUserAfterReset.findOneAndUpdate.mockResolvedValue({
         _id: 'user-123',
         email: 'test@example.com',
         role: 'venueOwner',
       });
 
-      jest.resetModules();
       const { POST } = await import('../route');
       const request = createRequest({
         email: 'test@example.com',
@@ -347,7 +364,7 @@ describe('/api/e2e/setup-user', () => {
       const response = await POST(request);
 
       expect(response.status).toBe(200);
-      expect(mockUser.findOneAndUpdate).toHaveBeenCalledWith(
+      expect(mockUserAfterReset.findOneAndUpdate).toHaveBeenCalledWith(
         { email: 'test@example.com' },
         expect.objectContaining({
           $set: expect.objectContaining({
@@ -388,11 +405,18 @@ describe('/api/e2e/setup-user', () => {
       process.env.E2E = '1';
       process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
 
-      mockConnect.mockResolvedValue(undefined);
-      mockBcrypt.hash.mockResolvedValue('hashed_password');
-      mockUser.findOneAndUpdate.mockRejectedValue(new Error('Database connection failed'));
-
       jest.resetModules();
+      const mockConnectAfterReset = jest.requireMock('@/lib/dbConnect').default as jest.Mock;
+      const mockBcryptAfterReset = jest.requireMock('bcryptjs').default as { hash: jest.Mock };
+      const mockUserAfterReset = jest.requireMock('@/models/User').default as { findOneAndUpdate: jest.Mock };
+      const mockStructuredLoggerAfterReset = jest.requireMock('@/lib/logger').default as {
+        error: jest.Mock;
+      };
+      
+      mockConnectAfterReset.mockResolvedValue(undefined);
+      mockBcryptAfterReset.hash.mockResolvedValue('hashed_password');
+      mockUserAfterReset.findOneAndUpdate.mockRejectedValue(new Error('Database connection failed'));
+
       const { POST } = await import('../route');
       const request = createRequest({ email: 'test@example.com', password: 'password123' });
       const response = await POST(request);
@@ -401,17 +425,20 @@ describe('/api/e2e/setup-user', () => {
       expect(response.status).toBe(500);
       expect(data.success).toBe(false);
       expect(data.error.code).toBe('SERVER_ERROR');
-      expect(mockStructuredLogger.error).toHaveBeenCalled();
+      expect(mockStructuredLoggerAfterReset.error).toHaveBeenCalled();
     });
 
     it('should handle bcrypt errors', async () => {
       process.env.E2E = '1';
       process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
 
-      mockConnect.mockResolvedValue(undefined);
-      mockBcrypt.hash.mockRejectedValue(new Error('Bcrypt failed'));
-
       jest.resetModules();
+      const mockConnectAfterReset = jest.requireMock('@/lib/dbConnect').default as jest.Mock;
+      const mockBcryptAfterReset = jest.requireMock('bcryptjs').default as { hash: jest.Mock };
+      
+      mockConnectAfterReset.mockResolvedValue(undefined);
+      mockBcryptAfterReset.hash.mockRejectedValue(new Error('Bcrypt failed'));
+
       const { POST } = await import('../route');
       const request = createRequest({ email: 'test@example.com', password: 'password123' });
       const response = await POST(request);

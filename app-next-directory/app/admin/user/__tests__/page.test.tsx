@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 
 jest.mock('@/lib/auth', () => ({
   auth: jest.fn(),
@@ -49,6 +49,10 @@ describe('EditUserPage', () => {
     mockHeaders.mockResolvedValue({
       get: jest.fn(() => null),
     });
+  });
+
+  afterEach(() => {
+    cleanup();
   });
 
   it('renders the edit user page for admin users', async () => {
@@ -255,10 +259,11 @@ describe('EditUserPage', () => {
       role: 'user' as const,
       status: 'pending' as const,
     };
-    mockGetUserById.mockResolvedValueOnce(testUser);
+    mockGetUserById.mockResolvedValue(testUser);
 
     const EditUserPage = (await import('../[id]/page')).default;
     const element = await EditUserPage({ params: Promise.resolve({ id: 'user-status-test' }) });
+
     render(element);
 
     expect(screen.getByTestId('edit-user-form-mock')).toBeInTheDocument();

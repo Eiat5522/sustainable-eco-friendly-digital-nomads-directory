@@ -354,8 +354,8 @@ describe('ServerProfilePage', () => {
       const { container } = render(component);
 
       const main = container.querySelector('main');
-      expect(main).toHaveClass('container');
       expect(main).toBeInTheDocument();
+      expect(main).toHaveClass('container');
     });
 
     it('should render role badge with correct styling', async () => {
@@ -371,8 +371,8 @@ describe('ServerProfilePage', () => {
       render(component);
 
       const roleBadge = screen.getByText('venueOwner');
-      expect(roleBadge).toHaveClass('inline-block');
       expect(roleBadge).toBeInTheDocument();
+      expect(roleBadge).toHaveClass('inline-block');
     });
   });
 

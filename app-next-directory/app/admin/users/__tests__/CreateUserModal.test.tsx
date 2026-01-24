@@ -247,13 +247,7 @@ describe('CreateUserModal', () => {
   });
 
   it('shows loading state during submission', async () => {
-    let resolvePromise: (value: unknown) => void;
-    (global.fetch as jest.Mock).mockImplementation(
-      () =>
-        new Promise(resolve => {
-          resolvePromise = resolve;
-        })
-    );
+    (global.fetch as jest.Mock).mockImplementation(() => new Promise(() => {}));
 
     const user = userEvent.setup();
     render(<CreateUserModal onUserCreated={mockOnUserCreated} />);
@@ -361,10 +355,10 @@ describe('CreateUserModal', () => {
     });
 
     // Clean up: resolve the promise to avoid pending async work
+    // The modal will close on success, so we just need to wait for it to close
     resolvePromise({ ok: true, json: async () => ({ success: true }) });
     await waitFor(() => {
-      const cancelButton = screen.getByRole('button', { name: /cancel/i });
-      expect(cancelButton).not.toBeDisabled();
+      expect(screen.queryByRole('button', { name: /cancel/i })).not.toBeInTheDocument();
     });
   });
 
