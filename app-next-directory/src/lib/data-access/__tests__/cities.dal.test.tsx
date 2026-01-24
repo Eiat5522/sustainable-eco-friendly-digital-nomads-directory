@@ -4,7 +4,7 @@
  */
 
 import { jest } from '@jest/globals';
-import type { CityDTO, CityDetailDTO } from '@/types/dto';
+import type { CityDetailDTO, CityDTO } from '@/types/dto';
 import {
   getAllCitySlugs,
   getCitiesList,
@@ -278,10 +278,7 @@ describe('cities.dal', () => {
         walkability: 'Excellent',
         sustainabilityInitiatives: ['Solar panels', 'Recycling program'],
         digitalNomadFeatures: ['Coworking spaces', 'Fast WiFi'],
-        galleryImages: [
-          'https://example.com/gallery1.jpg',
-          'https://example.com/gallery2.jpg',
-        ],
+        galleryImages: ['https://example.com/gallery1.jpg', 'https://example.com/gallery2.jpg'],
       });
     });
 

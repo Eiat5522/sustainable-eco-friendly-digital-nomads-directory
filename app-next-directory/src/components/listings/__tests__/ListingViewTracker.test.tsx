@@ -202,7 +202,7 @@ describe('ListingViewTracker', () => {
 
       // Change pathname
       mockUsePathname.mockReturnValue('/about');
-      
+
       expect(() => {
         rerender(<ListingViewTracker slug="test-listing" />);
       }).not.toThrow();

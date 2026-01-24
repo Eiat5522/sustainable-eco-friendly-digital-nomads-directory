@@ -42,12 +42,7 @@ describe('FavoriteButtonOverlay', () => {
 
   describe('Basic Rendering', () => {
     it('renders the FavoriteButton component', () => {
-      render(
-        <FavoriteButtonOverlay
-          listingSlug="test-listing"
-          listingTitle="Test Listing"
-        />
-      );
+      render(<FavoriteButtonOverlay listingSlug="test-listing" listingTitle="Test Listing" />);
 
       const button = screen.getByTestId('favorite-button');
       expect(button).toBeInTheDocument();
@@ -55,10 +50,7 @@ describe('FavoriteButtonOverlay', () => {
 
     it('passes listingSlug to FavoriteButton as listingId', () => {
       render(
-        <FavoriteButtonOverlay
-          listingSlug="eco-hotel-bangkok"
-          listingTitle="Eco Hotel Bangkok"
-        />
+        <FavoriteButtonOverlay listingSlug="eco-hotel-bangkok" listingTitle="Eco Hotel Bangkok" />
       );
 
       const button = screen.getByTestId('favorite-button');
@@ -66,24 +58,14 @@ describe('FavoriteButtonOverlay', () => {
     });
 
     it('passes listingTitle to FavoriteButton', () => {
-      render(
-        <FavoriteButtonOverlay
-          listingSlug="test-slug"
-          listingTitle="Amazing Eco Hotel"
-        />
-      );
+      render(<FavoriteButtonOverlay listingSlug="test-slug" listingTitle="Amazing Eco Hotel" />);
 
       const button = screen.getByTestId('favorite-button');
       expect(button).toHaveAttribute('data-listing-title', 'Amazing Eco Hotel');
     });
 
     it('sets size prop to "sm" by default', () => {
-      render(
-        <FavoriteButtonOverlay
-          listingSlug="test-listing"
-          listingTitle="Test Listing"
-        />
-      );
+      render(<FavoriteButtonOverlay listingSlug="test-listing" listingTitle="Test Listing" />);
 
       const button = screen.getByTestId('favorite-button');
       expect(button).toHaveAttribute('data-size', 'sm');
@@ -118,12 +100,7 @@ describe('FavoriteButtonOverlay', () => {
     });
 
     it('does not pass initialIsFavorited when not provided', () => {
-      render(
-        <FavoriteButtonOverlay
-          listingSlug="test-listing"
-          listingTitle="Test Listing"
-        />
-      );
+      render(<FavoriteButtonOverlay listingSlug="test-listing" listingTitle="Test Listing" />);
 
       const button = screen.getByTestId('favorite-button');
       expect(button).not.toHaveAttribute('data-initial-favorited');
@@ -143,12 +120,7 @@ describe('FavoriteButtonOverlay', () => {
     });
 
     it('applies default className when not provided', () => {
-      render(
-        <FavoriteButtonOverlay
-          listingSlug="test-listing"
-          listingTitle="Test Listing"
-        />
-      );
+      render(<FavoriteButtonOverlay listingSlug="test-listing" listingTitle="Test Listing" />);
 
       const button = screen.getByTestId('favorite-button');
       expect(button).toHaveClass('bg-white/90');
@@ -172,36 +144,21 @@ describe('FavoriteButtonOverlay', () => {
 
   describe('Data Attributes', () => {
     it('sets data-testid attribute', () => {
-      render(
-        <FavoriteButtonOverlay
-          listingSlug="test-listing"
-          listingTitle="Test Listing"
-        />
-      );
+      render(<FavoriteButtonOverlay listingSlug="test-listing" listingTitle="Test Listing" />);
 
       const button = screen.getByTestId('favorite-button');
       expect(button).toHaveAttribute('data-testid', 'favorite-button');
     });
 
     it('sets data-listing-id attribute', () => {
-      render(
-        <FavoriteButtonOverlay
-          listingSlug="my-listing-slug"
-          listingTitle="Test Listing"
-        />
-      );
+      render(<FavoriteButtonOverlay listingSlug="my-listing-slug" listingTitle="Test Listing" />);
 
       const button = screen.getByTestId('favorite-button');
       expect(button).toHaveAttribute('data-listing-id', 'my-listing-slug');
     });
 
     it('sets data-listing-title attribute', () => {
-      render(
-        <FavoriteButtonOverlay
-          listingSlug="test-slug"
-          listingTitle="My Custom Title"
-        />
-      );
+      render(<FavoriteButtonOverlay listingSlug="test-slug" listingTitle="My Custom Title" />);
 
       const button = screen.getByTestId('favorite-button');
       expect(button).toHaveAttribute('data-listing-title', 'My Custom Title');
@@ -210,24 +167,14 @@ describe('FavoriteButtonOverlay', () => {
 
   describe('Edge Cases', () => {
     it('handles empty listingSlug gracefully', () => {
-      render(
-        <FavoriteButtonOverlay
-          listingSlug=""
-          listingTitle="Test Listing"
-        />
-      );
+      render(<FavoriteButtonOverlay listingSlug="" listingTitle="Test Listing" />);
 
       const button = screen.getByTestId('favorite-button');
       expect(button).toHaveAttribute('data-listing-id', '');
     });
 
     it('handles empty listingTitle gracefully', () => {
-      render(
-        <FavoriteButtonOverlay
-          listingSlug="test-slug"
-          listingTitle=""
-        />
-      );
+      render(<FavoriteButtonOverlay listingSlug="test-slug" listingTitle="" />);
 
       const button = screen.getByTestId('favorite-button');
       expect(button).toHaveAttribute('data-listing-title', '');
@@ -247,12 +194,7 @@ describe('FavoriteButtonOverlay', () => {
 
     it('handles long listingTitle', () => {
       const longTitle = 'A'.repeat(200);
-      render(
-        <FavoriteButtonOverlay
-          listingSlug="test-slug"
-          listingTitle={longTitle}
-        />
-      );
+      render(<FavoriteButtonOverlay listingSlug="test-slug" listingTitle={longTitle} />);
 
       const button = screen.getByTestId('favorite-button');
       expect(button).toHaveAttribute('data-listing-title', longTitle);
@@ -276,10 +218,7 @@ describe('FavoriteButtonOverlay', () => {
       // FavoriteButtonOverlay is marked with 'use client'
       // This is a smoke test to ensure it renders without errors
       const { container } = render(
-        <FavoriteButtonOverlay
-          listingSlug="test-slug"
-          listingTitle="Test Listing"
-        />
+        <FavoriteButtonOverlay listingSlug="test-slug" listingTitle="Test Listing" />
       );
 
       expect(container.firstChild).toBeInTheDocument();
@@ -287,10 +226,7 @@ describe('FavoriteButtonOverlay', () => {
 
     it('renders only the FavoriteButton without wrapper elements', () => {
       const { container } = render(
-        <FavoriteButtonOverlay
-          listingSlug="test-slug"
-          listingTitle="Test Listing"
-        />
+        <FavoriteButtonOverlay listingSlug="test-slug" listingTitle="Test Listing" />
       );
 
       // The component should render only the button, no extra wrappers

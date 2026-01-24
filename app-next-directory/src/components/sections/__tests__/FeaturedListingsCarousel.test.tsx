@@ -48,12 +48,7 @@ jest.mock('@/components/ui/VenueCard', () => ({
 // Mock NeoButton component
 jest.mock('@/components/ui/neo-button', () => ({
   NeoButton: ({ children, onClick, disabled, className, ...props }: any) => (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={className}
-      {...props}
-    >
+    <button onClick={onClick} disabled={disabled} className={className} {...props}>
       {children}
     </button>
   ),

@@ -1,5 +1,7 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
+import { Footer } from '@/components/layout/Footer';
+import { Header } from '@/components/layout/Header';
 
 const cityDetailViewSpy = jest.fn((props: any) => (
   <div data-testid="city-detail-view">
@@ -30,6 +32,18 @@ jest.mock('@/lib/logger', () => ({
   structuredLogger: { error: jest.fn() },
 }));
 
+const renderCityContentPage = async (slug: string) => {
+  const pageModule = await import('../cities/[slug]/page');
+  const content = await pageModule.CityContent({ slug });
+  render(
+    <>
+      <Header />
+      {content}
+      <Footer />
+    </>
+  );
+};
+
 const originalE2E = process.env.NEXT_PUBLIC_E2E;
 const originalE2EFlag = process.env.E2E;
 
@@ -45,10 +59,7 @@ describe('CityPage', () => {
     process.env.E2E = '0';
     jest.resetModules();
 
-    const [{ default: CityPage }] = await Promise.all([import('../cities/[slug]/page')]);
-
-    const element = await CityPage({ params: Promise.resolve({ slug: 'testopolis' }) });
-    render(element);
+    await renderCityContentPage('testopolis');
 
     // Note: Due to Suspense boundaries with async server components, we verify through mock calls
     // rather than DOM queries in test environment
@@ -63,10 +74,7 @@ describe('CityPage', () => {
     process.env.E2E = '0';
     jest.resetModules();
 
-    const [pageModule, cityDataModule] = await Promise.all([
-      import('../cities/[slug]/page'),
-      import('@/lib/data-access/cities.dal'),
-    ]);
+    const cityDataModule = await import('@/lib/data-access/cities.dal');
 
     const getCityDetailBySlug = cityDataModule.getCityDetailBySlug as jest.Mock;
     const getCityBySlug = cityDataModule.getCityBySlug as jest.Mock;
@@ -127,8 +135,7 @@ describe('CityPage', () => {
       },
     ]);
 
-    const element = await pageModule.default({ params: Promise.resolve({ slug: 'eco-city' }) });
-    render(element);
+    await renderCityContentPage('eco-city');
 
     // Note: Due to Suspense with async server components, we verify through mock calls
     expect(screen.getByTestId('header')).toBeInTheDocument();
@@ -142,8 +149,7 @@ describe('CityPage', () => {
     process.env.E2E = '0';
     jest.resetModules();
 
-    const [pageModule, cityDataModule, loggerModule] = await Promise.all([
-      import('../cities/[slug]/page'),
+    const [cityDataModule, loggerModule] = await Promise.all([
       import('@/lib/data-access/cities.dal'),
       import('@/lib/logger'),
     ]);
@@ -154,8 +160,7 @@ describe('CityPage', () => {
     getCityDetailBySlug.mockRejectedValue(new Error('database offline'));
     getCityBySlug.mockResolvedValue(null);
 
-    const element = await pageModule.default({ params: Promise.resolve({ slug: 'missing-city' }) });
-    render(element);
+    await renderCityContentPage('missing-city');
 
     // Note: Due to Suspense with async server components, we verify through mock calls
     const props = cityDetailViewSpy.mock.calls.at(-1)?.[0];
@@ -179,8 +184,7 @@ describe('CityPage', () => {
     process.env.E2E = '0';
     jest.resetModules();
 
-    const [pageModule, cityDataModule, loggerModule] = await Promise.all([
-      import('../cities/[slug]/page'),
+    const [cityDataModule, loggerModule] = await Promise.all([
       import('@/lib/data-access/cities.dal'),
       import('@/lib/logger'),
     ]);
@@ -191,8 +195,7 @@ describe('CityPage', () => {
     getCityDetailBySlug.mockResolvedValue({}); // invalid structure
     getCityBySlug.mockResolvedValue({}); // invalid fallback
 
-    const element = await pageModule.default({ params: Promise.resolve({ slug: 'invalid-city' }) });
-    render(element);
+    await renderCityContentPage('invalid-city');
 
     // Note: Due to Suspense with async server components, we verify through mock calls
     const props = cityDetailViewSpy.mock.calls.at(-1)?.[0];
@@ -216,8 +219,7 @@ describe('CityPage', () => {
     process.env.E2E = '0';
     jest.resetModules();
 
-    const [pageModule, cityDataModule, loggerModule] = await Promise.all([
-      import('../cities/[slug]/page'),
+    const [cityDataModule, loggerModule] = await Promise.all([
       import('@/lib/data-access/cities.dal'),
       import('@/lib/logger'),
     ]);
@@ -238,8 +240,7 @@ describe('CityPage', () => {
     });
     getListingsByCityId.mockResolvedValue([{}]); // invalid listing payload
 
-    const element = await pageModule.default({ params: Promise.resolve({ slug: 'eco-city' }) });
-    render(element);
+    await renderCityContentPage('eco-city');
 
     // Note: Due to Suspense with async server components, we verify through mock calls
     const props = cityDetailViewSpy.mock.calls.at(-1)?.[0];

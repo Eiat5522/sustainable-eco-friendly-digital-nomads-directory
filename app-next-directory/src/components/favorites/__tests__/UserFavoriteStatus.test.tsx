@@ -77,13 +77,7 @@ describe('UserFavoriteStatus', () => {
       } as any);
       mockCheckIsFavorited.mockResolvedValue(false);
 
-      render(
-        <UserFavoriteStatus
-          listingId="listing-123"
-          slug="test-listing"
-          size="lg"
-        />
-      );
+      render(<UserFavoriteStatus listingId="listing-123" slug="test-listing" size="lg" />);
 
       const skeleton = screen.getByLabelText('Loading favorite status');
       const svg = skeleton.querySelector('svg');
@@ -96,13 +90,7 @@ describe('UserFavoriteStatus', () => {
       } as any);
       mockCheckIsFavorited.mockResolvedValue(false);
 
-      render(
-        <UserFavoriteStatus
-          listingId="listing-123"
-          slug="test-listing"
-          size="sm"
-        />
-      );
+      render(<UserFavoriteStatus listingId="listing-123" slug="test-listing" size="sm" />);
 
       const skeleton = screen.getByLabelText('Loading favorite status');
       const svg = skeleton.querySelector('svg');
@@ -115,12 +103,7 @@ describe('UserFavoriteStatus', () => {
       } as any);
       mockCheckIsFavorited.mockResolvedValue(false);
 
-      render(
-        <UserFavoriteStatus
-          listingId="listing-123"
-          slug="test-listing"
-        />
-      );
+      render(<UserFavoriteStatus listingId="listing-123" slug="test-listing" />);
 
       const skeleton = screen.getByLabelText('Loading favorite status');
       const svg = skeleton.querySelector('svg');
@@ -133,12 +116,7 @@ describe('UserFavoriteStatus', () => {
       } as any);
       mockCheckIsFavorited.mockResolvedValue(false);
 
-      render(
-        <UserFavoriteStatus
-          listingId="listing-123"
-          slug="test-listing"
-        />
-      );
+      render(<UserFavoriteStatus listingId="listing-123" slug="test-listing" />);
 
       const skeleton = screen.getByLabelText('Loading favorite status');
       expect(skeleton).toBeDisabled();
@@ -150,12 +128,7 @@ describe('UserFavoriteStatus', () => {
       } as any);
       mockCheckIsFavorited.mockResolvedValue(false);
 
-      render(
-        <UserFavoriteStatus
-          listingId="listing-123"
-          slug="test-listing"
-        />
-      );
+      render(<UserFavoriteStatus listingId="listing-123" slug="test-listing" />);
 
       const skeleton = screen.getByLabelText('Loading favorite status');
       const svg = skeleton.querySelector('svg');
@@ -169,11 +142,7 @@ describe('UserFavoriteStatus', () => {
       mockCheckIsFavorited.mockResolvedValue(false);
 
       render(
-        <UserFavoriteStatus
-          listingId="listing-123"
-          slug="test-listing"
-          className="custom-class"
-        />
+        <UserFavoriteStatus listingId="listing-123" slug="test-listing" className="custom-class" />
       );
 
       const skeleton = screen.getByLabelText('Loading favorite status');
@@ -189,12 +158,7 @@ describe('UserFavoriteStatus', () => {
       mockCheckIsFavorited.mockResolvedValue(false);
 
       expect(() => {
-        render(
-          <UserFavoriteStatus
-            listingId="listing-123"
-            slug="test-listing"
-          />
-        );
+        render(<UserFavoriteStatus listingId="listing-123" slug="test-listing" />);
       }).not.toThrow();
     });
 

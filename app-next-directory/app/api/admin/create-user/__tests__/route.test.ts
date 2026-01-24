@@ -425,15 +425,12 @@ describe('POST /api/admin/create-user', () => {
 
       await POST(req);
 
-      expect(loggerMock.structuredLogger.info).toHaveBeenCalledWith(
-        'Admin created new user',
-        {
-          adminId: 'admin-1',
-          newUserId: 'new-user-1',
-          newUserEmail: 'test@example.com',
-          component: 'admin-api',
-        }
-      );
+      expect(loggerMock.structuredLogger.info).toHaveBeenCalledWith('Admin created new user', {
+        adminId: 'admin-1',
+        newUserId: 'new-user-1',
+        newUserEmail: 'test@example.com',
+        component: 'admin-api',
+      });
     });
   });
 

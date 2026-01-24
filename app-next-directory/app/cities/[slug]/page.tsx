@@ -210,7 +210,7 @@ const sanitizeErrorForLogging = (error: unknown): unknown => {
  * Separate component for fetching city data
  * This allows Suspense to handle the loading state at a granular level
  */
-async function CityContent({ slug }: { slug: string }) {
+export async function CityContent({ slug }: { slug: string }) {
   // Access connection() first to opt-in to dynamic rendering before any logging
   // This prevents Date.now() errors during prerendering
   await connection();

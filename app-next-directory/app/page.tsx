@@ -1,3 +1,4 @@
+import { connection } from 'next/server';
 import { Suspense } from 'react';
 import { PageLayoutServer } from '@/components/layout/PageLayoutServer';
 import { CityCarousel } from '@/components/sections/CityCarousel';
@@ -14,6 +15,9 @@ const isE2ERun = process.env.NEXT_PUBLIC_E2E === '1' || process.env.E2E === '1';
  * Uses 'use cache' via DAL for optimal caching
  */
 async function FeaturedListingsSection() {
+  // Access connection() first to prevent Date.now() errors if logging occurs
+  await connection();
+
   if (isE2ERun) {
     // Pass mock data for E2E tests - ensures data fetching logic (DTO mapping, etc.) is tested
     return <FeaturedListings listings={MOCK_FEATURED_LISTINGS} />;
@@ -35,6 +39,9 @@ async function FeaturedListingsSection() {
  * Uses 'use cache' via DAL for optimal caching
  */
 async function CityCarouselSection() {
+  // Access connection() first to prevent Date.now() errors if logging occurs
+  await connection();
+
   if (isE2ERun) {
     // Pass mock data for E2E tests - ensures data fetching logic (DTO mapping, etc.) is tested
     return <CityCarousel initialCities={MOCK_CITIES} />;

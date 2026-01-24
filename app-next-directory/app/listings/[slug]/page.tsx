@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { connection } from 'next/server';
+import { Suspense } from 'react';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
 import { ListingDetailView } from '@/components/listings/ListingDetailView';
@@ -77,8 +79,13 @@ export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
   }
 }
 
-export default async function ListingPage({ params }: Props) {
-  const { slug } = await params;
+/**
+ * Main listing content with data fetching
+ * Wrapped in Suspense for better loading states
+ */
+async function ListingContent({ slug }: { slug: string }) {
+  // Access connection() first to opt-in to dynamic rendering
+  await connection();
 
   if (isE2ETest) {
     if (slug === E2E_ERROR_SLUG) {
@@ -91,19 +98,13 @@ export default async function ListingPage({ params }: Props) {
     const { listing, reviews, relatedListings, isSignedIn, isFavorited } = cloneFixture(fixture);
 
     return (
-      <>
-        <Header />
-        <main>
-          <ListingDetailView
-            listing={listing}
-            reviews={reviews}
-            relatedListings={relatedListings}
-            isSignedIn={isSignedIn}
-            isFavorited={isFavorited}
-          />
-        </main>
-        <Footer />
-      </>
+      <ListingDetailView
+        listing={listing}
+        reviews={reviews}
+        relatedListings={relatedListings}
+        isSignedIn={isSignedIn}
+        isFavorited={isFavorited}
+      />
     );
   }
 
@@ -125,21 +126,58 @@ export default async function ListingPage({ params }: Props) {
   ]);
 
   return (
+    <ListingDetailView
+      listing={listing}
+      reviews={reviews}
+      relatedListings={relatedListings}
+      isSignedIn={isSignedIn}
+      isFavorited={false}
+      userId={userId}
+    />
+  );
+}
+
+/**
+ * Loading skeleton for listing detail
+ */
+function _ListingLoadingSkeleton() {
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="space-y-6">
+        <div className="h-12 bg-gray-200 rounded animate-pulse w-3/4" />
+        <div className="h-96 bg-gray-200 rounded animate-pulse" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="md:col-span-2 space-y-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-24 bg-gray-100 rounded animate-pulse" />
+            ))}
+          </div>
+          <div className="space-y-4">
+            <div className="h-48 bg-gray-100 rounded animate-pulse" />
+            <div className="h-32 bg-gray-100 rounded animate-pulse" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default async function ListingPage({ params }: Props) {
+  const { slug } = await params;
+
+  return (
     <>
-      <Header />
+      <Suspense fallback={<div className="h-16 bg-gray-100 animate-pulse" />}>
+        <Header />
+      </Suspense>
       <main>
-        <ListingDetailView
-          listing={listing}
-          reviews={reviews}
-          relatedListings={relatedListings}
-          isSignedIn={isSignedIn}
-          // Note: isFavorited is now handled by UserFavoriteStatus component
-          // which uses 'use cache: private' for per-user caching
-          isFavorited={false}
-          userId={userId}
-        />
+        <Suspense fallback={<_ListingLoadingSkeleton />}>
+          <ListingContent slug={slug} />
+        </Suspense>
       </main>
-      <Footer />
+      <Suspense fallback={<div className="h-32 bg-gray-100 animate-pulse" />}>
+        <Footer />
+      </Suspense>
     </>
   );
 }

@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
+import { PageLayoutServer } from '@/components/layout/PageLayoutServer';
 import type { SearchParamRecord } from '@/types/search';
 
 const pageLayoutRenderMock = jest.fn(({ children }: { children: ReactNode }) => (
@@ -50,12 +51,10 @@ jest.mock('@/lib/data-access/search.dal', () => {
   };
 });
 
-let SearchPage: typeof import('./page').default;
 let dynamicExport: string | undefined;
 
 beforeAll(async () => {
   const pageModule = await import('./page');
-  SearchPage = pageModule.default;
   dynamicExport = (pageModule as { dynamic?: string }).dynamic;
 });
 
@@ -63,6 +62,14 @@ describe('SearchPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
+
+  const renderSearchResults = async (params?: SearchParamRecord) => {
+    const pageModule = await import('./page');
+    const content = await pageModule.SearchResults({
+      searchParams: params ?? {},
+    });
+    render(<PageLayoutServer>{content}</PageLayoutServer>);
+  };
 
   it('no longer exports a dynamic rendering hint with cache components', () => {
     expect(dynamicExport).toBeUndefined();
@@ -77,13 +84,12 @@ describe('SearchPage', () => {
       pages: [1, 2, 3],
     });
 
-    const searchParams = Promise.resolve({
+    const searchParams: SearchParamRecord = {
       q: 'eco hubs',
       destination: ['bangkok'],
       limit: '24',
-    } as SearchParamRecord);
-    const page = await SearchPage({ searchParams });
-    render(page);
+    };
+    await renderSearchResults(searchParams);
 
     expect(executeSearchMock).toHaveBeenCalledWith({
       q: 'eco hubs',
@@ -91,7 +97,8 @@ describe('SearchPage', () => {
       limit: '24',
     });
 
-    expect(screen.getByTestId('page-layout')).toBeInTheDocument();    expect(searchFiltersFormMock).toHaveBeenCalledWith(
+    expect(screen.getByTestId('page-layout')).toBeInTheDocument();
+    expect(searchFiltersFormMock).toHaveBeenCalledWith(
       expect.objectContaining({
         initialParams: { q: 'eco hubs', destination: ['bangkok'], limit: '24' },
         resultsPath: '/search',
@@ -123,10 +130,10 @@ describe('SearchPage', () => {
       pages: [1],
     });
 
-    const page = await SearchPage({});
-    render(page);
+    await renderSearchResults();
 
-    expect(executeSearchMock).toHaveBeenCalledWith({});    expect(searchFiltersFormMock).toHaveBeenCalledWith(
+    expect(executeSearchMock).toHaveBeenCalledWith({});
+    expect(searchFiltersFormMock).toHaveBeenCalledWith(
       expect.objectContaining({ initialParams: {}, resultsPath: '/search' })
     );
   });
@@ -139,10 +146,8 @@ describe('SearchPage', () => {
       statusText: 'Server Error',
     });
 
-    const page = await SearchPage({
-      searchParams: Promise.resolve({ retry: '2' } as SearchParamRecord),
-    });
-    render(page);    const errorState = screen.getByTestId('search-error-state');
+    await renderSearchResults({ retry: '2' });
+    const errorState = screen.getByTestId('search-error-state');
     expect(errorState).toBeInTheDocument();
     const retryLink = screen.getByRole('link', { name: 'Retry search' });
     expect(retryLink).toHaveAttribute('href', '/search?retry=3');

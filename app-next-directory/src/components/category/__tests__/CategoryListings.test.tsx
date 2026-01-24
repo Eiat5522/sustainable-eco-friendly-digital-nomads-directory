@@ -8,6 +8,7 @@ jest.mock('@/lib/sanity/client', () => ({
 
 // Import the mocked function
 import { sanityFetch } from '@/lib/sanity/client';
+
 const mockSanityFetch = sanityFetch as jest.MockedFunction<typeof sanityFetch>;
 
 describe('CategoryListings', () => {
@@ -35,22 +36,20 @@ describe('CategoryListings', () => {
     });
 
     it('renders list of listings', async () => {
-      mockSanityFetch
-        .mockResolvedValueOnce(['Eco Hotels'])
-        .mockResolvedValueOnce([
-          {
-            _id: '1',
-            name: 'Eco Hotel Bangkok',
-            slug: 'eco-hotel-bangkok',
-            primaryImage: null,
-          },
-          {
-            _id: '2',
-            name: 'Green Cafe',
-            slug: 'green-cafe',
-            primaryImage: null,
-          },
-        ]);
+      mockSanityFetch.mockResolvedValueOnce(['Eco Hotels']).mockResolvedValueOnce([
+        {
+          _id: '1',
+          name: 'Eco Hotel Bangkok',
+          slug: 'eco-hotel-bangkok',
+          primaryImage: null,
+        },
+        {
+          _id: '2',
+          name: 'Green Cafe',
+          slug: 'green-cafe',
+          primaryImage: null,
+        },
+      ]);
 
       const component = await CategoryListings({ slug: 'eco-hotels' });
       render(component);
@@ -60,9 +59,7 @@ describe('CategoryListings', () => {
     });
 
     it('renders empty state when no listings found', async () => {
-      mockSanityFetch
-        .mockResolvedValueOnce(['Eco Hotels'])
-        .mockResolvedValueOnce([]);
+      mockSanityFetch.mockResolvedValueOnce(['Eco Hotels']).mockResolvedValueOnce([]);
 
       const component = await CategoryListings({ slug: 'eco-hotels' });
       render(component);
@@ -75,16 +72,14 @@ describe('CategoryListings', () => {
 
   describe('Slug Resolution', () => {
     it('resolves slug to original category value', async () => {
-      mockSanityFetch
-        .mockResolvedValueOnce(['Eco Hotels', 'Vegan Cafes'])
-        .mockResolvedValueOnce([
-          {
-            _id: '1',
-            name: 'Test Listing',
-            slug: 'test-listing',
-            primaryImage: null,
-          },
-        ]);
+      mockSanityFetch.mockResolvedValueOnce(['Eco Hotels', 'Vegan Cafes']).mockResolvedValueOnce([
+        {
+          _id: '1',
+          name: 'Test Listing',
+          slug: 'test-listing',
+          primaryImage: null,
+        },
+      ]);
 
       const component = await CategoryListings({ slug: 'eco-hotels' });
       render(component);
@@ -98,9 +93,7 @@ describe('CategoryListings', () => {
     });
 
     it('uses slug directly when category resolution fails', async () => {
-      mockSanityFetch
-        .mockRejectedValueOnce(new Error('Network error'))
-        .mockResolvedValueOnce([]);
+      mockSanityFetch.mockRejectedValueOnce(new Error('Network error')).mockResolvedValueOnce([]);
 
       const component = await CategoryListings({ slug: 'unknown-category' });
       render(component);
@@ -131,9 +124,7 @@ describe('CategoryListings', () => {
 
   describe('Category Lookup Query', () => {
     it('fetches unique categories from Sanity', async () => {
-      mockSanityFetch
-        .mockResolvedValueOnce(['Category 1', 'Category 2'])
-        .mockResolvedValueOnce([]);
+      mockSanityFetch.mockResolvedValueOnce(['Category 1', 'Category 2']).mockResolvedValueOnce([]);
 
       await CategoryListings({ slug: 'test-slug' });
 
@@ -147,9 +138,7 @@ describe('CategoryListings', () => {
     });
 
     it('handles categories lookup error gracefully', async () => {
-      mockSanityFetch
-        .mockRejectedValueOnce(new Error('Sanity error'))
-        .mockResolvedValueOnce([]);
+      mockSanityFetch.mockRejectedValueOnce(new Error('Sanity error')).mockResolvedValueOnce([]);
 
       const component = await CategoryListings({ slug: 'test-slug' });
       render(component);
@@ -161,9 +150,7 @@ describe('CategoryListings', () => {
 
   describe('Listings Query', () => {
     it('queries listings by category', async () => {
-      mockSanityFetch
-        .mockResolvedValueOnce(['Eco Hotels'])
-        .mockResolvedValueOnce([]);
+      mockSanityFetch.mockResolvedValueOnce(['Eco Hotels']).mockResolvedValueOnce([]);
 
       await CategoryListings({ slug: 'eco-hotels' });
 
@@ -176,9 +163,7 @@ describe('CategoryListings', () => {
     });
 
     it('includes correct revalidation and tags', async () => {
-      mockSanityFetch
-        .mockResolvedValueOnce(['Eco Hotels'])
-        .mockResolvedValueOnce([]);
+      mockSanityFetch.mockResolvedValueOnce(['Eco Hotels']).mockResolvedValueOnce([]);
 
       await CategoryListings({ slug: 'eco-hotels' });
 
@@ -203,9 +188,7 @@ describe('CategoryListings', () => {
     });
 
     it('handles null response from listings query', async () => {
-      mockSanityFetch
-        .mockResolvedValueOnce(['Eco Hotels'])
-        .mockResolvedValueOnce(null);
+      mockSanityFetch.mockResolvedValueOnce(['Eco Hotels']).mockResolvedValueOnce(null);
 
       const component = await CategoryListings({ slug: 'eco-hotels' });
       render(component);
@@ -216,16 +199,14 @@ describe('CategoryListings', () => {
 
   describe('Listing Rendering', () => {
     it('renders listings with correct structure', async () => {
-      mockSanityFetch
-        .mockResolvedValueOnce(['Eco Hotels'])
-        .mockResolvedValueOnce([
-          {
-            _id: '1',
-            name: 'Eco Hotel',
-            slug: 'eco-hotel',
-            primaryImage: null,
-          },
-        ]);
+      mockSanityFetch.mockResolvedValueOnce(['Eco Hotels']).mockResolvedValueOnce([
+        {
+          _id: '1',
+          name: 'Eco Hotel',
+          slug: 'eco-hotel',
+          primaryImage: null,
+        },
+      ]);
 
       const component = await CategoryListings({ slug: 'eco-hotels' });
       const { container } = render(component);
@@ -238,22 +219,20 @@ describe('CategoryListings', () => {
     });
 
     it('uses listing _id as key', async () => {
-      mockSanityFetch
-        .mockResolvedValueOnce(['Eco Hotels'])
-        .mockResolvedValueOnce([
-          {
-            _id: 'unique-id-1',
-            name: 'Listing 1',
-            slug: 'listing-1',
-            primaryImage: null,
-          },
-          {
-            _id: 'unique-id-2',
-            name: 'Listing 2',
-            slug: 'listing-2',
-            primaryImage: null,
-          },
-        ]);
+      mockSanityFetch.mockResolvedValueOnce(['Eco Hotels']).mockResolvedValueOnce([
+        {
+          _id: 'unique-id-1',
+          name: 'Listing 1',
+          slug: 'listing-1',
+          primaryImage: null,
+        },
+        {
+          _id: 'unique-id-2',
+          name: 'Listing 2',
+          slug: 'listing-2',
+          primaryImage: null,
+        },
+      ]);
 
       const component = await CategoryListings({ slug: 'eco-hotels' });
       render(component);
@@ -264,16 +243,14 @@ describe('CategoryListings', () => {
     });
 
     it('renders listing names', async () => {
-      mockSanityFetch
-        .mockResolvedValueOnce(['Eco Hotels'])
-        .mockResolvedValueOnce([
-          {
-            _id: '1',
-            name: 'Sustainable Workspace',
-            slug: 'sustainable-workspace',
-            primaryImage: null,
-          },
-        ]);
+      mockSanityFetch.mockResolvedValueOnce(['Eco Hotels']).mockResolvedValueOnce([
+        {
+          _id: '1',
+          name: 'Sustainable Workspace',
+          slug: 'sustainable-workspace',
+          primaryImage: null,
+        },
+      ]);
 
       const component = await CategoryListings({ slug: 'eco-hotels' });
       render(component);
@@ -284,16 +261,14 @@ describe('CategoryListings', () => {
 
   describe('Styling', () => {
     it('applies spacing to listing container', async () => {
-      mockSanityFetch
-        .mockResolvedValueOnce(['Eco Hotels'])
-        .mockResolvedValueOnce([
-          {
-            _id: '1',
-            name: 'Test',
-            slug: 'test',
-            primaryImage: null,
-          },
-        ]);
+      mockSanityFetch.mockResolvedValueOnce(['Eco Hotels']).mockResolvedValueOnce([
+        {
+          _id: '1',
+          name: 'Test',
+          slug: 'test',
+          primaryImage: null,
+        },
+      ]);
 
       const component = await CategoryListings({ slug: 'eco-hotels' });
       const { container } = render(component);
@@ -303,9 +278,7 @@ describe('CategoryListings', () => {
     });
 
     it('applies margin to count paragraph', async () => {
-      mockSanityFetch
-        .mockResolvedValueOnce(['Eco Hotels'])
-        .mockResolvedValueOnce([]);
+      mockSanityFetch.mockResolvedValueOnce(['Eco Hotels']).mockResolvedValueOnce([]);
 
       const component = await CategoryListings({ slug: 'eco-hotels' });
       const { container } = render(component);
@@ -317,9 +290,7 @@ describe('CategoryListings', () => {
 
   describe('Edge Cases', () => {
     it('handles slug with special characters', async () => {
-      mockSanityFetch
-        .mockResolvedValueOnce(['Eco & Sustainable'])
-        .mockResolvedValueOnce([]);
+      mockSanityFetch.mockResolvedValueOnce(['Eco & Sustainable']).mockResolvedValueOnce([]);
 
       const component = await CategoryListings({ slug: 'eco-sustainable' });
       render(component);
@@ -328,9 +299,7 @@ describe('CategoryListings', () => {
     });
 
     it('handles empty categories list', async () => {
-      mockSanityFetch
-        .mockResolvedValueOnce([])
-        .mockResolvedValueOnce([]);
+      mockSanityFetch.mockResolvedValueOnce([]).mockResolvedValueOnce([]);
 
       const component = await CategoryListings({ slug: 'test-slug' });
       render(component);
@@ -339,16 +308,14 @@ describe('CategoryListings', () => {
     });
 
     it('handles listings with missing fields', async () => {
-      mockSanityFetch
-        .mockResolvedValueOnce(['Eco Hotels'])
-        .mockResolvedValueOnce([
-          {
-            _id: '1',
-            name: 'Minimal Listing',
-            slug: null,
-            primaryImage: undefined,
-          },
-        ]);
+      mockSanityFetch.mockResolvedValueOnce(['Eco Hotels']).mockResolvedValueOnce([
+        {
+          _id: '1',
+          name: 'Minimal Listing',
+          slug: null,
+          primaryImage: undefined,
+        },
+      ]);
 
       const component = await CategoryListings({ slug: 'eco-hotels' });
       render(component);
@@ -364,9 +331,7 @@ describe('CategoryListings', () => {
         primaryImage: null,
       }));
 
-      mockSanityFetch
-        .mockResolvedValueOnce(['Eco Hotels'])
-        .mockResolvedValueOnce(manyListings);
+      mockSanityFetch.mockResolvedValueOnce(['Eco Hotels']).mockResolvedValueOnce(manyListings);
 
       const component = await CategoryListings({ slug: 'eco-hotels' });
       render(component);
@@ -375,16 +340,14 @@ describe('CategoryListings', () => {
     });
 
     it('handles listing names with special characters', async () => {
-      mockSanityFetch
-        .mockResolvedValueOnce(['Eco Hotels'])
-        .mockResolvedValueOnce([
-          {
-            _id: '1',
-            name: 'Café & Restaurant "The Green" <Eco>',
-            slug: 'cafe-restaurant',
-            primaryImage: null,
-          },
-        ]);
+      mockSanityFetch.mockResolvedValueOnce(['Eco Hotels']).mockResolvedValueOnce([
+        {
+          _id: '1',
+          name: 'Café & Restaurant "The Green" <Eco>',
+          slug: 'cafe-restaurant',
+          primaryImage: null,
+        },
+      ]);
 
       const component = await CategoryListings({ slug: 'eco-hotels' });
       render(component);
@@ -395,9 +358,7 @@ describe('CategoryListings', () => {
 
   describe('Server Component Behavior', () => {
     it('is an async server component', async () => {
-      mockSanityFetch
-        .mockResolvedValueOnce(['Eco Hotels'])
-        .mockResolvedValueOnce([]);
+      mockSanityFetch.mockResolvedValueOnce(['Eco Hotels']).mockResolvedValueOnce([]);
 
       // Should be able to await the component
       const component = await CategoryListings({ slug: 'test-slug' });
@@ -406,16 +367,12 @@ describe('CategoryListings', () => {
     });
 
     it('can be called multiple times', async () => {
-      mockSanityFetch
-        .mockResolvedValueOnce(['Eco Hotels'])
-        .mockResolvedValueOnce([]);
+      mockSanityFetch.mockResolvedValueOnce(['Eco Hotels']).mockResolvedValueOnce([]);
 
       const component1 = await CategoryListings({ slug: 'slug-1' });
       render(component1);
 
-      mockSanityFetch
-        .mockResolvedValueOnce(['Vegan Cafes'])
-        .mockResolvedValueOnce([]);
+      mockSanityFetch.mockResolvedValueOnce(['Vegan Cafes']).mockResolvedValueOnce([]);
 
       const component2 = await CategoryListings({ slug: 'slug-2' });
       render(component2);

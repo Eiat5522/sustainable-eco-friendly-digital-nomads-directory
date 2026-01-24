@@ -17,7 +17,7 @@ type SearchPageProps = { searchParams?: Promise<SearchParamRecord> };
  * Search results component with data fetching
  * Wrapped in Suspense for granular loading control
  */
-async function SearchResults({ searchParams }: { searchParams: SearchParamRecord }) {
+export async function SearchResults({ searchParams }: { searchParams: SearchParamRecord }) {
   const basePath = '/search';
 
   const retryRaw = searchParams.retry;

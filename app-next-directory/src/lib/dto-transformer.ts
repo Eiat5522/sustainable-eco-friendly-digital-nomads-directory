@@ -136,27 +136,26 @@ export const imageOrFallback = (img: unknown, w: number, h: number): string => {
     return FALLBACK_IMAGE;
   }
 
-  if (img && typeof img === 'object') {
-    const obj = img as Record<string, unknown>;
-    const asset = obj.asset as Record<string, unknown> | undefined;
-    const url = typeof asset?.url === 'string' ? asset.url : undefined;
-    if (url) {
-      try {
-        const u = new URL(url);
-        u.searchParams.set('w', String(w));
-        u.searchParams.set('h', String(h));
-        u.searchParams.set('fit', 'crop');
-        u.searchParams.set('auto', 'format');
-        return u.toString();
-      } catch {
-        return url;
-      }
-    }
-  }
-
+  // First try Sanity image builder for proper asset refs
   if (isSanityImage(img)) {
     // biome-ignore lint/suspicious/noFocusedTests: Sanity image builder uses fit()
     return urlFor(img).width(w).height(h).fit('crop').auto('format').url();
+  }
+  // Fallback to pre-resolved asset.url if available
+  const obj = img as Record<string, unknown>;
+  const asset = obj.asset as Record<string, unknown> | undefined;
+  const url = typeof asset?.url === 'string' ? asset.url : undefined;
+  if (url) {
+    try {
+      const u = new URL(url);
+      u.searchParams.set('w', String(w));
+      u.searchParams.set('h', String(h));
+      u.searchParams.set('fit', 'crop');
+      u.searchParams.set('auto', 'format');
+      return u.toString();
+    } catch {
+      return url;
+    }
   }
   return FALLBACK_IMAGE;
 };
@@ -192,7 +191,7 @@ function toGeoPoint(
 function toPercentage0To100(val: unknown): Percentage0To100 | undefined {
   if (val == null) return undefined;
   const num = typeof val === 'number' ? val : Number(val);
-  if (!Number.isFinite(num) || Number.isNaN(num)) return undefined;
+  if (!Number.isFinite(num)) return undefined;
   if (num < 0) return 0 as Percentage0To100;
   if (num > 100) return 100 as Percentage0To100;
   return num as Percentage0To100;
@@ -498,9 +497,7 @@ export function transformToBlogDetailDTO(doc: RawBlogDocument): BlogDetailDTO {
   const related = Array.isArray(doc?.relatedPosts)
     ? (doc.relatedPosts as unknown[])
         .filter(Boolean)
-        .filter((p): p is RawBlogDocument => 
-          typeof p === 'object' && p !== null && '_id' in p
-        )
+        .filter((p): p is RawBlogDocument => typeof p === 'object' && p !== null && '_id' in p)
         .map(p => transformToBlogSummaryDTO(p))
     : undefined;
   const authorImageUrl = imageOrFallback(doc?.authorImage, 96, 96);
