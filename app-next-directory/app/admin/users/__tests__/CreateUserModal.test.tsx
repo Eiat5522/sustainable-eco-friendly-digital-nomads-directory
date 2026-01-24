@@ -247,7 +247,13 @@ describe('CreateUserModal', () => {
   });
 
   it('shows loading state during submission', async () => {
-    (global.fetch as jest.Mock).mockImplementation(() => new Promise(() => {}));
+    let resolvePromise: (value: unknown) => void;
+    (global.fetch as jest.Mock).mockImplementation(
+      () =>
+        new Promise(resolve => {
+          resolvePromise = resolve;
+        })
+    );
 
     const user = userEvent.setup();
     render(<CreateUserModal onUserCreated={mockOnUserCreated} />);

@@ -249,7 +249,11 @@ describe('EditUserPage', () => {
   });
 
   it('passes status through to EditUserForm as provided by getUserById', async () => {
-    mockAuth.mockResolvedValueOnce({
+    // Clear and reset mocks completely
+    mockGetUserById.mockReset();
+    mockAuth.mockReset();
+    
+    mockAuth.mockResolvedValue({
       user: { id: 'admin-1', role: 'admin' },
     });
     const testUser = {

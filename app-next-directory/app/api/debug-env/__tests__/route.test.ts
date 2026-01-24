@@ -61,7 +61,9 @@ describe('/api/debug-env', () => {
       process.env.NEXT_PUBLIC_SANITY_DATASET = 'production';
       process.env.SANITY_API_TOKEN = 'token123';
 
-      mockAuthModule.auth.mockResolvedValue({
+      // Re-acquire mock after resetModules
+      const mockAuth = jest.requireMock('@/lib/auth').auth as jest.MockedFunction<any>;
+      mockAuth.mockResolvedValue({
         user: { id: 'admin-1', role: 'admin' },
       } as any);
 
@@ -127,7 +129,9 @@ describe('/api/debug-env', () => {
       delete process.env.NEXT_PUBLIC_SANITY_DATASET;
       delete process.env.SANITY_API_TOKEN;
 
-      mockAuthModule.auth.mockResolvedValue({
+      // Re-acquire mock after resetModules
+      const mockAuth = jest.requireMock('@/lib/auth').auth as jest.MockedFunction<any>;
+      mockAuth.mockResolvedValue({
         user: { id: 'admin-1', role: 'admin' },
       } as any);
 
