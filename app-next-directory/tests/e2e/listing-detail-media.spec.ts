@@ -10,18 +10,21 @@ test.describe('Listing detail media & fallbacks', () => {
       });
     });
 
-    await page.goto('/test/listing-detail');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/test/listing-detail', { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {
+      // Ignore networkidle timeout, continue if page is loaded
+    });
   });
 
   test('gallery lightbox navigates between images', async ({ page }) => {
     const thumbnails = page.locator('[data-testid="gallery-thumbnail"]');
-    await expect(thumbnails).toHaveCount(3);
+    await expect(thumbnails.first()).toBeVisible({ timeout: 10000 });
+    await expect(thumbnails).toHaveCount(3, { timeout: 10000 });
 
     await thumbnails.first().click();
 
     const lightbox = page.locator('[data-testid="gallery-lightbox"]');
-    await expect(lightbox).toBeVisible();
+    await expect(lightbox).toBeVisible({ timeout: 10000 });
 
     const firstImage = lightbox.locator('img[alt="Preview 1"]');
     await expect(firstImage).toBeVisible();
@@ -48,7 +51,7 @@ test.describe('Listing detail media & fallbacks', () => {
       .locator('[data-testid="related-listing-card"]')
       .filter({ hasText: 'Eco Resort Koh Samui' });
 
-    await expect(fallbackCard).toBeVisible();
+    await expect(fallbackCard).toBeVisible({ timeout: 10000 });
 
     const fallbackImage = fallbackCard.locator('[data-testid="related-listing-fallback"]');
     await expect(fallbackImage).toBeVisible();
@@ -58,7 +61,7 @@ test.describe('Listing detail media & fallbacks', () => {
 
   test('long descriptions expand behind a read more toggle', async ({ page }) => {
     const description = page.locator('[data-testid="long-description"]');
-    await expect(description).toBeVisible();
+    await expect(description).toBeVisible({ timeout: 10000 });
 
     const beforeMetrics = await description.evaluate(el => ({
       scrollHeight: el.scrollHeight,

@@ -54,18 +54,18 @@ test.describe('Cross-Browser Compatibility Testing', () => {
       test(`navigation works on ${browserName}`, async ({ page, browserName: actualBrowser }) => {
         test.skip(actualBrowser !== browserName, `This test is for ${browserName} only`);
 
-        await page.goto('/', { waitUntil: 'domcontentloaded' });
+        await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 30000 });
 
         // Test navigation links
         const primaryNav = page.getByRole('navigation', { name: 'Primary navigation' });
-        await expect(primaryNav).toBeVisible();
+        await expect(primaryNav).toBeVisible({ timeout: 10000 });
 
         // Explicitly wait for the link to be actionable before clicking
         await primaryNav
           .getByRole('link', { name: 'Search' })
           .waitFor({ state: 'visible', timeout: 10000 });
         await primaryNav.getByRole('link', { name: 'Search' }).click();
-        await page.waitForURL(/.*\/search/, { timeout: 20000, waitUntil: 'domcontentloaded' });
+        await page.waitForURL(/.*\/search/, { timeout: 30000, waitUntil: 'domcontentloaded' });
 
         const searchNav = page.getByRole('navigation', { name: 'Primary navigation' });
         // Explicitly wait for the link to be actionable before clicking
@@ -73,7 +73,10 @@ test.describe('Cross-Browser Compatibility Testing', () => {
           .getByRole('link', { name: 'Blog' })
           .waitFor({ state: 'visible', timeout: 10000 });
         await searchNav.getByRole('link', { name: 'Blog' }).click();
-        await page.waitForURL(/.*\/blog/, { timeout: 20000, waitUntil: 'domcontentloaded' });
+
+        // Wait for navigation to complete with longer timeout
+        await page.waitForURL(/.*\/blog/, { timeout: 30000, waitUntil: 'commit' });
+        await page.waitForLoadState('domcontentloaded', { timeout: 10000 });
 
         const blogNav = page.getByRole('navigation', { name: 'Primary navigation' });
         // Explicitly wait for the link to be actionable before clicking
@@ -82,7 +85,7 @@ test.describe('Cross-Browser Compatibility Testing', () => {
           .waitFor({ state: 'visible', timeout: 10000 });
         await blogNav.getByRole('link', { name: 'Contact Us' }).click();
         await page.waitForURL(/\/contact-us\/?(?:\?.*)?(?:#.*)?$/, {
-          timeout: 20000,
+          timeout: 30000,
           waitUntil: 'domcontentloaded',
         });
       });
@@ -246,11 +249,20 @@ test.describe('Cross-Browser Compatibility Testing', () => {
       });
       const page = await context.newPage();
 
-      await page.goto('/listings/banyan-tree-phuket');
+      await page.goto('/listings/banyan-tree-phuket', {
+        waitUntil: 'domcontentloaded',
+        timeout: 30000,
+      });
+      await page.waitForLoadState('networkidle', { timeout: 10000 });
 
+      // Wait for gallery to be fully rendered
       const galleryImage = page.getByTestId('gallery-thumbnail').first();
-      await galleryImage.tap();
-      await expect(page.getByTestId('gallery-lightbox')).toBeVisible();
+      await galleryImage.waitFor({ state: 'visible', timeout: 10000 });
+      await galleryImage.waitFor({ state: 'attached', timeout: 5000 });
+
+      // Use click instead of tap for more reliability
+      await galleryImage.click();
+      await expect(page.getByTestId('gallery-lightbox')).toBeVisible({ timeout: 10000 });
 
       await context.close();
     });

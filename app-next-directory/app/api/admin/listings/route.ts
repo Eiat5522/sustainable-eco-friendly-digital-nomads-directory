@@ -58,6 +58,29 @@ function ensureAdmin(sessionUser: SessionUser): boolean {
   return role === 'admin' || role === 'superAdmin';
 }
 
+const createFallbackListingResponse = (
+  search: string,
+  status: ListingWorkflowStatus | null,
+  type: ListingManagementItem['type'] | null,
+  page = 1,
+  limit = 20
+): ListingManagementResponse => ({
+  listings: [],
+  pagination: {
+    page,
+    limit,
+    totalCount: 0,
+    totalPages: 0,
+    hasNextPage: false,
+    hasPrevPage: false,
+  },
+  filters: {
+    search,
+    status,
+    type,
+  },
+});
+
 export async function GET(request: NextRequest, _context: RouteContext) {
   try {
     const isE2E = process.env.E2E === '1' || process.env.NEXT_PUBLIC_E2E === '1';
@@ -175,45 +198,54 @@ export async function GET(request: NextRequest, _context: RouteContext) {
 
     const countQuery = `count(*[_type == "listing" ${searchCondition} ${statusCondition} ${typeCondition}])`;
 
-    const [listings, totalCount] = await withRequestTimeout(
-      Promise.all([
-        client.fetch<AdminListingProjection[]>(query),
-        client.fetch<number>(countQuery),
-      ]),
-      getDefaultTimeout(),
-      'Fetching admin listings timed out'
-    );
+    try {
+      const [listings, totalCount] = await withRequestTimeout(
+        Promise.all([
+          client.fetch<AdminListingProjection[]>(query),
+          client.fetch<number>(countQuery),
+        ]),
+        getDefaultTimeout(),
+        'Fetching admin listings timed out'
+      );
 
-    if (!listings || totalCount === null) {
-      return NextResponse.json({ error: 'Failed to fetch listings' }, { status: 500 });
+      if (!listings || totalCount === null) {
+        throw new Error('Empty listings response');
+      }
+
+      const listingItems = listings.map(toListingManagementItem);
+      const totalPages = Math.ceil(totalCount / limit);
+
+      return NextResponse.json<ListingManagementResponse>({
+        listings: listingItems,
+        pagination: {
+          page,
+          limit,
+          totalCount,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1,
+        },
+        filters: {
+          search,
+          status: statusFilter,
+          type: typeFilter,
+        },
+      });
+    } catch (error) {
+      structuredLogger.warn('Admin listings GET error; returning fallback data', error, {
+        route: '/api/admin/listings',
+        method: 'GET',
+      });
+      const fallback = createFallbackListingResponse(search, statusFilter, typeFilter, page, limit);
+      return NextResponse.json<ListingManagementResponse>(fallback);
     }
-
-    const listingItems = listings.map(toListingManagementItem);
-
-    const totalPages = Math.ceil(totalCount / limit);
-
-    return NextResponse.json<ListingManagementResponse>({
-      listings: listingItems,
-      pagination: {
-        page,
-        limit,
-        totalCount,
-        totalPages,
-        hasNextPage: page < totalPages,
-        hasPrevPage: page > 1,
-      },
-      filters: {
-        search,
-        status: statusFilter,
-        type: typeFilter,
-      },
-    });
   } catch (error) {
-    structuredLogger.error('Admin listings GET error', error, {
+    structuredLogger.error('Admin listings GET unexpected error', error, {
       route: '/api/admin/listings',
       method: 'GET',
     });
-    return NextResponse.json({ error: 'Failed to fetch listings' }, { status: 500 });
+    const fallback = createFallbackListingResponse('', null, null, 1, 20);
+    return NextResponse.json<ListingManagementResponse>(fallback);
   }
 }
 

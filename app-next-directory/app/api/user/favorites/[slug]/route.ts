@@ -53,8 +53,8 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
 
     // Check if already favorited
     const existingFavorite = (await client.fetch(
-      `*[_type == "userFavorite" && user._ref == $userId && listing._ref == $listingId][0]`,
-      { userId, listingId }
+      `*[_type == "userFavorite" && user._ref == $sanityUserId && listing._ref == $listingId][0]`,
+      { sanityUserId: sanityUser._id, listingId }
     )) as { _id: string } | null;
 
     if (existingFavorite) {
@@ -126,6 +126,16 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
 
     if (!slug) return NextResponse.json({ favorited: false });
 
+    const sanityUser = await ensureSanityUser({
+      id: userId,
+      name: user?.name ?? null,
+      email: user?.email ?? null,
+    });
+
+    if (!sanityUser) {
+      return NextResponse.json({ favorited: false });
+    }
+
     const listing = (await client.fetch(
       `*[_type == "listing" && slug.current == $slug][0]{ _id }`,
       {
@@ -137,8 +147,8 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
     if (!listingId) return NextResponse.json({ favorited: false });
 
     const favorite = await client.fetch(
-      `*[_type == "userFavorite" && user._ref == $userId && listing._ref == $listingId][0]`,
-      { userId, listingId }
+      `*[_type == "userFavorite" && user._ref == $sanityUserId && listing._ref == $listingId][0]`,
+      { sanityUserId: sanityUser._id, listingId }
     );
 
     return NextResponse.json({ favorited: !!favorite });

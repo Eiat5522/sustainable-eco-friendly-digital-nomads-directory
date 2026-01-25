@@ -73,9 +73,17 @@ test.describe('Authentication (Playwright E2E)', () => {
     }
 
     const unique = `${Date.now()}-${test.info().workerIndex}-${Math.random().toString(36).slice(2, 8)}`;
-    await page.locator('input#name').fill('Test User');
-    await page.locator('input#email').fill(`test+${unique}@example.com`);
-    await page.locator('input#password').fill('Password_123!Aa');
+
+    // Wait for form to be stable before filling
+    await page.waitForSelector('input#name', { state: 'attached' });
+    await page.locator('input#name').waitFor({ state: 'visible' });
+    await page.locator('input#name').fill('Test User', { timeout: 10000 });
+
+    await page.locator('input#email').waitFor({ state: 'visible' });
+    await page.locator('input#email').fill(`test+${unique}@example.com`, { timeout: 10000 });
+
+    await page.locator('input#password').waitFor({ state: 'visible' });
+    await page.locator('input#password').fill('Password_123!Aa', { timeout: 10000 });
 
     const registerPromise = page.waitForResponse(
       response => response.url().includes('/api/auth/register') && response.status() === 201

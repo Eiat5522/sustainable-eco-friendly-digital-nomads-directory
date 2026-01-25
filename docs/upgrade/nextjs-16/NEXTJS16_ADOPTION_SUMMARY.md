@@ -4,7 +4,7 @@ Last updated: 2026-01-23
 
 This document summarizes the repository's adoption of Next.js 16+ features and recommended patterns applied across the codebase to improve performance and developer ergonomics.
 
-Key adoption points
+## Key adoption points
 
 - Cache Components (App-level cache components): the codebase is using Cache Components where appropriate to reduce server render work and re-computation for static or semi-static portions of pages.
 - Partial Page Rendering (PPR): pages and layouts are structured to allow selective revalidation and partial updates rather than full-page rebuilds.

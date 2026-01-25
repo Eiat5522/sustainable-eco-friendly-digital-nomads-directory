@@ -85,10 +85,17 @@ test.describe('[E2E] Favorites UI toggle - Authenticated', () => {
     });
 
     await page.goto(DETAIL_PATH);
-    await expect(page.getByText(/Welcome, E2E!/i)).toBeVisible();
-    await expect(page.getByRole('heading', { level: 3, name: 'Banyan Tree Phuket' })).toBeVisible();
+    await page.waitForLoadState('domcontentloaded');
+
+    // Wait for header to fully render with user info
+    await expect(page.getByText(/Welcome, E2E!/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { level: 3, name: 'Banyan Tree Phuket' })).toBeVisible({
+      timeout: 10000,
+    });
+
+    // Wait for favorite button to finish checking status and become ready
     const addButton = page.getByLabel(/Add to favorites/i);
-    await expect(addButton).toBeVisible();
+    await expect(addButton).toBeVisible({ timeout: 10000 });
 
     await addButton.click();
     await expect.poll(() => serverFavorited).toBe(true);
@@ -150,11 +157,16 @@ test.describe('[E2E] Favorites UI toggle - Authenticated', () => {
     });
 
     await page.goto(DETAIL_PATH);
-    await expect(page.getByText(/Welcome, E2E!/i)).toBeVisible();
-    await expect(page.getByRole('heading', { level: 3, name: 'Banyan Tree Phuket' })).toBeVisible();
+    await page.waitForLoadState('domcontentloaded');
+
+    // Wait for page elements to be ready
+    await expect(page.getByText(/Welcome, E2E!/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { level: 3, name: 'Banyan Tree Phuket' })).toBeVisible({
+      timeout: 10000,
+    });
 
     const addButton = page.getByLabel(/Add to favorites/i);
-    await expect(addButton).toBeVisible();
+    await expect(addButton).toBeVisible({ timeout: 10000 });
     await expect(addButton).toHaveCount(1);
     await addButton.click();
 
@@ -256,11 +268,17 @@ test.describe('[E2E] Favorites UI toggle - Unauthenticated', () => {
     });
 
     await page.goto(DETAIL_PATH);
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
+
+    // Wait for page to fully load
+    await expect(page.getByRole('heading', { level: 3, name: 'Banyan Tree Phuket' })).toBeVisible({
+      timeout: 10000,
+    });
 
     // Favorite button should be visible for unauthenticated users
+    // Note: For unauthenticated users, the button doesn't need to check favorite status
     const favoriteButton = page.getByLabel(/Add to favorites/i).or(page.getByLabel(/favorite/i));
-    await expect(favoriteButton).toBeVisible();
+    await expect(favoriteButton).toBeVisible({ timeout: 10000 });
 
     // Click should trigger sign-in flow
     const signInRequestPromise = page.waitForRequest(
@@ -273,13 +291,7 @@ test.describe('[E2E] Favorites UI toggle - Unauthenticated', () => {
 
     await favoriteButton.click();
 
-    let signInTriggered = false;
-    try {
-      await signInRequestPromise;
-      signInTriggered = true;
-    } catch {
-      signInTriggered = false;
-    }
+    const signInTriggered = await signInRequestPromise.then(() => true).catch(() => false);
 
     const navigatedToLogin = await page
       .waitForURL(/\/auth\/login.*callbackUrl=/, { timeout: 5000 })

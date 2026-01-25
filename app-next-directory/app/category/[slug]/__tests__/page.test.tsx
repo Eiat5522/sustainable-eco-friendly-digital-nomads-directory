@@ -181,7 +181,6 @@ describe('CategoryPage', () => {
           },
         }));
 
-         
         const CategoryPage = require('../page').default;
 
         render(

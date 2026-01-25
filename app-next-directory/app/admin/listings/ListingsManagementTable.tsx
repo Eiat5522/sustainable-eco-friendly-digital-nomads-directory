@@ -402,7 +402,7 @@ export function ListingsManagementTable({
           data-testid="search-input"
         />
         <select
-          value={filters.status ?? ''}
+          value={filters.status != null ? filters.status : ''}
           onChange={e => handleStatusFilter(e.target.value || null)}
           className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           data-testid="status-filter"
@@ -414,7 +414,7 @@ export function ListingsManagementTable({
           <option value="draft">Draft</option>
         </select>
         <select
-          value={filters.type ?? ''}
+          value={filters.type != null ? filters.type : ''}
           onChange={e => handleTypeFilter(e.target.value || null)}
           className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           data-testid="type-filter"
@@ -568,6 +568,7 @@ export function ListingsManagementTable({
                           onClick={() => void handleDeleteListing(listing.id, listing.name)}
                           className="text-red-600 hover:text-red-900"
                           title="Delete"
+                          data-testid="delete-listing-button"
                         >
                           🗑
                         </button>

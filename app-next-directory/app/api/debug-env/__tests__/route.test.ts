@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 jest.mock('@/lib/auth');
 
 import * as authModule from '@/lib/auth';
+
 const mockAuthModule = jest.mocked(authModule);
 
 describe('/api/debug-env', () => {

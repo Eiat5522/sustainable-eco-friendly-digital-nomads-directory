@@ -241,6 +241,7 @@ describe('/api/user/favorites', () => {
       mockedAuth.mockResolvedValue({
         user: { id: 'user-1', role: 'user' },
       });
+      mockedEnsureSanityUser.mockResolvedValue({ _id: 'sanity-user-1' });
       mockedFetch
         .mockResolvedValueOnce({ _id: 'listing-1' })
         .mockResolvedValueOnce({ _id: 'fav-1' });
@@ -274,6 +275,7 @@ describe('/api/user/favorites', () => {
 
     it('returns 404 when the listing lookup fails', async () => {
       mockedAuth.mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
+      mockedEnsureSanityUser.mockResolvedValue({ _id: 'sanity-user-1' });
       mockedFetch.mockResolvedValueOnce(null);
       routeTestControl.parseBodyOverride = async () => ({ slug: 'missing' });
 
@@ -290,6 +292,7 @@ describe('/api/user/favorites', () => {
 
     it('returns a friendly message when no favorite exists', async () => {
       mockedAuth.mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
+      mockedEnsureSanityUser.mockResolvedValue({ _id: 'sanity-user-1' });
       mockedFetch.mockResolvedValueOnce({ _id: 'listing-1' }).mockResolvedValueOnce(null);
       routeTestControl.parseBodyOverride = async () => ({ slug: 'test-listing' });
 
@@ -306,6 +309,7 @@ describe('/api/user/favorites', () => {
 
     it('propagates errors from the Sanity client', async () => {
       mockedAuth.mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
+      mockedEnsureSanityUser.mockResolvedValue({ _id: 'sanity-user-1' });
       mockedFetch
         .mockResolvedValueOnce({ _id: 'listing-1' })
         .mockRejectedValueOnce(new Error('sanity down'));
@@ -340,5 +344,20 @@ describe('/api/user/favorites', () => {
       expect(response.status).toBe(401);
       expect(json.error).toBe('Unauthorized');
     });
+    it('returns 500 when the Sanity user cannot be ensured', async () => {
+      mockedAuth.mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
+      mockedEnsureSanityUser.mockResolvedValue(null);
+      routeTestControl.parseBodyOverride = async () => ({ slug: 'test-listing' });
+
+    const request = new NextRequest('http://localhost/api/user/favorites', {
+      method: 'DELETE',
+    });
+
+    const response = await DELETE(request);
+    const json = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(json.error).toBe('Unable to access user profile');
+  });
   });
 });

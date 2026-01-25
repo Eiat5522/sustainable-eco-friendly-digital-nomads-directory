@@ -12,9 +12,12 @@ out/
 build/
 dist/
 app-next-directory/tests/storageStates/
-!app-next-directory/__mocks__/leaflet/dist/
-!app-next-directory/__mocks__/leaflet/dist/leaflet.css.js
-
+# next.js
+.next/
+out/
+build/
+dist/
+app-next-directory/tests/storageStates/
 # Allow the Jest Leaflet CSS mock to be committed
 !app-next-directory/__mocks__/leaflet/dist/
 !app-next-directory/__mocks__/leaflet/dist/leaflet.css.js
@@ -247,3 +250,9 @@ playwright-report-app-next.zip
 !e2e-output.txt
 !/**/*playwright-e2e-test-result.txt
 !tmp/unit_test_output.txt
+output-test.txt
+!app-next-directory/.github/chatmodes/**
+!e2e-output.txt
+!/**/*playwright-e2e-test-result.txt
+!tmp/unit_test_output.txt
+output-test.txt

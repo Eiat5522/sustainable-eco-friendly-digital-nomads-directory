@@ -114,26 +114,29 @@ export default function GalleryGrid({ images, fallback = '/placeholder_image.png
         className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3"
         data-testid="gallery-thumbnails"
       >
-        {toShow.map((src, idx) => (
-          <button
-            key={idx}
-            onClick={e => {
-              lastTriggerRef.current = e.currentTarget;
-              setOpenIndex(idx);
-            }}
-            className="relative w-full h-32 sm:h-36 md:h-40 rounded-lg overflow-hidden bg-gray-100 hover:shadow-lg transition-shadow duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            aria-label={`Open image ${idx + 1}`}
-            data-testid="gallery-thumbnail"
-            data-index={idx}
-          >
-            <Image
-              src={src}
-              alt={altTexts[idx] ?? `Gallery image ${idx + 1}`}
-              fill
-              className="object-cover hover:scale-105 transition-transform duration-300"
-            />
-          </button>
-        ))}
+        {toShow.map((src, index) => {
+          const altText = altTexts[index] ?? `Gallery image ${index + 1}`;
+          return (
+            <button
+              key={index}
+              onClick={e => {
+                lastTriggerRef.current = e.currentTarget;
+                setOpenIndex(index);
+              }}
+              className="relative w-full h-32 sm:h-36 md:h-40 rounded-lg overflow-hidden bg-gray-100 hover:shadow-lg transition-shadow duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              aria-label={`Open image ${index + 1}`}
+              data-testid="gallery-thumbnail"
+              data-index={index}
+            >
+              <Image
+                src={src}
+                alt={altText}
+                fill
+                className="object-cover hover:scale-105 transition-transform duration-300"
+              />
+            </button>
+          );
+        })}
       </div>
 
       {/* Lightbox modal */}

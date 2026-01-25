@@ -306,6 +306,7 @@ describe('API /api/user/favorites/[slug]', () => {
 
     it('returns false when no favorite record exists for the user', async () => {
       mockAuth.mockResolvedValueOnce({ user: { id: 'user-1' } });
+      mockEnsureSanityUser.mockResolvedValueOnce({ _id: 'sanity-user-1' });
       mockClientFetch.mockResolvedValueOnce({ _id: 'listing-1' }).mockResolvedValueOnce(null);
 
       const response = await GET(request, {
@@ -316,13 +317,14 @@ describe('API /api/user/favorites/[slug]', () => {
       expect(status).toBe(200);
       expect(body).toEqual({ favorited: false });
       expect(mockClientFetch).toHaveBeenLastCalledWith(expect.stringContaining('userFavorite'), {
-        userId: 'user-1',
+        sanityUserId: 'sanity-user-1',
         listingId: 'listing-1',
       });
     });
 
     it('returns true when the listing is already favorited', async () => {
       mockAuth.mockResolvedValueOnce({ user: { id: 'user-1' } });
+      mockEnsureSanityUser.mockResolvedValueOnce({ _id: 'sanity-user-1' });
       mockClientFetch
         .mockResolvedValueOnce({ _id: 'listing-1' })
         .mockResolvedValueOnce({ _id: 'favorite-1' });

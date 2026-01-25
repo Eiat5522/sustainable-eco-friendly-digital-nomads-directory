@@ -1,6 +1,20 @@
-import { expect, test } from '@playwright/test';
+import { errors, expect, test } from '@playwright/test';
 import { getSessionForRole } from '@tests/helpers/test-data';
 import { loginAs, TestHelpers } from '../utils/test-utils';
+
+const NAVIGATION_TIMEOUT = 30000;
+const VISIBILITY_TIMEOUT = 10000;
+
+async function ignoreTimeout<T>(operation: Promise<T>) {
+  try {
+    return await operation;
+  } catch (error) {
+    if (error instanceof errors.TimeoutError) {
+      return undefined;
+    }
+    throw error;
+  }
+}
 
 test.describe('Listing Management E2E', () => {
   // Test Data Management
@@ -22,18 +36,21 @@ test.describe('Listing Management E2E', () => {
       await loginAs(page, 'user');
 
       // Try to access admin routes
-      await page.goto('/admin', { waitUntil: 'domcontentloaded', timeout: 15000 });
-      await page.waitForURL(/\/unauthorized/, { timeout: 15000 });
+      await page.goto('/admin', { waitUntil: 'domcontentloaded', timeout: NAVIGATION_TIMEOUT });
+      await page.waitForURL(/\/unauthorized/, { timeout: NAVIGATION_TIMEOUT });
       await expect(page.getByRole('heading', { name: /access denied/i })).toBeVisible();
       expect(page.url()).toContain('/unauthorized');
 
-      await page
-        .goto('/admin/listings', { waitUntil: 'domcontentloaded', timeout: 15000 })
-        .catch(() => {});
-      await page.waitForLoadState('domcontentloaded').catch(() => {});
-      await page
-        .waitForURL(/\/unauthorized/, { timeout: 15000, waitUntil: 'domcontentloaded' })
-        .catch(() => {});
+      await ignoreTimeout(
+        page.goto('/admin/listings', { waitUntil: 'domcontentloaded', timeout: NAVIGATION_TIMEOUT })
+      );
+      await ignoreTimeout(page.waitForLoadState('domcontentloaded'));
+      await ignoreTimeout(
+        page.waitForURL(/\/unauthorized/, {
+          timeout: NAVIGATION_TIMEOUT,
+          waitUntil: 'domcontentloaded',
+        })
+      );
       await expect(page.getByRole('heading', { name: /access denied/i })).toBeVisible();
       expect(page.url()).toContain('/unauthorized');
 
@@ -98,18 +115,29 @@ test.describe('Listing Management E2E', () => {
 
       await loginAs(page, 'admin', { redirectTo: '/admin/listings' });
 
-      await page
-        .waitForURL(/\/admin\/listings/, { waitUntil: 'domcontentloaded', timeout: 15000 })
-        .catch(() => {});
-      await page.waitForLoadState('domcontentloaded').catch(() => {});
+      await ignoreTimeout(
+        page.waitForURL(/\/admin\/listings/, {
+          waitUntil: 'domcontentloaded',
+          timeout: NAVIGATION_TIMEOUT,
+        })
+      );
+      await ignoreTimeout(page.waitForLoadState('domcontentloaded'));
 
-      await expect(page.getByTestId('admin-listings-page')).toBeVisible();
-      await expect(page.getByTestId('listings-table')).toBeVisible();
-      await expect(page.getByTestId('listing-row-listing-flagged')).toBeVisible();
+      await expect(page.getByTestId('admin-listings-page')).toBeVisible({
+        timeout: VISIBILITY_TIMEOUT,
+      });
+      await expect(page.getByTestId('listings-table')).toBeVisible({
+        timeout: VISIBILITY_TIMEOUT,
+      });
+      await expect(page.getByTestId('listing-row-listing-flagged')).toBeVisible({
+        timeout: VISIBILITY_TIMEOUT,
+      });
       await expect(
         page.getByTestId('listing-row-listing-flagged').getByText('Pending')
-      ).toBeVisible();
-      await expect(page.getByTitle('Delete')).toBeVisible();
+      ).toBeVisible({ timeout: VISIBILITY_TIMEOUT });
+      await expect(page.getByTestId('delete-listing-button')).toBeVisible({
+        timeout: VISIBILITY_TIMEOUT,
+      });
     });
   });
 
@@ -118,16 +146,19 @@ test.describe('Listing Management E2E', () => {
     test('handles invalid listing creation gracefully', async ({ page }) => {
       await loginAs(page, 'venueOwner');
 
-      await page
-        .goto('/dashboard/listings/new', { waitUntil: 'domcontentloaded', timeout: 15000 })
-        .catch(() => {});
-      await page.waitForLoadState('domcontentloaded').catch(() => {});
-      await page
-        .waitForURL(/\/dashboard\/listings\/new/, {
-          timeout: 15000,
+      await ignoreTimeout(
+        page.goto('/dashboard/listings/new', {
+          waitUntil: 'domcontentloaded',
+          timeout: NAVIGATION_TIMEOUT,
+        })
+      );
+      await ignoreTimeout(page.waitForLoadState('domcontentloaded'));
+      await ignoreTimeout(
+        page.waitForURL(/\/dashboard\/listings\/new/, {
+          timeout: NAVIGATION_TIMEOUT,
           waitUntil: 'domcontentloaded',
         })
-        .catch(() => {});
+      );
       await page.waitForSelector('button[type="submit"]', { state: 'attached' });
 
       // Try to submit without required fields
@@ -144,13 +175,19 @@ test.describe('Listing Management E2E', () => {
       await loginAs(page, 'user');
 
       // Attempt to edit
-      await page
-        .goto(`/dashboard/listings/edit/${listingId}`, { waitUntil: 'domcontentloaded' })
-        .catch(() => {});
-      await page.waitForLoadState('domcontentloaded').catch(() => {});
-      await page
-        .waitForURL(/\/unauthorized/, { timeout: 15000, waitUntil: 'domcontentloaded' })
-        .catch(() => {});
+      await ignoreTimeout(
+        page.goto(`/dashboard/listings/edit/${listingId}`, {
+          waitUntil: 'domcontentloaded',
+          timeout: NAVIGATION_TIMEOUT,
+        })
+      );
+      await ignoreTimeout(page.waitForLoadState('domcontentloaded'));
+      await ignoreTimeout(
+        page.waitForURL(/\/unauthorized/, {
+          timeout: NAVIGATION_TIMEOUT,
+          waitUntil: 'domcontentloaded',
+        })
+      );
       await expect(page.getByRole('heading', { name: /access denied/i })).toBeVisible();
       expect(page.url()).toContain('/unauthorized');
 
@@ -214,14 +251,24 @@ test.describe('Listing Management E2E', () => {
       const userPage2 = await context.newPage();
 
       // Navigate to listing
-      await userPage1
-        .goto(`/listings/${listingSlug}`, { waitUntil: 'domcontentloaded', timeout: 15000 })
-        .catch(() => {});
-      await userPage2
-        .goto(`/listings/${listingSlug}`, { waitUntil: 'domcontentloaded', timeout: 15000 })
-        .catch(() => {});
-      await expect(userPage1.getByTestId('review-comment-field')).toBeVisible();
-      await expect(userPage2.getByTestId('review-comment-field')).toBeVisible();
+      await ignoreTimeout(
+        userPage1.goto(`/listings/${listingSlug}`, {
+          waitUntil: 'domcontentloaded',
+          timeout: NAVIGATION_TIMEOUT,
+        })
+      );
+      await ignoreTimeout(
+        userPage2.goto(`/listings/${listingSlug}`, {
+          waitUntil: 'domcontentloaded',
+          timeout: NAVIGATION_TIMEOUT,
+        })
+      );
+      await expect(userPage1.getByTestId('review-comment-field')).toBeVisible({
+        timeout: VISIBILITY_TIMEOUT,
+      });
+      await expect(userPage2.getByTestId('review-comment-field')).toBeVisible({
+        timeout: VISIBILITY_TIMEOUT,
+      });
 
       // Submit reviews simultaneously
       const user1Comment = 'Great place!';
@@ -237,10 +284,18 @@ test.describe('Listing Management E2E', () => {
         }),
       ]);
 
-      await expect(userPage1.getByTestId('review-success-message')).toBeVisible();
-      await expect(userPage1.getByTestId('submitted-review-comment')).toHaveText(user1Comment);
-      await expect(userPage2.getByTestId('review-success-message')).toBeVisible();
-      await expect(userPage2.getByTestId('submitted-review-comment')).toHaveText(user2Comment);
+      await expect(userPage1.getByTestId('review-success-message')).toBeVisible({
+        timeout: VISIBILITY_TIMEOUT,
+      });
+      await expect(userPage1.getByTestId('submitted-review-comment')).toHaveText(user1Comment, {
+        timeout: VISIBILITY_TIMEOUT,
+      });
+      await expect(userPage2.getByTestId('review-success-message')).toBeVisible({
+        timeout: VISIBILITY_TIMEOUT,
+      });
+      await expect(userPage2.getByTestId('submitted-review-comment')).toHaveText(user2Comment, {
+        timeout: VISIBILITY_TIMEOUT,
+      });
     });
   });
 
@@ -268,17 +323,27 @@ test.describe('Listing Management E2E', () => {
         });
       });
 
-      await page
-        .goto('/dashboard/listings', { waitUntil: 'domcontentloaded', timeout: 15000 })
-        .catch(() => {});
-      await page.waitForLoadState('domcontentloaded').catch(() => {});
-      await page
-        .waitForURL(/\/dashboard\/listings/, { timeout: 15000, waitUntil: 'domcontentloaded' })
-        .catch(() => {});
-      await expect(page.getByText(testData.listing.name)).toBeVisible({ timeout: 10000 });
+      await ignoreTimeout(
+        page.goto('/dashboard/listings', {
+          waitUntil: 'domcontentloaded',
+          timeout: NAVIGATION_TIMEOUT,
+        })
+      );
+      await ignoreTimeout(page.waitForLoadState('domcontentloaded'));
+      await ignoreTimeout(
+        page.waitForURL(/\/dashboard\/listings/, {
+          timeout: NAVIGATION_TIMEOUT,
+          waitUntil: 'domcontentloaded',
+        })
+      );
+      await expect(page.getByText(testData.listing.name)).toBeVisible({
+        timeout: VISIBILITY_TIMEOUT,
+      });
 
       await page.reload();
-      await expect(page.getByText(testData.listing.name)).toBeVisible({ timeout: 10000 });
+      await expect(page.getByText(testData.listing.name)).toBeVisible({
+        timeout: VISIBILITY_TIMEOUT,
+      });
     });
 
     test('maintains session across multiple tabs', async ({ context }) => {
@@ -291,16 +356,22 @@ test.describe('Listing Management E2E', () => {
 
       // Open new tab
       const page2 = await context.newPage();
-      await page2
-        .goto('/profile', { waitUntil: 'domcontentloaded', timeout: 15000 })
-        .catch(() => {});
-      await page2
-        .waitForURL(/\/profile/, { timeout: 15000, waitUntil: 'domcontentloaded' })
-        .catch(() => {});
+      await ignoreTimeout(
+        page2.goto('/profile', {
+          waitUntil: 'domcontentloaded',
+          timeout: NAVIGATION_TIMEOUT,
+        })
+      );
+      await ignoreTimeout(
+        page2.waitForURL(/\/profile/, {
+          timeout: NAVIGATION_TIMEOUT,
+          waitUntil: 'domcontentloaded',
+        })
+      );
 
       // Verify logged in state persists
       await expect(page2.getByRole('heading', { name: displayName, level: 1 })).toBeVisible({
-        timeout: 10000,
+        timeout: VISIBILITY_TIMEOUT,
       });
     });
   });

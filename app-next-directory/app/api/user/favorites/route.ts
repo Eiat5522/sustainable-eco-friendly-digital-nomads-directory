@@ -233,6 +233,7 @@ export async function POST(request: NextRequest) {
 // Remove listing from favorites
 export async function DELETE(request: NextRequest) {
   const authFn = _testControl?.authOverride ?? auth;
+  const ensureUser = _testControl?.ensureSanityUserOverride ?? ensureSanityUser;
   const fetchFn =
     _testControl?.clientFetchOverride ??
     ((query: string, params?: Record<string, unknown>) => client.fetch(query, params));
@@ -263,6 +264,17 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Listing slug is required' }, { status: 400 });
     }
 
+    const sanityUser = await ensureUser({
+      id: userId,
+      name: user?.name ?? null,
+      email: user?.email ?? null,
+      role: userRole,
+    });
+
+    if (!sanityUser) {
+      return NextResponse.json({ error: 'Unable to access user profile' }, { status: 500 });
+    }
+
     // Resolve listing by slug to get its Sanity ID
     const listing = (await fetchFn(`*[_type == "listing" && slug.current == $slug][0]{ _id }`, {
       slug,
@@ -274,8 +286,8 @@ export async function DELETE(request: NextRequest) {
 
     // Find and remove the favorite
     const existingFavorite = (await fetchFn(
-      `*[_type == "userFavorite" && user._ref == $userId && listing._ref == $listingId][0]`,
-      { userId, listingId }
+      `*[_type == "userFavorite" && user._ref == $sanityUserId && listing._ref == $listingId][0]`,
+      { sanityUserId: sanityUser._id, listingId }
     )) as { _id: string } | null;
 
     if (existingFavorite) {

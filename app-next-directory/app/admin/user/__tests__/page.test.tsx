@@ -252,7 +252,7 @@ describe('EditUserPage', () => {
     // Clear and reset mocks completely
     mockGetUserById.mockReset();
     mockAuth.mockReset();
-    
+
     mockAuth.mockResolvedValue({
       user: { id: 'admin-1', role: 'admin' },
     });

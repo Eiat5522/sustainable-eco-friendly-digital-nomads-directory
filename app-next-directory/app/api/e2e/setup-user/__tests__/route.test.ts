@@ -219,8 +219,10 @@ describe('/api/e2e/setup-user', () => {
       jest.resetModules();
       const mockConnectAfterReset = jest.requireMock('@/lib/dbConnect').default as jest.Mock;
       const mockBcryptAfterReset = jest.requireMock('bcryptjs').default as { hash: jest.Mock };
-      const mockUserAfterReset = jest.requireMock('@/models/User').default as { findOneAndUpdate: jest.Mock };
-      
+      const mockUserAfterReset = jest.requireMock('@/models/User').default as {
+        findOneAndUpdate: jest.Mock;
+      };
+
       mockConnectAfterReset.mockResolvedValue(undefined);
       mockBcryptAfterReset.hash.mockResolvedValue('hashed_password');
       mockUserAfterReset.findOneAndUpdate.mockResolvedValue({
@@ -250,8 +252,10 @@ describe('/api/e2e/setup-user', () => {
       jest.resetModules();
       const mockConnectAfterReset = jest.requireMock('@/lib/dbConnect').default as jest.Mock;
       const mockBcryptAfterReset = jest.requireMock('bcryptjs').default as { hash: jest.Mock };
-      const mockUserAfterReset = jest.requireMock('@/models/User').default as { findOneAndUpdate: jest.Mock };
-      
+      const mockUserAfterReset = jest.requireMock('@/models/User').default as {
+        findOneAndUpdate: jest.Mock;
+      };
+
       mockConnectAfterReset.mockResolvedValue(undefined);
       mockBcryptAfterReset.hash.mockResolvedValue('hashed_password');
       mockUserAfterReset.findOneAndUpdate.mockResolvedValue({
@@ -306,8 +310,10 @@ describe('/api/e2e/setup-user', () => {
       jest.resetModules();
       const mockConnectAfterReset = jest.requireMock('@/lib/dbConnect').default as jest.Mock;
       const mockBcryptAfterReset = jest.requireMock('bcryptjs').default as { hash: jest.Mock };
-      const mockUserAfterReset = jest.requireMock('@/models/User').default as { findOneAndUpdate: jest.Mock };
-      
+      const mockUserAfterReset = jest.requireMock('@/models/User').default as {
+        findOneAndUpdate: jest.Mock;
+      };
+
       mockConnectAfterReset.mockResolvedValue(undefined);
       mockBcryptAfterReset.hash.mockResolvedValue('hashed_password');
       mockUserAfterReset.findOneAndUpdate.mockResolvedValue({
@@ -344,8 +350,10 @@ describe('/api/e2e/setup-user', () => {
       jest.resetModules();
       const mockConnectAfterReset = jest.requireMock('@/lib/dbConnect').default as jest.Mock;
       const mockBcryptAfterReset = jest.requireMock('bcryptjs').default as { hash: jest.Mock };
-      const mockUserAfterReset = jest.requireMock('@/models/User').default as { findOneAndUpdate: jest.Mock };
-      
+      const mockUserAfterReset = jest.requireMock('@/models/User').default as {
+        findOneAndUpdate: jest.Mock;
+      };
+
       mockConnectAfterReset.mockResolvedValue(undefined);
       mockBcryptAfterReset.hash.mockResolvedValue('hashed_password');
       mockUserAfterReset.findOneAndUpdate.mockResolvedValue({
@@ -408,14 +416,18 @@ describe('/api/e2e/setup-user', () => {
       jest.resetModules();
       const mockConnectAfterReset = jest.requireMock('@/lib/dbConnect').default as jest.Mock;
       const mockBcryptAfterReset = jest.requireMock('bcryptjs').default as { hash: jest.Mock };
-      const mockUserAfterReset = jest.requireMock('@/models/User').default as { findOneAndUpdate: jest.Mock };
+      const mockUserAfterReset = jest.requireMock('@/models/User').default as {
+        findOneAndUpdate: jest.Mock;
+      };
       const mockStructuredLoggerAfterReset = jest.requireMock('@/lib/logger').default as {
         error: jest.Mock;
       };
-      
+
       mockConnectAfterReset.mockResolvedValue(undefined);
       mockBcryptAfterReset.hash.mockResolvedValue('hashed_password');
-      mockUserAfterReset.findOneAndUpdate.mockRejectedValue(new Error('Database connection failed'));
+      mockUserAfterReset.findOneAndUpdate.mockRejectedValue(
+        new Error('Database connection failed')
+      );
 
       const { POST } = await import('../route');
       const request = createRequest({ email: 'test@example.com', password: 'password123' });
@@ -435,7 +447,7 @@ describe('/api/e2e/setup-user', () => {
       jest.resetModules();
       const mockConnectAfterReset = jest.requireMock('@/lib/dbConnect').default as jest.Mock;
       const mockBcryptAfterReset = jest.requireMock('bcryptjs').default as { hash: jest.Mock };
-      
+
       mockConnectAfterReset.mockResolvedValue(undefined);
       mockBcryptAfterReset.hash.mockRejectedValue(new Error('Bcrypt failed'));
 

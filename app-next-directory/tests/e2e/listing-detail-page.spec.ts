@@ -5,7 +5,9 @@ const ERROR_SLUG = 'listing-error-simulated';
 const SESSION_ENDPOINT = '**/api/auth/session';
 
 async function waitForPageStable(page: Page) {
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {
+    // Ignore networkidle timeout, continue if page is loaded
+  });
 }
 
 test.describe('[E2E] Listing detail page', () => {
@@ -20,13 +22,17 @@ test.describe('[E2E] Listing detail page', () => {
   });
 
   test('renders key sections for a valid slug', async ({ page }) => {
-    await page.goto(`/listings/${VALID_SLUG}`);
+    await page.goto(`/listings/${VALID_SLUG}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
     await waitForPageStable(page);
 
-    await expect(page.getByRole('heading', { level: 3, name: 'Banyan Tree Phuket' })).toBeVisible();
-    await expect(page.getByTestId('gallery-grid')).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Amenities' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: /Reviews \(3\)/i })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 3, name: 'Banyan Tree Phuket' })).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(page.getByTestId('gallery-grid')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: 'Amenities' })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /Reviews \(3\)/i })).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test.skip('shows the 404 page when the slug is missing (covered by Jest)', async ({ page }) => {

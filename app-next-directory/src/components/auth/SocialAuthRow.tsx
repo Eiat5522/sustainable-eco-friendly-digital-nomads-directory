@@ -102,29 +102,36 @@ export function SocialAuthRow({ providers = PROVIDERS }: Readonly<{ providers?: 
 
   return (
     <div className="flex items-center justify-center gap-3">
-      {enabledProviders.map(p => (
-        <button
-          type="button"
-          key={p.id}
-          onClick={async () => {
-            try {
-              setPending(p.id);
-              await signIn(p.id);
-            } finally {
-              // Probably navigates away, but safe fallback:
-              setPending(null);
-            }
-          }}
-          disabled={pending === p.id}
-          aria-disabled={pending === p.id}
-          title={`Continue with ${p.name}`}
-          aria-label={`Continue with ${p.name}`}
-          className="neo-button neo-button-hover rounded-full w-12 h-12 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-black/50"
-          style={{ backgroundColor: p.color, color: p.fg ?? '#111827' }}
-        >
-          {p.icon}
-        </button>
-      ))}
+      {enabledProviders.map(p => {
+        const buttonStyle = {
+          backgroundColor: p.color,
+          color: p.fg ?? '#111827',
+        };
+
+        return (
+          <button
+            type="button"
+            key={p.id}
+            onClick={async () => {
+              try {
+                setPending(p.id);
+                await signIn(p.id);
+              } finally {
+                // Probably navigates away, but safe fallback:
+                setPending(null);
+              }
+            }}
+            disabled={pending === p.id}
+            aria-disabled={pending === p.id}
+            title={`Continue with ${p.name}`}
+            aria-label={`Continue with ${p.name}`}
+            className="neo-button neo-button-hover rounded-full w-12 h-12 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-black/50"
+            style={buttonStyle}
+          >
+            {p.icon}
+          </button>
+        );
+      })}
     </div>
   );
 }

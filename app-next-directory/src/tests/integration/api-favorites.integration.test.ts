@@ -93,9 +93,10 @@ describe('API /api/user/favorites integration', () => {
         }
 
         if (query.includes('_type == "userFavorite"') && query.includes('[0]')) {
+          const sanityUserId = params?.sanityUserId ?? params?.userId;
           const target = favoritesStore.find(
             favorite =>
-              favorite.userId === params?.userId && favorite.listingId === params?.listingId
+              favorite.userId === sanityUserId && favorite.listingId === params?.listingId
           );
           return target ? { _id: target._id } : null;
         }

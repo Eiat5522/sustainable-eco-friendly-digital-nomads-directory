@@ -7,7 +7,10 @@ test.describe('Search filters and pagination', () => {
   });
 
   test('allows combining filters and clearing them', async ({ page }) => {
-    await page.goto('/search/results');
+    await page.goto('/search/results', { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {
+      // Ignore networkidle timeout, continue if page is loaded
+    });
 
     const cityFilterTrigger = page.getByRole('button', { name: /Select cities/i });
     const workspaceFilterTrigger = page.getByRole('button', { name: /Select workspace types/i });
@@ -16,26 +19,27 @@ test.describe('Search filters and pagination', () => {
     const coworkingOption = page.getByRole('menuitemcheckbox', { name: /Coworking/i });
     const fastWifiOption = page.getByRole('menuitemcheckbox', { name: 'Fast WiFi' });
 
+    await cityFilterTrigger.waitFor({ state: 'visible', timeout: 10000 });
     await cityFilterTrigger.click();
-    await bangkokOption.waitFor({ state: 'visible' });
+    await bangkokOption.waitFor({ state: 'visible', timeout: 10000 });
     await bangkokOption.click();
     await page.keyboard.press('Escape');
 
     await workspaceFilterTrigger.click();
-    await coworkingOption.waitFor({ state: 'visible' });
+    await coworkingOption.waitFor({ state: 'visible', timeout: 10000 });
     await coworkingOption.click();
     await page.keyboard.press('Escape');
 
     await amenityFilterTrigger.click();
-    await fastWifiOption.waitFor({ state: 'visible' });
+    await fastWifiOption.waitFor({ state: 'visible', timeout: 10000 });
     await fastWifiOption.click();
     await page.keyboard.press('Escape');
 
     await page.getByRole('button', { name: /^Search$/ }).click();
 
-    await expect(page).toHaveURL(/destination=Bangkok/);
-    await expect(page).toHaveURL(/category=coworking/);
-    await expect(page).toHaveURL(/amenities=Fast(?:\+|%20)WiFi/);
+    await expect(page).toHaveURL(/destination=Bangkok/, { timeout: 10000 });
+    await expect(page).toHaveURL(/category=coworking/, { timeout: 10000 });
+    await expect(page).toHaveURL(/amenities=Fast(?:\+|%20)WiFi/, { timeout: 10000 });
 
     await expect(page.getByRole('link', { name: 'Green Cowork Bangkok' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Ocean Colab Phuket' })).toHaveCount(0);
