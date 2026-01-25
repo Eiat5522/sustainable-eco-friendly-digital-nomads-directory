@@ -1,6 +1,6 @@
 # Testing Overview - Monorepo
 
-**Last Updated:** November 1, 2025  
+**Last Updated:** January 20, 2025  
 **Project:** Sustainable Eco-Friendly Digital Nomads Directory
 
 ## Overview
@@ -44,6 +44,7 @@ We follow a **comprehensive multi-layered testing approach**:
 - **Documentation:** [app-next-directory/docs/testing/README.md](../../app-next-directory/docs/testing/README.md)
 
 **Quick Commands:**
+
 ```bash
 # From workspace
 cd app-next-directory
@@ -66,6 +67,7 @@ pnpm --filter app-next-directory test:e2e
 - **Documentation:** See `sanity/README.md`
 
 **Quick Commands:**
+
 ```bash
 cd sanity
 npm test  # Run Sanity tests (if configured)
@@ -126,18 +128,21 @@ npm test
 ### Shared Test Utilities
 
 Common testing utilities and helpers are located in:
+
 - `app-next-directory/tests/helpers/` - Shared test helpers
 - `app-next-directory/tests/utils/` - Utility functions
 
 ### Mock Data
 
 Test data and mocks are managed per workspace:
+
 - `app-next-directory/__mocks__/` - Mock implementations
 - `app-next-directory/tests/helpers/test-data.ts` - Canonical test dataset
 
 ### CI/CD Integration
 
 Tests run automatically on:
+
 - Pull request creation/updates
 - Push to main branch
 - Manual workflow triggers
@@ -151,14 +156,17 @@ Tests run automatically on:
 ### Naming Conventions
 
 **Unit Tests:**
+
 - File: `*.test.ts` or `*.test.tsx`
 - Location: Co-located with source in `__tests__/` directories
 
 **Integration Tests:**
+
 - File: `*.integration.test.ts` or `*.int.test.ts`
 - Location: Co-located with source or in workspace `tests/integration/`
 
 **E2E Tests:**
+
 - File: `*.spec.ts`
 - Location: Workspace `tests/e2e/` directory
 
@@ -223,15 +231,18 @@ workspace/
 ### Current Status
 
 **App Next Directory:**
+
 - Unit Tests: ✅ 80%+ coverage
 - Integration Tests: ⚠️ Partial coverage
 - E2E Tests: ✅ Critical paths covered
 
 **Sanity:**
+
 - Schema Tests: ✅ All schemas validated
 - Content Tests: ⚠️ Manual testing primarily
 
 **ESLint Plugin:**
+
 - Rule Tests: ✅ All rules tested
 
 ### Coverage Goals
@@ -279,17 +290,19 @@ pnpm test:e2e
 #### Tests Not Found
 
 **Issue:** pnpm can't find workspace tests
+
 ```
 No tests found in workspace
 ```
 
 **Solution:** Ensure workspace has test scripts in `package.json`:
+
 ```json
 {
-  "scripts": {
-    "test": "jest",
-    "test:unit": "jest --config=jest.config.js"
-  }
+    "scripts": {
+        "test": "jest",
+        "test:unit": "jest --config=jest.config.js"
+    }
 }
 ```
 
@@ -298,11 +311,12 @@ No tests found in workspace
 **Issue:** Different test framework versions across workspaces
 
 **Solution:** Use workspace protocol in `package.json`:
+
 ```json
 {
-  "devDependencies": {
-    "jest": "29.7.0"  // Pin version across workspaces
-  }
+    "devDependencies": {
+        "jest": "29.7.0" // Pin version across workspaces
+    }
 }
 ```
 
@@ -311,6 +325,7 @@ No tests found in workspace
 **Issue:** Multiple workspaces trying to use same port
 
 **Solution:** Configure unique ports per workspace:
+
 ```javascript
 // app-next-directory/playwright.config.ts
 webServer: {
@@ -369,6 +384,7 @@ webServer: {
 ### App Next Directory (Next.js)
 
 **Primary Testing Focus:**
+
 - ✅ User authentication and authorization
 - ✅ Listing search and filtering
 - ✅ Map integration and geolocation
@@ -377,6 +393,7 @@ webServer: {
 - ✅ Responsive design and accessibility
 
 **Test Distribution:**
+
 - Unit Tests: 60% of test suite
 - Integration Tests: 20% of test suite
 - E2E Tests: 20% of test suite
@@ -384,12 +401,14 @@ webServer: {
 ### Sanity (CMS)
 
 **Primary Testing Focus:**
+
 - ✅ Schema structure and validation
 - ✅ Content type definitions
 - ✅ Custom input components
 - ⚠️ Content migration scripts
 
 **Test Distribution:**
+
 - Schema Tests: 80%
 - Manual Testing: 20%
 
