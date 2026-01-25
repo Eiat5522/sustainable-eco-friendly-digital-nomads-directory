@@ -349,15 +349,15 @@ describe('/api/user/favorites', () => {
       mockedEnsureSanityUser.mockResolvedValue(null);
       routeTestControl.parseBodyOverride = async () => ({ slug: 'test-listing' });
 
-    const request = new NextRequest('http://localhost/api/user/favorites', {
-      method: 'DELETE',
+      const request = new NextRequest('http://localhost/api/user/favorites', {
+        method: 'DELETE',
+      });
+
+      const response = await DELETE(request);
+      const json = await response.json();
+
+      expect(response.status).toBe(500);
+      expect(json.error).toBe('Unable to access user profile');
     });
-
-    const response = await DELETE(request);
-    const json = await response.json();
-
-    expect(response.status).toBe(500);
-    expect(json.error).toBe('Unable to access user profile');
-  });
   });
 });

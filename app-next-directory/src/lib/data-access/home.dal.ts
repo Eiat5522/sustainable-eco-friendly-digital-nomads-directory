@@ -158,9 +158,8 @@ async function fetchFromSanity<T>(
       return null;
     }
     const isNetworkError =
-      (err instanceof TypeError && 
-        err.message.toLowerCase().includes('fetch') || 
-        err.message.toLowerCase().includes('network')) ||
+      (err instanceof TypeError && err.message.toLowerCase().includes('fetch')) ||
+      err.message.toLowerCase().includes('network') ||
       (typeof err === 'object' &&
         err !== null &&
         'isNetworkError' in err &&
@@ -169,7 +168,7 @@ async function fetchFromSanity<T>(
       structuredLogger.warn('Sanity network fetch failed; falling back to cached null', err, {
         component: 'home.dal',
       });
-      return null;
+      throw err;
     }
     structuredLogger.error('Sanity fetch failed', err, {
       component: 'home.dal',
