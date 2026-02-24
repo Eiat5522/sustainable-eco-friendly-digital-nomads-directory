@@ -26,6 +26,11 @@ const googleSpy = jest.fn((options: any) => ({
   type: 'oauth',
   options,
 }));
+const githubSpy = jest.fn((options: any) => ({
+  id: 'github',
+  type: 'oauth',
+  options,
+}));
 
 jest.mock('next-auth/providers/credentials', () => ({
   __esModule: true,
@@ -35,6 +40,10 @@ jest.mock('next-auth/providers/credentials', () => ({
 jest.mock('next-auth/providers/google', () => ({
   __esModule: true,
   default: googleSpy,
+}));
+jest.mock('next-auth/providers/github', () => ({
+  __esModule: true,
+  default: githubSpy,
 }));
 
 const mockAdapter = { type: 'adapter' } as const;
@@ -94,6 +103,10 @@ const importAuthModule = async () => {
     __esModule: true,
     default: googleSpy,
   }));
+  jest.doMock('next-auth/providers/github', () => ({
+    __esModule: true,
+    default: githubSpy,
+  }));
   jest.doMock('@/lib/auth/adapter', () => ({
     createAuthAdapter: jest.fn((...args: unknown[]) => createAuthAdapter(...args)),
   }));
@@ -139,10 +152,13 @@ describe('auth module', () => {
     process.env.MONGODB_URI = '';
     delete process.env.GOOGLE_CLIENT_ID;
     delete process.env.GOOGLE_CLIENT_SECRET;
+    delete process.env.GITHUB_CLIENT_ID;
+    delete process.env.GITHUB_CLIENT_SECRET;
     nextAuthSpy.mockReturnValue(mockNextAuthInstance);
     isAdminEmail.mockReturnValue(false);
     credentialsSpy.mockClear();
     googleSpy.mockClear();
+    githubSpy.mockClear();
     findOne.mockResolvedValue(null);
   });
 
@@ -426,6 +442,19 @@ describe('auth module', () => {
     expect(googleSpy).toHaveBeenCalledWith({
       clientId: 'client-id',
       clientSecret: 'client-secret',
+    });
+  });
+
+  it('includes GitHub provider when credentials are configured', async () => {
+    process.env.GITHUB_CLIENT_ID = 'gh-client-id';
+    process.env.GITHUB_CLIENT_SECRET = 'gh-client-secret';
+    const { authOptions } = await importAuthModule();
+
+    const providerIds = authOptions.providers?.map((p: any) => p.id) ?? [];
+    expect(providerIds).toContain('github');
+    expect(githubSpy).toHaveBeenCalledWith({
+      clientId: 'gh-client-id',
+      clientSecret: 'gh-client-secret',
     });
   });
 });

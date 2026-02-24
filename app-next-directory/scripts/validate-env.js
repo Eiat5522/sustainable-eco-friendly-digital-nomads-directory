@@ -89,6 +89,18 @@ export function validateEnvironment() {
       description: 'Google OAuth client secret',
       required: false,
     },
+    {
+      name: 'GITHUB_CLIENT_ID',
+      value: process.env.GITHUB_CLIENT_ID,
+      description: 'GitHub OAuth client ID',
+      required: false,
+    },
+    {
+      name: 'GITHUB_CLIENT_SECRET',
+      value: process.env.GITHUB_CLIENT_SECRET,
+      description: 'GitHub OAuth client secret',
+      required: false,
+    },
   ];
 
   console.log('\n🌐 Social Sign-In Providers:');

@@ -4,6 +4,7 @@ import type { Model } from 'mongoose';
 import NextAuth, { type NextAuthConfig, type Session } from 'next-auth';
 import type { JWT } from 'next-auth/jwt';
 import Credentials from 'next-auth/providers/credentials';
+import GitHub from 'next-auth/providers/github';
 import Google from 'next-auth/providers/google';
 // Use CommonJS-friendly deep imports to avoid ESM parsing issues in Jest
 // Additional OAuth providers can be added here when their credentials are available.
@@ -85,6 +86,8 @@ const providers: NextAuthConfig['providers'] = [
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
+const githubClientId = process.env.GITHUB_CLIENT_ID;
+const githubClientSecret = process.env.GITHUB_CLIENT_SECRET;
 
 const parseBooleanEnv = (value?: string): boolean => {
   if (!value) {
@@ -110,6 +113,15 @@ if (googleClientId && googleClientSecret) {
     Google({
       clientId: googleClientId,
       clientSecret: googleClientSecret,
+    })
+  );
+}
+
+if (githubClientId && githubClientSecret) {
+  providers.push(
+    GitHub({
+      clientId: githubClientId,
+      clientSecret: githubClientSecret,
     })
   );
 }
@@ -283,6 +295,7 @@ if (process.env.NODE_ENV !== 'production') {
 export const authOptions: NextAuthConfig = {
   // Use adapter only when a valid Mongo URI is configured to avoid dev crashes
   ...(adapter ? { adapter } : {}),
+  basePath: '/api/auth',
   session: { strategy: 'jwt' },
   trustHost: shouldTrustHost,
   providers,

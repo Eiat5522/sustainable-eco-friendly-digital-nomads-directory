@@ -42,6 +42,21 @@ describe('SocialAuthRow', () => {
       });
     });
 
+    it('renders GitHub button when GitHub provider is configured', async () => {
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          github: { id: 'github', name: 'GitHub' },
+        }),
+      } as Response);
+
+      render(<SocialAuthRow />);
+
+      await waitFor(() => {
+        expect(screen.getByLabelText(/Continue with GitHub/i)).toBeInTheDocument();
+      });
+    });
+
     it('filters out credentials provider', async () => {
       jest.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: true,
