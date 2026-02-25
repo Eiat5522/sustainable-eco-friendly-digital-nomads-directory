@@ -20,14 +20,14 @@ jest.mock('@/lib/auth/callbackUrl', () => ({
   sanitizeCallbackUrl: jest.fn(),
 }));
 
-jest.mock('@/components/layout/Header', () => ({
+jest.mock('@/components/layout/HeaderServer', () => ({
   __esModule: true,
-  Header: () => <header data-testid="header" />,
+  HeaderServer: () => <header data-testid="header" />,
 }));
 
-jest.mock('@/components/layout/Footer', () => ({
+jest.mock('@/components/layout/FooterServer', () => ({
   __esModule: true,
-  Footer: () => <footer data-testid="footer" />,
+  FooterServer: () => <footer data-testid="footer" />,
 }));
 
 jest.mock('@/components/auth/SocialAuthRow', () => ({
@@ -116,7 +116,7 @@ describe('LoginPage', () => {
     expect(screen.getByTestId('footer')).toBeInTheDocument();
     expect(screen.getByTestId('login-form')).toBeInTheDocument();
     expect(screen.getAllByTestId('social-auth-row')).toHaveLength(1);
-    expect(screen.getByRole('link', { name: /create an account/i })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /create account/i })).toHaveAttribute(
       'href',
       '/auth/signup'
     );

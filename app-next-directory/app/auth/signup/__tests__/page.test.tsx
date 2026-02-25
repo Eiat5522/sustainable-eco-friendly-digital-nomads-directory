@@ -17,6 +17,14 @@ jest.mock('../SignupPageContent', () => ({
   default: () => <div data-testid="signup-content" />,
 }));
 
+jest.mock('@/components/layout/HeaderServer', () => ({
+  HeaderServer: () => <header data-testid="signup-header" />,
+}));
+
+jest.mock('@/components/layout/FooterServer', () => ({
+  FooterServer: () => <footer data-testid="signup-footer" />,
+}));
+
 const redirectMock = jest.fn();
 
 jest.mock('next/navigation', () => ({
@@ -77,7 +85,9 @@ describe('SignupPage (server)', () => {
     const element = await SignupPage({});
     render(element);
 
+    expect(screen.getByTestId('signup-header')).toBeInTheDocument();
     expect(screen.getByTestId('signup-content')).toBeInTheDocument();
+    expect(screen.getByTestId('signup-footer')).toBeInTheDocument();
     expect(redirectMock).not.toHaveBeenCalled();
   });
 });

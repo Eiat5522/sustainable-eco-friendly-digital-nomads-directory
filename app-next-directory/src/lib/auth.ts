@@ -300,7 +300,7 @@ export const authOptions: NextAuthConfig = {
   trustHost: shouldTrustHost,
   providers,
   pages: {
-    signIn: '/auth/login',
+    signIn: '/auth/signin',
   },
   callbacks,
   events: {

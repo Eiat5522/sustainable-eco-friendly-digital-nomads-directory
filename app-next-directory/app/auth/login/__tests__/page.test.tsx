@@ -12,12 +12,12 @@ jest.mock('@/lib/auth/callbackUrl', () => ({
   sanitizeCallbackUrl: jest.fn((url: string | undefined) => url ?? null),
 }));
 
-jest.mock('@/components/layout/Header', () => ({
-  Header: () => <header data-testid="mock-header" />,
+jest.mock('@/components/layout/HeaderServer', () => ({
+  HeaderServer: () => <header data-testid="mock-header" />,
 }));
 
-jest.mock('@/components/layout/Footer', () => ({
-  Footer: () => <footer data-testid="mock-footer" />,
+jest.mock('@/components/layout/FooterServer', () => ({
+  FooterServer: () => <footer data-testid="mock-footer" />,
 }));
 
 jest.mock('@/components/auth/SocialAuthRow', () => ({

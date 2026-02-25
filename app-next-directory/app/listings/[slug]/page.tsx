@@ -146,7 +146,17 @@ export default async function ListingPage({ params }: Props) {
       <Suspense fallback={<div className="h-16 bg-gray-100 animate-pulse" />}>
         <Header />
       </Suspense>
-      <main>{listingContent}</main>
+      <main className="relative overflow-hidden bg-neo-secondary px-4 py-8">
+        <div
+          className="pointer-events-none absolute inset-0 z-0 opacity-25"
+          style={{
+            backgroundImage:
+              'radial-gradient(circle at 2px 2px, var(--neo-border) 2px, transparent 0)',
+            backgroundSize: '28px 28px',
+          }}
+        />
+        <div className="relative z-10">{listingContent}</div>
+      </main>
       <Suspense fallback={<div className="h-32 bg-gray-100 animate-pulse" />}>
         <Footer />
       </Suspense>

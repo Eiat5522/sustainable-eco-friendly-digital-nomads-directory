@@ -151,87 +151,242 @@ function ContactForm() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen overflow-hidden bg-neo-primary">
+      <div
+        className="pointer-events-none absolute inset-0 z-0 opacity-20"
+        style={{
+          backgroundImage:
+            'radial-gradient(circle at 2px 2px, var(--neo-surface) 2px, transparent 0)',
+          backgroundSize: '28px 28px',
+        }}
+      />
+      <div className="pointer-events-none absolute right-8 top-10 z-0 h-24 w-24 rotate-12 border-4 border-neo-border bg-neo-secondary shadow-[6px_6px_0_0] shadow-neo-shadow" />
+      <div className="pointer-events-none absolute bottom-12 left-10 z-0 h-20 w-20 rounded-full border-4 border-neo-border bg-neo-accent shadow-[6px_6px_0_0] shadow-neo-shadow" />
+      <div className="pointer-events-none absolute bottom-10 right-16 z-0 h-32 w-32 rounded-full border-4 border-neo-secondary bg-neo-border opacity-40" />
       <Header />
-      <main className="container mx-auto px-4 py-16">
+      <main className="container relative z-10 mx-auto px-4 py-12 md:py-16">
         <NeoCard
           variant="elevated"
-          className="max-w-2xl mx-auto"
-          role="region"
-          aria-labelledby="contact-heading"
+          className="mx-auto max-w-5xl overflow-hidden border-4 border-neo-border"
         >
-          <div className="p-8">
-            <h1 id="contact-heading" className="heading-lg mb-2 text-neo-text-primary">
-              Contact Us
-            </h1>
-            <p className="body-lg text-neo-text-secondary mb-8">
-              We&apos;re here to help. Select a topic below or send us a message.
-            </p>
-
-            <form onSubmit={handleSubmit} noValidate>
-              <div className="grid grid-cols-1 gap-6">
-                <div>
-                  <Label htmlFor="enquiry-type" className="text-sm font-medium text-gray-700">
-                    I have a question about...
-                  </Label>
-                  <Select
-                    value={enquiryType}
-                    onValueChange={(value: EnquiryType) => setEnquiryType(value)}
-                  >
-                    <SelectTrigger
-                      id="enquiry-type"
-                      aria-label="Select enquiry type"
-                      className="w-full mt-1"
-                    >
-                      <SelectValue placeholder="Select an enquiry type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="general">General Enquiry</SelectItem>
-                      <SelectItem value="newsletter">Newsletter</SelectItem>
-                    </SelectContent>
-                  </Select>
+          <div className="grid md:grid-cols-5">
+            <section className="relative border-b-4 border-neo-border bg-neo-success p-6 md:col-span-2 md:border-b-0 md:border-r-4 md:p-8">
+              <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-neo-primary opacity-20" />
+              <div className="absolute -bottom-6 -left-6 h-20 w-20 rotate-45 bg-neo-secondary opacity-25" />
+              <div className="relative z-10">
+                <div className="mb-4 inline-block border-2 border-neo-border bg-neo-surface px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] shadow-[3px_3px_0_0] shadow-neo-shadow">
+                  Support Desk
                 </div>
+                <h1 id="contact-heading" className="heading-lg mb-3 text-neo-border">
+                  Contact Us
+                </h1>
+                <p className="mb-8 text-sm font-semibold leading-relaxed text-neo-border/80">
+                  Questions, partnerships, or newsletter updates. Send us a message and we&apos;ll
+                  get back to you soon.
+                </p>
+                <div className="border-2 border-neo-border bg-neo-surface p-4 shadow-[4px_4px_0_0] shadow-neo-shadow">
+                  <p className="text-xs font-black uppercase tracking-[0.15em] text-neo-text-primary">
+                    Typical response time
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-neo-text-secondary">
+                    Within 1-2 business days
+                  </p>
+                </div>
+              </div>
+            </section>
 
-                {enquiryType === 'general' ? (
-                  <>
-                    {/* The 'name' and 'email' fields were added to match the existing /api/contact endpoint's schema. */}
-                    <div>
-                      <Label htmlFor="name" className="text-sm font-medium text-gray-700">
-                        Full Name
-                      </Label>
-                      <div className="relative mt-1">
-                        <Type
-                          aria-hidden="true"
-                          focusable="false"
-                          className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
-                        />
-                        <NeoInput
-                          data-testid="contact-name"
-                          id="name"
-                          name="name"
-                          type="text"
-                          placeholder="Your Name"
-                          value={name}
-                          onChange={e => setName(e.target.value)}
-                          required
-                          className="pl-10"
-                          aria-invalid={!!errors.name}
-                          aria-describedby={errors.name ? 'name-error' : undefined}
-                        />
-                      </div>
-                      {errors.name && (
-                        <p
-                          id="name-error"
-                          data-testid="name-error"
-                          role="alert"
-                          className="text-sm text-red-600 mt-1"
+            <section
+              className="bg-neo-surface p-6 md:col-span-3 md:p-8"
+              role="region"
+              aria-labelledby="contact-heading"
+            >
+              <p className="mb-6 inline-block border-2 border-neo-border bg-neo-primary px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-white shadow-[3px_3px_0_0] shadow-neo-shadow">
+                Let&apos;s Talk
+              </p>
+
+              <form onSubmit={handleSubmit} noValidate>
+                <div className="grid grid-cols-1 gap-6">
+                  <div>
+                    <Label
+                      htmlFor="enquiry-type"
+                      className="text-sm font-bold uppercase tracking-wider"
+                    >
+                      I have a question about...
+                    </Label>
+                    <Select
+                      value={enquiryType}
+                      onValueChange={(value: EnquiryType) => setEnquiryType(value)}
+                    >
+                      <SelectTrigger
+                        id="enquiry-type"
+                        aria-label="Select enquiry type"
+                        className="w-full mt-1"
+                      >
+                        <SelectValue placeholder="Select an enquiry type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="general">General Enquiry</SelectItem>
+                        <SelectItem value="newsletter">Newsletter</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {enquiryType === 'general' ? (
+                    <>
+                      <div>
+                        <Label
+                          htmlFor="name"
+                          className="text-sm font-bold uppercase tracking-wider"
                         >
-                          {errors.name[0]}
-                        </p>
-                      )}
-                    </div>
+                          Full Name
+                        </Label>
+                        <div className="relative mt-1">
+                          <Type
+                            aria-hidden="true"
+                            focusable="false"
+                            className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+                          />
+                          <NeoInput
+                            data-testid="contact-name"
+                            id="name"
+                            name="name"
+                            type="text"
+                            placeholder="Your Name"
+                            value={name}
+                            onChange={e => setName(e.target.value)}
+                            required
+                            className="pl-10"
+                            aria-invalid={!!errors.name}
+                            aria-describedby={errors.name ? 'name-error' : undefined}
+                          />
+                        </div>
+                        {errors.name && (
+                          <p
+                            id="name-error"
+                            data-testid="name-error"
+                            role="alert"
+                            className="text-sm text-red-600 mt-1"
+                          >
+                            {errors.name[0]}
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        <Label
+                          htmlFor="email"
+                          className="text-sm font-bold uppercase tracking-wider"
+                        >
+                          Email Address
+                        </Label>
+                        <div className="relative mt-1">
+                          <Mail
+                            aria-hidden="true"
+                            focusable="false"
+                            className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+                          />
+                          <NeoInput
+                            data-testid="contact-email"
+                            id="email"
+                            name="email"
+                            type="email"
+                            placeholder="you@example.com"
+                            value={email}
+                            onChange={e => setEmail(e.target.value)}
+                            required
+                            className="pl-10"
+                            autoComplete="email"
+                            autoCapitalize="none"
+                            autoCorrect="off"
+                            spellCheck={false}
+                            inputMode="email"
+                            enterKeyHint="send"
+                            aria-invalid={!!errors.email}
+                            aria-describedby={errors.email ? 'email-error' : undefined}
+                          />
+                        </div>
+                        {errors.email && (
+                          <p
+                            id="email-error"
+                            data-testid="email-error"
+                            role="alert"
+                            className="text-sm text-red-600 mt-1"
+                          >
+                            {errors.email[0]}
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        <Label
+                          htmlFor="subject"
+                          className="text-sm font-bold uppercase tracking-wider"
+                        >
+                          Subject
+                        </Label>
+                        <div className="relative mt-1">
+                          <Type className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                          <NeoInput
+                            data-testid="contact-subject"
+                            id="subject"
+                            name="subject"
+                            type="text"
+                            placeholder="e.g., Question about a venue"
+                            value={subject}
+                            onChange={e => setSubject(e.target.value)}
+                            required
+                            className="pl-10"
+                            aria-invalid={!!errors.subject}
+                            aria-describedby={errors.subject ? 'subject-error' : undefined}
+                          />
+                        </div>
+                        {errors.subject && (
+                          <p
+                            id="subject-error"
+                            data-testid="subject-error"
+                            role="alert"
+                            className="text-sm text-red-600 mt-1"
+                          >
+                            {errors.subject[0]}
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        <Label
+                          htmlFor="enquiry"
+                          className="text-sm font-bold uppercase tracking-wider"
+                        >
+                          Enquiry
+                        </Label>
+                        <div className="relative mt-1">
+                          <MessageSquare className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                          <Textarea
+                            data-testid="contact-message"
+                            id="enquiry"
+                            name="enquiry"
+                            placeholder="Please describe your enquiry in detail..."
+                            value={enquiry}
+                            onChange={e => setEnquiry(e.target.value)}
+                            required
+                            className="pl-10 pt-2"
+                            rows={5}
+                            aria-invalid={!!errors.message}
+                            aria-describedby={errors.message ? 'enquiry-error' : undefined}
+                          />
+                        </div>
+                        {errors.message && (
+                          <p
+                            id="enquiry-error"
+                            data-testid="message-error"
+                            role="alert"
+                            className="text-sm text-red-600 mt-1"
+                          >
+                            {errors.message[0]}
+                          </p>
+                        )}
+                      </div>
+                    </>
+                  ) : (
                     <div>
-                      <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                      <Label htmlFor="email" className="text-sm font-bold uppercase tracking-wider">
                         Email Address
                       </Label>
                       <div className="relative mt-1">
@@ -262,7 +417,7 @@ function ContactForm() {
                       </div>
                       {errors.email && (
                         <p
-                          id="email-error"
+                          id={'email-error'}
                           data-testid="email-error"
                           role="alert"
                           className="text-sm text-red-600 mt-1"
@@ -271,145 +426,37 @@ function ContactForm() {
                         </p>
                       )}
                     </div>
-                    <div>
-                      <Label htmlFor="subject" className="text-sm font-medium text-gray-700">
-                        Subject
-                      </Label>
-                      <div className="relative mt-1">
-                        <Type className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                        <NeoInput
-                          data-testid="contact-subject"
-                          id="subject"
-                          name="subject"
-                          type="text"
-                          placeholder="e.g., Question about a venue"
-                          value={subject}
-                          onChange={e => setSubject(e.target.value)}
-                          required
-                          className="pl-10"
-                          aria-invalid={!!errors.subject}
-                          aria-describedby={errors.subject ? 'subject-error' : undefined}
-                        />
-                      </div>
-                      {errors.subject && (
-                        <p
-                          id="subject-error"
-                          data-testid="subject-error"
-                          role="alert"
-                          className="text-sm text-red-600 mt-1"
-                        >
-                          {errors.subject[0]}
-                        </p>
-                      )}
-                    </div>
-                    <div>
-                      <Label htmlFor="enquiry" className="text-sm font-medium text-gray-700">
-                        Enquiry
-                      </Label>
-                      <div className="relative mt-1">
-                        <MessageSquare className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                        <Textarea
-                          data-testid="contact-message"
-                          id="enquiry"
-                          name="enquiry"
-                          placeholder="Please describe your enquiry in detail..."
-                          value={enquiry}
-                          onChange={e => setEnquiry(e.target.value)}
-                          required
-                          className="pl-10 pt-2"
-                          rows={5}
-                          aria-invalid={!!errors.message}
-                          aria-describedby={errors.message ? 'enquiry-error' : undefined}
-                        />
-                      </div>
-                      {errors.message && (
-                        <p
-                          id="enquiry-error"
-                          data-testid="message-error"
-                          role="alert"
-                          className="text-sm text-red-600 mt-1"
-                        >
-                          {errors.message[0]}
-                        </p>
-                      )}
-                    </div>
-                  </>
-                ) : (
-                  <div>
-                    <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                      Email Address
-                    </Label>
-                    <div className="relative mt-1">
-                      <Mail
-                        aria-hidden="true"
-                        focusable="false"
-                        className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
-                      />
-                      <NeoInput
-                        data-testid="contact-email"
-                        id="email"
-                        name="email"
-                        type="email"
-                        placeholder="you@example.com"
-                        value={email}
-                        onChange={e => setEmail(e.target.value)}
-                        required
-                        className="pl-10"
-                        autoComplete="email"
-                        autoCapitalize="none"
-                        autoCorrect="off"
-                        spellCheck={false}
-                        inputMode="email"
-                        enterKeyHint="send"
-                        aria-invalid={!!errors.email}
-                        aria-describedby={errors.email ? 'email-error' : undefined}
-                      />
-                    </div>
-                    {errors.email && (
-                      <p
-                        id={'email-error'}
-                        data-testid="email-error"
-                        role="alert"
-                        className="text-sm text-red-600 mt-1"
-                      >
-                        {errors.email[0]}
-                      </p>
-                    )}
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
 
-              {submitMessage && (
-                <output
-                  data-testid={submitStatus === 'success' ? 'contact-success' : 'contact-error'}
-                  aria-live="polite"
-                  className={`mt-6 p-4 rounded-md text-center border ${submitStatus === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-rose-50 text-rose-800 border-rose-200'}`}
-                >
-                  {submitMessage}
-                </output>
-              )}
-
-              <div className="flex items-center justify-end gap-4 mt-8">
-                <Link href="/" passHref>
-                  <NeoButton
-                    variant="secondary"
-                    type="button"
-                    className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:border-emerald-900/40 dark:hover:bg-emerald-900/30"
+                {submitMessage && (
+                  <output
+                    data-testid={submitStatus === 'success' ? 'contact-success' : 'contact-error'}
+                    aria-live="polite"
+                    className={`mt-6 p-4 rounded-md text-center border ${submitStatus === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-rose-50 text-rose-800 border-rose-200'}`}
                   >
-                    Cancel
+                    {submitMessage}
+                  </output>
+                )}
+
+                <div className="mt-8 flex items-center justify-end gap-4 border-t-4 border-dashed border-neo-border pt-6">
+                  <Link href="/" passHref>
+                    <NeoButton variant="secondary" type="button">
+                      Cancel
+                    </NeoButton>
+                  </Link>
+                  <NeoButton
+                    type="submit"
+                    data-testid="contact-submit"
+                    disabled={isSubmitting}
+                    aria-busy={isSubmitting}
+                    className="bg-neo-primary text-white hover:bg-neo-primary/90"
+                  >
+                    {isSubmitting ? 'Submitting...' : 'Submit'}
                   </NeoButton>
-                </Link>
-                <NeoButton
-                  type="submit"
-                  data-testid="contact-submit"
-                  disabled={isSubmitting}
-                  aria-busy={isSubmitting}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/30 dark:bg-emerald-500 dark:hover:bg-emerald-600"
-                >
-                  {isSubmitting ? 'Submitting...' : 'Submit'}
-                </NeoButton>
-              </div>
-            </form>
+                </div>
+              </form>
+            </section>
           </div>
         </NeoCard>
       </main>

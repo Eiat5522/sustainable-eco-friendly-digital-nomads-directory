@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import SocialAuthRow from '@/components/auth/SocialAuthRow';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
+import { NeoCard, NeoCardContent, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
 import { getBaseUrl } from '@/lib/absolute-url';
 import { auth } from '@/lib/auth';
 import { sanitizeCallbackUrl } from '@/lib/auth/callbackUrl';
@@ -47,53 +48,37 @@ export default async function LoginPage(props: LoginPageProps) {
   return (
     <>
       <Header />
-      {/* Page background: bold amber with black dot grid */}
-      <div className="relative min-h-screen flex items-center justify-center px-4 py-12 bg-neo-secondary overflow-hidden">
-        <div
-          className="absolute inset-0 z-0 opacity-25"
-          style={{
-            backgroundImage: 'radial-gradient(circle at 2px 2px, var(--neo-border) 2px, transparent 0)',
-            backgroundSize: '28px 28px',
-          }}
+      <div className="relative min-h-screen flex items-center justify-center px-4 py-12 bg-background overflow-hidden">
+        {/* Geometric Background Pattern */}
+        <div 
+          className="absolute inset-0 z-0 opacity-20" 
+          style={{ 
+            backgroundImage: 'radial-gradient(circle at 2px 2px, var(--color-neo-border) 2px, transparent 0)', 
+            backgroundSize: '32px 32px' 
+          }} 
         />
 
-        {/* Bold floating shapes */}
-        <div className="absolute top-10 left-10 w-28 h-28 bg-neo-primary border-4 border-neo-border shadow-[8px_8px_0px_0px] shadow-neo-shadow -rotate-12 z-0" />
-        <div className="absolute top-14 right-14 w-20 h-20 bg-neo-accent border-4 border-neo-border shadow-[6px_6px_0px_0px] shadow-neo-shadow rounded-full z-0 animate-[spin_12s_linear_infinite]" />
-        <div className="absolute bottom-14 left-20 w-16 h-16 bg-neo-success border-4 border-neo-border shadow-[5px_5px_0px_0px] shadow-neo-shadow rotate-45 z-0" />
-        <div className="absolute bottom-10 right-10 w-36 h-36 bg-neo-border border-4 border-neo-secondary rounded-full z-0" />
-        <div className="absolute top-1/3 right-4 w-8 h-32 bg-neo-border opacity-30 z-0" />
-        <div className="absolute top-1/4 left-4 w-8 h-24 bg-neo-border opacity-20 z-0" />
+        {/* Decorative shapes */}
+        <div className="absolute top-12 left-12 w-32 h-32 bg-neo-accent border-4 border-neo-border rounded-full shadow-[8px_8px_0px_0px] shadow-neo-shadow -z-0 animate-[spin_10s_linear_infinite]" />
+        <div className="absolute bottom-12 right-12 w-40 h-40 bg-neo-success border-4 border-neo-border shadow-[8px_8px_0px_0px] shadow-neo-shadow -z-0 rotate-12" />
+        <div className="absolute top-1/4 right-24 w-16 h-16 bg-neo-primary border-4 border-neo-border shadow-[4px_4px_0px_0px] shadow-neo-shadow -z-0 -rotate-12" />
 
-        {/* Two-panel card */}
-        <div
-          className="relative z-10 w-full max-w-5xl flex flex-col md:flex-row border-4 border-neo-border bg-neo-surface overflow-hidden"
-          style={{ boxShadow: '14px 14px 0px 0px var(--neo-shadow)' }}
-        >
-          {/* Left Panel — black, bold */}
-          <div className="flex w-full flex-col justify-center bg-neo-border p-8 md:w-2/5 lg:p-12 relative overflow-hidden border-b-4 md:border-b-0 md:border-r-4 border-neo-border">
-            <div className="absolute -right-8 -top-8 w-32 h-32 bg-neo-secondary opacity-20 rounded-full" />
-            <div className="absolute -left-6 -bottom-6 w-24 h-24 bg-neo-primary opacity-20 rotate-45" />
+        <div className="relative z-10 w-full max-w-5xl flex flex-col md:flex-row rounded-2xl border-4 border-neo-border shadow-[16px_16px_0px_0px] shadow-neo-shadow bg-neo-surface overflow-hidden">
+          {/* Left Panel */}
+          <div className="flex w-full flex-col justify-center bg-neo-secondary p-8 md:w-1/2 lg:p-12 border-b-4 md:border-b-0 md:border-r-4 border-neo-border relative overflow-hidden">
+            {/* Inner decorative elements */}
+            <div className="absolute -right-10 -top-10 w-40 h-40 bg-neo-primary rounded-full border-4 border-neo-border opacity-50 mix-blend-multiply" />
+            <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-neo-accent border-4 border-neo-border opacity-50 mix-blend-multiply rotate-45" />
 
             <div className="relative z-10">
-              <div className="flex items-center gap-2 mb-8">
-                <span className="text-3xl" aria-hidden>🌿</span>
-                <span className="font-black text-neo-secondary text-sm uppercase tracking-[0.2em]">EcoNomad</span>
-              </div>
-              <p className="heading-xl text-white uppercase tracking-tight mb-5" id="welcome-heading">
-                Welcome<br />Back!
+              <h2 className="heading-xl mb-6 text-neo-border uppercase tracking-tight" id="welcome-heading">
+                Welcome<br/>Back!
+              </h2>
+              <p className="text-lg font-bold text-neo-border/80 mb-8 max-w-sm">
+                Log in to manage your listings, save favorites, and discover eco-friendly spots for digital nomads.
               </p>
-              <p className="font-bold text-neo-secondary/80 mb-8 max-w-xs text-sm leading-relaxed">
-                Log in to manage listings, save favourites, and discover eco-friendly spots built for digital nomads.
-              </p>
-              <section
-                aria-labelledby="social-signin-heading-left"
-                className="border-2 border-white/20 bg-white/5 p-5"
-              >
-                <h3
-                  id="social-signin-heading-left"
-                  className="text-xs font-black uppercase tracking-[0.15em] mb-4 text-neo-secondary"
-                >
+              <section aria-labelledby="social-signin-heading-left" className="bg-neo-surface p-6 rounded-xl border-4 border-neo-border shadow-[4px_4px_0px_0px] shadow-neo-shadow">
+                <h3 id="social-signin-heading-left" className="text-sm font-bold uppercase tracking-wider mb-4 text-neo-text-primary">
                   Quick Sign In
                 </h3>
                 <SocialAuthRow />
@@ -101,26 +86,23 @@ export default async function LoginPage(props: LoginPageProps) {
             </div>
           </div>
 
-          {/* Right Panel — white, form */}
-          <div className="w-full p-8 md:w-3/5 lg:p-12 bg-neo-surface flex flex-col justify-center">
+          {/* Right Panel (Auth Card) */}
+          <div className="w-full p-8 md:w-1/2 lg:p-12 bg-neo-surface flex flex-col justify-center">
             <div className="mb-8">
-              <div className="inline-block bg-neo-primary text-white font-bold text-[10px] uppercase tracking-[0.2em] px-3 py-1 border-2 border-neo-border shadow-[3px_3px_0_0] shadow-neo-shadow mb-5">
-                Member Access
-              </div>
               <h1 className="heading-lg mb-2">Log In</h1>
-              <p className="text-neo-text-secondary font-medium text-sm">Enter your credentials to access your account.</p>
+              <p className="text-neo-text-secondary font-medium">Enter your details to access your account.</p>
             </div>
 
             <LoginForm />
 
-            <div className="mt-8 pt-6 border-t-4 border-dashed border-neo-border text-center">
-              <p className="font-bold text-neo-text-primary text-sm">
+            <div className="mt-8 pt-6 border-t-4 border-neo-border border-dashed text-center">
+              <p className="font-bold text-neo-text-primary">
                 New user?{' '}
                 <Link
                   href="/auth/signup"
-                  className="inline-block ml-2 px-4 py-1.5 bg-neo-secondary text-neo-border font-bold border-2 border-neo-border shadow-[3px_3px_0_0] shadow-neo-shadow hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none transition-all uppercase text-xs tracking-wider"
+                  className="inline-block ml-2 px-3 py-1 bg-neo-primary text-white border-2 border-neo-border shadow-[2px_2px_0px_0px] shadow-neo-shadow hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
                 >
-                  Create account →
+                  Create an account
                 </Link>
               </p>
             </div>

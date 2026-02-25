@@ -297,17 +297,30 @@ export async function CityContent({ slug }: { slug: string }) {
  */
 function CityLoadingFallback() {
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
-      <div className="text-center">
+    <div className="relative overflow-hidden bg-neo-secondary px-4 py-12">
+      <div
+        className="pointer-events-none absolute inset-0 z-0 opacity-25"
+        style={{
+          backgroundImage:
+            'radial-gradient(circle at 2px 2px, var(--neo-border) 2px, transparent 0)',
+          backgroundSize: '28px 28px',
+        }}
+      />
+      <div className="container relative z-10 mx-auto max-w-4xl">
         <div
-          className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
-          role="status"
+          className="border-4 border-neo-border bg-neo-surface p-10 text-center"
+          style={{ boxShadow: '12px 12px 0px 0px var(--neo-shadow)' }}
         >
-          <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
-            Loading...
-          </span>
+          <div
+            className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+            role="status"
+          >
+            <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+              Loading...
+            </span>
+          </div>
+          <p className="mt-4 text-sm text-gray-600">Loading city information...</p>
         </div>
-        <p className="mt-4 text-sm text-gray-600">Loading city information...</p>
       </div>
     </div>
   );
@@ -321,7 +334,7 @@ export default async function CityPage({ params }: Props) {
       <Suspense fallback={<div className="h-16 bg-gray-100 animate-pulse" />}>
         <Header />
       </Suspense>
-      <main>
+      <main className="relative overflow-hidden bg-neo-secondary">
         <Suspense fallback={<CityLoadingFallback />}>
           <CityContent slug={slug} />
         </Suspense>

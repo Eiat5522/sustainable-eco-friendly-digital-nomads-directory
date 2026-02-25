@@ -37,6 +37,12 @@ export async function proxy(request: NextRequest) {
   try {
     const { pathname } = request.nextUrl;
 
+    if (pathname === '/auth/login') {
+      const signInUrl = new URL('/auth/signin', request.nextUrl.origin || request.url);
+      signInUrl.search = request.nextUrl.search;
+      return withSecurityHeaders(NextResponse.redirect(signInUrl));
+    }
+
     // Skip middleware for static files, Next.js internals, and auth API
     if (
       pathname.startsWith('/_next') ||

@@ -157,9 +157,15 @@ async function fetchFromSanity<T>(
       });
       return null;
     }
+    const errMessage =
+      err instanceof Error
+        ? err.message
+        : typeof err === 'object' && err !== null && 'message' in err
+          ? String((err as { message?: unknown }).message ?? '')
+          : '';
     const isNetworkError =
       (err instanceof TypeError && err.message.toLowerCase().includes('fetch')) ||
-      err.message.toLowerCase().includes('network') ||
+      errMessage.toLowerCase().includes('network') ||
       (typeof err === 'object' &&
         err !== null &&
         'isNetworkError' in err &&

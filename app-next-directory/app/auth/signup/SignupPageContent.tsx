@@ -4,8 +4,6 @@ import Link from 'next/link';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import SocialAuthRow from '@/components/auth/SocialAuthRow';
-import { Footer } from '@/components/layout/Footer';
-import { Header } from '@/components/layout/Header';
 import { NeoButton } from '@/components/ui/neo-button';
 import { NeoInput } from '@/components/ui/neo-input';
 
@@ -32,9 +30,7 @@ export function SignupPageContent() {
   };
 
   return (
-    <>
-      <Header />
-      <div className="relative min-h-screen flex items-start justify-center px-4 py-12 bg-neo-primary overflow-hidden">
+    <div className="relative min-h-screen flex items-start justify-center px-4 py-12 bg-neo-primary overflow-hidden">
         {/* White dot grid on indigo background */}
         <div
           className="absolute inset-0 z-0 opacity-20"
@@ -149,9 +145,7 @@ export function SignupPageContent() {
             </div>
           </div>
         </div>
-      </div>
-      <Footer />
-    </>
+    </div>
   );
 }
 

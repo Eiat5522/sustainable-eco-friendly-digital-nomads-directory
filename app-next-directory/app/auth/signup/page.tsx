@@ -1,5 +1,7 @@
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { FooterServer } from '@/components/layout/FooterServer';
+import { HeaderServer } from '@/components/layout/HeaderServer';
 import { getBaseUrl } from '@/lib/absolute-url';
 import { auth } from '@/lib/auth';
 import { sanitizeCallbackUrl } from '@/lib/auth/callbackUrl';
@@ -40,5 +42,11 @@ export default async function SignupPage(props: SignupPageProps) {
     redirect(safeCallback ?? '/');
   }
 
-  return <SignupPageContent />;
+  return (
+    <>
+      <HeaderServer />
+      <SignupPageContent />
+      <FooterServer />
+    </>
+  );
 }

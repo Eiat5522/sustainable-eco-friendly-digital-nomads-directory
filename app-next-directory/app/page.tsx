@@ -63,9 +63,9 @@ export default async function HomePage() {
       <HeroSection />
       <Suspense
         fallback={
-          <section className="py-16 bg-background">
-            <div className="container mx-auto px-4">
-              <div className="text-center py-12">
+          <section className="relative overflow-hidden bg-neo-secondary px-4 py-12">
+            <div className="container mx-auto max-w-6xl px-4">
+              <div className="border-4 border-neo-border bg-neo-surface py-12 text-center">
                 <p className="body-lg">Loading featured venues...</p>
               </div>
             </div>
@@ -76,8 +76,12 @@ export default async function HomePage() {
       </Suspense>
       <Suspense
         fallback={
-          <div className="text-center py-12">
-            <p className="body-lg">Loading cities…</p>
+          <div className="relative overflow-hidden bg-neo-secondary px-4 py-12">
+            <div className="container mx-auto max-w-6xl px-4 text-center">
+              <div className="border-4 border-neo-border bg-neo-surface py-12">
+                <p className="body-lg">Loading cities…</p>
+              </div>
+            </div>
           </div>
         }
       >
