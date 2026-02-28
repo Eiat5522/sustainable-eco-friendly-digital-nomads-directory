@@ -309,7 +309,7 @@ describe('rate-limit', () => {
   describe('Redis-based rate limiting', () => {
     beforeEach(() => {
       process.env.UPSTASH_REDIS_REST_URL = 'https://mock-redis.upstash.io';
-      process.env.UPSTASH_REDIS_REST_TOKEN = 'mock-token';
+      process.env.UPSTASH_REDIS_REST_TOKEN = 'example-token-for-tests';
     });
 
     it('should use Redis when credentials are provided', async () => {
