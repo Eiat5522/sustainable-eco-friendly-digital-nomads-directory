@@ -308,8 +308,8 @@ describe('rate-limit', () => {
 
   describe('Redis-based rate limiting', () => {
     beforeEach(() => {
-      process.env.UPSTASH_REDIS_REST_URL = 'https://mock-redis.upstash.io';
-      process.env.UPSTASH_REDIS_REST_TOKEN = 'example-token-for-tests';
+      process.env.UPSTASH_REDIS_REST_URL = 'https://example.com/redis';
+      process.env.UPSTASH_REDIS_REST_TOKEN = 'test-token';
     });
 
     it('should use Redis when credentials are provided', async () => {
@@ -381,7 +381,7 @@ describe('rate-limit', () => {
     });
 
     it('should handle missing credentials after partial credentials provided', async () => {
-      process.env.UPSTASH_REDIS_REST_URL = 'https://mock-redis.upstash.io';
+      process.env.UPSTASH_REDIS_REST_URL = 'https://example.com/redis-partial';
       delete process.env.UPSTASH_REDIS_REST_TOKEN;
 
       const limiter = rateLimit({ max: 10, windowMs: 1000 });
