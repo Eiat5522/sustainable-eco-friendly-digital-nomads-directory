@@ -58,7 +58,7 @@ describe('rate-limit', () => {
     it('should allow requests within the limit (In-memory)', async () => {
       const limiter = rateLimit({ max: 3, windowMs: 1000 });
       const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.1' },
+        headers: { 'x-forwarded-for': 'client-ip-1' },
       });
 
       const result1 = await limiter(request);
@@ -78,7 +78,7 @@ describe('rate-limit', () => {
     it('should block requests when limit is exceeded (In-memory)', async () => {
       const limiter = rateLimit({ max: 2, windowMs: 1000 });
       const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.1' },
+        headers: { 'x-forwarded-for': 'client-ip-1' },
       });
 
       await limiter(request); // First request
@@ -93,7 +93,7 @@ describe('rate-limit', () => {
     it('should reset count after window expires (In-memory)', async () => {
       const limiter = rateLimit({ max: 2, windowMs: 100 }); // 100ms window
       const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.1' },
+        headers: { 'x-forwarded-for': 'client-ip-1' },
       });
 
       // Use up the limit
@@ -118,10 +118,10 @@ describe('rate-limit', () => {
       const limiter = rateLimit({ max: 2, windowMs: 1000 });
 
       const request1 = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.1' },
+        headers: { 'x-forwarded-for': 'client-ip-1' },
       });
       const request2 = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.2' },
+        headers: { 'x-forwarded-for': 'client-ip-2' },
       });
 
       // First IP
@@ -139,7 +139,7 @@ describe('rate-limit', () => {
     it('should use x-forwarded-for header for IP', async () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '192.168.1.1, 10.0.0.1' },
+        headers: { 'x-forwarded-for': 'client-ip-4, client-ip-5' },
       });
 
       const result = await limiter(request);
@@ -153,7 +153,7 @@ describe('rate-limit', () => {
     it('should use x-real-ip header if x-forwarded-for is not present', async () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request = new Request('http://localhost', {
-        headers: { 'x-real-ip': '192.168.1.1' },
+        headers: { 'x-real-ip': 'client-ip-4' },
       });
 
       const result = await limiter(request);
@@ -166,7 +166,7 @@ describe('rate-limit', () => {
     it('should use cf-connecting-ip header if others are not present', async () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request = new Request('http://localhost', {
-        headers: { 'cf-connecting-ip': '192.168.1.1' },
+        headers: { 'cf-connecting-ip': 'client-ip-4' },
       });
 
       const result = await limiter(request);
@@ -216,7 +216,7 @@ describe('rate-limit', () => {
       const windowMs = 5000;
       const limiter = rateLimit({ max: 1, windowMs });
       const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.1' },
+        headers: { 'x-forwarded-for': 'client-ip-1' },
       });
 
       const before = Date.now();
@@ -230,7 +230,7 @@ describe('rate-limit', () => {
     it('should handle multiple requests at the exact limit', async () => {
       const limiter = rateLimit({ max: 5, windowMs: 1000 });
       const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.1' },
+        headers: { 'x-forwarded-for': 'client-ip-1' },
       });
 
       // Make exactly max requests
@@ -248,7 +248,7 @@ describe('rate-limit', () => {
     it('should handle x-forwarded-for with multiple IPs correctly', async () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '  192.168.1.1  , 10.0.0.1, 172.16.0.1' },
+        headers: { 'x-forwarded-for': '  client-ip-4  , client-ip-5, client-ip-6' },
       });
 
       const result = await limiter(request);
@@ -263,8 +263,8 @@ describe('rate-limit', () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request1 = new Request('http://localhost', {
         headers: {
-          'x-forwarded-for': '192.168.1.1',
-          'x-real-ip': '10.0.0.1',
+          'x-forwarded-for': 'client-ip-4',
+          'x-real-ip': 'client-ip-5',
         },
       });
 
@@ -273,7 +273,7 @@ describe('rate-limit', () => {
       // Different x-real-ip should still be blocked (same x-forwarded-for)
       const request2 = new Request('http://localhost', {
         headers: {
-          'x-forwarded-for': '192.168.1.1',
+          'x-forwarded-for': 'client-ip-4',
           'x-real-ip': '10.0.0.2',
         },
       });
@@ -286,8 +286,8 @@ describe('rate-limit', () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request1 = new Request('http://localhost', {
         headers: {
-          'x-real-ip': '192.168.1.1',
-          'cf-connecting-ip': '10.0.0.1',
+          'x-real-ip': 'client-ip-4',
+          'cf-connecting-ip': 'client-ip-5',
         },
       });
 
@@ -296,7 +296,7 @@ describe('rate-limit', () => {
       // Different cf-connecting-ip should still be blocked (same x-real-ip)
       const request2 = new Request('http://localhost', {
         headers: {
-          'x-real-ip': '192.168.1.1',
+          'x-real-ip': 'client-ip-4',
           'cf-connecting-ip': '10.0.0.2',
         },
       });
@@ -322,7 +322,7 @@ describe('rate-limit', () => {
 
       const limiter = rateLimit({ max: 10, windowMs: 1000 });
       const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.1' },
+        headers: { 'x-forwarded-for': 'client-ip-1' },
       });
 
       const result = await limiter(request);
@@ -339,7 +339,7 @@ describe('rate-limit', () => {
 
       const limiter = rateLimit({ max: 5, windowMs: 1000 });
       const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.1' },
+        headers: { 'x-forwarded-for': 'client-ip-1' },
       });
 
       const result = await limiter(request);
@@ -355,7 +355,7 @@ describe('rate-limit', () => {
 
       const limiter = rateLimit({ max: 10, windowMs: 1000 });
       const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.1' },
+        headers: { 'x-forwarded-for': 'client-ip-1' },
       });
 
       const result = await limiter(request);
@@ -372,7 +372,7 @@ describe('rate-limit', () => {
 
       const limiter = rateLimit({ max: 10, windowMs: 1000 });
       const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.1' },
+        headers: { 'x-forwarded-for': 'client-ip-1' },
       });
 
       const result = await limiter(request);
@@ -386,7 +386,7 @@ describe('rate-limit', () => {
 
       const limiter = rateLimit({ max: 10, windowMs: 1000 });
       const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.1' },
+        headers: { 'x-forwarded-for': 'client-ip-1' },
       });
 
       const result = await limiter(request);
@@ -399,7 +399,7 @@ describe('rate-limit', () => {
     it('should have contactForm limiter configured with 5 limit', async () => {
       expect(rateLimiters.contactForm).toBeDefined();
       const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.1' },
+        headers: { 'x-forwarded-for': 'client-ip-1' },
       });
 
       // Make 5 requests (should all succeed)
@@ -417,7 +417,7 @@ describe('rate-limit', () => {
     it('should have apiGeneral limiter configured with 100 limit', async () => {
       expect(rateLimiters.apiGeneral).toBeDefined();
       const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.2' },
+        headers: { 'x-forwarded-for': 'client-ip-2' },
       });
 
       // Make 100 requests (should all succeed)
@@ -435,7 +435,7 @@ describe('rate-limit', () => {
     it('should have search limiter configured with 50 limit', async () => {
       expect(rateLimiters.search).toBeDefined();
       const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.3' },
+        headers: { 'x-forwarded-for': 'client-ip-3' },
       });
 
       // Make 50 requests (should all succeed)
@@ -455,7 +455,7 @@ describe('rate-limit', () => {
     it('should cleanup expired entries using exported cleanup function', async () => {
       const limiter = rateLimit({ max: 1, windowMs: 50 });
       const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '192.168.1.100' },
+        headers: { 'x-forwarded-for': 'client-ip-400' },
       });
 
       await limiter(request);
@@ -467,7 +467,7 @@ describe('rate-limit', () => {
 
       cleanupRateLimitStore();
 
-      expect(rateLimitStore.has('192.168.1.100')).toBe(false);
+      expect(rateLimitStore.has('client-ip-400')).toBe(false);
       jest.restoreAllMocks();
     });
   });
