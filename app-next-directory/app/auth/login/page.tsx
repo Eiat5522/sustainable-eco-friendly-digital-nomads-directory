@@ -4,7 +4,6 @@ import { redirect } from 'next/navigation';
 import SocialAuthRow from '@/components/auth/SocialAuthRow';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
-import { NeoCard, NeoCardContent, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
 import { getBaseUrl } from '@/lib/absolute-url';
 import { auth } from '@/lib/auth';
 import { sanitizeCallbackUrl } from '@/lib/auth/callbackUrl';

@@ -35,7 +35,7 @@ const cleanupInterval = shouldStartCleanup
 cleanupInterval?.unref?.();
 
 // Initialize Redis client if credentials are available
-let redis: Redis | null = null;
+let redis: Redis | null | undefined;
 
 function initializeRedis() {
   if (redis !== undefined) {
@@ -224,6 +224,27 @@ export const rateLimiters = {
     windowMs: 10 * 60 * 1000, // 10 minutes
   }),
 };
+
+/**
+ * Resets the internal Redis client singleton.
+ * Used for testing purposes.
+ */
+export function clearRedisClient() {
+  redis = undefined;
+}
+
+/**
+ * Manually triggers the cleanup of expired in-memory rate limit entries.
+ * Used for testing purposes.
+ */
+export function cleanupRateLimitStore() {
+  const now = Date.now();
+  for (const [key, info] of rateLimitStore.entries()) {
+    if (now > info.resetTime) {
+      rateLimitStore.delete(key);
+    }
+  }
+}
 
 export { rateLimitStore };
 export default rateLimit;
