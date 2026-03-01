@@ -197,7 +197,6 @@ function ContactForm() {
 
             <section
               className="bg-neo-surface p-6 md:col-span-3 md:p-8"
-              role="region"
               aria-labelledby="contact-heading"
             >
               <p className="mb-6 inline-block border-2 border-neo-border bg-neo-primary px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-white shadow-[3px_3px_0_0] shadow-neo-shadow">
