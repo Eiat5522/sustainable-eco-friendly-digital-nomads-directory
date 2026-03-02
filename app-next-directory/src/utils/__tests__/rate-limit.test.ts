@@ -237,8 +237,8 @@ describe('rate-limit', () => {
     });
 
     it('should handle Redis-based rate limiting', async () => {
-      process.env.UPSTASH_REDIS_REST_URL = 'https://fake.upstash.io';
-      process.env.UPSTASH_REDIS_REST_TOKEN = 'fake-token';
+      process.env.UPSTASH_REDIS_REST_URL = 'https://test-url.example.com';
+      process.env.UPSTASH_REDIS_REST_TOKEN = 'test-token-value';
 
       limitMock.mockResolvedValue({
         success: true,
@@ -266,8 +266,8 @@ describe('rate-limit', () => {
     });
 
     it('should fallback to in-memory if Redis call fails', async () => {
-      process.env.UPSTASH_REDIS_REST_URL = 'https://fake.upstash.io';
-      process.env.UPSTASH_REDIS_REST_TOKEN = 'fake-token';
+      process.env.UPSTASH_REDIS_REST_URL = 'https://test-url.example.com';
+      process.env.UPSTASH_REDIS_REST_TOKEN = 'test-token-value';
 
       limitMock.mockRejectedValue(new Error('Redis error'));
 
@@ -284,8 +284,8 @@ describe('rate-limit', () => {
     });
 
     it('should handle Redis initialization error', async () => {
-      process.env.UPSTASH_REDIS_REST_URL = 'https://fake.upstash.io';
-      process.env.UPSTASH_REDIS_REST_TOKEN = 'fake-token';
+      process.env.UPSTASH_REDIS_REST_URL = 'https://test-url.example.com';
+      process.env.UPSTASH_REDIS_REST_TOKEN = 'test-token-value';
 
       (Redis as unknown as jest.Mock).mockImplementation(() => {
         throw new Error('Connection error');
@@ -303,8 +303,8 @@ describe('rate-limit', () => {
     });
 
     it('should respect DISABLE_UPSTASH_DURING_BUILD', async () => {
-      process.env.UPSTASH_REDIS_REST_URL = 'https://fake.upstash.io';
-      process.env.UPSTASH_REDIS_REST_TOKEN = 'fake-token';
+      process.env.UPSTASH_REDIS_REST_URL = 'https://test-url.example.com';
+      process.env.UPSTASH_REDIS_REST_TOKEN = 'test-token-value';
       process.env.DISABLE_UPSTASH_DURING_BUILD = '1';
 
       const limiter = rateLimit({ max: 5, windowMs: 1000 });
