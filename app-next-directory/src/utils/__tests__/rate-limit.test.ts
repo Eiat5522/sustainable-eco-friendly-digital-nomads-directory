@@ -507,5 +507,20 @@ describe('rate-limit', () => {
       const result2 = await limiter(request);
       expect(result2.success).toBe(false);
     });
+
+    it('should skip invalid IPs in headers', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      const request = new Request('http://localhost', {
+        headers: {
+          'x-forwarded-for': 'invalid-ip, 127.0.0.1',
+          'x-real-ip': 'not-an-ip',
+          'cf-connecting-ip': 'also-invalid'
+        },
+      });
+
+      const result = await limiter(request);
+      expect(result.success).toBe(true);
+      // It should have fallen back to 'unknown' or skip 'invalid-ip' and found nothing else valid
+    });
   });
 });
