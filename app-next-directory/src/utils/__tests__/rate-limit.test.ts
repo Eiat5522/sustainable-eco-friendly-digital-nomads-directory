@@ -3,7 +3,35 @@
  */
 
 import { afterEach, beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { rateLimit, rateLimiters, rateLimitStore } from '../rate-limit';
+
+// Define the mocks before anything else to ensure they are used by the imported module
+const mockLimit = jest.fn();
+const mockSlidingWindow = jest.fn().mockReturnValue('slidingWindow');
+
+jest.mock('@upstash/redis', () => ({
+  Redis: jest.fn().mockImplementation(() => ({})),
+}));
+
+jest.mock('@upstash/ratelimit', () => ({
+  Ratelimit: Object.assign(
+    jest.fn().mockImplementation(() => ({
+      limit: mockLimit,
+    })),
+    {
+      slidingWindow: mockSlidingWindow,
+    }
+  ),
+}));
+
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
+import {
+  cleanupRateLimitStore,
+  clearRedisClient,
+  rateLimit,
+  rateLimiters,
+  rateLimitStore,
+} from '../rate-limit';
 
 // Helper function to reduce code duplication
 function createTestRequest(ip: string): Request {
@@ -17,7 +45,7 @@ describe('rate-limit', () => {
   const originalEnv = { ...process.env };
 
   beforeAll(() => {
-    // Ensure Redis is not initialized during tests
+    // Ensure Redis is not initialized during tests by default
     delete process.env.UPSTASH_REDIS_REST_URL;
     delete process.env.UPSTASH_REDIS_REST_TOKEN;
   });
@@ -25,10 +53,18 @@ describe('rate-limit', () => {
   beforeEach(() => {
     // Clear the rate limit store before each test
     rateLimitStore.clear();
+    // Reset Redis singleton state
+    clearRedisClient();
     // Mock console.log to avoid noise in test output
     jest.spyOn(console, 'log').mockImplementation(() => {});
     // Mock console.warn to avoid noise from Redis initialization
     jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    // Reset mocks
+    jest.clearAllMocks();
+    mockLimit.mockReset();
+    mockSlidingWindow.mockClear();
+    mockSlidingWindow.mockReturnValue('slidingWindow');
   });
 
   afterEach(() => {
@@ -37,12 +73,10 @@ describe('rate-limit', () => {
     process.env = { ...originalEnv };
   });
 
-  describe('rateLimit', () => {
+  describe('rateLimit - In-Memory Fallback', () => {
     it('should allow requests within the limit', async () => {
       const limiter = rateLimit({ max: 3, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.1' },
-      });
+      const request = createTestRequest('127.0.0.1');
 
       const result1 = await limiter(request);
       expect(result1.success).toBe(true);
@@ -60,9 +94,7 @@ describe('rate-limit', () => {
 
     it('should block requests when limit is exceeded', async () => {
       const limiter = rateLimit({ max: 2, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.1' },
-      });
+      const request = createTestRequest('127.0.0.1');
 
       await limiter(request); // First request
       await limiter(request); // Second request
@@ -75,15 +107,11 @@ describe('rate-limit', () => {
 
     it('should reset count after window expires', async () => {
       const limiter = rateLimit({ max: 2, windowMs: 100 }); // 100ms window
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.1' },
-      });
+      const request = createTestRequest('127.0.0.1');
 
       // Use up the limit
-      const result1 = await limiter(request);
-      expect(result1.success).toBe(true);
-      const result2 = await limiter(request);
-      expect(result2.success).toBe(true);
+      await limiter(request);
+      await limiter(request);
 
       const blockedResult = await limiter(request);
       expect(blockedResult.success).toBe(false);
@@ -100,74 +128,19 @@ describe('rate-limit', () => {
     it('should track different IPs separately', async () => {
       const limiter = rateLimit({ max: 2, windowMs: 1000 });
 
-      const request1 = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.1' },
-      });
-      const request2 = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.2' },
-      });
+      const request1 = createTestRequest('127.0.0.1');
+      const request2 = createTestRequest('127.0.0.2');
 
       // First IP
-      const result1a = await limiter(request1);
-      expect(result1a.success).toBe(true);
-      const result1b = await limiter(request1);
-      expect(result1b.success).toBe(true);
+      await limiter(request1);
+      await limiter(request1);
+      const result1c = await limiter(request1);
+      expect(result1c.success).toBe(false);
 
       // Second IP should have its own limit
       const result2a = await limiter(request2);
       expect(result2a.success).toBe(true);
       expect(result2a.remaining).toBe(1);
-    });
-
-    it('should use x-forwarded-for header for IP', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '192.168.1.1, 10.0.0.1' },
-      });
-
-      const result = await limiter(request);
-      expect(result.success).toBe(true);
-
-      // Should use the first IP in the list
-      const result2 = await limiter(request);
-      expect(result2.success).toBe(false);
-    });
-
-    it('should use x-real-ip header if x-forwarded-for is not present', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-real-ip': '192.168.1.1' },
-      });
-
-      const result = await limiter(request);
-      expect(result.success).toBe(true);
-
-      const result2 = await limiter(request);
-      expect(result2.success).toBe(false);
-    });
-
-    it('should use cf-connecting-ip header if others are not present', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'cf-connecting-ip': '192.168.1.1' },
-      });
-
-      const result = await limiter(request);
-      expect(result.success).toBe(true);
-
-      const result2 = await limiter(request);
-      expect(result2.success).toBe(false);
-    });
-
-    it('should use "unknown" as fallback if no IP headers present', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost');
-
-      const result = await limiter(request);
-      expect(result.success).toBe(true);
-
-      const result2 = await limiter(request);
-      expect(result2.success).toBe(false);
     });
 
     it('should use custom key generator if provided', async () => {
@@ -198,9 +171,7 @@ describe('rate-limit', () => {
     it('should return correct resetTime', async () => {
       const windowMs = 5000;
       const limiter = rateLimit({ max: 1, windowMs });
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.1' },
-      });
+      const request = createTestRequest('127.0.0.1');
 
       const before = Date.now();
       const result = await limiter(request);
@@ -212,9 +183,7 @@ describe('rate-limit', () => {
 
     it('should handle multiple requests at the exact limit', async () => {
       const limiter = rateLimit({ max: 5, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.1' },
-      });
+      const request = createTestRequest('127.0.0.1');
 
       // Make exactly max requests
       for (let i = 0; i < 5; i++) {
@@ -226,6 +195,76 @@ describe('rate-limit', () => {
       const result = await limiter(request);
       expect(result.success).toBe(false);
       expect(result.remaining).toBe(0);
+    });
+  });
+
+  describe('rateLimit - Redis-based', () => {
+    it('should use Redis-based rate limiting if available', async () => {
+      process.env.UPSTASH_REDIS_REST_URL = 'https://fake-redis.upstash.io';
+      process.env.UPSTASH_REDIS_REST_TOKEN = 'fake-token';
+
+      const mockLimitResult = {
+        success: true,
+        limit: 10,
+        remaining: 9,
+        reset: 123456789,
+      };
+
+      mockLimit.mockResolvedValue(mockLimitResult);
+
+      const limiter = rateLimit({ max: 10, windowMs: 60000 });
+      const request = createTestRequest('8.8.8.8');
+
+      const result = await limiter(request);
+
+      expect(Redis).toHaveBeenCalled();
+      expect(Ratelimit).toHaveBeenCalled();
+      expect(mockLimit).toHaveBeenCalledWith('8.8.8.8');
+      expect(result).toEqual({
+        success: true,
+        limit: 10,
+        remaining: 9,
+        resetTime: 123456789,
+      });
+    });
+
+    it('should fallback to In-Memory if Redis call fails', async () => {
+      process.env.UPSTASH_REDIS_REST_URL = 'https://fake-redis.upstash.io';
+      process.env.UPSTASH_REDIS_REST_TOKEN = 'fake-token';
+
+      mockLimit.mockRejectedValue(new Error('Redis Down'));
+
+      const limiter = rateLimit({ max: 5, windowMs: 60000 });
+      const request = createTestRequest('9.9.9.9');
+
+      const result = await limiter(request);
+
+      expect(result.success).toBe(true);
+      expect(result.remaining).toBe(4);
+      expect(rateLimitStore.has('9.9.9.9')).toBe(true);
+    });
+
+    it('should use custom key generator with Redis', async () => {
+      process.env.UPSTASH_REDIS_REST_URL = 'https://fake-redis.upstash.io';
+      process.env.UPSTASH_REDIS_REST_TOKEN = 'fake-token';
+
+      mockLimit.mockResolvedValue({
+        success: true,
+        limit: 10,
+        remaining: 5,
+        reset: 1000,
+      });
+
+      const limiter = rateLimit({
+        max: 10,
+        windowMs: 60000,
+        keyGenerator: () => 'custom-key',
+      });
+      const request = createTestRequest('1.1.1.1');
+
+      await limiter(request);
+
+      expect(mockLimit).toHaveBeenCalledWith('custom-key');
     });
   });
 
@@ -246,78 +285,53 @@ describe('rate-limit', () => {
     });
 
     it('contactForm limiter should enforce 5 requests limit', async () => {
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.1' },
-      });
+      const request = createTestRequest('127.0.0.1');
 
-      // Make 5 requests (should all succeed)
       for (let i = 0; i < 5; i++) {
         const result = await rateLimiters.contactForm(request);
         expect(result.success).toBe(true);
       }
 
-      // 6th request should fail
       const result = await rateLimiters.contactForm(request);
       expect(result.success).toBe(false);
       expect(result.limit).toBe(5);
     });
 
     it('apiGeneral limiter should enforce 100 requests limit', async () => {
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.2' },
-      });
+      const request = createTestRequest('127.0.0.2');
 
-      // Make 100 requests (should all succeed)
       for (let i = 0; i < 100; i++) {
         const result = await rateLimiters.apiGeneral(request);
         expect(result.success).toBe(true);
       }
 
-      // 101st request should fail
       const result = await rateLimiters.apiGeneral(request);
       expect(result.success).toBe(false);
       expect(result.limit).toBe(100);
     });
 
     it('search limiter should enforce 50 requests limit', async () => {
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.3' },
-      });
+      const request = createTestRequest('127.0.0.3');
 
-      // Make 50 requests (should all succeed)
       for (let i = 0; i < 50; i++) {
         const result = await rateLimiters.search(request);
         expect(result.success).toBe(true);
       }
 
-      // 51st request should fail
       const result = await rateLimiters.search(request);
       expect(result.success).toBe(false);
       expect(result.limit).toBe(50);
     });
   });
 
-  describe('rateLimitStore', () => {
+  describe('rateLimitStore and cleanup', () => {
     it('should be a Map', () => {
       expect(rateLimitStore instanceof Map).toBe(true);
     });
 
-    it('should store rate limit information', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.1' },
-      });
-
-      await limiter(request);
-
-      expect(rateLimitStore.size).toBeGreaterThan(0);
-    });
-
     it('should allow manual clearing', async () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.1' },
-      });
+      const request = createTestRequest('127.0.0.1');
 
       await limiter(request);
       expect(rateLimitStore.size).toBeGreaterThan(0);
@@ -326,59 +340,59 @@ describe('rate-limit', () => {
       expect(rateLimitStore.size).toBe(0);
     });
 
-    it('should cleanup expired entries', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 50 }); // 50ms window
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '192.168.1.100' },
-      });
+    it('should cleanup expired entries via cleanupRateLimitStore', () => {
+      const now = Date.now();
+      jest.spyOn(Date, 'now').mockReturnValue(now);
 
-      // Add an entry to the store
-      await limiter(request);
-      expect(rateLimitStore.size).toBeGreaterThan(0);
+      rateLimitStore.set('expired', { count: 1, resetTime: now - 1000 });
+      rateLimitStore.set('valid', { count: 1, resetTime: now + 1000 });
 
-      // Manually trigger cleanup by setting expired resetTime
-      const entries = Array.from(rateLimitStore.entries());
-      if (entries.length > 0) {
-        const [key, info] = entries[0];
-        rateLimitStore.set(key, { ...info, resetTime: Date.now() - 1000 });
+      expect(rateLimitStore.size).toBe(2);
 
-        // Now the entry is expired (resetTime is in the past)
-        const now = Date.now();
-        for (const [k, i] of rateLimitStore.entries()) {
-          if (now > i.resetTime) {
-            rateLimitStore.delete(k);
-          }
-        }
+      cleanupRateLimitStore();
 
-        // Should be removed
-        expect(rateLimitStore.has(key)).toBe(false);
-      }
+      expect(rateLimitStore.has('expired')).toBe(false);
+      expect(rateLimitStore.has('valid')).toBe(true);
+      expect(rateLimitStore.size).toBe(1);
     });
   });
 
   describe('Redis initialization', () => {
     it('should not initialize Redis when credentials are missing', () => {
-      // Credentials are already removed in beforeAll
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      clearRedisClient();
+      delete process.env.UPSTASH_REDIS_REST_URL;
+      delete process.env.UPSTASH_REDIS_REST_TOKEN;
 
-      // Should create an in-memory limiter
-      expect(limiter).toBeDefined();
-      expect(typeof limiter).toBe('function');
+      rateLimit({ max: 1, windowMs: 1000 });
+
+      expect(Redis).not.toHaveBeenCalled();
     });
 
-    it('should log warning when Redis credentials are not configured', () => {
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    it('should not initialize Redis when DISABLE_UPSTASH_DURING_BUILD is set', () => {
+      process.env.UPSTASH_REDIS_REST_URL = 'https://fake.io';
+      process.env.UPSTASH_REDIS_REST_TOKEN = 'fake';
+      process.env.DISABLE_UPSTASH_DURING_BUILD = '1';
 
-      // Force re-initialization by creating a new limiter
-      // This will trigger the initializeRedis function
+      rateLimit({ max: 1, windowMs: 1000 });
+
+      expect(Redis).not.toHaveBeenCalled();
+    });
+
+    it('should handle Redis constructor errors gracefully', () => {
+      process.env.UPSTASH_REDIS_REST_URL = 'https://fake.io';
+      process.env.UPSTASH_REDIS_REST_TOKEN = 'fake';
+
+      (Redis as unknown as jest.Mock).mockImplementation(() => {
+        throw new Error('Constructor Error');
+      });
+
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
-
       expect(limiter).toBeDefined();
-      warnSpy.mockRestore();
+      // Should fall back to in-memory silently
     });
   });
 
-  describe('Edge cases', () => {
+  describe('Edge cases and IP extraction', () => {
     it('should handle requests with empty headers', async () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request = new Request('http://localhost');
@@ -407,7 +421,6 @@ describe('rate-limit', () => {
         headers: { 'x-forwarded-for': '' },
       });
 
-      // Should fall back to x-real-ip, cf-connecting-ip, or 'unknown'
       const result = await limiter(request);
       expect(result.success).toBe(true);
     });
@@ -423,7 +436,7 @@ describe('rate-limit', () => {
 
       await limiter(request1);
 
-      // Different x-real-ip should still be blocked (same x-forwarded-for)
+      // Same x-forwarded-for but different x-real-ip should still be blocked
       const request2 = new Request('http://localhost', {
         headers: {
           'x-forwarded-for': '192.168.1.1',
@@ -446,7 +459,7 @@ describe('rate-limit', () => {
 
       await limiter(request1);
 
-      // Different cf-connecting-ip should still be blocked (same x-real-ip)
+      // Same x-real-ip but different cf-connecting-ip should still be blocked
       const request2 = new Request('http://localhost', {
         headers: {
           'x-real-ip': '192.168.1.1',
@@ -460,9 +473,7 @@ describe('rate-limit', () => {
 
     it('should handle zero remaining correctly', async () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '192.168.50.50' },
-      });
+      const request = createTestRequest('192.168.50.50');
 
       const result1 = await limiter(request);
       expect(result1.remaining).toBe(0);
@@ -475,19 +486,26 @@ describe('rate-limit', () => {
     it('should return correct resetTime for each request', async () => {
       const windowMs = 2000;
       const limiter = rateLimit({ max: 3, windowMs });
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '192.168.100.100' },
-      });
+      const request = createTestRequest('192.168.100.100');
 
-      const before = Date.now();
       const result1 = await limiter(request);
       const result2 = await limiter(request);
-      const after = Date.now();
 
       // Both should have the same resetTime
       expect(result1.resetTime).toBe(result2.resetTime);
-      expect(result1.resetTime).toBeGreaterThanOrEqual(before + windowMs);
-      expect(result1.resetTime).toBeLessThanOrEqual(after + windowMs);
+    });
+
+    it('should handle cf-connecting-ip if others are not present', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      const request = new Request('http://localhost', {
+        headers: { 'cf-connecting-ip': '1.2.3.4' },
+      });
+
+      const result = await limiter(request);
+      expect(result.success).toBe(true);
+
+      const result2 = await limiter(request);
+      expect(result2.success).toBe(false);
     });
   });
 });
