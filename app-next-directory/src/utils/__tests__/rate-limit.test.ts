@@ -35,7 +35,7 @@ import {
   rateLimiters,
   rateLimitStore,
   clearRedisClient,
-  cleanupRateLimitStore
+  cleanupRateLimitStore,
 } from '../rate-limit';
 
 const MockRedis = Redis as unknown as jest.Mock;
@@ -250,6 +250,16 @@ describe('rate-limit', () => {
       expect(rateLimitStore.has('192.168.1.1')).toBe(true);
     });
 
+    it('should skip invalid IPs in x-forwarded-for', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': 'invalid-ip, 192.168.1.1' },
+      });
+      await limiter(request);
+      expect(rateLimitStore.has('192.168.1.1')).toBe(true);
+      expect(rateLimitStore.has('invalid-ip')).toBe(false);
+    });
+
     it('should prioritize x-forwarded-for over x-real-ip', async () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request = new Request('http://localhost', {
@@ -291,25 +301,46 @@ describe('rate-limit', () => {
       await limiter(request);
       expect(rateLimitStore.has('unknown')).toBe(true);
     });
+
+    it('should fallback to "unknown" if all IP headers are invalid', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      const request = new Request('http://localhost', {
+        headers: {
+          'x-forwarded-for': 'invalid-1',
+          'x-real-ip': 'invalid-2',
+          'cf-connecting-ip': 'invalid-3',
+        },
+      });
+      await limiter(request);
+      expect(rateLimitStore.has('unknown')).toBe(true);
+    });
   });
 
   describe('rateLimiters', () => {
     it('should have predefined limiters with correct limits (functional check)', async () => {
       // contactForm: 5 requests
       for (let i = 0; i < 5; i++) {
-        const res = await rateLimiters.contactForm(new Request('http://localhost', { headers: { 'x-forwarded-for': 'cf' } }));
+        const res = await rateLimiters.contactForm(
+          new Request('http://localhost', { headers: { 'x-forwarded-for': '127.0.0.1' } })
+        );
         expect(res.success).toBe(true);
       }
-      const cfBlocked = await rateLimiters.contactForm(new Request('http://localhost', { headers: { 'x-forwarded-for': 'cf' } }));
+      const cfBlocked = await rateLimiters.contactForm(
+        new Request('http://localhost', { headers: { 'x-forwarded-for': '127.0.0.1' } })
+      );
       expect(cfBlocked.success).toBe(false);
       expect(cfBlocked.limit).toBe(5);
 
       // search: 50 requests
       for (let i = 0; i < 50; i++) {
-        const res = await rateLimiters.search(new Request('http://localhost', { headers: { 'x-forwarded-for': 's' } }));
+        const res = await rateLimiters.search(
+          new Request('http://localhost', { headers: { 'x-forwarded-for': '127.0.0.2' } })
+        );
         expect(res.success).toBe(true);
       }
-      const sBlocked = await rateLimiters.search(new Request('http://localhost', { headers: { 'x-forwarded-for': 's' } }));
+      const sBlocked = await rateLimiters.search(
+        new Request('http://localhost', { headers: { 'x-forwarded-for': '127.0.0.2' } })
+      );
       expect(sBlocked.success).toBe(false);
       expect(sBlocked.limit).toBe(50);
     });
