@@ -1,5 +1,5 @@
 import pino from 'pino';
-import validator from 'validator';
+import { extractClientIP } from '@/utils/ip-utils';
 
 // Environment check for safe logging configuration
 // Guard access to `process` so this module can be imported in Edge or client contexts
@@ -443,14 +443,14 @@ export const getRequestContext = (req: RequestLike | undefined): LogContext => {
   const headers = req?.headers;
   let ip: string | undefined = req?.ip;
 
-  if (!ip) {
-    const xf = getHeaderValue(headers, 'x-forwarded-for');
-    if (xf) {
-      const [first] = xf.split(',');
-      const candidate = first?.trim();
-      if (candidate && validator.isIP(candidate)) {
-        ip = candidate;
-      }
+  if (!ip && headers) {
+    // Standardize header access for extractClientIP
+    const headerWrapper = {
+      get: (name: string) => getHeaderValue(headers, name),
+    };
+    const extractedIp = extractClientIP(headerWrapper);
+    if (extractedIp !== 'unknown') {
+      ip = extractedIp;
     }
   }
 
