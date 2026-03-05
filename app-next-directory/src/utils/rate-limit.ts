@@ -5,6 +5,7 @@
 
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
+import validator from 'validator';
 
 interface RateLimitInfo {
   count: number;
@@ -19,23 +20,33 @@ const rateLimitStore = new Map<string, RateLimitInfo>();
 // outside of test environments so tests can run leak-free.
 const shouldStartCleanup = process.env.NODE_ENV !== 'test' && !process.env.JEST_WORKER_ID;
 const cleanupInterval = shouldStartCleanup
-  ? setInterval(
-      () => {
-        const now = Date.now();
-        for (const [key, info] of rateLimitStore.entries()) {
-          if (now > info.resetTime) {
-            rateLimitStore.delete(key);
-          }
-        }
-      },
-      10 * 60 * 1000
-    )
+  ? setInterval(cleanupRateLimitStore, 10 * 60 * 1000)
   : null;
 
 cleanupInterval?.unref?.();
 
 // Initialize Redis client if credentials are available
-let redis: Redis | null = null;
+let redis: Redis | null | undefined;
+
+/**
+ * Resets the Redis client singleton.
+ * Primarily used for testing purposes.
+ */
+export function clearRedisClient() {
+  redis = undefined;
+}
+
+/**
+ * Manually triggers the cleanup of expired entries in the rate limit store.
+ */
+export function cleanupRateLimitStore() {
+  const now = Date.now();
+  for (const [key, info] of rateLimitStore.entries()) {
+    if (now > info.resetTime) {
+      rateLimitStore.delete(key);
+    }
+  }
+}
 
 function initializeRedis() {
   if (redis !== undefined) {
@@ -179,26 +190,22 @@ export function rateLimit(options: RateLimitOptions) {
  * @returns The client IP address, or 'unknown' if none found
  */
 function getClientIP(request: Request): string {
-  // Try various headers for IP address
-  const forwarded = request.headers.get('x-forwarded-for');
-  if (forwarded) {
-    const [first] = forwarded.split(',');
-    if (first) {
-      return first.trim();
+  // Try various headers for IP address in order of priority
+  const ipHeaders = ['x-forwarded-for', 'x-real-ip', 'cf-connecting-ip'];
+
+  for (const header of ipHeaders) {
+    const value = request.headers.get(header);
+    if (!value) continue;
+
+    // x-forwarded-for can contain multiple IPs, the first one is the client
+    const ip = header === 'x-forwarded-for' ? value.split(',')[0].trim() : value.trim();
+
+    if (ip && validator.isIP(ip)) {
+      return ip;
     }
   }
 
-  const realIP = request.headers.get('x-real-ip');
-  if (realIP) {
-    return realIP;
-  }
-
-  const cfConnectingIP = request.headers.get('cf-connecting-ip');
-  if (cfConnectingIP) {
-    return cfConnectingIP;
-  }
-
-  // Fallback to a default if no IP found
+  // Fallback to a default if no valid IP found
   return 'unknown';
 }
 

@@ -403,7 +403,7 @@ importers:
         specifier: ^11.1.0
         version: 11.1.0
       validator:
-        specifier: ^13.15.23
+        specifier: ^13.15.26
         version: 13.15.26
       vaul:
         specifier: ^1.1.2
@@ -522,7 +522,7 @@ importers:
         version: 5.0.3(next@16.1.4(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(@playwright/test@1.57.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
       node:
         specifier: runtime:^22.21.0
-        version: runtime:22.22.0
+        version: runtime:22.22.1
       pino-pretty:
         specifier: ^13.1.2
         version: 13.1.3
@@ -3935,6 +3935,7 @@ packages:
   '@sanity/export@6.0.2':
     resolution: {integrity: sha512-CUA7jd4MAv+4BvDt+ZvUi4A4dX/M1/DjNCW8euWlkzgRvMF0lEbO4hBCcXQ7Qtwlbxz4E4Y7xKqH19E4c/ff/A==}
     engines: {node: '>=20.19 <22 || >=22.12'}
+    deprecated: Critical UTF-8 export issue fixed in v6.0.3
 
   '@sanity/generate-help-url@3.0.1':
     resolution: {integrity: sha512-bKqCEqFP7qXpNcHxJZnXFLrti8/HYQhhJtMRYFSNJ8bkUXCuUmhHKckzoyiH1n1WAZpI2Y05z2h5yZWbi3gThQ==}
@@ -5609,6 +5610,7 @@ packages:
   basic-ftp@5.1.0:
     resolution: {integrity: sha512-RkaJzeJKDbaDWTIPiJwubyljaEPwpVWkm9Rt5h9Nd6h7tEXTJ3VB4qxdZBioV7JO5yLUaOKwz7vDOzlncUsegw==}
     engines: {node: '>=10.0.0'}
+    deprecated: Security vulnerability fixed in 5.2.0, please upgrade
 
   bcryptjs@3.0.3:
     resolution: {integrity: sha512-GlF5wPWnSa/X5LKM1o0wz0suXIINz1iHRLvTS+sLyi7XPbe5ycmYI3DlZqVGZZtDgl4DmasFg7gOB3JYbphV5g==}
@@ -7165,11 +7167,12 @@ packages:
 
   glob@10.5.0:
     resolution: {integrity: sha512-DfXN8DfhJ7NH3Oe7cFmu3NCu1wKbkReJ8TorzSAFbSKrlNaQSKfIzqYqVY8zlbs2NLBbWpRiU52GX2PbaBVNkg==}
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
-    deprecated: Glob versions prior to v9 are no longer supported
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   global-modules@0.2.3:
     resolution: {integrity: sha512-JeXuCbvYzYXcwE6acL9V2bAOeSIGl4dD+iwLY9iUx2VBJJ80R18HCn+JCwHM9Oegdfya3lEkGCdaRkSyc10hDA==}
@@ -8767,113 +8770,113 @@ packages:
   node-releases@2.0.27:
     resolution: {integrity: sha512-nmh3lCkYZ3grZvqcCH+fjmQ7X+H0OeZgP40OierEaAptX4XofMh5kwNbWh7lBduUzCcV/8kZ+NDLCwm2iorIlA==}
 
-  node@runtime:22.22.0:
+  node@runtime:22.22.1:
     resolution:
       type: variations
       variants:
         - resolution:
             archive: tarball
             bin: bin/node
-            integrity: sha256-tatt7rjVS5c4A5qP/cR4HMS4GykeebINNgD4MNHWacs=
+            integrity: sha256-3XVCX+eHWwT7277urZuycdqs/4S3XQuh1PbMvuUV6uE=
             type: binary
-            url: https://nodejs.org/download/release/v22.22.0/node-v22.22.0-aix-ppc64.tar.gz
+            url: https://nodejs.org/download/release/v22.22.1/node-v22.22.1-aix-ppc64.tar.gz
           targets:
             - cpu: ppc64
               os: aix
         - resolution:
             archive: tarball
             bin: bin/node
-            integrity: sha256-XtTbD88er4TZGtEkYmMdc79FdsE3fhktIi5IAmqQJkA=
+            integrity: sha256-Z5rUlmM55O9JAPV5lnFIZOQhG4mIJbuEDDCGxBn7zvI=
             type: binary
-            url: https://nodejs.org/download/release/v22.22.0/node-v22.22.0-darwin-arm64.tar.gz
+            url: https://nodejs.org/download/release/v22.22.1/node-v22.22.1-darwin-arm64.tar.gz
           targets:
             - cpu: arm64
               os: darwin
         - resolution:
             archive: tarball
             bin: bin/node
-            integrity: sha256-XqUMnW3qPfo6u2ayZW96ThyM7yNDK1WNRftTjHtd7c4=
+            integrity: sha256-B7E3ItVYeQ/KILsez2G94kt6SGMRH3vnf8VyUaQHNZo=
             type: binary
-            url: https://nodejs.org/download/release/v22.22.0/node-v22.22.0-darwin-x64.tar.gz
+            url: https://nodejs.org/download/release/v22.22.1/node-v22.22.1-darwin-x64.tar.gz
           targets:
             - cpu: x64
               os: darwin
         - resolution:
             archive: tarball
             bin: bin/node
-            integrity: sha256-JbqV37locfou+XfxH5XqkIGMj6FcDyEQdx2wjUukI74=
+            integrity: sha256-HRaQ6aukfoh6J1q8bY9zF+VxoHAN6u9JP3aDd+mRVfU=
             type: binary
-            url: https://nodejs.org/download/release/v22.22.0/node-v22.22.0-linux-arm64.tar.gz
+            url: https://nodejs.org/download/release/v22.22.1/node-v22.22.1-linux-arm64.tar.gz
           targets:
             - cpu: arm64
               os: linux
         - resolution:
             archive: tarball
             bin: bin/node
-            integrity: sha256-qSaE2HIFifGXdvsYbFo6TSc8E0NvyMRLYd0+7vgfDTo=
+            integrity: sha256-K1ktIWCe8pnR45GLuAbtYrpxXUEJsPjsEbEyr5+kLXA=
             type: binary
-            url: https://nodejs.org/download/release/v22.22.0/node-v22.22.0-linux-armv7l.tar.gz
+            url: https://nodejs.org/download/release/v22.22.1/node-v22.22.1-linux-armv7l.tar.gz
           targets:
             - cpu: armv7l
               os: linux
         - resolution:
             archive: tarball
             bin: bin/node
-            integrity: sha256-VGgO7FmDMLmGOrN62kZFZBW3duRjRZWEdvzSISq98PM=
+            integrity: sha256-GPmrfaTzoE7CE1kLFOXXi2C/tca4v1NUHn6vGt+dJwo=
             type: binary
-            url: https://nodejs.org/download/release/v22.22.0/node-v22.22.0-linux-ppc64le.tar.gz
+            url: https://nodejs.org/download/release/v22.22.1/node-v22.22.1-linux-ppc64le.tar.gz
           targets:
             - cpu: ppc64le
               os: linux
         - resolution:
             archive: tarball
             bin: bin/node
-            integrity: sha256-myTMbdFxBnJdeWRa3wo7YvozEOTTCqERR90/4tgyXvQ=
+            integrity: sha256-YSj51UobQyWBRNesB0qC07bJbY6cs6jhTkcipmmQrb4=
             type: binary
-            url: https://nodejs.org/download/release/v22.22.0/node-v22.22.0-linux-s390x.tar.gz
+            url: https://nodejs.org/download/release/v22.22.1/node-v22.22.1-linux-s390x.tar.gz
           targets:
             - cpu: s390x
               os: linux
         - resolution:
             archive: tarball
             bin: bin/node
-            integrity: sha256-wzw57ZyA3t3ed8lg0AEZkYueNSQm/WBLpBY41lJqR0Q=
+            integrity: sha256-B8iq+mBkT7ga3voe59qGDrGSCFH/3Jo3Agqwvkf7wQ4=
             type: binary
-            url: https://nodejs.org/download/release/v22.22.0/node-v22.22.0-linux-x64.tar.gz
+            url: https://nodejs.org/download/release/v22.22.1/node-v22.22.1-linux-x64.tar.gz
           targets:
             - cpu: x64
               os: linux
         - resolution:
             archive: zip
             bin: node.exe
-            integrity: sha256-W0T9QQ33tM0KGJGgWntgb4+32HhqlJl7mWo3LoJHjXo=
-            prefix: node-v22.22.0-win-arm64
+            integrity: sha256-0HIvze+hwI5K8xgJ6RrU8jKC9sU1wmFgfoqjctDOYd0=
+            prefix: node-v22.22.1-win-arm64
             type: binary
-            url: https://nodejs.org/download/release/v22.22.0/node-v22.22.0-win-arm64.zip
+            url: https://nodejs.org/download/release/v22.22.1/node-v22.22.1-win-arm64.zip
           targets:
             - cpu: arm64
               os: win32
         - resolution:
             archive: zip
             bin: node.exe
-            integrity: sha256-yX+jdtK+zciGP808ot2ag6nzRo7nzPem0HbsZqZFx3o=
-            prefix: node-v22.22.0-win-x64
+            integrity: sha256-h3y5OCnhT/+7x5A+fYA3M2yaefPqQ8XQuMI3m3naVt4=
+            prefix: node-v22.22.1-win-x64
             type: binary
-            url: https://nodejs.org/download/release/v22.22.0/node-v22.22.0-win-x64.zip
+            url: https://nodejs.org/download/release/v22.22.1/node-v22.22.1-win-x64.zip
           targets:
             - cpu: x64
               os: win32
         - resolution:
             archive: zip
             bin: node.exe
-            integrity: sha256-XX9s/FBHTPeEAnzp3av0egGY6ktYgwGrhnXejFYhckc=
-            prefix: node-v22.22.0-win-x86
+            integrity: sha256-r+PSNWOozDZ1m0xgZF0S888oB9AQBWTc3G84H6BxUhc=
+            prefix: node-v22.22.1-win-x86
             type: binary
-            url: https://nodejs.org/download/release/v22.22.0/node-v22.22.0-win-x86.zip
+            url: https://nodejs.org/download/release/v22.22.1/node-v22.22.1-win-x86.zip
           targets:
             - cpu: x86
               os: win32
-    version: 22.22.0
+    version: 22.22.1
     hasBin: true
 
   nodemailer@7.0.12:
@@ -18234,7 +18237,7 @@ snapshots:
       '@typescript-eslint/parser': 8.53.0(eslint@8.57.1)(typescript@5.9.3)
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@8.57.1)
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.53.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1))(eslint@8.57.1)
       eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.53.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@8.57.1)
       eslint-plugin-react: 7.37.5(eslint@8.57.1)
@@ -18274,7 +18277,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@8.57.1):
+  eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.53.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1))(eslint@8.57.1):
     dependencies:
       '@nolyfill/is-core-module': 1.0.39
       debug: 4.4.3(supports-color@8.1.1)
@@ -18304,14 +18307,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.12.1(@typescript-eslint/parser@8.53.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1):
+  eslint-module-utils@2.12.1(@typescript-eslint/parser@8.53.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.53.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
       '@typescript-eslint/parser': 8.53.0(eslint@8.57.1)(typescript@5.9.3)
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@8.57.1)
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.53.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1))(eslint@8.57.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -18337,7 +18340,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.12.1(@typescript-eslint/parser@8.53.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
+      eslint-module-utils: 2.12.1(@typescript-eslint/parser@8.53.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.53.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1)
       hasown: 2.0.2
       is-core-module: 2.16.1
       is-glob: 4.0.3
@@ -20969,7 +20972,7 @@ snapshots:
 
   node-releases@2.0.27: {}
 
-  node@runtime:22.22.0: {}
+  node@runtime:22.22.1: {}
 
   nodemailer@7.0.12: {}
 
