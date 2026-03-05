@@ -1,11 +1,10 @@
 import { PortableText } from '@portabletext/react';
 import type { Metadata } from 'next';
 import Image from 'next/image';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Suspense } from 'react';
 import { blogPortableTextComponents } from '@/components/blog/portableTextComponents';
-import { Footer } from '@/components/layout/Footer';
-import { Header } from '@/components/layout/Header';
+import { PageLayoutServer } from '@/components/layout/PageLayoutServer';
 import { client as sanityClient } from '@/lib/sanity/client';
 
 // Subtle SVG gradient placeholder for hero image when missing
@@ -106,39 +105,68 @@ export default async function BlogPostPage(props: Readonly<{ params: Promise<{ s
   const alt = usingPlaceholder ? '' : post.title || '';
 
   return (
-    <>
-      <Suspense fallback={<div>Loading header...</div>}>
-        <Header />
-      </Suspense>
-      <Suspense fallback={<div>Loading blog post...</div>}>
-        <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-          <h1 className="text-4xl font-extrabold text-center my-8 text-gray-900">{post.title}</h1>
-          <div className="relative w-full h-96 mb-8 rounded-lg overflow-hidden shadow-xl">
-            <Image
-              src={src}
-              alt={alt}
-              aria-hidden={usingPlaceholder}
-              role={usingPlaceholder ? 'presentation' : 'img'}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              priority
-            />
+    <PageLayoutServer>
+      <div className="relative overflow-hidden bg-neo-secondary px-4 py-12 sm:py-14">
+        {/* Dot grid background */}
+        <div
+          className="pointer-events-none absolute inset-0 z-0 opacity-25"
+          style={{
+            backgroundImage:
+              'radial-gradient(circle at 2px 2px, var(--neo-border) 2px, transparent 0)',
+            backgroundSize: '28px 28px',
+          }}
+        />
+        <div className="container relative z-10 mx-auto max-w-4xl">
+          {/* Back navigation */}
+          <div className="mb-6">
+            <Link
+              href="/blog"
+              className="inline-flex items-center gap-2 border-2 border-neo-border bg-neo-surface px-4 py-2 text-sm font-bold uppercase tracking-wider shadow-[3px_3px_0_0] shadow-neo-shadow hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
+            >
+              ← Back to Blog
+            </Link>
           </div>
-          <article className="prose lg:prose-xl mx-auto">
-            <PortableText value={post.body} components={blogPortableTextComponents} />
+
+          {/* Article card */}
+          <article
+            className="overflow-hidden border-4 border-neo-border bg-neo-surface"
+            style={{ boxShadow: '12px 12px 0px 0px var(--neo-shadow)' }}
+          >
+            {/* Hero image */}
+            <div className="relative w-full h-80 border-b-4 border-neo-border overflow-hidden bg-neo-secondary/30">
+              <Image
+                src={src}
+                alt={alt}
+                aria-hidden={usingPlaceholder}
+                role={usingPlaceholder ? 'presentation' : 'img'}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 60vw"
+                priority
+              />
+            </div>
+
+            {/* Article content */}
+            <div className="p-6 md:p-10">
+              <h1 className="heading-xl mb-8 text-neo-text-primary">{post.title}</h1>
+              <div className="prose prose-lg max-w-none prose-headings:font-bold prose-headings:text-neo-text-primary prose-a:text-neo-primary prose-a:underline">
+                <PortableText value={post.body} components={blogPortableTextComponents} />
+              </div>
+            </div>
           </article>
-          <section className="mt-12 max-w-2xl mx-auto">
-            <h2 className="text-3xl font-bold mb-6 text-gray-800">Comments</h2>
+
+          {/* Comments section */}
+          <section
+            className="mt-8 border-4 border-neo-border bg-neo-surface p-6 md:p-8"
+            style={{ boxShadow: '8px 8px 0px 0px var(--neo-shadow)' }}
+          >
+            <h2 className="heading-md mb-6 border-b-4 border-dashed border-neo-border pb-4">Comments</h2>
             <CommentForm postId={post.id} />
             <CommentList comments={comments} />
           </section>
         </div>
-      </Suspense>
-      <Suspense fallback={<div>Loading footer...</div>}>
-        <Footer />
-      </Suspense>
-    </>
+      </div>
+    </PageLayoutServer>
   );
 }
 

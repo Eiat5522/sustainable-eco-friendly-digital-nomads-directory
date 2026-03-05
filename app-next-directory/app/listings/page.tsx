@@ -1,5 +1,6 @@
 import { cacheLife, cacheTag } from 'next/cache';
 import { Suspense } from 'react';
+import { PageLayoutServer } from '@/components/layout/PageLayoutServer';
 import { ListingGrid } from '@/components/listings/ListingGrid';
 import { SearchFiltersForm } from '@/components/search/SearchFiltersForm';
 import { getAllListings } from '@/lib/data/listings';
@@ -64,7 +65,8 @@ export default async function ListingsPage(props: { searchParams?: Promise<Searc
   };
 
   return (
-    <div className="relative overflow-hidden bg-neo-secondary px-4 py-12 sm:py-14">
+    <PageLayoutServer>
+      <div className="relative overflow-hidden bg-neo-secondary px-4 py-12 sm:py-14">
       <div
         className="pointer-events-none absolute inset-0 z-0 opacity-25"
         style={{
@@ -120,5 +122,6 @@ export default async function ListingsPage(props: { searchParams?: Promise<Searc
         </div>
       </div>
     </div>
+    </PageLayoutServer>
   );
 }

@@ -1,6 +1,5 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Suspense } from 'react';
 
 // Images come preprocessed via DTOs (see API). No builder needed here.
 
@@ -19,8 +18,8 @@ function placeholderDataUri(width = 800, height = 450) {
 }
 
 import type { Metadata } from 'next';
-import { Footer } from '@/components/layout/Footer';
-import { Header } from '@/components/layout/Header';
+import { PageLayoutServer } from '@/components/layout/PageLayoutServer';
+import { NeoButton } from '@/components/ui/neo-button';
 import { getBaseUrl } from '@/lib/absolute-url';
 import { getSafeHeaders } from '@/lib/server/headers';
 import type { Post } from './data';
@@ -50,143 +49,177 @@ export default async function BlogPage(
   const { posts, pagination, uniqueTags } = result;
 
   return (
-    <>
-      <Suspense fallback={<div>Loading header...</div>}>
-        <Header />
-      </Suspense>
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-5xl font-extrabold text-center mb-6 text-gray-900">
-          The Nomad&apos;s Chronicle
-        </h1>
+    <PageLayoutServer>
+      <div className="relative overflow-hidden bg-neo-secondary px-4 py-12 sm:py-14">
+        {/* Dot grid background */}
+        <div
+          className="pointer-events-none absolute inset-0 z-0 opacity-25"
+          style={{
+            backgroundImage:
+              'radial-gradient(circle at 2px 2px, var(--neo-border) 2px, transparent 0)',
+            backgroundSize: '28px 28px',
+          }}
+        />
+        {/* Decorative shapes */}
+        <div className="pointer-events-none absolute -left-3 top-8 h-20 w-20 rotate-12 border-4 border-neo-border bg-neo-primary shadow-[6px_6px_0_0] shadow-neo-shadow" />
+        <div className="pointer-events-none absolute right-4 top-12 h-16 w-16 rounded-full border-4 border-neo-border bg-neo-accent shadow-[5px_5px_0_0] shadow-neo-shadow" />
 
-        {/* Filters */}
-        <form
-          className="mb-10 flex flex-col md:flex-row items-stretch md:items-center gap-3"
-          action="/blog"
-          method="get"
-        >
-          <input
-            type="search"
-            name="search"
-            defaultValue={search || ''}
-            placeholder="Search posts..."
-            className="flex-1 p-3 bg-white border-4 border-black rounded-lg shadow-sm"
-          />
-          <input
-            type="text"
-            name="tag"
-            defaultValue={tag || ''}
-            placeholder="Tag (e.g. eco, remote-work)"
-            className="w-full md:w-64 p-3 bg-white border-4 border-black rounded-lg shadow-sm"
-          />
-          <button
-            type="submit"
-            className="px-6 py-3 bg-yellow-400 border-4 border-black rounded-lg font-bold"
+        <div className="container relative z-10 mx-auto max-w-6xl">
+          {/* Page header card */}
+          <div
+            className="mb-8 overflow-hidden border-4 border-neo-border bg-neo-surface"
+            style={{ boxShadow: '12px 12px 0px 0px var(--neo-shadow)' }}
           >
-            Apply
-          </button>
-          {limit ? <input type="hidden" name="limit" value={limit} /> : null}
-        </form>
+            <div className="border-b-4 border-neo-border bg-neo-success p-6 md:p-8">
+              <div className="mb-3 inline-block border-2 border-neo-border bg-neo-surface px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] shadow-[3px_3px_0_0] shadow-neo-shadow">
+                Stories &amp; Insights
+              </div>
+              <h1 className="heading-xl text-neo-border">The Nomad&apos;s Chronicle</h1>
+              <p className="mt-2 max-w-2xl text-sm font-semibold text-neo-border/80">
+                Stories, tips, and sustainability insights for digital nomads.
+              </p>
+            </div>
 
-        {uniqueTags.length > 0 && (
-          <div className="mb-8 flex flex-wrap gap-2">
-            {uniqueTags.map(t => {
-              const sp = new URLSearchParams();
-              if (t) sp.set('tag', t);
-              if (search) sp.set('search', search);
-              if (limit) sp.set('limit', limit);
-              return (
-                <Link
-                  key={t}
-                  href={`/blog?${sp.toString()}`}
-                  className={`px-3 py-1 border-2 border-black rounded-full text-sm ${t === tag ? 'bg-black text-white' : 'bg-white'}`}
-                >
-                  #{t}
-                </Link>
-              );
-            })}
-          </div>
-        )}
+            {/* Filters */}
+            <div className="p-6 md:p-8">
+              <form
+                className="flex flex-col md:flex-row items-stretch md:items-center gap-3"
+                action="/blog"
+                method="get"
+              >
+                <input
+                  type="search"
+                  name="search"
+                  defaultValue={search || ''}
+                  placeholder="Search posts..."
+                  className="flex-1 p-3 bg-neo-surface border-4 border-neo-border font-medium text-neo-text-primary placeholder:text-neo-text-secondary shadow-[3px_3px_0_0] shadow-neo-shadow focus:outline-none focus:shadow-none focus:translate-x-[3px] focus:translate-y-[3px] transition-all"
+                />
+                <input
+                  type="text"
+                  name="tag"
+                  defaultValue={tag || ''}
+                  placeholder="Tag (e.g. eco, remote-work)"
+                  className="w-full md:w-64 p-3 bg-neo-surface border-4 border-neo-border font-medium text-neo-text-primary placeholder:text-neo-text-secondary shadow-[3px_3px_0_0] shadow-neo-shadow focus:outline-none focus:shadow-none focus:translate-x-[3px] focus:translate-y-[3px] transition-all"
+                />
+                <NeoButton type="submit" variant="primary" size="md">
+                  Apply
+                </NeoButton>
+                {limit ? <input type="hidden" name="limit" value={limit} /> : null}
+              </form>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {posts.map((post: Post, idx: number) => {
-            const imageUrl = post.imageUrl ?? null;
-            const usingPlaceholder = !imageUrl;
-            const src = imageUrl ?? placeholderDataUri(800, 450);
-            const alt = usingPlaceholder ? '' : post.title || '';
-            return (
-              <Link key={post.id} href={`/blog/${post.slug}`} className="flex">
-                <div className="flex flex-col w-full bg-white border-4 border-black rounded-lg shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 ease-in-out overflow-hidden">
-                  <div className="relative h-48 flex-shrink-0">
-                    <Image
-                      src={src}
-                      alt={alt}
-                      aria-hidden={usingPlaceholder}
-                      fill
-                      className="object-cover"
-                      sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-                      priority={idx < 3}
-                    />
-                  </div>
-                  <div className="p-6 flex-grow">
-                    <h2 className="text-3xl font-bold mb-2 text-gray-800">{post.title}</h2>
-                    <p className="text-gray-600">{post.excerpt}</p>
-                    {post.tags && post.tags.length > 0 && (
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {/* Remove duplicates within the post's tags */}
-                        {[...new Set(post.tags)].map(tagName => (
-                          <span
-                            key={tagName}
-                            className="px-2 py-1 border border-black rounded-full text-xs bg-gray-100"
-                          >
-                            #{tagName}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+              {uniqueTags.length > 0 && (
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {uniqueTags.map(t => {
+                    const sp = new URLSearchParams();
+                    if (t) sp.set('tag', t);
+                    if (search) sp.set('search', search);
+                    if (limit) sp.set('limit', limit);
+                    return (
+                      <Link
+                        key={t}
+                        href={`/blog?${sp.toString()}`}
+                        className={`px-3 py-1 border-2 border-neo-border text-xs font-bold uppercase tracking-wider shadow-[2px_2px_0_0] shadow-neo-shadow transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none ${t === tag ? 'bg-neo-primary text-white' : 'bg-neo-surface text-neo-text-primary'}`}
+                      >
+                        #{t}
+                      </Link>
+                    );
+                  })}
                 </div>
-              </Link>
-            );
-          })}
-        </div>
+              )}
+            </div>
+          </div>
 
-        {/* Pagination */}
-        <div className="mt-10 flex items-center justify-center gap-4">
-          {pagination.hasPrevPage && (
-            <Link
-              href={`/blog?${new URLSearchParams({
-                page: String(pagination.prevPage ?? 1),
-                ...(tag ? { tag } : {}),
-                ...(search ? { search } : {}),
-                ...(limit ? { limit } : {}),
-              }).toString()}`}
-              className="px-4 py-2 border-4 border-black rounded-lg bg-white"
+          {/* Posts grid */}
+          {posts.length === 0 ? (
+            <div
+              className="border-4 border-neo-border bg-neo-surface p-12 text-center"
+              style={{ boxShadow: '8px 8px 0px 0px var(--neo-shadow)' }}
             >
-              ← Previous
-            </Link>
+              <p className="body-lg text-neo-text-secondary">No posts found.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {posts.map((post: Post, idx: number) => {
+                const imageUrl = post.imageUrl ?? null;
+                const usingPlaceholder = !imageUrl;
+                const src = imageUrl ?? placeholderDataUri(800, 450);
+                const alt = usingPlaceholder ? '' : post.title || '';
+                return (
+                  <Link key={post.id} href={`/blog/${post.slug}`} className="group flex">
+                    <article
+                      className="flex flex-col w-full bg-neo-surface border-4 border-neo-border overflow-hidden transition-all group-hover:translate-x-[3px] group-hover:translate-y-[3px] group-hover:shadow-none"
+                      style={{ boxShadow: '8px 8px 0px 0px var(--neo-shadow)' }}
+                    >
+                      <div className="relative h-48 flex-shrink-0 border-b-4 border-neo-border overflow-hidden">
+                        <Image
+                          src={src}
+                          alt={alt}
+                          aria-hidden={usingPlaceholder}
+                          fill
+                          className="object-cover"
+                          sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                          priority={idx < 3}
+                        />
+                      </div>
+                      <div className="p-5 flex-grow flex flex-col">
+                        <h2 className="heading-sm mb-2 text-neo-text-primary">{post.title}</h2>
+                        <p className="body-sm text-neo-text-secondary flex-grow">{post.excerpt}</p>
+                        {post.tags && post.tags.length > 0 && (
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            {[...new Set(post.tags)].map(tagName => (
+                              <span
+                                key={tagName}
+                                className="px-2 py-0.5 border-2 border-neo-border text-[10px] font-bold uppercase tracking-wider bg-neo-secondary/30 text-neo-text-primary"
+                              >
+                                #{tagName}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </article>
+                  </Link>
+                );
+              })}
+            </div>
           )}
-          <span className="text-sm text-gray-700">
-            Page {pagination.page} of {pagination.totalPages}
-          </span>
-          {pagination.hasNextPage && (
-            <Link
-              href={`/blog?${new URLSearchParams({
-                page: String(pagination.nextPage ?? pagination.page + 1),
-                ...(tag ? { tag } : {}),
-                ...(search ? { search } : {}),
-                ...(limit ? { limit } : {}),
-              }).toString()}`}
-              className="px-4 py-2 border-4 border-black rounded-lg bg-white"
-            >
-              Next →
-            </Link>
-          )}
+
+          {/* Pagination */}
+          <div className="mt-10 flex items-center justify-center gap-3">
+            {pagination.hasPrevPage && (
+              <NeoButton asChild variant="outline" size="sm">
+                <Link
+                  href={`/blog?${new URLSearchParams({
+                    page: String(pagination.prevPage ?? 1),
+                    ...(tag ? { tag } : {}),
+                    ...(search ? { search } : {}),
+                    ...(limit ? { limit } : {}),
+                  }).toString()}`}
+                >
+                  ← Previous
+                </Link>
+              </NeoButton>
+            )}
+            <span className="body-sm font-bold text-neo-text-primary border-2 border-neo-border bg-neo-surface px-3 py-1">
+              Page {pagination.page} of {pagination.totalPages}
+            </span>
+            {pagination.hasNextPage && (
+              <NeoButton asChild variant="outline" size="sm">
+                <Link
+                  href={`/blog?${new URLSearchParams({
+                    page: String(pagination.nextPage ?? pagination.page + 1),
+                    ...(tag ? { tag } : {}),
+                    ...(search ? { search } : {}),
+                    ...(limit ? { limit } : {}),
+                  }).toString()}`}
+                >
+                  Next →
+                </Link>
+              </NeoButton>
+            )}
+          </div>
         </div>
       </div>
-      <Suspense fallback={<div>Loading footer...</div>}>
-        <Footer />
-      </Suspense>
-    </>
+    </PageLayoutServer>
   );
 }

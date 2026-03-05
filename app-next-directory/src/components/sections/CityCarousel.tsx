@@ -42,10 +42,10 @@ const CityCard = memo(
       <div role="listitem" className="flex-none w-[85%] sm:w-[55%] lg:w-1/3 xl:w-1/4">
         <Link
           href={`/cities/${encodeURIComponent(slugSegment)}`}
-          className="group block rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+          className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
           aria-label={`Explore ${displayName}`}
         >
-          <div className="relative h-48 w-full overflow-hidden rounded-xl border-4 border-black bg-white shadow-[8px_8px_0_0_rgba(0,0,0,1)] group-hover:shadow-[12px_12px_0_0_rgba(0,0,0,1)] group-focus-within:shadow-[12px_12px_0_0_rgba(0,0,0,1)] transition-all">
+          <div className="relative h-48 w-full overflow-hidden border-4 border-neo-border bg-neo-surface shadow-[8px_8px_0_0] shadow-neo-shadow group-hover:translate-x-[3px] group-hover:translate-y-[3px] group-hover:shadow-none transition-all">
             {/* Always render local placeholder to avoid 404s and layout shifts */}
             <Image
               src="/placeholder_image.png"
@@ -178,70 +178,81 @@ export function CityCarousel({ initialCities }: CityCarouselProps = {}): React.J
   const handleMouseLeave = useCallback(() => autoplay.current?.play(), []);
 
   return (
-    <section className="py-16 bg-gradient-to-r from-green-50 to-blue-50">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h2 className="heading-lg">Featured Cities</h2>
-            <p className="body-lg text-neo-text-secondary">
+    <section className="relative overflow-hidden bg-neo-secondary px-4 py-12">
+      <div
+        className="pointer-events-none absolute inset-0 z-0 opacity-25"
+        style={{
+          backgroundImage: 'radial-gradient(circle at 2px 2px, var(--neo-border) 2px, transparent 0)',
+          backgroundSize: '28px 28px',
+        }}
+      />
+      <div className="container relative z-10 mx-auto px-4">
+        <div
+          className="overflow-hidden border-4 border-neo-border bg-neo-surface"
+          style={{ boxShadow: '12px 12px 0px 0px var(--neo-shadow)' }}
+        >
+          <div className="border-b-4 border-neo-border bg-neo-primary p-6 md:p-8">
+            <h2 className="heading-lg text-white">Featured Cities</h2>
+            <p className="body-md text-white/80">
               Discover your next eco-friendly destination
             </p>
           </div>
-        </div>
+          <div className="p-6 md:p-8">
+            {loading && (
+              <p className="body-md text-neo-text-secondary" aria-live="polite">
+                Loading cities…
+              </p>
+            )}
 
-        {loading && (
-          <p className="body-md text-neo-text-secondary" aria-live="polite">
-            Loading cities…
-          </p>
-        )}
+            {error && !loading && <p className="body-md text-red-600">{error}</p>}
 
-        {error && !loading && <p className="body-md text-red-600">{error}</p>}
+            {!loading && !error && sanitizedCities.length > 0 && (
+              <div className="relative">
+                <NeoButton
+                  variant="secondary"
+                  size="sm"
+                  className="hidden md:flex absolute -left-3 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white"
+                  aria-label="Scroll cities left"
+                  onClick={scrollPrev}
+                  disabled={!canPrev}
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <ChevronLeft size={18} />
+                </NeoButton>
 
-        {!loading && !error && sanitizedCities.length > 0 && (
-          <div className="relative">
-            <NeoButton
-              variant="secondary"
-              size="sm"
-              className="hidden md:flex absolute -left-3 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white"
-              aria-label="Scroll cities left"
-              onClick={scrollPrev}
-              disabled={!canPrev}
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
-            >
-              <ChevronLeft size={18} />
-            </NeoButton>
+                <div
+                  ref={viewportRef}
+                  className="overflow-hidden"
+                  role="region"
+                  aria-label="Featured city destinations"
+                >
+                  <div className="flex gap-6" role="list">
+                    {sanitizedCities.map((city, index) => (
+                      <CityCard
+                        key={city._originalSlug || city._fallbackId || city.name || `city-${index}`}
+                        city={city}
+                      />
+                    ))}
+                  </div>
+                </div>
 
-            <div
-              ref={viewportRef}
-              className="overflow-hidden"
-              role="region"
-              aria-label="Featured city destinations"
-            >
-              <div className="flex gap-6" role="list">
-                {sanitizedCities.map((city, index) => (
-                  <CityCard
-                    key={city._originalSlug || city._fallbackId || city.name || `city-${index}`}
-                    city={city}
-                  />
-                ))}
+                <NeoButton
+                  variant="secondary"
+                  size="sm"
+                  className="hidden md:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white"
+                  aria-label="Scroll cities right"
+                  onClick={scrollNext}
+                  disabled={!canNext}
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <ChevronRight size={18} />
+                </NeoButton>
               </div>
-            </div>
-
-            <NeoButton
-              variant="secondary"
-              size="sm"
-              className="hidden md:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white"
-              aria-label="Scroll cities right"
-              onClick={scrollNext}
-              disabled={!canNext}
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
-            >
-              <ChevronRight size={18} />
-            </NeoButton>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </section>
   );

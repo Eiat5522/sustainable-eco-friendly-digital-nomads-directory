@@ -17,12 +17,14 @@ jest.mock('@portabletext/react', () => ({
   ),
 }));
 
-jest.mock('@/components/layout/Header', () => ({
-  Header: () => <div data-testid="header">Header</div>,
-}));
-
-jest.mock('@/components/layout/Footer', () => ({
-  Footer: () => <div data-testid="footer">Footer</div>,
+jest.mock('@/components/layout/PageLayoutServer', () => ({
+  PageLayoutServer: ({ children }: { children: React.ReactNode }) => (
+    <div>
+      <div data-testid="header">Header</div>
+      <main>{children}</main>
+      <div data-testid="footer">Footer</div>
+    </div>
+  ),
 }));
 
 jest.mock('@/components/CommentForm', () => ({
