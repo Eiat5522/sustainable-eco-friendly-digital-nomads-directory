@@ -5,6 +5,7 @@
 
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
+import validator from 'validator';
 
 interface RateLimitInfo {
   count: number;
@@ -189,26 +190,22 @@ export function rateLimit(options: RateLimitOptions) {
  * @returns The client IP address, or 'unknown' if none found
  */
 function getClientIP(request: Request): string {
-  // Try various headers for IP address
-  const forwarded = request.headers.get('x-forwarded-for');
-  if (forwarded) {
-    const [first] = forwarded.split(',');
-    if (first) {
-      return first.trim();
+  // Try various headers for IP address in order of priority
+  const ipHeaders = ['x-forwarded-for', 'x-real-ip', 'cf-connecting-ip'];
+
+  for (const header of ipHeaders) {
+    const value = request.headers.get(header);
+    if (!value) continue;
+
+    // x-forwarded-for can contain multiple IPs, the first one is the client
+    const ip = header === 'x-forwarded-for' ? value.split(',')[0].trim() : value.trim();
+
+    if (ip && validator.isIP(ip)) {
+      return ip;
     }
   }
 
-  const realIP = request.headers.get('x-real-ip');
-  if (realIP) {
-    return realIP;
-  }
-
-  const cfConnectingIP = request.headers.get('cf-connecting-ip');
-  if (cfConnectingIP) {
-    return cfConnectingIP;
-  }
-
-  // Fallback to a default if no IP found
+  // Fallback to a default if no valid IP found
   return 'unknown';
 }
 
