@@ -71,7 +71,7 @@ export default async function BlogPage(
             style={{ boxShadow: '12px 12px 0px 0px var(--neo-shadow)' }}
           >
             <div className="border-b-4 border-neo-border bg-neo-success p-6 md:p-8">
-              <div className="mb-3 inline-block border-2 border-neo-border bg-neo-surface px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] shadow-[3px_3px_0_0] shadow-neo-shadow">
+              <div className="mb-3 inline-block border-2 border-neo-border bg-neo-surface px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] shadow-[3px_3px_0_0] shadow-neo-shadow">
                 Stories &amp; Insights
               </div>
               <h1 className="heading-xl text-neo-border">The Nomad&apos;s Chronicle</h1>

@@ -160,7 +160,7 @@ export default async function BlogPostPage(props: Readonly<{ params: Promise<{ s
             className="mt-8 border-4 border-neo-border bg-neo-surface p-6 md:p-8"
             style={{ boxShadow: '8px 8px 0px 0px var(--neo-shadow)' }}
           >
-            <h2 className="heading-md mb-6 border-b-4 border-dashed border-neo-border pb-4">Comments</h2>
+            <h2 className="heading-md mb-6 border-b-4 border-neo-border pb-4">Comments</h2>
             <CommentForm postId={post.id} />
             <CommentList comments={comments} />
           </section>
