@@ -46,7 +46,7 @@ describe('Home page HeroSection', () => {
     expect(
       screen.getByRole('heading', {
         level: 1,
-        name: 'A Curated Directory For Sustainable Digital Nomads',
+        name: 'A Curated Home for Eco-Friendly Digital Nomads',
       })
     ).toBeInTheDocument();
 

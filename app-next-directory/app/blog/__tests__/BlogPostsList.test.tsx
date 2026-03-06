@@ -94,6 +94,13 @@ describe('BlogPostsList', () => {
     expect(screen.getByText("The Nomad's Chronicle")).toBeInTheDocument();
   });
 
+  it('should render the main heading', async () => {
+    const component = await BlogPostsList({ searchParams: {} });
+    render(component);
+
+    expect(screen.getByText('Stories for Sustainable Nomads')).toBeInTheDocument();
+  });
+
   it('should render all blog posts', async () => {
     const component = await BlogPostsList({ searchParams: {} });
     render(component);
@@ -117,7 +124,7 @@ describe('BlogPostsList', () => {
     render(component);
 
     const searchInput = screen.getByPlaceholderText('Search posts...');
-    const tagInput = screen.getByPlaceholderText('Tag (e.g. eco, remote-work)');
+    const tagInput = screen.getByPlaceholderText('Filter by tag');
     const applyButton = screen.getByText('Apply');
 
     expect(searchInput).toBeInTheDocument();
@@ -132,7 +139,7 @@ describe('BlogPostsList', () => {
     render(component);
 
     const searchInput = screen.getByPlaceholderText('Search posts...') as HTMLInputElement;
-    const tagInput = screen.getByPlaceholderText('Tag (e.g. eco, remote-work)') as HTMLInputElement;
+    const tagInput = screen.getByPlaceholderText('Filter by tag') as HTMLInputElement;
 
     expect(searchInput.defaultValue).toBe('nomad');
     expect(tagInput.defaultValue).toBe('eco');
@@ -142,9 +149,13 @@ describe('BlogPostsList', () => {
     const component = await BlogPostsList({ searchParams: {} });
     render(component);
 
-    expect(screen.getByText('#eco')).toBeInTheDocument();
-    expect(screen.getByText('#remote-work')).toBeInTheDocument();
-    expect(screen.getByText('#travel')).toBeInTheDocument();
+    // Tags in the filter section have a specific class structure or parent
+    const filterSection = screen.getByText('Stories for Sustainable Nomads').closest('section');
+    expect(filterSection).toBeInTheDocument();
+
+    expect(screen.getAllByText('#eco').some(el => filterSection?.contains(el))).toBe(true);
+    expect(screen.getAllByText('#remote-work').some(el => filterSection?.contains(el))).toBe(true);
+    expect(screen.getAllByText('#travel').some(el => filterSection?.contains(el))).toBe(true);
   });
 
   it('should not render tags section when no tags available', async () => {
@@ -155,10 +166,12 @@ describe('BlogPostsList', () => {
     });
 
     const component = await BlogPostsList({ searchParams: {} });
-    const { container } = render(component);
+    render(component);
 
-    const tagsSection = container.querySelector('.flex-wrap');
-    expect(tagsSection).not.toBeInTheDocument();
+    const filterSection = screen.getByText('Stories for Sustainable Nomads').closest('section');
+    // The tags container in the filter section has mt-5
+    const tagsContainer = filterSection?.querySelector('.mt-5.flex.flex-wrap');
+    expect(tagsContainer).not.toBeInTheDocument();
   });
 
   it('should render pagination with correct current page', async () => {
@@ -166,6 +179,7 @@ describe('BlogPostsList', () => {
     render(component);
 
     expect(screen.getByText('Page 1 of 1')).toBeInTheDocument();
+    expect(screen.getByText('1 / 1')).toBeInTheDocument();
   });
 
   it('should render next page link when hasNextPage is true', async () => {
@@ -184,7 +198,7 @@ describe('BlogPostsList', () => {
     const component = await BlogPostsList({ searchParams: {} });
     render(component);
 
-    const nextLink = screen.getByText('Next →');
+    const nextLink = screen.getByText('Next');
     expect(nextLink).toBeInTheDocument();
     expect(nextLink.closest('a')).toHaveAttribute('href', '/blog?page=2');
   });
@@ -205,7 +219,7 @@ describe('BlogPostsList', () => {
     const component = await BlogPostsList({ searchParams: { page: '2' } });
     render(component);
 
-    const prevLink = screen.getByText('← Previous');
+    const prevLink = screen.getByText('Prev');
     expect(prevLink).toBeInTheDocument();
     expect(prevLink.closest('a')).toHaveAttribute('href', '/blog?page=1');
   });
@@ -214,8 +228,8 @@ describe('BlogPostsList', () => {
     const component = await BlogPostsList({ searchParams: {} });
     render(component);
 
-    expect(screen.queryByText('Next →')).not.toBeInTheDocument();
-    expect(screen.queryByText('← Previous')).not.toBeInTheDocument();
+    expect(screen.queryByText('Next')).not.toBeInTheDocument();
+    expect(screen.queryByText('Prev')).not.toBeInTheDocument();
   });
 
   it('should render posts with correct links', async () => {
@@ -273,7 +287,7 @@ describe('BlogPostsList', () => {
     const component = await BlogPostsList({ searchParams: { search: 'nomad', tag: 'eco' } });
     render(component);
 
-    const nextLink = screen.getByText('Next →').closest('a');
+    const nextLink = screen.getByText('Next').closest('a');
     expect(nextLink?.getAttribute('href')).toContain('page=2');
     expect(nextLink?.getAttribute('href')).toContain('search=nomad');
     expect(nextLink?.getAttribute('href')).toContain('tag=eco');
@@ -309,19 +323,24 @@ describe('BlogPostsList', () => {
     const component = await BlogPostsList({ searchParams: { tag: 'eco' } });
     render(component);
 
-    const ecoTag = screen.getByText('#eco');
-    expect(ecoTag).toHaveClass('bg-black', 'text-white');
+    // Use getAllByText for tags because they may appear in the filter list AND post cards
+    const ecoTag = screen
+      .getAllByText('#eco')
+      .find(el => el.closest('div')?.className.includes('flex-wrap'));
+    expect(ecoTag).toHaveClass('bg-neo-border', 'text-neo-surface');
 
-    const remoteWorkTag = screen.getByText('#remote-work');
-    expect(remoteWorkTag).toHaveClass('bg-white');
-    expect(remoteWorkTag).not.toHaveClass('bg-black');
+    const remoteWorkTag = screen
+      .getAllByText('#remote-work')
+      .find(el => el.closest('div')?.className.includes('flex-wrap'));
+    expect(remoteWorkTag).toHaveClass('bg-neo-surface');
+    expect(remoteWorkTag).not.toHaveClass('bg-neo-border');
   });
 
   it('should render tag links with correct href', async () => {
     const component = await BlogPostsList({ searchParams: {} });
     render(component);
 
-    const ecoTagLink = screen.getByText('#eco').closest('a');
+    const ecoTagLink = screen.getAllByText('#eco').find(el => el.tagName === 'A');
     expect(ecoTagLink).toHaveAttribute('href', '/blog?tag=eco');
   });
 
@@ -329,7 +348,7 @@ describe('BlogPostsList', () => {
     const component = await BlogPostsList({ searchParams: { search: 'nomad' } });
     render(component);
 
-    const ecoTagLink = screen.getByText('#eco').closest('a');
+    const ecoTagLink = screen.getAllByText('#eco').find(el => el.tagName === 'A');
     expect(ecoTagLink?.getAttribute('href')).toContain('tag=eco');
     expect(ecoTagLink?.getAttribute('href')).toContain('search=nomad');
   });
