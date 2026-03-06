@@ -48,11 +48,13 @@ describe('HeaderServer', () => {
     const links = screen.getAllByRole('link');
     const homeLink = links.find(link => link.textContent === 'Home');
     const searchLink = links.find(link => link.textContent === 'Search');
+    const categoriesLink = links.find(link => link.textContent === 'Categories');
     const blogLink = links.find(link => link.textContent === 'Blog');
     const contactLink = links.find(link => link.textContent === 'Contact Us');
 
     expect(homeLink).toHaveAttribute('href', '/');
     expect(searchLink).toHaveAttribute('href', '/search');
+    expect(categoriesLink).toHaveAttribute('href', '/categories');
     expect(blogLink).toHaveAttribute('href', '/blog');
     expect(contactLink).toHaveAttribute('href', '/contact-us');
   });

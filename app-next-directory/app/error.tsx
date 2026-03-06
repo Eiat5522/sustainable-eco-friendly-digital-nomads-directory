@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { PageLayout } from '@/components/layout/PageLayout';
 import { NeoButton } from '@/components/ui/neo-button';
 import { structuredLogger } from '@/lib/logger';
 
@@ -21,7 +20,7 @@ export default function RootError({
   }, [error]);
 
   return (
-    <PageLayout showFooterNewsletter={false}>
+    <div className="min-h-screen bg-background">
       <section
         className="relative flex min-h-[70vh] items-center justify-center overflow-hidden px-4 py-16"
         aria-labelledby="error-title"
@@ -50,6 +49,6 @@ export default function RootError({
           )}
         </div>
       </section>
-    </PageLayout>
+    </div>
   );
 }

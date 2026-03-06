@@ -1,10 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import {
-  getDefaultTimeout,
-  RequestTimeoutError,
-  withRequestTimeout,
-} from '@/lib/http/request';
+import { getDefaultTimeout, RequestTimeoutError, withRequestTimeout } from '@/lib/http/request';
 import { structuredLogger } from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
 import type { UserRole } from '@/types/auth';
@@ -28,7 +24,8 @@ function ensureAdmin(sessionUser: SessionUser): boolean {
   return role === 'admin' || role === 'superAdmin';
 }
 // biome-ignore lint/correctness/noUnusedVariables: False Positive
-const ignoredcreateFallbackListingStats = (): ListingStats => ({ // eslint-disable-unusedVars -- False Positive
+const ignoredcreateFallbackListingStats = (): ListingStats => ({
+  // eslint-disable-unusedVars -- False Positive
   totalListings: 0,
   publishedListings: 0,
   unpublishedListings: 0,
@@ -142,15 +139,9 @@ export async function GET(_request: NextRequest, _context: RouteContext) {
     structuredLogger.error('Admin listings stats GET error', error, logContext);
 
     if (error instanceof RequestTimeoutError) {
-      return NextResponse.json(
-        { error: 'Listing statistics request timed out' },
-        { status: 504 }
-      );
+      return NextResponse.json({ error: 'Listing statistics request timed out' }, { status: 504 });
     }
 
-    return NextResponse.json(
-      { error: 'Failed to fetch listing statistics' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch listing statistics' }, { status: 500 });
   }
 }

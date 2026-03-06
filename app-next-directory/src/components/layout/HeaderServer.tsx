@@ -56,6 +56,9 @@ export function HeaderServer(): React.JSX.Element {
             <Link href="/search" className={navLinkClass}>
               Search
             </Link>
+            <Link href="/categories" className={navLinkClass}>
+              Categories
+            </Link>
             <Link href="/blog" className={navLinkClass}>
               Blog
             </Link>

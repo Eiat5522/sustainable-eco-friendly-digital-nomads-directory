@@ -8,6 +8,7 @@ import { useState } from 'react';
 const navigationItems = [
   { href: '/', label: 'Home' },
   { href: '/search', label: 'Search' },
+  { href: '/categories', label: 'Categories' },
   { href: '/blog', label: 'Blog' },
   { href: '/contact-us', label: 'Contact Us' },
 ] as const;

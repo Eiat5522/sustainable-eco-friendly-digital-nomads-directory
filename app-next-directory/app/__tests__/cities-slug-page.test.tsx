@@ -1,7 +1,5 @@
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
-import { Footer } from '@/components/layout/Footer';
-import { Header } from '@/components/layout/Header';
+import { render } from '@testing-library/react';
 
 const cityDetailViewSpy = jest.fn((props: any) => (
   <div data-testid="city-detail-view">
@@ -14,12 +12,18 @@ jest.mock('@/components/city/CityDetailView', () => ({
   CityDetailView: (props: unknown) => cityDetailViewSpy(props),
 }));
 
-jest.mock('@/components/layout/Header', () => ({
-  Header: () => <div data-testid="header">Header</div>,
+jest.mock('@/components/layout/HeaderServer', () => ({
+  HeaderServer: () => <div data-testid="header">Header</div>,
 }));
 
-jest.mock('@/components/layout/Footer', () => ({
-  Footer: () => <div data-testid="footer">Footer</div>,
+jest.mock('@/components/layout/FooterServer', () => ({
+  FooterServer: () => <div data-testid="footer">Footer</div>,
+}));
+
+jest.mock('@/components/layout/PageLayoutServer', () => ({
+  PageLayoutServer: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="page-layout">{children}</div>
+  ),
 }));
 
 jest.mock('@/lib/data-access/cities.dal', () => ({
@@ -35,13 +39,7 @@ jest.mock('@/lib/logger', () => ({
 const renderCityContentPage = async (slug: string) => {
   const pageModule = await import('../cities/[slug]/page');
   const content = await pageModule.CityContent({ slug });
-  render(
-    <>
-      <Header />
-      {content}
-      <Footer />
-    </>
-  );
+  render(content);
 };
 
 const originalE2E = process.env.NEXT_PUBLIC_E2E;
@@ -138,7 +136,6 @@ describe('CityPage', () => {
     await renderCityContentPage('eco-city');
 
     // Note: Due to Suspense with async server components, we verify through mock calls
-    expect(screen.getByTestId('header')).toBeInTheDocument();
     const props = cityDetailViewSpy.mock.calls.at(-1)?.[0];
     expect(props?.city?.name).toBe('Eco City');
     expect(props?.listings).toHaveLength(1);

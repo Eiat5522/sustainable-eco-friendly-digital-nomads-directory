@@ -46,6 +46,7 @@ export default defineType({
       name: 'type',
       title: 'Type',
       type: 'string',
+      description: 'Legacy compatibility field. Category reference is canonical.',
       options: {
         list: [
           { title: 'Coworking Space', value: 'coworking' },
@@ -131,10 +132,10 @@ export default defineType({
       name: 'accommodationDetails',
       title: 'Accommodation Details',
       type: 'accommodationDetails',
-      hidden: ({ parent }) => parent?.category !== 'accommodation',
+      hidden: ({ parent }) => parent?.type !== 'accommodation',
       validation: Rule =>
         Rule.custom((value, context) => {
-          if (context.parent?.category === 'accommodation' && !value) {
+          if (context.parent?.type === 'accommodation' && !value) {
             return 'Accommodation details are required for accommodation listings';
           }
           return true;
@@ -144,10 +145,10 @@ export default defineType({
       name: 'activitiesDetails',
       title: 'Activities Details',
       type: 'activitiesDetails',
-      hidden: ({ parent }) => parent?.category !== 'activities',
+      hidden: ({ parent }) => parent?.type !== 'activities',
       validation: Rule =>
         Rule.custom((value, context) => {
-          if (context.parent?.category === 'activities' && !value) {
+          if (context.parent?.type === 'activities' && !value) {
             return 'Activity details are required for activity listings';
           }
           return true;
@@ -157,10 +158,10 @@ export default defineType({
       name: 'cafeDetails',
       title: 'Cafe Details',
       type: 'cafeDetails',
-      hidden: ({ parent }) => parent?.category !== 'cafe',
+      hidden: ({ parent }) => parent?.type !== 'cafe',
       validation: Rule =>
         Rule.custom((value, context) => {
-          if (context.parent?.category === 'cafe' && !value) {
+          if (context.parent?.type === 'cafe' && !value) {
             return 'Cafe details are required for cafe listings';
           }
           return true;
@@ -170,10 +171,10 @@ export default defineType({
       name: 'coworkingDetails',
       title: 'Coworking Details',
       type: 'coworkingDetails',
-      hidden: ({ parent }) => parent?.category !== 'coworking',
+      hidden: ({ parent }) => parent?.type !== 'coworking',
       validation: Rule =>
         Rule.custom((value, context) => {
-          if (context.parent?.category === 'coworking' && !value) {
+          if (context.parent?.type === 'coworking' && !value) {
             return 'Coworking details are required for coworking spaces';
           }
           return true;
@@ -183,10 +184,10 @@ export default defineType({
       name: 'restaurantDetails',
       title: 'Restaurant Details',
       type: 'restaurantDetails',
-      hidden: ({ parent }) => parent?.category !== 'restaurant',
+      hidden: ({ parent }) => parent?.type !== 'restaurant',
       validation: Rule =>
         Rule.custom((value, context) => {
-          if (context.parent?.category === 'restaurant' && !value) {
+          if (context.parent?.type === 'restaurant' && !value) {
             return 'Restaurant details are required for restaurant listings';
           }
           return true;
@@ -195,17 +196,9 @@ export default defineType({
     defineField({
       name: 'category',
       title: 'Category',
-      type: 'string',
-      options: {
-        list: [
-          { title: 'Coworking Space', value: 'coworking' },
-          { title: 'Cafe', value: 'cafe' },
-          { title: 'Accommodation', value: 'accommodation' },
-          { title: 'Restaurant', value: 'restaurant' },
-          { title: 'Activities', value: 'activities' },
-        ],
-        layout: 'dropdown',
-      },
+      type: 'reference',
+      to: [{ type: 'category' }],
+      description: 'Canonical category reference used by categories pages and filtering.',
       validation: Rule => Rule.required(),
     }),
     defineField({

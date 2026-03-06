@@ -4,12 +4,12 @@ jest.mock('@/lib/auth', () => ({
   auth: jest.fn(),
 }));
 
-jest.mock('@/components/layout/Header', () => ({
-  Header: () => <div data-testid="header" />,
+jest.mock('@/components/layout/HeaderServer', () => ({
+  HeaderServer: () => <div data-testid="header" />,
 }));
 
-jest.mock('@/components/layout/Footer', () => ({
-  Footer: () => <div data-testid="footer" />,
+jest.mock('@/components/layout/FooterServer', () => ({
+  FooterServer: () => <div data-testid="footer" />,
 }));
 
 const redirectMock = jest.fn();

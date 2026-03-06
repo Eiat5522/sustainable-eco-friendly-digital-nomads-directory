@@ -1,11 +1,11 @@
 import Link from 'next/link';
-import { PageLayout } from '@/components/layout/PageLayout';
+import { PageLayoutServer } from '@/components/layout/PageLayoutServer';
 import { NeoButton } from '@/components/ui/neo-button';
 import { NeoCard, NeoCardContent, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
 
 export default function ForbiddenPage() {
   return (
-    <PageLayout showFooterNewsletter={false}>
+    <PageLayoutServer showFooterNewsletter={false}>
       <section className="relative flex min-h-[70vh] items-center justify-center overflow-hidden px-4 py-16">
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-neo-secondary/20 via-transparent to-neo-primary/15" />
         <NeoCard variant="elevated" className="relative max-w-lg w-full text-center">
@@ -24,6 +24,6 @@ export default function ForbiddenPage() {
           </NeoCardContent>
         </NeoCard>
       </section>
-    </PageLayout>
+    </PageLayoutServer>
   );
 }

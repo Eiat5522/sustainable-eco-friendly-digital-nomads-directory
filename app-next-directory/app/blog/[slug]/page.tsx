@@ -1,26 +1,17 @@
 import { PortableText } from '@portabletext/react';
+import type { PortableTextBlock } from '@portabletext/types';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { Suspense } from 'react';
 import { blogPortableTextComponents } from '@/components/blog/portableTextComponents';
-import { Footer } from '@/components/layout/Footer';
-import { Header } from '@/components/layout/Header';
-import { client as sanityClient } from '@/lib/sanity/client';
-
-// Subtle SVG gradient placeholder for hero image when missing
-function placeholderDataUri(width = 1200, height = 630) {
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${width}' height='${height}' viewBox='0 0 ${width} ${height}'><defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#f3f4f6'/><stop offset='1' stop-color='#e5e7eb'/></linearGradient></defs><rect width='100%' height='100%' fill='url(#g)'/></svg>`;
-  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
-}
-
-import type { PortableTextBlock } from '@portabletext/types';
 import CommentForm from '@/components/CommentForm';
 import CommentList from '@/components/CommentList';
+import { PageLayoutServer } from '@/components/layout/PageLayoutServer';
+import { client as sanityClient } from '@/lib/sanity/client';
 import { getPostCached } from './data';
 
-// minimal response type
 type Comment = { _id: string; content: string; user?: { name?: string } | null };
+
 type PostDTO = {
   id: string;
   title: string;
@@ -28,30 +19,35 @@ type PostDTO = {
   imageUrl?: string | null;
   excerpt?: string | null;
 };
-// Type for potential future use
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-type _PostResponse = { post: PostDTO; comments: Comment[] };
 
-export default async function BlogPostPage(props: Readonly<{ params: Promise<{ slug: string }> }>) {
-  const resolvedParams = await props.params;
-  const { slug } = resolvedParams;
+function placeholderDataUri(width = 1200, height = 630) {
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${width}' height='${height}' viewBox='0 0 ${width} ${height}'><defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#f3f4f6'/><stop offset='1' stop-color='#e5e7eb'/></linearGradient></defs><rect width='100%' height='100%' fill='url(#g)'/></svg>`;
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
 
+async function loadPost(slug: string): Promise<{ post: PostDTO; comments: Comment[] }> {
   let post: PostDTO;
   let comments: Comment[];
+
   try {
-    const res = await getPostCached(slug); // <--- Data fetching happens here
-    // API may return wrapped DTO or legacy shape
-    if (res && typeof res === 'object' && 'success' in res) {
-      const data = (res as { success: boolean; data?: { post: PostDTO; comments?: Comment[] } })
-        .data;
+    const response = await getPostCached(slug);
+
+    if (response && typeof response === 'object' && 'success' in response) {
+      const data = (
+        response as { success: boolean; data?: { post: PostDTO; comments?: Comment[] } }
+      ).data;
       post = data?.post ?? ({} as PostDTO);
       comments = data?.comments ?? [];
-    } else if (res && typeof res === 'object' && 'post' in res && 'comments' in res) {
-      post = res.post as PostDTO; // Specify type
-      comments = res.comments as Comment[]; // Specify type
+    } else if (
+      response &&
+      typeof response === 'object' &&
+      'post' in response &&
+      'comments' in response
+    ) {
+      post = response.post as PostDTO;
+      comments = response.comments as Comment[];
     } else {
-      // Fallback shape - normalize to PostDTO
-      const raw = res as {
+      const raw = response as {
         _id?: string;
         id?: string;
         title?: string;
@@ -60,6 +56,7 @@ export default async function BlogPostPage(props: Readonly<{ params: Promise<{ s
         primaryImage?: { asset?: { url?: string } };
         excerpt?: string | null;
       };
+
       post = {
         id: raw.id ?? raw._id ?? '',
         title: raw.title ?? '',
@@ -69,161 +66,151 @@ export default async function BlogPostPage(props: Readonly<{ params: Promise<{ s
       };
       comments = [];
     }
+
     if (!post || !post.title) {
       notFound();
     }
 
-    // If no comments from API, fetch from Sanity
     if (comments.length === 0 && post.id) {
       try {
-        const sanityComments = await sanityClient.fetch<Comment[]>(
-          `*[_type == "comment" && post._ref == $postId] | order(_createdAt desc) {
-            _id,
-            content,
-            user->{name}
-          }`,
-          { postId: post.id }
-        );
-        comments = sanityComments ?? [];
+        comments =
+          (await sanityClient.fetch<Comment[]>(
+            `*[_type == "comment" && post._ref == $postId] | order(_createdAt desc) {
+              _id,
+              content,
+              user->{name}
+            }`,
+            { postId: post.id }
+          )) ?? [];
       } catch {
         comments = [];
       }
     }
-  } catch (err: unknown) {
-    // Use unknown for catch error type
-    if (err instanceof Error) {
-      const errorWithStatus = err as Error & { status?: number };
-      if (errorWithStatus.status === 404 || /POST_NOT_FOUND/.test(String(err.message ?? ''))) {
+
+    return { post, comments };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      const errorWithStatus = error as Error & { status?: number };
+      if (errorWithStatus.status === 404 || /POST_NOT_FOUND/.test(String(error.message ?? ''))) {
         notFound();
       }
     }
-    throw err;
+    throw error;
   }
+}
 
-  const heroUrl: string | null = post.imageUrl ?? null;
+export default async function BlogPostPage(props: Readonly<{ params: Promise<{ slug: string }> }>) {
+  const { slug } = await props.params;
+  const { post, comments } = await loadPost(slug);
+
+  const heroUrl = post.imageUrl ?? null;
   const usingPlaceholder = !heroUrl;
   const src = heroUrl ?? placeholderDataUri(1200, 630);
   const alt = usingPlaceholder ? '' : post.title || '';
 
   return (
-    <>
-      <Suspense fallback={<div>Loading header...</div>}>
-        <Header />
-      </Suspense>
-      <Suspense fallback={<div>Loading blog post...</div>}>
-        <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-          <h1 className="text-4xl font-extrabold text-center my-8 text-gray-900">{post.title}</h1>
-          <div className="relative w-full h-96 mb-8 rounded-lg overflow-hidden shadow-xl">
-            <Image
-              src={src}
-              alt={alt}
-              aria-hidden={usingPlaceholder}
-              role={usingPlaceholder ? 'presentation' : 'img'}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              priority
-            />
-          </div>
-          <article className="prose lg:prose-xl mx-auto">
-            <PortableText value={post.body} components={blogPortableTextComponents} />
+    <PageLayoutServer>
+      <div className="relative overflow-hidden bg-neo-secondary px-4 py-12 sm:py-14">
+        <div
+          className="pointer-events-none absolute inset-0 z-0 opacity-25"
+          style={{
+            backgroundImage:
+              'radial-gradient(circle at 2px 2px, var(--neo-border) 2px, transparent 0)',
+            backgroundSize: '28px 28px',
+          }}
+        />
+
+        <div className="container relative z-10 mx-auto max-w-4xl">
+          <article
+            className="border-4 border-neo-border bg-neo-surface p-5 md:p-8"
+            style={{ boxShadow: '12px 12px 0px 0px var(--neo-shadow)' }}
+          >
+            <div className="mb-4 inline-block border-2 border-neo-border bg-neo-primary px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white shadow-[3px_3px_0_0] shadow-neo-shadow">
+              Blog Post
+            </div>
+            <h1 className="heading-xl text-neo-border">{post.title}</h1>
+
+            <div className="relative mt-6 h-64 overflow-hidden border-4 border-neo-border bg-neo-secondary/20 md:h-96">
+              <Image
+                src={src}
+                alt={alt}
+                aria-hidden={usingPlaceholder}
+                role={usingPlaceholder ? 'presentation' : 'img'}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 900px"
+                priority
+              />
+            </div>
+
+            <div className="prose prose-neutral mt-8 max-w-none prose-headings:font-black prose-headings:text-neo-border prose-a:text-neo-primary prose-strong:text-neo-border">
+              <PortableText value={post.body} components={blogPortableTextComponents} />
+            </div>
           </article>
-          <section className="mt-12 max-w-2xl mx-auto">
-            <h2 className="text-3xl font-bold mb-6 text-gray-800">Comments</h2>
+
+          <section
+            className="mt-8 border-4 border-neo-border bg-neo-surface p-5 md:p-8"
+            style={{ boxShadow: '12px 12px 0px 0px var(--neo-shadow)' }}
+          >
+            <h2 className="heading-lg mb-4">Comments</h2>
             <CommentForm postId={post.id} />
             <CommentList comments={comments} />
           </section>
         </div>
-      </Suspense>
-      <Suspense fallback={<div>Loading footer...</div>}>
-        <Footer />
-      </Suspense>
-    </>
+      </div>
+    </PageLayoutServer>
   );
 }
 
 export async function generateMetadata(props: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const resolvedParams = await props.params;
-  const { slug } = resolvedParams;
-  let post: PostDTO;
+  const { slug } = await props.params;
+
   try {
-    const res = await getPostCached(slug);
-    if (res && typeof res === 'object' && 'success' in res) {
-      const data = (res as { success: boolean; data?: { post: PostDTO; comments: Comment[] } })
-        .data;
-      post = data?.post ?? ({} as PostDTO);
-    } else if (res && typeof res === 'object' && 'post' in res) {
-      post = res.post as PostDTO;
+    const { post } = await loadPost(slug);
+
+    const metadata: Metadata = {
+      title: post.title,
+      description: post.excerpt ?? undefined,
+    };
+
+    if (post.imageUrl) {
+      const { getBaseUrl } = await import('@/lib/absolute-url');
+      const base = await getBaseUrl();
+      const absoluteImageUrl = post.imageUrl.startsWith('http')
+        ? post.imageUrl
+        : `${base}${post.imageUrl}`;
+
+      metadata.openGraph = {
+        images: [{ url: absoluteImageUrl }],
+      };
+      metadata.twitter = {
+        card: 'summary_large_image',
+        images: [absoluteImageUrl],
+      };
     } else {
-      // Fallback shape - normalize to PostDTO
-      const raw = res as {
-        _id?: string;
-        id?: string;
-        title?: string;
-        body?: PortableTextBlock[];
-        imageUrl?: string | null;
-        primaryImage?: { asset?: { url?: string } };
-        excerpt?: string | null;
+      metadata.twitter = {
+        card: 'summary',
+        images: undefined,
       };
-      post = {
-        id: raw.id ?? raw._id ?? '',
-        title: raw.title ?? '',
-        body: raw.body ?? [],
-        imageUrl: raw.imageUrl ?? raw.primaryImage?.asset?.url ?? null,
-        excerpt: raw.excerpt ?? null,
+      metadata.openGraph = {
+        images: undefined,
       };
     }
-    if (!post || !post.title) {
-      return {
-        title: 'Post not found',
-      };
-    }
-  } catch (err: unknown) {
-    if (err instanceof Error) {
-      const errorWithStatus = err as Error & { status?: number };
-      if (errorWithStatus.status === 404 || /POST_NOT_FOUND/.test(String(err.message ?? ''))) {
-        return {
-          title: 'Post not found',
-        };
+
+    return metadata;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      const errorWithStatus = error as Error & { status?: number };
+      if (
+        errorWithStatus.status === 404 ||
+        /POST_NOT_FOUND|NEXT_NOT_FOUND/.test(String(error.message ?? ''))
+      ) {
+        return { title: 'Post not found' };
       }
     }
-    return {
-      title: 'Blog',
-    };
+
+    return { title: 'Blog' };
   }
-
-  const metadata: Metadata = {
-    title: post.title,
-    description: post.excerpt ?? undefined,
-  };
-
-  // Add OpenGraph and Twitter metadata if image is present
-  if (post.imageUrl) {
-    const { getBaseUrl } = await import('@/lib/absolute-url');
-    const base = await getBaseUrl();
-    const absoluteImageUrl = post.imageUrl.startsWith('http')
-      ? post.imageUrl
-      : `${base}${post.imageUrl}`;
-
-    metadata.openGraph = {
-      images: [{ url: absoluteImageUrl }],
-    };
-    metadata.twitter = {
-      card: 'summary_large_image',
-      images: [absoluteImageUrl],
-    };
-  } else {
-    // No image - use summary card
-    metadata.twitter = {
-      card: 'summary',
-      images: undefined,
-    };
-    metadata.openGraph = {
-      images: undefined,
-    };
-  }
-
-  return metadata;
 }

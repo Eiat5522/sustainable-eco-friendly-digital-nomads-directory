@@ -458,6 +458,23 @@ export function getE2EListingsForCity(cityId: string): ListingSummaryDTO[] {
     .map(listing => toListingSummary(listing));
 }
 
+export function getE2EListingsForCategory(category: string): ListingSummaryDTO[] {
+  const allowed = new Set<ListingSummaryDTO['type']>([
+    'coworking',
+    'cafe',
+    'accommodation',
+    'restaurant',
+    'activities',
+  ]);
+  if (!allowed.has(category as ListingSummaryDTO['type'])) {
+    return [];
+  }
+
+  return discoveryListings
+    .filter(listing => listing.category === (category as ListingSummaryDTO['type']))
+    .map(listing => toListingSummary(listing));
+}
+
 export const e2eDiscoveryListings = discoveryListings;
 export const e2eDiscoveryCities = discoveryCities;
 

@@ -36,12 +36,12 @@ jest.mock('@/components/listings/ListingDetailView', () => ({
   },
 }));
 
-jest.mock('@/components/layout/Header', () => ({
-  Header: () => <div data-testid="mock-header" />,
+jest.mock('@/components/layout/HeaderServer', () => ({
+  HeaderServer: () => <div data-testid="mock-header" />,
 }));
 
-jest.mock('@/components/layout/Footer', () => ({
-  Footer: () => <div data-testid="mock-footer" />,
+jest.mock('@/components/layout/FooterServer', () => ({
+  FooterServer: () => <div data-testid="mock-footer" />,
 }));
 
 const originalStructuredClone = global.structuredClone;

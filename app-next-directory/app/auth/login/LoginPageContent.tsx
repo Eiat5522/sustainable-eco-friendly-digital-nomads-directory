@@ -10,7 +10,8 @@ export default function LoginPageContent() {
       <div
         className="absolute inset-0 z-0 opacity-25"
         style={{
-          backgroundImage: 'radial-gradient(circle at 2px 2px, var(--neo-border) 2px, transparent 0)',
+          backgroundImage:
+            'radial-gradient(circle at 2px 2px, var(--neo-border) 2px, transparent 0)',
           backgroundSize: '28px 28px',
         }}
       />
@@ -32,14 +33,21 @@ export default function LoginPageContent() {
 
           <div className="relative z-10">
             <div className="flex items-center gap-2 mb-8">
-              <span className="text-3xl" aria-hidden>🌿</span>
-              <span className="font-black text-neo-secondary text-sm uppercase tracking-[0.2em]">EcoNomad</span>
+              <span className="text-3xl" aria-hidden>
+                🌿
+              </span>
+              <span className="font-black text-neo-secondary text-sm uppercase tracking-[0.2em]">
+                EcoNomad
+              </span>
             </div>
             <p className="heading-xl text-white uppercase tracking-tight mb-5" id="welcome-heading">
-              Welcome<br />Back!
+              Welcome
+              <br />
+              Back!
             </p>
             <p className="font-bold text-neo-secondary/80 mb-8 max-w-xs text-sm leading-relaxed">
-              Log in to manage listings, save favourites, and discover eco-friendly spots built for digital nomads.
+              Log in to manage listings, save favourites, and discover eco-friendly spots built for
+              digital nomads.
             </p>
             <section
               aria-labelledby="social-signin-heading-left"
@@ -62,7 +70,9 @@ export default function LoginPageContent() {
               Member Access
             </div>
             <h1 className="heading-lg mb-2">Log In</h1>
-            <p className="text-neo-text-secondary font-medium text-sm">Enter your credentials to access your account.</p>
+            <p className="text-neo-text-secondary font-medium text-sm">
+              Enter your credentials to access your account.
+            </p>
           </div>
 
           <LoginForm />

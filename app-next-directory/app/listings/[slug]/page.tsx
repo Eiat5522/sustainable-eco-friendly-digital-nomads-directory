@@ -1,9 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { connection } from 'next/server';
-import { Suspense } from 'react';
-import { Footer } from '@/components/layout/Footer';
-import { Header } from '@/components/layout/Header';
+import { PageLayoutServer } from '@/components/layout/PageLayoutServer';
 import { ListingDetailView } from '@/components/listings/ListingDetailView';
 import {
   mockListingDetail,
@@ -142,10 +140,7 @@ export default async function ListingPage({ params }: Props) {
   const listingContent = await ListingContent({ slug });
 
   return (
-    <>
-      <Suspense fallback={<div className="h-16 bg-gray-100 animate-pulse" />}>
-        <Header />
-      </Suspense>
+    <PageLayoutServer>
       <main className="relative overflow-hidden bg-neo-secondary px-4 py-8">
         <div
           className="pointer-events-none absolute inset-0 z-0 opacity-25"
@@ -157,10 +152,7 @@ export default async function ListingPage({ params }: Props) {
         />
         <div className="relative z-10">{listingContent}</div>
       </main>
-      <Suspense fallback={<div className="h-32 bg-gray-100 animate-pulse" />}>
-        <Footer />
-      </Suspense>
-    </>
+    </PageLayoutServer>
   );
 }
 

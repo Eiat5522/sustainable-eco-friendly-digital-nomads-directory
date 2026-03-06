@@ -4,7 +4,9 @@ import address from './address.js';
 import amenity from './amenity.js';
 import blogPost from './blogPost.js';
 import cafeDetails from './cafeDetails.js';
+import category from './category.js';
 import city from './city.js';
+import code from './code.js';
 import comment from './comment.js';
 import coworkingDetails from './coworkingDetails.js';
 import ecoInitiatives from './ecoInitiatives.js';
@@ -27,6 +29,7 @@ import userFavorite from './userFavorite.js';
 
 export const schemaTypes = [
   city,
+  category,
   listing,
   ecoTag,
   review,
@@ -38,6 +41,7 @@ export const schemaTypes = [
   address,
   amenity,
   cafeDetails,
+  code,
   comment,
   coworkingDetails,
   ecoInitiatives,

@@ -9,14 +9,14 @@ jest.mock('next/navigation', () => ({
   useSearchParams: () => mockUseSearchParams(),
 }));
 
-jest.mock('@/components/layout/Header', () => ({
+jest.mock('@/components/layout/HeaderServer', () => ({
   __esModule: true,
-  Header: () => <header data-testid="header" />,
+  HeaderServer: () => <header data-testid="header" />,
 }));
 
-jest.mock('@/components/layout/Footer', () => ({
+jest.mock('@/components/layout/FooterServer', () => ({
   __esModule: true,
-  Footer: () => <footer data-testid="footer" />,
+  FooterServer: () => <footer data-testid="footer" />,
 }));
 
 jest.mock('@/components/ui/neo-card', () => ({

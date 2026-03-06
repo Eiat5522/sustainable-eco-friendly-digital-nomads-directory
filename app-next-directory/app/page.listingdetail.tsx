@@ -1,6 +1,5 @@
 import 'leaflet/dist/leaflet.css';
-import { Footer } from '@/components/layout/Footer';
-import { Header } from '@/components/layout/Header';
+import { PageLayoutServer } from '@/components/layout/PageLayoutServer';
 import { ListingDetailView } from '@/components/listings/ListingDetailView';
 import {
   mockListingDetail,
@@ -10,8 +9,7 @@ import {
 
 export default function ListingDetailPreview() {
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <PageLayoutServer>
       <main>
         <ListingDetailView
           listing={mockListingDetail}
@@ -21,7 +19,6 @@ export default function ListingDetailPreview() {
           isFavorited={false}
         />
       </main>
-      <Footer />
-    </div>
+    </PageLayoutServer>
   );
 }

@@ -141,6 +141,12 @@ export const imageOrFallback = (img: unknown, w: number, h: number): string => {
     // biome-ignore lint/suspicious/noFocusedTests: Sanity image builder uses fit()
     return urlFor(img).width(w).height(h).fit('crop').auto('format').url();
   }
+
+  // Null/primitive values cannot carry an asset payload.
+  if (!img || typeof img !== 'object') {
+    return FALLBACK_IMAGE;
+  }
+
   // Fallback to pre-resolved asset.url if available
   const obj = img as Record<string, unknown>;
   const asset = obj.asset as Record<string, unknown> | undefined;
@@ -256,6 +262,17 @@ export function transformToSummaryDTO(
   sanityListing: DereferencedSanityListing | SanityListing
 ): ListingSummaryDTO {
   const imageUrl = imageOrFallback(sanityListing.primaryImage, 500, 300);
+  if (imageUrl === FALLBACK_IMAGE) {
+    structuredLogger.warn('[DTO] Listing has missing or invalid primaryImage; using fallback image', {
+      component: 'dto-transformer',
+      listingId: sanityListing._id,
+      listingSlug:
+        typeof sanityListing.slug === 'string'
+          ? sanityListing.slug
+          : sanityListing.slug?.current ?? undefined,
+      listingType: sanityListing.type,
+    });
+  }
 
   // Use type guard or more specific interfaces where possible instead of 'as'
   // For simplicity and to cover both SanityListing and DereferencedSanityListing,

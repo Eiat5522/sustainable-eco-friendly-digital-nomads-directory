@@ -2,13 +2,13 @@ import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 
 // Mock Header
-jest.mock('@/components/layout/Header', () => ({
-  Header: () => <div data-testid="header">Header</div>,
+jest.mock('@/components/layout/HeaderServer', () => ({
+  HeaderServer: () => <div data-testid="header">Header</div>,
 }));
 
 // Mock Footer
-jest.mock('@/components/layout/Footer', () => ({
-  Footer: () => <div data-testid="footer">Footer</div>,
+jest.mock('@/components/layout/FooterServer', () => ({
+  FooterServer: () => <div data-testid="footer">Footer</div>,
 }));
 
 // Mock ListingDetailView

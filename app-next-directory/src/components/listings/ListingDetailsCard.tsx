@@ -161,14 +161,14 @@ function buildPillSections(listing: ListingDetailDTO): PillSectionConfig[] {
       title: 'Sustainability Features',
       items: ecoItems,
       pillClassName:
-        'px-3 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-medium border border-green-200',
+        'px-3 py-2 bg-neo-success/20 text-neo-success rounded-lg text-sm font-medium border border-neo-success/40',
     },
     {
       id: 'digital-features',
       title: 'Digital Nomad Features',
       items: digitalItems,
       pillClassName:
-        'px-3 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium border border-blue-200',
+        'px-3 py-2 bg-neo-primary/15 text-neo-primary rounded-lg text-sm font-medium border border-neo-primary/35',
     },
   ];
 }

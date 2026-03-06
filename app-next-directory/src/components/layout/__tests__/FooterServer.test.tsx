@@ -44,7 +44,7 @@ describe('FooterServer', () => {
 
     const footer = container.querySelector('footer');
     expect(footer).toBeInTheDocument();
-    expect(footer).toHaveClass('bg-neo-text-primary', 'text-white', 'border-t-4');
+    expect(footer).toHaveClass('bg-neo-border', 'text-white', 'border-t-4');
   });
 
   it('should render newsletter form when showNewsletter is true', () => {
@@ -64,6 +64,7 @@ describe('FooterServer', () => {
 
     expect(screen.getByRole('link', { name: 'Home' })).toHaveAttribute('href', '/');
     expect(screen.getByRole('link', { name: 'Find Listings' })).toHaveAttribute('href', '/search');
+    expect(screen.getByRole('link', { name: 'Categories' })).toHaveAttribute('href', '/categories');
     expect(screen.getByRole('link', { name: 'Blog' })).toHaveAttribute('href', '/blog');
     expect(screen.getByRole('link', { name: 'Submit Your Business' })).toHaveAttribute(
       'href',
@@ -80,23 +81,20 @@ describe('FooterServer', () => {
 
     expect(screen.getByRole('link', { name: 'Co-working Spaces' })).toHaveAttribute(
       'href',
-      '/search/results?category=coworking'
+      '/categories/coworking'
     );
-    expect(screen.getByRole('link', { name: 'Cafes' })).toHaveAttribute(
-      'href',
-      '/search/results?category=cafe'
-    );
+    expect(screen.getByRole('link', { name: 'Cafes' })).toHaveAttribute('href', '/categories/cafe');
     expect(screen.getByRole('link', { name: 'Restaurants' })).toHaveAttribute(
       'href',
-      '/search/results?category=restaurant'
+      '/categories/restaurant'
     );
     expect(screen.getByRole('link', { name: 'Accommodation' })).toHaveAttribute(
       'href',
-      '/search/results?category=accommodation'
+      '/categories/accommodation'
     );
     expect(screen.getByRole('link', { name: 'Activities' })).toHaveAttribute(
       'href',
-      '/search/results?category=activities'
+      '/categories/activities'
     );
   });
 
@@ -131,7 +129,8 @@ describe('FooterServer', () => {
 
     expect(screen.getByTestId('footer-year')).toBeInTheDocument();
     expect(screen.getByTestId('footer-year')).toHaveTextContent('2024');
-    expect(screen.getByText(/SustainableNomads\. All rights reserved\./i)).toBeInTheDocument();
+    expect(screen.getByText(/Copyright/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/sustainablenomads/i).length).toBeGreaterThanOrEqual(1);
   });
 
   it('should render brand name and tagline', () => {
@@ -144,16 +143,15 @@ describe('FooterServer', () => {
   it('should render "Made with" section', () => {
     render(<FooterServer />);
 
-    expect(screen.getByText('Made with')).toBeInTheDocument();
-    expect(screen.getByText('for the planet')).toBeInTheDocument();
+    expect(screen.getByText('Made for the planet')).toBeInTheDocument();
   });
 
   it('should have proper heading structure', () => {
     render(<FooterServer />);
 
     expect(screen.getByText('Quick Links')).toBeInTheDocument();
-    expect(screen.getByText('Categories')).toBeInTheDocument();
-    expect(screen.getByText('Contact Us')).toBeInTheDocument();
+    expect(screen.getAllByText('Categories').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText('Contact')).toBeInTheDocument();
   });
 
   it('should render all icons', () => {

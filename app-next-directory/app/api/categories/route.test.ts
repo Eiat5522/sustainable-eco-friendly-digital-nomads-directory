@@ -20,7 +20,7 @@ jest.mock('@/lib/sanity/client', () => ({
 
 // Mock constants
 jest.mock('@/lib/constants/categories', () => ({
-  DEFAULT_CATEGORIES: ['Coworking', 'Accommodation', 'Cafe', 'Restaurant'],
+  DEFAULT_CATEGORIES: ['coworking', 'accommodation', 'cafe', 'restaurant'],
 }));
 
 describe('Categories API - GET /api/categories', () => {
@@ -33,7 +33,10 @@ describe('Categories API - GET /api/categories', () => {
 
   describe('Successful Requests', () => {
     it('should return categories from CMS', async () => {
-      const mockCategories = ['Coworking', 'Accommodation', 'Cafe', 'Restaurant', 'Hotel'];
+      const mockCategories = [
+        { name: 'Coworking Space', slug: 'coworking', listingCount: 4 },
+        { name: 'Cafe', slug: 'cafe', listingCount: 2 },
+      ];
       mockedFetch.mockResolvedValueOnce(mockCategories);
 
       const response = await GET();
@@ -42,7 +45,7 @@ describe('Categories API - GET /api/categories', () => {
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
       expect(data.data.categories).toEqual(mockCategories);
-      expect(data.data.categories.length).toBe(5);
+      expect(data.data.categories.length).toBe(2);
       expect(mockedFetch).toHaveBeenCalledTimes(1);
     });
 
@@ -52,9 +55,8 @@ describe('Categories API - GET /api/categories', () => {
       await GET();
 
       const query = mockedFetch.mock.calls[0][0];
-      expect(query).toContain('_type == "listing"');
-      expect(query).toContain('defined(category)');
-      expect(query).toContain('array::unique');
+      expect(query).toContain('_type == "category"');
+      expect(query).toContain('listingCount');
     });
   });
 
@@ -67,7 +69,9 @@ describe('Categories API - GET /api/categories', () => {
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
-      expect(data.data.categories).toEqual(DEFAULT_CATEGORIES);
+      expect(data.data.categories).toEqual(
+        DEFAULT_CATEGORIES.map(category => ({ name: category, slug: category, listingCount: 0 }))
+      );
     });
 
     it('should return default categories when CMS returns null', async () => {
@@ -78,7 +82,9 @@ describe('Categories API - GET /api/categories', () => {
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
-      expect(data.data.categories).toEqual(DEFAULT_CATEGORIES);
+      expect(data.data.categories).toEqual(
+        DEFAULT_CATEGORIES.map(category => ({ name: category, slug: category, listingCount: 0 }))
+      );
     });
 
     it('should return default categories when CMS returns undefined', async () => {
@@ -89,7 +95,9 @@ describe('Categories API - GET /api/categories', () => {
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
-      expect(data.data.categories).toEqual(DEFAULT_CATEGORIES);
+      expect(data.data.categories).toEqual(
+        DEFAULT_CATEGORIES.map(category => ({ name: category, slug: category, listingCount: 0 }))
+      );
     });
   });
 
@@ -102,7 +110,9 @@ describe('Categories API - GET /api/categories', () => {
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
-      expect(data.data.categories).toEqual(DEFAULT_CATEGORIES);
+      expect(data.data.categories).toEqual(
+        DEFAULT_CATEGORIES.map(category => ({ name: category, slug: category, listingCount: 0 }))
+      );
       expect(mockedFetch).toHaveBeenCalledTimes(1);
     });
 
@@ -114,7 +124,9 @@ describe('Categories API - GET /api/categories', () => {
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
-      expect(data.data.categories).toEqual(DEFAULT_CATEGORIES);
+      expect(data.data.categories).toEqual(
+        DEFAULT_CATEGORIES.map(category => ({ name: category, slug: category, listingCount: 0 }))
+      );
     });
 
     it('should handle error with status code', async () => {
@@ -127,7 +139,9 @@ describe('Categories API - GET /api/categories', () => {
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
-      expect(data.data.categories).toEqual(DEFAULT_CATEGORIES);
+      expect(data.data.categories).toEqual(
+        DEFAULT_CATEGORIES.map(category => ({ name: category, slug: category, listingCount: 0 }))
+      );
     });
   });
 });

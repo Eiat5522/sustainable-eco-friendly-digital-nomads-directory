@@ -105,7 +105,15 @@ export const apiHandlers = [
    * Categories API
    */
   http.get('/api/categories', () => {
-    const categories = Array.from(new Set(data.listings.map(listing => listing.type)));
+    const counts = new Map<string, number>();
+    for (const listing of data.listings) {
+      counts.set(listing.type, (counts.get(listing.type) ?? 0) + 1);
+    }
+    const categories = Array.from(counts.entries()).map(([slug, count]) => ({
+      name: slug,
+      slug,
+      listingCount: count,
+    }));
     return ok({ categories });
   }),
 

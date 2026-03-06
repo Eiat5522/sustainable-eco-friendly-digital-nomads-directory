@@ -123,7 +123,7 @@ export default function GalleryGrid({ images, fallback = '/placeholder_image.png
                 lastTriggerRef.current = e.currentTarget;
                 setOpenIndex(index);
               }}
-              className="relative w-full h-32 sm:h-36 md:h-40 rounded-lg overflow-hidden bg-gray-100 hover:shadow-lg transition-shadow duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="relative h-32 w-full overflow-hidden rounded-lg border-2 border-neo-border bg-neo-surface transition-shadow duration-300 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-neo-primary sm:h-36 md:h-40"
               aria-label={`Open image ${index + 1}`}
               data-testid="gallery-thumbnail"
               data-index={index}
@@ -145,7 +145,7 @@ export default function GalleryGrid({ images, fallback = '/placeholder_image.png
           role="dialog"
           aria-modal="true"
           aria-label="Image preview"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-neo-border/70 p-4"
           onClick={closeModal}
           ref={dialogRef}
           onKeyDown={onDialogKeyDown}
@@ -158,12 +158,12 @@ export default function GalleryGrid({ images, fallback = '/placeholder_image.png
             <button
               ref={closeBtnRef}
               onClick={closeModal}
-              className="absolute right-4 top-4 z-20 rounded-full bg-white/90 p-2 hover:bg-white transition-colors"
+              className="absolute right-4 top-4 z-20 rounded-full border-2 border-neo-border bg-neo-surface/90 p-2 transition-colors hover:bg-neo-surface"
               aria-label="Close preview"
             >
               ✕
             </button>
-            <div className="w-full h-[80vh] relative bg-black rounded-lg overflow-hidden">
+            <div className="relative h-[80vh] w-full overflow-hidden rounded-lg border-2 border-neo-border bg-neo-border">
               <Image
                 src={(toShow[openIndex] as string) || fallback}
                 alt={`Preview ${openIndex + 1}`}
@@ -178,7 +178,7 @@ export default function GalleryGrid({ images, fallback = '/placeholder_image.png
               <button
                 ref={prevBtnRef}
                 onClick={goPrev}
-                className="rounded-lg bg-white/90 hover:bg-white px-4 py-2 font-medium transition-colors"
+                className="rounded-lg border-2 border-neo-border bg-neo-surface/90 px-4 py-2 font-medium transition-colors hover:bg-neo-surface"
                 aria-label="Previous image"
               >
                 ‹ Prev
@@ -186,7 +186,7 @@ export default function GalleryGrid({ images, fallback = '/placeholder_image.png
               <button
                 ref={nextBtnRef}
                 onClick={goNext}
-                className="rounded-lg bg-white/90 hover:bg-white px-4 py-2 font-medium transition-colors"
+                className="rounded-lg border-2 border-neo-border bg-neo-surface/90 px-4 py-2 font-medium transition-colors hover:bg-neo-surface"
                 aria-label="Next image"
               >
                 Next ›

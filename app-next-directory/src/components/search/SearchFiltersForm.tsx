@@ -184,18 +184,26 @@ export function SearchFiltersForm({
           ? [...categoriesPayload.categories]
           : [];
         const categoryOpts: Option[] = Array.from(
-          new Set(
+          new Map(
             categories
-              .map(category => (typeof category === 'string' ? category.trim() : ''))
-              .filter(Boolean) as string[]
-          )
-        )
-          .map(category => ({
-            value: category,
-            label: category.charAt(0).toUpperCase() + category.slice(1),
-            icon: category.toLowerCase().includes('work') ? Building2 : Home,
-          }))
-          .sort((a, b) => a.label.localeCompare(b.label));
+              .filter(
+                category =>
+                  category && typeof category.slug === 'string' && category.slug.trim().length > 0
+              )
+              .map(category => {
+                const slug = category.slug.trim();
+                const label = typeof category.name === 'string' ? category.name.trim() : slug;
+                return [
+                  slug,
+                  {
+                    value: slug,
+                    label: label.charAt(0).toUpperCase() + label.slice(1),
+                    icon: slug.toLowerCase().includes('work') ? Building2 : Home,
+                  } as Option,
+                ] as const;
+              })
+          ).values()
+        ).sort((a, b) => a.label.localeCompare(b.label));
         setCategoryOptions(categoryOpts);
 
         const amenities = Array.isArray(amenitiesPayload?.amenities)

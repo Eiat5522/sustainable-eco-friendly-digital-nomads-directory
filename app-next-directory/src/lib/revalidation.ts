@@ -27,7 +27,7 @@ export const ALLOWED_REVALIDATION_TAGS = new Set([
 
 export const TAG_PATTERN = /^[a-z0-9:-]+$/i;
 
-export const REVALIDATE_ALL_ROUTES = ['/', '/listings', '/category', '/city'];
+export const REVALIDATE_ALL_ROUTES = ['/', '/listings', '/categories', '/cities'];
 
 export const resolveSanityRevalidationTargets = (payload: SanityWebhookPayload | null) => {
   const docType = payload?._type ?? payload?.document?._type ?? payload?.type ?? null;

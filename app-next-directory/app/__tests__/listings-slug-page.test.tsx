@@ -26,12 +26,10 @@ jest.mock('@/components/listings/ListingDetailView', () => ({
   ListingDetailView: (props: unknown) => listingDetailViewSpy(props),
 }));
 
-jest.mock('@/components/layout/Header', () => ({
-  Header: () => <div data-testid="header">Header</div>,
-}));
-
-jest.mock('@/components/layout/Footer', () => ({
-  Footer: () => <div data-testid="footer">Footer</div>,
+jest.mock('@/components/layout/PageLayoutServer', () => ({
+  PageLayoutServer: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="page-layout">{children}</div>
+  ),
 }));
 
 jest.mock('@/lib/dto-transformer', () => ({
@@ -177,8 +175,7 @@ describe('ListingPage', () => {
     const element = await ListingPage({ params: Promise.resolve({ slug: 'eco-stay-retreat' }) });
     render(element);
 
-    expect(screen.getByTestId('header')).toBeInTheDocument();
-    expect(screen.getByTestId('footer')).toBeInTheDocument();
+    expect(screen.getByTestId('page-layout')).toBeInTheDocument();
     expect(screen.getByTestId('listing-detail-view')).toBeInTheDocument();
 
     const props = listingDetailViewSpy.mock.calls.at(-1)?.[0] ?? {};

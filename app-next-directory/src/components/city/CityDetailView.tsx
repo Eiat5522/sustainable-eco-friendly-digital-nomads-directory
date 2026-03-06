@@ -134,7 +134,7 @@ export function CityDetailView({ city, listings }: CityDetailViewProps): React.J
       )}
 
       {'shortDescription' in city && city.shortDescription && (
-        <div className="bg-neo-bg-secondary rounded-xl p-6">
+        <div className="rounded-xl border-2 border-neo-border bg-neo-secondary/20 p-6">
           <h3 className="heading-sm mb-4">Quick Facts</h3>
           <p className="text-neo-text-secondary mb-4">{city.shortDescription}</p>
 
@@ -157,9 +157,9 @@ export function CityDetailView({ city, listings }: CityDetailViewProps): React.J
       {isCityDetailDTO(city) &&
         city.sustainabilityInitiatives &&
         city.sustainabilityInitiatives.length > 0 && (
-          <div className="bg-green-50 rounded-xl p-6">
+          <div className="rounded-xl border-2 border-neo-border bg-neo-success/20 p-6">
             <h3 className="heading-sm mb-4 flex items-center gap-2">
-              <Leaf size={20} className="text-green-600" />
+              <Leaf size={20} className="text-neo-success" />
               Sustainability Initiatives
             </h3>
             <div className="flex flex-wrap gap-2">
@@ -175,7 +175,7 @@ export function CityDetailView({ city, listings }: CityDetailViewProps): React.J
       {'digitalNomadFeatures' in city &&
         city.digitalNomadFeatures &&
         city.digitalNomadFeatures.length > 0 && (
-          <div className="bg-blue-50 rounded-xl p-6">
+          <div className="rounded-xl border-2 border-neo-border bg-neo-primary/10 p-6">
             <h3 className="heading-sm mb-4">Digital Nomad Features</h3>
             <div className="flex flex-wrap gap-2">
               {city.digitalNomadFeatures.map((feature, idx) => (
@@ -219,8 +219,8 @@ export function CityDetailView({ city, listings }: CityDetailViewProps): React.J
 
           {city.imageUrl && (
             <div
-              className={`relative mb-6 h-96 w-full overflow-hidden rounded-xl border-4 border-black shadow-[8px_8px_0_0_rgba(0,0,0,1)] ${
-                imageError ? 'bg-gradient-to-br from-emerald-200 to-sky-200' : 'bg-white'
+              className={`relative mb-6 h-96 w-full overflow-hidden rounded-xl border-4 border-neo-border shadow-[8px_8px_0_0] shadow-neo-shadow ${
+                imageError ? 'bg-neo-secondary' : 'bg-neo-surface'
               }`}
             >
               {!imageError && (

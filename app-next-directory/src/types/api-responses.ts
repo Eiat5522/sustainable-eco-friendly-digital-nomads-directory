@@ -29,8 +29,14 @@ export interface CityResponse {
  * Response payload for GET /api/categories
  * Returns the distinct listing categories used for filtering.
  */
+export interface CategoryItem {
+  readonly name: string;
+  readonly slug: string;
+  readonly listingCount: number;
+}
+
 export interface CategoryResponse {
-  readonly categories: readonly string[];
+  readonly categories: readonly CategoryItem[];
 }
 
 /**

@@ -76,10 +76,14 @@ describe('api-responses types', () => {
   describe('CategoryResponse interface', () => {
     it('should accept valid category response', () => {
       const response: CategoryResponse = {
-        categories: ['coworking', 'cafe', 'accommodation'],
+        categories: [
+          { name: 'Coworking Space', slug: 'coworking', listingCount: 12 },
+          { name: 'Cafe', slug: 'cafe', listingCount: 8 },
+          { name: 'Accommodation', slug: 'accommodation', listingCount: 3 },
+        ],
       };
       expect(response.categories).toHaveLength(3);
-      expect(response.categories).toContain('coworking');
+      expect(response.categories[0]?.slug).toBe('coworking');
     });
 
     it('should accept empty categories array', () => {
@@ -88,9 +92,11 @@ describe('api-responses types', () => {
     });
 
     it('should accept single category', () => {
-      const response: CategoryResponse = { categories: ['restaurant'] };
+      const response: CategoryResponse = {
+        categories: [{ name: 'Restaurant', slug: 'restaurant', listingCount: 5 }],
+      };
       expect(response.categories).toHaveLength(1);
-      expect(response.categories[0]).toBe('restaurant');
+      expect(response.categories[0]?.slug).toBe('restaurant');
     });
   });
 
@@ -144,7 +150,10 @@ describe('api-responses types', () => {
 
     it('should maintain readonly constraint on categories array in CategoryResponse', () => {
       const response: CategoryResponse = {
-        categories: ['test1', 'test2'],
+        categories: [
+          { name: 'Test 1', slug: 'test1', listingCount: 1 },
+          { name: 'Test 2', slug: 'test2', listingCount: 2 },
+        ],
       };
       expect(Array.isArray(response.categories)).toBe(true);
     });

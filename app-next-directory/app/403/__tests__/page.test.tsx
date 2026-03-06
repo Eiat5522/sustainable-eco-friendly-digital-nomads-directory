@@ -2,8 +2,8 @@ import { render, screen } from '@testing-library/react';
 import type React from 'react';
 import ForbiddenPage from '../page';
 
-jest.mock('@/components/layout/PageLayout', () => ({
-  PageLayout: ({
+jest.mock('@/components/layout/PageLayoutServer', () => ({
+  PageLayoutServer: ({
     children,
     showFooterNewsletter,
   }: {

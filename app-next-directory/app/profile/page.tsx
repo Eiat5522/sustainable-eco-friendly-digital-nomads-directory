@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import { PageLayoutServer } from '@/components/layout/PageLayoutServer';
 import { auth } from '@/lib/auth';
 import {
   getOwnerReviewsForProfile,
@@ -140,8 +141,10 @@ export async function ProfileContent() {
 
 export default async function ProfilePage() {
   return (
-    <Suspense fallback={<ProfileLoading />}>
-      <ProfileContent />
-    </Suspense>
+    <PageLayoutServer>
+      <Suspense fallback={<ProfileLoading />}>
+        <ProfileContent />
+      </Suspense>
+    </PageLayoutServer>
   );
 }

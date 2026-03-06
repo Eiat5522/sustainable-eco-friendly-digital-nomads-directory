@@ -15,7 +15,15 @@ export {
   getUserDisplayInfo,
   type UserDisplayInfo,
 } from './auth.dal';
-
+// Categories DAL - public data with 'use cache' and cache tags
+export {
+  type CategoryDetail,
+  type CategorySummary,
+  getAllCategorySlugs,
+  getCategories,
+  getCategoryBySlug,
+  getCategoryListings,
+} from './categories.dal';
 // Favorites DAL - user-specific data with 'use cache: private'
 export {
   checkIsFavorited,
@@ -23,7 +31,6 @@ export {
   type Review,
   type ReviewDocument,
 } from './favorites.dal';
-
 // Home DAL - public home page data with 'use cache'
 export {
   getCities,
@@ -31,7 +38,6 @@ export {
   getFeaturedListings,
   getHomePageData,
 } from './home.dal';
-
 // Listings DAL - public data with 'use cache' and cacheLife('max')
 export {
   getListingBySlug,

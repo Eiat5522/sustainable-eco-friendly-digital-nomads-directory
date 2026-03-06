@@ -66,10 +66,15 @@ describe('SearchFiltersForm', () => {
       }
       if (url.includes('/api/categories')) {
         return Promise.resolve(
-          new Response(JSON.stringify({ categories: ['Coworking'] }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-          })
+          new Response(
+            JSON.stringify({
+              categories: [{ name: 'Coworking', slug: 'coworking', listingCount: 1 }],
+            }),
+            {
+              status: 200,
+              headers: { 'Content-Type': 'application/json' },
+            }
+          )
         );
       }
       if (url.includes('/api/amenities')) {
@@ -141,7 +146,7 @@ describe('SearchFiltersForm', () => {
       target: { value: 'Testville' },
     });
     fireEvent.change(categoriesInput, {
-      target: { value: 'Coworking' },
+      target: { value: 'coworking' },
     });
     fireEvent.change(amenitiesInput, {
       target: { value: 'WiFi' },
@@ -149,7 +154,7 @@ describe('SearchFiltersForm', () => {
 
     await waitFor(() => {
       expect(citiesInput).toHaveValue('Testville');
-      expect(categoriesInput).toHaveValue('Coworking');
+      expect(categoriesInput).toHaveValue('coworking');
       expect(amenitiesInput).toHaveValue('WiFi');
     });
 
@@ -160,7 +165,7 @@ describe('SearchFiltersForm', () => {
       const calledUrl = new URL(pushMock.mock.calls[0][0], 'http://localhost');
       expect(calledUrl.pathname).toBe('/search/results');
       expect(calledUrl.searchParams.get('destination')).toBe('Testville');
-      expect(calledUrl.searchParams.get('category')).toBe('Coworking');
+      expect(calledUrl.searchParams.get('category')).toBe('coworking');
       expect(calledUrl.searchParams.get('amenities')).toBe('WiFi');
       expect(calledUrl.searchParams.get('page')).toBe('1');
       expect(calledUrl.searchParams.get('facets')).toBe('1');

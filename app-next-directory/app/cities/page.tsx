@@ -1,6 +1,6 @@
+import { Leaf, MapPin } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Leaf, MapPin } from 'lucide-react';
 import { PageLayoutServer } from '@/components/layout/PageLayoutServer';
 import { NeoBadge } from '@/components/ui/neo-badge';
 import { getCities } from '@/lib/data-access';

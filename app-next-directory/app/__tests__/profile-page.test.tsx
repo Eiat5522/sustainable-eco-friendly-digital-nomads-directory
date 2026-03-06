@@ -14,12 +14,12 @@ jest.mock('@/lib/data-access/profile.dal', () => ({
   getOwnerReviewsForProfile: (...args: unknown[]) => mockGetOwnerReviews(...args),
 }));
 
-jest.mock('@/components/layout/Header', () => ({
-  Header: () => <div data-testid="header">Header</div>,
+jest.mock('@/components/layout/HeaderServer', () => ({
+  HeaderServer: () => <div data-testid="header">Header</div>,
 }));
 
-jest.mock('@/components/layout/Footer', () => ({
-  Footer: () => <div data-testid="footer">Footer</div>,
+jest.mock('@/components/layout/FooterServer', () => ({
+  FooterServer: () => <div data-testid="footer">Footer</div>,
 }));
 
 jest.mock('lucide-react', () => ({

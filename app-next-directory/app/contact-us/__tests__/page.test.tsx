@@ -3,20 +3,22 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type React from 'react';
 
 const mockUseSearchParams = jest.fn<URLSearchParams, []>();
+const mockPush = jest.fn();
 
 jest.mock('next/navigation', () => ({
   __esModule: true,
   useSearchParams: () => mockUseSearchParams(),
+  useRouter: () => ({ push: mockPush }),
 }));
 
-jest.mock('@/components/layout/Header', () => ({
+jest.mock('@/components/layout/HeaderServer', () => ({
   __esModule: true,
-  Header: () => <header data-testid="header" />,
+  HeaderServer: () => <header data-testid="header" />,
 }));
 
-jest.mock('@/components/layout/Footer', () => ({
+jest.mock('@/components/layout/FooterServer', () => ({
   __esModule: true,
-  Footer: () => <footer data-testid="footer" />,
+  FooterServer: () => <footer data-testid="footer" />,
 }));
 
 jest.mock('@/components/ui/neo-card', () => ({
@@ -85,6 +87,7 @@ const originalFetch = global.fetch;
 describe('ContactUsPage', () => {
   beforeEach(() => {
     mockUseSearchParams.mockReturnValue(new URLSearchParams());
+    mockPush.mockReset();
     sessionStorage.clear();
     global.fetch = jest.fn();
   });

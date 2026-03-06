@@ -47,13 +47,13 @@ export function RelatedListings({ listings }: RelatedListingsProps) {
   const getPriceRangeColor = (priceRange: string) => {
     switch (priceRange) {
       case 'budget':
-        return 'text-green-600 bg-green-100';
+        return 'text-neo-success bg-neo-success/20 border border-neo-success/40';
       case 'moderate':
-        return 'text-yellow-600 bg-yellow-100';
+        return 'text-neo-primary bg-neo-primary/15 border border-neo-primary/35';
       case 'premium':
-        return 'text-purple-600 bg-purple-100';
+        return 'text-neo-accent bg-neo-accent/20 border border-neo-accent/40';
       default:
-        return 'text-gray-600 bg-gray-100';
+        return 'text-neo-text-secondary bg-neo-secondary/25 border border-neo-border';
     }
   };
 
@@ -152,7 +152,7 @@ export function RelatedListings({ listings }: RelatedListingsProps) {
                             </span>
                           ))}
                           {listing.ecoFocusTags.length > 3 && (
-                            <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-lg font-medium">
+                            <span className="px-2 py-1 bg-neo-secondary/25 text-neo-text-secondary text-xs rounded-lg font-medium border border-neo-border">
                               +{listing.ecoFocusTags.length - 3} more
                             </span>
                           )}

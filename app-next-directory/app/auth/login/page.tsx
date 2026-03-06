@@ -2,9 +2,8 @@ import { headers } from 'next/headers';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import SocialAuthRow from '@/components/auth/SocialAuthRow';
-import { Footer } from '@/components/layout/Footer';
-import { Header } from '@/components/layout/Header';
-import { NeoCard, NeoCardContent, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
+import { FooterServer } from '@/components/layout/FooterServer';
+import { HeaderServer } from '@/components/layout/HeaderServer';
 import { getBaseUrl } from '@/lib/absolute-url';
 import { auth } from '@/lib/auth';
 import { sanitizeCallbackUrl } from '@/lib/auth/callbackUrl';
@@ -47,15 +46,16 @@ export default async function LoginPage(props: LoginPageProps) {
 
   return (
     <>
-      <Header />
+      <HeaderServer />
       <div className="relative min-h-screen flex items-center justify-center px-4 py-12 bg-background overflow-hidden">
         {/* Geometric Background Pattern */}
-        <div 
-          className="absolute inset-0 z-0 opacity-20" 
-          style={{ 
-            backgroundImage: 'radial-gradient(circle at 2px 2px, var(--color-neo-border) 2px, transparent 0)', 
-            backgroundSize: '32px 32px' 
-          }} 
+        <div
+          className="absolute inset-0 z-0 opacity-20"
+          style={{
+            backgroundImage:
+              'radial-gradient(circle at 2px 2px, var(--color-neo-border) 2px, transparent 0)',
+            backgroundSize: '32px 32px',
+          }}
         />
 
         {/* Decorative shapes */}
@@ -71,14 +71,26 @@ export default async function LoginPage(props: LoginPageProps) {
             <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-neo-accent border-4 border-neo-border opacity-50 mix-blend-multiply rotate-45" />
 
             <div className="relative z-10">
-              <h2 className="heading-xl mb-6 text-neo-border uppercase tracking-tight" id="welcome-heading">
-                Welcome<br/>Back!
+              <h2
+                className="heading-xl mb-6 text-neo-border uppercase tracking-tight"
+                id="welcome-heading"
+              >
+                Welcome
+                <br />
+                Back!
               </h2>
               <p className="text-lg font-bold text-neo-border/80 mb-8 max-w-sm">
-                Log in to manage your listings, save favorites, and discover eco-friendly spots for digital nomads.
+                Log in to manage your listings, save favorites, and discover eco-friendly spots for
+                digital nomads.
               </p>
-              <section aria-labelledby="social-signin-heading-left" className="bg-neo-surface p-6 rounded-xl border-4 border-neo-border shadow-[4px_4px_0px_0px] shadow-neo-shadow">
-                <h3 id="social-signin-heading-left" className="text-sm font-bold uppercase tracking-wider mb-4 text-neo-text-primary">
+              <section
+                aria-labelledby="social-signin-heading-left"
+                className="bg-neo-surface p-6 rounded-xl border-4 border-neo-border shadow-[4px_4px_0px_0px] shadow-neo-shadow"
+              >
+                <h3
+                  id="social-signin-heading-left"
+                  className="text-sm font-bold uppercase tracking-wider mb-4 text-neo-text-primary"
+                >
                   Quick Sign In
                 </h3>
                 <SocialAuthRow />
@@ -90,7 +102,9 @@ export default async function LoginPage(props: LoginPageProps) {
           <div className="w-full p-8 md:w-1/2 lg:p-12 bg-neo-surface flex flex-col justify-center">
             <div className="mb-8">
               <h1 className="heading-lg mb-2">Log In</h1>
-              <p className="text-neo-text-secondary font-medium">Enter your details to access your account.</p>
+              <p className="text-neo-text-secondary font-medium">
+                Enter your details to access your account.
+              </p>
             </div>
 
             <LoginForm />
@@ -109,7 +123,7 @@ export default async function LoginPage(props: LoginPageProps) {
           </div>
         </div>
       </div>
-      <Footer />
+      <FooterServer />
     </>
   );
 }

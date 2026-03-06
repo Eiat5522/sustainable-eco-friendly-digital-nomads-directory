@@ -4,8 +4,6 @@ import { Edit, MessageSquare, Star } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
-import { Footer } from '@/components/layout/Footer';
-import { Header } from '@/components/layout/Header';
 import { ProfileEditForm } from '@/components/profile/ProfileEditForm';
 import { NeoBadge } from '@/components/ui/neo-badge';
 import { NeoButton } from '@/components/ui/neo-button';
@@ -564,8 +562,7 @@ export function ProfileClient({
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div className="bg-background">
       <main className="container mx-auto space-y-12 px-4 py-12" data-testid="user-profile-page">
         {!isAuthenticated ? (
           <section className="max-w-3xl mx-auto">
@@ -770,7 +767,6 @@ export function ProfileClient({
           </section>
         )}
       </main>
-      <Footer />
     </div>
   );
 }

@@ -2,8 +2,8 @@ import { redirect } from 'next/navigation';
 import type React from 'react';
 import { Suspense } from 'react';
 
-import { Footer } from '@/components/layout/Footer';
-import { Header } from '@/components/layout/Header';
+import { FooterServer } from '@/components/layout/FooterServer';
+import { HeaderServer } from '@/components/layout/HeaderServer';
 import { auth } from '@/lib/auth';
 import AdminNavigation from './AdminNavigation';
 
@@ -35,9 +35,7 @@ export async function AdminShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background">
-      <Suspense fallback={<div>Loading header...</div>}>
-        <Header />
-      </Suspense>
+      <HeaderServer />
 
       <section className="relative overflow-hidden border-b-4 border-neo-border bg-neo-surface">
         <div className="pointer-events-none absolute -top-20 right-0 h-48 w-48 rounded-full bg-neo-secondary/40 blur-3xl" />
@@ -63,9 +61,7 @@ export async function AdminShell({ children }: { children: React.ReactNode }) {
         </div>
       </div>
 
-      <Suspense fallback={<div>Loading footer...</div>}>
-        <Footer />
-      </Suspense>
+      <FooterServer />
     </div>
   );
 }

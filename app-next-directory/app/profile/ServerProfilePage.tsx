@@ -3,8 +3,7 @@
 import { cacheLife, cacheTag, updateTag } from 'next/cache';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
-import { Footer } from '@/components/layout/Footer';
-import { Header } from '@/components/layout/Header';
+import { PageLayoutServer } from '@/components/layout/PageLayoutServer';
 import { getUserDashboardData } from '@/lib/dashboard/user-dashboard';
 import type { UserRole } from '@/types/auth';
 import type { UserDashboardPayloadDTO } from '@/types/dto';
@@ -91,8 +90,7 @@ export default async function ServerProfilePage({
   const stats = getProfileStats(userStats.dashboard);
 
   return (
-    <>
-      <Header />
+    <PageLayoutServer>
       <main className="container mx-auto space-y-12 px-4 py-12">
         <div className="rounded-lg border p-6 shadow-sm">
           <div className="flex items-center space-x-4">
@@ -140,7 +138,6 @@ export default async function ServerProfilePage({
           </div>
         </div>
       </main>
-      <Footer />
-    </>
+    </PageLayoutServer>
   );
 }

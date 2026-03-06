@@ -305,7 +305,7 @@ export function ReviewsSection({
 
             {error && (
               <div
-                className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm"
+                className="mb-4 rounded-lg border-2 border-red-500/60 bg-red-500/10 p-3 text-sm text-red-700"
                 data-testid="review-error-message"
                 role="alert"
               >
@@ -315,7 +315,7 @@ export function ReviewsSection({
 
             {submitted && (
               <div
-                className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm"
+                className="mb-4 rounded-lg border-2 border-neo-success/50 bg-neo-success/15 p-3 text-sm text-neo-success"
                 data-testid="review-success-message"
                 role="status"
               >
@@ -372,8 +372,8 @@ export function ReviewsSection({
 
         {/* Sign-in Prompt for Non-authenticated Users */}
         {!isSignedIn && (
-          <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg text-center">
-            <p className="body-md text-gray-600 mb-3">Sign in to leave a review</p>
+          <div className="mb-6 rounded-lg border-2 border-neo-border bg-neo-secondary/20 p-4 text-center">
+            <p className="body-md mb-3 text-neo-text-secondary">Sign in to leave a review</p>
             <Link
               href={
                 callbackUrl
@@ -390,16 +390,16 @@ export function ReviewsSection({
 
         {/* Pending Reviews */}
         {pendingQueue.length > 0 && (
-          <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+          <div className="mb-8 rounded-lg border-2 border-neo-accent/50 bg-neo-accent/15 p-4">
             <h3 className="heading-sm mb-2">Your review is awaiting moderation</h3>
-            <p className="body-sm text-amber-700 mb-4">
+            <p className="body-sm mb-4 text-neo-text-secondary">
               Once approved, it will appear in the public reviews list.
             </p>
             <div className="space-y-4">
               {pendingQueue.map((review, index) => (
                 <div
                   key={review.id}
-                  className="bg-white border border-amber-100 rounded-lg p-4 shadow-sm"
+                  className="rounded-lg border border-neo-border bg-neo-surface p-4 shadow-sm"
                 >
                   <div className="flex items-center gap-3 mb-2">
                     <h4 className="font-medium text-neo-text-primary">
@@ -409,7 +409,7 @@ export function ReviewsSection({
                     <span className="text-sm text-neo-text-secondary">
                       {formatDate(review.createdAt)}
                     </span>
-                    <span className="ml-auto text-xs font-semibold uppercase tracking-wide text-amber-600">
+                    <span className="ml-auto text-xs font-semibold uppercase tracking-wide text-neo-accent">
                       Pending
                     </span>
                   </div>

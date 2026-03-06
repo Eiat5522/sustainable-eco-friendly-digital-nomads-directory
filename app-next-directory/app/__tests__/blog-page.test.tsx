@@ -1,12 +1,11 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
+import type React from 'react';
 
-jest.mock('@/components/layout/Header', () => ({
-  Header: () => <div data-testid="header">Header</div>,
-}));
-
-jest.mock('@/components/layout/Footer', () => ({
-  Footer: () => <div data-testid="footer">Footer</div>,
+jest.mock('@/components/layout/PageLayoutServer', () => ({
+  PageLayoutServer: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="page-layout">{children}</div>
+  ),
 }));
 
 jest.mock('@/lib/absolute-url', () => ({
@@ -24,8 +23,8 @@ describe('BlogPage', () => {
   it('renders posts, filters, and pagination from DTO-wrapped API response', async () => {
     jest.resetModules();
 
-    const [pageModule, absoluteModule] = await Promise.all([
-      import('../blog/page'),
+    const [blogListModule, absoluteModule] = await Promise.all([
+      import('../blog/BlogPostsList'),
       import('@/lib/absolute-url'),
     ]);
 
@@ -74,13 +73,13 @@ describe('BlogPage', () => {
 
     global.fetch = fetchMock;
 
-    const element = await pageModule.default({
+    const element = await blogListModule.BlogPostsList({
       searchParams: { page: '2', limit: '12', tag: 'eco', search: 'retreat' },
     });
     render(element);
 
-    expect(screen.getByTestId('header')).toBeInTheDocument();
     expect(screen.getByText("The Nomad's Chronicle")).toBeInTheDocument();
+    expect(screen.getByText('Stories for Sustainable Nomads')).toBeInTheDocument();
 
     expect(fetchMock).toHaveBeenCalledWith(
       'https://example.com/api/blog?page=2&limit=12&tag=eco&search=retreat',
@@ -97,18 +96,18 @@ describe('BlogPage', () => {
     const imageSources = screen.getAllByRole('img').map(img => img.getAttribute('src'));
     expect(imageSources).toEqual(expect.arrayContaining(['https://example.com/retreat.jpg']));
 
-    const previousLink = screen.getByRole('link', { name: '← Previous' });
+    const previousLink = screen.getByRole('link', { name: 'Prev' });
     expect(previousLink).toHaveAttribute('href', '/blog?page=1&tag=eco&search=retreat&limit=12');
 
-    const nextLink = screen.getByRole('link', { name: 'Next →' });
+    const nextLink = screen.getByRole('link', { name: 'Next' });
     expect(nextLink).toHaveAttribute('href', '/blog?page=3&tag=eco&search=retreat&limit=12');
   });
 
   it('supports legacy posts array responses', async () => {
     jest.resetModules();
 
-    const [pageModule, absoluteModule] = await Promise.all([
-      import('../blog/page'),
+    const [blogListModule, absoluteModule] = await Promise.all([
+      import('../blog/BlogPostsList'),
       import('@/lib/absolute-url'),
     ]);
 
@@ -133,19 +132,19 @@ describe('BlogPage', () => {
       }),
     } as Response);
 
-    const element = await pageModule.default({ searchParams: {} });
+    const element = await blogListModule.BlogPostsList({ searchParams: {} });
     render(element);
 
     expect(screen.getByText('Legacy Payload Story')).toBeInTheDocument();
-    const paginationText = screen.getByText('Page 1 of 1');
+    const paginationText = screen.getByText('1 / 1');
     expect(paginationText).toBeInTheDocument();
   });
 
   it('throws when the blog API reports an error', async () => {
     jest.resetModules();
 
-    const [pageModule, absoluteModule] = await Promise.all([
-      import('../blog/page'),
+    const [blogListModule, absoluteModule] = await Promise.all([
+      import('../blog/BlogPostsList'),
       import('@/lib/absolute-url'),
     ]);
 
@@ -159,7 +158,7 @@ describe('BlogPage', () => {
       json: async () => ({ success: false }),
     } as Response);
 
-    await expect(pageModule.default({ searchParams: {} })).rejects.toThrow(
+    await expect(blogListModule.BlogPostsList({ searchParams: {} })).rejects.toThrow(
       'Blog API responded with success=false'
     );
   });

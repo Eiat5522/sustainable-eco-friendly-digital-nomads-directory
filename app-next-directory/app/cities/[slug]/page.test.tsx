@@ -38,12 +38,12 @@ jest.mock('@/components/city/CityDetailView', () => ({
   ),
 }));
 
-jest.mock('@/components/layout/Header', () => ({
-  Header: () => <header>Header</header>,
+jest.mock('@/components/layout/HeaderServer', () => ({
+  HeaderServer: () => <header>Header</header>,
 }));
 
-jest.mock('@/components/layout/Footer', () => ({
-  Footer: () => <footer>Footer</footer>,
+jest.mock('@/components/layout/FooterServer', () => ({
+  FooterServer: () => <footer>Footer</footer>,
 }));
 
 const renderCityContent = async (slug: string) => {

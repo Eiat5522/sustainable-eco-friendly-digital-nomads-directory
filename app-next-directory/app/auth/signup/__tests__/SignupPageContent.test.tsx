@@ -11,12 +11,12 @@ jest.mock('next-auth/react', () => ({
   signIn: signInMock,
 }));
 
-jest.mock('@/components/layout/Header', () => ({
-  Header: () => <div data-testid="mock-header">Header</div>,
+jest.mock('@/components/layout/HeaderServer', () => ({
+  HeaderServer: () => <div data-testid="mock-header">Header</div>,
 }));
 
-jest.mock('@/components/layout/Footer', () => ({
-  Footer: () => <div data-testid="mock-footer">Footer</div>,
+jest.mock('@/components/layout/FooterServer', () => ({
+  FooterServer: () => <div data-testid="mock-footer">Footer</div>,
 }));
 
 jest.mock('@/components/auth/SocialAuthRow', () => ({

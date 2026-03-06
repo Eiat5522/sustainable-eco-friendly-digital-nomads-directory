@@ -81,13 +81,13 @@ describe('/api/revalidate-all', () => {
 
     expect(response.status).toBe(200);
     expect(json.data.revalidated).toBe(true);
-    expect(json.data.routes).toEqual(['/', '/listings', '/category', '/city']);
+    expect(json.data.routes).toEqual(['/', '/listings', '/categories', '/cities']);
     expect(json.data.now).toBeDefined();
     expect(mockedRevalidatePath).toHaveBeenCalledTimes(4);
     expect(mockedRevalidatePath).toHaveBeenCalledWith('/');
     expect(mockedRevalidatePath).toHaveBeenCalledWith('/listings');
-    expect(mockedRevalidatePath).toHaveBeenCalledWith('/category');
-    expect(mockedRevalidatePath).toHaveBeenCalledWith('/city');
+    expect(mockedRevalidatePath).toHaveBeenCalledWith('/categories');
+    expect(mockedRevalidatePath).toHaveBeenCalledWith('/cities');
     expect(mockValidateRevalidationToken).toHaveBeenCalledWith(validToken);
   });
 });

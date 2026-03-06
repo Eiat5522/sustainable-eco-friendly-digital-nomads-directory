@@ -22,6 +22,8 @@ const nextConfig: NextConfig = {
     return [
       { source: '/contact', destination: '/contact-us', permanent: true },
       { source: '/city/:slug', destination: '/cities/:slug', permanent: true },
+      { source: '/category', destination: '/categories', permanent: true },
+      { source: '/category/:slug', destination: '/categories/:slug', permanent: true },
     ];
   },
   images: {

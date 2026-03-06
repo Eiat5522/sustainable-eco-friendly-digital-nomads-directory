@@ -1,8 +1,7 @@
 import { connection } from 'next/server';
 import { Suspense } from 'react';
 import { CityDetailView } from '@/components/city/CityDetailView';
-import { Footer } from '@/components/layout/Footer';
-import { Header } from '@/components/layout/Header';
+import { PageLayoutServer } from '@/components/layout/PageLayoutServer';
 import {
   getAllCitySlugs,
   getCityBySlug,
@@ -330,18 +329,12 @@ export default async function CityPage({ params }: Props) {
   const { slug } = await params;
 
   return (
-    <>
-      <Suspense fallback={<div className="h-16 bg-gray-100 animate-pulse" />}>
-        <Header />
-      </Suspense>
+    <PageLayoutServer>
       <main className="relative overflow-hidden bg-neo-secondary">
         <Suspense fallback={<CityLoadingFallback />}>
           <CityContent slug={slug} />
         </Suspense>
       </main>
-      <Suspense fallback={<div className="h-32 bg-gray-100 animate-pulse" />}>
-        <Footer />
-      </Suspense>
-    </>
+    </PageLayoutServer>
   );
 }

@@ -5,6 +5,13 @@ import { DEFAULT_CATEGORIES } from '@/lib/constants/categories';
 import { structuredLogger } from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
 import { ApiResponseHandler } from '@/utils/api-response';
+
+type CategoryApiItem = {
+  name: string;
+  slug: string;
+  listingCount: number;
+};
+
 export async function GET() {
   // Signal that this route should be dynamically rendered at request time
   // This prevents HANGING_PROMISE_REJECTION errors during prerendering
@@ -13,16 +20,43 @@ export async function GET() {
   try {
     const categories = (await cacheHelpers.categories(async () => {
       return await client.fetch(
-        groq`array::unique(*[_type == "listing" && defined(category)].category)`
+        groq`*[_type == "category"] | order(name asc){
+          name,
+          "slug": slug.current,
+          "listingCount": count(*[_type == "listing" && moderation.status == "published" && references(^._id)])
+        }`
       );
-    })) as string[] | null;
+    })) as CategoryApiItem[] | null;
 
     // If CMS returns nothing, fall back to default list
     if (!categories || !Array.isArray(categories) || categories.length === 0) {
       const fallback = await getDefaultCategories();
       return ApiResponseHandler.success({ categories: fallback });
     }
-    return ApiResponseHandler.success({ categories });
+    const normalized = categories
+      .filter(
+        category =>
+          category &&
+          typeof category.name === 'string' &&
+          category.name.length > 0 &&
+          typeof category.slug === 'string' &&
+          category.slug.length > 0
+      )
+      .map(category => ({
+        name: category.name,
+        slug: category.slug,
+        listingCount:
+          typeof category.listingCount === 'number' && Number.isFinite(category.listingCount)
+            ? category.listingCount
+            : 0,
+      }));
+
+    if (normalized.length === 0) {
+      const fallback = await getDefaultCategories();
+      return ApiResponseHandler.success({ categories: fallback });
+    }
+
+    return ApiResponseHandler.success({ categories: normalized });
   } catch (error) {
     structuredLogger.error('Categories API error', error, { component: 'categories-api' });
     const status =
@@ -46,7 +80,11 @@ export async function GET() {
 }
 
 // Get default categories as a fallback when CMS is unavailable
-async function getDefaultCategories(): Promise<string[]> {
+async function getDefaultCategories(): Promise<CategoryApiItem[]> {
   // Use shared default categories to ensure consistency with UI
-  return [...DEFAULT_CATEGORIES];
+  return DEFAULT_CATEGORIES.map(category => ({
+    name: category,
+    slug: category,
+    listingCount: 0,
+  }));
 }

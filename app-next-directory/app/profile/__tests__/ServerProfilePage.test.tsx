@@ -18,12 +18,12 @@ jest.mock('next/navigation', () => ({
 }));
 
 // Mock components
-jest.mock('@/components/layout/Footer', () => ({
-  Footer: () => <footer data-testid="footer">Footer</footer>,
+jest.mock('@/components/layout/FooterServer', () => ({
+  FooterServer: () => <footer data-testid="footer">Footer</footer>,
 }));
 
-jest.mock('@/components/layout/Header', () => ({
-  Header: () => <header data-testid="header">Header</header>,
+jest.mock('@/components/layout/HeaderServer', () => ({
+  HeaderServer: () => <header data-testid="header">Header</header>,
 }));
 
 // Mock dashboard data function
@@ -353,9 +353,9 @@ describe('ServerProfilePage', () => {
 
       const { container } = render(component);
 
-      const main = container.querySelector('main');
-      expect(main).toBeInTheDocument();
-      expect(main).toHaveClass('container');
+      const profileMain = container.querySelector('main.container');
+      expect(profileMain).toBeInTheDocument();
+      expect(profileMain).toHaveClass('container');
     });
 
     it('should render role badge with correct styling', async () => {

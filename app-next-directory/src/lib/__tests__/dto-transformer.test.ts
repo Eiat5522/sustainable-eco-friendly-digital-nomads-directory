@@ -82,6 +82,8 @@ describe('dto-transformer image helpers', () => {
     isImageAssetIdMock.mockReturnValue(false);
     expect(imageOrFallback('', 100, 100)).toBe(FALLBACK_IMAGE);
     expect(imageOrFallback({ bad: true }, 100, 100)).toBe(FALLBACK_IMAGE);
+    expect(imageOrFallback(null, 100, 100)).toBe(FALLBACK_IMAGE);
+    expect(imageOrFallback({ asset: null }, 100, 100)).toBe(FALLBACK_IMAGE);
   });
 
   it('reuses existing asset urls and appends transformations', () => {

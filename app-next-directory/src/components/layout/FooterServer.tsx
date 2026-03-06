@@ -1,16 +1,3 @@
-/**
- * Footer Server Component
- *
- * Server component version of the footer.
- * Static content renders immediately, newsletter form
- * is isolated as a client component for interactivity.
- *
- * Key features:
- * - Static links and content render on the server
- * - Newsletter form is a separate client island
- * - Optimized for partial prerendering
- */
-
 import { Leaf, Mail, MapPin, MessageSquare, XIcon } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
@@ -21,16 +8,17 @@ const footerLinks = {
   quickLinks: [
     { name: 'Home', href: '/' },
     { name: 'Find Listings', href: '/search' },
+    { name: 'Categories', href: '/categories' },
     { name: 'Blog', href: '/blog' },
     { name: 'Submit Your Business', href: '/contact-us' },
     { name: 'Login / Register', href: '/auth/login' },
   ],
   categories: [
-    { name: 'Co-working Spaces', href: '/search/results?category=coworking' },
-    { name: 'Cafes', href: '/search/results?category=cafe' },
-    { name: 'Restaurants', href: '/search/results?category=restaurant' },
-    { name: 'Accommodation', href: '/search/results?category=accommodation' },
-    { name: 'Activities', href: '/search/results?category=activities' },
+    { name: 'Co-working Spaces', href: '/categories/coworking' },
+    { name: 'Cafes', href: '/categories/cafe' },
+    { name: 'Restaurants', href: '/categories/restaurant' },
+    { name: 'Accommodation', href: '/categories/accommodation' },
+    { name: 'Activities', href: '/categories/activities' },
   ],
 };
 
@@ -47,31 +35,41 @@ export function FooterServer({ showNewsletter = true }: FooterServerProps) {
   return (
     <footer
       id="footer-content"
-      className="bg-neo-text-primary text-white border-t-4 border-neo-border"
+      className="relative overflow-hidden border-t-4 border-neo-border bg-neo-border text-white"
     >
-      <div className="container mx-auto px-4 py-16">
-        {/* Newsletter Section - Client Island */}
+      <div
+        className="pointer-events-none absolute inset-0 z-0 opacity-20"
+        style={{
+          backgroundImage:
+            'radial-gradient(circle at 2px 2px, var(--neo-surface) 2px, transparent 0)',
+          backgroundSize: '28px 28px',
+        }}
+      />
+      <div className="pointer-events-none absolute -right-8 top-8 h-28 w-28 rotate-12 border-4 border-neo-surface bg-neo-primary opacity-80" />
+      <div className="pointer-events-none absolute left-8 bottom-8 h-20 w-20 rounded-full border-4 border-neo-surface bg-neo-success opacity-80" />
+
+      <div className="container relative z-10 mx-auto px-4 py-16">
         {showNewsletter && <NewsletterForm />}
 
-        {/* Main Footer Content - Static Server Rendered */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-          {/* Brand */}
+        <div className="mb-10 grid grid-cols-1 gap-8 border-4 border-neo-surface bg-white/5 p-6 md:grid-cols-2 lg:grid-cols-4 md:p-8">
           <div className="lg:col-span-1">
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-neo-secondary rounded-full flex items-center justify-center">
-                <Leaf size={20} className="text-neo-text-primary" />
+            <div className="mb-4 flex items-center space-x-2">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-neo-surface bg-neo-secondary">
+                <Leaf size={20} className="text-neo-border" />
               </div>
-              <span className="heading-sm text-white">SustainableNomads</span>
+              <span className="text-lg font-black uppercase tracking-[0.06em]">
+                SustainableNomads
+              </span>
             </div>
-            <p className="body-md text-gray-300 mb-6">
-              Connecting conscious travelers with sustainable venues worldwide
+            <p className="mb-6 text-sm font-medium text-white/85">
+              Connecting conscious travelers with sustainable venues worldwide.
             </p>
             <div className="flex space-x-3">
               {socialLinks.map(({ icon: Icon, href, label }) => (
                 <a
                   key={label}
                   href={href}
-                  className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center hover:bg-neo-secondary hover:text-neo-text-primary transition-colors duration-200"
+                  className="flex h-10 w-10 items-center justify-center border-2 border-neo-surface bg-white/10 transition-colors hover:bg-neo-secondary hover:text-neo-border"
                   aria-label={label}
                   target={href.startsWith('http') ? '_blank' : undefined}
                   rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
@@ -82,15 +80,16 @@ export function FooterServer({ showNewsletter = true }: FooterServerProps) {
             </div>
           </div>
 
-          {/* Quick Links */}
           <div>
-            <h4 className="heading-sm text-white mb-4">Quick Links</h4>
+            <h4 className="mb-4 text-sm font-black uppercase tracking-[0.14em] text-neo-secondary">
+              Quick Links
+            </h4>
             <ul className="space-y-2">
               {footerLinks.quickLinks.map(link => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="body-md text-gray-300 hover:text-neo-secondary transition-colors"
+                    className="text-sm font-semibold text-white/85 transition-colors hover:text-neo-secondary"
                   >
                     {link.name}
                   </Link>
@@ -99,15 +98,16 @@ export function FooterServer({ showNewsletter = true }: FooterServerProps) {
             </ul>
           </div>
 
-          {/* Categories */}
           <div>
-            <h4 className="heading-sm text-white mb-4">Categories</h4>
+            <h4 className="mb-4 text-sm font-black uppercase tracking-[0.14em] text-neo-secondary">
+              Categories
+            </h4>
             <ul className="space-y-2">
               {footerLinks.categories.map(link => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="body-md text-gray-300 hover:text-neo-secondary transition-colors"
+                    className="text-sm font-semibold text-white/85 transition-colors hover:text-neo-secondary"
                   >
                     {link.name}
                   </Link>
@@ -116,21 +116,26 @@ export function FooterServer({ showNewsletter = true }: FooterServerProps) {
             </ul>
           </div>
 
-          {/* Contact */}
           <div>
-            <h4 className="heading-sm text-white mb-4">Contact Us</h4>
+            <h4 className="mb-4 text-sm font-black uppercase tracking-[0.14em] text-neo-secondary">
+              Contact
+            </h4>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
-                <MapPin size={18} className="mt-1 shrink-0 text-neo-secondary" aria-hidden="true" />
-                <span className="body-md text-gray-300">
+                <MapPin
+                  size={18}
+                  className="mt-0.5 shrink-0 text-neo-secondary"
+                  aria-hidden="true"
+                />
+                <span className="text-sm font-medium text-white/85">
                   123 Green Street, Watthana, Bangkok 10110, Thailand
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <Mail size={18} className="mt-1 shrink-0 text-neo-secondary" aria-hidden="true" />
+                <Mail size={18} className="mt-0.5 shrink-0 text-neo-secondary" aria-hidden="true" />
                 <a
                   href="mailto:hello@sustainablenomads.com"
-                  className="body-md text-gray-300 hover:text-neo-secondary transition-colors"
+                  className="text-sm font-medium text-white/85 hover:text-neo-secondary"
                 >
                   hello@sustainablenomads.com
                 </a>
@@ -138,12 +143,12 @@ export function FooterServer({ showNewsletter = true }: FooterServerProps) {
               <li className="flex items-start gap-3">
                 <MessageSquare
                   size={18}
-                  className="mt-1 shrink-0 text-neo-secondary"
+                  className="mt-0.5 shrink-0 text-neo-secondary"
                   aria-hidden="true"
                 />
                 <Link
                   href="/contact-us"
-                  className="body-md text-gray-300 hover:text-neo-secondary transition-colors"
+                  className="text-sm font-medium text-white/85 hover:text-neo-secondary"
                 >
                   Send us a message
                 </Link>
@@ -152,19 +157,17 @@ export function FooterServer({ showNewsletter = true }: FooterServerProps) {
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-white/20 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="body-sm text-gray-400 mb-4 md:mb-0">
-            ©{' '}
+        <div className="flex flex-col items-center justify-between gap-3 border-t-2 border-white/30 pt-6 md:flex-row">
+          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-white/75">
+            Copyright{' '}
             <Suspense fallback={<span>...</span>}>
               <FooterYear />
             </Suspense>{' '}
-            SustainableNomads. All rights reserved.
+            SustainableNomads.
           </p>
-          <div className="flex items-center space-x-4">
-            <span className="body-sm text-gray-400">Made with</span>
-            <Leaf size={16} className="text-neo-success" />
-            <span className="body-sm text-gray-400">for the planet</span>
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.08em] text-white/75">
+            <span>Made for the planet</span>
+            <Leaf size={14} className="text-neo-success" />
           </div>
         </div>
       </div>
