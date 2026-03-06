@@ -317,8 +317,8 @@ describe('ListingDetailsCard', () => {
       render(<ListingDetailsCard listing={accommodationListing} />);
 
       const solarTag = screen.getByText('Solar Power');
-      expect(solarTag).toHaveClass('bg-green-100');
-      expect(solarTag).toHaveClass('text-green-700');
+      expect(solarTag).toHaveClass('bg-neo-success/20');
+      expect(solarTag).toHaveClass('text-neo-success');
     });
   });
 
@@ -346,8 +346,8 @@ describe('ListingDetailsCard', () => {
       render(<ListingDetailsCard listing={accommodationListing} />);
 
       const internetTag = screen.getByText('High-speed Internet');
-      expect(internetTag).toHaveClass('bg-blue-100');
-      expect(internetTag).toHaveClass('text-blue-700');
+      expect(internetTag).toHaveClass('bg-neo-primary/15');
+      expect(internetTag).toHaveClass('text-neo-primary');
     });
   });
 

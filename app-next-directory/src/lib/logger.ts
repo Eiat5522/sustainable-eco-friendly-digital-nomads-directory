@@ -1,4 +1,5 @@
 import pino from 'pino';
+import { getClientIP } from '@/utils/ip';
 
 // Environment check for safe logging configuration
 // Guard access to `process` so this module can be imported in Edge or client contexts
@@ -440,11 +441,17 @@ export const logError = (message: string, error?: unknown, context?: LogContext)
 // Helper to extract request context from Next.js request objects
 export const getRequestContext = (req: RequestLike | undefined): LogContext => {
   const headers = req?.headers;
+
+  // Use robust IP extraction from the request object or headers collection
+  const inputForIP = req instanceof Request ? req : headers instanceof Headers ? headers : (headers as Record<string, string>);
+  const rawIp = req?.ip ?? getClientIP(inputForIP || {});
+  const ip = rawIp === 'unknown' ? undefined : rawIp;
+
   return {
     method: req?.method,
     path: req?.url ?? req?.nextUrl?.pathname,
     userAgent: getHeaderValue(headers, 'user-agent'),
-    ip: req?.ip ?? getHeaderValue(headers, 'x-forwarded-for'),
+    ip,
     requestId: getHeaderValue(headers, 'x-request-id'),
   };
 };
