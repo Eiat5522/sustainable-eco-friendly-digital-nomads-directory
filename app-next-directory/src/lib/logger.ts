@@ -441,7 +441,11 @@ export const logError = (message: string, error?: unknown, context?: LogContext)
 // Helper to extract request context from Next.js request objects
 export const getRequestContext = (req: RequestLike | undefined): LogContext => {
   const headers = req?.headers;
-  const ip = req?.ip ?? (req instanceof Request ? getClientIP(req) : getHeaderValue(headers, 'x-forwarded-for'));
+
+  // Use robust IP extraction from the request object or headers collection
+  const inputForIP = req instanceof Request ? req : headers instanceof Headers ? headers : (headers as Record<string, string>);
+  const rawIp = req?.ip ?? getClientIP(inputForIP || {});
+  const ip = rawIp === 'unknown' ? undefined : rawIp;
 
   return {
     method: req?.method,

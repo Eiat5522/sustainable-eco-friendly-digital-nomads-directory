@@ -95,15 +95,12 @@ describe('rate-limit helpers', () => {
   it('getClientIp extracts IP from x-forwarded-for header', async () => {
     const mod = await loadModule();
 
-    const request = {
+    const request = new Request('http://localhost', {
       headers: {
-        get: (key: string) => {
-          if (key === 'x-forwarded-for') return '203.0.113.10, 70.0.0.1';
-          if (key === 'x-real-ip') return '198.51.100.5';
-          return null;
-        },
+        'x-forwarded-for': '203.0.113.10, 70.0.0.1',
+        'x-real-ip': '198.51.100.5',
       },
-    } as unknown as Request;
+    });
 
     expect(mod.getClientIp(request)).toBe('203.0.113.10');
   });
@@ -111,11 +108,11 @@ describe('rate-limit helpers', () => {
   it('getClientIp falls back to x-real-ip header', async () => {
     const mod = await loadModule();
 
-    const fallbackRequest = {
+    const fallbackRequest = new Request('http://localhost', {
       headers: {
-        get: (key: string) => (key === 'x-real-ip' ? '198.51.100.5' : null),
+        'x-real-ip': '198.51.100.5',
       },
-    } as unknown as Request;
+    });
 
     expect(mod.getClientIp(fallbackRequest)).toBe('198.51.100.5');
   });

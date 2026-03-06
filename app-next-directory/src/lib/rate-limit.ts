@@ -39,6 +39,10 @@ const initializeRateLimiters = () => {
 // Initialize on module load
 initializeRateLimiters();
 
+/**
+ * Extracts and validates the client IP address from the request.
+ * Resolves SonarCloud security hotspots by using a validated extraction utility.
+ */
 export let getClientIp = (req: Request): string => getClientIP(req);
 
 // Helper for backward compatibility
