@@ -167,7 +167,7 @@ describe('rate-limit', () => {
     it('should use x-real-ip header if x-forwarded-for is not present', async () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request = new Request('http://localhost', {
-        headers: { 'x-real-ip': '192.168.1.1' },
+        headers: { 'x-real-ip': '192.168.1.2' },
       });
 
       const result = await limiter(request);
@@ -180,7 +180,7 @@ describe('rate-limit', () => {
     it('should use cf-connecting-ip header if others are not present', async () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request = new Request('http://localhost', {
-        headers: { 'cf-connecting-ip': '192.168.1.1' },
+        headers: { 'cf-connecting-ip': '192.168.1.3' },
       });
 
       const result = await limiter(request);
@@ -447,7 +447,7 @@ describe('rate-limit', () => {
     it('should handle x-forwarded-for with multiple IPs correctly', async () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '  192.168.1.1  , 10.0.0.1, 172.16.0.1' },
+        headers: { 'x-forwarded-for': '  192.168.1.5  , 10.0.0.1, 172.16.0.1' },
       });
 
       const result = await limiter(request);
@@ -463,33 +463,33 @@ describe('rate-limit', () => {
     it('should remove expired entries', async () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': 'expired-ip' },
+        headers: { 'x-forwarded-for': '1.1.1.1' },
       });
 
       await limiter(request);
-      expect(rateLimitStore.has('expired-ip')).toBe(true);
+      expect(rateLimitStore.has('1.1.1.1')).toBe(true);
 
       // Manually expire the entry
-      const entry = rateLimitStore.get('expired-ip')!;
+      const entry = rateLimitStore.get('1.1.1.1')!;
       entry.resetTime = Date.now() - 1000;
 
       cleanupRateLimitStore();
 
-      expect(rateLimitStore.has('expired-ip')).toBe(false);
+      expect(rateLimitStore.has('1.1.1.1')).toBe(false);
     });
 
     it('should NOT remove non-expired entries', async () => {
       const limiter = rateLimit({ max: 1, windowMs: 10000 });
       const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': 'active-ip' },
+        headers: { 'x-forwarded-for': '2.2.2.2' },
       });
 
       await limiter(request);
-      expect(rateLimitStore.has('active-ip')).toBe(true);
+      expect(rateLimitStore.has('2.2.2.2')).toBe(true);
 
       cleanupRateLimitStore();
 
-      expect(rateLimitStore.has('active-ip')).toBe(true);
+      expect(rateLimitStore.has('2.2.2.2')).toBe(true);
     });
   });
 });
