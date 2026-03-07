@@ -309,24 +309,24 @@ describe('RelatedListings', () => {
       render(<RelatedListings listings={[mockListings[0]]} />);
 
       const badge = screen.getByText('Budget');
-      expect(badge).toHaveClass('bg-green-100');
-      expect(badge).toHaveClass('text-green-600');
+      expect(badge).toHaveClass('bg-neo-success/20');
+      expect(badge).toHaveClass('text-neo-success');
     });
 
     it('renders price range badge for moderate listings', () => {
       render(<RelatedListings listings={[mockListings[1]]} />);
 
       const badge = screen.getByText('Moderate');
-      expect(badge).toHaveClass('bg-yellow-100');
-      expect(badge).toHaveClass('text-yellow-600');
+      expect(badge).toHaveClass('bg-neo-primary/15');
+      expect(badge).toHaveClass('text-neo-primary');
     });
 
     it('renders price range badge for premium listings', () => {
       render(<RelatedListings listings={[mockListings[2]]} />);
 
       const badge = screen.getByText('Premium');
-      expect(badge).toHaveClass('bg-purple-100');
-      expect(badge).toHaveClass('text-purple-600');
+      expect(badge).toHaveClass('bg-neo-accent/20');
+      expect(badge).toHaveClass('text-neo-accent');
     });
 
     it('capitalizes price range text', () => {
@@ -639,24 +639,24 @@ describe('RelatedListings', () => {
       render(<RelatedListings listings={[mockListings[0]]} />);
 
       const badge = screen.getByText('Budget');
-      expect(badge).toHaveClass('text-green-600');
-      expect(badge).toHaveClass('bg-green-100');
+      expect(badge).toHaveClass('text-neo-success');
+      expect(badge).toHaveClass('bg-neo-success/20');
     });
 
     it('returns correct colors for moderate', () => {
       render(<RelatedListings listings={[mockListings[1]]} />);
 
       const badge = screen.getByText('Moderate');
-      expect(badge).toHaveClass('text-yellow-600');
-      expect(badge).toHaveClass('bg-yellow-100');
+      expect(badge).toHaveClass('text-neo-primary');
+      expect(badge).toHaveClass('bg-neo-primary/15');
     });
 
     it('returns correct colors for premium', () => {
       render(<RelatedListings listings={[mockListings[2]]} />);
 
       const badge = screen.getByText('Premium');
-      expect(badge).toHaveClass('text-purple-600');
-      expect(badge).toHaveClass('bg-purple-100');
+      expect(badge).toHaveClass('text-neo-accent');
+      expect(badge).toHaveClass('bg-neo-accent/20');
     });
 
     it('returns default colors for unknown price range', () => {
@@ -670,8 +670,8 @@ describe('RelatedListings', () => {
       const { container } = render(<RelatedListings listings={unknownPriceListing} />);
 
       const badge = screen.getByText('Unknown');
-      expect(badge).toHaveClass('text-gray-600');
-      expect(badge).toHaveClass('bg-gray-100');
+      expect(badge).toHaveClass('text-neo-text-secondary');
+      expect(badge).toHaveClass('bg-neo-secondary/25');
     });
   });
 });

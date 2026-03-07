@@ -2,6 +2,8 @@
 
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { NeoButton } from '@/components/ui/neo-button';
+import { NeoInput } from '@/components/ui/neo-input';
 import type {
   AdminSettingsError,
   AdminSettingsResponse,
@@ -12,6 +14,46 @@ import type { SettingsFormData } from './types';
 type SettingsFormProps = {
   initialSettings?: SettingsFormData;
 };
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="rounded-2xl border-4 border-neo-border bg-white/95 p-5 shadow-[8px_8px_0px_0px_var(--color-neo-shadow)]">
+      <h2 className="heading-sm text-neo-text-primary">{title}</h2>
+      <div className="mt-4 space-y-4">{children}</div>
+    </section>
+  );
+}
+
+function ToggleField({
+  id,
+  name,
+  checked,
+  label,
+  onChange,
+}: {
+  id: string;
+  name: string;
+  checked: boolean;
+  label: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}) {
+  return (
+    <label
+      htmlFor={id}
+      className="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-neo-border bg-neo-surface/60 px-4 py-3"
+    >
+      <input
+        type="checkbox"
+        id={id}
+        name={name}
+        checked={checked}
+        onChange={onChange}
+        className="h-4 w-4 rounded border-neo-border text-neo-primary focus:ring-neo-primary"
+      />
+      <span className="text-sm font-medium text-neo-text-primary">{label}</span>
+    </label>
+  );
+}
 
 export function SettingsForm({ initialSettings }: SettingsFormProps) {
   const [settings, setSettings] = useState<SettingsFormData | null>(initialSettings ?? null);
@@ -45,8 +87,6 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
       }
 
       const data = (await response.json()) as AdminSettingsResponse;
-
-      // Extract only the form fields from settings
       const {
         _id: ignoredId,
         _type: ignoredType,
@@ -62,7 +102,6 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
     }
   }, []);
 
-  // Fetch settings on component mount
   useEffect(() => {
     if (!initialSettings) {
       fetchSettings();
@@ -110,7 +149,6 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
       if (data.success) {
         setSuccessMessage(data.message || 'Settings saved successfully');
 
-        // Update settings with saved data
         const {
           _id: ignoredId,
           _type: ignoredType,
@@ -209,11 +247,11 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
 
   if (loading) {
     return (
-      <div className="p-6">
+      <div className="rounded-2xl border-4 border-neo-border bg-neo-surface/70 p-6">
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading settings...</p>
+            <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-current border-r-transparent" />
+            <p className="mt-4 text-neo-text-secondary">Loading settings...</p>
           </div>
         </div>
       </div>
@@ -222,17 +260,15 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
 
   if (error && !settings) {
     return (
-      <div className="p-6">
-        <div className="bg-red-50 border border-red-200 rounded-md p-4">
-          <p className="text-red-800">{error}</p>
-          <button
-            type="button"
-            onClick={fetchSettings}
-            className="mt-2 text-sm text-red-600 hover:text-red-800 underline"
-          >
-            Try again
-          </button>
-        </div>
+      <div className="rounded-2xl border-4 border-rose-200 bg-rose-50 p-6">
+        <p className="text-rose-800">{error}</p>
+        <button
+          type="button"
+          onClick={fetchSettings}
+          className="mt-2 text-sm font-semibold text-rose-700 underline"
+        >
+          Try again
+        </button>
       </div>
     );
   }
@@ -242,332 +278,240 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="p-6" data-testid="settings-form">
-      {/* Success Message */}
+    <form onSubmit={handleSubmit} className="space-y-6" data-testid="settings-form">
       {successMessage && (
-        <div className="mb-6 bg-green-50 border border-green-200 rounded-md p-4">
-          <p className="text-green-800" data-testid="success-message">
+        <div className="rounded-2xl border-4 border-emerald-200 bg-emerald-50 p-4">
+          <p className="text-emerald-800" data-testid="success-message">
             {successMessage}
           </p>
         </div>
       )}
 
-      {/* Error Message */}
       {error && (
-        <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
-          <p className="text-red-800" data-testid="error-message">
+        <div className="rounded-2xl border-4 border-rose-200 bg-rose-50 p-4">
+          <p className="text-rose-800" data-testid="error-message">
             {error}
           </p>
         </div>
       )}
 
-      {/* General Settings */}
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">General Settings</h2>
-        <div className="space-y-4">
-          <div>
-            <label htmlFor="siteName" className="block text-sm font-medium text-gray-700 mb-1">
-              Site Name
-            </label>
-            <input
-              type="text"
-              id="siteName"
-              name="siteName"
-              value={settings.siteName}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="siteDescription"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Site Description
-            </label>
-            <textarea
-              id="siteDescription"
-              name="siteDescription"
-              value={settings.siteDescription}
-              onChange={handleInputChange}
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
-          </div>
-
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="maintenanceMode"
-              name="maintenanceMode"
-              checked={settings.maintenanceMode}
-              onChange={handleInputChange}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-            />
-            <label htmlFor="maintenanceMode" className="ml-2 block text-sm text-gray-700">
-              Maintenance Mode
-            </label>
-          </div>
-
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="allowRegistrations"
-              name="allowRegistrations"
-              checked={settings.allowRegistrations}
-              onChange={handleInputChange}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-            />
-            <label htmlFor="allowRegistrations" className="ml-2 block text-sm text-gray-700">
-              Allow New Registrations
-            </label>
-          </div>
+      <Section title="General Settings">
+        <div>
+          <label htmlFor="siteName" className="mb-1 block text-sm font-semibold text-neo-text-primary">
+            Site Name
+          </label>
+          <NeoInput
+            type="text"
+            id="siteName"
+            name="siteName"
+            value={settings.siteName}
+            onChange={handleInputChange}
+            required
+          />
         </div>
-      </section>
 
-      {/* Email Settings */}
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Email Settings</h2>
-        <div className="space-y-4">
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="emailNotifications"
-              name="emailNotifications"
-              checked={settings.emailNotifications}
-              onChange={handleInputChange}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-            />
-            <label htmlFor="emailNotifications" className="ml-2 block text-sm text-gray-700">
-              Enable Email Notifications
-            </label>
-          </div>
-
-          <div>
-            <label htmlFor="adminEmail" className="block text-sm font-medium text-gray-700 mb-1">
-              Admin Email
-            </label>
-            <input
-              type="email"
-              id="adminEmail"
-              name="adminEmail"
-              value={settings.adminEmail}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
-          </div>
+        <div>
+          <label htmlFor="siteDescription" className="mb-1 block text-sm font-semibold text-neo-text-primary">
+            Site Description
+          </label>
+          <textarea
+            id="siteDescription"
+            name="siteDescription"
+            value={settings.siteDescription}
+            onChange={handleInputChange}
+            rows={3}
+            className="w-full rounded-lg border-2 border-neo-border bg-neo-surface px-4 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
+            required
+          />
         </div>
-      </section>
 
-      {/* Moderation Settings */}
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Moderation Settings</h2>
-        <div className="space-y-4">
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="autoModeration"
-              name="autoModeration"
-              checked={settings.autoModeration}
-              onChange={handleInputChange}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-            />
-            <label htmlFor="autoModeration" className="ml-2 block text-sm text-gray-700">
-              Enable Auto-Moderation
-            </label>
-          </div>
+        <ToggleField
+          id="maintenanceMode"
+          name="maintenanceMode"
+          checked={settings.maintenanceMode}
+          onChange={handleInputChange}
+          label="Maintenance Mode"
+        />
 
-          <div>
-            <label
-              htmlFor="moderationThreshold"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Moderation Threshold
-            </label>
-            <input
-              type="number"
-              id="moderationThreshold"
-              name="moderationThreshold"
-              value={settings.moderationThreshold}
-              onChange={handleInputChange}
-              min="1"
-              max="10"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
-            <p className="mt-1 text-sm text-gray-500">
-              Number of reports before auto-moderation action
-            </p>
-          </div>
+        <ToggleField
+          id="allowRegistrations"
+          name="allowRegistrations"
+          checked={settings.allowRegistrations}
+          onChange={handleInputChange}
+          label="Allow New Registrations"
+        />
+      </Section>
+
+      <Section title="Email Settings">
+        <ToggleField
+          id="emailNotifications"
+          name="emailNotifications"
+          checked={settings.emailNotifications}
+          onChange={handleInputChange}
+          label="Enable Email Notifications"
+        />
+
+        <div>
+          <label htmlFor="adminEmail" className="mb-1 block text-sm font-semibold text-neo-text-primary">
+            Admin Email
+          </label>
+          <NeoInput
+            type="email"
+            id="adminEmail"
+            name="adminEmail"
+            value={settings.adminEmail}
+            onChange={handleInputChange}
+            required
+          />
         </div>
-      </section>
+      </Section>
 
-      {/* Content Settings */}
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Content Settings</h2>
-        <div className="space-y-4">
-          <div>
-            <label htmlFor="postsPerPage" className="block text-sm font-medium text-gray-700 mb-1">
-              Posts Per Page
-            </label>
-            <input
-              type="number"
-              id="postsPerPage"
-              name="postsPerPage"
-              value={settings.postsPerPage}
-              onChange={handleInputChange}
-              min="10"
-              max="100"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
-          </div>
+      <Section title="Moderation Settings">
+        <ToggleField
+          id="autoModeration"
+          name="autoModeration"
+          checked={settings.autoModeration}
+          onChange={handleInputChange}
+          label="Enable Auto-Moderation"
+        />
 
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="enableComments"
-              name="enableComments"
-              checked={settings.enableComments}
-              onChange={handleInputChange}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-            />
-            <label htmlFor="enableComments" className="ml-2 block text-sm text-gray-700">
-              Enable Comments
-            </label>
-          </div>
+        <div>
+          <label
+            htmlFor="moderationThreshold"
+            className="mb-1 block text-sm font-semibold text-neo-text-primary"
+          >
+            Moderation Threshold
+          </label>
+          <NeoInput
+            type="number"
+            id="moderationThreshold"
+            name="moderationThreshold"
+            value={settings.moderationThreshold}
+            onChange={handleInputChange}
+            min="1"
+            max="10"
+            required
+          />
+          <p className="mt-1 text-xs text-neo-text-secondary">
+            Number of reports before auto-moderation action
+          </p>
         </div>
-      </section>
+      </Section>
 
-      {/* Security Settings */}
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Security Settings</h2>
-        <div className="space-y-4">
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="requireEmailVerification"
-              name="requireEmailVerification"
-              checked={settings.requireEmailVerification}
-              onChange={handleInputChange}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-            />
-            <label htmlFor="requireEmailVerification" className="ml-2 block text-sm text-gray-700">
-              Require Email Verification
-            </label>
-          </div>
-
-          <div>
-            <label
-              htmlFor="sessionTimeout"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Session Timeout (minutes)
-            </label>
-            <input
-              type="number"
-              id="sessionTimeout"
-              name="sessionTimeout"
-              value={settings.sessionTimeout}
-              onChange={handleInputChange}
-              min="15"
-              max="1440"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
-          </div>
+      <Section title="Content Settings">
+        <div>
+          <label htmlFor="postsPerPage" className="mb-1 block text-sm font-semibold text-neo-text-primary">
+            Posts Per Page
+          </label>
+          <NeoInput
+            type="number"
+            id="postsPerPage"
+            name="postsPerPage"
+            value={settings.postsPerPage}
+            onChange={handleInputChange}
+            min="10"
+            max="100"
+            required
+          />
         </div>
-      </section>
 
-      {/* Backup Settings */}
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Backup Settings</h2>
-        <div className="space-y-4">
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="autoBackup"
-              name="autoBackup"
-              checked={settings.autoBackup}
-              onChange={handleInputChange}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-            />
-            <label htmlFor="autoBackup" className="ml-2 block text-sm text-gray-700">
-              Enable Auto-Backup
-            </label>
-          </div>
+        <ToggleField
+          id="enableComments"
+          name="enableComments"
+          checked={settings.enableComments}
+          onChange={handleInputChange}
+          label="Enable Comments"
+        />
+      </Section>
 
-          <div>
-            <label
-              htmlFor="backupFrequency"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Backup Frequency
-            </label>
-            <select
-              id="backupFrequency"
-              name="backupFrequency"
-              value={settings.backupFrequency}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
-            </select>
-          </div>
+      <Section title="Security Settings">
+        <ToggleField
+          id="requireEmailVerification"
+          name="requireEmailVerification"
+          checked={settings.requireEmailVerification}
+          onChange={handleInputChange}
+          label="Require Email Verification"
+        />
 
-          {settings.lastBackupDate && (
-            <div className="text-sm text-gray-600">
-              Last backup: {new Date(settings.lastBackupDate).toLocaleString()}
-            </div>
-          )}
-
-          {backupStatus && (
-            <div
-              className={`text-sm ${backupStatus.type === 'success' ? 'text-emerald-600' : 'text-red-600'}`}
-              data-testid="backup-status-message"
-            >
-              {backupStatus.message}
-            </div>
-          )}
-
-          <div>
-            <button
-              type="button"
-              onClick={handleBackup}
-              disabled={backupRunning}
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-emerald-600 border border-transparent rounded-md shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              data-testid="run-backup-button"
-            >
-              {backupRunning ? 'Running Backup...' : 'Run Backup'}
-            </button>
-          </div>
+        <div>
+          <label htmlFor="sessionTimeout" className="mb-1 block text-sm font-semibold text-neo-text-primary">
+            Session Timeout (minutes)
+          </label>
+          <NeoInput
+            type="number"
+            id="sessionTimeout"
+            name="sessionTimeout"
+            value={settings.sessionTimeout}
+            onChange={handleInputChange}
+            min="15"
+            max="1440"
+            required
+          />
         </div>
-      </section>
+      </Section>
 
-      {/* Form Actions */}
-      <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
-        <button
+      <Section title="Backup Settings">
+        <ToggleField
+          id="autoBackup"
+          name="autoBackup"
+          checked={settings.autoBackup}
+          onChange={handleInputChange}
+          label="Enable Auto-Backup"
+        />
+
+        <div>
+          <label htmlFor="backupFrequency" className="mb-1 block text-sm font-semibold text-neo-text-primary">
+            Backup Frequency
+          </label>
+          <select
+            id="backupFrequency"
+            name="backupFrequency"
+            value={settings.backupFrequency}
+            onChange={handleInputChange}
+            className="h-12 w-full rounded-lg border-2 border-neo-border bg-neo-surface px-4 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
+          >
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+          </select>
+        </div>
+
+        {settings.lastBackupDate && (
+          <div className="text-sm text-neo-text-secondary">
+            Last backup: {new Date(settings.lastBackupDate).toLocaleString()}
+          </div>
+        )}
+
+        {backupStatus && (
+          <div
+            className={`text-sm font-medium ${
+              backupStatus.type === 'success' ? 'text-emerald-700' : 'text-rose-700'
+            }`}
+            data-testid="backup-status-message"
+          >
+            {backupStatus.message}
+          </div>
+        )}
+
+        <NeoButton
           type="button"
-          onClick={fetchSettings}
-          disabled={saving}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={handleBackup}
+          disabled={backupRunning}
+          variant="success"
+          size="sm"
+          data-testid="run-backup-button"
         >
+          {backupRunning ? 'Running Backup...' : 'Run Backup'}
+        </NeoButton>
+      </Section>
+
+      <div className="flex items-center justify-end gap-3 border-t-4 border-neo-border/40 pt-4">
+        <NeoButton type="button" onClick={fetchSettings} disabled={saving} variant="outline" size="sm">
           Reset
-        </button>
-        <button
-          type="submit"
-          disabled={saving}
-          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          data-testid="save-settings-button"
-        >
+        </NeoButton>
+        <NeoButton type="submit" disabled={saving} size="sm" data-testid="save-settings-button">
           {saving ? 'Saving...' : 'Save Settings'}
-        </button>
+        </NeoButton>
       </div>
     </form>
   );

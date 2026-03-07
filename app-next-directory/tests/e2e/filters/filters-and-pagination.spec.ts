@@ -16,7 +16,9 @@ test.describe('Search filters and pagination', () => {
     const workspaceFilterTrigger = page.getByRole('button', { name: /Select workspace types/i });
     const amenityFilterTrigger = page.getByRole('button', { name: /Select amenities/i });
     const bangkokOption = page.getByRole('menuitemcheckbox', { name: 'Bangkok' });
-    const coworkingOption = page.getByRole('menuitemcheckbox', { name: /Coworking/i });
+    const coworkingOption = page.getByRole('menuitemcheckbox', {
+      name: /Coworking(?:\s+Space)?/i,
+    });
     const fastWifiOption = page.getByRole('menuitemcheckbox', { name: 'Fast WiFi' });
 
     await cityFilterTrigger.waitFor({ state: 'visible', timeout: 10000 });

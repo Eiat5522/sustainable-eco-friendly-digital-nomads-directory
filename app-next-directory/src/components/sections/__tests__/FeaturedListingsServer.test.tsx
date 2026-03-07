@@ -88,7 +88,7 @@ describe('FeaturedListings (Server Component)', () => {
 
     const section = container.querySelector('section');
     expect(section).toBeInTheDocument();
-    expect(section).toHaveClass('py-16', 'bg-background');
+    expect(section).toHaveClass('bg-neo-secondary', 'px-4', 'py-12');
   });
 
   it('wraps content in container with padding', () => {
@@ -96,6 +96,6 @@ describe('FeaturedListings (Server Component)', () => {
 
     const containerDiv = container.querySelector('.container');
     expect(containerDiv).toBeInTheDocument();
-    expect(containerDiv).toHaveClass('mx-auto', 'px-4');
+    expect(containerDiv).toHaveClass('mx-auto', 'max-w-6xl');
   });
 });

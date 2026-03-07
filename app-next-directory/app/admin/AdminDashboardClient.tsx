@@ -1,5 +1,3 @@
-'use client';
-
 import Link from 'next/link';
 import type { AdminAnalyticsSnapshot, AdminModerationEntry } from '@/lib/admin/analytics';
 
@@ -52,14 +50,14 @@ export default function AdminDashboardClient({ adminData: _adminData }: AdminDas
           <p className="body-sm mt-2">Approve submissions and curate highlights.</p>
         </Link>
         <Link
-          href="/"
+          href="/admin/settings"
           className="neo-card group rounded-2xl bg-neo-secondary/20 p-5 transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px] hover:shadow-neo-shadow"
         >
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-neo-text-secondary">
-            Directory
+            Settings
           </p>
-          <h3 className="heading-sm mt-3 text-neo-text-primary">Back to Site</h3>
-          <p className="body-sm mt-2">Return to the public experience.</p>
+          <h3 className="heading-sm mt-3 text-neo-text-primary">Configure Workspace</h3>
+          <p className="body-sm mt-2">Adjust platform controls and maintenance flags.</p>
         </Link>
       </div>
     </section>

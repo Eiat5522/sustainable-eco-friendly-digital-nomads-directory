@@ -121,7 +121,7 @@
     "mongodb": "^6.0.0",
     "mongoose": "^8.19.3",
     "nanoid": "^5.1.5",
-    "next": "16.1.4",
+    "next": "16.1.6",
     "next-auth": "5.0.0-beta.30",
     "next-sanity": "12.0.12",
     "next-sanity-image": "6.2.0",

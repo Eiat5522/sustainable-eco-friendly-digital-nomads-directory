@@ -12,5 +12,5 @@ test('unauthenticated request to /admin should redirect to login', async ({ page
     expect([401, 403]).toContain(res?.status() ?? 0);
     return;
   }
-  await expect(page).toHaveURL(/\/(login|api\/auth\/signin)(?:[?#].*)?$/);
+  await expect(page).toHaveURL(/\/(auth\/(login|signin)|api\/auth\/signin)(?:[?#].*)?$/);
 });

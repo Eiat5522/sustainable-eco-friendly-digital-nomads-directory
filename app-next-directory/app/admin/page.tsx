@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
 import AdminDashboardClient from './AdminDashboardClient';
 
 export const metadata: Metadata = {
@@ -8,9 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function AdminDashboardPage() {
-  return (
-    <Suspense fallback={<div>Loading dashboard...</div>}>
-      <AdminDashboardClient />
-    </Suspense>
-  );
+  return <AdminDashboardClient />;
 }

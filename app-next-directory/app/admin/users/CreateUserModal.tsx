@@ -68,9 +68,9 @@ export function CreateUserModal({ onUserCreated }: CreateUserModalProps) {
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50" />
-        <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-neo-surface p-6 rounded-2xl shadow-2xl z-50 border border-neo-border">
-          <Dialog.Title className="text-xl font-bold mb-4">Create New User</Dialog.Title>
-          <Dialog.Description className="text-neo-text-secondary mb-6">
+        <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border-4 border-neo-border bg-neo-surface p-6 shadow-[10px_10px_0px_0px_var(--color-neo-shadow)]">
+          <Dialog.Title className="heading-md mb-2">Create New User</Dialog.Title>
+          <Dialog.Description className="body-sm mb-6 text-neo-text-secondary">
             Fill in the details below to create a new user account.
           </Dialog.Description>
 
@@ -125,7 +125,7 @@ export function CreateUserModal({ onUserCreated }: CreateUserModalProps) {
                   id="role"
                   value={formData.role}
                   onChange={e => setFormData({ ...formData, role: e.target.value as UserRole })}
-                  className="w-full h-12 px-4 py-2 border border-neo-border rounded-lg bg-neo-surface focus:outline-none focus:ring-2 focus:ring-neo-primary"
+                  className="h-12 w-full rounded-lg border-2 border-neo-border bg-white px-4 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
                 >
                   <option value="user">User</option>
                   <option value="venueOwner">Venue Owner</option>
@@ -148,7 +148,7 @@ export function CreateUserModal({ onUserCreated }: CreateUserModalProps) {
                       status: e.target.value as 'active' | 'suspended' | 'pending',
                     })
                   }
-                  className="w-full h-12 px-4 py-2 border border-neo-border rounded-lg bg-neo-surface focus:outline-none focus:ring-2 focus:ring-neo-primary"
+                  className="h-12 w-full rounded-lg border-2 border-neo-border bg-white px-4 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
                 >
                   <option value="active">Active</option>
                   <option value="suspended">Suspended</option>
@@ -157,7 +157,7 @@ export function CreateUserModal({ onUserCreated }: CreateUserModalProps) {
               </div>
             </div>
 
-            {error && <p className="text-red-500 text-sm">{error}</p>}
+            {error && <p className="text-sm text-rose-700">{error}</p>}
 
             <div className="flex justify-end gap-3 mt-6">
               <Dialog.Close asChild>

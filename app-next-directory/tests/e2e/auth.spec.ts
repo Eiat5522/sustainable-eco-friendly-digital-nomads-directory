@@ -103,7 +103,7 @@ test.describe('Authentication (Playwright E2E)', () => {
 
     await expect(
       page.getByRole('heading', {
-        name: /A Curated Directory For Sustainable Digital Nomads/i,
+        name: /A Curated Home for Eco-Friendly Digital Nomads/i,
       })
     ).toBeVisible();
   });

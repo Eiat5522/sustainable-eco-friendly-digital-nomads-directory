@@ -26,15 +26,13 @@ const parseJsonStringArray = (value: string | undefined, fallback: string[]) => 
   return fallback;
 };
 
-const escapeForRegex = (value: string) => value.replace(/[-/^$*+?.()|[\]{}]/g, '$&');
-
-const createUrlPattern = (url: string) => new RegExp(`.*${escapeForRegex(url)}`);
+const createAuthSigninPattern = () => /\/(auth\/(login|signin)|api\/auth\/signin)(?:[?#].*)?$/;
 
 const TEST_CONFIG = {
   urls: {
     home: process.env.TEST_HOME_URL ?? '/',
     adminDashboard: process.env.TEST_ADMIN_DASHBOARD_URL ?? '/admin',
-    signin: process.env.TEST_SIGNIN_URL ?? '/auth/login',
+    signin: process.env.TEST_SIGNIN_URL ?? '/auth/signin',
     signup: process.env.TEST_SIGNUP_URL ?? '/auth/signup',
     dashboard: process.env.TEST_DASHBOARD_URL ?? '/dashboard',
     createListing: process.env.TEST_CREATE_LISTING_URL ?? '/dashboard/listings/new',
@@ -131,7 +129,7 @@ test.describe('Security Testing', () => {
       await page.goto(TEST_CONFIG.urls.adminDashboard);
 
       // Should redirect to login
-      await expect(page).toHaveURL(createUrlPattern(TEST_CONFIG.urls.signin));
+      await expect(page).toHaveURL(createAuthSigninPattern());
     });
 
     test('prevents privilege escalation via API', async ({ request }) => {
@@ -147,7 +145,7 @@ test.describe('Security Testing', () => {
       await page.goto(TEST_CONFIG.urls.dashboard);
 
       // Should be redirected to login
-      await expect(page).toHaveURL(createUrlPattern(TEST_CONFIG.urls.signin));
+      await expect(page).toHaveURL(createAuthSigninPattern());
     });
 
     test('password field has minimum length requirement', async ({ page, context }) => {

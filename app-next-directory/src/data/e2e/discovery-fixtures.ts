@@ -251,7 +251,15 @@ export const e2eFilterMetadata = {
     name: city.name,
     slug: { current: city.slug } as const,
   })),
-  categories: Array.from(new Set(discoveryListings.map(listing => listing.category))),
+  categories: Array.from(new Set(discoveryListings.map(listing => listing.category))).map(
+    category => ({
+      slug: category,
+      name:
+        category === 'coworking'
+          ? 'Coworking Space'
+          : category.charAt(0).toUpperCase() + category.slice(1),
+    })
+  ),
   amenities: Array.from(
     new Set(
       discoveryListings

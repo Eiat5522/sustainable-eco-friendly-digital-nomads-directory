@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { Suspense } from 'react';
 import { auth } from '@/lib/auth';
 import { structuredLogger } from '@/lib/logger';
 import type { UserRole } from '@/types/auth';
@@ -67,22 +66,20 @@ export default async function AdminListingsPage() {
   }
 
   return (
-    <Suspense fallback={<div>Loading listings management...</div>}>
-      <section className="space-y-6" data-testid="admin-listings-page">
-        <header className="space-y-2">
-          <h2 className="heading-md text-neo-text-primary" data-testid="admin-listings-title">
-            Listing Management
-          </h2>
-          <p className="body-md">Manage listings, approve submissions, and feature content.</p>
-        </header>
+    <section className="space-y-6" data-testid="admin-listings-page">
+      <header className="space-y-2">
+        <h2 className="heading-md text-neo-text-primary" data-testid="admin-listings-title">
+          Listing Management
+        </h2>
+        <p className="body-md">Manage listings, approve submissions, and feature content.</p>
+      </header>
 
-        <div className="neo-card rounded-2xl bg-neo-surface p-4 md:p-6">
-          <ListingsManagementTable
-            initialData={initialListings ?? undefined}
-            initialStats={initialStats ?? undefined}
-          />
-        </div>
-      </section>
-    </Suspense>
+      <div className="neo-card rounded-2xl bg-neo-surface p-4 md:p-6">
+        <ListingsManagementTable
+          initialData={initialListings ?? undefined}
+          initialStats={initialStats ?? undefined}
+        />
+      </div>
+    </section>
   );
 }

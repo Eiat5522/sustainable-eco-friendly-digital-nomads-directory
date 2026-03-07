@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { Suspense } from 'react';
 import { auth } from '@/lib/auth';
 import { structuredLogger } from '@/lib/logger';
 import type { UserRole } from '@/types/auth';
@@ -53,23 +52,21 @@ export default async function AdminUsersPage() {
   }
 
   return (
-    <Suspense fallback={<div>Loading user management...</div>}>
-      <section className="space-y-6" data-testid="admin-users-page">
-        <header className="space-y-2">
-          <h2 className="heading-md text-neo-text-primary" data-testid="admin-users-title">
-            User Management
-          </h2>
-          <p className="body-md">Manage user accounts, roles, and permissions.</p>
-        </header>
+    <section className="space-y-6" data-testid="admin-users-page">
+      <header className="space-y-2">
+        <h2 className="heading-md text-neo-text-primary" data-testid="admin-users-title">
+          User Management
+        </h2>
+        <p className="body-md">Manage user accounts, roles, and permissions.</p>
+      </header>
 
-        <div className="neo-card rounded-2xl bg-neo-surface p-4 md:p-6">
-          <UserManagementTable
-            currentUserRole={sessionUser.role}
-            currentUserId={sessionUser.id}
-            initialData={initialUsers ?? undefined}
-          />
-        </div>
-      </section>
-    </Suspense>
+      <div className="neo-card rounded-2xl bg-neo-surface p-4 md:p-6">
+        <UserManagementTable
+          currentUserRole={sessionUser.role}
+          currentUserId={sessionUser.id}
+          initialData={initialUsers ?? undefined}
+        />
+      </div>
+    </section>
   );
 }

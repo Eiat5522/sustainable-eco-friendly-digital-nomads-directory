@@ -21,7 +21,7 @@ const navLinkClass =
 
 export function HeaderServer(): React.JSX.Element {
   return (
-    <header className="w-full border-b-4 border-neo-border bg-gradient-to-r from-neo-surface via-neo-surface to-neo-secondary/15 backdrop-blur supports-[backdrop-filter]:bg-neo-surface/95">
+    <header className="relative z-40 w-full border-b-4 border-neo-border bg-gradient-to-r from-neo-surface via-neo-surface to-neo-secondary/15 backdrop-blur supports-[backdrop-filter]:bg-neo-surface/95">
       <div className="container mx-auto px-4 py-4 md:py-5">
         <div className="grid grid-cols-3 items-center gap-4">
           {/* Left: Logo + Mobile Menu */}

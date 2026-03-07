@@ -58,8 +58,8 @@ test.describe('Admin Dashboard Integration', () => {
       // Wait for redirect to complete
       await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});
 
-      // Should be redirected to login
-      await expect(page).toHaveURL(/\/auth\/login/);
+      // Should be redirected to an auth signin page
+      await expect(page).toHaveURL(/\/auth\/(login|signin)(?:[?#].*)?$/);
     });
   });
 

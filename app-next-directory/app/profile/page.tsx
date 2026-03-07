@@ -12,7 +12,7 @@ import { ProfileClient } from './ProfileClient';
 
 function ProfileLoading() {
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
+    <div className="flex min-h-[40vh] items-center justify-center rounded-2xl border-4 border-neo-border bg-neo-surface/70">
       <div className="text-center">
         <div
           className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
@@ -22,7 +22,7 @@ function ProfileLoading() {
             Loading...
           </span>
         </div>
-        <p className="mt-4 text-sm text-gray-600">Loading profile...</p>
+        <p className="mt-4 text-sm text-neo-text-secondary">Loading profile...</p>
       </div>
     </div>
   );

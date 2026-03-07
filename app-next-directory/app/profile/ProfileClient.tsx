@@ -562,7 +562,7 @@ export function ProfileClient({
   };
 
   return (
-    <div className="bg-background">
+    <div className="bg-neo-secondary/30">
       <main className="container mx-auto space-y-12 px-4 py-12" data-testid="user-profile-page">
         {!isAuthenticated ? (
           <section className="max-w-3xl mx-auto">

@@ -6,7 +6,10 @@ test.describe('[E2E] Categories pages', () => {
 
     await expect(page.getByRole('heading', { level: 1, name: 'Browse Categories' })).toBeVisible();
 
-    const coworkingLink = page.getByRole('link', { name: /Coworking Space/i }).first();
+    const coworkingHeading = page
+      .getByRole('heading', { level: 2, name: /Coworking Space/i })
+      .first();
+    const coworkingLink = coworkingHeading.locator('xpath=ancestor::a[1]');
     await expect(coworkingLink).toHaveAttribute('href', '/categories/coworking');
   });
 

@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { Suspense } from 'react';
 import { auth } from '@/lib/auth';
 import { structuredLogger } from '@/lib/logger';
 import type { UserRole } from '@/types/auth';
@@ -62,19 +61,17 @@ export default async function AdminSettingsPage() {
   }
 
   return (
-    <Suspense fallback={<div>Loading admin settings...</div>}>
-      <section className="space-y-6" data-testid="admin-settings-page">
-        <header className="space-y-2">
-          <h2 className="heading-md text-neo-text-primary" data-testid="admin-settings-title">
-            Admin Settings
-          </h2>
-          <p className="body-md">Configure application settings and preferences.</p>
-        </header>
+    <section className="space-y-6" data-testid="admin-settings-page">
+      <header className="space-y-2">
+        <h2 className="heading-md text-neo-text-primary" data-testid="admin-settings-title">
+          Admin Settings
+        </h2>
+        <p className="body-md">Configure application settings and preferences.</p>
+      </header>
 
-        <div className="neo-card rounded-2xl bg-neo-surface p-4 md:p-6">
-          <SettingsForm initialSettings={initialSettings ?? undefined} />
-        </div>
-      </section>
-    </Suspense>
+      <div className="neo-card rounded-2xl bg-neo-surface p-4 md:p-6">
+        <SettingsForm initialSettings={initialSettings ?? undefined} />
+      </div>
+    </section>
   );
 }

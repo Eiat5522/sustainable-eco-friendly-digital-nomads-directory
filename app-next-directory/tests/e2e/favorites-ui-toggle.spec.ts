@@ -87,8 +87,6 @@ test.describe('[E2E] Favorites UI toggle - Authenticated', () => {
     await page.goto(DETAIL_PATH);
     await page.waitForLoadState('domcontentloaded');
 
-    // Wait for header to fully render with user info
-    await expect(page.getByText(/Welcome, E2E!/i)).toBeVisible({ timeout: 10000 });
     await expect(page.getByRole('heading', { level: 3, name: 'Banyan Tree Phuket' })).toBeVisible({
       timeout: 10000,
     });
@@ -159,8 +157,6 @@ test.describe('[E2E] Favorites UI toggle - Authenticated', () => {
     await page.goto(DETAIL_PATH);
     await page.waitForLoadState('domcontentloaded');
 
-    // Wait for page elements to be ready
-    await expect(page.getByText(/Welcome, E2E!/i)).toBeVisible({ timeout: 10000 });
     await expect(page.getByRole('heading', { level: 3, name: 'Banyan Tree Phuket' })).toBeVisible({
       timeout: 10000,
     });

@@ -92,50 +92,52 @@ export function HeaderAuthClient({
               <ChevronDown className="h-4 w-4 text-neo-text-secondary" aria-hidden="true" />
             </button>
           </DropdownMenu.Trigger>
-          <DropdownMenu.Content
-            align="end"
-            sideOffset={12}
-            className="z-50 min-w-[220px] rounded-2xl border-2 border-neo-border bg-neo-surface/95 p-2 shadow-[8px_8px_0_0] shadow-neo-shadow backdrop-blur"
-          >
-            <DropdownMenu.Label className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-neo-text-secondary">
-              {accountLabel}
-            </DropdownMenu.Label>
-            <DropdownMenu.Separator className="my-2 h-px bg-neo-border/60" />
-            <DropdownMenu.Item asChild>
-              <Link
-                href="/profile"
-                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-neo-text-primary outline-none transition-all duration-150 data-[highlighted]:bg-neo-primary/10 data-[highlighted]:translate-x-0.5"
-              >
-                <User size={16} aria-hidden="true" />
-                My profile
-              </Link>
-            </DropdownMenu.Item>
-            {isAdmin && (
+          <DropdownMenu.Portal>
+            <DropdownMenu.Content
+              align="end"
+              sideOffset={12}
+              className="z-[120] min-w-[220px] rounded-2xl border-2 border-neo-border bg-neo-surface/95 p-2 shadow-[8px_8px_0_0] shadow-neo-shadow backdrop-blur"
+            >
+              <DropdownMenu.Label className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-neo-text-secondary">
+                {accountLabel}
+              </DropdownMenu.Label>
+              <DropdownMenu.Separator className="my-2 h-px bg-neo-border/60" />
               <DropdownMenu.Item asChild>
                 <Link
-                  href="/admin"
+                  href="/profile"
                   className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-neo-text-primary outline-none transition-all duration-150 data-[highlighted]:bg-neo-primary/10 data-[highlighted]:translate-x-0.5"
                 >
-                  <LayoutDashboard size={16} aria-hidden="true" />
-                  Admin dashboards
+                  <User size={16} aria-hidden="true" />
+                  My profile
                 </Link>
               </DropdownMenu.Item>
-            )}
-            <DropdownMenu.Separator className="my-2 h-px bg-neo-border/60" />
-            <DropdownMenu.Item
-              disabled={signingOut}
-              onSelect={event => {
-                event.preventDefault();
-                if (!signingOut) {
-                  void handleSignOut();
-                }
-              }}
-              className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-neo-text-primary outline-none transition-all duration-150 data-[highlighted]:bg-rose-100 data-[highlighted]:text-rose-700 data-[highlighted]:translate-x-0.5 data-[disabled]:cursor-not-allowed data-[disabled]:opacity-60"
-            >
-              <DoorOpen size={16} aria-hidden="true" />
-              {signingOut ? 'Signing out…' : 'Sign out'}
-            </DropdownMenu.Item>
-          </DropdownMenu.Content>
+              {isAdmin && (
+                <DropdownMenu.Item asChild>
+                  <Link
+                    href="/admin"
+                    className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-neo-text-primary outline-none transition-all duration-150 data-[highlighted]:bg-neo-primary/10 data-[highlighted]:translate-x-0.5"
+                  >
+                    <LayoutDashboard size={16} aria-hidden="true" />
+                    Admin dashboards
+                  </Link>
+                </DropdownMenu.Item>
+              )}
+              <DropdownMenu.Separator className="my-2 h-px bg-neo-border/60" />
+              <DropdownMenu.Item
+                disabled={signingOut}
+                onSelect={event => {
+                  event.preventDefault();
+                  if (!signingOut) {
+                    void handleSignOut();
+                  }
+                }}
+                className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-neo-text-primary outline-none transition-all duration-150 data-[highlighted]:bg-rose-100 data-[highlighted]:text-rose-700 data-[highlighted]:translate-x-0.5 data-[disabled]:cursor-not-allowed data-[disabled]:opacity-60"
+              >
+                <DoorOpen size={16} aria-hidden="true" />
+                {signingOut ? 'Signing out…' : 'Sign out'}
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu.Portal>
         </DropdownMenu.Root>
       ) : (
         <Link

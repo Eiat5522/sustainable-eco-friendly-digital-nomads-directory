@@ -141,7 +141,7 @@ test.describe('[E2E] Responsive navigation layout', () => {
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: /A Curated Directory For Sustainable Digital Nomads/i,
+        name: /A Curated Home for Eco-Friendly Digital Nomads/i,
       })
     ).toBeVisible();
 
