@@ -56,6 +56,14 @@ const dbConnect = jest.fn();
 const updateOne = jest.fn();
 const findOne = jest.fn();
 const isAdminEmail = jest.fn(() => false);
+const getClientIp = jest.fn((req: any) => {
+  const xf = req?.headers?.get('x-forwarded-for');
+  return xf ? xf.split(',')[0].trim() : 'unknown';
+});
+
+jest.mock('@/lib/rate-limit', () => ({
+  getClientIp: jest.fn((...args: unknown[]) => getClientIp(...args)),
+}));
 
 jest.mock('@/lib/auth/adapter', () => ({
   createAuthAdapter: jest.fn((...args: unknown[]) => createAuthAdapter(...args)),
@@ -131,6 +139,9 @@ const importAuthModule = async () => {
   jest.doMock('@/lib/auth/config', () => ({
     isAdminEmail,
   }));
+  jest.doMock('@/lib/rate-limit', () => ({
+    getClientIp: jest.fn((...args: unknown[]) => getClientIp(...args)),
+  }));
 
   return import('../auth');
 };
@@ -181,11 +192,11 @@ describe('auth module', () => {
 
       const { authOptions } = await importAuthModule();
       const provider = extractCredentialsProvider(authOptions);
-      const request = {
+      const request = new Request('http://localhost', {
         headers: {
-          get: (key: string) => (key === 'x-forwarded-for' ? '203.0.113.5, 70.0.0.1' : null),
+          'x-forwarded-for': '203.0.113.5, 70.0.0.1',
         },
-      };
+      });
 
       const result = await provider.authorize(
         { email: '  Jane@Example.com ', password: 'secret' },

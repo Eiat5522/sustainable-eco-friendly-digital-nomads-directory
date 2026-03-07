@@ -48,6 +48,8 @@ export let getClientIp = (req: Request): string => {
       if (value) {
         const candidate = header === 'x-forwarded-for' ? (value.split(',')[0] || '').trim() : value.trim();
 
+        // SonarCloud specifically flags x-forwarded-for as a security hotspot
+        // if not properly validated.
         if (candidate && validator.isIP(candidate)) {
           return candidate;
         }
