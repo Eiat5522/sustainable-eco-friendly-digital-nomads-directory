@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { fetchAdminAnalytics } from '@/lib/admin/analytics';
+import { fetchAdminAnalytics, normalizeAdminMonthWindow } from '@/lib/admin/analytics';
 import { auth } from '@/lib/auth';
 import { getDefaultTimeout, RequestTimeoutError, withRequestTimeout } from '@/lib/http/request';
 import { structuredLogger } from '@/lib/logger';
@@ -43,8 +43,13 @@ export async function GET(request: NextRequest, _context: RouteContext) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
+    const { searchParams } = new URL(
+      request?.url ?? 'http://localhost/api/admin/analytics'
+    );
+    const months = normalizeAdminMonthWindow(searchParams.get('months'));
+
     const analytics = await withRequestTimeout(
-      fetchAdminAnalytics(),
+      fetchAdminAnalytics({ months }),
       getDefaultTimeout(),
       'Fetching admin analytics timed out'
     );

@@ -8,6 +8,7 @@ jest.mock('@/lib/auth', () => ({
 jest.mock('@/lib/admin/analytics', () => ({
   __esModule: true,
   fetchAdminAnalytics: jest.fn(),
+  normalizeAdminMonthWindow: jest.fn((value: string | null) => (value === '6' ? 6 : 3)),
 }));
 
 import { RequestTimeoutError } from '@/lib/http/request';
@@ -15,6 +16,7 @@ import { RequestTimeoutError } from '@/lib/http/request';
 const authMockModule = jest.requireMock('@/lib/auth') as { auth: jest.Mock };
 const analyticsMockModule = jest.requireMock('@/lib/admin/analytics') as {
   fetchAdminAnalytics: jest.Mock;
+  normalizeAdminMonthWindow: jest.Mock;
 };
 
 let GET: typeof import('../route').GET;
@@ -22,6 +24,7 @@ let POST: typeof import('../route').POST;
 
 const mockAuth = authMockModule.auth;
 const mockFetchAnalytics = analyticsMockModule.fetchAdminAnalytics;
+const mockNormalizeAdminMonthWindow = analyticsMockModule.normalizeAdminMonthWindow;
 
 beforeAll(async () => {
   ({ GET, POST } = await import('../route'));
@@ -31,6 +34,7 @@ describe('/api/admin/analytics', () => {
   beforeEach(() => {
     mockAuth.mockReset();
     mockFetchAnalytics.mockReset();
+    mockNormalizeAdminMonthWindow.mockClear();
   });
 
   it('requires admin role', async () => {
@@ -54,17 +58,35 @@ describe('/api/admin/analytics', () => {
         weeklySignups: 5,
         pendingModeration: 2,
       },
+      range: {
+        months: 3,
+        from: '2023-10-01T00:00:00.000Z',
+        to: '2024-01-01T00:00:00.000Z',
+      },
+      monthly: [],
       userRoles: { admin: 2, user: 95 },
+      listingStatusBreakdown: {
+        published: 20,
+        unpublished: 8,
+        pending: 4,
+        draft: 8,
+        featured: 2,
+      },
       moderationQueue: [],
       generatedAt: '2024-01-01T00:00:00.000Z',
     });
 
-    const response = await GET({} as any, { params: Promise.resolve({}) });
+    const response = await GET(
+      { url: 'https://example.com/api/admin/analytics?months=6', headers: new Headers() } as any,
+      { params: Promise.resolve({}) }
+    );
     const json = await response.json();
 
     expect(response.status).toBe(200);
     expect(json.analytics).toBeDefined();
     expect(json.analytics.overview.totalUsers).toBe(100);
+    expect(mockNormalizeAdminMonthWindow).toHaveBeenCalledWith('6');
+    expect(mockFetchAnalytics).toHaveBeenCalledWith({ months: 6 });
     expect(mockFetchAnalytics).toHaveBeenCalledTimes(1);
   });
 
@@ -78,7 +100,20 @@ describe('/api/admin/analytics', () => {
         weeklySignups: 0,
         pendingModeration: 0,
       },
+      range: {
+        months: 3,
+        from: '2023-10-01T00:00:00.000Z',
+        to: '2024-01-01T00:00:00.000Z',
+      },
+      monthly: [],
       userRoles: { superAdmin: 1 },
+      listingStatusBreakdown: {
+        published: 1,
+        unpublished: 0,
+        pending: 0,
+        draft: 0,
+        featured: 0,
+      },
       moderationQueue: [],
       generatedAt: '2024-01-01T00:00:00.000Z',
     });

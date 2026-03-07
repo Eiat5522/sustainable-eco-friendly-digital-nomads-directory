@@ -70,10 +70,11 @@ test.describe('Admin Dashboard Integration', () => {
       await page.waitForSelector('[data-testid="admin-dashboard"]', { timeout: 10000 });
     });
 
-    test('loads simplified admin dashboard page', async ({ page }) => {
+    test('loads analytics-driven admin dashboard page', async ({ page }) => {
       await expect(page.getByTestId('admin-dashboard')).toBeVisible();
       await expect(page.getByTestId('admin-dashboard-title')).toHaveText('Admin Dashboard');
-      await expect(page.getByText(/The admin dashboard is temporarily simplified/)).toBeVisible();
+      await expect(page.getByTestId('admin-growth-chart')).toBeVisible();
+      await expect(page.getByTestId('admin-role-chart')).toBeVisible();
     });
 
     test('displays admin navigation links', async ({ page }) => {

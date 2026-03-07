@@ -6,6 +6,8 @@ import { structuredLogger } from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
 import { ROLE_VALUES } from '@/models/User';
 
+export const ADMIN_MONTH_WINDOWS = [3, 6, 12] as const;
+
 export type AdminModerationEntry = {
   id: string;
   itemType: string;
@@ -41,6 +43,23 @@ export const createEmptyRoleCounts = (): AdminRoleCounts =>
     (ROLE_VALUES as readonly string[]).map(role => [role, 0] as const)
   ) as AdminRoleCounts;
 
+export type AdminAnalyticsMonthPoint = {
+  month: string;
+  label: string;
+  usersCreated: number;
+  listingsCreated: number;
+  reviewsCreated: number;
+  pendingModeration: number;
+};
+
+export type AdminListingStatusBreakdown = {
+  published: number;
+  unpublished: number;
+  pending: number;
+  draft: number;
+  featured: number;
+};
+
 export type AdminAnalyticsSnapshot = {
   overview: {
     totalUsers: number;
@@ -49,7 +68,14 @@ export type AdminAnalyticsSnapshot = {
     weeklySignups: number;
     pendingModeration: number;
   };
+  range: {
+    months: (typeof ADMIN_MONTH_WINDOWS)[number];
+    from: string;
+    to: string;
+  };
+  monthly: AdminAnalyticsMonthPoint[];
   userRoles: AdminRoleCounts;
+  listingStatusBreakdown: AdminListingStatusBreakdown;
   moderationQueue: AdminModerationEntry[];
   generatedAt: string;
 };
@@ -61,7 +87,201 @@ type AdminAnalyticsTuple = [
   number,
   AdminModerationEntry[],
   AdminRoleCounts,
+  AdminListingStatusBreakdown,
 ];
+
+type MonthlyDoc = { _createdAt?: string | null };
+
+type MonthBucket = {
+  key: string;
+  label: string;
+  start: Date;
+  end: Date;
+};
+
+const monthLabelFormatter = new Intl.DateTimeFormat('en', {
+  month: 'short',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+
+async function safeAdminSanityFetch<T>(
+  fetcher: () => Promise<T | null | undefined>,
+  fallback: T,
+  context: string
+): Promise<T> {
+  try {
+    const result = await withRequestTimeout(
+      fetcher(),
+      getDefaultTimeout(),
+      `Admin analytics Sanity request timed out: ${context}`
+    );
+
+    return result ?? fallback;
+  } catch (error) {
+    structuredLogger.warn(`[admin/analytics] ${context} failed`, error, {
+      context,
+    });
+    return fallback;
+  }
+}
+
+function clampAdminMonthWindow(months: number | null | undefined): (typeof ADMIN_MONTH_WINDOWS)[number] {
+  if (months === 6 || months === 12) {
+    return months;
+  }
+
+  return 3;
+}
+
+export function normalizeAdminMonthWindow(monthsParam: string | null): (typeof ADMIN_MONTH_WINDOWS)[number] {
+  if (!monthsParam) return 3;
+
+  const parsed = Number.parseInt(monthsParam, 10);
+  if (Number.isNaN(parsed)) return 3;
+
+  return clampAdminMonthWindow(parsed);
+}
+
+export function createAdminMonthBuckets(monthCount: number, referenceDate: Date): MonthBucket[] {
+  const safeMonthCount = clampAdminMonthWindow(monthCount);
+  const buckets: MonthBucket[] = [];
+  const base = new Date(
+    Date.UTC(referenceDate.getUTCFullYear(), referenceDate.getUTCMonth(), 1)
+  );
+
+  for (let offset = safeMonthCount - 1; offset >= 0; offset -= 1) {
+    const start = new Date(Date.UTC(base.getUTCFullYear(), base.getUTCMonth() - offset, 1));
+    const end = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 1));
+
+    buckets.push({
+      key: `${start.getUTCFullYear()}-${String(start.getUTCMonth() + 1).padStart(2, '0')}`,
+      label: monthLabelFormatter.format(start),
+      start,
+      end,
+    });
+  }
+
+  return buckets;
+}
+
+function countDocsInRange(docs: MonthlyDoc[], start: Date, end: Date): number {
+  return docs.reduce((count, doc) => {
+    if (!doc?._createdAt) {
+      return count;
+    }
+
+    const createdAt = new Date(doc._createdAt);
+    if (Number.isNaN(createdAt.getTime())) {
+      return count;
+    }
+
+    return createdAt >= start && createdAt < end ? count + 1 : count;
+  }, 0);
+}
+
+async function fetchMonthlyAnalyticsData(rangeStart: string): Promise<{
+  users: MonthlyDoc[];
+  listings: MonthlyDoc[];
+  reviews: MonthlyDoc[];
+  moderation: MonthlyDoc[];
+}> {
+  const [users, listings, reviews, moderation] = await Promise.all([
+    safeAdminSanityFetch(
+      () =>
+        client.fetch<MonthlyDoc[]>('*[_type == "user" && _createdAt >= $rangeStart]{ _createdAt }', {
+          rangeStart,
+        }) as Promise<MonthlyDoc[]>,
+      [],
+      'fetching monthly users'
+    ),
+    safeAdminSanityFetch(
+      () =>
+        client.fetch<MonthlyDoc[]>('*[_type == "listing" && _createdAt >= $rangeStart]{ _createdAt }', {
+          rangeStart,
+        }) as Promise<MonthlyDoc[]>,
+      [],
+      'fetching monthly listings'
+    ),
+    safeAdminSanityFetch(
+      () =>
+        client.fetch<MonthlyDoc[]>('*[_type == "review" && _createdAt >= $rangeStart]{ _createdAt }', {
+          rangeStart,
+        }) as Promise<MonthlyDoc[]>,
+      [],
+      'fetching monthly reviews'
+    ),
+    safeAdminSanityFetch(
+      () =>
+        client.fetch<MonthlyDoc[]>(
+          '*[_type == "moderationStatus" && status == "pending" && _createdAt >= $rangeStart]{ _createdAt }',
+          { rangeStart }
+        ) as Promise<MonthlyDoc[]>,
+      [],
+      'fetching monthly moderation queue'
+    ),
+  ]);
+
+  return {
+    users: users ?? [],
+    listings: listings ?? [],
+    reviews: reviews ?? [],
+    moderation: moderation ?? [],
+  };
+}
+
+async function fetchListingStatusBreakdown(): Promise<AdminListingStatusBreakdown> {
+  const [published, unpublished, pending, draft, featured] = await Promise.all([
+    safeAdminSanityFetch(
+      () =>
+        client.fetch<number>(
+          'count(*[_type == "listing" && coalesce(adminWorkflow.status, moderation.status, "draft") == "published"])'
+        ) as Promise<number>,
+      0,
+      'fetching published listing count'
+    ),
+    safeAdminSanityFetch(
+      () =>
+        client.fetch<number>(
+          'count(*[_type == "listing" && coalesce(adminWorkflow.status, moderation.status, "draft") == "unpublished"])'
+        ) as Promise<number>,
+      0,
+      'fetching unpublished listing count'
+    ),
+    safeAdminSanityFetch(
+      () =>
+        client.fetch<number>(
+          'count(*[_type == "listing" && coalesce(adminWorkflow.status, moderation.status, "draft") == "pending"])'
+        ) as Promise<number>,
+      0,
+      'fetching pending listing count'
+    ),
+    safeAdminSanityFetch(
+      () =>
+        client.fetch<number>(
+          'count(*[_type == "listing" && coalesce(adminWorkflow.status, moderation.status, "draft") == "draft"])'
+        ) as Promise<number>,
+      0,
+      'fetching draft listing count'
+    ),
+    safeAdminSanityFetch(
+      () =>
+        client.fetch<number>(
+          'count(*[_type == "listing" && coalesce(adminWorkflow.isFeatured, moderation.featured, false) == true && coalesce(adminWorkflow.status, moderation.status, "draft") == "published"])'
+        ) as Promise<number>,
+      0,
+      'fetching featured listing count'
+    ),
+  ]);
+
+  return {
+    published: published ?? 0,
+    unpublished: unpublished ?? 0,
+    pending: pending ?? 0,
+    draft: draft ?? 0,
+    featured: featured ?? 0,
+  };
+}
 
 async function fetchRoleCounts(): Promise<AdminRoleCounts> {
   // Use MongoDB as the single source of truth for role counts
@@ -138,19 +358,27 @@ async function fetchModerationEntryById(id: string): Promise<AdminModerationEntr
 }
 
 export async function fetchModerationQueue(limit = 10): Promise<AdminModerationEntry[]> {
-  const queue = await withRequestTimeout<ModerationQueueProjection[]>(
-    client.fetch<ModerationQueueProjection[]>(
-      `*[_type == "moderationStatus" && status == "pending"] | order(_createdAt desc)[0...$limit] {${MODERATION_QUEUE_PROJECTION}}`,
-      { limit }
-    ) as Promise<ModerationQueueProjection[]>,
-    getDefaultTimeout(),
-    'Fetching moderation queue timed out'
+  const queue = await safeAdminSanityFetch(
+    () =>
+      client.fetch<ModerationQueueProjection[]>(
+        `*[_type == "moderationStatus" && status == "pending"] | order(_createdAt desc)[0...$limit] {${MODERATION_QUEUE_PROJECTION}}`,
+        { limit }
+      ) as Promise<ModerationQueueProjection[]>,
+    [],
+    'fetching moderation queue'
   );
 
   return queue.map(mapModerationProjectionToEntry);
 }
 
-export async function fetchAdminAnalytics(): Promise<AdminAnalyticsSnapshot> {
+export async function fetchAdminAnalytics(options: {
+  months?: (typeof ADMIN_MONTH_WINDOWS)[number];
+} = {}): Promise<AdminAnalyticsSnapshot> {
+  const referenceDate = new Date();
+  const months = clampAdminMonthWindow(options.months);
+  const buckets = createAdminMonthBuckets(months, referenceDate);
+  const rangeStart = buckets[0]?.start ?? referenceDate;
+
   const [
     userCount,
     listingCount,
@@ -158,16 +386,35 @@ export async function fetchAdminAnalytics(): Promise<AdminAnalyticsSnapshot> {
     pendingModerationCount,
     moderationQueue,
     roleCounts,
+    listingStatusBreakdown,
   ] = await withRequestTimeout<AdminAnalyticsTuple>(
     Promise.all([
-      client.fetch<number>('count(*[_type == "user"])') as Promise<number>,
-      client.fetch<number>('count(*[_type == "listing"])') as Promise<number>,
-      client.fetch<number>('count(*[_type == "review"])') as Promise<number>,
-      client.fetch<number>(
-        'count(*[_type == "moderationStatus" && status == "pending"])'
-      ) as Promise<number>,
+      safeAdminSanityFetch(
+        () => client.fetch<number>('count(*[_type == "user"])') as Promise<number>,
+        0,
+        'fetching total users'
+      ),
+      safeAdminSanityFetch(
+        () => client.fetch<number>('count(*[_type == "listing"])') as Promise<number>,
+        0,
+        'fetching total listings'
+      ),
+      safeAdminSanityFetch(
+        () => client.fetch<number>('count(*[_type == "review"])') as Promise<number>,
+        0,
+        'fetching total reviews'
+      ),
+      safeAdminSanityFetch(
+        () =>
+          client.fetch<number>(
+            'count(*[_type == "moderationStatus" && status == "pending"])'
+          ) as Promise<number>,
+        0,
+        'fetching pending moderation total'
+      ),
       fetchModerationQueue(),
       fetchRoleCounts(),
+      fetchListingStatusBreakdown(),
     ]) as Promise<AdminAnalyticsTuple>,
     getDefaultTimeout(),
     'Fetching admin analytics summary timed out'
@@ -175,13 +422,29 @@ export async function fetchAdminAnalytics(): Promise<AdminAnalyticsSnapshot> {
 
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-  const weeklySignups = await withRequestTimeout<number>(
-    client.fetch<number>('count(*[_type == "user" && _createdAt >= $sevenDaysAgo])', {
-      sevenDaysAgo: sevenDaysAgo.toISOString(),
-    }) as Promise<number>,
-    getDefaultTimeout(),
-    'Fetching weekly signups timed out'
+  const weeklySignups = await safeAdminSanityFetch(
+    () =>
+      client.fetch<number>('count(*[_type == "user" && _createdAt >= $sevenDaysAgo])', {
+        sevenDaysAgo: sevenDaysAgo.toISOString(),
+      }) as Promise<number>,
+    0,
+    'fetching weekly signups'
   );
+
+  const monthlySource = await withRequestTimeout(
+    fetchMonthlyAnalyticsData(rangeStart.toISOString()),
+    getDefaultTimeout(),
+    'Fetching admin monthly analytics timed out'
+  );
+
+  const monthly = buckets.map(bucket => ({
+    month: bucket.key,
+    label: bucket.label,
+    usersCreated: countDocsInRange(monthlySource.users, bucket.start, bucket.end),
+    listingsCreated: countDocsInRange(monthlySource.listings, bucket.start, bucket.end),
+    reviewsCreated: countDocsInRange(monthlySource.reviews, bucket.start, bucket.end),
+    pendingModeration: countDocsInRange(monthlySource.moderation, bucket.start, bucket.end),
+  }));
 
   return {
     overview: {
@@ -191,9 +454,16 @@ export async function fetchAdminAnalytics(): Promise<AdminAnalyticsSnapshot> {
       weeklySignups: weeklySignups ?? 0,
       pendingModeration: pendingModerationCount ?? 0,
     },
+    range: {
+      months,
+      from: rangeStart.toISOString(),
+      to: referenceDate.toISOString(),
+    },
+    monthly,
     userRoles: roleCounts,
+    listingStatusBreakdown,
     moderationQueue,
-    generatedAt: new Date().toISOString(),
+    generatedAt: referenceDate.toISOString(),
   };
 }
 

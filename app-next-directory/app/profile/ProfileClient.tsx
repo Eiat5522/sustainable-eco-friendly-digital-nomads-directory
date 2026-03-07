@@ -4,6 +4,12 @@ import { Edit, MessageSquare, Star } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+import {
+  DashboardMetricCard,
+  DashboardTrendChart,
+  ListingComparisonBoard,
+  dashboardChartPalette,
+} from '@/components/dashboard/DashboardCharts';
 import { ProfileEditForm } from '@/components/profile/ProfileEditForm';
 import { NeoBadge } from '@/components/ui/neo-badge';
 import { NeoButton } from '@/components/ui/neo-button';
@@ -26,6 +32,7 @@ import type {
 import { formatDate } from './utils';
 
 type TabKey = 'overview' | 'favourite' | 'listings' | 'monthly';
+const MONTH_OPTIONS = [3, 6, 12] as const;
 
 const NAV_ITEMS: Array<{ id: TabKey; label: string; helper: string }> = [
   { id: 'overview', label: 'Overview', helper: 'Profile & highlights' },
@@ -47,6 +54,7 @@ type ProfileClientProps = {
   dashboardError: string | null;
   ownerReviews: OwnerListingReviews[];
   ownerError: string | null;
+  initialTab?: TabKey;
 };
 
 function isOwnerRole(role: UserRole | undefined): boolean {
@@ -65,28 +73,6 @@ function formatCount(value: number | null | undefined): string {
     return '—';
   }
   return value.toLocaleString();
-}
-
-function DashboardSummaryCard({
-  title,
-  value,
-  helper,
-}: {
-  title: string;
-  value: string;
-  helper: string;
-}) {
-  return (
-    <NeoCard className="h-full border-4 border-neo-border bg-white shadow-[6px_6px_0px_0px_rgba(30,41,59,0.35)]">
-      <NeoCardHeader>
-        <NeoCardTitle className="text-base text-neo-text-secondary">{title}</NeoCardTitle>
-      </NeoCardHeader>
-      <NeoCardContent className="space-y-2">
-        <p className="text-3xl font-semibold text-neo-text-primary">{value}</p>
-        <p className="text-sm text-neo-text-secondary">{helper}</p>
-      </NeoCardContent>
-    </NeoCard>
-  );
 }
 
 function MonthlyTrendTable({
@@ -143,6 +129,7 @@ export function ProfileClient({
   dashboardError,
   ownerReviews,
   ownerError,
+  initialTab = 'overview',
 }: ProfileClientProps) {
   const role = (sessionUser?.role ?? 'user') as UserRole;
   const ownerRole = isOwnerRole(role);
@@ -150,7 +137,7 @@ export function ProfileClient({
   const displayName = displayInfo.displayName;
   const email = sessionUser?.email ?? undefined;
 
-  const [activeTab, setActiveTab] = useState<TabKey>('overview');
+  const [activeTab, setActiveTab] = useState<TabKey>(initialTab);
   const [isEditing, setIsEditing] = useState(false);
 
   const initials = displayInfo.initials;
@@ -316,19 +303,19 @@ export function ProfileClient({
       </header>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <DashboardSummaryCard
+        <DashboardMetricCard
           title="Saved favourites"
-          value={formatCount(data.metrics.favoritesCount)}
+          value={data.metrics.favoritesCount}
           helper="Listings saved to your collection"
         />
-        <DashboardSummaryCard
+        <DashboardMetricCard
           title="Reviews written"
-          value={formatCount(data.metrics.reviewsWritten)}
+          value={data.metrics.reviewsWritten}
           helper="Approved reviews you have contributed"
         />
-        <DashboardSummaryCard
+        <DashboardMetricCard
           title="Average rating given"
-          value={formatAvgRating(data.metrics.avgRatingGiven)}
+          value={data.metrics.avgRatingGiven}
           helper="Your average review score"
         />
       </div>
@@ -409,112 +396,110 @@ export function ProfileClient({
       </header>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <DashboardSummaryCard
+        <DashboardMetricCard
           title="Average rating"
-          value={formatAvgRating(data.totals.avgRating)}
+          value={data.totals.avgRating}
           helper="Lifetime average across managed listings"
         />
-        <DashboardSummaryCard
+        <DashboardMetricCard
           title="Total reviews"
-          value={formatCount(data.totals.reviewCount)}
+          value={data.totals.reviewCount}
           helper="All approved reviews submitted"
         />
-        <DashboardSummaryCard
+        <DashboardMetricCard
           title="Total favourites"
-          value={formatCount(data.totals.favoritesCount)}
+          value={data.totals.favoritesCount}
           helper="Users who saved your listings"
         />
-        <DashboardSummaryCard
+        <DashboardMetricCard
           title="Views tracked"
-          value={formatCount(data.totals.viewCount)}
+          value={data.totals.viewCount}
           helper={
             data.totals.viewCount === null
               ? 'View analytics not yet enabled'
               : 'Current total views captured'
           }
+          tone="accent"
         />
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-wrap gap-2">
+          {MONTH_OPTIONS.map(option => {
+            const isActive = dashboard?.range.months === option;
+            return (
+              <Link
+                key={option}
+                href={`/profile?months=${option}&tab=listings`}
+                className={`rounded-full border-2 px-4 py-2 text-sm font-semibold transition-transform duration-150 motion-reduce:transition-none ${
+                  isActive
+                    ? 'border-neo-text-primary bg-neo-primary text-white shadow-[4px_4px_0px_0px_rgba(20,43,51,0.35)]'
+                    : 'border-neo-border bg-white text-neo-text-primary hover:-translate-y-0.5'
+                }`}
+              >
+                Last {option} months
+              </Link>
+            );
+          })}
+        </div>
+
         <Link href="/dashboard/listings">
           <NeoButton>Manage Listings</NeoButton>
         </Link>
       </div>
 
-      <div className="space-y-4">
-        <div>
-          <h3 className="heading-sm">Per-listing snapshot</h3>
-          <p className="text-sm text-neo-text-secondary">
-            Quick glance at the health of each managed listing.
-          </p>
-        </div>
-        <div className="overflow-x-auto rounded-2xl border-4 border-neo-border bg-white/95 shadow-[8px_8px_0px_0px_rgba(15,23,42,0.2)]">
-          <table className="min-w-full divide-y-2 divide-neo-border/60 text-left text-sm">
-            <thead className="bg-neo-surface/80 text-xs uppercase tracking-wide text-neo-text-secondary">
-              <tr>
-                <th scope="col" className="px-4 py-3">
-                  Listing
-                </th>
-                <th scope="col" className="px-4 py-3">
-                  City
-                </th>
-                <th scope="col" className="px-4 py-3">
-                  Avg rating
-                </th>
-                <th scope="col" className="px-4 py-3">
-                  Reviews
-                </th>
-                <th scope="col" className="px-4 py-3">
-                  Favourites
-                </th>
-                <th scope="col" className="px-4 py-3">
-                  Views
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neo-border/40 bg-white/90">
-              {data.listings.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-sm text-neo-text-secondary">
-                    No listings linked to this account yet.
-                  </td>
-                </tr>
-              ) : (
-                data.listings.map(listing => {
-                  const href = listing.listing.slug
-                    ? `/listings/${listing.listing.slug}`
-                    : undefined;
-                  return (
-                    <tr key={listing.listing.id}>
-                      <td className="px-4 py-4">
-                        {href ? (
-                          <Link
-                            href={href}
-                            className="font-medium text-neo-primary hover:underline focus-visible:underline"
-                          >
-                            {listing.listing.name}
-                          </Link>
-                        ) : (
-                          <span className="font-medium text-neo-text-primary">
-                            {listing.listing.name}
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-4 py-4 text-neo-text-secondary">
-                        {listing.listing.city ?? '—'}
-                      </td>
-                      <td className="px-4 py-4">{formatAvgRating(listing.summary.avgRating)}</td>
-                      <td className="px-4 py-4">{formatCount(listing.summary.reviewCount)}</td>
-                      <td className="px-4 py-4">{formatCount(listing.summary.favoritesCount)}</td>
-                      <td className="px-4 py-4">{formatCount(listing.summary.viewCount)}</td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <DashboardTrendChart
+        title="Portfolio momentum"
+        description="How the combined performance of your listings has moved month by month."
+        data={data.monthlyTotals}
+        series={[
+          {
+            dataKey: 'reviewCount',
+            label: 'Reviews',
+            color: dashboardChartPalette.primary,
+          },
+          {
+            dataKey: 'favoritesCount',
+            label: 'Favourites',
+            color: dashboardChartPalette.secondary,
+          },
+          {
+            dataKey: 'monthlyViewCount',
+            label: 'Views',
+            color: dashboardChartPalette.accent,
+            type: 'area',
+          },
+          {
+            dataKey: 'avgRating',
+            label: 'Avg rating',
+            color: dashboardChartPalette.highlight,
+          },
+        ]}
+        testId="owner-portfolio-chart"
+      />
+
+      {data.listings.length === 0 ? (
+        <NeoCard variant="flat" className="border-4 border-neo-border bg-white/90">
+          <NeoCardContent className="py-6 text-sm text-neo-text-secondary">
+            No listings linked to this account yet.
+          </NeoCardContent>
+        </NeoCard>
+      ) : (
+        <ListingComparisonBoard
+          title="Per-listing comparison"
+          description="Compare each listing across ratings, reviews, favourites, and tracked views."
+          data={data.listings.map(listing => ({
+            id: listing.listing.id,
+            label: listing.listing.name,
+            city: listing.listing.city,
+            rating: listing.summary.avgRating,
+            reviews: listing.summary.reviewCount,
+            favourites: listing.summary.favoritesCount,
+            views: listing.summary.viewCount,
+          }))}
+          testId="owner-listing-comparison"
+        />
+      )}
 
       {data.notices.length > 0 && (
         <div className="space-y-2 rounded-2xl border-4 border-amber-200 bg-amber-50/70 p-4 text-sm text-amber-900 shadow-[6px_6px_0px_0px_rgba(217,119,6,0.25)]">
@@ -549,7 +534,53 @@ export function ProfileClient({
     if (dashboard.data.kind === 'venueOwner') {
       return (
         <div className="space-y-4">
-          <MonthlyTrendTable rows={dashboard.data.monthlyTotals} showViews />
+          <div className="flex flex-wrap gap-2">
+            {MONTH_OPTIONS.map(option => {
+              const isActive = dashboard.range.months === option;
+              return (
+                <Link
+                  key={option}
+                  href={`/profile?months=${option}&tab=monthly`}
+                  className={`rounded-full border-2 px-4 py-2 text-sm font-semibold transition-transform duration-150 motion-reduce:transition-none ${
+                    isActive
+                      ? 'border-neo-text-primary bg-neo-primary text-white shadow-[4px_4px_0px_0px_rgba(20,43,51,0.35)]'
+                      : 'border-neo-border bg-white text-neo-text-primary hover:-translate-y-0.5'
+                  }`}
+                >
+                  Last {option} months
+                </Link>
+              );
+            })}
+          </div>
+          <DashboardTrendChart
+            title="Monthly trend"
+            description="Reviews, favourites, tracked views, and average rating across your live portfolio."
+            data={dashboard.data.monthlyTotals}
+            series={[
+              {
+                dataKey: 'reviewCount',
+                label: 'Reviews',
+                color: dashboardChartPalette.primary,
+              },
+              {
+                dataKey: 'favoritesCount',
+                label: 'Favourites',
+                color: dashboardChartPalette.secondary,
+              },
+              {
+                dataKey: 'monthlyViewCount',
+                label: 'Views',
+                color: dashboardChartPalette.accent,
+                type: 'area',
+              },
+              {
+                dataKey: 'avgRating',
+                label: 'Avg rating',
+                color: dashboardChartPalette.highlight,
+              },
+            ]}
+            testId="owner-monthly-chart"
+          />
           <p className="text-xs text-neo-text-tertiary">
             * View analytics populate once monthly tracking is enabled; otherwise the dashboard
             shows — for that period.

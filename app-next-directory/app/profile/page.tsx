@@ -36,6 +36,9 @@ type SessionUser = {
   image?: string | null;
 };
 
+type ProfileTabKey = 'overview' | 'favourite' | 'listings' | 'monthly';
+type ProfileSearchParams = Promise<{ months?: string; tab?: string }>;
+
 type DashboardResult = {
   dashboard: UserDashboardPayloadDTO | null;
   error: string | null;
@@ -46,7 +49,26 @@ type ReviewsResult = {
   error: string | null;
 };
 
-async function loadDashboard(user: SessionUser): Promise<DashboardResult> {
+function normalizeProfileMonths(monthsParam: string | undefined): 3 | 6 | 12 {
+  if (monthsParam === '6') return 6;
+  if (monthsParam === '12') return 12;
+  return 3;
+}
+
+function normalizeProfileTab(tabParam: string | undefined): ProfileTabKey {
+  if (
+    tabParam === 'overview' ||
+    tabParam === 'favourite' ||
+    tabParam === 'listings' ||
+    tabParam === 'monthly'
+  ) {
+    return tabParam;
+  }
+
+  return 'overview';
+}
+
+async function loadDashboard(user: SessionUser, months: 3 | 6 | 12): Promise<DashboardResult> {
   if (!user.id) {
     return { dashboard: null, error: null };
   }
@@ -59,7 +81,7 @@ async function loadDashboard(user: SessionUser): Promise<DashboardResult> {
         name: user.name ?? null,
         email: user.email ?? null,
       },
-      3
+      months
     );
 
     if (!dashboard) {
@@ -96,7 +118,13 @@ async function loadOwnerReviews(user: SessionUser): Promise<ReviewsResult> {
   }
 }
 
-export async function ProfileContent() {
+export async function ProfileContent({
+  months = 3,
+  initialTab = 'overview',
+}: {
+  months?: 3 | 6 | 12;
+  initialTab?: ProfileTabKey;
+} = {}) {
   const session = await auth();
   const sessionUser = session?.user as SessionUser | undefined;
   const isAuthenticated = Boolean(sessionUser?.id);
@@ -110,6 +138,7 @@ export async function ProfileContent() {
         dashboardError={null}
         ownerReviews={[]}
         ownerError={null}
+        initialTab={initialTab}
       />
     );
   }
@@ -117,7 +146,7 @@ export async function ProfileContent() {
   // sessionUser is guaranteed to exist since isAuthenticated is true
   const user = sessionUser!;
   const [dashboardResult, reviewsResult] = await Promise.all([
-    loadDashboard(user),
+    loadDashboard(user, months),
     loadOwnerReviews(user),
   ]);
 
@@ -135,15 +164,24 @@ export async function ProfileContent() {
       dashboardError={dashboardResult.error}
       ownerReviews={reviewsResult.reviews}
       ownerError={reviewsResult.error}
+      initialTab={initialTab}
     />
   );
 }
 
-export default async function ProfilePage() {
+export default async function ProfilePage({
+  searchParams,
+}: {
+  searchParams?: ProfileSearchParams;
+}) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const months = normalizeProfileMonths(resolvedSearchParams?.months);
+  const initialTab = normalizeProfileTab(resolvedSearchParams?.tab);
+
   return (
     <PageLayoutServer>
       <Suspense fallback={<ProfileLoading />}>
-        <ProfileContent />
+        <ProfileContent months={months} initialTab={initialTab} />
       </Suspense>
     </PageLayoutServer>
   );

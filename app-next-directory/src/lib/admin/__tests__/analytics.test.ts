@@ -177,29 +177,63 @@ describe('admin analytics helpers', () => {
   });
 
   it('returns aggregated analytics snapshot', async () => {
-    const fetchSequence: unknown[] = [
-      10,
-      undefined,
-      2,
-      3,
-      [
-        {
-          _id: 'mod-1',
-          _createdAt: '2024-01-01T00:00:00.000Z',
-          status: 'pending',
-          itemType: 'listing',
-          itemName: 'Eco',
-          itemId: '1',
-          userReports: [{ _key: 'report-3' }],
-        },
-      ],
-      5, // weekly signups
-      6,
-      7,
-      8,
-      undefined,
-    ];
-    fetchMock.mockImplementation(() => Promise.resolve(fetchSequence.shift()));
+    fetchMock.mockImplementation((query: string) => {
+      if (query === 'count(*[_type == "user"])') return Promise.resolve(10);
+      if (query === 'count(*[_type == "listing"])') return Promise.resolve(undefined);
+      if (query === 'count(*[_type == "review"])') return Promise.resolve(2);
+      if (query === 'count(*[_type == "moderationStatus" && status == "pending"])') {
+        return Promise.resolve(3);
+      }
+      if (query.includes('*[_type == "moderationStatus" && status == "pending"] | order')) {
+        return Promise.resolve([
+          {
+            _id: 'mod-1',
+            _createdAt: '2024-01-01T00:00:00.000Z',
+            status: 'pending',
+            itemType: 'listing',
+            itemName: 'Eco',
+            itemId: '1',
+            userReports: [{ _key: 'report-3' }],
+          },
+        ]);
+      }
+      if (query.includes('count(*[_type == "user" && _createdAt >= $sevenDaysAgo])')) {
+        return Promise.resolve(5);
+      }
+      if (query.includes('coalesce(adminWorkflow.isFeatured, moderation.featured, false) == true')) {
+        return Promise.resolve(2);
+      }
+      if (query.includes('coalesce(adminWorkflow.status, moderation.status, "draft") == "published"')) {
+        return Promise.resolve(6);
+      }
+      if (query.includes('coalesce(adminWorkflow.status, moderation.status, "draft") == "unpublished"')) {
+        return Promise.resolve(7);
+      }
+      if (query.includes('coalesce(adminWorkflow.status, moderation.status, "draft") == "pending"')) {
+        return Promise.resolve(8);
+      }
+      if (query.includes('coalesce(adminWorkflow.status, moderation.status, "draft") == "draft"')) {
+        return Promise.resolve(undefined);
+      }
+      if (query.includes('*[_type == "user" && _createdAt >= $rangeStart]')) {
+        return Promise.resolve([{ _createdAt: '2024-01-05T00:00:00.000Z' }]);
+      }
+      if (query.includes('*[_type == "listing" && _createdAt >= $rangeStart]')) {
+        return Promise.resolve([{ _createdAt: '2024-01-08T00:00:00.000Z' }]);
+      }
+      if (query.includes('*[_type == "review" && _createdAt >= $rangeStart]')) {
+        return Promise.resolve([{ _createdAt: '2024-01-10T00:00:00.000Z' }]);
+      }
+      if (
+        query.includes(
+          '*[_type == "moderationStatus" && status == "pending" && _createdAt >= $rangeStart]'
+        )
+      ) {
+        return Promise.resolve([{ _createdAt: '2024-01-12T00:00:00.000Z' }]);
+      }
+
+      return Promise.resolve(undefined);
+    });
 
     // Provide mocked Mongo role counts to align with new DAL-based source
     (getRoleCounts as jest.Mock).mockResolvedValue({
@@ -224,29 +258,29 @@ describe('admin analytics helpers', () => {
       venueOwner: 7,
       superAdmin: 8,
     });
+    expect(snapshot.listingStatusBreakdown).toEqual({
+      published: 6,
+      unpublished: 7,
+      pending: 8,
+      draft: 0,
+      featured: 2,
+    });
+    expect(snapshot.range.months).toBe(3);
+    expect(snapshot.monthly).toHaveLength(3);
     expect(snapshot.moderationQueue).toHaveLength(1);
     expect(typeof snapshot.generatedAt).toBe('string');
   });
 
   it('handles missing analytics values gracefully', async () => {
-    const emptyQueue: unknown[] = [];
-    const fetchSequence: unknown[] = [
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      emptyQueue,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-    ];
-    fetchMock.mockImplementation(() => Promise.resolve(fetchSequence.shift()));
+    fetchMock.mockImplementation((query: string) => {
+      if (query.includes('*[_type == "moderationStatus" && status == "pending"] | order')) {
+        return Promise.resolve([]);
+      }
+      if (query.includes('*[_createdAt >= $rangeStart]')) {
+        return Promise.resolve([]);
+      }
+      return Promise.resolve(undefined);
+    });
 
     (getRoleCounts as jest.Mock).mockResolvedValue({
       admin: 0,
@@ -264,8 +298,53 @@ describe('admin analytics helpers', () => {
       weeklySignups: 0,
       pendingModeration: 0,
     });
+    expect(snapshot.listingStatusBreakdown).toEqual({
+      published: 0,
+      unpublished: 0,
+      pending: 0,
+      draft: 0,
+      featured: 0,
+    });
+    expect(snapshot.monthly).toHaveLength(3);
     expect(snapshot.moderationQueue).toEqual([]);
     expect(Object.values(snapshot.userRoles).every(value => value === 0)).toBe(true);
+  });
+
+  it('falls back to empty analytics when Sanity queries are unauthorized', async () => {
+    fetchMock.mockRejectedValue(new Error('Unauthorized - Session not found'));
+
+    (getRoleCounts as jest.Mock).mockResolvedValue({
+      admin: 1,
+      user: 0,
+      venueOwner: 0,
+      superAdmin: 0,
+    });
+
+    const snapshot = await fetchAdminAnalytics();
+
+    expect(snapshot.overview).toEqual({
+      totalUsers: 0,
+      totalListings: 0,
+      totalReviews: 0,
+      weeklySignups: 0,
+      pendingModeration: 0,
+    });
+    expect(snapshot.listingStatusBreakdown).toEqual({
+      published: 0,
+      unpublished: 0,
+      pending: 0,
+      draft: 0,
+      featured: 0,
+    });
+    expect(snapshot.moderationQueue).toEqual([]);
+    expect(snapshot.monthly).toHaveLength(3);
+    expect(snapshot.userRoles).toMatchObject({
+      admin: 1,
+      user: 0,
+      venueOwner: 0,
+      superAdmin: 0,
+    });
+    expect(mockedLogger.warn).toHaveBeenCalled();
   });
 
   it('throws on unsupported moderation action', async () => {

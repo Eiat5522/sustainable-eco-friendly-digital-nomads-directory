@@ -76,6 +76,22 @@ jest.mock('@/components/profile/ProfileEditForm', () => ({
   ),
 }));
 
+jest.mock('@/components/dashboard/DashboardCharts', () => ({
+  DashboardMetricCard: ({ title }: { title: string }) => <div>{title}</div>,
+  DashboardTrendChart: ({ title, testId }: { title: string; testId?: string }) => (
+    <div data-testid={testId ?? 'dashboard-trend-chart'}>{title}</div>
+  ),
+  ListingComparisonBoard: ({ title, testId }: { title: string; testId?: string }) => (
+    <div data-testid={testId ?? 'listing-comparison-board'}>{title}</div>
+  ),
+  dashboardChartPalette: {
+    primary: '#000',
+    secondary: '#111',
+    accent: '#222',
+    highlight: '#333',
+  },
+}));
+
 afterEach(() => {
   mockAuth.mockReset();
   mockGetDashboard.mockReset();
