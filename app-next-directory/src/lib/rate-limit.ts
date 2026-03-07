@@ -39,7 +39,7 @@ const initializeRateLimiters = () => {
 // Initialize on module load
 initializeRateLimiters();
 
-export let getClientIp = (req: Request): string => {
+export let getClientIp = (req: Request | { headers: { get: (name: string) => string | null } }): string => {
   try {
     const ipHeaders = ['x-forwarded-for', 'x-real-ip', 'cf-connecting-ip'];
 
@@ -48,8 +48,6 @@ export let getClientIp = (req: Request): string => {
       if (value) {
         const candidate = header === 'x-forwarded-for' ? (value.split(',')[0] || '').trim() : value.trim();
 
-        // SonarCloud specifically flags x-forwarded-for as a security hotspot
-        // if not properly validated.
         if (candidate && validator.isIP(candidate)) {
           return candidate;
         }
