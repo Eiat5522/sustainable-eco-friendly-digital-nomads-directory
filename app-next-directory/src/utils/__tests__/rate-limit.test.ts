@@ -10,6 +10,17 @@ jest.mock('@upstash/redis', () => ({
   Redis: mockRedis,
 }));
 
+jest.mock('validator/lib/isIP.js', () => {
+  return jest.fn().mockImplementation(ip => {
+    // Basic IP validation mock for tests
+    return (
+      typeof ip === 'string' &&
+      (ip.includes('.') || ip.includes(':')) &&
+      !ip.includes('invalid')
+    );
+  });
+});
+
 const mockLimit = jest.fn();
 const mockSlidingWindow = jest.fn();
 jest.mock('@upstash/ratelimit', () => {
@@ -100,6 +111,26 @@ describe('rate-limit', () => {
       const request = new Request('http://localhost', {
         headers: { 'x-forwarded-for': '  192.168.1.1  , 10.0.0.1' },
       });
+      expect(getClientIP(request)).toBe('192.168.1.1');
+    });
+
+    it('should fallback to unknown if IP is invalid', () => {
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': 'invalid-ip' },
+      });
+      expect(getClientIP(request)).toBe('unknown');
+    });
+
+    it('should skip invalid IPs in x-forwarded-for and try next header', () => {
+      const request = new Request('http://localhost', {
+        headers: {
+          'x-forwarded-for': 'invalid-ip, 10.0.0.1',
+          'x-real-ip': '192.168.1.1',
+        },
+      });
+      // Note: currently getClientIP takes the first candidate of x-forwarded-for
+      // and if that is invalid, it DOES NOT try the second candidate of the same header,
+      // but it SHOULD try the next header in the list.
       expect(getClientIP(request)).toBe('192.168.1.1');
     });
   });
