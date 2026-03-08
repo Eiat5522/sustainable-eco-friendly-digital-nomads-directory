@@ -1,5 +1,6 @@
 import pino from 'pino';
 import isIP from 'validator/lib/isIP.js';
+import { extractClientIP } from '@/utils/ip-utils';
 
 // Environment check for safe logging configuration
 // Guard access to `process` so this module can be imported in Edge or client contexts
@@ -445,17 +446,11 @@ export const getRequestContext = (req: RequestLike | undefined): LogContext => {
   // Validated IP extraction
   let ip: string | undefined = req?.ip;
   if (!ip || !isIP(ip)) {
-    const IP_HEADERS = ['x-forwarded-for', 'x-real-ip', 'cf-connecting-ip'];
-    for (const headerName of IP_HEADERS) {
-      const value = getHeaderValue(headers, headerName);
-      if (!value) continue;
-      const candidate =
-        headerName === 'x-forwarded-for' ? (value.split(',')[0] || '').trim() : value.trim();
-      if (candidate && isIP(candidate)) {
-        ip = candidate;
-        break;
-      }
-    }
+    // Adapt our HeaderCollection to HeaderGetter
+    const adapter = {
+      get: (name: string) => getHeaderValue(headers, name),
+    };
+    ip = extractClientIP(adapter) || undefined;
   }
 
   return {
