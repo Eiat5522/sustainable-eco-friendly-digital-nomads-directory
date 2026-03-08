@@ -65,5 +65,17 @@ describe('ip-utils', () => {
       };
       expect(extractClientIP(headers)).toBe('192.168.1.1');
     });
+
+    it('should prioritize candidate IP if valid', () => {
+      const headers = { get: () => '1.2.3.4' };
+      expect(extractClientIP(headers, '192.168.1.1')).toBe('192.168.1.1');
+    });
+
+    it('should ignore candidate IP if invalid and fallback to headers', () => {
+      const headers = {
+        get: (name: string) => (name === 'x-forwarded-for' ? '192.168.1.1' : null),
+      };
+      expect(extractClientIP(headers, 'invalid-ip')).toBe('192.168.1.1');
+    });
   });
 });

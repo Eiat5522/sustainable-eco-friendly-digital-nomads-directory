@@ -1,5 +1,4 @@
 import pino from 'pino';
-import isIP from 'validator/lib/isIP.js';
 import { extractClientIP } from '@/utils/ip-utils';
 
 // Environment check for safe logging configuration
@@ -444,14 +443,11 @@ export const getRequestContext = (req: RequestLike | undefined): LogContext => {
   const headers = req?.headers;
 
   // Validated IP extraction
-  let ip: string | undefined = req?.ip;
-  if (!ip || !isIP(ip)) {
-    // Adapt our HeaderCollection to HeaderGetter
-    const adapter = {
-      get: (name: string) => getHeaderValue(headers, name),
-    };
-    ip = extractClientIP(adapter) || undefined;
-  }
+  // Adapt our HeaderCollection to HeaderGetter
+  const adapter = {
+    get: (name: string) => getHeaderValue(headers, name),
+  };
+  const ip = extractClientIP(adapter, req?.ip) || undefined;
 
   return {
     method: req?.method,
