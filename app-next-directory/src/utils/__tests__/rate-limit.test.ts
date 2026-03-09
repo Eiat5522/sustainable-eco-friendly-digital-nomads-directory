@@ -231,29 +231,45 @@ describe('rate-limit', () => {
   });
 
   describe('getClientIP', () => {
-    it('should prioritize x-forwarded-for', () => {
+    it('should prioritize x-forwarded-for and validate IP', () => {
       const request = new Request('http://localhost', {
         headers: { 'x-forwarded-for': '1.1.1.1, 2.2.2.2' },
       });
       expect(getClientIP(request)).toBe('1.1.1.1');
     });
 
-    it('should fall back to x-real-ip', () => {
+    it('should skip invalid IPs in x-forwarded-for', () => {
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': 'invalid, 2.2.2.2' },
+      });
+      expect(getClientIP(request)).toBe('2.2.2.2');
+    });
+
+    it('should fall back to x-real-ip and validate', () => {
       const request = new Request('http://localhost', {
         headers: { 'x-real-ip': '3.3.3.3' },
       });
       expect(getClientIP(request)).toBe('3.3.3.3');
     });
 
-    it('should fall back to cf-connecting-ip', () => {
+    it('should skip invalid x-real-ip', () => {
+      const request = new Request('http://localhost', {
+        headers: { 'x-real-ip': 'invalid' },
+      });
+      expect(getClientIP(request)).toBe('unknown');
+    });
+
+    it('should fall back to cf-connecting-ip and validate', () => {
       const request = new Request('http://localhost', {
         headers: { 'cf-connecting-ip': '4.4.4.4' },
       });
       expect(getClientIP(request)).toBe('4.4.4.4');
     });
 
-    it('should return unknown if no headers', () => {
-      const request = new Request('http://localhost');
+    it('should return unknown if no valid headers', () => {
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': 'invalid-ip' }
+      });
       expect(getClientIP(request)).toBe('unknown');
     });
 

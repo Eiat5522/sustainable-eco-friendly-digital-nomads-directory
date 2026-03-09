@@ -40,15 +40,33 @@ initializeRateLimiters();
 
 export let getClientIp = (req: Request): string => {
   try {
-    const xf = req.headers.get('x-forwarded-for');
-    if (xf) {
-      const [first] = xf.split(',');
-      if (first) {
-        return first.trim();
+    const ipHeaders = ['x-forwarded-for', 'x-real-ip', 'cf-connecting-ip'];
+    // Use a basic regex for validation to avoid adding a dependency at the top-level
+    // for this file if we don't want to. But it's in package.json, so it's safe.
+    const ipv4Regex = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
+    const ipv6Regex = /:/;
+
+    const isIP = (candidate: string) => ipv4Regex.test(candidate) || ipv6Regex.test(candidate);
+
+    for (const header of ipHeaders) {
+      const value = req.headers.get(header);
+      if (value) {
+        if (header === 'x-forwarded-for') {
+          const parts = value.split(',');
+          for (const part of parts) {
+            const candidate = part.trim();
+            if (candidate && isIP(candidate)) {
+              return candidate;
+            }
+          }
+        } else {
+          const candidate = value.trim();
+          if (candidate && isIP(candidate)) {
+            return candidate;
+          }
+        }
       }
     }
-    const xr = req.headers.get('x-real-ip');
-    if (xr) return xr;
   } catch {}
   return 'unknown';
 };

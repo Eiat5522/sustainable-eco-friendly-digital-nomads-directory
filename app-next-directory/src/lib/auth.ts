@@ -45,9 +45,35 @@ const providers: NextAuthConfig['providers'] = [
 
         const email = String(credentials.email).trim().toLowerCase();
         const password = String(credentials.password);
-        const forwardedFor =
-          request?.headers?.get('x-forwarded-for') ?? request?.headers?.get('x-real-ip') ?? '';
-        const ip = forwardedFor.split(',')[0]?.trim() || null;
+
+        const ipHeaders = ['x-forwarded-for', 'x-real-ip', 'cf-connecting-ip'];
+        let ip: string | null = null;
+
+        if (request?.headers) {
+          const { isIP } = await import('validator');
+          for (const header of ipHeaders) {
+            const value = request.headers.get(header);
+            if (value) {
+              if (header === 'x-forwarded-for') {
+                const parts = value.split(',');
+                for (const part of parts) {
+                  const candidate = part.trim();
+                  if (candidate && isIP(candidate)) {
+                    ip = candidate;
+                    break;
+                  }
+                }
+              } else {
+                const candidate = value.trim();
+                if (candidate && isIP(candidate)) {
+                  ip = candidate;
+                }
+              }
+            }
+            if (ip) break;
+          }
+        }
+
         const identifier = ip ? `${email}:${ip}` : email;
 
         const rateLimit = await enforceLoginRateLimit(identifier);
