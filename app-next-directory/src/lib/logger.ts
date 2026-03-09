@@ -1,4 +1,5 @@
 import pino from 'pino';
+import { getClientIPFromHeaders } from '@/utils/ip-utils';
 
 // Environment check for safe logging configuration
 // Guard access to `process` so this module can be imported in Edge or client contexts
@@ -442,42 +443,11 @@ export const getRequestContext = (req: RequestLike | undefined): LogContext => {
   const headers = req?.headers;
 
   let ip: string | undefined = req?.ip;
-  if (!ip && headers) {
-    const ipHeaders = ['x-forwarded-for', 'x-real-ip', 'cf-connecting-ip'];
-    // Use validator if available (best effort for SonarCloud and security)
-    const isIP = (candidate: string) => {
-      try {
-        // We can't easily use dynamic import here as getRequestContext is synchronous
-        // and used in synchronous contexts. For now, we do a basic check or
-        // we'd need to have validator already imported at the top level.
-        // Given logger.ts is a core module, we'll use a regex fallback if validator
-        // isn't easily accessible, but since it's in dependencies, let's import it at top.
-        return /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(candidate) || candidate.includes(':');
-      } catch {
-        return false;
-      }
-    };
-
-    for (const header of ipHeaders) {
-      const value = getHeaderValue(headers, header);
-      if (value) {
-        if (header === 'x-forwarded-for') {
-          const parts = value.split(',');
-          for (const part of parts) {
-            const candidate = part.trim();
-            if (candidate && isIP(candidate)) {
-              ip = candidate;
-              break;
-            }
-          }
-        } else {
-          const candidate = value.trim();
-          if (candidate && isIP(candidate)) {
-            ip = candidate;
-          }
-        }
-      }
-      if (ip) break;
+  if ((!ip || ip === 'unknown') && headers) {
+    // biome-ignore lint/suspicious/noExplicitAny: headers from various request-like objects may have slightly different shapes but all are compatible with getClientIPFromHeaders's input
+    const extractedIP = getClientIPFromHeaders(headers as any);
+    if (extractedIP !== 'unknown') {
+      ip = extractedIP;
     }
   }
 

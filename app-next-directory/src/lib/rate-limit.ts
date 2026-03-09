@@ -1,6 +1,7 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import { structuredLogger } from '@/lib/logger';
 import { getRedisClient } from '@/lib/redis';
+import { getClientIPFromHeaders } from '@/utils/ip-utils';
 
 // Login rate limiting: 5 attempts per 15 minutes
 export let loginRateLimit: Ratelimit | undefined;
@@ -39,36 +40,7 @@ const initializeRateLimiters = () => {
 initializeRateLimiters();
 
 export let getClientIp = (req: Request): string => {
-  try {
-    const ipHeaders = ['x-forwarded-for', 'x-real-ip', 'cf-connecting-ip'];
-    // Use a basic regex for validation to avoid adding a dependency at the top-level
-    // for this file if we don't want to. But it's in package.json, so it's safe.
-    const ipv4Regex = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
-    const ipv6Regex = /:/;
-
-    const isIP = (candidate: string) => ipv4Regex.test(candidate) || ipv6Regex.test(candidate);
-
-    for (const header of ipHeaders) {
-      const value = req.headers.get(header);
-      if (value) {
-        if (header === 'x-forwarded-for') {
-          const parts = value.split(',');
-          for (const part of parts) {
-            const candidate = part.trim();
-            if (candidate && isIP(candidate)) {
-              return candidate;
-            }
-          }
-        } else {
-          const candidate = value.trim();
-          if (candidate && isIP(candidate)) {
-            return candidate;
-          }
-        }
-      }
-    }
-  } catch {}
-  return 'unknown';
+  return getClientIPFromHeaders(req.headers);
 };
 
 // Helper for backward compatibility
