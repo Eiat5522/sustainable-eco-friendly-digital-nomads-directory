@@ -304,8 +304,11 @@ export function DashboardDonutChart({
 
   return (
     <DashboardChartCard title={title} description={description} testId={testId}>
-      <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_180px] md:items-center">
-        <div className="h-72 w-full" data-testid={testId ? `${testId}-canvas` : undefined}>
+      <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_160px] xl:items-center">
+        <div
+          className="mx-auto aspect-square h-auto min-h-[240px] w-full max-w-[320px]"
+          data-testid={testId ? `${testId}-canvas` : undefined}
+        >
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Tooltip
@@ -319,8 +322,10 @@ export function DashboardDonutChart({
                 data={nonZeroData}
                 dataKey="value"
                 nameKey="label"
-                innerRadius={62}
-                outerRadius={96}
+                cx="50%"
+                cy="50%"
+                innerRadius="58%"
+                outerRadius="84%"
                 paddingAngle={2}
                 isAnimationActive={!prefersReducedMotion}
                 animationDuration={650}
@@ -332,12 +337,12 @@ export function DashboardDonutChart({
             </PieChart>
           </ResponsiveContainer>
         </div>
-        <div className="space-y-3">
+        <div className="space-y-2 xl:min-w-[160px]">
           {nonZeroData.map((entry, index) => (
-            <div key={entry.label} className="flex items-center justify-between gap-3 rounded-2xl border-2 border-neo-border/60 bg-neo-surface/40 px-4 py-3 text-sm">
+            <div key={entry.label} className="flex items-center justify-between gap-2 rounded-xl border-2 border-neo-border/60 bg-neo-surface/40 px-3 py-2 text-xs">
               <span className="flex items-center gap-2 font-medium text-neo-text-primary">
                 <span
-                  className="h-3 w-3 rounded-full"
+                  className="h-2.5 w-2.5 rounded-full"
                   style={{ backgroundColor: entry.color ?? PIE_COLORS[index % PIE_COLORS.length] }}
                 />
                 {entry.label}
