@@ -5,7 +5,7 @@
 const { jest } = require('@jest/globals');
 
 const mockModule = {
-  getClientIp: jest.fn(() => '127.0.0.1'),
+  getClientIP: jest.fn(() => '127.0.0.1'),
   isRateLimited: jest.fn(() => false),
   getRetryAfterMs: jest.fn(() => 60_000),
 };

@@ -1,5 +1,5 @@
 import pino from 'pino';
-import { getClientIPFromHeaders } from '@/utils/ip-utils';
+import { extractClientIP } from '@/utils/ip-utils';
 
 // Environment check for safe logging configuration
 // Guard access to `process` so this module can be imported in Edge or client contexts
@@ -444,8 +444,8 @@ export const getRequestContext = (req: RequestLike | undefined): LogContext => {
 
   let ip: string | undefined = req?.ip;
   if ((!ip || ip === 'unknown') && headers) {
-    // biome-ignore lint/suspicious/noExplicitAny: headers from various request-like objects may have slightly different shapes but all are compatible with getClientIPFromHeaders's input
-    const extractedIP = getClientIPFromHeaders(headers as any);
+    // biome-ignore lint/suspicious/noExplicitAny: headers from various request-like objects may have slightly different shapes but all are compatible with extractClientIP's input
+    const extractedIP = extractClientIP(headers as any);
     if (extractedIP !== 'unknown') {
       ip = extractedIP;
     }

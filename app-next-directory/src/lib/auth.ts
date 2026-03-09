@@ -48,8 +48,8 @@ const providers: NextAuthConfig['providers'] = [
 
         let ip: string | null = null;
         if (request?.headers) {
-          const { getClientIPFromHeaders } = await import('@/utils/ip-utils');
-          const extractedIP = getClientIPFromHeaders(request.headers);
+          const { extractClientIP } = await import('@/utils/ip-utils');
+          const extractedIP = extractClientIP(request.headers);
           ip = extractedIP === 'unknown' ? null : extractedIP;
         }
 

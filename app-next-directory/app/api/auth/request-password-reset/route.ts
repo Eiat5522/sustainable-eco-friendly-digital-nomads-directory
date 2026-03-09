@@ -4,7 +4,7 @@ import { z } from 'zod';
 import dbConnect from '@/lib/dbConnect';
 import { buildResetEmail, sendMail } from '@/lib/email';
 import { getRequestContext, structuredLogger } from '@/lib/logger';
-import { getClientIp, getRetryAfterMs, isRateLimited } from '@/lib/rate-limit';
+import { getClientIP, getRetryAfterMs, isRateLimited } from '@/lib/rate-limit';
 import { generateToken, minutesFromNow } from '@/lib/tokens';
 import PasswordResetToken from '@/models/PasswordResetToken';
 import User from '@/models/User';
@@ -13,7 +13,7 @@ const Schema = z.object({ email: z.string().email() });
 
 export async function POST(req: Request) {
   try {
-    const ip = getClientIp(req);
+    const ip = getClientIP(req);
     const key = `auth:reset-request:${ip}`;
     if (await isRateLimited(key, 5, 60)) {
       return NextResponse.json(

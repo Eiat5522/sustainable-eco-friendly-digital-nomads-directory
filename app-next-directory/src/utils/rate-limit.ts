@@ -5,7 +5,7 @@
 
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
-import { getClientIPFromHeaders } from './ip-utils';
+import { extractClientIP } from './ip-utils';
 
 interface RateLimitInfo {
   count: number;
@@ -190,7 +190,7 @@ export function rateLimit(options: RateLimitOptions) {
  * @returns The client IP address, or 'unknown' if none found
  */
 export function getClientIP(request: Request): string {
-  return getClientIPFromHeaders(request.headers);
+  return extractClientIP(request.headers);
 }
 
 /**

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import dbConnect from '@/lib/dbConnect';
 import { getRequestContext, structuredLogger } from '@/lib/logger';
-import { getClientIp, getRetryAfterMs, isRateLimited } from '@/lib/rate-limit';
+import { getClientIP, getRetryAfterMs, isRateLimited } from '@/lib/rate-limit';
 import { hashToken } from '@/lib/tokens';
 import PasswordResetToken from '@/models/PasswordResetToken';
 import User from '@/models/User';
@@ -51,7 +51,7 @@ const Schema = z.object({
 
 export async function POST(req: Request) {
   try {
-    const ip = getClientIp(req);
+    const ip = getClientIP(req);
     const requestId = getRequestId(req);
     const key = `auth:reset:${ip}`;
     if (await isRateLimited(key, 5, 60)) {
@@ -173,7 +173,7 @@ export async function POST(req: Request) {
       logAuditEvent({
         outcome: 'failure',
         reason: 'invalid_request_data',
-        ip: getClientIp(req),
+        ip: getClientIP(req),
         requestId: getRequestId(req),
         at: new Date().toISOString(),
       });
@@ -192,7 +192,7 @@ export async function POST(req: Request) {
       outcome: 'failure',
       reason: 'exception',
       errorName,
-      ip: getClientIp(req),
+      ip: getClientIP(req),
       requestId: getRequestId(req),
       at: new Date().toISOString(),
     });

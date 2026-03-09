@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import { getRequestContext, structuredLogger } from '@/lib/logger';
-import { getClientIp, getRetryAfterMs, isRateLimited } from '@/lib/rate-limit';
+import { getClientIP, getRetryAfterMs, isRateLimited } from '@/lib/rate-limit';
 import { hashToken } from '@/lib/tokens';
 import EmailVerificationToken from '@/models/EmailVerificationToken';
 import User from '@/models/User';
@@ -18,7 +18,7 @@ export async function GET(req: Request) {
       return NextResponse.redirect(new URL('/auth/login?verified=0', req.url));
     }
     // Rate limit by client IP
-    const ip = getClientIp(req);
+    const ip = getClientIP(req);
     const key = `auth:verify:${ip}`;
     if (await isRateLimited(key, 10, 60)) {
       const url = new URL('/auth/login?verified=0', req.url);
