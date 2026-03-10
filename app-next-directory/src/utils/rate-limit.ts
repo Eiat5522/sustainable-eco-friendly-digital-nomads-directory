@@ -35,7 +35,7 @@ const cleanupInterval = shouldStartCleanup
 cleanupInterval?.unref?.();
 
 // Initialize Redis client if credentials are available
-let redis: Redis | null = null;
+let redis: Redis | null | undefined;
 
 function initializeRedis() {
   if (redis !== undefined) {
@@ -128,22 +128,36 @@ function inMemoryRateLimit(key: string, max: number, windowMs: number): RateLimi
 export function rateLimit(options: RateLimitOptions) {
   const { max, windowMs, keyGenerator } = options;
 
-  // Lazy initialize Redis
-  const redisClient = initializeRedis();
+  let limiter: Ratelimit | null = null;
 
   // If Redis is available, create a Redis-based rate limiter
-  if (redisClient) {
-    const limiter = new Ratelimit({
-      redis: redisClient,
+  const initialRedis = initializeRedis();
+  if (initialRedis) {
+    limiter = new Ratelimit({
+      redis: initialRedis,
       limiter: Ratelimit.slidingWindow(max, `${windowMs} ms`),
       analytics: false, // Disable analytics for better performance
     });
+  }
 
-    return async (request: Request): Promise<RateLimitResult> => {
+  return async (request: Request): Promise<RateLimitResult> => {
+    // Generate key for rate limiting (default to IP)
+    const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
+
+    // Try to re-initialize if not already done (e.g. env vars changed)
+    if (!limiter) {
+      const redisClient = initializeRedis();
+      if (redisClient) {
+        limiter = new Ratelimit({
+          redis: redisClient,
+          limiter: Ratelimit.slidingWindow(max, `${windowMs} ms`),
+          analytics: false,
+        });
+      }
+    }
+
+    if (limiter) {
       try {
-        // Generate key for rate limiting (default to IP)
-        const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
-
         const { success, limit, remaining, reset } = await limiter.limit(key);
 
         return {
@@ -154,15 +168,11 @@ export function rateLimit(options: RateLimitOptions) {
         };
       } catch (_error) {
         // Fallback to in-memory on error
-        const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
         return inMemoryRateLimit(key, max, windowMs);
       }
-    };
-  }
+    }
 
-  // In-memory fallback
-  return async (request: Request): Promise<RateLimitResult> => {
-    const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
+    // In-memory fallback
     return inMemoryRateLimit(key, max, windowMs);
   };
 }
@@ -224,6 +234,25 @@ export const rateLimiters = {
     windowMs: 10 * 60 * 1000, // 10 minutes
   }),
 };
+
+/**
+ * Resets the Redis client to force re-initialization (mainly for testing)
+ */
+export function clearRedisClient() {
+  redis = undefined;
+}
+
+/**
+ * Manually trigger the in-memory store cleanup (mainly for testing)
+ */
+export function cleanupRateLimitStore() {
+  const now = Date.now();
+  for (const [key, info] of rateLimitStore.entries()) {
+    if (now > info.resetTime) {
+      rateLimitStore.delete(key);
+    }
+  }
+}
 
 export { rateLimitStore };
 export default rateLimit;
