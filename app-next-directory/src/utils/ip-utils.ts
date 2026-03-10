@@ -1,26 +1,34 @@
 import validator from 'validator';
 
 /**
- * Extracts the client IP address from the request headers.
+ * Configuration options for IP extraction
+ */
+export interface IPUtilsOptions {
+  /**
+   * Whether to fallback to 'unknown' if no IP is found.
+   * If false, returns undefined.
+   */
+  fallbackToUnknown?: boolean;
+  /**
+   * Whether to return the full x-forwarded-for string if present.
+   * Useful for logging.
+   */
+  returnAllForwarded?: boolean;
+}
+
+/**
+ * Extracts the client IP address from request headers.
  *
- * Checks multiple common headers used by proxies and load balancers:
- * - x-forwarded-for (first IP in the list)
- * - x-real-ip
- * - cf-connecting-ip (Cloudflare)
+ * Checks common headers in priority order:
+ * 1. x-forwarded-for
+ * 2. x-real-ip
+ * 3. cf-connecting-ip
  *
- * Employs validator.isIP to prevent IP spoofing and ensuring the extracted value
- * is a valid IP address.
- *
- * @param headers - The headers object from the request
- * @param options - Configuration options
- * @returns The client IP address, or 'unknown' if none found or invalid
+ * Employs validator.isIP to ensure extracted values are valid.
  */
 export function getClientIPFromHeaders(
   headers: Headers | Record<string, string | string[] | undefined> | null | undefined,
-  options: { fallbackToUnknown?: boolean; returnAllForwarded?: boolean } = {
-    fallbackToUnknown: true,
-    returnAllForwarded: false,
-  }
+  options: IPUtilsOptions = { fallbackToUnknown: true, returnAllForwarded: false }
 ): string | undefined {
   if (!headers) return options.fallbackToUnknown ? 'unknown' : undefined;
 
@@ -48,7 +56,7 @@ export function getClientIPFromHeaders(
     }
   }
 
-  const realIP = headers.get('x-real-ip');
+  const realIP = getHeader('x-real-ip');
   if (realIP && validator.isIP(realIP.trim())) {
     return realIP.trim();
   }
@@ -59,4 +67,11 @@ export function getClientIPFromHeaders(
   }
 
   return options.fallbackToUnknown ? 'unknown' : undefined;
+}
+
+/**
+ * Extracts the client IP address from a Request object.
+ */
+export function getClientIp(req: Request, options?: IPUtilsOptions): string {
+  return getClientIPFromHeaders(req.headers, options) ?? 'unknown';
 }

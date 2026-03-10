@@ -447,7 +447,10 @@ export const getRequestContext = (req: RequestLike | undefined): LogContext => {
     userAgent: getHeaderValue(headers, 'user-agent'),
     ip:
       req?.ip ??
-      getClientIPFromHeaders(headers, { fallbackToUnknown: false, returnAllForwarded: true }),
+      getClientIPFromHeaders(headers as Headers, {
+        fallbackToUnknown: false,
+        returnAllForwarded: true,
+      }),
     requestId: getHeaderValue(headers, 'x-request-id'),
   };
 };
