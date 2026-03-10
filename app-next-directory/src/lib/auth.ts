@@ -13,6 +13,7 @@ import { isAdminEmail } from '@/lib/auth/config';
 import { authenticateUserCredentials, getUserById } from '@/lib/auth/dal';
 import { enforceLoginRateLimit, recordLoginAttempt } from '@/lib/auth/rateLimit';
 import { syncUserToSanity } from '@/lib/auth/userService';
+import { getClientIPFromHeaders } from '@/utils/ip-utils';
 import dbConnect from '@/lib/dbConnect';
 import { structuredLogger } from '@/lib/logger';
 import User, { type IUser } from '@/models/User';
@@ -45,9 +46,7 @@ const providers: NextAuthConfig['providers'] = [
 
         const email = String(credentials.email).trim().toLowerCase();
         const password = String(credentials.password);
-        const forwardedFor =
-          request?.headers?.get('x-forwarded-for') ?? request?.headers?.get('x-real-ip') ?? '';
-        const ip = forwardedFor.split(',')[0]?.trim() || null;
+        const ip = getClientIPFromHeaders(request?.headers, { fallbackToUnknown: false }) ?? null;
         const identifier = ip ? `${email}:${ip}` : email;
 
         const rateLimit = await enforceLoginRateLimit(identifier);
