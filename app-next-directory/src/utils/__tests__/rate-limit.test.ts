@@ -28,10 +28,10 @@ const mockRatelimitConstructor = jest.fn(() => mockRatelimitInstance);
 
 jest.mock('@upstash/ratelimit', () => ({
   __esModule: true,
-  Ratelimit: (global as any).mockRatelimitConstructor,
+  Ratelimit: (globalThis as any).mockRatelimitConstructor,
 }));
 
-(global as any).mockRatelimitConstructor = mockRatelimitConstructor;
+(globalThis as any).mockRatelimitConstructor = mockRatelimitConstructor;
 
 import {
   rateLimit,
@@ -39,8 +39,8 @@ import {
   rateLimitStore,
   clearRedisClient,
   cleanupRateLimitStore,
-  getClientIP,
 } from '../rate-limit';
+import { getClientIPFromHeaders } from '../ip-utils';
 
 // Helper function to reduce code duplication
 function createTestRequest(ip: string): Request {
@@ -578,30 +578,40 @@ describe('rate-limit', () => {
       expect(result1.resetTime).toBeLessThanOrEqual(after + windowMs);
     });
 
-    it('getClientIP should handle missing headers', () => {
-      const request = new Request('http://localhost');
-      expect(getClientIP(request)).toBe('unknown');
-    });
-
-    it('getClientIP should handle x-forwarded-for', () => {
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '1.2.3.4' },
+    describe('getClientIPFromHeaders', () => {
+      it('should handle missing headers', () => {
+        const headers = new Headers();
+        expect(getClientIPFromHeaders(headers)).toBe('unknown');
       });
-      expect(getClientIP(request)).toBe('1.2.3.4');
-    });
 
-    it('getClientIP should handle x-real-ip', () => {
-      const request = new Request('http://localhost', {
-        headers: { 'x-real-ip': '5.6.7.8' },
+      it('should handle x-forwarded-for', () => {
+        const headers = new Headers({ 'x-forwarded-for': '1.2.3.4' });
+        expect(getClientIPFromHeaders(headers)).toBe('1.2.3.4');
       });
-      expect(getClientIP(request)).toBe('5.6.7.8');
-    });
 
-    it('getClientIP should handle cf-connecting-ip', () => {
-      const request = new Request('http://localhost', {
-        headers: { 'cf-connecting-ip': '9.10.11.12' },
+      it('should handle multiple IPs in x-forwarded-for and pick the first valid one', () => {
+        const headers = new Headers({ 'x-forwarded-for': 'invalid, 1.2.3.4, 5.6.7.8' });
+        expect(getClientIPFromHeaders(headers)).toBe('1.2.3.4');
       });
-      expect(getClientIP(request)).toBe('9.10.11.12');
+
+      it('should handle x-real-ip', () => {
+        const headers = new Headers({ 'x-real-ip': '5.6.7.8' });
+        expect(getClientIPFromHeaders(headers)).toBe('5.6.7.8');
+      });
+
+      it('should handle cf-connecting-ip', () => {
+        const headers = new Headers({ 'cf-connecting-ip': '9.10.11.12' });
+        expect(getClientIPFromHeaders(headers)).toBe('9.10.11.12');
+      });
+
+      it('should ignore invalid IPs', () => {
+        const headers = new Headers({
+          'x-forwarded-for': 'not-an-ip',
+          'x-real-ip': 'also-not-an-ip',
+          'cf-connecting-ip': '1.1.1.1'
+        });
+        expect(getClientIPFromHeaders(headers)).toBe('1.1.1.1');
+      });
     });
   });
 });
