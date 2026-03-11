@@ -273,70 +273,32 @@ describe('rate-limit', () => {
   });
 
   describe('rateLimiters', () => {
-    it('should have contactForm limiter configured', () => {
-      expect(rateLimiters.contactForm).toBeDefined();
-      expect(typeof rateLimiters.contactForm).toBe('function');
+    const limiters = [
+      { name: 'contactForm', limiter: rateLimiters.contactForm, max: 5 },
+      { name: 'apiGeneral', limiter: rateLimiters.apiGeneral, max: 100 },
+      { name: 'search', limiter: rateLimiters.search, max: 50 },
+    ] as const;
+
+    it.each(limiters)('should have $name limiter configured', ({ limiter }) => {
+      expect(limiter).toBeDefined();
+      expect(typeof limiter).toBe('function');
     });
 
-    it('should have apiGeneral limiter configured', () => {
-      expect(rateLimiters.apiGeneral).toBeDefined();
-      expect(typeof rateLimiters.apiGeneral).toBe('function');
-    });
-
-    it('should have search limiter configured', () => {
-      expect(rateLimiters.search).toBeDefined();
-      expect(typeof rateLimiters.search).toBe('function');
-    });
-
-    it('contactForm limiter should enforce 5 requests limit', async () => {
+    it.each(limiters)('$name limiter should enforce $max requests limit', async ({ limiter, max }) => {
       const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.1' },
+        headers: { 'x-forwarded-for': `127.0.0.${max}` },
       });
 
-      // Make 5 requests (should all succeed)
-      for (let i = 0; i < 5; i++) {
-        const result = await rateLimiters.contactForm(request);
+      // Make max requests (should all succeed)
+      for (let i = 0; i < max; i++) {
+        const result = await limiter(request);
         expect(result.success).toBe(true);
       }
 
-      // 6th request should fail
-      const result = await rateLimiters.contactForm(request);
+      // Next request should fail
+      const result = await limiter(request);
       expect(result.success).toBe(false);
-      expect(result.limit).toBe(5);
-    });
-
-    it('apiGeneral limiter should enforce 100 requests limit', async () => {
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.2' },
-      });
-
-      // Make 100 requests (should all succeed)
-      for (let i = 0; i < 100; i++) {
-        const result = await rateLimiters.apiGeneral(request);
-        expect(result.success).toBe(true);
-      }
-
-      // 101st request should fail
-      const result = await rateLimiters.apiGeneral(request);
-      expect(result.success).toBe(false);
-      expect(result.limit).toBe(100);
-    });
-
-    it('search limiter should enforce 50 requests limit', async () => {
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.3' },
-      });
-
-      // Make 50 requests (should all succeed)
-      for (let i = 0; i < 50; i++) {
-        const result = await rateLimiters.search(request);
-        expect(result.success).toBe(true);
-      }
-
-      // 51st request should fail
-      const result = await rateLimiters.search(request);
-      expect(result.success).toBe(false);
-      expect(result.limit).toBe(50);
+      expect(result.limit).toBe(max);
     });
   });
 
@@ -579,38 +541,38 @@ describe('rate-limit', () => {
     });
 
     describe('getClientIPFromHeaders', () => {
-      it('should handle missing headers', () => {
-        const headers = new Headers();
-        expect(getClientIPFromHeaders(headers)).toBe('unknown');
+      it.each([
+        { name: 'missing headers', headers: undefined, expected: 'unknown' },
+        { name: 'empty headers', headers: {}, expected: 'unknown' },
+        { name: 'x-forwarded-for', headers: { 'x-forwarded-for': '1.2.3.4' }, expected: '1.2.3.4' },
+        { name: 'multiple IPs in x-forwarded-for', headers: { 'x-forwarded-for': 'invalid, 1.2.3.4, 5.6.7.8' }, expected: '1.2.3.4' },
+        { name: 'x-real-ip', headers: { 'x-real-ip': '5.6.7.8' }, expected: '5.6.7.8' },
+        { name: 'cf-connecting-ip', headers: { 'cf-connecting-ip': '9.10.11.12' }, expected: '9.10.11.12' },
+        {
+          name: 'invalid IPs',
+          headers: {
+            'x-forwarded-for': 'not-an-ip',
+            'x-real-ip': 'also-not-an-ip',
+            'cf-connecting-ip': '1.1.1.1'
+          },
+          expected: '1.1.1.1'
+        },
+        { name: 'Map headers', headers: new Map([['x-real-ip', '2.2.2.2']]), expected: '2.2.2.2' },
+        { name: 'Plain object with get method', headers: { get: (n: string) => n === 'x-real-ip' ? '3.3.3.3' : null }, expected: '3.3.3.3' },
+        { name: 'Plain object with direct string property', headers: { 'x-real-ip': '4.4.4.4' }, expected: '4.4.4.4' },
+        { name: 'Plain object with direct array property', headers: { 'x-real-ip': ['5.5.5.5'] }, expected: '5.5.5.5' },
+      ])('should handle $name', ({ headers, expected }) => {
+        const headerCollection = headers instanceof Map || (headers && 'get' in headers) || !headers || !('x-real-ip' in (headers as any))
+          ? (headers as any)
+          : headers;
+        expect(getClientIPFromHeaders(headerCollection)).toBe(expected);
       });
 
-      it('should handle x-forwarded-for', () => {
-        const headers = new Headers({ 'x-forwarded-for': '1.2.3.4' });
-        expect(getClientIPFromHeaders(headers)).toBe('1.2.3.4');
-      });
-
-      it('should handle multiple IPs in x-forwarded-for and pick the first valid one', () => {
-        const headers = new Headers({ 'x-forwarded-for': 'invalid, 1.2.3.4, 5.6.7.8' });
-        expect(getClientIPFromHeaders(headers)).toBe('1.2.3.4');
-      });
-
-      it('should handle x-real-ip', () => {
-        const headers = new Headers({ 'x-real-ip': '5.6.7.8' });
-        expect(getClientIPFromHeaders(headers)).toBe('5.6.7.8');
-      });
-
-      it('should handle cf-connecting-ip', () => {
-        const headers = new Headers({ 'cf-connecting-ip': '9.10.11.12' });
-        expect(getClientIPFromHeaders(headers)).toBe('9.10.11.12');
-      });
-
-      it('should ignore invalid IPs', () => {
-        const headers = new Headers({
-          'x-forwarded-for': 'not-an-ip',
-          'x-real-ip': 'also-not-an-ip',
-          'cf-connecting-ip': '1.1.1.1'
-        });
-        expect(getClientIPFromHeaders(headers)).toBe('1.1.1.1');
+      it('should handle getter throwing error', () => {
+        const headers = {
+          get: () => { throw new Error('fail'); }
+        };
+        expect(getClientIPFromHeaders(headers as any)).toBe('unknown');
       });
     });
   });
