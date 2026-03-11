@@ -171,29 +171,21 @@ export function rateLimit(options: RateLimitOptions) {
       }
     }
 
+    // Generate key for rate limiting (default to IP)
+    const key = keyGenerator ? keyGenerator(request) : getClientIPFromHeaders(request.headers);
+
     // If Redis is available, use the Redis-based rate limiter
     if (limiter) {
       try {
-        // Generate key for rate limiting (default to IP)
-        const key = keyGenerator ? keyGenerator(request) : getClientIPFromHeaders(request.headers);
-
-        const { success, limit, remaining, reset } = await limiter.limit(key);
-
-        return {
-          success,
-          limit,
-          remaining,
-          resetTime: reset,
-        };
+        const { success, limit: l, remaining, reset } = await limiter.limit(key);
+        return { success, limit: l, remaining, resetTime: reset };
       } catch (_error) {
         // Fallback to in-memory on error
-        const key = keyGenerator ? keyGenerator(request) : getClientIPFromHeaders(request.headers);
         return inMemoryRateLimit(key, max, windowMs);
       }
     }
 
     // In-memory fallback
-    const key = keyGenerator ? keyGenerator(request) : getClientIPFromHeaders(request.headers);
     return inMemoryRateLimit(key, max, windowMs);
   };
 }
