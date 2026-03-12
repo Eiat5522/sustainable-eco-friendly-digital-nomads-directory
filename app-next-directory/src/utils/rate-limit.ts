@@ -146,6 +146,11 @@ export function rateLimit(options: RateLimitOptions) {
   // Lazy initialize Redis
   const redisClient = initializeRedis();
 
+  const memoryFallback = async (request: Request): Promise<RateLimitResult> => {
+    const key = keyGenerator ? keyGenerator(request) : getClientIPFromHeaders(request.headers);
+    return inMemoryRateLimit(key, max, windowMs);
+  };
+
   // If Redis is available, create a Redis-based rate limiter
   if (redisClient) {
     const limiter = new Ratelimit({
@@ -169,17 +174,13 @@ export function rateLimit(options: RateLimitOptions) {
         };
       } catch (_error) {
         // Fallback to in-memory on error
-        const key = keyGenerator ? keyGenerator(request) : getClientIPFromHeaders(request.headers);
-        return inMemoryRateLimit(key, max, windowMs);
+        return memoryFallback(request);
       }
     };
   }
 
   // In-memory fallback
-  return async (request: Request): Promise<RateLimitResult> => {
-    const key = keyGenerator ? keyGenerator(request) : getClientIPFromHeaders(request.headers);
-    return inMemoryRateLimit(key, max, windowMs);
-  };
+  return memoryFallback;
 }
 
 /**
