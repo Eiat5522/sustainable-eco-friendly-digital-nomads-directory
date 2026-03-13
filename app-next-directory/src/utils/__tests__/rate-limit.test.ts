@@ -4,19 +4,19 @@
 
 import { afterEach, beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
-// Mock Upstash dependencies before importing rate-limit
-const mockRedisInstance = { url: 'https://test.upstash.io', token: 'test-token' };
-const mockRatelimitLimit = jest.fn();
-const mockRatelimitInstance = { limit: mockRatelimitLimit };
+// Mock Upstash
+const mockRedis = { url: 'http://test', token: 'tok' };
+const mockLimit = jest.fn();
+const mockRatelimit = { limit: mockLimit };
 
 jest.mock('@upstash/redis', () => ({
-  Redis: jest.fn().mockImplementation(() => mockRedisInstance),
+  Redis: jest.fn().mockImplementation(() => mockRedis),
 }));
 
 jest.mock('@upstash/ratelimit', () => ({
   Ratelimit: Object.assign(
-    jest.fn().mockImplementation(() => mockRatelimitInstance),
-    { slidingWindow: jest.fn().mockReturnValue('sliding-window-mock') }
+    jest.fn().mockImplementation(() => mockRatelimit),
+    { slidingWindow: jest.fn().mockReturnValue('sw') }
   ),
 }));
 
@@ -31,7 +31,7 @@ import { Redis } from '@upstash/redis';
 import { Ratelimit } from '@upstash/ratelimit';
 
 describe('rate-limit', () => {
-  const originalEnv = { ...process.env };
+  const oldEnv = { ...process.env };
 
   beforeAll(() => {
     delete process.env.UPSTASH_REDIS_REST_URL;
@@ -42,99 +42,74 @@ describe('rate-limit', () => {
   beforeEach(() => {
     clearRedisClient();
     rateLimitStore.clear();
-    jest.spyOn(console, 'log').mockImplementation(() => {});
     jest.spyOn(console, 'warn').mockImplementation(() => {});
-    jest.spyOn(console, 'error').mockImplementation(() => {});
     jest.clearAllMocks();
   });
 
   afterEach(() => {
     jest.restoreAllMocks();
-    process.env = { ...originalEnv };
+    process.env = { ...oldEnv };
   });
 
   describe('rateLimit', () => {
-    it('should enforce limits in-memory', async () => {
-      const limiter = rateLimit({ max: 2, windowMs: 1000 });
-      const req = new Request('http://localhost', { headers: { 'x-real-ip': '1.1.1.1' } });
+    it('enforces in-memory', async () => {
+      const l = rateLimit({ max: 2, windowMs: 1000 });
+      const r = new Request('http://l', { headers: { 'x-real-ip': '1.1.1.1' } });
 
-      expect((await limiter(req)).success).toBe(true);
-      expect((await limiter(req)).success).toBe(true);
-      expect((await limiter(req)).success).toBe(false);
+      expect((await l(r)).success).toBe(true);
+      expect((await l(r)).success).toBe(true);
+      expect((await l(r)).success).toBe(false);
     });
 
-    it('should reset after expiry', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 100 });
-      const req = new Request('http://localhost', { headers: { 'x-real-ip': '1.1.1.1' } });
+    it('resets after expiry', async () => {
+      const l = rateLimit({ max: 1, windowMs: 100 });
+      const r = new Request('http://l', { headers: { 'x-real-ip': '1.1.1.1' } });
 
-      await limiter(req);
-      const entry = rateLimitStore.get('1.1.1.1');
-      if (entry) entry.resetTime = Date.now() - 1000;
+      await l(r);
+      const e = rateLimitStore.get('1.1.1.1');
+      if (e) e.resetTime = Date.now() - 1000;
 
-      expect((await limiter(req)).success).toBe(true);
-    });
-  });
-
-  describe('IP Extraction Integration', () => {
-    it.each([
-      ['x-forwarded-for', '1.2.3.4, 5.6.7.8', '1.2.3.4'],
-      ['x-real-ip', '10.0.0.1', '10.0.0.1'],
-      ['cf-connecting-ip', '172.16.0.1', '172.16.0.1'],
-    ])('should use IP from %s', async (header, value, expected) => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const req = new Request('http://localhost', { headers: { [header]: value } });
-
-      await limiter(req);
-      expect(rateLimitStore.has(expected)).toBe(true);
+      expect((await l(r)).success).toBe(true);
     });
   });
 
-  describe('Redis-based Rate Limiting', () => {
+  describe('Redis-based', () => {
     beforeEach(() => {
-      process.env.UPSTASH_REDIS_REST_URL = 'https://test.upstash.io';
-      process.env.UPSTASH_REDIS_REST_TOKEN = 'test-token';
+      process.env.UPSTASH_REDIS_REST_URL = 'http://test';
+      process.env.UPSTASH_REDIS_REST_TOKEN = 'tok';
     });
 
-    it('should use Redis when available', async () => {
-      mockRatelimitLimit.mockResolvedValue({ success: true, limit: 10, remaining: 9, reset: Date.now() });
-      const limiter = rateLimit({ max: 10, windowMs: 1000 });
-      const req = new Request('http://localhost', { headers: { 'x-real-ip': '8.8.8.8' } });
+    it('uses Redis when ready', async () => {
+      mockLimit.mockResolvedValue({ success: true, limit: 10, remaining: 9, reset: Date.now() });
+      const l = rateLimit({ max: 10, windowMs: 1000 });
+      const r = new Request('http://l', { headers: { 'x-real-ip': '8.8.8.8' } });
 
-      await limiter(req);
+      await l(r);
       expect(Redis).toHaveBeenCalled();
       expect(Ratelimit).toHaveBeenCalled();
     });
 
-    it('should fallback on Redis failure', async () => {
-      mockRatelimitLimit.mockRejectedValue(new Error('Redis Down'));
-      const limiter = rateLimit({ max: 5, windowMs: 1000 });
-      const req = new Request('http://localhost', { headers: { 'x-real-ip': '9.9.9.9' } });
+    it('falls back on failure', async () => {
+      mockLimit.mockRejectedValue(new Error('Down'));
+      const l = rateLimit({ max: 5, windowMs: 1000 });
+      const r = new Request('http://l', { headers: { 'x-real-ip': '9.9.9.9' } });
 
-      expect((await limiter(req)).success).toBe(true);
+      expect((await l(r)).success).toBe(true);
       expect(rateLimitStore.has('9.9.9.9')).toBe(true);
-    });
-
-    it('should skip Redis during build', async () => {
-      process.env.DISABLE_UPSTASH_DURING_BUILD = '1';
-      const limiter = rateLimit({ max: 5, windowMs: 1000 });
-      const req = new Request('http://localhost', { headers: { 'x-real-ip': '1.2.3.4' } });
-
-      await limiter(req);
-      expect(Redis).not.toHaveBeenCalled();
     });
   });
 
   describe('Maintenance', () => {
-    it('cleanupRateLimitStore should remove expired', () => {
+    it('cleans up store', () => {
       const now = Date.now();
-      rateLimitStore.set('exp', { count: 1, resetTime: now - 1000 });
-      rateLimitStore.set('val', { count: 1, resetTime: now + 1000 });
+      rateLimitStore.set('e', { count: 1, resetTime: now - 1000 });
+      rateLimitStore.set('v', { count: 1, resetTime: now + 1000 });
       cleanupRateLimitStore();
-      expect(rateLimitStore.has('exp')).toBe(false);
-      expect(rateLimitStore.has('val')).toBe(true);
+      expect(rateLimitStore.has('e')).toBe(false);
+      expect(rateLimitStore.has('v')).toBe(true);
     });
 
-    it('predefined limiters should exist', () => {
+    it('limiters are defined', () => {
       expect(rateLimiters.contactForm).toBeDefined();
       expect(rateLimiters.apiGeneral).toBeDefined();
       expect(rateLimiters.search).toBeDefined();

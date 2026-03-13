@@ -46,7 +46,7 @@ const providers: NextAuthConfig['providers'] = [
 
         const email = String(credentials.email).trim().toLowerCase();
         const password = String(credentials.password);
-        const ip = getClientIPFromHeaders(request?.headers ?? {});
+        const ip = getClientIPFromHeaders(request?.headers);
         const identifier = ip !== 'unknown' ? `${email}:${ip}` : email;
 
         const rateLimit = await enforceLoginRateLimit(identifier);

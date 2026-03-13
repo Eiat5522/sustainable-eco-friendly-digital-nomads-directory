@@ -1,5 +1,5 @@
 import pino from 'pino';
-import { getClientIPFromHeaders } from '@/utils/ip-utils';
+import { getClientIPFromHeaders, getHeaderValue } from '@/utils/ip-utils';
 
 // Environment check for safe logging configuration
 // Guard access to `process` so this module can be imported in Edge or client contexts
@@ -39,25 +39,18 @@ const redactPaths = [
   'error.config.headers.authorization',
 ];
 
-type HeaderGetter = (name: string) => string | null | undefined;
-type HeaderValue = string | string[] | undefined;
-type HeaderCollection =
-  | Headers
-  | Map<string, string>
-  | (Record<string, HeaderValue> & { get?: HeaderGetter });
-
 interface RequestLike {
   method?: string;
   url?: string;
   path?: string;
   nextUrl?: { pathname?: string };
-  headers?: HeaderCollection;
+  headers?: any;
   ip?: string;
 }
 
 interface ResponseLike {
   statusCode?: number;
-  headers?: HeaderCollection;
+  headers?: any;
 }
 
 interface UserLike {
@@ -81,38 +74,8 @@ interface LogContext extends Record<string, LogValue> {
 
 type SanitizedError = Record<string, unknown> | undefined;
 
-const toRedacted = (value: string | undefined): string | undefined =>
+const toRedacted = (value: string | undefined | null): string | undefined =>
   value ? '[REDACTED]' : undefined;
-
-const getHeaderValue = (
-  headers: HeaderCollection | undefined,
-  name: string
-): string | undefined => {
-  if (!headers) return undefined;
-
-  const lower = name.toLowerCase();
-  const getter = (headers as { get?: HeaderGetter }).get;
-  if (typeof getter === 'function') {
-    const viaGetter = getter.call(headers, name) ?? getter.call(headers, lower);
-    if (typeof viaGetter === 'string') {
-      return viaGetter;
-    }
-  }
-
-  const record = headers as Record<string, HeaderValue>;
-  const direct = record[name] ?? record[lower];
-  if (typeof direct === 'string') {
-    return direct;
-  }
-  if (Array.isArray(direct)) {
-    const first = direct.find((entry): entry is string => typeof entry === 'string');
-    if (first) {
-      return first;
-    }
-  }
-
-  return undefined;
-};
 
 const shouldRedactKey = (key: string): boolean =>
   redactPaths.some(path => key.toLowerCase().includes(path.toLowerCase()));
@@ -441,13 +404,13 @@ export const logError = (message: string, error?: unknown, context?: LogContext)
 // Helper to extract request context from Next.js request objects
 export const getRequestContext = (req: RequestLike | undefined): LogContext => {
   const headers = req?.headers;
-  const ip = req?.ip ?? getClientIPFromHeaders(headers as any);
+  const ip = req?.ip ?? getClientIPFromHeaders(headers);
   return {
     method: req?.method,
     path: req?.url ?? req?.nextUrl?.pathname,
-    userAgent: getHeaderValue(headers as any, 'user-agent') ?? undefined,
+    userAgent: getHeaderValue(headers, 'user-agent') ?? undefined,
     ip: ip === 'unknown' ? undefined : ip,
-    requestId: getHeaderValue(headers as any, 'x-request-id') ?? undefined,
+    requestId: getHeaderValue(headers, 'x-request-id') ?? undefined,
   };
 };
 

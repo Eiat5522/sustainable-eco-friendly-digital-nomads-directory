@@ -40,11 +40,7 @@ const initializeRateLimiters = () => {
 initializeRateLimiters();
 
 export let getClientIp = (req: Request): string => {
-  try {
-    return getClientIPFromHeaders(req.headers);
-  } catch {
-    return 'unknown';
-  }
+  return getClientIPFromHeaders(req.headers);
 };
 
 // Helper for backward compatibility
