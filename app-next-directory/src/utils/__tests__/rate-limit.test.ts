@@ -137,13 +137,13 @@ describe('rate-limit', () => {
     });
   });
 
-  describe('IP Extraction', () => {
+  describe('IP Extraction Integration', () => {
     it.each([
       ['x-forwarded-for', '192.168.1.1', '192.168.1.1'],
       ['x-forwarded-for', '1.1.1.1, 2.2.2.2', '1.1.1.1'],
       ['x-real-ip', '10.0.0.1', '10.0.0.1'],
       ['cf-connecting-ip', '172.16.0.1', '172.16.0.1'],
-    ])('should extract IP from %s header', async (header, value, expected) => {
+    ])('should use IP from %s header via ip-utils', async (header, value, expected) => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request = new Request('http://localhost', {
         headers: { [header]: value },
@@ -151,14 +151,6 @@ describe('rate-limit', () => {
 
       await limiter(request);
       expect(rateLimitStore.has(expected)).toBe(true);
-    });
-
-    it('should use "unknown" if no IP headers are present', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost');
-
-      await limiter(request);
-      expect(rateLimitStore.has('unknown')).toBe(true);
     });
   });
 
@@ -204,12 +196,12 @@ describe('rate-limit', () => {
       process.env.DISABLE_UPSTASH_DURING_BUILD = '1';
 
       const limiter = rateLimit({ max: 5, windowMs: 1000 });
-      const request = new Request('http://localhost', { headers: { 'x-real-ip': 'build-ip' } });
+      const request = new Request('http://localhost', { headers: { 'x-real-ip': '1.2.3.4' } });
 
       await limiter(request);
 
       expect(Redis).not.toHaveBeenCalled();
-      expect(rateLimitStore.has('build-ip')).toBe(true);
+      expect(rateLimitStore.has('1.2.3.4')).toBe(true);
     });
 
     it('should handle Redis constructor errors', async () => {
@@ -218,10 +210,10 @@ describe('rate-limit', () => {
       });
 
       const limiter = rateLimit({ max: 5, windowMs: 1000 });
-      const request = new Request('http://localhost', { headers: { 'x-real-ip': 'error-ip' } });
+      const request = new Request('http://localhost', { headers: { 'x-real-ip': '5.6.7.8' } });
 
       await limiter(request);
-      expect(rateLimitStore.has('error-ip')).toBe(true);
+      expect(rateLimitStore.has('5.6.7.8')).toBe(true);
     });
   });
 
@@ -246,7 +238,7 @@ describe('rate-limit', () => {
     });
 
     it('contactForm should have max 5', async () => {
-      const request = new Request('http://localhost', { headers: { 'x-real-ip': 'cf-ip' } });
+      const request = new Request('http://localhost', { headers: { 'x-real-ip': '1.1.1.1' } });
       for (let i = 0; i < 5; i++) {
         expect((await rateLimiters.contactForm(request)).success).toBe(true);
       }
@@ -267,17 +259,6 @@ describe('rate-limit', () => {
 
       expect((await limiter(req1)).success).toBe(true);
       expect((await limiter(req2)).success).toBe(false);
-    });
-
-    it('should handle malformed x-forwarded-for', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '' },
-      });
-
-      await limiter(request);
-      // Fallback to 'unknown' since x-forwarded-for is empty and no other headers
-      expect(rateLimitStore.has('unknown')).toBe(true);
     });
   });
 });
