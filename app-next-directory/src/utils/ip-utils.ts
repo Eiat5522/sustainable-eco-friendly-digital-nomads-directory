@@ -9,22 +9,30 @@ export type HeaderCollection =
   | Record<string, string | string[] | undefined>;
 
 /**
- * Helper to get a header value regardless of the collection type
+ * Helper to get a header value regardless of the collection type.
+ * Returns the first value if it's an array, or the string value.
  */
-export function getHeaderValue(headers: HeaderCollection, name: string): string | null {
-  if (headers instanceof Headers) {
-    return headers.get(name);
+export function getHeaderValue(headers: HeaderCollection | undefined, name: string): string | null {
+  if (!headers) return null;
+
+  // 1. Support Headers object (or anything with a get method)
+  if (typeof (headers as any).get === 'function') {
+    const val = (headers as any).get(name);
+    if (Array.isArray(val)) return val[0] !== undefined ? String(val[0]) : null;
+    return val !== undefined && val !== null ? String(val) : null;
   }
+
+  // 2. Support Map
   if (headers instanceof Map) {
-    const value = headers.get(name);
-    if (value === undefined) return null;
-    const result = Array.isArray(value) ? value[0] : value;
-    return result ?? null;
+    const val = headers.get(name);
+    if (val === undefined || val === null) return null;
+    return Array.isArray(val) ? (val[0] !== undefined ? String(val[0]) : null) : String(val);
   }
-  const value = headers[name];
-  if (value === undefined) return null;
-  const result = Array.isArray(value) ? value[0] : value;
-  return result ?? null;
+
+  // 3. Support Record
+  const val = (headers as Record<string, any>)[name];
+  if (val === undefined || val === null) return null;
+  return Array.isArray(val) ? (val[0] !== undefined ? String(val[0]) : null) : String(val);
 }
 
 /**
@@ -34,22 +42,54 @@ export function getHeaderValue(headers: HeaderCollection, name: string): string 
  * @param headers - The request headers
  * @returns The validated client IP address, or 'unknown' if none found
  */
-export function getClientIPFromHeaders(headers: HeaderCollection): string {
+export function getClientIPFromHeaders(headers: HeaderCollection | undefined): string {
+  if (!headers) return 'unknown';
+
   // Ordered by priority
   const headerNames = ['x-forwarded-for', 'x-real-ip', 'cf-connecting-ip'];
 
   for (const name of headerNames) {
-    const value = getHeaderValue(headers, name);
+    let value: string | null = null;
+
+    // For x-forwarded-for, we ALWAYS want the full string so we can split it
+    if (name === 'x-forwarded-for') {
+        if (typeof (headers as any).get === 'function') {
+            const rawVal = (headers as any).get(name);
+            if (rawVal !== undefined && rawVal !== null) {
+                value = String(rawVal);
+            }
+        } else if (headers instanceof Map) {
+            const rawValue = headers.get(name);
+            if (Array.isArray(rawValue)) {
+                value = rawValue.join(', ');
+            } else if (rawValue !== undefined && rawValue !== null) {
+                value = String(rawValue);
+            }
+        } else {
+            const rawValue = (headers as Record<string, any>)[name];
+            if (Array.isArray(rawValue)) {
+                value = rawValue.join(', ');
+            } else if (rawValue !== undefined && rawValue !== null) {
+                value = String(rawValue);
+            }
+        }
+    } else {
+        value = getHeaderValue(headers, name);
+    }
+
     if (!value) continue;
 
     if (name === 'x-forwarded-for') {
-      // x-forwarded-for can contain multiple IPs, take the first one
-      const firstIp = (value.split(',')[0] || '').trim();
+      const parts = value.split(',');
+      const firstIp = (parts[0] || '').trim();
       if (firstIp && validator.isIP(firstIp)) {
         return firstIp;
       }
-    } else if (validator.isIP(value.trim())) {
-      return value.trim();
+    } else {
+      const trimmed = value.trim();
+      if (validator.isIP(trimmed)) {
+        return trimmed;
+      }
     }
   }
 

@@ -13,7 +13,7 @@ interface RateLimitInfo {
 }
 
 // In-memory store for rate limiting (fallback when Redis is not available)
-const rateLimitStore = new Map<string, RateLimitInfo>();
+export const rateLimitStore = new Map<string, RateLimitInfo>();
 
 /**
  * Clean up expired entries from the in-memory store
@@ -151,10 +151,10 @@ export function rateLimit(options: RateLimitOptions) {
     });
 
     return async (request: Request): Promise<RateLimitResult> => {
-      try {
-        // Generate key for rate limiting (default to IP)
-        const key = keyGenerator ? keyGenerator(request) : getClientIPFromHeaders(request.headers);
+      // Generate key for rate limiting (default to IP)
+      const key = keyGenerator ? keyGenerator(request) : getClientIPFromHeaders(request.headers);
 
+      try {
         const { success, limit, remaining, reset } = await limiter.limit(key);
 
         return {
@@ -165,7 +165,6 @@ export function rateLimit(options: RateLimitOptions) {
         };
       } catch (_error) {
         // Fallback to in-memory on error
-        const key = keyGenerator ? keyGenerator(request) : getClientIPFromHeaders(request.headers);
         return inMemoryRateLimit(key, max, windowMs);
       }
     };
@@ -201,5 +200,4 @@ export const rateLimiters = {
   }),
 };
 
-export { rateLimitStore };
 export default rateLimit;
