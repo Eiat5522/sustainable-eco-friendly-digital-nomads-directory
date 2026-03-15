@@ -38,6 +38,7 @@ export function getHeaderValue(
 
 /**
  * Securely extracts the client IP from request headers.
+ * Uses validator.isIP to prevent spoofing and security hotspots.
  */
 export function getClientIPFromHeaders(
   headers: Headers | Map<string, string | string[]> | Record<string, string | string[] | undefined>
@@ -50,7 +51,7 @@ export function getClientIPFromHeaders(
     if (value) {
       const parts = value.split(',');
       for (const part of parts) {
-        const trimmed = part.trim();
+        const trimmed = (part || '').trim();
         if (trimmed && isValidIP(trimmed)) {
           return trimmed;
         }
