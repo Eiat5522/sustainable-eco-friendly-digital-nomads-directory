@@ -5,6 +5,7 @@
 
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
+import { getClientIPFromHeaders } from './ip-utils';
 
 interface RateLimitInfo {
   count: number;
@@ -162,7 +163,7 @@ export function rateLimit(options: RateLimitOptions) {
       }
     }
 
-    const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
+    const key = keyGenerator ? keyGenerator(request) : getClientIPFromHeaders(request.headers);
 
     if (limiter) {
       try {
@@ -182,41 +183,6 @@ export function rateLimit(options: RateLimitOptions) {
     // In-memory fallback
     return inMemoryRateLimit(key, max, windowMs);
   };
-}
-
-/**
- * Extracts the client IP address from the request headers.
- *
- * Checks multiple common headers used by proxies and load balancers:
- * - x-forwarded-for (first IP in the list)
- * - x-real-ip
- * - cf-connecting-ip (Cloudflare)
- *
- * @param request - The incoming HTTP request
- * @returns The client IP address, or 'unknown' if none found
- */
-function getClientIP(request: Request): string {
-  // Try various headers for IP address
-  const forwarded = request.headers.get('x-forwarded-for');
-  if (forwarded) {
-    const [first] = forwarded.split(',');
-    if (first) {
-      return first.trim();
-    }
-  }
-
-  const realIP = request.headers.get('x-real-ip');
-  if (realIP) {
-    return realIP;
-  }
-
-  const cfConnectingIP = request.headers.get('cf-connecting-ip');
-  if (cfConnectingIP) {
-    return cfConnectingIP;
-  }
-
-  // Fallback to a default if no IP found
-  return 'unknown';
 }
 
 /**

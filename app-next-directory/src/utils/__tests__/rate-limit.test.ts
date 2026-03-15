@@ -21,11 +21,11 @@ jest.mock('@upstash/ratelimit', () => ({
 }));
 
 import {
-  cleanupRateLimitStore,
-  clearRedisClient,
   rateLimit,
   rateLimiters,
   rateLimitStore,
+  clearRedisClient,
+  cleanupRateLimitStore,
 } from '../rate-limit';
 
 describe('rate-limit', () => {
@@ -206,14 +206,12 @@ describe('rate-limit', () => {
     });
 
     it('should store and retrieve info from rateLimitStore', async () => {
-      const limiter = rateLimit({ max: 5, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '1.2.3.4' },
-      });
+        const limiter = rateLimit({ max: 5, windowMs: 1000 });
+        const request = new Request('http://localhost', { headers: { 'x-forwarded-for': '1.2.3.4' } });
 
-      await limiter(request);
-      expect(rateLimitStore.has('1.2.3.4')).toBe(true);
-      expect(rateLimitStore.get('1.2.3.4')?.count).toBe(1);
+        await limiter(request);
+        expect(rateLimitStore.has('1.2.3.4')).toBe(true);
+        expect(rateLimitStore.get('1.2.3.4')?.count).toBe(1);
     });
   });
 
@@ -245,9 +243,7 @@ describe('rate-limit', () => {
       });
 
       const limiter = rateLimit({ max: 10, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '8.8.8.8' },
-      });
+      const request = new Request('http://localhost', { headers: { 'x-forwarded-for': '8.8.8.8' } });
 
       const result = await limiter(request);
 
@@ -267,9 +263,7 @@ describe('rate-limit', () => {
       mockRatelimitLimit.mockRejectedValue(new Error('Redis Down'));
 
       const limiter = rateLimit({ max: 10, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '9.9.9.9' },
-      });
+      const request = new Request('http://localhost', { headers: { 'x-forwarded-for': '9.9.9.9' } });
 
       const result = await limiter(request);
 
@@ -291,36 +285,34 @@ describe('rate-limit', () => {
     });
 
     it('should handle Redis constructor error', async () => {
-      process.env.UPSTASH_REDIS_REST_URL = 'https://fake-redis.upstash.io';
-      process.env.UPSTASH_REDIS_REST_TOKEN = 'fake-token';
+        process.env.UPSTASH_REDIS_REST_URL = 'https://fake-redis.upstash.io';
+        process.env.UPSTASH_REDIS_REST_TOKEN = 'fake-token';
 
-      mockRedis.mockImplementationOnce(() => {
-        throw new Error('Constructor Error');
-      });
+        mockRedis.mockImplementationOnce(() => {
+            throw new Error('Constructor Error');
+        });
 
-      const limiter = rateLimit({ max: 10, windowMs: 1000 });
-      const request = new Request('http://localhost');
-      const result = await limiter(request);
+        const limiter = rateLimit({ max: 10, windowMs: 1000 });
+        const request = new Request('http://localhost');
+        const result = await limiter(request);
 
-      expect(result.success).toBe(true);
+        expect(result.success).toBe(true);
     });
   });
 
   describe('Predefined limiters', () => {
-    it('should have functional predefined limiters', async () => {
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '1.1.1.1' },
+      it('should have functional predefined limiters', async () => {
+          const request = new Request('http://localhost', { headers: { 'x-forwarded-for': '1.1.1.1' } });
+
+          const contactResult = await rateLimiters.contactForm(request);
+          expect(contactResult.limit).toBe(5);
+
+          const apiResult = await rateLimiters.apiGeneral(request);
+          expect(apiResult.limit).toBe(100);
+
+          const searchResult = await rateLimiters.search(request);
+          expect(searchResult.limit).toBe(50);
       });
-
-      const contactResult = await rateLimiters.contactForm(request);
-      expect(contactResult.limit).toBe(5);
-
-      const apiResult = await rateLimiters.apiGeneral(request);
-      expect(apiResult.limit).toBe(100);
-
-      const searchResult = await rateLimiters.search(request);
-      expect(searchResult.limit).toBe(50);
-    });
   });
 
   describe('Edge cases', () => {
@@ -328,7 +320,7 @@ describe('rate-limit', () => {
       const limiter = rateLimit({
         max: 5,
         windowMs: 1000,
-        keyGenerator: req => req.headers.get('x-user-id') || 'anon',
+        keyGenerator: (req) => req.headers.get('x-user-id') || 'anon',
       });
 
       const req1 = new Request('http://localhost', { headers: { 'x-user-id': 'user1' } });
