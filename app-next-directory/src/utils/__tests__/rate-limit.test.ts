@@ -3,7 +3,37 @@
  */
 
 import { afterEach, beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { rateLimit, rateLimiters, rateLimitStore } from '../rate-limit';
+
+// Mock Upstash Redis and Ratelimit
+jest.mock('@upstash/redis', () => ({
+  Redis: jest.fn().mockImplementation(() => ({
+    get: jest.fn(),
+    set: jest.fn(),
+  })),
+}));
+
+jest.mock('@upstash/ratelimit', () => ({
+  Ratelimit: jest.fn().mockImplementation(() => ({
+    limit: jest.fn().mockResolvedValue({
+      success: true,
+      limit: 10,
+      remaining: 9,
+      reset: Date.now() + 60000,
+    }),
+  })),
+}));
+
+// Mock Ratelimit.slidingWindow after the mock is defined
+import { Ratelimit } from '@upstash/ratelimit';
+(Ratelimit as any).slidingWindow = jest.fn().mockReturnValue('slidingWindow');
+
+import {
+  rateLimit,
+  rateLimiters,
+  rateLimitStore,
+  clearRedisClient,
+  cleanupRateLimitStore,
+} from '../rate-limit';
 
 // Helper function to reduce code duplication
 function createTestRequest(ip: string): Request {
@@ -343,12 +373,7 @@ describe('rate-limit', () => {
         rateLimitStore.set(key, { ...info, resetTime: Date.now() - 1000 });
 
         // Now the entry is expired (resetTime is in the past)
-        const now = Date.now();
-        for (const [k, i] of rateLimitStore.entries()) {
-          if (now > i.resetTime) {
-            rateLimitStore.delete(k);
-          }
-        }
+        cleanupRateLimitStore();
 
         // Should be removed
         expect(rateLimitStore.has(key)).toBe(false);
@@ -357,28 +382,128 @@ describe('rate-limit', () => {
   });
 
   describe('Redis initialization', () => {
-    it('should not initialize Redis when credentials are missing', () => {
-      // Credentials are already removed in beforeAll
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-
-      // Should create an in-memory limiter
-      expect(limiter).toBeDefined();
-      expect(typeof limiter).toBe('function');
+    beforeEach(() => {
+      clearRedisClient();
+      process.env.FORCE_REINIT_REDIS = '1';
     });
 
-    it('should log warning when Redis credentials are not configured', () => {
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    afterEach(() => {
+      delete process.env.FORCE_REINIT_REDIS;
+    });
 
-      // Force re-initialization by creating a new limiter
-      // This will trigger the initializeRedis function
+    it('should not initialize Redis when credentials are missing', async () => {
+      // Credentials are already removed in beforeAll
+      delete process.env.UPSTASH_REDIS_REST_URL;
+      delete process.env.UPSTASH_REDIS_REST_TOKEN;
+
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      await limiter(new Request('http://localhost'));
 
-      expect(limiter).toBeDefined();
-      warnSpy.mockRestore();
+      const { Redis } = require('@upstash/redis');
+      expect(Redis).not.toHaveBeenCalled();
+    });
+
+    it('should initialize Redis when credentials are present', async () => {
+      process.env.UPSTASH_REDIS_REST_URL = 'https://fake-redis.upstash.io';
+      process.env.UPSTASH_REDIS_REST_TOKEN = 'fake-token';
+
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      await limiter(new Request('http://localhost'));
+
+      const { Redis } = require('@upstash/redis');
+      expect(Redis).toHaveBeenCalledWith({
+        url: 'https://fake-redis.upstash.io',
+        token: 'fake-token',
+      });
+    });
+
+    it('should skip Redis when DISABLE_UPSTASH_DURING_BUILD is set', async () => {
+      process.env.UPSTASH_REDIS_REST_URL = 'https://fake-redis.upstash.io';
+      process.env.UPSTASH_REDIS_REST_TOKEN = 'fake-token';
+      process.env.DISABLE_UPSTASH_DURING_BUILD = '1';
+
+      const { Redis } = require('@upstash/redis');
+      // Redis might have been called by previous tests, so we check if it was called since we cleared it
+      jest.clearAllMocks();
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      await limiter(new Request('http://localhost'));
+      expect(Redis).not.toHaveBeenCalled();
+    });
+
+    it('should handle Redis initialization error', async () => {
+      process.env.UPSTASH_REDIS_REST_URL = 'https://fake-redis.upstash.io';
+      process.env.UPSTASH_REDIS_REST_TOKEN = 'fake-token';
+
+      const { Redis } = require('@upstash/redis');
+      (Redis as any).mockImplementationOnce(() => {
+        throw new Error('Redis init failed');
+      });
+
+      // Should not throw
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      await expect(limiter(new Request('http://localhost'))).resolves.toBeDefined();
+    });
+  });
+
+  describe('Redis rate limiting', () => {
+    beforeEach(() => {
+      clearRedisClient();
+      process.env.UPSTASH_REDIS_REST_URL = 'https://fake-redis.upstash.io';
+      process.env.UPSTASH_REDIS_REST_TOKEN = 'fake-token';
+      jest.clearAllMocks();
+    });
+
+    it('should use Redis-based rate limiting when available', async () => {
+      const { Ratelimit } = require('@upstash/ratelimit');
+      const mockLimit = jest.fn().mockResolvedValue({
+        success: true,
+        limit: 10,
+        remaining: 5,
+        reset: 123456789,
+      });
+      (Ratelimit as any).mockImplementationOnce(() => ({
+        limit: mockLimit,
+      }));
+
+      const limiter = rateLimit({ max: 10, windowMs: 60000 });
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': '1.2.3.4' },
+      });
+
+      const result = await limiter(request);
+
+      expect(result.success).toBe(true);
+      expect(result.remaining).toBe(5);
+      expect(result.resetTime).toBe(123456789);
+      expect(mockLimit).toHaveBeenCalledWith('1.2.3.4');
+    });
+
+    it('should fallback to in-memory on Redis error', async () => {
+      const { Ratelimit } = require('@upstash/ratelimit');
+      const mockLimit = jest.fn().mockRejectedValue(new Error('Redis error'));
+      (Ratelimit as any).mockImplementationOnce(() => ({
+        limit: mockLimit,
+      }));
+
+      const limiter = rateLimit({ max: 10, windowMs: 60000 });
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': '1.2.3.4' },
+      });
+
+      // Should not throw, should return in-memory result
+      const result = await limiter(request);
+      expect(result.success).toBe(true);
+      expect(result.remaining).toBe(9);
     });
   });
 
   describe('Edge cases', () => {
+    beforeEach(() => {
+      clearRedisClient();
+      delete process.env.UPSTASH_REDIS_REST_URL;
+      delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    });
+
     it('should handle requests with empty headers', async () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request = new Request('http://localhost');
