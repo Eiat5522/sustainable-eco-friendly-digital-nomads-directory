@@ -6,7 +6,8 @@ export type HeaderCollection =
   | Record<string, string | string[] | undefined>;
 
 /**
- * Extracts a header value from various header collection types
+ * Extracts a header value from various header collection types.
+ * Supports Next.js headers(), standard Headers, Map, and Record.
  */
 export function getHeaderValue(
   headers: HeaderCollection | null | undefined,
@@ -22,16 +23,19 @@ export function getHeaderValue(
     if (Array.isArray(val)) return val[0] || null;
     return (val as string) || null;
   }
-  const casted = headers as Record<string, string | string[] | undefined> & {
-    get?: (n: string) => string | string[] | null | undefined;
-  };
-  if (typeof casted.get === 'function') {
-    const val = casted.get(name) || casted.get(name.toLowerCase());
+
+  // Handle Record or other objects with potential .get method (like Next.js headers())
+  const hasGet = (h: any): h is { get: (n: string) => any } => typeof h.get === 'function';
+
+  if (hasGet(headers)) {
+    const val = headers.get(name) || headers.get(name.toLowerCase());
     if (val !== null && val !== undefined) {
-      return Array.isArray(val) ? val[0] || null : val;
+      return Array.isArray(val) ? val[0] || null : String(val);
     }
   }
-  const val = casted[name] ?? casted[name.toLowerCase()];
+
+  const record = headers as Record<string, string | string[] | undefined>;
+  const val = record[name] ?? record[name.toLowerCase()];
   if (Array.isArray(val)) return val[0] || null;
   return (val as string) || null;
 }
@@ -39,7 +43,7 @@ export function getHeaderValue(
 /**
  * Extracts the first valid IP address from a request header.
  * Uses validation to prevent IP spoofing security hotspots.
- * Always returns a string (defaults to 'unknown') for safety in rate limiting keys.
+ * Returns 'unknown' if no valid IP is found.
  */
 export function getClientIPFromHeaders(
   headers: HeaderCollection | null | undefined
@@ -62,3 +66,8 @@ export function getClientIPFromHeaders(
 
   return 'unknown';
 }
+
+/**
+ * Re-export isIP for use at call sites to satisfy static analysis
+ */
+export { isIP };
