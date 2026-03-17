@@ -224,7 +224,7 @@ describe('auth module', () => {
 
       expect(recordLoginAttempt).toHaveBeenCalledWith({
         email: 'blocked@example.com',
-        ip: null,
+        ip: 'unknown',
         success: false,
         reason: 'rate_limited',
       });
@@ -244,7 +244,7 @@ describe('auth module', () => {
 
       expect(recordLoginAttempt).toHaveBeenCalledWith({
         email: 'fail@example.com',
-        ip: null,
+        ip: 'unknown',
         success: false,
         reason: 'invalid_credentials',
       });

@@ -2,6 +2,7 @@ import { ObjectId } from 'mongodb';
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { getRequestContext, structuredLogger } from '@/lib/logger';
+import { getClientIPFromHeaders } from '@/utils/ip-utils';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { getCollection } from '@/utils/db-helpers';
 
@@ -66,8 +67,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     }
 
     // Use IP address if no user ID provided
-    const voterIdentifier =
-      userId || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anonymous';
+    const voterIdentifier = userId || getClientIPFromHeaders(request.headers);
 
     // Check for existing vote
     const existingVote = (await reviewVotes.findOne({
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
       voterIdentifier,
       helpful,
       createdAt: new Date(),
-      ipAddress: request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown',
+      ipAddress: getClientIPFromHeaders(request.headers),
     });
 
     // Update review helpful counts
