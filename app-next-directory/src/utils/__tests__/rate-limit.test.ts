@@ -158,6 +158,21 @@ describe('rate-limit', () => {
       expect(result2.success).toBe(false);
     });
 
+    it('should fallback to "unknown" if IP headers are invalid', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': 'invalid-ip' },
+      });
+
+      const result = await limiter(request);
+      expect(result.success).toBe(true);
+
+      // Should use "unknown" as the key
+      const request2 = new Request('http://localhost');
+      const result2 = await limiter(request2);
+      expect(result2.success).toBe(false);
+    });
+
     it('should use x-real-ip header if x-forwarded-for is not present', async () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request = new Request('http://localhost', {
