@@ -19,26 +19,36 @@ const rateLimitStore = new Map<string, RateLimitInfo>();
 // outside of test environments so tests can run leak-free.
 const shouldStartCleanup = process.env.NODE_ENV !== 'test' && !process.env.JEST_WORKER_ID;
 const cleanupInterval = shouldStartCleanup
-  ? setInterval(
-      () => {
-        const now = Date.now();
-        for (const [key, info] of rateLimitStore.entries()) {
-          if (now > info.resetTime) {
-            rateLimitStore.delete(key);
-          }
-        }
-      },
-      10 * 60 * 1000
-    )
+  ? setInterval(cleanupRateLimitStore, 10 * 60 * 1000)
   : null;
 
 cleanupInterval?.unref?.();
 
 // Initialize Redis client if credentials are available
-let redis: Redis | null = null;
+let redis: Redis | null | undefined;
+
+/**
+ * Resets the Redis client singleton for testing purposes.
+ */
+export function clearRedisClient() {
+  redis = undefined;
+}
+
+/**
+ * Manual cleanup of the in-memory rate limit store.
+ * Primarily used for testing.
+ */
+export function cleanupRateLimitStore() {
+  const now = Date.now();
+  for (const [key, info] of rateLimitStore.entries()) {
+    if (now > info.resetTime) {
+      rateLimitStore.delete(key);
+    }
+  }
+}
 
 function initializeRedis() {
-  if (redis !== undefined) {
+  if (redis !== undefined && process.env.FORCE_REINIT_REDIS !== '1') {
     return redis;
   }
 
