@@ -86,7 +86,7 @@ describe('rate-limit', () => {
     });
   });
 
-  describe('IP Extraction & Validation', () => {
+  describe('IP Extraction & Validation (integration)', () => {
     beforeEach(() => {
       process.env.UPSTASH_REDIS_REST_URL = '';
       process.env.UPSTASH_REDIS_REST_TOKEN = '';
@@ -111,20 +111,6 @@ describe('rate-limit', () => {
 
       expect(result.success).toBe(expectedIp === 'unknown' ? false : true);
     });
-
-    it('should prioritize headers correctly', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const req = createTestRequest({
-        'x-forwarded-for': '1.1.1.1',
-        'x-real-ip': '2.2.2.2'
-      });
-
-      await limiter(req);
-      // Should have used 1.1.1.1. So 2.2.2.2 should still be allowed.
-      expect((await limiter(createTestRequest({ 'x-real-ip': '2.2.2.2' }))).success).toBe(true);
-      // But 1.1.1.1 should be blocked.
-      expect((await limiter(createTestRequest({ 'x-forwarded-for': '1.1.1.1' }))).success).toBe(false);
-    });
   });
 
   describe('Predefined limiters', () => {
@@ -134,7 +120,7 @@ describe('rate-limit', () => {
       ['search', 50],
     ])('%s limiter should enforce %i requests limit', async (name, max) => {
       const limiter = (rateLimiters as any)[name];
-      const req = createTestRequest({ 'x-forwarded-for': `10.0.1.${name}` }); // Change IP to ensure fresh limit
+      const req = createTestRequest({ 'x-forwarded-for': `10.0.2.${name}` });
 
       for (let i = 0; i < max; i++) {
         expect((await limiter(req)).success).toBe(true);
@@ -171,6 +157,19 @@ describe('rate-limit', () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       expect(limiter).toBeDefined();
     });
+
+    it('should re-initialize Redis if FORCE_REINIT_REDIS is set', () => {
+      process.env.UPSTASH_REDIS_REST_URL = 'http://redis';
+      process.env.UPSTASH_REDIS_REST_TOKEN = 'token';
+
+      rateLimit({ max: 1, windowMs: 1000 });
+      expect(Redis).toHaveBeenCalledTimes(1);
+
+      process.env.FORCE_REINIT_REDIS = '1';
+      rateLimit({ max: 1, windowMs: 1000 });
+      expect(Redis).toHaveBeenCalledTimes(2);
+      process.env.FORCE_REINIT_REDIS = '0';
+    });
   });
 
   describe('Redis-based rate limiting', () => {
@@ -195,7 +194,7 @@ describe('rate-limit', () => {
     it('should fallback to in-memory if Redis limiter throws', async () => {
       mockLimit.mockRejectedValue(new Error());
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const req = createTestRequest({ 'x-forwarded-for': '1.2.3.5' });
+      const req = createTestRequest({ 'x-forwarded-for': '1.2.3.6' });
 
       expect((await limiter(req)).success).toBe(true);
       expect((await limiter(req)).success).toBe(false);

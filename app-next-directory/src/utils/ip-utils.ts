@@ -11,16 +11,16 @@ export type HeaderCollection =
 /**
  * Helper to get a header value regardless of the collection type
  */
-function getHeaderValue(headers: HeaderCollection, name: string): string | undefined {
+export function getHeaderValue(headers: HeaderCollection, name: string): string | undefined {
   if (headers instanceof Headers) {
     return headers.get(name) || undefined;
   }
   if (headers instanceof Map) {
     const val = headers.get(name);
-    return Array.isArray(val) ? val[0] : val;
+    return Array.isArray(val) ? val.join(',') : val;
   }
   const val = headers[name];
-  return Array.isArray(val) ? val[0] : val;
+  return Array.isArray(val) ? val.join(',') : val;
 }
 
 /**
