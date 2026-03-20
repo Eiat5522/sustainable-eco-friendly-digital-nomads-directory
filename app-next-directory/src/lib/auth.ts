@@ -13,12 +13,12 @@ import { isAdminEmail } from '@/lib/auth/config';
 import { authenticateUserCredentials, getUserById } from '@/lib/auth/dal';
 import { enforceLoginRateLimit, recordLoginAttempt } from '@/lib/auth/rateLimit';
 import { syncUserToSanity } from '@/lib/auth/userService';
-import validator from 'validator';
 import dbConnect from '@/lib/dbConnect';
 import { structuredLogger } from '@/lib/logger';
 import User, { type IUser } from '@/models/User';
 import type { UserRole } from '@/types/auth';
 import type { HeadersLike } from '@/types/request';
+import { getClientIPFromHeaders } from '@/utils/ip-utils';
 
 // Central NextAuth configuration used by route handlers and auth() helper
 // Build providers conditionally to avoid requiring unused env vars
@@ -46,24 +46,20 @@ const providers: NextAuthConfig['providers'] = [
 
         const email = String(credentials.email).trim().toLowerCase();
         const password = String(credentials.password);
-        const forwardedFor =
-          request?.headers?.get('x-forwarded-for') ?? request?.headers?.get('x-real-ip') ?? '';
-        let ip: string | null = (forwardedFor.split(',')[0] || '').trim();
-        if (!ip || !validator.isIP(ip)) {
-          ip = null;
-        }
-        const identifier = ip ? `${email}:${ip}` : email;
+        const ip = getClientIPFromHeaders(request?.headers || {});
+        const validatedIP = ip === 'unknown' ? null : ip;
+        const identifier = validatedIP ? `${email}:${validatedIP}` : email;
 
         const rateLimit = await enforceLoginRateLimit(identifier);
         if (!rateLimit.success) {
-          await recordLoginAttempt({ email, ip, success: false, reason: 'rate_limited' });
+          await recordLoginAttempt({ email, ip: validatedIP, success: false, reason: 'rate_limited' });
           throw new Error('Too many login attempts. Please try again later.');
         }
 
         const user = await authenticateUserCredentials(email, password);
         await recordLoginAttempt({
           email,
-          ip,
+          ip: validatedIP,
           success: Boolean(user),
           reason: user ? 'success' : 'invalid_credentials',
         });
