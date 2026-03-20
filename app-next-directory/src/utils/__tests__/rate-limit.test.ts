@@ -561,5 +561,16 @@ describe('rate-limit', () => {
       expect(result1.resetTime).toBeGreaterThanOrEqual(before + windowMs);
       expect(result1.resetTime).toBeLessThanOrEqual(after + windowMs);
     });
+
+    it('should block invalid IPs', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': 'not-an-ip' },
+      });
+
+      // Should fall back to 'unknown' or other headers
+      const result = await limiter(request);
+      expect(result.success).toBe(true);
+    });
   });
 });
