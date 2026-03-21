@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-import { afterEach, beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, jest, test } from '@jest/globals';
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 
@@ -35,11 +35,7 @@ import {
 } from '../rate-limit';
 
 // Helper function to reduce code duplication
-function createTestRequest(ip?: string): Request {
-  const headers: Record<string, string> = {};
-  if (ip) {
-    headers['x-forwarded-for'] = ip;
-  }
+function createTestRequest(headers: Record<string, string> = {}): Request {
   return new Request('http://localhost', { headers });
 }
 
@@ -80,7 +76,7 @@ describe('rate-limit', () => {
   describe('inMemoryRateLimit (fallback)', () => {
     it('should allow requests within the limit', async () => {
       const limiter = rateLimit({ max: 3, windowMs: 1000 });
-      const request = createTestRequest('127.0.0.1');
+      const request = createTestRequest({ 'x-forwarded-for': '127.0.0.1' });
 
       const result1 = await limiter(request);
       expect(result1.success).toBe(true);
@@ -98,7 +94,7 @@ describe('rate-limit', () => {
 
     it('should block requests when limit is exceeded', async () => {
       const limiter = rateLimit({ max: 2, windowMs: 1000 });
-      const request = createTestRequest('127.0.0.1');
+      const request = createTestRequest({ 'x-forwarded-for': '127.0.0.1' });
 
       await limiter(request);
       await limiter(request);
@@ -112,8 +108,8 @@ describe('rate-limit', () => {
     it('should track different IPs separately', async () => {
       const limiter = rateLimit({ max: 2, windowMs: 1000 });
 
-      const request1 = createTestRequest('127.0.0.1');
-      const request2 = createTestRequest('127.0.0.2');
+      const request1 = createTestRequest({ 'x-forwarded-for': '127.0.0.1' });
+      const request2 = createTestRequest({ 'x-forwarded-for': '127.0.0.2' });
 
       await limiter(request1);
       await limiter(request1);
@@ -129,54 +125,50 @@ describe('rate-limit', () => {
         windowMs: 1000,
         keyGenerator: () => 'custom-key',
       });
-      const request = createTestRequest('1.2.3.4');
+      const request = createTestRequest({ 'x-forwarded-for': '1.1.1.1' });
       await limiter(request);
       expect(rateLimitStore.has('custom-key')).toBe(true);
     });
   });
 
   describe('getClientIP', () => {
-    it('should use x-forwarded-for header (first IP)', async () => {
+    test.each([
+      ['x-forwarded-for', '192.168.1.1, 10.0.0.1', '192.168.1.1'],
+      ['x-real-ip', '192.168.1.2', '192.168.1.2'],
+      ['cf-connecting-ip', '192.168.1.3', '192.168.1.3'],
+    ])('should use %s header correctly', async (header, value, expectedIp) => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '192.168.1.1, 10.0.0.1' },
-      });
-
-      const result = await limiter(request);
-      expect(result.success).toBe(true);
-
-      const result2 = await limiter(request);
-      expect(result2.success).toBe(false);
-      // Verify key in store
-      expect(rateLimitStore.has('192.168.1.1')).toBe(true);
-    });
-
-    it('should use x-real-ip header if x-forwarded-for is missing', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-real-ip': '192.168.1.2' },
-      });
-
+      const request = createTestRequest({ [header]: value });
       await limiter(request);
-      expect(rateLimitStore.has('192.168.1.2')).toBe(true);
-    });
-
-    it('should use cf-connecting-ip header if others are missing', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'cf-connecting-ip': '192.168.1.3' },
-      });
-
-      await limiter(request);
-      expect(rateLimitStore.has('192.168.1.3')).toBe(true);
+      expect(rateLimitStore.has(expectedIp)).toBe(true);
     });
 
     it('should fallback to "unknown"', async () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request = new Request('http://localhost');
-
       await limiter(request);
       expect(rateLimitStore.has('unknown')).toBe(true);
+    });
+
+    it('should ignore invalid IPs in headers', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      const request = createTestRequest({
+        'x-forwarded-for': 'invalid-ip',
+        'x-real-ip': '1.1.1.1',
+      });
+      await limiter(request);
+      // Should skip invalid x-forwarded-for and use x-real-ip
+      expect(rateLimitStore.has('1.1.1.1')).toBe(true);
+    });
+
+    it('should handle x-forwarded-for with only whitespace', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      const request = createTestRequest({
+        'x-forwarded-for': '  ',
+        'x-real-ip': '1.1.1.2',
+      });
+      await limiter(request);
+      expect(rateLimitStore.has('1.1.1.2')).toBe(true);
     });
   });
 
@@ -200,7 +192,6 @@ describe('rate-limit', () => {
       process.env.DISABLE_UPSTASH_DURING_BUILD = '1';
 
       rateLimit({ max: 10, windowMs: 1000 });
-
       expect(Redis).not.toHaveBeenCalled();
     });
 
@@ -209,11 +200,7 @@ describe('rate-limit', () => {
       process.env.UPSTASH_REDIS_REST_TOKEN = 'token';
 
       rateLimit({ max: 10, windowMs: 1000 });
-
-      expect(Redis).toHaveBeenCalledWith({
-        url: 'http://localhost',
-        token: 'token',
-      });
+      expect(Redis).toHaveBeenCalledWith({ url: 'http://localhost', token: 'token' });
     });
 
     it('should handle Redis initialization error', () => {
@@ -225,7 +212,6 @@ describe('rate-limit', () => {
 
       const limiter = rateLimit({ max: 10, windowMs: 1000 });
       expect(limiter).toBeDefined();
-      // Should fallback to in-memory (tested via its behavior)
     });
   });
 
@@ -233,11 +219,6 @@ describe('rate-limit', () => {
     beforeEach(() => {
       process.env.UPSTASH_REDIS_REST_URL = 'http://localhost';
       process.env.UPSTASH_REDIS_REST_TOKEN = 'token';
-
-      // Setup Ratelimit mock static method
-      (Ratelimit as unknown as jest.Mock).mockImplementation(() => ({
-        limit: jest.fn(),
-      }));
     });
 
     it('should use Redis when available', async () => {
@@ -247,54 +228,39 @@ describe('rate-limit', () => {
         remaining: 9,
         reset: 123456789,
       });
-      (Ratelimit as unknown as jest.Mock).mockImplementation(() => ({
-        limit: mockLimit,
-      }));
+      (Ratelimit as unknown as jest.Mock).mockImplementation(() => ({ limit: mockLimit }));
 
       const limiter = rateLimit({ max: 10, windowMs: 1000 });
-      const request = createTestRequest('1.2.3.4');
+      const request = createTestRequest({ 'x-forwarded-for': '1.2.3.4' });
       const result = await limiter(request);
 
       expect(mockLimit).toHaveBeenCalledWith('1.2.3.4');
-      expect(result).toEqual({
-        success: true,
-        limit: 10,
-        remaining: 9,
-        resetTime: 123456789,
-      });
+      expect(result).toEqual({ success: true, limit: 10, remaining: 9, resetTime: 123456789 });
     });
 
-    it('should fallback to in-memory if Redis limit call fails', async () => {
+    it('should fallback to in-memory if Redis call fails', async () => {
       const mockLimit = jest.fn().mockRejectedValue(new Error('Redis error'));
-      (Ratelimit as unknown as jest.Mock).mockImplementation(() => ({
-        limit: mockLimit,
-      }));
+      (Ratelimit as unknown as jest.Mock).mockImplementation(() => ({ limit: mockLimit }));
 
       const limiter = rateLimit({ max: 10, windowMs: 1000 });
-      const request = createTestRequest('5.6.7.8');
-
+      const request = createTestRequest({ 'x-forwarded-for': '5.6.7.8' });
       const result = await limiter(request);
 
       expect(result.success).toBe(true);
       expect(rateLimitStore.has('5.6.7.8')).toBe(true);
     });
 
-    it('should fallback to in-memory with custom keyGenerator if Redis limit call fails', async () => {
+    it('should fallback with custom keyGenerator if Redis call fails', async () => {
       const mockLimit = jest.fn().mockRejectedValue(new Error('Redis error'));
-      (Ratelimit as unknown as jest.Mock).mockImplementation(() => ({
-        limit: mockLimit,
-      }));
+      (Ratelimit as unknown as jest.Mock).mockImplementation(() => ({ limit: mockLimit }));
 
       const limiter = rateLimit({
         max: 10,
         windowMs: 1000,
-        keyGenerator: () => 'fallback-custom-key',
+        keyGenerator: () => 'fallback-key',
       });
-      const request = createTestRequest('5.6.7.8');
-
-      await limiter(request);
-
-      expect(rateLimitStore.has('fallback-custom-key')).toBe(true);
+      await limiter(createTestRequest());
+      expect(rateLimitStore.has('fallback-key')).toBe(true);
     });
 
     it('should use custom keyGenerator with Redis', async () => {
@@ -304,27 +270,21 @@ describe('rate-limit', () => {
         remaining: 9,
         reset: 123456789,
       });
-      (Ratelimit as unknown as jest.Mock).mockImplementation(() => ({
-        limit: mockLimit,
-      }));
+      (Ratelimit as unknown as jest.Mock).mockImplementation(() => ({ limit: mockLimit }));
 
       const limiter = rateLimit({
         max: 10,
         windowMs: 1000,
         keyGenerator: () => 'custom-key',
       });
-      const request = createTestRequest('1.2.3.4');
-      await limiter(request);
-
+      await limiter(createTestRequest());
       expect(mockLimit).toHaveBeenCalledWith('custom-key');
     });
   });
 
   describe('Predefined limiters', () => {
-    it('should have contactForm, apiGeneral and search limiters', () => {
-      expect(rateLimiters.contactForm).toBeDefined();
-      expect(rateLimiters.apiGeneral).toBeDefined();
-      expect(rateLimiters.search).toBeDefined();
+    test.each(['contactForm', 'apiGeneral', 'search'])('limiter %s should be defined', (name) => {
+      expect((rateLimiters as any)[name]).toBeDefined();
     });
   });
 });
