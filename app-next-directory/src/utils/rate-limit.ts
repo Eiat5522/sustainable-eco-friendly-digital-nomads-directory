@@ -14,28 +14,37 @@ interface RateLimitInfo {
 // In-memory store for rate limiting (fallback when Redis is not available)
 const rateLimitStore = new Map<string, RateLimitInfo>();
 
+/**
+ * Manually trigger cleanup of expired rate limit entries.
+ * Primarily used for testing or when the background interval is not running.
+ */
+export function cleanupRateLimitStore() {
+  const now = Date.now();
+  for (const [key, info] of rateLimitStore.entries()) {
+    if (now > info.resetTime) {
+      rateLimitStore.delete(key);
+    }
+  }
+}
+
 // Avoid keeping a long-lived timer alive in unit tests – Jest's leak detector
 // treats background intervals as open handles. Only start the cleanup loop
 // outside of test environments so tests can run leak-free.
 const shouldStartCleanup = process.env.NODE_ENV !== 'test' && !process.env.JEST_WORKER_ID;
-const cleanupInterval = shouldStartCleanup
-  ? setInterval(
-      () => {
-        const now = Date.now();
-        for (const [key, info] of rateLimitStore.entries()) {
-          if (now > info.resetTime) {
-            rateLimitStore.delete(key);
-          }
-        }
-      },
-      10 * 60 * 1000
-    )
-  : null;
+const cleanupInterval = shouldStartCleanup ? setInterval(cleanupRateLimitStore, 10 * 60 * 1000) : null;
 
 cleanupInterval?.unref?.();
 
 // Initialize Redis client if credentials are available
-let redis: Redis | null = null;
+// Use undefined initially so that the lazy initializer runs at least once.
+let redis: Redis | null | undefined;
+
+/**
+ * Resets the cached Redis client. Used for testing.
+ */
+export function clearRedisClient() {
+  redis = undefined;
+}
 
 function initializeRedis() {
   if (redis !== undefined) {
