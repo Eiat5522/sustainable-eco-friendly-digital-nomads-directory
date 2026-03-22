@@ -75,7 +75,7 @@ describe('rate-limit', () => {
 
   describe('Redis Integration', () => {
     beforeEach(() => {
-      process.env.UPSTASH_REDIS_REST_URL = 'https://example.com';
+      process.env.UPSTASH_REDIS_REST_URL = 'http://127.0.0.1';
       process.env.UPSTASH_REDIS_REST_TOKEN = 'mock-token';
     });
 
@@ -120,8 +120,16 @@ describe('rate-limit', () => {
     it('should use Redis results when successful', async () => {
       const mockLimit = jest.fn().mockResolvedValue({ success: true, limit: 10, remaining: 5, reset: 123 });
       (Ratelimit as unknown as jest.Mock).mockImplementationOnce(() => ({ limit: mockLimit }));
+
       const res = await rateLimit({ max: 10, windowMs: 1000 })(createReq());
       expect(res.resetTime).toBe(123);
+
+      // Branch coverage: keyGenerator in Redis path
+      (Ratelimit as unknown as jest.Mock).mockImplementationOnce(() => ({ limit: mockLimit }));
+      clearRedisClient();
+      const l = rateLimit({ max: 10, windowMs: 1000, keyGenerator: () => 'redis-custom' });
+      await l(createReq());
+      expect(mockLimit).toHaveBeenCalledWith('redis-custom');
     });
   });
 
