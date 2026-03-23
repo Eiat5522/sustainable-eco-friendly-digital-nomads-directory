@@ -9,6 +9,23 @@ export let loginRateLimit: Ratelimit | undefined;
 // API rate limiting: 100 requests per minute
 export let apiRateLimit: Ratelimit | undefined;
 
+/**
+ * Resets the rate limiters for testing purposes.
+ */
+export function resetRateLimiters() {
+  loginRateLimit = undefined;
+  apiRateLimit = undefined;
+  initializeRateLimiters();
+}
+
+/**
+ * Force clear the rate limiters for testing purposes.
+ */
+export function clearRateLimiters() {
+  loginRateLimit = undefined;
+  apiRateLimit = undefined;
+}
+
 // Initialize rate limiters with Redis client
 const initializeRateLimiters = () => {
   try {
@@ -39,6 +56,17 @@ const initializeRateLimiters = () => {
 // Initialize on module load
 initializeRateLimiters();
 
+/**
+ * Extracts the client IP address from the request headers.
+ *
+ * Checks multiple common headers used by proxies and load balancers:
+ * - x-forwarded-for (first IP in the list)
+ * - x-real-ip
+ * - cf-connecting-ip (Cloudflare)
+ *
+ * @param request - The incoming HTTP request
+ * @returns The client IP address, or 'unknown' if none found
+ */
 export let getClientIp = (req: Request): string => {
   try {
     const xf = req.headers.get('x-forwarded-for');
@@ -50,6 +78,9 @@ export let getClientIp = (req: Request): string => {
     }
     const xr = req.headers.get('x-real-ip');
     if (xr && validator.isIP(xr)) return xr;
+
+    const cf = req.headers.get('cf-connecting-ip');
+    if (cf && validator.isIP(cf)) return cf;
   } catch {}
   return 'unknown';
 };
