@@ -1,4 +1,5 @@
 import pino from 'pino';
+import { getClientIp, type RequestLike } from '@/utils/ip';
 
 // Environment check for safe logging configuration
 // Guard access to `process` so this module can be imported in Edge or client contexts
@@ -44,15 +45,6 @@ type HeaderCollection =
   | Headers
   | Map<string, string>
   | (Record<string, HeaderValue> & { get?: HeaderGetter });
-
-interface RequestLike {
-  method?: string;
-  url?: string;
-  path?: string;
-  nextUrl?: { pathname?: string };
-  headers?: HeaderCollection;
-  ip?: string;
-}
 
 interface ResponseLike {
   statusCode?: number;
@@ -440,11 +432,12 @@ export const logError = (message: string, error?: unknown, context?: LogContext)
 // Helper to extract request context from Next.js request objects
 export const getRequestContext = (req: RequestLike | undefined): LogContext => {
   const headers = req?.headers;
+
   return {
     method: req?.method,
     path: req?.url ?? req?.nextUrl?.pathname,
     userAgent: getHeaderValue(headers, 'user-agent'),
-    ip: req?.ip ?? getHeaderValue(headers, 'x-forwarded-for'),
+    ip: getClientIp(req),
     requestId: getHeaderValue(headers, 'x-request-id'),
   };
 };

@@ -21,11 +21,14 @@ jest.mock('@upstash/ratelimit', () => {
 (Ratelimit as any).slidingWindow = jest.fn();
 
 jest.mock('@/lib/redis', () => ({
-  getRedisClient: jest.fn()
+  getRedisClient: jest.fn(),
+  onRedisClientChange: jest.fn()
 }));
+
+const mockWarn = jest.fn();
 jest.mock('@/lib/logger', () => ({
   structuredLogger: {
-    warn: jest.fn()
+    warn: mockWarn
   }
 }));
 
@@ -98,6 +101,11 @@ describe('lib/rate-limit', () => {
       const result = await isRateLimited('test-key');
       expect(result).toBe(false);
       expect(mockLimit).toHaveBeenCalled();
+      expect(mockWarn).toHaveBeenCalledWith(
+        '[rate-limit] Error checking rate limit',
+        expect.any(Error),
+        expect.any(Object)
+      );
     });
 
     it('should return true if rate limited', async () => {
@@ -147,6 +155,25 @@ describe('lib/rate-limit', () => {
 
       const result = await getRetryAfterMs('test-key');
       expect(result).toBe(0);
+      expect(mockWarn).toHaveBeenCalledWith(
+        '[rate-limit] Error getting retry after',
+        expect.any(Error),
+        expect.any(Object)
+      );
+    });
+  });
+
+  describe('initialization error', () => {
+    it('should handle errors during initialization', () => {
+      (getRedisClient as jest.Mock).mockImplementation(() => {
+        throw new Error('Redis failure');
+      });
+      resetRateLimiters();
+      expect(mockWarn).toHaveBeenCalledWith(
+        '[rate-limit] Failed to initialize rate limiters',
+        expect.any(Error),
+        expect.any(Object)
+      );
     });
   });
 });

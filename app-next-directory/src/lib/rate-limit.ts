@@ -1,5 +1,5 @@
 import { Ratelimit } from '@upstash/ratelimit';
-import validator from 'validator';
+import { getClientIp as _getClientIp } from '@/utils/ip';
 import { structuredLogger } from '@/lib/logger';
 import { getRedisClient } from '@/lib/redis';
 
@@ -56,32 +56,9 @@ const initializeRateLimiters = () => {
 // Initialize on module load
 initializeRateLimiters();
 
-/**
- * Extracts the client IP address from the request headers.
- *
- * Checks multiple common headers used by proxies and load balancers:
- * - x-forwarded-for (first IP in the list)
- * - x-real-ip
- * - cf-connecting-ip (Cloudflare)
- *
- * @param request - The incoming HTTP request
- * @returns The client IP address, or 'unknown' if none found
- */
 export let getClientIp = (req: Request): string => {
-  try {
-    const xf = req.headers.get('x-forwarded-for');
-    if (xf) {
-      const first = (xf.split(',')[0] || '').trim();
-      if (first && validator.isIP(first)) {
-        return first;
-      }
-    }
-    const xr = req.headers.get('x-real-ip');
-    if (xr && validator.isIP(xr)) return xr;
-
-    const cf = req.headers.get('cf-connecting-ip');
-    if (cf && validator.isIP(cf)) return cf;
-  } catch {}
+  const ip = _getClientIp(req);
+  if (ip && ip !== '127.0.0.1') return ip;
   return 'unknown';
 };
 
@@ -143,13 +120,13 @@ if (process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID) {
   const maybeJest = (globalThis as { jest?: JestLike }).jest;
 
   if (maybeJest) {
-    const originalGetClientIp = getClientIp;
     const originalIsRateLimited = isRateLimited;
     const originalGetRetryAfterMs = getRetryAfterMs;
+    const originalGetClientIp = getClientIp;
 
-    getClientIp = maybeJest.fn(originalGetClientIp) as typeof getClientIp;
     isRateLimited = maybeJest.fn(originalIsRateLimited) as typeof isRateLimited;
     getRetryAfterMs = maybeJest.fn(originalGetRetryAfterMs) as typeof getRetryAfterMs;
+    getClientIp = maybeJest.fn(originalGetClientIp) as typeof getClientIp;
   } else {
     structuredLogger.warn('Jest not available for mocking in rate-limit module', {
       component: 'rate-limit',

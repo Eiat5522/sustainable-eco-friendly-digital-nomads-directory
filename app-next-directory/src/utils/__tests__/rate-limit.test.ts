@@ -374,7 +374,7 @@ describe('rate-limit', () => {
   });
 
   describe('Edge cases', () => {
-    it('should handle other IP headers', async () => {
+    it('should handle other IP headers via ip utility', async () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
 
       const requestReal = new Request('http://localhost', {
