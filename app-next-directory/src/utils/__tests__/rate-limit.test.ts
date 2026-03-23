@@ -31,6 +31,7 @@ jest.mock('@upstash/ratelimit', () => {
 
 import {
   rateLimit,
+  rateLimiters,
   rateLimitStore,
   clearRedisClient,
   cleanupRateLimitStore
@@ -291,6 +292,74 @@ describe('rate-limit', () => {
     });
   });
 
+  describe('rateLimiters', () => {
+    it('should have contactForm limiter configured', () => {
+      expect(rateLimiters.contactForm).toBeDefined();
+      expect(typeof rateLimiters.contactForm).toBe('function');
+    });
+
+    it('should have apiGeneral limiter configured', () => {
+      expect(rateLimiters.apiGeneral).toBeDefined();
+      expect(typeof rateLimiters.apiGeneral).toBe('function');
+    });
+
+    it('should have search limiter configured', () => {
+      expect(rateLimiters.search).toBeDefined();
+      expect(typeof rateLimiters.search).toBe('function');
+    });
+
+    it('contactForm limiter should enforce 5 requests limit', async () => {
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': '127.0.0.1' },
+      });
+
+      // Make 5 requests (should all succeed)
+      for (let i = 0; i < 5; i++) {
+        const result = await rateLimiters.contactForm(request);
+        expect(result.success).toBe(true);
+      }
+
+      // 6th request should fail
+      const result = await rateLimiters.contactForm(request);
+      expect(result.success).toBe(false);
+      expect(result.limit).toBe(5);
+    });
+
+    it('apiGeneral limiter should enforce 100 requests limit', async () => {
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': '127.0.0.2' },
+      });
+
+      // Make 100 requests (should all succeed)
+      for (let i = 0; i < 100; i++) {
+        const result = await rateLimiters.apiGeneral(request);
+        expect(result.success).toBe(true);
+      }
+
+      // 101st request should fail
+      const result = await rateLimiters.apiGeneral(request);
+      expect(result.success).toBe(false);
+      expect(result.limit).toBe(100);
+    });
+
+    it('search limiter should enforce 50 requests limit', async () => {
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': '127.0.0.3' },
+      });
+
+      // Make 50 requests (should all succeed)
+      for (let i = 0; i < 50; i++) {
+        const result = await rateLimiters.search(request);
+        expect(result.success).toBe(true);
+      }
+
+      // 51st request should fail
+      const result = await rateLimiters.search(request);
+      expect(result.success).toBe(false);
+      expect(result.limit).toBe(50);
+    });
+  });
+
   describe('cleanupRateLimitStore', () => {
     it('should cleanup expired entries', () => {
       const now = Date.now();
@@ -328,6 +397,16 @@ describe('rate-limit', () => {
       const request = new Request('http://localhost');
 
       await limiter(request);
+      expect(rateLimitStore.has('unknown')).toBe(true);
+    });
+
+    it('should fallback to unknown if IP headers are invalid', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+
+      const requestInvalid = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': 'not-an-ip' }
+      });
+      await limiter(requestInvalid);
       expect(rateLimitStore.has('unknown')).toBe(true);
     });
   });
