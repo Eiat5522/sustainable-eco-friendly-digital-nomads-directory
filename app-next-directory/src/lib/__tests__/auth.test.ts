@@ -73,6 +73,10 @@ jest.mock('@/lib/auth/rateLimit', () => ({
   recordLoginAttempt: jest.fn((...args: unknown[]) => recordLoginAttempt(...args)),
 }));
 
+jest.mock('@/lib/rate-limit', () => ({
+  getClientIp: jest.fn(() => '127.0.0.1'),
+}));
+
 jest.mock('@/lib/dbConnect', () => jest.fn((...args: unknown[]) => dbConnect(...args)));
 
 jest.mock('@/models/User', () => ({
@@ -119,6 +123,9 @@ const importAuthModule = async () => {
   jest.doMock('@/lib/auth/rateLimit', () => ({
     enforceLoginRateLimit: jest.fn((...args: unknown[]) => enforceLoginRateLimit(...args)),
     recordLoginAttempt: jest.fn((...args: unknown[]) => recordLoginAttempt(...args)),
+  }));
+  jest.doMock('@/lib/rate-limit', () => ({
+    getClientIp: jest.fn(() => '127.0.0.1'),
   }));
   jest.doMock('@/lib/dbConnect', () => jest.fn((...args: unknown[]) => dbConnect(...args)));
   jest.doMock('@/models/User', () => ({
@@ -187,6 +194,9 @@ describe('auth module', () => {
         },
       };
 
+      const { getClientIp } = await import('@/lib/rate-limit');
+      (getClientIp as jest.Mock).mockReturnValue('203.0.113.5');
+
       const result = await provider.authorize(
         { email: '  Jane@Example.com ', password: 'secret' },
         request
@@ -213,6 +223,8 @@ describe('auth module', () => {
       enforceLoginRateLimit.mockResolvedValue({ success: false });
       recordLoginAttempt.mockResolvedValue(undefined);
       const { authOptions } = await importAuthModule();
+      const { getClientIp } = await import('@/lib/rate-limit');
+      (getClientIp as jest.Mock).mockReturnValue('unknown');
       const provider = extractCredentialsProvider(authOptions);
 
       await expect(
@@ -224,7 +236,7 @@ describe('auth module', () => {
 
       expect(recordLoginAttempt).toHaveBeenCalledWith({
         email: 'blocked@example.com',
-        ip: null,
+        ip: 'unknown',
         success: false,
         reason: 'rate_limited',
       });
@@ -235,6 +247,8 @@ describe('auth module', () => {
       authenticateUserCredentials.mockResolvedValue(null);
       recordLoginAttempt.mockResolvedValue(undefined);
       const { authOptions } = await importAuthModule();
+      const { getClientIp } = await import('@/lib/rate-limit');
+      (getClientIp as jest.Mock).mockReturnValue('unknown');
       const provider = extractCredentialsProvider(authOptions);
 
       const result = await provider.authorize(
@@ -244,7 +258,7 @@ describe('auth module', () => {
 
       expect(recordLoginAttempt).toHaveBeenCalledWith({
         email: 'fail@example.com',
-        ip: null,
+        ip: 'unknown',
         success: false,
         reason: 'invalid_credentials',
       });
