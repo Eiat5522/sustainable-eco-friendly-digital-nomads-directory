@@ -222,41 +222,6 @@ describe('rate-limit helpers', () => {
     );
   });
 
-  it('wraps exports with jest.fn when Jest is available', async () => {
-    const originalJest = (global as any).jest;
-
-    try {
-      const mod = await loadModule(() => {
-        (global as any).jest = { fn: jest.fn.bind(jest) };
-      });
-      const { getClientIp, isRateLimited, getRetryAfterMs } = mod;
-
-      expect(typeof (getClientIp as any).mock).toBe('object');
-      expect(typeof (isRateLimited as any).mock).toBe('object');
-      expect(typeof (getRetryAfterMs as any).mock).toBe('object');
-    } finally {
-      (global as any).jest = originalJest;
-    }
-  });
-
-  it('falls back to original functions when Jest is unavailable', async () => {
-    const originalJest = (global as any).jest;
-
-    try {
-      const mod = await loadModule(() => {
-        delete (global as any).jest;
-      });
-
-      expect('mock' in (mod.getClientIp as any)).toBe(false);
-      expect('mock' in (mod.isRateLimited as any)).toBe(false);
-      expect('mock' in (mod.getRetryAfterMs as any)).toBe(false);
-      expect(warnSpy).toHaveBeenCalledWith('Jest not available for mocking in rate-limit module', {
-        component: 'rate-limit',
-      });
-    } finally {
-      (global as any).jest = originalJest;
-    }
-  });
 
   it('handles Redis initialization errors gracefully', async () => {
     mockGetRedisClient.mockImplementation(() => {

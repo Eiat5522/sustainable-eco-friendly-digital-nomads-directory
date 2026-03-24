@@ -187,19 +187,13 @@ describe('auth module', () => {
       recordLoginAttempt.mockResolvedValue(undefined);
 
       const { authOptions } = await importAuthModule();
-      const provider = extractCredentialsProvider(authOptions);
-      const request = {
-        headers: {
-          get: (key: string) => (key === 'x-forwarded-for' ? '203.0.113.5, 70.0.0.1' : null),
-        },
-      };
-
       const { getClientIp } = await import('@/lib/rate-limit');
       (getClientIp as jest.Mock).mockReturnValue('203.0.113.5');
 
+      const provider = extractCredentialsProvider(authOptions);
       const result = await provider.authorize(
         { email: '  Jane@Example.com ', password: 'secret' },
-        request
+        {}
       );
 
       expect(enforceLoginRateLimit).toHaveBeenCalledWith('jane@example.com:203.0.113.5');

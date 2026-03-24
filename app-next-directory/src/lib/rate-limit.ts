@@ -1,7 +1,7 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import { structuredLogger } from '@/lib/logger';
 import { getRedisClient } from '@/lib/redis';
-import validator from 'validator';
+import { extractClientIp } from '@/utils/ip';
 
 // Login rate limiting: 5 attempts per 15 minutes
 export let loginRateLimit: Ratelimit | undefined;
@@ -39,29 +39,17 @@ const initializeRateLimiters = () => {
 // Initialize on module load
 initializeRateLimiters();
 
-export let getClientIp = (req: Request): string => {
-  try {
-    const xf = req.headers.get('x-forwarded-for');
-    if (xf) {
-      const [first] = xf.split(',');
-      if (first) {
-        const ip = first.trim();
-        if (validator.isIP(ip)) {
-          return ip;
-        }
-      }
-    }
-    const xr = req.headers.get('x-real-ip');
-    if (xr && validator.isIP(xr)) return xr;
-
-    const cf = req.headers.get('cf-connecting-ip');
-    if (cf && validator.isIP(cf)) return cf;
-  } catch {}
-  return 'unknown';
+/**
+ * Helper to get client IP from request using the centralized utility.
+ */
+export const getClientIp = (req: Request): string => {
+  return extractClientIp(req);
 };
 
-// Helper for backward compatibility
-export let isRateLimited = async (key: string, _limit = 10, _windowSec = 60): Promise<boolean> => {
+/**
+ * Helper to check if a key is rate limited.
+ */
+export const isRateLimited = async (key: string, _limit = 10, _windowSec = 60): Promise<boolean> => {
   const limiter = apiRateLimit;
   if (!limiter) {
     // Fallback: allow request if Redis is not available
@@ -80,7 +68,10 @@ export let isRateLimited = async (key: string, _limit = 10, _windowSec = 60): Pr
   }
 };
 
-export let getRetryAfterMs = async (key: string): Promise<number> => {
+/**
+ * Helper to get the retry-after duration in milliseconds.
+ */
+export const getRetryAfterMs = async (key: string): Promise<number> => {
   const limiter = apiRateLimit;
   if (!limiter) {
     return 0;
@@ -99,35 +90,3 @@ export let getRetryAfterMs = async (key: string): Promise<number> => {
     return 0;
   }
 };
-
-// When running under Jest, some test files import this module before
-// test setup code runs. To make the exported helpers safely mockable we
-// wrap them with jest.fn when available so tests can call
-// .mockReturnValue/.mockResolvedValue and use Jest matchers like
-// toHaveBeenCalledWith. This preserves the original implementation for
-// non-test runtimes.
-if (process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID) {
-  type JestLike = {
-    fn: <T extends (...args: never[]) => unknown>(
-      implementation: T
-    ) => T & {
-      mockImplementation?: (...args: Parameters<T>) => ReturnType<T>;
-    };
-  };
-
-  const maybeJest = (globalThis as { jest?: JestLike }).jest;
-
-  if (maybeJest) {
-    const originalGetClientIp = getClientIp;
-    const originalIsRateLimited = isRateLimited;
-    const originalGetRetryAfterMs = getRetryAfterMs;
-
-    getClientIp = maybeJest.fn(originalGetClientIp) as typeof getClientIp;
-    isRateLimited = maybeJest.fn(originalIsRateLimited) as typeof isRateLimited;
-    getRetryAfterMs = maybeJest.fn(originalGetRetryAfterMs) as typeof getRetryAfterMs;
-  } else {
-    structuredLogger.warn('Jest not available for mocking in rate-limit module', {
-      component: 'rate-limit',
-    });
-  }
-}
