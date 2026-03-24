@@ -384,5 +384,16 @@ describe('rate-limit', () => {
        // Falls back to other headers or unknown.
        expect(rateLimitStore.has('unknown')).toBe(true);
     });
+
+    it('should handle invalid IP addresses by falling back to "unknown"', async () => {
+       const limiter = rateLimit({ max: 1, windowMs: 1000 });
+       const request = new Request('http://localhost', {
+         headers: { 'x-forwarded-for': 'invalid-ip' },
+       });
+
+       await limiter(request);
+       expect(rateLimitStore.has('unknown')).toBe(true);
+       expect(rateLimitStore.has('invalid-ip')).toBe(false);
+    });
   });
 });
