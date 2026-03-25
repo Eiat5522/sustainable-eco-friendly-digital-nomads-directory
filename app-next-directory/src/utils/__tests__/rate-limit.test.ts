@@ -488,5 +488,33 @@ describe('rate-limit', () => {
       expect(rateLimitStore.has('2.2.2.2')).toBe(true);
       expect(rateLimitStore.has('3.3.3.3')).toBe(false);
     });
+
+    it('should fall back if header contains invalid IP', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+
+      // Invalid x-forwarded-for should fall back to x-real-ip
+      const req1 = new Request('http://localhost', {
+        headers: {
+          'x-forwarded-for': 'invalid-ip',
+          'x-real-ip': '4.4.4.4',
+        },
+      });
+      await limiter(req1);
+      expect(rateLimitStore.has('4.4.4.4')).toBe(true);
+      expect(rateLimitStore.has('invalid-ip')).toBe(false);
+
+      rateLimitStore.clear();
+
+      // All invalid should fall back to 'unknown'
+      const req2 = new Request('http://localhost', {
+        headers: {
+          'x-forwarded-for': 'not-an-ip',
+          'x-real-ip': 'also-not-an-ip',
+          'cf-connecting-ip': 'definitely-not-an-ip',
+        },
+      });
+      await limiter(req2);
+      expect(rateLimitStore.has('unknown')).toBe(true);
+    });
   });
 });
