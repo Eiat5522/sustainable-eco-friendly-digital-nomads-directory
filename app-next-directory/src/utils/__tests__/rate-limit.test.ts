@@ -149,44 +149,23 @@ describe('rate-limit', () => {
       expect(result2a.remaining).toBe(1);
     });
 
-    it('should use x-forwarded-for header for IP', async () => {
+    it.each([
+      ['x-forwarded-for', '192.168.1.1, 10.0.0.1', '192.168.1.1'],
+      ['x-real-ip', '192.168.1.1', '192.168.1.1'],
+      ['cf-connecting-ip', '192.168.1.1', '192.168.1.1'],
+    ])('should use %s header for IP', async (header, value, expectedIp) => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '192.168.1.1, 10.0.0.1' },
+        headers: { [header]: value },
       });
 
       const result = await limiter(request);
       expect(result.success).toBe(true);
 
-      // Should use the first IP in the list
+      // Should be limited for the same IP
       const result2 = await limiter(request);
       expect(result2.success).toBe(false);
-    });
-
-    it('should use x-real-ip header if x-forwarded-for is not present', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-real-ip': '192.168.1.1' },
-      });
-
-      const result = await limiter(request);
-      expect(result.success).toBe(true);
-
-      const result2 = await limiter(request);
-      expect(result2.success).toBe(false);
-    });
-
-    it('should use cf-connecting-ip header if others are not present', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'cf-connecting-ip': '192.168.1.1' },
-      });
-
-      const result = await limiter(request);
-      expect(result.success).toBe(true);
-
-      const result2 = await limiter(request);
-      expect(result2.success).toBe(false);
+      expect(rateLimitStore.has(expectedIp)).toBe(true);
     });
 
     it('should use "unknown" as fallback if no IP headers present', async () => {
@@ -379,55 +358,25 @@ describe('rate-limit', () => {
   });
 
   describe('rateLimiters', () => {
-    it('contactForm limiter should enforce 5 requests limit', async () => {
+    const testCases = [
+      { name: 'contactForm', limiter: rateLimiters.contactForm, max: 5, ip: '127.0.0.1' },
+      { name: 'apiGeneral', limiter: rateLimiters.apiGeneral, max: 100, ip: '127.0.0.2' },
+      { name: 'search', limiter: rateLimiters.search, max: 50, ip: '127.0.0.3' },
+    ];
+
+    it.each(testCases)('$name limiter should enforce $max requests limit', async ({ limiter, max, ip }) => {
       const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.1' },
+        headers: { 'x-forwarded-for': ip },
       });
 
-      // Make 5 requests (should all succeed)
-      for (let i = 0; i < 5; i++) {
-        const result = await rateLimiters.contactForm(request);
+      for (let i = 0; i < max; i++) {
+        const result = await limiter(request);
         expect(result.success).toBe(true);
       }
 
-      // 6th request should fail
-      const result = await rateLimiters.contactForm(request);
+      const result = await limiter(request);
       expect(result.success).toBe(false);
-      expect(result.limit).toBe(5);
-    });
-
-    it('apiGeneral limiter should enforce 100 requests limit', async () => {
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.2' },
-      });
-
-      // Make 100 requests (should all succeed)
-      for (let i = 0; i < 100; i++) {
-        const result = await rateLimiters.apiGeneral(request);
-        expect(result.success).toBe(true);
-      }
-
-      // 101st request should fail
-      const result = await rateLimiters.apiGeneral(request);
-      expect(result.success).toBe(false);
-      expect(result.limit).toBe(100);
-    });
-
-    it('search limiter should enforce 50 requests limit', async () => {
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.3' },
-      });
-
-      // Make 50 requests (should all succeed)
-      for (let i = 0; i < 50; i++) {
-        const result = await rateLimiters.search(request);
-        expect(result.success).toBe(true);
-      }
-
-      // 51st request should fail
-      const result = await rateLimiters.search(request);
-      expect(result.success).toBe(false);
-      expect(result.limit).toBe(50);
+      expect(result.limit).toBe(max);
     });
   });
 
@@ -461,32 +410,25 @@ describe('rate-limit', () => {
       expect(rateLimitStore.has('192.168.1.1')).toBe(true);
     });
 
-    it('should prioritize headers correctly', async () => {
+    it.each([
+      {
+        name: 'x-forwarded-for > x-real-ip',
+        headers: { 'x-forwarded-for': '1.1.1.1', 'x-real-ip': '2.2.2.2' },
+        expected: '1.1.1.1',
+        notExpected: '2.2.2.2',
+      },
+      {
+        name: 'x-real-ip > cf-connecting-ip',
+        headers: { 'x-real-ip': '2.2.2.2', 'cf-connecting-ip': '3.3.3.3' },
+        expected: '2.2.2.2',
+        notExpected: '3.3.3.3',
+      },
+    ])('should prioritize $name', async ({ headers, expected, notExpected }) => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
-
-      // x-forwarded-for > x-real-ip
-      const req1 = new Request('http://localhost', {
-        headers: {
-          'x-forwarded-for': '1.1.1.1',
-          'x-real-ip': '2.2.2.2',
-        },
-      });
-      await limiter(req1);
-      expect(rateLimitStore.has('1.1.1.1')).toBe(true);
-      expect(rateLimitStore.has('2.2.2.2')).toBe(false);
-
-      rateLimitStore.clear();
-
-      // x-real-ip > cf-connecting-ip
-      const req2 = new Request('http://localhost', {
-        headers: {
-          'x-real-ip': '2.2.2.2',
-          'cf-connecting-ip': '3.3.3.3',
-        },
-      });
-      await limiter(req2);
-      expect(rateLimitStore.has('2.2.2.2')).toBe(true);
-      expect(rateLimitStore.has('3.3.3.3')).toBe(false);
+      const req = new Request('http://localhost', { headers });
+      await limiter(req);
+      expect(rateLimitStore.has(expected)).toBe(true);
+      expect(rateLimitStore.has(notExpected)).toBe(false);
     });
 
     it('should fall back if header contains invalid IP', async () => {
