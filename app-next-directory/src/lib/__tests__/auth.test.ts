@@ -87,6 +87,21 @@ jest.mock('@/lib/auth/config', () => ({
   isAdminEmail,
 }));
 
+jest.mock('@/lib/rate-limit', () => ({
+  getClientIp: jest.fn(req => {
+    const xf = req.headers.get('x-forwarded-for');
+    if (xf) {
+      const [first] = xf.split(',');
+      if (first) {
+        return first.trim();
+      }
+    }
+    const xr = req.headers.get('x-real-ip');
+    if (xr) return xr;
+    return 'unknown';
+  }),
+}));
+
 const importAuthModule = async () => {
   jest.resetModules();
   // Re-establish manual mocks after resetModules
@@ -130,6 +145,20 @@ const importAuthModule = async () => {
   }));
   jest.doMock('@/lib/auth/config', () => ({
     isAdminEmail,
+  }));
+  jest.doMock('@/lib/rate-limit', () => ({
+    getClientIp: jest.fn(req => {
+      const xf = req.headers.get('x-forwarded-for');
+      if (xf) {
+        const [first] = xf.split(',');
+        if (first) {
+          return first.trim();
+        }
+      }
+      const xr = req.headers.get('x-real-ip');
+      if (xr) return xr;
+      return 'unknown';
+    }),
   }));
 
   return import('../auth');
@@ -224,7 +253,7 @@ describe('auth module', () => {
 
       expect(recordLoginAttempt).toHaveBeenCalledWith({
         email: 'blocked@example.com',
-        ip: null,
+        ip: 'unknown',
         success: false,
         reason: 'rate_limited',
       });
