@@ -99,6 +99,18 @@ describe('rate-limit utils', () => {
       expect(resUnknown.success).toBe(true);
     });
 
+    it('should handle invalid IP address', async () => {
+      const limiter = mod.rateLimit({ max: 1, windowMs: 1000 });
+      const req = new Request('http://localhost', { headers: { 'x-forwarded-for': 'invalid-ip' } });
+
+      const res = await limiter(req);
+      expect(res.success).toBe(true);
+
+      // Should fall back to 'unknown' key
+      expect(mod.rateLimitStore.has('unknown')).toBe(true);
+      expect(mod.rateLimitStore.has('invalid-ip')).toBe(false);
+    });
+
     it('should cleanup expired entries', async () => {
       const limiter = mod.rateLimit({ max: 1, windowMs: 1000 });
       const req = new Request('http://localhost', { headers: { 'x-forwarded-for': '5.5.5.5' } });
