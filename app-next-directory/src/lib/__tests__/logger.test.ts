@@ -2,7 +2,18 @@
  * @jest-environment node
  */
 
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it, jest } from '@jest/globals';
+
+jest.mock('../rate-limit', () => ({
+  getClientIp: jest.fn(req => {
+    const xf = req.headers?.get?.('x-forwarded-for') || req.headers?.['x-forwarded-for'];
+    if (xf) return xf;
+    const xr = req.headers?.get?.('x-real-ip') || req.headers?.['x-real-ip'];
+    if (xr) return xr;
+    return 'unknown';
+  }),
+}));
+
 import { getRequestContext } from '../logger';
 
 describe('Logger Utilities', () => {

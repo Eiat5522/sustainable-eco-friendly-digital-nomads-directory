@@ -52,6 +52,10 @@ export let getClientIp = (req: Request): string => {
     if (xr && validator.isIP(xr)) {
       return xr;
     }
+    const cf = req.headers.get('cf-connecting-ip');
+    if (cf && validator.isIP(cf)) {
+      return cf;
+    }
   } catch {}
   return 'unknown';
 };
