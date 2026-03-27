@@ -198,20 +198,29 @@ function getClientIP(request: Request): string {
   // Try various headers for IP address
   const forwarded = request.headers.get('x-forwarded-for');
   if (forwarded) {
-    const first = (forwarded.split(',')[0] || '').trim();
-    if (first && validator.isIP(first)) {
-      return first;
+    const parts = forwarded.split(',');
+    for (const part of parts) {
+      const ip = part.trim();
+      if (ip && validator.isIP(ip)) {
+        return ip;
+      }
     }
   }
 
   const realIP = request.headers.get('x-real-ip');
-  if (realIP && validator.isIP(realIP)) {
-    return realIP;
+  if (realIP) {
+    const ip = realIP.trim();
+    if (ip && validator.isIP(ip)) {
+      return ip;
+    }
   }
 
   const cfConnectingIP = request.headers.get('cf-connecting-ip');
-  if (cfConnectingIP && validator.isIP(cfConnectingIP)) {
-    return cfConnectingIP;
+  if (cfConnectingIP) {
+    const ip = cfConnectingIP.trim();
+    if (ip && validator.isIP(ip)) {
+      return ip;
+    }
   }
 
   // Fallback to a default if no valid IP found
