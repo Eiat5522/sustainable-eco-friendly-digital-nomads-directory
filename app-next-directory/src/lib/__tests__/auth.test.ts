@@ -3,6 +3,9 @@ import type { JWT } from 'next-auth/jwt';
 
 jest.mock('server-only', () => ({}));
 
+// Unmock rate-limit to test its actual interaction or provide a controlled mock
+jest.unmock('@/lib/rate-limit');
+
 const mockNextAuthInstance = {
   handlers: { GET: jest.fn(), POST: jest.fn() },
   auth: jest.fn(),
@@ -56,6 +59,7 @@ const dbConnect = jest.fn();
 const updateOne = jest.fn();
 const findOne = jest.fn();
 const isAdminEmail = jest.fn(() => false);
+const getClientIp = jest.fn(() => '127.0.0.1');
 
 jest.mock('@/lib/auth/adapter', () => ({
   createAuthAdapter: jest.fn((...args: unknown[]) => createAuthAdapter(...args)),
@@ -71,6 +75,12 @@ jest.mock('@/lib/auth/dal', () => ({
 jest.mock('@/lib/auth/rateLimit', () => ({
   enforceLoginRateLimit: jest.fn((...args: unknown[]) => enforceLoginRateLimit(...args)),
   recordLoginAttempt: jest.fn((...args: unknown[]) => recordLoginAttempt(...args)),
+}));
+
+jest.mock('@/lib/rate-limit', () => ({
+  getClientIp: jest.fn((...args: unknown[]) => getClientIp(...args)),
+  isRateLimited: jest.fn(),
+  getRetryAfterMs: jest.fn(),
 }));
 
 jest.mock('@/lib/dbConnect', () => jest.fn((...args: unknown[]) => dbConnect(...args)));
@@ -120,6 +130,11 @@ const importAuthModule = async () => {
     enforceLoginRateLimit: jest.fn((...args: unknown[]) => enforceLoginRateLimit(...args)),
     recordLoginAttempt: jest.fn((...args: unknown[]) => recordLoginAttempt(...args)),
   }));
+  jest.doMock('@/lib/rate-limit', () => ({
+    getClientIp: jest.fn((...args: unknown[]) => getClientIp(...args)),
+    isRateLimited: jest.fn(),
+    getRetryAfterMs: jest.fn(),
+  }));
   jest.doMock('@/lib/dbConnect', () => jest.fn((...args: unknown[]) => dbConnect(...args)));
   jest.doMock('@/models/User', () => ({
     __esModule: true,
@@ -160,6 +175,7 @@ describe('auth module', () => {
     googleSpy.mockClear();
     githubSpy.mockClear();
     findOne.mockResolvedValue(null);
+    getClientIp.mockReturnValue('127.0.0.1');
   });
 
   afterAll(() => {
@@ -178,20 +194,23 @@ describe('auth module', () => {
       };
       authenticateUserCredentials.mockResolvedValue(authenticatedUser);
       recordLoginAttempt.mockResolvedValue(undefined);
+      getClientIp.mockReturnValue('203.0.113.5');
 
       const { authOptions } = await importAuthModule();
       const provider = extractCredentialsProvider(authOptions);
-      const request = {
+      // Construct a real Request object if possible, or Mock it if authorize expects it
+      const request = new Request('http://localhost', {
         headers: {
-          get: (key: string) => (key === 'x-forwarded-for' ? '203.0.113.5, 70.0.0.1' : null),
+          'x-forwarded-for': '203.0.113.5, 70.0.0.1',
         },
-      };
+      });
 
       const result = await provider.authorize(
         { email: '  Jane@Example.com ', password: 'secret' },
         request
       );
 
+      expect(getClientIp).toHaveBeenCalledWith(request);
       expect(enforceLoginRateLimit).toHaveBeenCalledWith('jane@example.com:203.0.113.5');
       expect(authenticateUserCredentials).toHaveBeenCalledWith('jane@example.com', 'secret');
       expect(recordLoginAttempt).toHaveBeenCalledWith({
@@ -212,19 +231,19 @@ describe('auth module', () => {
     it('throws when rate limit is exceeded and logs the attempt', async () => {
       enforceLoginRateLimit.mockResolvedValue({ success: false });
       recordLoginAttempt.mockResolvedValue(undefined);
+      getClientIp.mockReturnValue('unknown');
       const { authOptions } = await importAuthModule();
       const provider = extractCredentialsProvider(authOptions);
 
+      const request = new Request('http://localhost');
+
       await expect(
-        provider.authorize(
-          { email: 'blocked@example.com', password: 'pw' },
-          { headers: { get: () => null } }
-        )
+        provider.authorize({ email: 'blocked@example.com', password: 'pw' }, request)
       ).rejects.toThrow('Too many login attempts');
 
       expect(recordLoginAttempt).toHaveBeenCalledWith({
         email: 'blocked@example.com',
-        ip: null,
+        ip: 'unknown',
         success: false,
         reason: 'rate_limited',
       });
@@ -234,6 +253,7 @@ describe('auth module', () => {
       enforceLoginRateLimit.mockResolvedValue({ success: true });
       authenticateUserCredentials.mockResolvedValue(null);
       recordLoginAttempt.mockResolvedValue(undefined);
+      getClientIp.mockReturnValue('unknown');
       const { authOptions } = await importAuthModule();
       const provider = extractCredentialsProvider(authOptions);
 
