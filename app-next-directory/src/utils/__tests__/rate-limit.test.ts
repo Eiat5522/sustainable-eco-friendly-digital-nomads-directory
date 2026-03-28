@@ -243,6 +243,23 @@ describe('rate-limit', () => {
       expect(result.success).toBe(false);
       expect(result.remaining).toBe(0);
     });
+
+    it('should reject invalid IP addresses in headers', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': 'invalid-ip' },
+      });
+
+      // Should fall back to 'unknown'
+      const result = await limiter(request);
+      expect(result.success).toBe(true);
+
+      const request2 = new Request('http://localhost', {
+        headers: { 'x-real-ip': 'another-invalid' },
+      });
+      const result2 = await limiter(request2);
+      expect(result2.success).toBe(false); // Same 'unknown' key
+    });
   });
 
   describe('rateLimiters', () => {
