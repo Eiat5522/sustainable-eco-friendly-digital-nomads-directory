@@ -13,7 +13,7 @@ import { isAdminEmail } from '@/lib/auth/config';
 import { authenticateUserCredentials, getUserById } from '@/lib/auth/dal';
 import { enforceLoginRateLimit, recordLoginAttempt } from '@/lib/auth/rateLimit';
 import { syncUserToSanity } from '@/lib/auth/userService';
-import { getClientIp } from '@/lib/rate-limit';
+import { getClientIp } from '@/lib/ip';
 import dbConnect from '@/lib/dbConnect';
 import { structuredLogger } from '@/lib/logger';
 import User, { type IUser } from '@/models/User';
@@ -46,20 +46,25 @@ const providers: NextAuthConfig['providers'] = [
 
         const email = String(credentials.email).trim().toLowerCase();
         const password = String(credentials.password);
-        // Use the centralized getClientIp utility which includes validation
-        const ip = request instanceof Request ? getClientIp(request) : null;
-        const identifier = ip && ip !== 'unknown' ? `${email}:${ip}` : email;
+        // Use the centralized IP utility which includes validation and priority
+        const ip = getClientIp(request as any);
+        const identifier = ip !== 'unknown' ? `${email}:${ip}` : email;
 
         const rateLimit = await enforceLoginRateLimit(identifier);
         if (!rateLimit.success) {
-          await recordLoginAttempt({ email, ip, success: false, reason: 'rate_limited' });
+          await recordLoginAttempt({
+            email,
+            ip: ip === 'unknown' ? null : ip,
+            success: false,
+            reason: 'rate_limited',
+          });
           throw new Error('Too many login attempts. Please try again later.');
         }
 
         const user = await authenticateUserCredentials(email, password);
         await recordLoginAttempt({
           email,
-          ip,
+          ip: ip === 'unknown' ? null : ip,
           success: Boolean(user),
           reason: user ? 'success' : 'invalid_credentials',
         });

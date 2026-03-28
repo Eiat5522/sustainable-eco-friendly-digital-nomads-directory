@@ -24,9 +24,10 @@ import {
   cleanupRateLimitStore,
   clearRedisClient,
   clearRateLimitStore,
+  getClientIP,
 } from '../rate-limit';
 
-describe('rate-limit', () => {
+describe('rate-limit utility', () => {
   // Store original env vars
   const originalEnv = { ...process.env };
 
@@ -244,7 +245,7 @@ describe('rate-limit', () => {
       expect(result.remaining).toBe(0);
     });
 
-    it('should reject invalid IP addresses in headers', async () => {
+    it('should reject invalid IP addresses in headers via centralized utility', async () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request = new Request('http://localhost', {
         headers: { 'x-forwarded-for': 'invalid-ip' },
@@ -576,6 +577,15 @@ describe('rate-limit', () => {
       expect(result1.resetTime).toBe(result2.resetTime);
       expect(result1.resetTime).toBeGreaterThanOrEqual(before + windowMs);
       expect(result1.resetTime).toBeLessThanOrEqual(after + windowMs);
+    });
+  });
+
+  describe('getClientIP utility', () => {
+    it('should delegate to centralized getClientIp', () => {
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': '1.1.1.1' },
+      });
+      expect(getClientIP(request)).toBe('1.1.1.1');
     });
   });
 });

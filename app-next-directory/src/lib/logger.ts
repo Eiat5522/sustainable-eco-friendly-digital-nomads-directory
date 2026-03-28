@@ -1,5 +1,5 @@
 import pino from 'pino';
-import validator from 'validator';
+import { getClientIp } from './ip';
 
 // Environment check for safe logging configuration
 // Guard access to `process` so this module can be imported in Edge or client contexts
@@ -440,25 +440,17 @@ export const logError = (message: string, error?: unknown, context?: LogContext)
 
 // Helper to extract request context from Next.js request objects
 export const getRequestContext = (req: RequestLike | undefined): LogContext => {
-  const headers = req?.headers;
-  const xf = getHeaderValue(headers, 'x-forwarded-for');
-  const firstXf = (xf?.split(',')[0] || '').trim();
-  const validXf = firstXf && validator.isIP(firstXf) ? firstXf : undefined;
-
-  const realIp = getHeaderValue(headers, 'x-real-ip');
-  const validRealIp = realIp && validator.isIP(realIp) ? realIp : undefined;
-
-  const cf = getHeaderValue(headers, 'cf-connecting-ip');
-  const validCf = cf && validator.isIP(cf) ? cf : undefined;
-
-  const requestIp = req?.ip && validator.isIP(req.ip) ? req.ip : undefined;
+  // Use centralized IP utility for robust, validated extraction
+  // Note: we cast to Headers because getClientIp handles RequestLike
+  const headers = req?.headers as Headers | undefined;
+  const ip = getClientIp(req ? { headers: headers || new Headers(), ip: req.ip } : undefined);
 
   return {
     method: req?.method,
     path: req?.url ?? req?.nextUrl?.pathname,
-    userAgent: getHeaderValue(headers, 'user-agent'),
-    ip: validXf || validRealIp || validCf || requestIp || 'unknown',
-    requestId: getHeaderValue(headers, 'x-request-id'),
+    userAgent: getHeaderValue(req?.headers, 'user-agent'),
+    ip,
+    requestId: getHeaderValue(req?.headers, 'x-request-id'),
   };
 };
 
