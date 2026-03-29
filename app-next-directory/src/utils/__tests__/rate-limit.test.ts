@@ -219,30 +219,20 @@ describe('rate-limit', () => {
   });
 
   describe('cleanupRateLimitStore', () => {
-    it('should cleanup expired entries', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: -1000 }); // Window already expired
+    test.each([
+      ['cleanup expired', -1000, 0],
+      ['not cleanup non-expired', 10000, 1]
+    ])('should %s entries', async (_msg, windowMs, expectedSize) => {
+      const limiter = rateLimit({ max: 1, windowMs });
       const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '9.9.9.9' },
+        headers: { 'x-forwarded-for': '127.0.0.1' },
       });
 
       await limiter(request);
       expect(rateLimitStore.size).toBe(1);
 
       cleanupRateLimitStore();
-      expect(rateLimitStore.size).toBe(0);
-    });
-
-    it('should not cleanup non-expired entries', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 10000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '8.8.8.8' },
-      });
-
-      await limiter(request);
-      expect(rateLimitStore.size).toBe(1);
-
-      cleanupRateLimitStore();
-      expect(rateLimitStore.size).toBe(1);
+      expect(rateLimitStore.size).toBe(expectedSize);
     });
   });
 
@@ -258,7 +248,11 @@ describe('rate-limit', () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request = new Request('http://localhost', { headers });
       await limiter(request);
-      expect(rateLimitStore.has(expected)).toBe(true);
+      if (expected !== 'unknown') {
+        expect(rateLimitStore.has(expected)).toBe(true);
+      } else {
+        expect(rateLimitStore.has('unknown')).toBe(true);
+      }
     });
   });
 
@@ -282,9 +276,12 @@ describe('rate-limit', () => {
       const req = new Request('http://localhost', {
         headers: { 'x-forwarded-for': '127.0.0.1' },
       });
-      expect(await rateLimiters.contactForm(req)).toBeDefined();
-      expect(await rateLimiters.apiGeneral(req)).toBeDefined();
-      expect(await rateLimiters.search(req)).toBeDefined();
+      const results = await Promise.all([
+        rateLimiters.contactForm(req),
+        rateLimiters.apiGeneral(req),
+        rateLimiters.search(req)
+      ]);
+      results.forEach(res => expect(res).toBeDefined());
     });
   });
 });

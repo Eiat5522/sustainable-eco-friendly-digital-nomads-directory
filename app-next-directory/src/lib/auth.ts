@@ -6,6 +6,7 @@ import type { JWT } from 'next-auth/jwt';
 import Credentials from 'next-auth/providers/credentials';
 import GitHub from 'next-auth/providers/github';
 import Google from 'next-auth/providers/google';
+import validator from 'validator';
 // Use CommonJS-friendly deep imports to avoid ESM parsing issues in Jest
 // Additional OAuth providers can be added here when their credentials are available.
 import { createAuthAdapter } from '@/lib/auth/adapter';
@@ -45,9 +46,21 @@ const providers: NextAuthConfig['providers'] = [
 
         const email = String(credentials.email).trim().toLowerCase();
         const password = String(credentials.password);
-        const forwardedFor =
-          request?.headers?.get('x-forwarded-for') ?? request?.headers?.get('x-real-ip') ?? '';
-        const ip = forwardedFor.split(',')[0]?.trim() || null;
+        const forwardedFor = request?.headers?.get('x-forwarded-for');
+        const realIp = request?.headers?.get('x-real-ip');
+        let ip: string | null = null;
+
+        if (forwardedFor) {
+          const first = (forwardedFor.split(',')[0] || '').trim();
+          if (first && validator.isIP(first)) {
+            ip = first;
+          }
+        }
+
+        if (!ip && realIp && validator.isIP(realIp)) {
+          ip = realIp;
+        }
+
         const identifier = ip ? `${email}:${ip}` : email;
 
         const rateLimit = await enforceLoginRateLimit(identifier);
