@@ -174,14 +174,11 @@ describe('rate-limit', () => {
       expect(Redis).not.toHaveBeenCalled();
     });
 
-    it('should fallback when only URL is provided', () => {
-      process.env.UPSTASH_REDIS_REST_URL = 'https://fake-redis.upstash.io';
-      rateLimit({ max: 1, windowMs: 1000 });
-      expect(Redis).not.toHaveBeenCalled();
-    });
-
-    it('should fallback when only TOKEN is provided', () => {
-      process.env.UPSTASH_REDIS_REST_TOKEN = 'fake-token';
+    test.each([
+      ['URL only', { UPSTASH_REDIS_REST_URL: 'https://fake' }],
+      ['TOKEN only', { UPSTASH_REDIS_REST_TOKEN: 'fake' }],
+    ])('should fallback when %s is provided', (_msg, env) => {
+      Object.assign(process.env, env);
       rateLimit({ max: 1, windowMs: 1000 });
       expect(Redis).not.toHaveBeenCalled();
     });
@@ -250,56 +247,18 @@ describe('rate-limit', () => {
   });
 
   describe('getClientIP', () => {
-    it('should handle x-forwarded-for with multiple IPs correctly', async () => {
+    test.each([
+      ['x-forwarded-for', { 'x-forwarded-for': '192.168.1.1, 10.0.0.1' }, '192.168.1.1'],
+      ['x-forwarded-for trimmed', { 'x-forwarded-for': '  192.168.1.1  , 10.0.0.1' }, '192.168.1.1'],
+      ['x-real-ip', { 'x-real-ip': '1.2.3.4' }, '1.2.3.4'],
+      ['cf-connecting-ip', { 'cf-connecting-ip': '172.16.0.1' }, '172.16.0.1'],
+      ['invalid x-forwarded-for', { 'x-forwarded-for': 'invalid, 10.0.0.1' }, 'unknown'],
+      ['empty x-forwarded-for', { 'x-forwarded-for': '', 'x-real-ip': '1.2.3.4' }, '1.2.3.4'],
+    ])('should handle %s correctly', async (_name, headers, expected) => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '  192.168.1.1  , 10.0.0.1' },
-      });
-
+      const request = new Request('http://localhost', { headers });
       await limiter(request);
-      expect(rateLimitStore.has('192.168.1.1')).toBe(true);
-    });
-
-    it('should handle x-forwarded-for with empty first part', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': ', 10.0.0.1' },
-      });
-      await limiter(request);
-      // It should fall through to unknown if x-real-ip and cf-connecting-ip are missing
-      expect(rateLimitStore.has('unknown')).toBe(true);
-    });
-
-    it('should fallback to x-real-ip if x-forwarded-for is empty', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: {
-          'x-forwarded-for': '',
-          'x-real-ip': '1.2.3.4',
-        },
-      });
-      await limiter(request);
-      expect(rateLimitStore.has('1.2.3.4')).toBe(true);
-    });
-
-    it('should handle x-real-ip header', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-real-ip': '10.0.0.1' },
-      });
-
-      await limiter(request);
-      expect(rateLimitStore.has('10.0.0.1')).toBe(true);
-    });
-
-    it('should handle cf-connecting-ip header', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'cf-connecting-ip': '172.16.0.1' },
-      });
-
-      await limiter(request);
-      expect(rateLimitStore.has('172.16.0.1')).toBe(true);
+      expect(rateLimitStore.has(expected)).toBe(true);
     });
   });
 
@@ -320,7 +279,9 @@ describe('rate-limit', () => {
     });
 
     it('should have all predefined limiters working', async () => {
-      const req = new Request('http://localhost');
+      const req = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': '127.0.0.1' },
+      });
       expect(await rateLimiters.contactForm(req)).toBeDefined();
       expect(await rateLimiters.apiGeneral(req)).toBeDefined();
       expect(await rateLimiters.search(req)).toBeDefined();
