@@ -271,7 +271,7 @@ describe('rate-limit', () => {
 
       const limiter = rateLimit({ max: 2, windowMs: 1000 });
       const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': ' fallback-ip' },
+        headers: { 'x-forwarded-for': '1.1.1.1' },
       });
 
       const result = await limiter(request);
@@ -279,7 +279,7 @@ describe('rate-limit', () => {
       expect(result.remaining).toBe(1);
 
       // Verify it used in-memory store
-      expect(rateLimitStore.has('fallback-ip')).toBe(true);
+      expect(rateLimitStore.has('1.1.1.1')).toBe(true);
     });
 
     it('should skip Redis if DISABLE_UPSTASH_DURING_BUILD is set', async () => {
@@ -295,7 +295,7 @@ describe('rate-limit', () => {
     });
 
     it('should handle Redis initialization failure', () => {
-      (Redis as any).mockImplementationOnce(() => {
+      Redis.mockImplementationOnce(() => {
         throw new Error('Init Failed');
       });
 
@@ -357,6 +357,21 @@ describe('rate-limit', () => {
   });
 
   describe('Edge cases and regressions', () => {
+    it('should handle invalid IP addresses', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': 'invalid-ip' },
+      });
+
+      // Should fall back to 'unknown'
+      const result = await limiter(request);
+      expect(result.success).toBe(true);
+
+      const request2 = new Request('http://localhost');
+      const result2 = await limiter(request2);
+      expect(result2.success).toBe(false); // same 'unknown' key
+    });
+
     it('should handle x-forwarded-for with multiple IPs correctly', async () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request = new Request('http://localhost', {
