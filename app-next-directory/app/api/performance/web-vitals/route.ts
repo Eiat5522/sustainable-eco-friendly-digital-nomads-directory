@@ -6,6 +6,7 @@
  */
 
 import { structuredLogger } from '@/lib/logger';
+import { getClientIp } from '@/lib/rate-limit';
 import { processMetricForAlert } from '@/lib/performance/alert-service';
 import { PERFORMANCE_BUDGETS } from '@/lib/performance/performance-budgets';
 
@@ -45,11 +46,17 @@ export async function POST(request: Request) {
     const metricsData = (await request.json()) as MetricData;
 
     // Add timestamp and user agent
+    const clientIp = getClientIp(request);
+    const headersIp =
+      request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      request.headers.get('cf-connecting-ip');
+
     const enhancedData: EnhancedMetricData = {
       ...metricsData,
       timestamp: Date.now(),
       userAgent: request.headers.get('user-agent') || 'Unknown',
-      ip: request.headers.get('x-forwarded-for')?.toString() || 'Unknown',
+      ip: clientIp === 'unknown' && headersIp ? (headersIp.toString() || 'Unknown') : clientIp,
     };
 
     // Check metrics against thresholds and add status
