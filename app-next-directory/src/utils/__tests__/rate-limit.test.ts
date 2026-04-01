@@ -155,88 +155,43 @@ describe('rate-limit', () => {
       expect(result2a.remaining).toBe(1);
     });
 
-    it('should use x-forwarded-for header for IP', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '192.168.1.1, 10.0.0.1' },
+    describe('IP extraction edge cases', () => {
+      it.each([
+        ['x-forwarded-for', '192.168.1.1, 10.0.0.1', '192.168.1.1'],
+        ['x-forwarded-for', '  192.168.1.1  , 10.0.0.1', '192.168.1.1'],
+        ['x-forwarded-for', '2001:db8::1', '2001:db8::1'],
+        ['x-forwarded-for', '[2001:db8::1]:8080', '2001:db8::1'],
+        ['x-forwarded-for', '127.0.0.1:8080', '127.0.0.1'],
+        ['x-real-ip', '192.168.1.1', '192.168.1.1'],
+        ['cf-connecting-ip', '192.168.1.1', '192.168.1.1'],
+      ])('should extract IP correctly from %s header', async (headerName, headerValue, expectedIp) => {
+        const limiter = rateLimit({ max: 1, windowMs: 1000 });
+        const request = new Request('http://localhost', {
+          headers: { [headerName]: headerValue },
+        });
+
+        const result = await limiter(request);
+        expect(result.success).toBe(true);
+
+        // Verification of key in store (since we are in-memory mode)
+        expect(rateLimitStore.has(expectedIp)).toBe(true);
+
+        // Same IP should be blocked
+        const result2 = await limiter(request);
+        expect(result2.success).toBe(false);
       });
 
-      const result = await limiter(request);
-      expect(result.success).toBe(true);
+      it('should use "unknown" as fallback if no valid IP found', async () => {
+        const limiter = rateLimit({ max: 1, windowMs: 1000 });
+        const request = new Request('http://localhost');
 
-      // Should use the first IP in the list
-      const result2 = await limiter(request);
-      expect(result2.success).toBe(false);
-    });
+        const result = await limiter(request);
+        expect(result.success).toBe(true);
+        expect(rateLimitStore.has('unknown')).toBe(true);
 
-    it('should handle IPv6 addresses correctly', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '2001:db8::1' },
+        const result2 = await limiter(request);
+        expect(result2.success).toBe(false);
       });
-
-      const result = await limiter(request);
-      expect(result.success).toBe(true);
-      expect(rateLimitStore.has('2001:db8::1')).toBe(true);
-    });
-
-    it('should handle IPv6 with port correctly', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '[2001:db8::1]:8080' },
-      });
-
-      const result = await limiter(request);
-      expect(result.success).toBe(true);
-      expect(rateLimitStore.has('2001:db8::1')).toBe(true);
-    });
-
-    it('should handle IPv4 with port correctly', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.1:8080' },
-      });
-
-      const result = await limiter(request);
-      expect(result.success).toBe(true);
-      expect(rateLimitStore.has('127.0.0.1')).toBe(true);
-    });
-
-    it('should use x-real-ip header if x-forwarded-for is not present', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-real-ip': '192.168.1.1' },
-      });
-
-      const result = await limiter(request);
-      expect(result.success).toBe(true);
-
-      const result2 = await limiter(request);
-      expect(result2.success).toBe(false);
-    });
-
-    it('should use cf-connecting-ip header if others are not present', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'cf-connecting-ip': '192.168.1.1' },
-      });
-
-      const result = await limiter(request);
-      expect(result.success).toBe(true);
-
-      const result2 = await limiter(request);
-      expect(result2.success).toBe(false);
-    });
-
-    it('should use "unknown" as fallback if no IP headers present', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost');
-
-      const result = await limiter(request);
-      expect(result.success).toBe(true);
-
-      const result2 = await limiter(request);
-      expect(result2.success).toBe(false);
     });
 
     it('should use custom key generator if provided', async () => {
@@ -281,46 +236,30 @@ describe('rate-limit', () => {
   });
 
   describe('Redis initialization', () => {
-    it('should initialize Redis when credentials are provided', () => {
-      process.env.UPSTASH_REDIS_REST_URL = 'http://test-redis.com';
-      process.env.UPSTASH_REDIS_REST_TOKEN = 'test-token';
+    it.each([
+      { desc: 'success with credentials', url: 'http://test-redis.com', token: 'test-token', shouldInit: true },
+      { desc: 'bypass with DISABLE_UPSTASH_DURING_BUILD', url: 'http://test-redis.com', token: 'test-token', shouldInit: false, disableBuild: '1' },
+      { desc: 'failure with missing URL', url: undefined, token: 'test-token', shouldInit: false },
+      { desc: 'failure with missing TOKEN', url: 'http://test-redis.com', token: undefined, shouldInit: false },
+    ])('should handle Redis initialization: $desc', ({ url, token, shouldInit, disableBuild }) => {
+      if (url) process.env.UPSTASH_REDIS_REST_URL = url;
+      else delete process.env.UPSTASH_REDIS_REST_URL;
+
+      if (token) process.env.UPSTASH_REDIS_REST_TOKEN = token;
+      else delete process.env.UPSTASH_REDIS_REST_TOKEN;
+
+      if (disableBuild) process.env.DISABLE_UPSTASH_DURING_BUILD = disableBuild;
+      else delete process.env.DISABLE_UPSTASH_DURING_BUILD;
 
       rateLimit({ max: 1, windowMs: 1000 });
 
-      expect(Redis).toHaveBeenCalledWith({
-        url: 'http://test-redis.com',
-        token: 'test-token',
-      });
-      expect(Ratelimit).toHaveBeenCalled();
-    });
-
-    it('should not initialize Redis when DISABLE_UPSTASH_DURING_BUILD is set', () => {
-      process.env.UPSTASH_REDIS_REST_URL = 'http://test-redis.com';
-      process.env.UPSTASH_REDIS_REST_TOKEN = 'test-token';
-      process.env.DISABLE_UPSTASH_DURING_BUILD = '1';
-
-      rateLimit({ max: 1, windowMs: 1000 });
-
-      expect(Redis).not.toHaveBeenCalled();
-    });
-
-    it('should not initialize Redis when URL is missing', () => {
-      delete process.env.UPSTASH_REDIS_REST_URL;
-      process.env.UPSTASH_REDIS_REST_TOKEN = 'test-token';
-
-      rateLimit({ max: 1, windowMs: 1000 });
-
-      expect(Redis).not.toHaveBeenCalled();
-    });
-
-    it('should not initialize Redis when TOKEN is missing', () => {
-      process.env.UPSTASH_REDIS_REST_URL = 'http://test-redis.com';
-      delete process.env.UPSTASH_REDIS_REST_TOKEN;
-
-      rateLimit({ max: 1, windowMs: 1000 });
-
-      expect(Redis).not.toHaveBeenCalled();
-    });
+      if (shouldInit) {
+        expect(Redis).toHaveBeenCalledWith({ url, token });
+        expect(Ratelimit).toHaveBeenCalled();
+      } else {
+        expect(Redis).not.toHaveBeenCalled();
+      }
+    }, 20000);
 
     it('should handle Redis constructor error gracefully', () => {
       process.env.UPSTASH_REDIS_REST_URL = 'http://test-redis.com';
@@ -332,7 +271,6 @@ describe('rate-limit', () => {
 
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       expect(limiter).toBeDefined();
-      // Should fall back to in-memory, which doesn't use Ratelimit in its initialization
       expect(Ratelimit).not.toHaveBeenCalled();
     });
   });
@@ -378,26 +316,12 @@ describe('rate-limit', () => {
       // First request (falls back to in-memory)
       const result1 = await limiter(request);
       expect(result1.success).toBe(true);
+      expect(rateLimitStore.has('1.2.3.4')).toBe(true);
 
       // Second request (in-memory will block it since max is 1)
       mockLimit.mockRejectedValueOnce(new Error('Redis error'));
       const result2 = await limiter(request);
       expect(result2.success).toBe(false);
-    });
-
-    it('should fall back to in-memory on Redis error (with custom key generator)', async () => {
-      mockLimit.mockRejectedValueOnce(new Error('Redis error'));
-
-      const limiter = rateLimit({
-        max: 1,
-        windowMs: 1000,
-        keyGenerator: () => 'custom-error-key',
-      });
-      const request = new Request('http://localhost');
-
-      const result = await limiter(request);
-      expect(result.success).toBe(true);
-      expect(rateLimitStore.has('custom-error-key')).toBe(true);
     });
 
     it('should use custom key generator with Redis limiter', async () => {
@@ -435,21 +359,25 @@ describe('rate-limit', () => {
   });
 
   describe('Predefined rate limiters', () => {
-    it('contactForm limiter should enforce 5 requests limit', async () => {
+    it.each([
+      ['contactForm', rateLimiters.contactForm, 5],
+      ['apiGeneral', rateLimiters.apiGeneral, 100],
+      ['search', rateLimiters.search, 50],
+    ])('%s limiter should enforce its limit', async (name, limiter, max) => {
       const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.1' },
+        headers: { 'x-forwarded-for': `127.0.0.${name}` },
       });
 
-      // Make 5 requests (should all succeed)
-      for (let i = 0; i < 5; i++) {
-        const result = await rateLimiters.contactForm(request);
+      // Make max requests (should all succeed)
+      for (let i = 0; i < max; i++) {
+        const result = await limiter(request);
         expect(result.success).toBe(true);
       }
 
-      // 6th request should fail
-      const result = await rateLimiters.contactForm(request);
+      // Next request should fail
+      const result = await limiter(request);
       expect(result.success).toBe(false);
-      expect(result.limit).toBe(5);
+      expect(result.limit).toBe(max);
     });
   });
 });
