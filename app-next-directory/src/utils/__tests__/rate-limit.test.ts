@@ -169,6 +169,39 @@ describe('rate-limit', () => {
       expect(result2.success).toBe(false);
     });
 
+    it('should handle IPv6 addresses correctly', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': '2001:db8::1' },
+      });
+
+      const result = await limiter(request);
+      expect(result.success).toBe(true);
+      expect(rateLimitStore.has('2001:db8::1')).toBe(true);
+    });
+
+    it('should handle IPv6 with port correctly', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': '[2001:db8::1]:8080' },
+      });
+
+      const result = await limiter(request);
+      expect(result.success).toBe(true);
+      expect(rateLimitStore.has('2001:db8::1')).toBe(true);
+    });
+
+    it('should handle IPv4 with port correctly', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': '127.0.0.1:8080' },
+      });
+
+      const result = await limiter(request);
+      expect(result.success).toBe(true);
+      expect(rateLimitStore.has('127.0.0.1')).toBe(true);
+    });
+
     it('should use x-real-ip header if x-forwarded-for is not present', async () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request = new Request('http://localhost', {

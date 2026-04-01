@@ -1,4 +1,5 @@
 import { Ratelimit } from '@upstash/ratelimit';
+import validator from 'validator';
 import { structuredLogger } from '@/lib/logger';
 import { getRedisClient } from '@/lib/redis';
 
@@ -42,13 +43,25 @@ export let getClientIp = (req: Request): string => {
   try {
     const xf = req.headers.get('x-forwarded-for');
     if (xf) {
-      const [first] = xf.split(',');
-      if (first) {
-        return first.trim();
+      const value = xf.split(',')[0] || '';
+      // Handle IPv6 with port (e.g. [2001:db8::1]:8080)
+      let ip = value.trim();
+      if (ip.startsWith('[') && ip.includes(']')) {
+        ip = ip.split(']')[0].replace('[', '');
+      } else if (ip.split(':').length === 2) {
+        // Handle IPv4 with port (e.g. 127.0.0.1:8080)
+        ip = ip.split(':')[0];
+      }
+
+      if (ip && validator.isIP(ip)) {
+        return ip;
       }
     }
     const xr = req.headers.get('x-real-ip');
-    if (xr) return xr;
+    if (xr && validator.isIP(xr.trim())) return xr.trim();
+
+    const cf = req.headers.get('cf-connecting-ip');
+    if (cf && validator.isIP(cf.trim())) return cf.trim();
   } catch {}
   return 'unknown';
 };
