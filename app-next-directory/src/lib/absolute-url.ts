@@ -24,9 +24,10 @@ export async function getBaseUrl(headersParam?: HeadersLike | null): Promise<str
   }
 
   if (headersObj) {
-    const first = (v?: string | null) => v?.split(',')[0]?.trim() ?? null;
+    const first = (v?: string | null) => (v?.split(',')[0] || '').trim() || null;
     const isSafeHost = (host: string) => /^[a-z0-9.-]+(?::\d+)?$/i.test(host);
-    const proto = first(headersObj.get('x-forwarded-proto')) ?? 'http';
+    const rawProto = headersObj.get('x-forwarded-proto');
+    const proto = first(rawProto) === 'https' ? 'https' : 'http';
     const xfHost = first(headersObj.get('x-forwarded-host'));
     const host = process.env.VERCEL ? (xfHost ?? headersObj.get('host')) : headersObj.get('host');
     if (host && isSafeHost(host)) {
