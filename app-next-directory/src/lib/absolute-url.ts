@@ -29,7 +29,9 @@ export async function getBaseUrl(headersParam?: HeadersLike | null): Promise<str
     const rawProto = headersObj.get('x-forwarded-proto');
     const proto = first(rawProto) === 'https' ? 'https' : 'http';
     const xfHost = first(headersObj.get('x-forwarded-host'));
-    const host = process.env.VERCEL ? (xfHost ?? headersObj.get('host')) : headersObj.get('host');
+    const host = process.env.VERCEL
+      ? (xfHost && isSafeHost(xfHost) ? xfHost : headersObj.get('host'))
+      : headersObj.get('host');
     if (host && isSafeHost(host)) {
       return `${proto}://${host}`;
     }

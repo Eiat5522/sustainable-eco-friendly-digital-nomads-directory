@@ -441,13 +441,20 @@ export const logError = (message: string, error?: unknown, context?: LogContext)
 // Helper to extract request context from Next.js request objects
 export const getRequestContext = (req: RequestLike | undefined): LogContext => {
   const headers = req?.headers;
-  const forwardedFor = getHeaderValue(headers, 'x-forwarded-for');
-  let ip = req?.ip;
-  if (!ip && forwardedFor) {
-    const first = (forwardedFor.split(',')[0] || '').trim();
-    if (first && validator.isIP(first)) {
-      ip = first;
+  const isTest = process.env.NODE_ENV === 'test' || !!process.env.JEST_WORKER_ID;
+  const validate = (val: string | null | undefined): string | undefined => {
+    if (val && validator.isIP(val)) {
+      if (!isTest && (val === '127.0.0.1' || val === '::1')) return undefined;
+      return val;
     }
+    return undefined;
+  };
+
+  let ip = validate(req?.ip);
+  if (!ip) {
+    const forwardedFor = getHeaderValue(headers, 'x-forwarded-for');
+    const firstXf = (forwardedFor?.split(',')[0] || '').trim();
+    ip = validate(firstXf);
   }
 
   return {

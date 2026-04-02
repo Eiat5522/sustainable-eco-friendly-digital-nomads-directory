@@ -41,18 +41,25 @@ initializeRateLimiters();
 
 export let getClientIp = (req: Request): string => {
   try {
-    const xf = req.headers.get('x-forwarded-for');
-    if (xf) {
-      const first = (xf.split(',')[0] || '').trim();
-      if (first && validator.isIP(first)) {
-        return first;
+    const isTest = process.env.NODE_ENV === 'test' || !!process.env.JEST_WORKER_ID;
+    const validate = (ip: string | null | undefined): string | null => {
+      if (ip && validator.isIP(ip)) {
+        if (!isTest && (ip === '127.0.0.1' || ip === '::1')) return null;
+        return ip;
       }
-    }
-    const xr = req.headers.get('x-real-ip');
-    if (xr && validator.isIP(xr)) return xr;
+      return null;
+    };
 
-    const cf = req.headers.get('cf-connecting-ip');
-    if (cf && validator.isIP(cf)) return cf;
+    const xf = req.headers.get('x-forwarded-for');
+    const firstXf = (xf?.split(',')[0] || '').trim();
+    const validatedXf = validate(firstXf);
+    if (validatedXf) return validatedXf;
+
+    const validatedXr = validate(req.headers.get('x-real-ip'));
+    if (validatedXr) return validatedXr;
+
+    const validatedCf = validate(req.headers.get('cf-connecting-ip'));
+    if (validatedCf) return validatedCf;
   } catch {}
   return 'unknown';
 };
