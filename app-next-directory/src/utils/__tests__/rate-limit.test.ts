@@ -526,6 +526,28 @@ describe('rate-limit', () => {
       expect(result2.success).toBe(false);
     });
 
+    it('should skip invalid IP in x-forwarded-for and fallback', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      const request = new Request('http://localhost', {
+        headers: {
+          'x-forwarded-for': 'invalid-ip',
+          'x-real-ip': '10.0.0.1',
+        },
+      });
+
+      const result = await limiter(request);
+      expect(result.success).toBe(true);
+
+      const request2 = new Request('http://localhost', {
+        headers: {
+          'x-forwarded-for': 'invalid-ip',
+          'x-real-ip': '10.0.0.1',
+        },
+      });
+      const result2 = await limiter(request2);
+      expect(result2.success).toBe(false); // Should have used 10.0.0.1
+    });
+
     it('should handle empty x-forwarded-for value', async () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request = new Request('http://localhost', {
