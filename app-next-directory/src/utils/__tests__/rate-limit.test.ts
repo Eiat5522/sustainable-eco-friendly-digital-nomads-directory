@@ -558,6 +558,27 @@ describe('rate-limit', () => {
       expect(result.success).toBe(false);
     });
 
+    it('should ignore invalid IPs in headers', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      const request = new Request('http://localhost', {
+        headers: {
+          'x-forwarded-for': 'invalid-ip',
+          'x-real-ip': 'not-an-ip',
+          'cf-connecting-ip': '1.2.3.4',
+        },
+      });
+
+      const result = await limiter(request);
+      expect(result.success).toBe(true);
+
+      // Should have used cf-connecting-ip (1.2.3.4)
+      const request2 = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': '1.2.3.4' },
+      });
+      const result2 = await limiter(request2);
+      expect(result2.success).toBe(false);
+    });
+
     it('should prioritize x-real-ip over cf-connecting-ip', async () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request1 = new Request('http://localhost', {
