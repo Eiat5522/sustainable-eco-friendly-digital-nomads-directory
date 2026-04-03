@@ -191,8 +191,8 @@ function getClientIP(request: Request): string {
   // Try various headers for IP address
   const forwarded = request.headers.get('x-forwarded-for');
   if (forwarded) {
-    const ip = forwarded.split(',')[0].trim();
-    if (validator.isIP(ip)) {
+    const ip = (forwarded.split(',')[0] || '').trim();
+    if (ip && validator.isIP(ip)) {
       return ip;
     }
   }

@@ -442,13 +442,28 @@ export const logError = (message: string, error?: unknown, context?: LogContext)
 export const getRequestContext = (req: RequestLike | undefined): LogContext => {
   const headers = req?.headers;
   let ip = req?.ip;
+
   if (!ip || !validator.isIP(ip)) {
     const forwarded = getHeaderValue(headers, 'x-forwarded-for');
     if (forwarded) {
-      const first = forwarded.split(',')[0].trim();
-      if (validator.isIP(first)) {
+      const first = (forwarded.split(',')[0] || '').trim();
+      if (first && validator.isIP(first)) {
         ip = first;
       }
+    }
+  }
+
+  if (!ip || !validator.isIP(ip)) {
+    const realIP = getHeaderValue(headers, 'x-real-ip');
+    if (realIP && validator.isIP(realIP)) {
+      ip = realIP;
+    }
+  }
+
+  if (!ip || !validator.isIP(ip)) {
+    const cfConnectingIP = getHeaderValue(headers, 'cf-connecting-ip');
+    if (cfConnectingIP && validator.isIP(cfConnectingIP)) {
+      ip = cfConnectingIP;
     }
   }
 

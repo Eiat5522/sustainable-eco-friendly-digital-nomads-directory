@@ -43,13 +43,16 @@ export let getClientIp = (req: Request): string => {
   try {
     const xf = req.headers.get('x-forwarded-for');
     if (xf) {
-      const ip = xf.split(',')[0].trim();
-      if (validator.isIP(ip)) {
+      const ip = (xf.split(',')[0] || '').trim();
+      if (ip && validator.isIP(ip)) {
         return ip;
       }
     }
     const xr = req.headers.get('x-real-ip');
     if (xr && validator.isIP(xr)) return xr;
+
+    const cf = req.headers.get('cf-connecting-ip');
+    if (cf && validator.isIP(cf)) return cf;
   } catch {}
   return 'unknown';
 };
