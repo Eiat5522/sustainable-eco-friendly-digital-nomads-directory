@@ -5,6 +5,7 @@
 
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
+import validator from 'validator';
 
 interface RateLimitInfo {
   count: number;
@@ -20,11 +21,11 @@ const rateLimitStore = new Map<string, RateLimitInfo>();
  */
 export function cleanupRateLimitStore() {
   const now = Date.now();
-  for (const [key, info] of rateLimitStore.entries()) {
+  rateLimitStore.forEach((info, key) => {
     if (now > info.resetTime) {
       rateLimitStore.delete(key);
     }
-  }
+  });
 }
 
 // Avoid keeping a long-lived timer alive in unit tests – Jest's leak detector
@@ -190,23 +191,23 @@ export function rateLimit(options: RateLimitOptions) {
  * @param request - The incoming HTTP request
  * @returns The client IP address, or 'unknown' if none found
  */
-function getClientIP(request: Request): string {
+export function getClientIP(request: Request): string {
   // Try various headers for IP address
   const forwarded = request.headers.get('x-forwarded-for');
   if (forwarded) {
-    const [first] = forwarded.split(',');
-    if (first) {
-      return first.trim();
+    const first = (forwarded.split(',')[0] || '').trim();
+    if (first && validator.isIP(first)) {
+      return first;
     }
   }
 
   const realIP = request.headers.get('x-real-ip');
-  if (realIP) {
+  if (realIP && validator.isIP(realIP)) {
     return realIP;
   }
 
   const cfConnectingIP = request.headers.get('cf-connecting-ip');
-  if (cfConnectingIP) {
+  if (cfConnectingIP && validator.isIP(cfConnectingIP)) {
     return cfConnectingIP;
   }
 

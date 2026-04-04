@@ -432,5 +432,15 @@ describe('rate-limit', () => {
       await limiter(request);
       expect(rateLimitStore.has('fixed-key')).toBe(true);
     });
+
+    it('should handle invalid IPs by falling back to unknown', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': 'not-an-ip' },
+      });
+
+      await limiter(request);
+      expect(rateLimitStore.has('unknown')).toBe(true);
+    });
   });
 });
