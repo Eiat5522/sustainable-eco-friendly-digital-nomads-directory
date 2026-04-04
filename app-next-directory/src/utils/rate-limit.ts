@@ -181,6 +181,17 @@ export function rateLimit(options: RateLimitOptions) {
 }
 
 /**
+ * Validates and extracts the first IP address from a header value.
+ * @param value - The header value (e.g., from x-forwarded-for)
+ * @returns The validated IP address, or undefined if invalid
+ */
+const getValidatedIP = (value: string | null | undefined): string | undefined => {
+  if (!value) return undefined;
+  const first = value.split(',')[0]?.trim();
+  return first && validator.isIP(first) ? first : undefined;
+};
+
+/**
  * Extracts the client IP address from the request headers.
  *
  * Checks multiple common headers used by proxies and load balancers:
@@ -193,23 +204,17 @@ export function rateLimit(options: RateLimitOptions) {
  */
 export function getClientIP(request: Request): string {
   // Try various headers for IP address
-  const forwarded = request.headers.get('x-forwarded-for');
-  if (forwarded) {
-    const first = (forwarded.split(',')[0] || '').trim();
-    if (first && validator.isIP(first)) {
-      return first;
-    }
-  }
+  const xf = request.headers.get('x-forwarded-for');
+  const validatedXf = getValidatedIP(xf);
+  if (validatedXf) return validatedXf;
 
-  const realIP = request.headers.get('x-real-ip');
-  if (realIP && validator.isIP(realIP)) {
-    return realIP;
-  }
+  const xr = request.headers.get('x-real-ip');
+  const validatedXr = getValidatedIP(xr);
+  if (validatedXr) return validatedXr;
 
-  const cfConnectingIP = request.headers.get('cf-connecting-ip');
-  if (cfConnectingIP && validator.isIP(cfConnectingIP)) {
-    return cfConnectingIP;
-  }
+  const cf = request.headers.get('cf-connecting-ip');
+  const validatedCf = getValidatedIP(cf);
+  if (validatedCf) return validatedCf;
 
   // Fallback to a default if no IP found
   return 'unknown';
