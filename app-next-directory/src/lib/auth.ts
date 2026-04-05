@@ -11,7 +11,7 @@ import Google from 'next-auth/providers/google';
 import { createAuthAdapter } from '@/lib/auth/adapter';
 import { isAdminEmail } from '@/lib/auth/config';
 import { authenticateUserCredentials, getUserById } from '@/lib/auth/dal';
-import { getClientIp } from '@/lib/rate-limit';
+import { getClientIp } from '@/utils/ip';
 import { enforceLoginRateLimit, recordLoginAttempt } from '@/lib/auth/rateLimit';
 import { syncUserToSanity } from '@/lib/auth/userService';
 import dbConnect from '@/lib/dbConnect';
