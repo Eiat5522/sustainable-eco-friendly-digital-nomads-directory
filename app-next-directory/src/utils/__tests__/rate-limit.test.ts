@@ -263,6 +263,24 @@ describe('rate-limit', () => {
       expect(rateLimitStore.has('abc')).toBe(true);
     });
 
+    it('should handle invalid IP formats (in-memory)', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+
+      const req1 = new Request('http://localhost', { headers: { 'x-forwarded-for': 'invalid-ip' } });
+      await limiter(req1);
+      expect(rateLimitStore.has('unknown')).toBe(true);
+      rateLimitStore.clear();
+
+      const req2 = new Request('http://localhost', { headers: { 'x-real-ip': 'not-an-ip' } });
+      await limiter(req2);
+      expect(rateLimitStore.has('unknown')).toBe(true);
+      rateLimitStore.clear();
+
+      const req3 = new Request('http://localhost', { headers: { 'cf-connecting-ip': '999.999.999.999' } });
+      await limiter(req3);
+      expect(rateLimitStore.has('unknown')).toBe(true);
+    });
+
     it('should handle Redis constructor error', async () => {
       process.env.UPSTASH_REDIS_REST_URL = 'https://fake-redis.upstash.io';
       process.env.UPSTASH_REDIS_REST_TOKEN = 'fake-token';
