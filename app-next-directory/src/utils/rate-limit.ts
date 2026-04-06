@@ -6,7 +6,7 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 import { structuredLogger } from '@/lib/logger';
-import validator from 'validator';
+import { getClientIp } from './ip';
 
 interface RateLimitInfo {
   count: number;
@@ -22,11 +22,11 @@ const rateLimitStore = new Map<string, RateLimitInfo>();
  */
 export function cleanupRateLimitStore() {
   const now = Date.now();
-  for (const [key, info] of rateLimitStore.entries()) {
+  rateLimitStore.forEach((info, key) => {
     if (now > info.resetTime) {
       rateLimitStore.delete(key);
     }
-  }
+  });
 }
 
 // Avoid keeping a long-lived timer alive in unit tests – Jest's leak detector
@@ -150,7 +150,7 @@ export function rateLimit(options: RateLimitOptions) {
 
   return async (request: Request): Promise<RateLimitResult> => {
     const redisClient = initializeRedis();
-    const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
+    const key = keyGenerator ? keyGenerator(request) : getClientIp(request);
 
     if (redisClient) {
       // Re-create limiter if redis client changed (e.g. after resetRedisClient)
@@ -183,44 +183,6 @@ export function rateLimit(options: RateLimitOptions) {
 
     return inMemoryRateLimit(key, max, windowMs);
   };
-}
-
-/**
- * Extracts the client IP address from the request headers.
- *
- * Checks multiple common headers used by proxies and load balancers:
- * - x-forwarded-for (first IP in the list)
- * - x-real-ip
- * - cf-connecting-ip (Cloudflare)
- *
- * @param request - The incoming HTTP request
- * @returns The client IP address, or 'unknown' if none found
- */
-function getClientIP(request: Request): string {
-  // Try various headers for IP address
-  const forwarded = request.headers.get('x-forwarded-for');
-  if (forwarded) {
-    const [first] = forwarded.split(',');
-    if (first) {
-      const ip = first.trim();
-      if (validator.isIP(ip)) {
-        return ip;
-      }
-    }
-  }
-
-  const realIP = request.headers.get('x-real-ip');
-  if (realIP && validator.isIP(realIP)) {
-    return realIP;
-  }
-
-  const cfConnectingIP = request.headers.get('cf-connecting-ip');
-  if (cfConnectingIP && validator.isIP(cfConnectingIP)) {
-    return cfConnectingIP;
-  }
-
-  // Fallback to a default if no IP found
-  return 'unknown';
 }
 
 /**
