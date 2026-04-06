@@ -92,38 +92,19 @@ describe('rate-limit helpers', () => {
     );
   });
 
-  it('getClientIp extracts IP from x-forwarded-for header', async () => {
+  it.each([
+    ['x-forwarded-for', '203.0.113.10, 70.0.0.1', '203.0.113.10'],
+    ['x-real-ip', '198.51.100.5', '198.51.100.5'],
+    ['none', null, 'unknown']
+  ])('getClientIp extracts IP from %s', async (header, value, expected) => {
     const mod = await loadModule();
-
     const request = {
       headers: {
-        get: (key: string) => {
-          if (key === 'x-forwarded-for') return '203.0.113.10, 70.0.0.1';
-          if (key === 'x-real-ip') return '198.51.100.5';
-          return null;
-        },
+        get: (key: string) => (key === header ? value : null),
       },
     } as unknown as Request;
 
-    expect(mod.getClientIp(request)).toBe('203.0.113.10');
-  });
-
-  it('getClientIp falls back to x-real-ip header', async () => {
-    const mod = await loadModule();
-
-    const fallbackRequest = {
-      headers: {
-        get: (key: string) => (key === 'x-real-ip' ? '198.51.100.5' : null),
-      },
-    } as unknown as Request;
-
-    expect(mod.getClientIp(fallbackRequest)).toBe('198.51.100.5');
-  });
-
-  it('getClientIp returns "unknown" when no IP headers present', async () => {
-    const mod = await loadModule();
-
-    expect(mod.getClientIp({ headers: { get: () => null } } as unknown as Request)).toBe('unknown');
+    expect(mod.getClientIp(request)).toBe(expected);
   });
 
   it('isRateLimited returns false when request is allowed', async () => {

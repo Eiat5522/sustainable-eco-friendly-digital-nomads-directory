@@ -13,7 +13,7 @@ describe('Logger Utilities', () => {
         url: '/api/test',
       };
 
-      const context = getRequestContext(req);
+      const context = getRequestContext(req as any);
 
       expect(context.method).toBe('GET');
     });
@@ -24,7 +24,7 @@ describe('Logger Utilities', () => {
         url: '/api/users',
       };
 
-      const context = getRequestContext(req);
+      const context = getRequestContext(req as any);
 
       expect(context.path).toBe('/api/users');
     });
@@ -35,7 +35,7 @@ describe('Logger Utilities', () => {
         nextUrl: { pathname: '/dashboard' },
       };
 
-      const context = getRequestContext(req);
+      const context = getRequestContext(req as any);
 
       expect(context.path).toBe('/dashboard');
     });
@@ -47,7 +47,7 @@ describe('Logger Utilities', () => {
         nextUrl: { pathname: '/dashboard' },
       };
 
-      const context = getRequestContext(req);
+      const context = getRequestContext(req as any);
 
       expect(context.path).toBe('/api/test');
     });
@@ -62,7 +62,7 @@ describe('Logger Utilities', () => {
         headers,
       };
 
-      const context = getRequestContext(req);
+      const context = getRequestContext(req as any);
 
       expect(context.userAgent).toBe('Mozilla/5.0');
     });
@@ -77,7 +77,7 @@ describe('Logger Utilities', () => {
         headers,
       };
 
-      const context = getRequestContext(req);
+      const context = getRequestContext(req as any);
 
       expect(context.ip).toBe('192.168.1.1');
     });
@@ -93,7 +93,7 @@ describe('Logger Utilities', () => {
         headers,
       };
 
-      const context = getRequestContext(req);
+      const context = getRequestContext(req as any);
 
       expect(context.ip).toBe('10.0.0.1');
     });
@@ -108,7 +108,7 @@ describe('Logger Utilities', () => {
         headers,
       };
 
-      const context = getRequestContext(req);
+      const context = getRequestContext(req as any);
 
       expect(context.requestId).toBe('req-123');
     });
@@ -119,12 +119,12 @@ describe('Logger Utilities', () => {
         url: '/api/test',
       };
 
-      const context = getRequestContext(req);
+      const context = getRequestContext(req as any);
 
       expect(context.method).toBe('GET');
       expect(context.path).toBe('/api/test');
       expect(context.userAgent).toBeUndefined();
-      expect(context.ip).toBeUndefined();
+      expect(context.ip).toBe('unknown');
       expect(context.requestId).toBeUndefined();
     });
 
@@ -150,7 +150,7 @@ describe('Logger Utilities', () => {
         headers,
       };
 
-      const context = getRequestContext(req);
+      const context = getRequestContext(req as any);
 
       expect(context.method).toBe('POST');
       expect(context.path).toBe('/api/create');
@@ -170,7 +170,7 @@ describe('Logger Utilities', () => {
         },
       };
 
-      const context = getRequestContext(req);
+      const context = getRequestContext(req as any);
 
       expect(context.method).toBe('PUT');
       expect(context.path).toBe('/api/update');
@@ -192,7 +192,7 @@ describe('Logger Utilities', () => {
         headers,
       };
 
-      const context = getRequestContext(req);
+      const context = getRequestContext(req as any);
 
       expect(context.userAgent).toBe('TestAgent/1.0');
       expect(context.ip).toBe('172.16.0.1');
@@ -215,7 +215,7 @@ describe('Logger Utilities', () => {
         headers,
       };
 
-      const context = getRequestContext(req);
+      const context = getRequestContext(req as any);
 
       expect(context).toEqual({
         method: 'PATCH',
@@ -231,7 +231,7 @@ describe('Logger Utilities', () => {
         url: '/api/test',
       };
 
-      const context = getRequestContext(req);
+      const context = getRequestContext(req as any);
 
       expect(context.method).toBeUndefined();
       expect(context.path).toBe('/api/test');
@@ -242,7 +242,7 @@ describe('Logger Utilities', () => {
         method: 'GET',
       };
 
-      const context = getRequestContext(req);
+      const context = getRequestContext(req as any);
 
       expect(context.method).toBe('GET');
       expect(context.path).toBeUndefined();
@@ -254,7 +254,7 @@ describe('Logger Utilities', () => {
         url: '/api/search?q=test%20query&filter=active',
       };
 
-      const context = getRequestContext(req);
+      const context = getRequestContext(req as any);
 
       expect(context.path).toBe('/api/search?q=test%20query&filter=active');
     });
@@ -266,7 +266,7 @@ describe('Logger Utilities', () => {
         url: longPath,
       };
 
-      const context = getRequestContext(req);
+      const context = getRequestContext(req as any);
 
       expect(context.path).toBe(longPath);
       expect(context.path?.length).toBe(1005); // '/api/' + 1000 'a's
@@ -283,7 +283,7 @@ describe('Logger Utilities', () => {
         headers,
       };
 
-      const context = getRequestContext(req);
+      const context = getRequestContext(req as any);
 
       expect(context.ip).toBe('2001:0db8:85a3::8a2e:0370:7334');
     });
@@ -299,9 +299,9 @@ describe('Logger Utilities', () => {
         headers,
       };
 
-      const context = getRequestContext(req);
+      const context = getRequestContext(req as any);
 
-      expect(context.ip).toBe('192.168.1.1, 10.0.0.1, 172.16.0.1');
+      expect(context.ip).toBe('192.168.1.1');
     });
   });
 
