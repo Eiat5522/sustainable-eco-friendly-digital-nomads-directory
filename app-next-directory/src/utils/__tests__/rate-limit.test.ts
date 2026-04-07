@@ -190,56 +190,25 @@ describe('rate-limit', () => {
   });
 
   describe('getClientIP', () => {
-    it('should use x-forwarded-for header for IP', async () => {
+    it.each([
+      ['x-forwarded-for', '192.168.1.1, 10.0.0.1', '192.168.1.1'],
+      ['x-real-ip', '192.168.1.1', '192.168.1.1'],
+      ['cf-connecting-ip', '192.168.1.1', '192.168.1.1'],
+    ])('should use %s header for IP', async (headerName, headerValue, expectedIp) => {
       delete process.env.UPSTASH_REDIS_REST_URL;
       delete process.env.UPSTASH_REDIS_REST_TOKEN;
       resetRedisClient();
 
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '192.168.1.1, 10.0.0.1' },
+        headers: { [headerName]: headerValue },
       });
 
       const result = await limiter(request);
       expect(result.success).toBe(true);
 
-      // Should use the first IP in the list
-      const result2 = await limiter(request);
-      expect(result2.success).toBe(false);
-    });
-
-    it('should use x-real-ip header if x-forwarded-for is not present', async () => {
-      delete process.env.UPSTASH_REDIS_REST_URL;
-      delete process.env.UPSTASH_REDIS_REST_TOKEN;
-      resetRedisClient();
-
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-real-ip': '192.168.1.1' },
-      });
-
-      const result = await limiter(request);
-      expect(result.success).toBe(true);
-
-      const result2 = await limiter(request);
-      expect(result2.success).toBe(false);
-    });
-
-    it('should use cf-connecting-ip header if others are not present', async () => {
-      delete process.env.UPSTASH_REDIS_REST_URL;
-      delete process.env.UPSTASH_REDIS_REST_TOKEN;
-      resetRedisClient();
-
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'cf-connecting-ip': '192.168.1.1' },
-      });
-
-      const result = await limiter(request);
-      expect(result.success).toBe(true);
-
-      const result2 = await limiter(request);
-      expect(result2.success).toBe(false);
+      // Check that it's limited based on the expected IP
+      expect(rateLimitStore.has(expectedIp)).toBe(true);
     });
 
     it('should use "unknown" as fallback if no IP headers present', async () => {
@@ -250,11 +219,22 @@ describe('rate-limit', () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request = new Request('http://localhost');
 
-      const result = await limiter(request);
-      expect(result.success).toBe(true);
+      await limiter(request);
+      expect(rateLimitStore.has('unknown')).toBe(true);
+    });
 
-      const result2 = await limiter(request);
-      expect(result2.success).toBe(false);
+    it('should use "unknown" if IP header is invalid', async () => {
+      delete process.env.UPSTASH_REDIS_REST_URL;
+      delete process.env.UPSTASH_REDIS_REST_TOKEN;
+      resetRedisClient();
+
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': 'invalid-ip' },
+      });
+
+      await limiter(request);
+      expect(rateLimitStore.has('unknown')).toBe(true);
     });
   });
 
@@ -392,16 +372,12 @@ describe('rate-limit', () => {
   });
 
   describe('Predefined rate limiters', () => {
-    it('should have contactForm limiter configured', () => {
-      expect(rateLimiters.contactForm).toBeDefined();
-    });
-
-    it('should have apiGeneral limiter configured', () => {
-      expect(rateLimiters.apiGeneral).toBeDefined();
-    });
-
-    it('should have search limiter configured', () => {
-      expect(rateLimiters.search).toBeDefined();
+    it.each([
+      ['contactForm'],
+      ['apiGeneral'],
+      ['search'],
+    ])('should have %s limiter configured', (limiterName) => {
+      expect((rateLimiters as any)[limiterName]).toBeDefined();
     });
   });
 });

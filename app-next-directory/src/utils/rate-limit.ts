@@ -5,6 +5,7 @@
 
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
+import validator from 'validator';
 
 interface RateLimitInfo {
   count: number;
@@ -184,6 +185,8 @@ export function rateLimit(options: RateLimitOptions) {
  * - x-real-ip
  * - cf-connecting-ip (Cloudflare)
  *
+ * All extracted values are validated using validator.isIP to prevent IP spoofing.
+ *
  * @param request - The incoming HTTP request
  * @returns The client IP address, or 'unknown' if none found
  */
@@ -191,19 +194,19 @@ function getClientIP(request: Request): string {
   // Try various headers for IP address
   const forwarded = request.headers.get('x-forwarded-for');
   if (forwarded) {
-    const [first] = forwarded.split(',');
-    if (first) {
-      return first.trim();
+    const first = (forwarded.split(',')[0] || '').trim();
+    if (first && validator.isIP(first)) {
+      return first;
     }
   }
 
-  const realIP = request.headers.get('x-real-ip');
-  if (realIP) {
+  const realIP = (request.headers.get('x-real-ip') || '').trim();
+  if (realIP && validator.isIP(realIP)) {
     return realIP;
   }
 
-  const cfConnectingIP = request.headers.get('cf-connecting-ip');
-  if (cfConnectingIP) {
+  const cfConnectingIP = (request.headers.get('cf-connecting-ip') || '').trim();
+  if (cfConnectingIP && validator.isIP(cfConnectingIP)) {
     return cfConnectingIP;
   }
 
