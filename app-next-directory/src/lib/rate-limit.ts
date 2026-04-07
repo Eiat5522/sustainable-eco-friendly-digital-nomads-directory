@@ -39,8 +39,13 @@ const initializeRateLimiters = () => {
 // Initialize on module load
 initializeRateLimiters();
 
-export let getClientIp = (req: Request): string => {
+export let getClientIp = (req: Request & { ip?: string }): string => {
   try {
+    // Prefer direct IP from request object (e.g. NextRequest in middleware)
+    if (req.ip && validator.isIP(req.ip)) {
+      return req.ip;
+    }
+
     const xf = req.headers.get('x-forwarded-for');
     if (xf) {
       const first = (xf.split(',')[0] || '').trim();

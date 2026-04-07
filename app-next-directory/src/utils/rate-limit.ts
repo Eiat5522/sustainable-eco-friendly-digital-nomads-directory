@@ -178,19 +178,25 @@ export function rateLimit(options: RateLimitOptions) {
 }
 
 /**
- * Extracts the client IP address from the request headers.
+ * Extracts the client IP address from the request.
  *
- * Checks multiple common headers used by proxies and load balancers:
- * - x-forwarded-for (first IP in the list)
- * - x-real-ip
- * - cf-connecting-ip (Cloudflare)
+ * Prioritizes:
+ * 1. request.ip (Next.js/middleware context)
+ * 2. x-forwarded-for (first IP in the list)
+ * 3. x-real-ip
+ * 4. cf-connecting-ip (Cloudflare)
  *
  * All extracted values are validated using validator.isIP to prevent IP spoofing.
  *
  * @param request - The incoming HTTP request
  * @returns The client IP address, or 'unknown' if none found
  */
-function getClientIP(request: Request): string {
+function getClientIP(request: Request & { ip?: string }): string {
+  // Prefer direct IP from request object (e.g. NextRequest in middleware)
+  if (request.ip && validator.isIP(request.ip)) {
+    return request.ip;
+  }
+
   // Try various headers for IP address
   const forwarded = request.headers.get('x-forwarded-for');
   if (forwarded) {

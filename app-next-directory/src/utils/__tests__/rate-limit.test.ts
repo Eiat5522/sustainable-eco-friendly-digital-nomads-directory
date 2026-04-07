@@ -236,6 +236,19 @@ describe('rate-limit', () => {
       await limiter(request);
       expect(rateLimitStore.has('unknown')).toBe(true);
     });
+
+    it('should use request.ip if present and valid', async () => {
+      delete process.env.UPSTASH_REDIS_REST_URL;
+      delete process.env.UPSTASH_REDIS_REST_TOKEN;
+      resetRedisClient();
+
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      const request = new Request('http://localhost') as Request & { ip: string };
+      request.ip = '10.10.10.10';
+
+      await limiter(request);
+      expect(rateLimitStore.has('10.10.10.10')).toBe(true);
+    });
   });
 
   describe('Redis-based rate limiting', () => {

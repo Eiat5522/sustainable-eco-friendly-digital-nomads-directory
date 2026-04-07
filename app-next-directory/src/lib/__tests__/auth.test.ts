@@ -73,6 +73,14 @@ jest.mock('@/lib/auth/rateLimit', () => ({
   recordLoginAttempt: jest.fn((...args: unknown[]) => recordLoginAttempt(...args)),
 }));
 
+jest.mock('@/lib/rate-limit', () => ({
+  getClientIp: jest.fn((req: any) => {
+    const xf = req?.headers?.get('x-forwarded-for');
+    if (xf) return xf.split(',')[0].trim();
+    return '127.0.0.1';
+  }),
+}));
+
 jest.mock('@/lib/dbConnect', () => jest.fn((...args: unknown[]) => dbConnect(...args)));
 
 jest.mock('@/models/User', () => ({
@@ -119,6 +127,13 @@ const importAuthModule = async () => {
   jest.doMock('@/lib/auth/rateLimit', () => ({
     enforceLoginRateLimit: jest.fn((...args: unknown[]) => enforceLoginRateLimit(...args)),
     recordLoginAttempt: jest.fn((...args: unknown[]) => recordLoginAttempt(...args)),
+  }));
+  jest.doMock('@/lib/rate-limit', () => ({
+    getClientIp: jest.fn((req: any) => {
+      const xf = req?.headers?.get('x-forwarded-for');
+      if (xf) return xf.split(',')[0].trim();
+      return '127.0.0.1';
+    }),
   }));
   jest.doMock('@/lib/dbConnect', () => jest.fn((...args: unknown[]) => dbConnect(...args)));
   jest.doMock('@/models/User', () => ({
@@ -224,7 +239,7 @@ describe('auth module', () => {
 
       expect(recordLoginAttempt).toHaveBeenCalledWith({
         email: 'blocked@example.com',
-        ip: null,
+        ip: '127.0.0.1',
         success: false,
         reason: 'rate_limited',
       });
@@ -244,7 +259,7 @@ describe('auth module', () => {
 
       expect(recordLoginAttempt).toHaveBeenCalledWith({
         email: 'fail@example.com',
-        ip: null,
+        ip: 'unknown',
         success: false,
         reason: 'invalid_credentials',
       });
