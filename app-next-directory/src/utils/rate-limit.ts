@@ -5,7 +5,7 @@
 
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
-import validator from 'validator';
+import { getClientIp } from './ip';
 
 interface RateLimitInfo {
   count: number;
@@ -35,7 +35,9 @@ const cleanupInterval = shouldStartCleanup
   ? setInterval(cleanupRateLimitStore, 10 * 60 * 1000)
   : null;
 
-cleanupInterval?.unref?.();
+if (cleanupInterval && typeof cleanupInterval.unref === 'function') {
+  cleanupInterval.unref();
+}
 
 // Initialize Redis client if credentials are available
 let redis: Redis | null | undefined;
@@ -152,7 +154,7 @@ export function rateLimit(options: RateLimitOptions) {
     return async (request: Request): Promise<RateLimitResult> => {
       try {
         // Generate key for rate limiting (default to IP)
-        const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
+        const key = keyGenerator ? keyGenerator(request) : getClientIp(request);
 
         const { success, limit, remaining, reset } = await limiter.limit(key);
 
@@ -164,7 +166,7 @@ export function rateLimit(options: RateLimitOptions) {
         };
       } catch (_error) {
         // Fallback to in-memory on error
-        const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
+        const key = keyGenerator ? keyGenerator(request) : getClientIp(request);
         return inMemoryRateLimit(key, max, windowMs);
       }
     };
@@ -172,53 +174,11 @@ export function rateLimit(options: RateLimitOptions) {
 
   // In-memory fallback
   return async (request: Request): Promise<RateLimitResult> => {
-    const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
+    const key = keyGenerator ? keyGenerator(request) : getClientIp(request);
     return inMemoryRateLimit(key, max, windowMs);
   };
 }
 
-/**
- * Extracts the client IP address from the request.
- *
- * Prioritizes:
- * 1. request.ip (Next.js/middleware context)
- * 2. x-forwarded-for (first IP in the list)
- * 3. x-real-ip
- * 4. cf-connecting-ip (Cloudflare)
- *
- * All extracted values are validated using validator.isIP to prevent IP spoofing.
- *
- * @param request - The incoming HTTP request
- * @returns The client IP address, or 'unknown' if none found
- */
-function getClientIP(request: Request & { ip?: string }): string {
-  // Prefer direct IP from request object (e.g. NextRequest in middleware)
-  if (request.ip && validator.isIP(request.ip)) {
-    return request.ip;
-  }
-
-  // Try various headers for IP address
-  const forwarded = request.headers.get('x-forwarded-for');
-  if (forwarded) {
-    const first = (forwarded.split(',')[0] || '').trim();
-    if (first && validator.isIP(first)) {
-      return first;
-    }
-  }
-
-  const realIP = (request.headers.get('x-real-ip') || '').trim();
-  if (realIP && validator.isIP(realIP)) {
-    return realIP;
-  }
-
-  const cfConnectingIP = (request.headers.get('cf-connecting-ip') || '').trim();
-  if (cfConnectingIP && validator.isIP(cfConnectingIP)) {
-    return cfConnectingIP;
-  }
-
-  // Fallback to a default if no IP found
-  return 'unknown';
-}
 
 /**
  * Predefined rate limiters

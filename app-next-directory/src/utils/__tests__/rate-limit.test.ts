@@ -11,6 +11,8 @@ import {
   cleanupRateLimitStore
 } from '../rate-limit';
 
+jest.unmock('../rate-limit');
+
 // Mock Upstash Redis
 const mockIncr = jest.fn<() => Promise<number>>();
 const mockGet = jest.fn<() => Promise<any>>();
