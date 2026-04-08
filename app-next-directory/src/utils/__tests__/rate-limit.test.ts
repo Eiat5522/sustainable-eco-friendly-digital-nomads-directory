@@ -318,12 +318,40 @@ describe('rate-limit', () => {
       expect(result.success).toBe(true);
     });
 
-    it('should use "unknown" as fallback', async () => {
+    it('should use "unknown" as fallback if IP headers are missing or invalid', async () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost');
 
-      const result = await limiter(request);
-      expect(result.success).toBe(true);
+      // Missing headers
+      const request1 = new Request('http://localhost');
+      const result1 = await limiter(request1);
+      expect(result1.success).toBe(true);
+
+      // Invalid IP in x-forwarded-for
+      const request2 = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': 'invalid-ip' }
+      });
+      const result2 = await limiter(request2);
+      expect(result2.success).toBe(false); // Same key "unknown"
+    });
+
+    it('should handle invalid IPs by falling back', async () => {
+       const limiter = rateLimit({ max: 1, windowMs: 1000 });
+
+       // Invalid x-forwarded-for, valid x-real-ip
+       const request = new Request('http://localhost', {
+         headers: {
+           'x-forwarded-for': 'not-an-ip',
+           'x-real-ip': '10.0.0.1'
+         }
+       });
+
+       await limiter(request);
+       // Should have used 10.0.0.1
+
+       const request2 = new Request('http://localhost', {
+         headers: { 'x-forwarded-for': '10.0.0.1' }
+       });
+       expect((await limiter(request2)).success).toBe(false);
     });
   });
 
