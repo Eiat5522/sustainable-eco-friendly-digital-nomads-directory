@@ -14,28 +14,56 @@ interface RateLimitInfo {
 // In-memory store for rate limiting (fallback when Redis is not available)
 const rateLimitStore = new Map<string, RateLimitInfo>();
 
+/**
+ * Cleans up expired entries from the in-memory rate limit store
+ */
+export function cleanupRateLimitStore() {
+  const now = Date.now();
+  for (const [key, info] of rateLimitStore.entries()) {
+    if (now > info.resetTime) {
+      rateLimitStore.delete(key);
+    }
+  }
+}
+
 // Avoid keeping a long-lived timer alive in unit tests – Jest's leak detector
 // treats background intervals as open handles. Only start the cleanup loop
 // outside of test environments so tests can run leak-free.
 const shouldStartCleanup = process.env.NODE_ENV !== 'test' && !process.env.JEST_WORKER_ID;
 const cleanupInterval = shouldStartCleanup
-  ? setInterval(
-      () => {
-        const now = Date.now();
-        for (const [key, info] of rateLimitStore.entries()) {
-          if (now > info.resetTime) {
-            rateLimitStore.delete(key);
-          }
-        }
-      },
-      10 * 60 * 1000
-    )
+  ? setInterval(cleanupRateLimitStore, 10 * 60 * 1000)
   : null;
 
 cleanupInterval?.unref?.();
 
 // Initialize Redis client if credentials are available
-let redis: Redis | null = null;
+// Use undefined initially to signal that initialization hasn't been attempted
+let redis: Redis | null | undefined;
+
+/**
+ * Resets the Redis client to allow re-initialization (mainly for testing)
+ */
+export function resetRedisClient() {
+  redis = undefined;
+}
+
+/**
+ * Clears all rate limiters to force re-initialization with current Redis client state
+ */
+export function clearRateLimiters() {
+  (rateLimiters as any).contactForm = rateLimit({
+    max: 5,
+    windowMs: 15 * 60 * 1000,
+  });
+  (rateLimiters as any).apiGeneral = rateLimit({
+    max: 100,
+    windowMs: 60 * 60 * 1000,
+  });
+  (rateLimiters as any).search = rateLimit({
+    max: 50,
+    windowMs: 10 * 60 * 1000,
+  });
+}
 
 function initializeRedis() {
   if (redis !== undefined) {
@@ -128,19 +156,19 @@ function inMemoryRateLimit(key: string, max: number, windowMs: number): RateLimi
 export function rateLimit(options: RateLimitOptions) {
   const { max, windowMs, keyGenerator } = options;
 
-  // Lazy initialize Redis
-  const redisClient = initializeRedis();
+  return async (request: Request): Promise<RateLimitResult> => {
+    // Lazy initialize Redis per request to pick up latest env/client state
+    const redisClient = initializeRedis();
 
-  // If Redis is available, create a Redis-based rate limiter
-  if (redisClient) {
-    const limiter = new Ratelimit({
-      redis: redisClient,
-      limiter: Ratelimit.slidingWindow(max, `${windowMs} ms`),
-      analytics: false, // Disable analytics for better performance
-    });
-
-    return async (request: Request): Promise<RateLimitResult> => {
+    // If Redis is available, create a Redis-based rate limiter
+    if (redisClient) {
       try {
+        const limiter = new Ratelimit({
+          redis: redisClient,
+          limiter: Ratelimit.slidingWindow(max, `${windowMs} ms`),
+          analytics: false, // Disable analytics for better performance
+        });
+
         // Generate key for rate limiting (default to IP)
         const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
 
@@ -157,11 +185,9 @@ export function rateLimit(options: RateLimitOptions) {
         const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
         return inMemoryRateLimit(key, max, windowMs);
       }
-    };
-  }
+    }
 
-  // In-memory fallback
-  return async (request: Request): Promise<RateLimitResult> => {
+    // In-memory fallback
     const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
     return inMemoryRateLimit(key, max, windowMs);
   };
