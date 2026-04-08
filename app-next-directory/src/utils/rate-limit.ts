@@ -40,12 +40,16 @@ cleanupInterval?.unref?.();
 // Initialize Redis client if credentials are available
 // Use undefined initially to signal that initialization hasn't been attempted
 let redis: Redis | null | undefined;
+let activeLimiter: Ratelimit | null = null;
+let currentLimiterParams: { max: number; windowMs: number } | null = null;
 
 /**
  * Resets the Redis client to allow re-initialization (mainly for testing)
  */
 export function resetRedisClient() {
   redis = undefined;
+  activeLimiter = null;
+  currentLimiterParams = null;
 }
 
 /**
@@ -164,16 +168,25 @@ export function rateLimit(options: RateLimitOptions) {
     // If Redis is available, create a Redis-based rate limiter
     if (redisClient) {
       try {
-        const limiter = new Ratelimit({
-          redis: redisClient,
-          limiter: Ratelimit.slidingWindow(max, `${windowMs} ms`),
-          analytics: false, // Disable analytics for better performance
-        });
+        // Reuse limiter if parameters are the same and redis hasn't changed
+        if (
+          !activeLimiter ||
+          !currentLimiterParams ||
+          currentLimiterParams.max !== max ||
+          currentLimiterParams.windowMs !== windowMs
+        ) {
+          activeLimiter = new Ratelimit({
+            redis: redisClient,
+            limiter: Ratelimit.slidingWindow(max, `${windowMs} ms`),
+            analytics: false, // Disable analytics for better performance
+          });
+          currentLimiterParams = { max, windowMs };
+        }
 
         // Generate key for rate limiting (default to IP)
         const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
 
-        const { success, limit, remaining, reset } = await limiter.limit(key);
+        const { success, limit, remaining, reset } = await activeLimiter.limit(key);
 
         return {
           success,
