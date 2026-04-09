@@ -5,7 +5,7 @@
 
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
-import isIP from 'validator/lib/isIP.js';
+import { getClientIp } from './ip';
 
 interface RateLimitInfo {
   count: number;
@@ -150,7 +150,7 @@ export function rateLimit(options: RateLimitOptions) {
     return async (request: Request): Promise<RateLimitResult> => {
       try {
         // Generate key for rate limiting (default to IP)
-        const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
+        const key = keyGenerator ? keyGenerator(request) : getClientIp(request);
 
         const { success, limit, remaining, reset } = await limiter.limit(key);
 
@@ -162,7 +162,7 @@ export function rateLimit(options: RateLimitOptions) {
         };
       } catch (_error) {
         // Fallback to in-memory on error
-        const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
+        const key = keyGenerator ? keyGenerator(request) : getClientIp(request);
         return inMemoryRateLimit(key, max, windowMs);
       }
     };
@@ -170,44 +170,9 @@ export function rateLimit(options: RateLimitOptions) {
 
   // In-memory fallback
   return async (request: Request): Promise<RateLimitResult> => {
-    const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
+    const key = keyGenerator ? keyGenerator(request) : getClientIp(request);
     return inMemoryRateLimit(key, max, windowMs);
   };
-}
-
-/**
- * Extracts the client IP address from the request headers.
- *
- * Checks multiple common headers used by proxies and load balancers:
- * - x-forwarded-for (first IP in the list)
- * - x-real-ip
- * - cf-connecting-ip (Cloudflare)
- *
- * @param request - The incoming HTTP request
- * @returns The client IP address, or 'unknown' if none found
- */
-function getClientIP(request: Request): string {
-  // Try various headers for IP address
-  const forwarded = request.headers.get('x-forwarded-for');
-  if (forwarded) {
-    const first = (forwarded.split(',')[0] || '').trim();
-    if (first && isIP(first)) {
-      return first;
-    }
-  }
-
-  const realIP = (request.headers.get('x-real-ip') || '').trim();
-  if (realIP && isIP(realIP)) {
-    return realIP;
-  }
-
-  const cfConnectingIP = (request.headers.get('cf-connecting-ip') || '').trim();
-  if (cfConnectingIP && isIP(cfConnectingIP)) {
-    return cfConnectingIP;
-  }
-
-  // Fallback to a default if no IP found
-  return 'unknown';
 }
 
 /**
