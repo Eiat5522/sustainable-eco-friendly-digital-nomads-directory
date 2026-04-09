@@ -5,6 +5,7 @@
 
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
+import isIP from 'validator/lib/isIP.js';
 
 interface RateLimitInfo {
   count: number;
@@ -189,19 +190,19 @@ function getClientIP(request: Request): string {
   // Try various headers for IP address
   const forwarded = request.headers.get('x-forwarded-for');
   if (forwarded) {
-    const [first] = forwarded.split(',');
-    if (first) {
-      return first.trim();
+    const first = (forwarded.split(',')[0] || '').trim();
+    if (first && isIP(first)) {
+      return first;
     }
   }
 
-  const realIP = request.headers.get('x-real-ip');
-  if (realIP) {
+  const realIP = (request.headers.get('x-real-ip') || '').trim();
+  if (realIP && isIP(realIP)) {
     return realIP;
   }
 
-  const cfConnectingIP = request.headers.get('cf-connecting-ip');
-  if (cfConnectingIP) {
+  const cfConnectingIP = (request.headers.get('cf-connecting-ip') || '').trim();
+  if (cfConnectingIP && isIP(cfConnectingIP)) {
     return cfConnectingIP;
   }
 

@@ -308,6 +308,18 @@ describe('rate-limit', () => {
       const result2 = await limiter(request);
       expect(result2.success).toBe(false);
     });
+
+    it('should return "unknown" if IP header is invalid', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': 'not-an-ip' },
+      });
+
+      const result = await limiter(request);
+      expect(result.success).toBe(true);
+      expect(rateLimitStore.has('unknown')).toBe(true);
+      expect(rateLimitStore.has('not-an-ip')).toBe(false);
+    });
   });
 
   describe('cleanupRateLimitStore', () => {
@@ -324,46 +336,26 @@ describe('rate-limit', () => {
   });
 
   describe('rateLimiters', () => {
-    it('should have contactForm limiter configured correctly', async () => {
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.1' },
-      });
+    it.each([
+      ['contactForm', 5, '127.0.0.1'],
+      ['apiGeneral', 100, '127.0.0.2'],
+      ['search', 50, '127.0.0.3'],
+    ] as const)(
+      'should have %s limiter configured correctly with limit %i',
+      async (limiterName, limit, ip) => {
+        const limiter = rateLimiters[limiterName];
+        const request = new Request('http://localhost', {
+          headers: { 'x-forwarded-for': ip },
+        });
 
-      for (let i = 0; i < 5; i++) {
-        const result = await rateLimiters.contactForm(request);
-        expect(result.success).toBe(true);
+        for (let i = 0; i < limit; i++) {
+          const result = await limiter(request);
+          expect(result.success).toBe(true);
+        }
+        const result = await limiter(request);
+        expect(result.success).toBe(false);
+        expect(result.limit).toBe(limit);
       }
-      const result = await rateLimiters.contactForm(request);
-      expect(result.success).toBe(false);
-      expect(result.limit).toBe(5);
-    });
-
-    it('should have apiGeneral limiter configured correctly', async () => {
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.2' },
-      });
-
-      for (let i = 0; i < 100; i++) {
-        const result = await rateLimiters.apiGeneral(request);
-        expect(result.success).toBe(true);
-      }
-      const result = await rateLimiters.apiGeneral(request);
-      expect(result.success).toBe(false);
-      expect(result.limit).toBe(100);
-    });
-
-    it('should have search limiter configured correctly', async () => {
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '127.0.0.3' },
-      });
-
-      for (let i = 0; i < 50; i++) {
-        const result = await rateLimiters.search(request);
-        expect(result.success).toBe(true);
-      }
-      const result = await rateLimiters.search(request);
-      expect(result.success).toBe(false);
-      expect(result.limit).toBe(50);
-    });
+    );
   });
 });
