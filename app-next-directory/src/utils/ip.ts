@@ -20,7 +20,9 @@ const getHeaderValue = (headers: HeaderCollection | undefined, name: string): st
   }
 
   const record = headers as Record<string, HeaderValue>;
-  const direct = record[name] ?? record[lower];
+  // Manual case-insensitive check for records
+  const key = Object.keys(record).find(k => k.toLowerCase() === lower);
+  const direct = key ? record[key] : undefined;
   if (typeof direct === 'string') {
     return direct;
   }
@@ -69,15 +71,21 @@ export function getClientIp(req: { headers?: HeaderCollection; ip?: string }): s
   }
 
   // x-real-ip
-  const realIp = getHeaderValue(headers, 'x-real-ip')?.trim();
-  if (realIp && isIP(realIp)) {
-    return realIp;
+  const realIp = getHeaderValue(headers, 'x-real-ip');
+  if (realIp) {
+    const trimmed = realIp.trim();
+    if (trimmed && isIP(trimmed)) {
+      return trimmed;
+    }
   }
 
   // cf-connecting-ip (Cloudflare)
-  const cfIp = getHeaderValue(headers, 'cf-connecting-ip')?.trim();
-  if (cfIp && isIP(cfIp)) {
-    return cfIp;
+  const cfIp = getHeaderValue(headers, 'cf-connecting-ip');
+  if (cfIp) {
+    const trimmed = cfIp.trim();
+    if (trimmed && isIP(trimmed)) {
+      return trimmed;
+    }
   }
 
   return 'unknown';

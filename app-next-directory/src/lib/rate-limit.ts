@@ -42,11 +42,7 @@ initializeRateLimiters();
 export let getClientIp = (req: Request): string => {
   try {
     const ip = getIp(req);
-    // Standardize 'unknown' or internal IPs for rate limiting if needed
-    if (ip === '127.0.0.1' || !ip) {
-      return 'unknown';
-    }
-    return ip;
+    return ip || 'unknown';
   } catch {
     return 'unknown';
   }

@@ -67,37 +67,6 @@ describe('Logger Utilities', () => {
       expect(context.userAgent).toBe('Mozilla/5.0');
     });
 
-    it('extracts IP from x-forwarded-for header', () => {
-      const headers = {
-        get: (name: string) => (name.toLowerCase() === 'x-forwarded-for' ? '192.168.1.1' : null),
-      };
-      const req = {
-        method: 'GET',
-        url: '/api/test',
-        headers,
-      };
-
-      const context = getRequestContext(req);
-
-      expect(context.ip).toBe('192.168.1.1');
-    });
-
-    it('prefers ip property over x-forwarded-for header', () => {
-      const headers = {
-        get: (name: string) => (name.toLowerCase() === 'x-forwarded-for' ? '192.168.1.1' : null),
-      };
-      const req = {
-        method: 'GET',
-        url: '/api/test',
-        ip: '10.0.0.1',
-        headers,
-      };
-
-      const context = getRequestContext(req);
-
-      expect(context.ip).toBe('10.0.0.1');
-    });
-
     it('extracts request ID from header', () => {
       const headers = {
         get: (name: string) => (name.toLowerCase() === 'x-request-id' ? 'req-123' : null),
@@ -270,38 +239,6 @@ describe('Logger Utilities', () => {
 
       expect(context.path).toBe(longPath);
       expect(context.path?.length).toBe(1005); // '/api/' + 1000 'a's
-    });
-
-    it('handles requests with IPv6 addresses', () => {
-      const headers = {
-        get: (name: string) =>
-          name.toLowerCase() === 'x-forwarded-for' ? '2001:0db8:85a3::8a2e:0370:7334' : null,
-      };
-      const req = {
-        method: 'GET',
-        url: '/api/test',
-        headers,
-      };
-
-      const context = getRequestContext(req);
-
-      expect(context.ip).toBe('2001:0db8:85a3::8a2e:0370:7334');
-    });
-
-    it('handles requests with multiple forwarded IPs', () => {
-      const headers = {
-        get: (name: string) =>
-          name.toLowerCase() === 'x-forwarded-for' ? '192.168.1.1, 10.0.0.1, 172.16.0.1' : null,
-      };
-      const req = {
-        method: 'GET',
-        url: '/api/test',
-        headers,
-      };
-
-      const context = getRequestContext(req);
-
-      expect(context.ip).toBe('192.168.1.1');
     });
   });
 

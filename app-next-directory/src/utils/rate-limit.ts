@@ -139,38 +139,28 @@ export function rateLimit(options: RateLimitOptions) {
   // Lazy initialize Redis
   const redisClient = initializeRedis();
 
-  // If Redis is available, create a Redis-based rate limiter
-  if (redisClient) {
-    const limiter = new Ratelimit({
-      redis: redisClient,
-      limiter: Ratelimit.slidingWindow(max, `${windowMs} ms`),
-      analytics: false, // Disable analytics for better performance
-    });
+  // Return the rate limiting function
+  return async (request: Request): Promise<RateLimitResult> => {
+    const key = keyGenerator ? keyGenerator(request) : getClientIp(request);
 
-    return async (request: Request): Promise<RateLimitResult> => {
+    // If Redis is available, try it first
+    if (redisClient) {
       try {
-        // Generate key for rate limiting (default to IP)
-        const key = keyGenerator ? keyGenerator(request) : getClientIp(request);
+        const limiter = new Ratelimit({
+          redis: redisClient,
+          limiter: Ratelimit.slidingWindow(max, `${windowMs} ms`),
+          analytics: false,
+        });
 
         const { success, limit, remaining, reset } = await limiter.limit(key);
 
-        return {
-          success,
-          limit,
-          remaining,
-          resetTime: reset,
-        };
+        return { success, limit, remaining, resetTime: reset };
       } catch (_error) {
         // Fallback to in-memory on error
-        const key = keyGenerator ? keyGenerator(request) : getClientIp(request);
-        return inMemoryRateLimit(key, max, windowMs);
       }
-    };
-  }
+    }
 
-  // In-memory fallback
-  return async (request: Request): Promise<RateLimitResult> => {
-    const key = keyGenerator ? keyGenerator(request) : getClientIp(request);
+    // In-memory fallback
     return inMemoryRateLimit(key, max, windowMs);
   };
 }

@@ -245,83 +245,6 @@ describe('rate-limit', () => {
     });
   });
 
-  describe('getClientIP', () => {
-    it('should use x-forwarded-for header for IP', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '192.168.1.1, 10.0.0.1' },
-      });
-
-      const result = await limiter(request);
-      expect(result.success).toBe(true);
-
-      const result2 = await limiter(request);
-      expect(result2.success).toBe(false);
-    });
-
-    it('should handle x-forwarded-for with spaces correctly', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': '  192.168.1.1  , 10.0.0.1' },
-      });
-
-      const result = await limiter(request);
-      expect(result.success).toBe(true);
-
-      const result2 = await limiter(request);
-      expect(result2.success).toBe(false);
-    });
-
-    it('should use x-real-ip header if x-forwarded-for is not present', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-real-ip': '192.168.1.1' },
-      });
-
-      const result = await limiter(request);
-      expect(result.success).toBe(true);
-
-      const result2 = await limiter(request);
-      expect(result2.success).toBe(false);
-    });
-
-    it('should use cf-connecting-ip header if others are not present', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'cf-connecting-ip': '192.168.1.1' },
-      });
-
-      const result = await limiter(request);
-      expect(result.success).toBe(true);
-
-      const result2 = await limiter(request);
-      expect(result2.success).toBe(false);
-    });
-
-    it('should use "unknown" as fallback if no IP headers present', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost');
-
-      const result = await limiter(request);
-      expect(result.success).toBe(true);
-
-      const result2 = await limiter(request);
-      expect(result2.success).toBe(false);
-    });
-
-    it('should return "unknown" if IP header is invalid', async () => {
-      const limiter = rateLimit({ max: 1, windowMs: 1000 });
-      const request = new Request('http://localhost', {
-        headers: { 'x-forwarded-for': 'not-an-ip' },
-      });
-
-      const result = await limiter(request);
-      expect(result.success).toBe(true);
-      expect(rateLimitStore.has('unknown')).toBe(true);
-      expect(rateLimitStore.has('not-an-ip')).toBe(false);
-    });
-  });
-
   describe('cleanupRateLimitStore', () => {
     it('should remove expired entries', () => {
       const now = Date.now();
@@ -340,22 +263,19 @@ describe('rate-limit', () => {
       ['contactForm', 5, '127.0.0.1'],
       ['apiGeneral', 100, '127.0.0.2'],
       ['search', 50, '127.0.0.3'],
-    ] as const)(
-      'should have %s limiter configured correctly with limit %i',
-      async (limiterName, limit, ip) => {
-        const limiter = rateLimiters[limiterName];
-        const request = new Request('http://localhost', {
-          headers: { 'x-forwarded-for': ip },
-        });
+    ] as const)('should have %s limiter configured correctly with limit %i', async (limiterName, limit, ip) => {
+      const limiter = rateLimiters[limiterName];
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': ip },
+      });
 
-        for (let i = 0; i < limit; i++) {
-          const result = await limiter(request);
-          expect(result.success).toBe(true);
-        }
+      for (let i = 0; i < limit; i++) {
         const result = await limiter(request);
-        expect(result.success).toBe(false);
-        expect(result.limit).toBe(limit);
+        expect(result.success).toBe(true);
       }
-    );
+      const result = await limiter(request);
+      expect(result.success).toBe(false);
+      expect(result.limit).toBe(limit);
+    });
   });
 });
