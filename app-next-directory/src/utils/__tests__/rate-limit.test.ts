@@ -159,6 +159,21 @@ describe('rate-limit', () => {
       expect(result2.success).toBe(false);
     });
 
+    it('should ignore invalid IPs in x-forwarded-for and fall back', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      const request = new Request('http://localhost', {
+        headers: {
+          'x-forwarded-for': 'invalid-ip',
+          'x-real-ip': '1.2.3.4',
+        },
+      });
+
+      const result = await limiter(request);
+      expect(result.success).toBe(true);
+      expect(rateLimitStore.has('1.2.3.4')).toBe(true);
+      expect(rateLimitStore.has('invalid-ip')).toBe(false);
+    });
+
     it('should use x-real-ip header if x-forwarded-for is not present', async () => {
       const limiter = rateLimit({ max: 1, windowMs: 1000 });
       const request = new Request('http://localhost', {
