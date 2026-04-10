@@ -301,7 +301,7 @@ describe('Logger Utilities', () => {
 
       const context = getRequestContext(req);
 
-      expect(context.ip).toBe('192.168.1.1, 10.0.0.1, 172.16.0.1');
+      expect(context.ip).toBe('192.168.1.1');
     });
   });
 
