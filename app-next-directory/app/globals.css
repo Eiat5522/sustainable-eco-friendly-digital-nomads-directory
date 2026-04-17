@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -139,7 +139,7 @@
 
   body {
     @apply bg-background text-foreground font-sans;
-    font-family: "Inter", "Space Grotesk", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-family: 'Inter', 'Space Grotesk', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
   }
 }
 
@@ -160,7 +160,7 @@
 }
 
 @utility heading-display {
-  font-family: "Space Grotesk", sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   @apply font-bold text-neo-text-primary;
 }
 
@@ -190,4 +190,35 @@
 
 @utility body-sm {
   @apply text-sm text-neo-text-secondary leading-relaxed;
+}
+
+@keyframes hero-spin {
+  from {
+    transform: rotateX(16deg) rotateY(0deg) rotateZ(8deg);
+  }
+
+  to {
+    transform: rotateX(16deg) rotateY(360deg) rotateZ(8deg);
+  }
+}
+
+@keyframes hero-orbit {
+  from {
+    transform: rotateZ(0deg);
+  }
+
+  to {
+    transform: rotateZ(360deg);
+  }
+}
+
+@keyframes hero-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }

@@ -51,7 +51,7 @@ export function FilterMultiSelect({
         <DropdownMenu.Content
           sideOffset={4}
           align="start"
-          className="min-w-[220px] max-h-64 overflow-y-auto rounded-md border-2 border-neo-border bg-white p-2 shadow-md"
+          className="z-50 min-w-[220px] max-h-64 overflow-y-auto rounded-md border-2 border-neo-border bg-white p-2 shadow-md"
         >
           {options.map(opt => {
             const Icon = opt.icon;

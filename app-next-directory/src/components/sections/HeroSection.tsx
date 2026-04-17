@@ -7,6 +7,7 @@ import { useCallback, useState } from 'react';
 import { NeoButton } from '@/components/ui/neo-button';
 import { NeoInput } from '@/components/ui/neo-input';
 import { ScrollDownArrow } from '@/components/ui/scroll-down-arrow';
+import { Hero3DScene } from './Hero3DScene';
 
 export function HeroSection() {
   const [query, setQuery] = useState('');
@@ -41,47 +42,60 @@ export function HeroSection() {
 
       <div className="container relative z-10 mx-auto max-w-6xl">
         <div
-          className="mx-auto max-w-4xl border-4 border-neo-border bg-neo-surface p-6 text-center md:p-10"
+          className="mx-auto max-w-5xl border-4 border-neo-border bg-neo-surface p-6 md:p-10"
           style={{ boxShadow: '14px 14px 0px 0px var(--neo-shadow)' }}
         >
-          <div className="mb-5 inline-block border-2 border-neo-border bg-neo-primary px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-white shadow-[3px_3px_0_0] shadow-neo-shadow">
-            Sustainable Directory
-          </div>
-          <h1 id="hero-heading" className="heading-xl text-neo-border">
-            A Curated Home for Eco-Friendly Digital Nomads
-          </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-sm font-semibold text-neo-text-secondary md:text-base">
-            Explore handpicked places to work, stay, and connect while keeping your footprint low.
-          </p>
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)] lg:items-center">
+            <div className="text-center lg:text-left">
+              <div className="mb-5 inline-block border-2 border-neo-border bg-neo-primary px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-white shadow-[3px_3px_0_0] shadow-neo-shadow">
+                Sustainable Directory
+              </div>
+              <h1 id="hero-heading" className="heading-xl text-neo-border">
+                A Curated Home for Eco-Friendly Digital Nomads
+              </h1>
+              <p className="mx-auto mt-4 max-w-2xl text-sm font-semibold text-neo-text-secondary md:text-base lg:mx-0">
+                Explore handpicked places to work, stay, and connect while keeping your footprint
+                low.
+              </p>
 
-          <form role="search" onSubmit={handleSubmit} className="mx-auto mt-8 max-w-2xl">
-            <div className="relative">
-              <Search
-                aria-hidden="true"
-                focusable="false"
-                className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-neo-text-secondary"
-                size={20}
-              />
-              <NeoInput
-                id="hero-search"
-                type="search"
-                aria-label="Search venues"
-                placeholder="Search cities, venues, and amenities"
-                className="h-14 border-4 pl-12 pr-28"
-                name="q"
-                value={query}
-                onChange={event => setQuery(event.target.value)}
-              />
-              <NeoButton
-                type="submit"
-                variant="primary"
-                size="md"
-                className="absolute right-2 top-1/2 -translate-y-1/2"
+              <form
+                role="search"
+                onSubmit={handleSubmit}
+                className="mx-auto mt-8 max-w-2xl lg:mx-0"
               >
-                Search
-              </NeoButton>
+                <div className="relative">
+                  <Search
+                    aria-hidden="true"
+                    focusable="false"
+                    className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-neo-text-secondary"
+                    size={20}
+                  />
+                  <NeoInput
+                    id="hero-search"
+                    type="search"
+                    aria-label="Search venues"
+                    placeholder="Search cities, venues, and amenities"
+                    className="h-14 border-4 pl-12 pr-28"
+                    name="q"
+                    value={query}
+                    onChange={event => setQuery(event.target.value)}
+                  />
+                  <NeoButton
+                    type="submit"
+                    variant="primary"
+                    size="md"
+                    className="absolute right-2 top-1/2 -translate-y-1/2"
+                  >
+                    Search
+                  </NeoButton>
+                </div>
+              </form>
             </div>
-          </form>
+
+            <div className="flex justify-center lg:justify-end">
+              <Hero3DScene />
+            </div>
+          </div>
         </div>
       </div>
 

@@ -55,6 +55,22 @@ describe('FilterMultiSelect', () => {
     expect(await screen.findByText('Option 2', undefined, { timeout: 2000 })).toBeInTheDocument();
   });
 
+  it('renders the dropdown menu above surrounding content', async () => {
+    render(
+      <FilterMultiSelect
+        label="Test Label"
+        options={mockOptions}
+        selected={[]}
+        onChange={() => {}}
+      />
+    );
+
+    await user.click(screen.getByText('Test Label'));
+
+    const menu = await screen.findByRole('menu', undefined, { timeout: 2000 });
+    expect(menu).toHaveClass('z-50');
+  });
+
   it('calls onChange with the correct value when an item is selected', async () => {
     const handleChange = jest.fn();
     render(
