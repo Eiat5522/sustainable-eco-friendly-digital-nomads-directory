@@ -22,7 +22,8 @@
     "test:db-connection": "node scripts/test-db-connection.js",
     "test:integration": "npm run test:db-connection && npm run test:auth",
     "test:full-integration": "node scripts/integration-test.js",
-    "setup:env": "echo 'Please configure MONGODB_URI in .env.local - see MONGODB_SETUP.md'"
+    "setup:env": "echo 'Please configure MONGODB_URI in .env.local - see MONGODB_SETUP.md'",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@auth/mongodb-adapter": "^2.0.0",
