@@ -62,9 +62,9 @@ interface Listing {
 async function getAllListingSlugs() {
   const client = getClient();
   const slugs = await client.fetch<Array<{ slug: { current: string } }>>(
-    `*[_type == "listing" && defined(slug.current)]{ "slug": slug ,\n        featured\n      }`
+    `*[_type == "listing" && defined(slug.current)]{ "slug": slug }`
   );
-  return slugs.map((item) => ({
+  return slugs.map(item => ({
     slug: item.slug.current,
   }));
 }
@@ -75,7 +75,7 @@ export async function generateStaticParams() {
 }
 
 type Props = {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 };
 
 export async function generateMetadata(
@@ -83,14 +83,15 @@ export async function generateMetadata(
   parent: ResolvingMetadata
 ): Promise<Metadata> {
   try {
+    const { slug } = await params;
     // Fetch from Sanity by slug
     const sanityListing = await getClient().fetch<Listing>(
       `*[_type == "listing" && slug.current == $slug][0]{
         name,
         description_short,
         primary_image_url,
-      ,\n        featured\n      }`,
-      { slug: params.slug }
+      }`,
+      { slug }
     );
 
     if (sanityListing) {
@@ -111,20 +112,21 @@ export async function generateMetadata(
           images: [sanityListing.primary_image_url],
         },
       };
-    }    // If no listing is found by slug, return 404
+    } // If no listing is found by slug, return 404
     // Note: We've removed the ID-based fallback as part of migration to slug-only URLs
     return notFound();
   } catch (error) {
-    console.error("Error generating metadata:", error);
+    console.error('Error generating metadata:', error);
     return {
       title: 'Listing | Sustainable Digital Nomads Directory',
-      description: 'View details about this eco-friendly listing.'
+      description: 'View details about this eco-friendly listing.',
     };
   }
 }
 
 export default async function ListingPage({ params }: Props) {
   try {
+    const { slug } = await params;
     // Fetch from Sanity by slug
     const sanityListing = await getClient().fetch<Listing>(
       `*[_type == "listing" && slug.current == $slug][0]{
@@ -156,8 +158,8 @@ export default async function ListingPage({ params }: Props) {
           "date": _createdAt
         },
         sustainabilityScore
-      ,\n        featured\n      }`,
-      { slug: params.slug }
+      }`,
+      { slug }
     );
 
     if (sanityListing) {
@@ -167,7 +169,7 @@ export default async function ListingPage({ params }: Props) {
           <Breadcrumbs
             items={[
               { label: 'Listings', href: '/listings' },
-              { label: sanityListing.name, href: `/listings/${params.slug}` },
+              { label: sanityListing.name, href: `/listings/${slug}` },
             ]}
           />
 
@@ -181,18 +183,20 @@ export default async function ListingPage({ params }: Props) {
               </div>
             )}
 
-            <ListingDetail listing={{
-              ...sanityListing,
-              description_short: sanityListing.descriptionShort || "",
-              description_long: sanityListing.descriptionLong || "",
-              eco_features: sanityListing.ecoTags || [],
-              gallery_images: sanityListing.images?.map(img => img.asset.url) || [],
-              reviews: sanityListing.reviews || []
-            }} />
+            <ListingDetail
+              listing={{
+                ...sanityListing,
+                description_short: sanityListing.descriptionShort || '',
+                description_long: sanityListing.descriptionLong || '',
+                eco_features: sanityListing.ecoTags || [],
+                gallery_images: sanityListing.images?.map(img => img.asset.url) || [],
+                reviews: sanityListing.reviews || [],
+              }}
+            />
           </article>
 
           <RelatedListings
-            slug={params.slug}
+            slug={slug}
             category={sanityListing.category}
             cityName={sanityListing.city.name}
           />
@@ -203,7 +207,7 @@ export default async function ListingPage({ params }: Props) {
     // If no listing is found, return 404
     return notFound();
   } catch (error) {
-    console.error("Error rendering listing:", error);
+    console.error('Error rendering listing:', error);
     return (
       <main className="container mx-auto py-12 px-4 sm:px-6">
         <h1 className="text-3xl font-bold mb-4">An error occurred</h1>
