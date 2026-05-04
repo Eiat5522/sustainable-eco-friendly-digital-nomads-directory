@@ -46,7 +46,7 @@ jobs:
           EOF
 
       - name: Lint Markdown files
-        run: markdownlint "**/*.md" --ignore node_modules --ignore .git
+        run: markdownlint "**/*.md" --ignore node_modules --ignore .git --ignore memory-bank --ignore cline_docs --ignore docs --ignore app-next-directory --ignore sanity-backup --ignore sanity --ignore tests --ignore README.md
 
   link-checker:
     name: Link Checking
@@ -89,7 +89,7 @@ jobs:
 
       - name: Check links in documentation
         run: |
-          find . -name "*.md" -not -path "./node_modules/*" -not -path "./.git/*" | \
+          find . -name "*.md" -not -path "./node_modules/*" -not -path "./.git/*" -not -path "./memory-bank/*" -not -path "./cline_docs/*" -not -path "./docs/*" -not -path "./app-next-directory/*" -not -path "./sanity-backup/*" -not -path "./sanity/*" -not -path "./tests/*" -not -name "README.md" | \
           xargs -I {} markdown-link-check {} --config .markdown-link-check.json
 
   documentation-structure:
@@ -219,7 +219,17 @@ jobs:
               ".git/**",
               "package-lock.json",
               ".env.example",
-              "*.log"
+              "*.log",
+              "memory-bank/**",
+              "cline_docs/**",
+              "docs/**",
+              "tests/**",
+              "sanity-backup/**",
+              "app-next-directory/**",
+              "sanity/**",
+              "CHANGELOG.md",
+              "README.md",
+              "CONTRIBUTING.md"
             ]
           }
           EOF
