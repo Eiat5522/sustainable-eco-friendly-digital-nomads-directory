@@ -78,21 +78,11 @@ export default function PerformanceDashboard() {
     const target = budget.target;
     const critical = budget.critical;
     
-    // For CLS lower is better, same for all other metrics
-    if (metric === 'CLS') {
-      if (value <= target) return (value / target) * 100;
       if (value <= critical) return ((value - target) / (critical - target) * 50) + 50;
       return 100;
     }
-    
-    // For normal metrics (where lower is better)
-    if (value <= target) return (value / target) * 50;
-    if (value <= critical) return ((value - target) / (critical - target) * 50) + 50;
-    return 100;
-  };
-
-  if (!showDashboard) {
-    return (
+      if (value <= target) return (value / target) * 100;
+      if (value <= critical) return ((value - target) / (critical - target) * 50) + 50;
       <button 
         onClick={() => setShowDashboard(true)}
         className="fixed bottom-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-md shadow-md z-50"

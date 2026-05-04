@@ -11,7 +11,7 @@ type ListingsFixtures = {
 
 // Extend base test with fixtures
 export const test = base.extend<ListingsFixtures>({
-  mockListings: async ({}, use) => {
+  mockListings: async ({ }, use) => {
     // Provide mock listings data
     const mockData: Listing[] = [
       {
@@ -40,7 +40,7 @@ export const test = base.extend<ListingsFixtures>({
     await use(mockData);
   },
 
-  defaultFilters: async ({}, use) => {
+  defaultFilters: async ({ }, use) => {
     await use({
       categories: ['coworking', 'cafe', 'accommodation'],
       ecoTags: [
