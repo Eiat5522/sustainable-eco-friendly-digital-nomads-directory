@@ -231,12 +231,12 @@ async function performBulkImport(
 		const conditions: string[] = [];
 		if (slugsToCheck.length > 0) {
 			conditions.push(
-				`slug.current in [${slugsToCheck.map((s) => `"${s.replace(/"/g, '\\"')}"`).join(", ")}]`,
+				`slug.current in [${slugsToCheck.map((s) => `"${s.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`).join(", ")}]`,
 			);
 		}
 		if (namesToCheck.length > 0) {
 			conditions.push(
-				`name in [${namesToCheck.map((n) => `"${n.replace(/"/g, '\\"')}"`).join(", ")}]`,
+				`name in [${namesToCheck.map((n) => `"${n.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`).join(", ")}]`,
 			);
 		}
 
