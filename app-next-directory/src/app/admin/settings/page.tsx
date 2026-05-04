@@ -131,15 +131,25 @@ export default function SettingsPage() {
   const handleRunBackup = async () => {
     try {
       setLoading(true);
-      // TODO: Implement backup functionality
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate backup
-      setSettings((prev: SystemSettings) => ({
-        ...prev,
-        backup: {
-          ...prev.backup,
-          lastBackup: new Date().toISOString(),
-        },
-      }));
+      const response = await fetch('/api/admin/backup', {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        throw new Error('Backup failed');
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        setSettings((prev: SystemSettings) => ({
+          ...prev,
+          backup: {
+            ...prev.backup,
+            lastBackup: data.timestamp || new Date().toISOString(),
+          },
+        }));
+      }
     } catch (error) {
       console.error('Error running backup:', error);
     } finally {
