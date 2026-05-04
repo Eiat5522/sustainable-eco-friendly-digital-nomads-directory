@@ -28,7 +28,7 @@ jobs:
       - name: Type check
         run: |
           cd app-next-directory
-          npm run type-check
+          npx tsc --noEmit
 
       - name: Lint
         run: |
