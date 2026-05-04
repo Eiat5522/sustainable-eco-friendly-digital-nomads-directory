@@ -123,7 +123,8 @@ export async function generateMetadata(
   }
 }
 
-export default async function ListingPage({ params }: Props) {
+export default async function ListingPage(props: Props) {
+  const params = await props.params;
   try {
     // Fetch from Sanity by slug
     const sanityListing = await getClient().fetch<Listing>(
