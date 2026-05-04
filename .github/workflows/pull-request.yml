@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: "20"
           cache: "npm"
-          cache-dependency-path: "app-next-directory/package-lock.json"
+          cache-dependency-path: "package-lock.json"
 
       - name: Install dependencies
         run: |
@@ -28,7 +28,7 @@ jobs:
       - name: Type check
         run: |
           cd app-next-directory
-          npm run type-check
+          npx tsc --noEmit
 
       - name: Lint
         run: |
@@ -52,7 +52,7 @@ jobs:
         with:
           node-version: "20"
           cache: "npm"
-          cache-dependency-path: "app-next-directory/package-lock.json"
+          cache-dependency-path: "package-lock.json"
 
       - name: Install dependencies
         run: |
