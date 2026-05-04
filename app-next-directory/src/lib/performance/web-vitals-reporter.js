@@ -75,17 +75,19 @@ export function reportWebVitals(metric) {
  */
 export function withPerformanceTracking(componentName, Component) {
   return function WrappedComponent(props) {
+    const startTime = React.useRef(performance.now());
+
     // Skip if disabled
     if (!WEB_VITALS_CONFIG.enabled) {
       return <Component {...props} />;
     }
 
-    const startTime = performance.now();
+    startTime.current = performance.now();
     
     // Store the render time after component renders
     React.useEffect(() => {
       const endTime = performance.now();
-      const renderTime = endTime - startTime;
+      const renderTime = endTime - startTime.current;
       
       // Debug mode - log to console
       if (WEB_VITALS_CONFIG.debug) {

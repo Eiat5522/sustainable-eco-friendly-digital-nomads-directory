@@ -177,7 +177,7 @@ function evaluateMetric(category, name, value) {
  * @returns {string} - Markdown formatted report
  */
 function generateMarkdownReport(results) {
-  const { timestamp, date, summary, pageTests, apiTests } = results;
+  const { date, summary, pageTests, apiTests } = results;
   
   let markdown = `# Performance Baseline Test Results\n\n`;
   markdown += `Generated: ${date}\n\n`;

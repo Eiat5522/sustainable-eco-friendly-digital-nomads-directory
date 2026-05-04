@@ -39,4 +39,3 @@ export const test = base.extend<{ mockListingPage: MockListingPage }>({
   }
 });
 
-export { expect } from '@playwright/test';

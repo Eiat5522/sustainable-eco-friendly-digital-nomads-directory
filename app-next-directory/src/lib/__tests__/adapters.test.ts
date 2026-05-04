@@ -10,7 +10,7 @@ beforeAll(() => {
   } as any));
 });
 afterAll(() => {
-  (Date as any).mockRestore && (Date as any).mockRestore();
+  jest.restoreAllMocks();
 });
 
 describe('jsonToSanityListing', () => {

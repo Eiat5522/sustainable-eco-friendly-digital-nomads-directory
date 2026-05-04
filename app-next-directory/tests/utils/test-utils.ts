@@ -30,7 +30,7 @@ export const test = base.extend({
   },
 });
 
-export { expect };
+
 
 // Custom test helpers
 export const TestHelpers = {

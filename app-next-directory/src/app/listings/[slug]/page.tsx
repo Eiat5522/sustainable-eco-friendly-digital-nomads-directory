@@ -175,7 +175,7 @@ export default async function ListingPage({ params }: Props) {
             {sanityListing.images && sanityListing.images.length > 0 && (
               <div className="mb-8">
                 <ImageGallery
-                  images={sanityListing.images.map(img => img.asset.url)}
+                  images={sanityListing.images.map((img: any) => img.asset.url)}
                   alt={`Photos of ${sanityListing.name}`}
                 />
               </div>
@@ -186,7 +186,7 @@ export default async function ListingPage({ params }: Props) {
               description_short: sanityListing.descriptionShort || "",
               description_long: sanityListing.descriptionLong || "",
               eco_features: sanityListing.ecoTags || [],
-              gallery_images: sanityListing.images?.map(img => img.asset.url) || [],
+              gallery_images: sanityListing.images?.map((img: any) => img.asset.url) || [],
               reviews: sanityListing.reviews || []
             }} />
           </article>
