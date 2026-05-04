@@ -8,6 +8,7 @@ import LoadingSpinner from '../common/LoadingSpinner';
 import { ListingGrid } from '../listings/ListingGrid';
 import CityMap from './CityMap';
 import CityStats from './CityStats';
+import DOMPurify from 'isomorphic-dompurify';
 
 const CityPage: React.FC<CityPageProps> = ({ slug }) => {
   const [city, setCity] = useState<City | null>(null);
@@ -110,7 +111,7 @@ const CityPage: React.FC<CityPageProps> = ({ slug }) => {
         {activeTab === 'about' && (
           <div>
             <h2 className="text-xl font-semibold mb-4">About {city.name}</h2>
-            <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: city.description }} />
+            <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(city.description || '') }} />
 
             <div className="mt-8">
               <h3 className="text-lg font-semibold mb-2">Sustainability Initiatives</h3>

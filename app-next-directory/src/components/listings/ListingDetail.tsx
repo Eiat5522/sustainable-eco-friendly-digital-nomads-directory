@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import DOMPurify from 'isomorphic-dompurify';
 
 interface Review {
   rating: number
@@ -84,7 +85,7 @@ export function ListingDetail({ listing }: ListingProps) {
         {/* Description */}
         <div className="prose dark:prose-invert max-w-none mb-8">
           <p className="text-lg mb-4">{listing.description_short}</p>
-          <div dangerouslySetInnerHTML={{ __html: listing.description_long }} />
+          <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(listing.description_long || '') }} />
         </div>
 
         {/* Features & Amenities */}
