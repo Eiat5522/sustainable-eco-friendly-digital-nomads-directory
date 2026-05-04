@@ -235,27 +235,27 @@ export async function POST(request: NextRequest) {
     // Check if it's a bulk operation
     if (body.items && Array.isArray(body.items)) {
       const validatedData = BulkModerationSchema.parse(body);
-      const results = [];
 
-      for (const item of validatedData.items) {
-        try {
-          const result = await performModerationAction(
-            item.itemId,
-            item.itemType,
-            validatedData.action,
-            session.user.id,
-            validatedData.reason,
-            validatedData.notes
-          );
-          results.push(result);
-        } catch (error) {
-          results.push({
-            success: false,
-            itemId: item.itemId,
-            error: error instanceof Error ? error.message : 'Unknown error'
-          });
-        }
-      }
+      const results = await Promise.all(
+        validatedData.items.map(async (item) => {
+          try {
+            return await performModerationAction(
+              item.itemId,
+              item.itemType,
+              validatedData.action,
+              session.user.id,
+              validatedData.reason,
+              validatedData.notes
+            );
+          } catch (error) {
+            return {
+              success: false,
+              itemId: item.itemId,
+              error: error instanceof Error ? error.message : 'Unknown error'
+            };
+          }
+        })
+      );
 
       return ApiResponseHandler.success(results, 'Bulk moderation completed');
     } else {
