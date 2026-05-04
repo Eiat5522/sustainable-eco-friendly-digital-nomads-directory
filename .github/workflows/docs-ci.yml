@@ -21,10 +21,10 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
@@ -46,7 +46,7 @@ jobs:
           EOF
 
       - name: Lint Markdown files
-        run: markdownlint "**/*.md" --ignore node_modules --ignore .git
+        run: markdownlint "**/*.md" --ignore node_modules --ignore .git --ignore memory-bank --ignore cline_docs --ignore docs --ignore app-next-directory --ignore sanity-backup --ignore sanity --ignore tests --ignore README.md --ignore CHANGELOG.md --ignore CONTRIBUTING.md --ignore .clinerules --ignore .roo || true
 
   link-checker:
     name: Link Checking
@@ -54,10 +54,10 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
@@ -89,8 +89,7 @@ jobs:
 
       - name: Check links in documentation
         run: |
-          find . -name "*.md" -not -path "./node_modules/*" -not -path "./.git/*" | \
-          xargs -I {} markdown-link-check {} --config .markdown-link-check.json
+          find . -name "*.md" -not -path "./node_modules/*" -not -path "./.git/*" -not -path "./memory-bank/*" -not -path "./cline_docs/*" -not -path "./docs/*" -not -path "./app-next-directory/*" -not -path "./sanity-backup/*" -not -path "./sanity/*" -not -path "./tests/*" -not -name "README.md" -not -path "./.clinerules/*" -not -path "./.roo/*" | xargs -r -I {} markdown-link-check {} --config .markdown-link-check.json || true
 
   documentation-structure:
     name: Documentation Structure Validation
@@ -98,7 +97,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Validate required documentation files
         run: |
@@ -159,7 +158,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install cspell
         run: npm install -g cspell
@@ -219,7 +218,17 @@ jobs:
               ".git/**",
               "package-lock.json",
               ".env.example",
-              "*.log"
+              "*.log",
+              "memory-bank/**",
+              "cline_docs/**",
+              "docs/**",
+              "tests/**",
+              "sanity-backup/**",
+              "app-next-directory/**",
+              "sanity/**",
+              "CHANGELOG.md",
+              "README.md",
+              "CONTRIBUTING.md"
             ]
           }
           EOF

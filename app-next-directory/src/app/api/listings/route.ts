@@ -18,26 +18,26 @@ const createListingSchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
- try {
-   const { searchParams } = new URL(request.url);
-   const page = parseInt(searchParams.get('page') || '1');
-   const limit = parseInt(searchParams.get('limit') || '10');
-   const category = searchParams.get('category');
-+ 26 |     const featured = searchParams.get('featured') === 'true';
-   const location = searchParams.get('location');
+  try {
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = parseInt(searchParams.get('limit') || '10', 10);
+    const category = searchParams.get('category');
+    const featured = searchParams.get('featured') === 'true';
+    const location = searchParams.get('location');
 
     const listings = await getCollection('listings');
 
-    const filter: any = { status: 'active' };
+    const filter: Record<string, unknown> = { status: 'active' };
     if (category) filter.category = category;
     if (location) filter.location = { $regex: location, $options: 'i' };
-+ 33 |     if (featured) filter['moderation.featured'] = true;
+    if (featured) filter['moderation.featured'] = true;
 
     const skip = (page - 1) * limit;
 
     const [results, total] = await Promise.all([
       listings.find(filter).skip(skip).limit(limit).toArray(),
-      listings.countDocuments(filter)
+      listings.countDocuments(filter),
     ]);
 
     return ApiResponseHandler.success({
@@ -46,8 +46,8 @@ export async function GET(request: NextRequest) {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
     return ApiResponseHandler.error('Failed to fetch listings');
@@ -68,11 +68,7 @@ export async function POST(request: NextRequest) {
     const validationResult = createListingSchema.safeParse(body);
 
     if (!validationResult.success) {
-      return ApiResponseHandler.error(
-        'Invalid listing data',
-        400,
-        validationResult.error.errors
-      );
+      return ApiResponseHandler.error('Invalid listing data', 400, validationResult.error.errors);
     }
 
     const validatedData = validationResult.data;
@@ -89,7 +85,7 @@ export async function POST(request: NextRequest) {
       ownerId: session.user.id,
       createdAt: new Date(),
       updatedAt: new Date(),
-      status: 'active'
+      status: 'active',
     };
 
     const result = await listings.insertOne(newListing);
