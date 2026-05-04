@@ -3,7 +3,7 @@ import { test as base } from '@playwright/test';
 // Extend the base test to include custom fixtures
 export const test = base.extend({
   // Custom fixture for authenticated user
-  authenticatedPage: async ({ page }, use) => {
+  authenticatedPage: async ({ page, browserName }, use) => {
     // Navigate to login page
     await page.goto('/login');
 
@@ -19,7 +19,7 @@ export const test = base.extend({
   },
 
   // Custom fixture for admin user
-  adminPage: async ({ page }, use) => {
+  adminPage: async ({ page, browserName }, use) => {
     await page.goto('/login');
 
     await page.fill('input[name="email"]', 'admin@example.com');
@@ -32,7 +32,7 @@ export const test = base.extend({
   },
 
   // Custom fixture for venue owner
-  venueOwnerPage: async ({ page }, use) => {
+  venueOwnerPage: async ({ page, browserName }, use) => {
     await page.goto('/login');
 
     await page.fill('input[name="email"]', 'venueowner@example.com');

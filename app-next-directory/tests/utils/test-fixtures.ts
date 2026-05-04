@@ -9,10 +9,8 @@ type ListingsFixtures = {
   };
 };
 
-// Extend base test with fixtures
 export const test = base.extend<ListingsFixtures>({
-  mockListings: async ({ }, use) => {
-    // Provide mock listings data
+  mockListings: async ({ browserName }, use) => {
     const mockData: Listing[] = [
       {
         id: '1',
@@ -34,13 +32,11 @@ export const test = base.extend<ListingsFixtures>({
         digital_nomad_features: ['wifi'],
         last_verified_date: '2025-05-14'
       }
-      // Add more mock listings as needed
     ];
-
     await use(mockData);
   },
 
-  defaultFilters: async ({ }, use) => {
+  defaultFilters: async ({ browserName }, use) => {
     await use({
       categories: ['coworking', 'cafe', 'accommodation'],
       ecoTags: [

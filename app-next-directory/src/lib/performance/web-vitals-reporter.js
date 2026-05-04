@@ -82,7 +82,6 @@ export function withPerformanceTracking(componentName, Component) {
       return <Component {...props} />;
     }
 
-    startTime.current = performance.now();
     
     // Store the render time after component renders
     React.useEffect(() => {

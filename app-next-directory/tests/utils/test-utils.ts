@@ -4,7 +4,7 @@ import { test as base, expect } from '@playwright/test';
 // Extend base test with custom fixtures
 export const test = base.extend({
   // Add authenticated page fixture
-  authenticatedPage: async ({ page }, use) => {
+  authenticatedPage: async ({ page, browserName }, use) => {
     // Log in
     await page.goto('/auth/signin');
     await page.fill('input[name="email"]', process.env.TEST_USER_EMAIL || 'test@example.com');
@@ -17,7 +17,7 @@ export const test = base.extend({
   },
 
   // Add admin page fixture
-  adminPage: async ({ page }, use) => {
+  adminPage: async ({ page, browserName }, use) => {
     // Log in as admin
     await page.goto('/auth/signin');
     await page.fill('input[name="email"]', process.env.ADMIN_EMAIL || 'admin@example.com');

@@ -231,7 +231,7 @@ function generateMarkdownReport(results) {
   markdown += `\n## Recommendations\n\n`;
   
   // Generate recommendations based on failures
-  const failedTests = [...pageTests, ...apiTests].flatMap(test => 
+  const failedTests = [...pageTests, ...apiTests].flatMap((test: any) =>
     (test.metrics || [{ result: test.result }])
       .filter(metric => metric.result.status === 'fail')
       .map(metric => ({ test, metric }))
@@ -243,7 +243,7 @@ function generateMarkdownReport(results) {
     markdown += `Based on test failures, consider the following optimizations:\n\n`;
     
     for (const { test, metric } of failedTests.slice(0, 5)) { // Limit to top 5 issues
-      const url = test.url || test.endpoint;
+      const url = test.url || test.endpoint || 'unknown';
       const metricName = metric.name || (url.split('/').pop());
       
       markdown += `- **${metricName}** on \`${url}\`: ${getRecommendation(metricName)}\n`;
