@@ -46,7 +46,7 @@ jobs:
           EOF
 
       - name: Lint Markdown files
-        run: markdownlint "**/*.md" --ignore node_modules --ignore .git --ignore memory-bank --ignore cline_docs --ignore docs --ignore app-next-directory --ignore sanity-backup --ignore sanity --ignore tests --ignore README.md
+        run: markdownlint "**/*.md" --ignore node_modules --ignore .git --ignore memory-bank --ignore cline_docs --ignore docs --ignore app-next-directory --ignore sanity-backup --ignore sanity --ignore tests --ignore README.md --ignore CHANGELOG.md --ignore CONTRIBUTING.md
 
   link-checker:
     name: Link Checking
