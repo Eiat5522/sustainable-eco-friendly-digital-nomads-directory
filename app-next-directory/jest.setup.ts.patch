@@ -1,0 +1,14 @@
+--- jest.setup.ts
++++ jest.setup.ts
+@@ -10,3 +10,13 @@
+ if (typeof global.fetch === 'undefined') {
+   (global as any).fetch = jest.fn();
+ }
++
++import { Request as NodeRequest, Response as NodeResponse } from 'node-fetch';
++if (typeof global.Request === 'undefined') {
++  (global as any).Request = NodeRequest;
++}
++if (typeof global.Response === 'undefined') {
++  (global as any).Response = NodeResponse;
++}
