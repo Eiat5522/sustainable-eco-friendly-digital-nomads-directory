@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import DOMPurify from 'isomorphic-dompurify';
 
 interface FilterOption {
   id: string
@@ -90,7 +91,7 @@ export function FilterSystem({
     if (!iconString) return null
     
     return (
-      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" dangerouslySetInnerHTML={{ __html: iconString }} />
+      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(iconString || '', { ADD_TAGS: ['svg', 'path', 'g', 'circle', 'rect', 'line', 'polygon', 'polyline', 'text', 'title', 'use'], ADD_ATTR: ['viewBox', 'fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'cx', 'cy', 'r', 'x', 'y', 'width', 'height', 'd', 'opacity', 'transform', 'class', 'id', 'xmlns'] }) }} />
     )
   }
 
