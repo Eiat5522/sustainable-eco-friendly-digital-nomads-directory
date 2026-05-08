@@ -1,4 +1,4 @@
-import { WORKDAY_WIDGET_RESOURCE, renderWorkdayWidgetHtml } from '../workday-widget';
+import { renderWorkdayWidgetHtml, WORKDAY_WIDGET_RESOURCE } from '../workday-widget';
 
 describe('workday itinerary widget resource', () => {
   it('uses a versioned MCP Apps HTML resource URI', () => {

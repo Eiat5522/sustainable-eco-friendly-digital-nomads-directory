@@ -7,10 +7,10 @@ import {
 } from './listing-candidates';
 import { planSustainableWorkday } from './workday-planner';
 import {
+  type WorkdayItinerary,
   WorkdayItinerarySchema,
   WorkdayPlanInputObjectSchema,
   WorkdayPlanInputSchema,
-  type WorkdayItinerary,
 } from './workday-schemas';
 import { renderWorkdayWidgetHtml, WORKDAY_WIDGET_RESOURCE } from './workday-widget';
 

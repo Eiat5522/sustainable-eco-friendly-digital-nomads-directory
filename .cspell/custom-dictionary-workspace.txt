@@ -2,6 +2,7 @@
 authjs
 FORTEST
 groq
+hrefs
 NEXTAUTH
 openspec
 prerendered
