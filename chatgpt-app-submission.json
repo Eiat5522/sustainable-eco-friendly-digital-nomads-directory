@@ -1,0 +1,144 @@
+{
+  "$schema": "https://developers.openai.com/apps-sdk/schemas/chatgpt-app-submission.v1.json",
+  "schema_version": 1,
+  "app_info": {
+    "display_name": "Sustainable Workday Planner",
+    "subtitle": "Plan eco workdays",
+    "description": "Sustainable Workday Planner helps digital nomads find published sustainable directory listings, inspect listing details, and build a practical workday itinerary across cafes, workspaces, meals, and activities.",
+    "category": "TRAVEL"
+  },
+  "tools": {
+    "search": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Searches published directory listings and returns matching references without changing data.",
+        "open_world_justification": "Does not write to public internet state or external third-party systems.",
+        "destructive_justification": "Does not delete, overwrite, revoke access, or perform irreversible actions."
+      }
+    },
+    "fetch": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Retrieves one published directory listing by id or slug and returns its details without changing data.",
+        "open_world_justification": "Does not write to public internet state or external third-party systems.",
+        "destructive_justification": "Does not delete, overwrite, revoke access, or perform irreversible actions."
+      }
+    },
+    "plan_sustainable_workday": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Reads published listing candidates and computes an itinerary without saving or modifying records.",
+        "open_world_justification": "Does not write to public internet state or external third-party systems.",
+        "destructive_justification": "Does not delete, overwrite, revoke access, or perform irreversible actions."
+      }
+    },
+    "render_workday_itinerary": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Renders a provided itinerary into the app widget without changing data.",
+        "open_world_justification": "Does not write to public internet state or external third-party systems.",
+        "destructive_justification": "Does not delete, overwrite, revoke access, or perform irreversible actions."
+      }
+    }
+  },
+  "test_cases": [
+    {
+      "description": "Search for sustainable listings in a city.",
+      "user_prompt": "Find sustainable coworking and cafe options in Chiang Mai.",
+      "file_attachment_urls": null,
+      "tools_triggered": "search",
+      "expected_output": "Returns matching sustainable directory listings with names and listing URLs.",
+      "expected_output_url": null
+    },
+    {
+      "description": "Fetch details for a known listing.",
+      "user_prompt": "Show me details for Pun Pun Organic Farm and Restaurant.",
+      "file_attachment_urls": null,
+      "tools_triggered": "fetch",
+      "expected_output": "Returns the listing description, location context, website when available, and sustainability metadata.",
+      "expected_output_url": null
+    },
+    {
+      "description": "Plan a balanced sustainable workday.",
+      "user_prompt": "Plan a sustainable workday in Chiang Mai from 9 AM to 6 PM with a balanced work style.",
+      "file_attachment_urls": null,
+      "tools_triggered": "plan_sustainable_workday",
+      "expected_output": "Returns an itinerary with timed stops, reasons for each stop, and any notices about missing listing coverage.",
+      "expected_output_url": null
+    },
+    {
+      "description": "Plan with user preferences.",
+      "user_prompt": "Build a quiet budget-friendly sustainable workday in Bangkok with vegetarian food if possible.",
+      "file_attachment_urls": null,
+      "tools_triggered": "plan_sustainable_workday",
+      "expected_output": "Returns a city-specific itinerary that favors quiet, budget-aware, and dietary preference matches where listings support them.",
+      "expected_output_url": null
+    },
+    {
+      "description": "Render a planned itinerary as a widget.",
+      "user_prompt": "Show that workday plan as an interactive itinerary.",
+      "file_attachment_urls": null,
+      "tools_triggered": "render_workday_itinerary",
+      "expected_output": "Displays the sustainable workday itinerary widget with the same stops, timing, reasons, and notices from the plan.",
+      "expected_output_url": null
+    },
+    {
+      "description": "Handle incomplete city coverage.",
+      "user_prompt": "Plan a sustainable workday in a city where there may not be enough listings.",
+      "file_attachment_urls": null,
+      "tools_triggered": "plan_sustainable_workday",
+      "expected_output": "Returns the best available itinerary and clearly notes missing categories, coordinates, or opening hours instead of failing silently.",
+      "expected_output_url": null
+    }
+  ],
+  "negative_test_cases": [
+    {
+      "description": "Do not trigger for booking requests.",
+      "user_prompt": "Book me a coworking desk for tomorrow and pay the deposit.",
+      "file_attachment_urls": null,
+      "tools_triggered": null,
+      "expected_output": "The app should not be invoked for booking or payment actions because it only searches, fetches, plans, and renders read-only itinerary data.",
+      "expected_output_url": null
+    },
+    {
+      "description": "Do not trigger for unrelated travel logistics.",
+      "user_prompt": "Find the cheapest flight from Bangkok to Tokyo next week.",
+      "file_attachment_urls": null,
+      "tools_triggered": null,
+      "expected_output": "The app should not be invoked because flight search is outside the sustainable directory and workday itinerary workflows.",
+      "expected_output_url": null
+    },
+    {
+      "description": "Do not trigger for authenticated account changes.",
+      "user_prompt": "Update my profile and save this itinerary to my account.",
+      "file_attachment_urls": null,
+      "tools_triggered": null,
+      "expected_output": "The app should not be invoked for profile updates or saved plans because v1 has no authentication or writeback.",
+      "expected_output_url": null
+    },
+    {
+      "description": "Do not trigger for unrelated productivity planning.",
+      "user_prompt": "Create a task list for my software sprint planning meeting.",
+      "file_attachment_urls": null,
+      "tools_triggered": null,
+      "expected_output": "The app should not be invoked because the request is not about sustainable directory listings or workday itineraries.",
+      "expected_output_url": null
+    }
+  ]
+}

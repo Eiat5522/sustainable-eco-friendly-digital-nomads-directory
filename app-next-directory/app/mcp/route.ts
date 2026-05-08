@@ -1,6 +1,3 @@
-import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
-import { createWorkdayMcpServer } from '@/lib/chatgpt-app/mcp-server';
-
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
@@ -19,18 +16,30 @@ const jsonResponse = (body: unknown, init?: ResponseInit): Response =>
   });
 
 const withCors = (response: Response): Response => {
-  const headers = new Headers(response.headers);
-  for (const [key, value] of Object.entries(CORS_HEADERS)) {
-    headers.set(key, value);
+  try {
+    for (const [key, value] of Object.entries(CORS_HEADERS)) {
+      response.headers.set(key, value);
+    }
+    return response;
+  } catch {
+    const headers = new Headers(response.headers);
+    for (const [key, value] of Object.entries(CORS_HEADERS)) {
+      headers.set(key, value);
+    }
+    return new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers,
+    });
   }
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers,
-  });
 };
 
 async function handleMcpRequest(request: Request): Promise<Response> {
+  const [{ WebStandardStreamableHTTPServerTransport }, { createWorkdayMcpServer }] =
+    await Promise.all([
+      import('@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js'),
+      import('@/lib/chatgpt-app/mcp-server'),
+    ]);
   const server = createWorkdayMcpServer();
   const transport = new WebStandardStreamableHTTPServerTransport({
     sessionIdGenerator: undefined,

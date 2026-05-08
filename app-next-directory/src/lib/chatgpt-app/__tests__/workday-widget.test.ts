@@ -16,4 +16,14 @@ describe('workday itinerary widget resource', () => {
     expect(html).toContain('window.openai');
     expect(html).not.toMatch(/<script[^>]+src=/i);
   });
+
+  it('renders tool data with DOM text APIs instead of raw HTML injection', () => {
+    const html = renderWorkdayWidgetHtml();
+
+    // Listing fields come from tool data, so the widget must render them as text and
+    // validate outbound hrefs instead of interpolating them into raw HTML.
+    expect(html).toContain('textContent');
+    expect(html).toContain('safeListingHref');
+    expect(html).not.toContain('innerHTML');
+  });
 });

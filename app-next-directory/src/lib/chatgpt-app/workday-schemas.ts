@@ -20,21 +20,24 @@ const minutesFromTime = (time: string): number => {
   return (hours ?? 0) * 60 + (minutes ?? 0);
 };
 
-export const WorkdayPlanInputSchema = z
-  .object({
-    city: z.string().trim().min(1, 'City is required'),
-    date: z.string().trim().min(1).optional(),
-    startTime: TimeSchema.default('09:00'),
-    endTime: TimeSchema.default('18:00'),
-    budget: BudgetSchema.default('any'),
-    workStyle: WorkStyleSchema.default('balanced'),
-    priorities: z.array(z.string().trim().min(1)).max(10).default([]),
-    dietaryNeeds: z.array(z.string().trim().min(1)).max(10).default([]),
-  })
-  .refine(input => minutesFromTime(input.endTime) > minutesFromTime(input.startTime), {
+export const WorkdayPlanInputObjectSchema = z.object({
+  city: z.string().trim().min(1, 'City is required'),
+  date: z.string().trim().min(1).optional(),
+  startTime: TimeSchema.default('09:00'),
+  endTime: TimeSchema.default('18:00'),
+  budget: BudgetSchema.default('any'),
+  workStyle: WorkStyleSchema.default('balanced'),
+  priorities: z.array(z.string().trim().min(1)).max(10).default([]),
+  dietaryNeeds: z.array(z.string().trim().min(1)).max(10).default([]),
+});
+
+export const WorkdayPlanInputSchema = WorkdayPlanInputObjectSchema.refine(
+  input => minutesFromTime(input.endTime) > minutesFromTime(input.startTime),
+  {
     message: 'End time must be later than start time',
     path: ['endTime'],
-  });
+  }
+);
 
 export const ListingCitySchema = z.object({
   name: z.string().trim().min(1),

@@ -17,7 +17,7 @@ export const WORKDAY_WIDGET_RESOURCE = {
 } as const;
 
 export function renderWorkdayWidgetHtml(): string {
-  return String.raw`<!doctype html>
+  return `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -169,13 +169,32 @@ export function renderWorkdayWidgetHtml(): string {
         return output && output.itinerary ? output.itinerary : output;
       };
 
+      const appendText = (parent, tagName, className, text) => {
+        const element = document.createElement(tagName);
+        if (className) element.className = className;
+        element.textContent = text || '';
+        parent.appendChild(element);
+        return element;
+      };
+
+      const safeListingHref = (href) => {
+        if (typeof href !== 'string') return null;
+        if (href.startsWith('/listings/')) return href;
+        try {
+          const parsed = new URL(href);
+          return parsed.protocol === 'https:' || parsed.protocol === 'http:' ? href : null;
+        } catch {
+          return null;
+        }
+      };
+
       const render = () => {
         const itinerary = getItinerary();
         if (!itinerary || !Array.isArray(itinerary.stops)) return;
 
         document.getElementById('summary').textContent = itinerary.summary || 'Sustainable workday';
         const timeline = document.getElementById('timeline');
-        timeline.innerHTML = '';
+        timeline.replaceChildren();
 
         for (const stop of itinerary.stops) {
           const article = document.createElement('article');
@@ -185,31 +204,38 @@ export function renderWorkdayWidgetHtml(): string {
             ...(stop.listing.ecoFocusTags || []),
             ...(stop.listing.digitalNomadFeatures || []),
           ].slice(0, 5);
-          article.innerHTML = [
-            '<div class="stop-header">',
-            '<span class="slot">' + stop.slot + '</span>',
-            '<span class="time">' + stop.startTime + ' - ' + stop.endTime + '</span>',
-            '</div>',
-            '<div class="listing">' + stop.listing.name + '</div>',
-            '<div class="badges">' +
-              badges.map((badge) => '<span class="badge">' + badge + '</span>').join('') +
-              '</div>',
-            '<p class="reason">' + (stop.reasons || []).join(' ') + '</p>',
-            '<button type="button" data-url="' + stop.listing.canonicalUrl + '">Open listing</button>',
-          ].join('');
-          article.querySelector('button').addEventListener('click', (event) => {
-            openExternal(event.currentTarget.dataset.url);
-          });
+
+          const header = document.createElement('div');
+          header.className = 'stop-header';
+          appendText(header, 'span', 'slot', stop.slot);
+          appendText(header, 'span', 'time', stop.startTime + ' - ' + stop.endTime);
+          article.appendChild(header);
+
+          appendText(article, 'div', 'listing', stop.listing.name);
+
+          const badgeGroup = document.createElement('div');
+          badgeGroup.className = 'badges';
+          for (const badge of badges) {
+            appendText(badgeGroup, 'span', 'badge', badge);
+          }
+          article.appendChild(badgeGroup);
+          appendText(article, 'p', 'reason', (stop.reasons || []).join(' '));
+
+          const listingHref = safeListingHref(stop.listing.canonicalUrl);
+          if (listingHref) {
+            const button = appendText(article, 'button', '', 'Open listing');
+            button.type = 'button';
+            button.addEventListener('click', () => {
+              openExternal(listingHref);
+            });
+          }
           timeline.appendChild(article);
         }
 
         const notices = document.getElementById('notices');
-        notices.innerHTML = '';
+        notices.replaceChildren();
         for (const notice of itinerary.notices || []) {
-          const paragraph = document.createElement('p');
-          paragraph.className = 'notice';
-          paragraph.textContent = notice;
-          notices.appendChild(paragraph);
+          appendText(notices, 'p', 'notice', notice);
         }
       };
 

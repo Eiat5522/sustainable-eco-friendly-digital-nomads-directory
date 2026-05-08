@@ -8,6 +8,7 @@ import {
 import { planSustainableWorkday } from './workday-planner';
 import {
   WorkdayItinerarySchema,
+  WorkdayPlanInputObjectSchema,
   WorkdayPlanInputSchema,
   type WorkdayItinerary,
 } from './workday-schemas';
@@ -151,6 +152,8 @@ export async function callWorkdayTool(name: string, input: unknown): Promise<Wor
   }
 
   if (name === 'plan_sustainable_workday') {
+    // Execution keeps the cross-field time refinement; MCP registration uses the base object
+    // shape below because the SDK cannot advertise a refined ZodEffects object as JSON schema.
     const parsed = WorkdayPlanInputSchema.parse(input);
     const candidates = await fetchListingCandidates({ city: parsed.city });
     const itinerary = planSustainableWorkday(parsed, candidates);
@@ -234,7 +237,8 @@ export function createWorkdayMcpServer(): McpServer {
       title: 'Plan a sustainable workday',
       description:
         'Use this when the user asks for a day itinerary using cafes, workspaces, meals, and activities.',
-      inputSchema: WorkdayPlanInputSchema.shape,
+      // Use the raw object shape for tool discovery; the handler validates the refined schema.
+      inputSchema: WorkdayPlanInputObjectSchema.shape,
       annotations: READ_ONLY_ANNOTATIONS,
     },
     async args => callWorkdayTool('plan_sustainable_workday', args)

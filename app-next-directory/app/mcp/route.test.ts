@@ -70,4 +70,37 @@ describe('/mcp route', () => {
       },
     });
   });
+
+  it('advertises the planner tool input schema', async () => {
+    const response = await POST(
+      new Request('http://localhost/mcp', {
+        method: 'POST',
+        headers: {
+          accept: 'application/json, text/event-stream',
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 2,
+          method: 'tools/list',
+          params: {},
+        }),
+      })
+    );
+
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    const plannerTool = body.result.tools.find(
+      (tool: { name: string }) => tool.name === 'plan_sustainable_workday'
+    );
+
+    expect(plannerTool).toBeDefined();
+    expect(plannerTool.inputSchema).toMatchObject({
+      type: 'object',
+      properties: {
+        city: { type: 'string' },
+      },
+      required: ['city'],
+    });
+  });
 });
