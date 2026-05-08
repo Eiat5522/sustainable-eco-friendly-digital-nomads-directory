@@ -1,0 +1,146 @@
+<h2>Which ChatGPT App direction should the listings directory lead with?</h2>
+<p class="subtitle">
+  Pick the feature direction that feels most valuable for v1. Each option shows the user experience,
+  likely tools, and stack shape.
+</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">A. Guided Listing Finder</div>
+        <div class="mockup-body">
+          <div class="mock-nav">ChatGPT asks: "Where are you working from, what matters most?"</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+            <div class="placeholder">Eco coworking<br>Bangkok<br>Verified</div>
+            <div class="placeholder">Quiet cafe<br>Chiang Mai<br>Fast Wi-Fi</div>
+          </div>
+          <div style="margin-top:12px">
+            <button class="mock-button">Compare</button>
+            <button class="mock-button">Open listing</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Recommended: Search and compare assistant</h3>
+      <p>
+        ChatGPT turns natural-language intent into listing search, then renders ranked cards with
+        filters, tradeoffs, and links back to the site.
+      </p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>Strengths</h4>
+          <ul>
+            <li>Fastest path from current Sanity listing/search data</li>
+            <li>Useful without user login</li>
+            <li>Clear app-store value proposition</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Limits</h4>
+          <ul>
+            <li>Mainly discovery, not booking or owner workflows</li>
+            <li>Quality depends on listing metadata completeness</li>
+          </ul>
+        </div>
+      </div>
+      <p><strong>Stack:</strong> MCP server + tools for search/detail/facets + React widget cards.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">B. Sustainable Workday Planner</div>
+        <div class="mockup-body">
+          <div class="mock-sidebar">Morning cafe<br>Afternoon cowork<br>Evening vegan meal</div>
+          <div class="mock-content">
+            <div class="placeholder">Route-aware itinerary</div>
+            <button class="mock-button">Save plan</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Itinerary builder</h3>
+      <p>
+        ChatGPT assembles a day plan from cafes, coworking, activities, and restaurants based on
+        priorities like budget, Wi-Fi, eco tags, neighborhood, and walking distance.
+      </p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>Strengths</h4>
+          <ul>
+            <li>More differentiated than search alone</li>
+            <li>Uses multiple listing categories naturally</li>
+            <li>Could grow into affiliate or partner flows later</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Limits</h4>
+          <ul>
+            <li>Needs better location, hours, and category coverage</li>
+            <li>May require maps/routing for strong recommendations</li>
+          </ul>
+        </div>
+      </div>
+      <p><strong>Stack:</strong> finder tools + planner tool + optional map/routing service later.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">C. Venue Owner Concierge</div>
+        <div class="mockup-body">
+          <div class="placeholder">Draft listing update</div>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button class="mock-button">Preview changes</button>
+            <button class="mock-button">Send for review</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Owner listing helper</h3>
+      <p>
+        Authenticated venue owners ask ChatGPT to improve a listing, explain dashboard analytics,
+        or draft changes before submitting them through existing review workflows.
+      </p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>Strengths</h4>
+          <ul>
+            <li>Direct business value for venues</li>
+            <li>Could improve listing quality over time</li>
+            <li>Fits existing owner dashboard direction</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Limits</h4>
+          <ul>
+            <li>Requires auth and stronger permissions</li>
+            <li>More moderation and write-flow risk</li>
+          </ul>
+        </div>
+      </div>
+      <p><strong>Stack:</strong> OAuth/session bridge + read tools + draft mutation tools with approval gates.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Shared stack shape</h3>
+  <div class="mockup">
+    <div class="mockup-header">ChatGPT App architecture</div>
+    <div class="mockup-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;text-align:center">
+        <div class="placeholder">ChatGPT<br>conversation</div>
+        <div class="placeholder">MCP app server<br>tools + resources</div>
+        <div class="placeholder">Next.js/Sanity DAL<br>search + listing detail</div>
+        <div class="placeholder">Widget UI<br>cards, compare, planner</div>
+      </div>
+    </div>
+  </div>
+</div>

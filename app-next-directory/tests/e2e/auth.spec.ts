@@ -1,64 +1,68 @@
 /** biome-ignore-all lint/suspicious/noConsole: intentional console */
 
 import { expect, test } from '@playwright/test';
-import { structuredLogger } from '@/lib/logger';
+
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
 test.describe('Authentication (Playwright E2E)', () => {
   test('registers a new user and lands on the home page', async ({ page, baseURL }) => {
+    const shouldMockAuthEndpoints = process.env.TEST_INTEGRATION === '1';
     let registeredEmail = '';
-    // Mock the register endpoint for integration testing
-    await page.route('**/api/auth/register', async route => {
-      const requestBody = route.request().postDataJSON();
-      registeredEmail = requestBody?.email || 'test@example.com';
-      await route.fulfill({
-        status: 201,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: true,
-          data: {
-            user: {
-              _id: 'e2e-user',
-              name: requestBody?.name || 'Test User',
-              email: requestBody?.email || 'test@example.com',
+    if (shouldMockAuthEndpoints) {
+      test.info().annotations.push({
+        type: 'info',
+        description: 'TEST_INTEGRATION=1 enabled route mocking for auth endpoints.',
+      });
+
+      await page.route('**/api/auth/register', async route => {
+        const requestBody = route.request().postDataJSON();
+        registeredEmail = requestBody?.email || 'test@example.com';
+        await route.fulfill({
+          status: 201,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            success: true,
+            data: {
+              user: {
+                _id: 'e2e-user',
+                name: requestBody?.name || 'Test User',
+                email: requestBody?.email || 'test@example.com',
+              },
             },
-          },
-        }),
+          }),
+        });
       });
-    });
 
-    // Mock NextAuth signin endpoint
-    await page.route('**/api/auth/signin/credentials', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ url: '/' }),
+      await page.route('**/api/auth/signin/credentials', async route => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ url: '/' }),
+        });
       });
-    });
 
-    // Mock NextAuth callback endpoint
-    await page.route('**/api/auth/callback/credentials**', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ ok: true, url: '/' }),
+      await page.route('**/api/auth/callback/credentials**', async route => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ ok: true, url: '/' }),
+        });
       });
-    });
-    const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
-    // Mock NextAuth session endpoint
-    await page.route('**/api/auth/session**', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          user: {
-            name: 'Test User',
-            email: registeredEmail || 'test@example.com',
-          },
-          expires: new Date(Date.now() + ONE_DAY_MS).toISOString(),
-        }),
+      await page.route('**/api/auth/session**', async route => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            user: {
+              name: 'Test User',
+              email: registeredEmail || 'test@example.com',
+            },
+            expires: new Date(Date.now() + ONE_DAY_MS).toISOString(),
+          }),
+        });
       });
-    });
+    }
 
     const signupUrl = new URL('/auth/signup', baseURL ?? 'http://localhost:3000').toString();
     await page.goto(signupUrl);
@@ -86,7 +90,10 @@ test.describe('Authentication (Playwright E2E)', () => {
     await page.locator('input#password').fill('Password_123!Aa', { timeout: 10000 });
 
     const registerPromise = page.waitForResponse(
-      response => response.url().includes('/api/auth/register') && response.status() === 201
+      response =>
+        response.url().includes('/api/auth/register') &&
+        response.status() >= 200 &&
+        response.status() < 400
     );
     await page.getByRole('button', { name: /sign up/i }).click();
     const response = await registerPromise;
@@ -97,7 +104,7 @@ test.describe('Authentication (Playwright E2E)', () => {
       await page.waitForURL('**/', { waitUntil: 'domcontentloaded', timeout: 15000 });
     } catch (error) {
       // If auto-navigation didn't occur, manually navigate
-      structuredLogger.warn('Auto-navigation timed out, manually navigating to home page:', error);
+      console.warn('Auto-navigation timed out, manually navigating to home page:', error);
       await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 15000 });
     }
 

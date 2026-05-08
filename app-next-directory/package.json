@@ -51,6 +51,8 @@
   "dependencies": {
     "@auth/mongodb-adapter": "3.11.1",
     "@hookform/resolvers": "^5.2.1",
+    "@modelcontextprotocol/ext-apps": "^1.7.1",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@next/bundle-analyzer": "16.1.1",
     "@panva/hkdf": "^1.2.1",
     "@portabletext/react": "^3.2.1",
