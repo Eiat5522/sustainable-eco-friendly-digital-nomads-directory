@@ -13,6 +13,7 @@
     "preview": "next start",
     "clean": "bash ../scripts/clean-build-artifacts.sh",
     "validate:env": "node scripts/validate-env.js",
+    "test:mcp-smoke": "node scripts/mcp-smoke-test.mjs",
     "msw:init": "msw init public --save",
     "postinstall": "node scripts/postinstall-playwright.cjs && node scripts/postinstall-msw.cjs",
     "install:playwright": "pnpm exec playwright install --with-deps",

@@ -7,6 +7,7 @@ This directory consolidates documentation that previously lived in the repositor
 - `CHANGELOG.md` – Version history and release notes.
 - `CONTRIBUTING.md` – Contribution workflow, branching strategy, and changelog process.
 - `WORKSPACE_SETUP.md` – pnpm workspace layout, environment prerequisites, and tooling configuration.
+- `MCP_LOCAL_RUNBOOK.md` – Local MCP endpoint startup, connection, and quick JSON-RPC test flow.
 - `WSL_DISCONNECTION_FIX_GUIDE.md` – Troubleshooting playbook for Windows Subsystem for Linux (WSL) connectivity issues during Next.js development.
 - `IMPLEMENTATION_SUMMARY.md` – Overview of the WSL stability initiative and supporting automation.
 - `AGENTS-WORKFLOW-instructions.md` – Historical automation workflow guidelines.

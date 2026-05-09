@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "sustainable-workday-planner": {
+      "transport": {
+        "type": "http",
+        "url": "http://localhost:3000/mcp"
+      },
+      "headers": {
+        "MCP-Protocol-Version": "2025-03-26",
+        "Mcp-Session-Id": "local-dev-session"
+      }
+    }
+  }
+}

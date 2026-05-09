@@ -25,6 +25,7 @@
     "test:e2e:isolated": "pnpm --filter app-next-directory e2e:setup && pnpm --filter app-next-directory test:e2e",
     "test:e2e:debug": "pnpm --filter app-next-directory test:e2e:debug",
     "test:e2e:ui": "pnpm --filter app-next-directory test:e2e:ui",
+    "test:mcp-smoke": "pnpm --filter app-next-directory test:mcp-smoke",
     "dev:next": "pnpm --filter app-next-directory dev",
     "dev:next:debug": "pnpm --filter app-next-directory dev --inspect --",
     "dev:clean": "bash ./scripts/clean-build-artifacts.sh && pnpm dev:next",
