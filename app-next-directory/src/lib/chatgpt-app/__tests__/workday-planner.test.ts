@@ -1,5 +1,5 @@
-import type { ListingCandidate } from '../workday-schemas';
 import { planSustainableWorkday } from '../workday-planner';
+import type { ListingCandidate } from '../workday-schemas';
 
 const makeCandidate = (
   overrides: Partial<ListingCandidate> & Pick<ListingCandidate, 'id' | 'name' | 'slug' | 'type'>

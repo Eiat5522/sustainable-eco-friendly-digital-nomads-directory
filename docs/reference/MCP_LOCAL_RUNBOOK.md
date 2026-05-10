@@ -1,11 +1,11 @@
 # Local MCP Runbook
 
-This project exposes a local MCP endpoint from the Next.js app:
+This repository exposes two MCP surfaces that share the same workday planner domain logic:
 
-- Endpoint: `http://localhost:3000/mcp`
-- Health check: `GET http://localhost:3000/mcp` returns `{ "ok": true, "name": "sustainable-workday-planner" }`
+- **Next.js ChatGPT route** — `http://localhost:3000/mcp`
+- **Standalone MCP Apps workspace** — `mcp-apps-server`, usually run on a separate port such as `3337`
 
-## Start locally
+## Next.js ChatGPT route
 
 From repository root:
 
@@ -15,7 +15,7 @@ pnpm dev:next
 
 Wait for the app to be available on port `3000`.
 
-## v1 tools (read-only)
+### v1 tools (read-only)
 
 Current tool names:
 
@@ -26,7 +26,7 @@ Current tool names:
 
 All v1 tools are read-only and non-destructive.
 
-## Minimal JSON-RPC test flow (curl)
+### Minimal JSON-RPC test flow (curl)
 
 Use a single session id for all calls below.
 
@@ -103,3 +103,28 @@ curl -sS http://localhost:3000/mcp \
     }
   }'
 ```
+
+## Standalone MCP Apps workspace
+
+Run the standalone server on another port so the ChatGPT route can remain untouched:
+
+```bash
+PORT=3337 MCP_URL=http://127.0.0.1:3337 pnpm dev:mcp-apps
+```
+
+Then validate it from the repository root:
+
+```bash
+pnpm check-types:mcp-apps
+pnpm build:mcp-apps
+pnpm test:mcp-apps:validate
+MCP_BASE_URL=http://127.0.0.1:3337 pnpm test:mcp-apps:smoke
+```
+
+The standalone smoke test covers:
+
+- MCP initialization and `tools/list`
+- `search`, `plan_sustainable_workday`, and `render_workday_itinerary`
+- compiled widget routes at `/mcp-use/widgets/workday-search` and `/mcp-use/widgets/workday-itinerary`
+
+If Sanity variables are missing, listing-backed tools may return empty results; the validation still passes as long as responses remain schema-valid and include explanatory notices.

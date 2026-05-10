@@ -10,6 +10,7 @@ A curated monorepo platform for sustainable, eco-friendly venues and services fo
 sustainable-eco-friendly-digital-nomads-directory/
 ├── app-next-directory/   # Next.js frontend application
 ├── sanity/               # Sanity CMS configuration
+├── mcp-apps-server/      # Standalone MCP Apps workday planner server
 ├── listings/             # Data migration scripts
 ├── docs/                 # Project documentation
 ├── memory-bank/          # Context, logs, and session files
@@ -35,6 +36,7 @@ To optimize performance and security, we use a centralized Data Access Layer (DA
 - **Interactive Maps**: Leaflet.js, OpenStreetMap, city carousel
 - **Modern UI/UX**: Tailwind CSS, Framer Motion, accessible components
 - **Testing & CI/CD**: Playwright, GitHub Actions, Vercel deployment
+- **MCP Interfaces**: Next.js `/mcp` ChatGPT route plus a standalone `mcp-apps-server` workspace
 
 ---
 

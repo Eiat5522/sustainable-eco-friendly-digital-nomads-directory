@@ -14,7 +14,8 @@
       "!!**/coverage",
       "!!**/playwright-report",
       "!!**/tests/storageStates",
-      "!!**/tmp"
+      "!!**/tmp",
+      "!!mcp-apps-server/resources/styles.css"
     ],
     "ignoreUnknown": true,
     "maxSize": 5242880

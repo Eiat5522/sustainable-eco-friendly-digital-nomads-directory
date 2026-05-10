@@ -1,6 +1,7 @@
 packages:
   - app-next-directory
   - sanity
+  - mcp-apps-server
 
 ignoredBuiltDependencies:
   - bcrypt

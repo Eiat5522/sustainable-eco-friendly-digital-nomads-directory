@@ -1,4 +1,5 @@
 import { GET, OPTIONS, POST } from './route';
+import { WORKDAY_WIDGET_RESOURCE } from '@/lib/chatgpt-app/workday-widget';
 
 describe('/mcp route', () => {
   const originalCrypto = globalThis.crypto;
@@ -101,6 +102,39 @@ describe('/mcp route', () => {
         city: { type: 'string' },
       },
       required: ['city'],
+    });
+  });
+
+  it('lists the ChatGPT widget resource at the stable UI URI', async () => {
+    const response = await POST(
+      new Request('http://localhost/mcp', {
+        method: 'POST',
+        headers: {
+          accept: 'application/json, text/event-stream',
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 3,
+          method: 'resources/list',
+          params: {},
+        }),
+      })
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({
+      jsonrpc: '2.0',
+      id: 3,
+      result: {
+        resources: expect.arrayContaining([
+          expect.objectContaining({
+            uri: WORKDAY_WIDGET_RESOURCE.uri,
+            name: WORKDAY_WIDGET_RESOURCE.title,
+            mimeType: WORKDAY_WIDGET_RESOURCE.mimeType,
+          }),
+        ]),
+      },
     });
   });
 });
