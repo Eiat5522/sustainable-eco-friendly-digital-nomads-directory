@@ -38,6 +38,12 @@ To optimize performance and security, we use a centralized Data Access Layer (DA
 - **Testing & CI/CD**: Playwright, GitHub Actions, Vercel deployment
 - **MCP Interfaces**: Next.js `/mcp` ChatGPT route plus a standalone `mcp-apps-server` workspace
 
+## MCP Interfaces
+
+- **ChatGPT App interface**: run `pnpm dev:chatgpt-app` and use `http://localhost:3000/mcp`
+- **MCP-App interface**: run `PORT=3337 MCP_URL=http://127.0.0.1:3337 pnpm dev:mcp-apps` and use `http://127.0.0.1:3337/mcp`
+- Keep them on separate ports so the Next.js ChatGPT route and standalone widget server stay isolated.
+
 ---
 
 ## 🛠️ Tech Stack

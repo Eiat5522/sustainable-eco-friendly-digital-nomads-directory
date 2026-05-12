@@ -4,6 +4,7 @@ import {
   type ReferenceResult,
 } from '../../../app-next-directory/src/lib/workday-domain/listing-candidates';
 import type { ListingCandidate } from '../../../app-next-directory/src/lib/workday-domain/schemas';
+import './load-env';
 
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ?? '';
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET ?? '';

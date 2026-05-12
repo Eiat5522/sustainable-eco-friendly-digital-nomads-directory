@@ -1,0 +1,4 @@
+sandbox_mode = "workspace-write"
+
+[mcp_servers.auto-connected_server]
+url = "http://localhost:3000/mcp"

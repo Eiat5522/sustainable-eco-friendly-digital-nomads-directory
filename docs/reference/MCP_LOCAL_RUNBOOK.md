@@ -5,12 +5,31 @@ This repository exposes two MCP surfaces that share the same workday planner dom
 - **Next.js ChatGPT route** — `http://localhost:3000/mcp`
 - **Standalone MCP Apps workspace** — `mcp-apps-server`, usually run on a separate port such as `3337`
 
+Recommended separation:
+
+- Keep the ChatGPT App on port `3000`
+- Keep the standalone MCP-App server on another port such as `3337`
+- Do not point both interfaces at the same runtime URL
+
+## WSL-safe command execution
+
+If you launch commands from Windows PowerShell against the `\\wsl.localhost\...` workspace path,
+`pnpm` can fall back to `C:\Windows` and fail to resolve the monorepo. In that case, run commands
+through WSL explicitly:
+
+```bash
+wsl.exe bash -lc 'cd /home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory && pnpm dev:chatgpt-app'
+```
+
+Use the same pattern for `pnpm dev:mcp-apps`, `pnpm test:chatgpt-app:mcp`, and
+`pnpm test:mcp-apps:smoke`.
+
 ## Next.js ChatGPT route
 
 From repository root:
 
 ```bash
-pnpm dev:next
+pnpm dev:chatgpt-app
 ```
 
 Wait for the app to be available on port `3000`.
@@ -105,6 +124,9 @@ curl -sS http://localhost:3000/mcp \
 ```
 
 ## Standalone MCP Apps workspace
+
+Create `mcp-apps-server/.env.local` from [`mcp-apps-server/.env.sample`](../../mcp-apps-server/.env.sample)
+if you want the server to load local values automatically.
 
 Run the standalone server on another port so the ChatGPT route can remain untouched:
 

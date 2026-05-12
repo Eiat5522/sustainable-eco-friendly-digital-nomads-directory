@@ -1,6 +1,8 @@
 # app-next-directory – Next.js Frontend
 
-This workspace hosts the Next.js 15 App Router frontend for the Sustainable Eco-Friendly Digital Nomads Directory. It consumes Sanity content, MongoDB collections, and Redis-backed services to power listings, search, and authenticated dashboards.
+This workspace hosts the Next.js 15 App Router frontend for the Sustainable Eco-Friendly Digital Nomads Directory. It consumes Sanity content, MongoDB collections, and Redis-backed services to power listings, search, authenticated dashboards, and the ChatGPT App `/mcp` route.
+
+The standalone MCP-App widget server lives separately in [`../mcp-apps-server/`](../mcp-apps-server/); do not treat this workspace and the standalone server as the same runtime.
 
 ## Current Status (Q1 2025)
 
@@ -22,6 +24,7 @@ pnpm test:e2e  # Playwright end-to-end suites
 
 Key directories:
 - `app/` – App Router pages, layouts, and API route handlers. 【F:app-next-directory/app/dashboard/page.tsx†L1-L34】
+- `app/mcp/` – Next.js-hosted ChatGPT App MCP endpoint. 【F:app-next-directory/app/mcp/route.ts†L1-L62】
 - `src/components/` – UI system, domain components, and co-located tests. 【F:app-next-directory/src/components/listings/ListingDetailView.tsx†L1-L36】
 - `src/lib/` – Integrations (Sanity, MongoDB, Redis), DTO transformers, and analytics services. 【F:app-next-directory/src/lib/sanity/client.ts†L1-L28】【F:app-next-directory/src/lib/dbConnect.ts†L1-L34】
 - `src/models/` – Mongoose models with comprehensive Jest coverage. 【F:app-next-directory/src/models/User.ts†L1-L43】

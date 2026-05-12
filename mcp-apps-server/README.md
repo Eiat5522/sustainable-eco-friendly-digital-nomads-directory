@@ -22,6 +22,9 @@ The MCP Apps server reuses the shared workday-domain planner and listing candida
 
 ## Environment
 
+Copy [`mcp-apps-server/.env.sample`](./.env.sample) to `mcp-apps-server/.env.local` or
+`mcp-apps-server/.env` for local development.
+
 The listing-backed tools expect the same Sanity environment variables used by the app workspace:
 
 - `NEXT_PUBLIC_SANITY_PROJECT_ID`
@@ -30,6 +33,8 @@ The listing-backed tools expect the same Sanity environment variables used by th
 - optional `NEXT_PUBLIC_FRONTEND_URL` for absolute listing links inside widgets
 
 If those values are missing, the server still starts, but listing search results can be empty.
+The standalone server automatically loads `mcp-apps-server/.env.local` and `mcp-apps-server/.env`
+when it starts.
 
 ## Run locally
 
