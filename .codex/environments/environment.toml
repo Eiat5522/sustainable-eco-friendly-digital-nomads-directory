@@ -6,9 +6,15 @@ name = "sustainable-eco-friendly-digital-nomads-directory"
 script = '''
 cd "$CODEX_WORKTREE_PATH"
 pnpm install
+pnpm build
 '''
 
 [[actions]]
 name = "Run"
 icon = "run"
 command = "pnpm dev"
+
+[[actions]]
+name = "UJnit Test"
+icon = "run"
+command = "pnpm test:unit"
