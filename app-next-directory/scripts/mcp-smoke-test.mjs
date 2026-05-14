@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import { validatePlannedItinerary } from './mcp-smoke-test-validators.mjs';
+
 const DEFAULT_BASE_URL = 'http://localhost:3000/mcp';
 const baseUrl = (process.env.MCP_BASE_URL || DEFAULT_BASE_URL).replace(/\/$/, '');
 const endpoint = baseUrl.endsWith('/mcp') ? baseUrl : `${baseUrl}/mcp`;
@@ -80,11 +82,6 @@ const extractItinerary = result => {
   return null;
 };
 
-const validateItinerary = itinerary => {
-  assert(typeof itinerary.summary === 'string' && itinerary.summary.length > 0, 'itinerary.summary missing');
-  assert(Array.isArray(itinerary.stops) && itinerary.stops.length > 0, 'itinerary.stops missing/empty');
-};
-
 const run = async () => {
   console.log(`[info] MCP smoke test endpoint: ${endpoint}`);
 
@@ -97,18 +94,16 @@ const run = async () => {
       version: '1.0.0',
     },
   });
-  assert(typeof initializeResult === 'object' && initializeResult !== null, 'initialize returned no result');
+  assert(
+    typeof initializeResult === 'object' && initializeResult !== null,
+    'initialize returned no result'
+  );
   pass('initialize succeeded');
 
   logStep('Verify required tools are listed');
   const toolsListResult = await rpc('tools/list', {});
   const names = getToolNames(toolsListResult);
-  const requiredTools = [
-    'search',
-    'fetch',
-    'plan_sustainable_workday',
-    'render_workday_itinerary',
-  ];
+  const requiredTools = ['search', 'fetch', 'plan_sustainable_workday', 'render_workday_itinerary'];
 
   for (const toolName of requiredTools) {
     assert(names.includes(toolName), `Missing required tool: ${toolName}`);
@@ -123,7 +118,7 @@ const run = async () => {
 
   const itinerary = extractItinerary(callResult);
   assert(itinerary, 'plan_sustainable_workday did not return structuredContent.itinerary');
-  validateItinerary(itinerary);
+  validatePlannedItinerary(itinerary);
   pass('plan_sustainable_workday returned structured itinerary');
 
   logStep('Call render_workday_itinerary with the stringified plan payload');
@@ -133,7 +128,7 @@ const run = async () => {
   });
   const renderedItinerary = extractItinerary(renderResult);
   assert(renderedItinerary, 'render_workday_itinerary did not return structuredContent.itinerary');
-  validateItinerary(renderedItinerary);
+  validatePlannedItinerary(renderedItinerary);
   assert(
     renderedItinerary.summary === itinerary.summary,
     'render_workday_itinerary changed the itinerary summary'
