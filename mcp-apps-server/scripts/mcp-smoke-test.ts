@@ -172,12 +172,16 @@ const run = async (): Promise<void> => {
     'tools/call',
     {
       name: 'render_workday_itinerary',
-      arguments: { itinerary: parsedPlan.data.itinerary },
+      arguments: { itinerary: JSON.stringify(parsedPlan.data.itinerary) },
     },
     initialize.sessionId
   );
   assert(renderWorkdayInputSchema.safeParse(render.result.structuredContent).success);
-  pass('render_workday_itinerary accepted the generated itinerary');
+  assert.deepEqual(
+    (render.result.structuredContent as { itinerary: unknown }).itinerary,
+    parsedPlan.data.itinerary
+  );
+  pass('render_workday_itinerary accepted the stringified itinerary payload');
 
   logStep('Fetch compiled widget HTML');
   const searchWidgetHtml = await fetchHtml('/mcp-use/widgets/workday-search');

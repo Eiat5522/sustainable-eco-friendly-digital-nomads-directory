@@ -100,6 +100,19 @@ export const WorkdayItinerarySchema = z.object({
   notices: z.array(z.string().trim().min(1)).default([]),
 });
 
+export const RenderWorkdayInputSchema = z.object({
+  itinerary: z.preprocess(value => {
+    if (typeof value !== 'string') {
+      return value;
+    }
+    try {
+      return JSON.parse(value) as unknown;
+    } catch {
+      return value;
+    }
+  }, WorkdayItinerarySchema),
+});
+
 export type WorkdayPlanInput = z.infer<typeof WorkdayPlanInputSchema>;
 export type ListingType = z.infer<typeof ListingTypeSchema>;
 export type ListingCandidate = z.output<typeof ListingCandidateSchema>;

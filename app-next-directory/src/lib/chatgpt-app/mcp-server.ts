@@ -1,6 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import {
+  RenderWorkdayInputSchema,
   type WorkdayItinerary,
   WorkdayItinerarySchema,
   WorkdayPlanInputObjectSchema,
@@ -57,9 +58,7 @@ const FetchInputSchema = z.object({
   id: z.string().trim().min(1),
 });
 
-const RenderInputSchema = z.object({
-  itinerary: WorkdayItinerarySchema,
-});
+const RenderInputArgumentSchema = z.union([WorkdayItinerarySchema, z.string().trim().min(1)]);
 
 const jsonText = (value: unknown): TextContent => ({
   type: 'text',
@@ -164,7 +163,7 @@ export async function callWorkdayTool(name: string, input: unknown): Promise<Wor
   }
 
   if (name === WORKDAY_RENDER_TOOL_NAME) {
-    const parsed = RenderInputSchema.parse(input);
+    const parsed = RenderWorkdayInputSchema.parse(input);
     return {
       content: [itineraryText(parsed.itinerary)],
       structuredContent: { itinerary: parsed.itinerary },
@@ -250,7 +249,7 @@ export function createWorkdayMcpServer(): McpServer {
       title: 'Render a sustainable workday itinerary',
       description:
         'Use this after planning an itinerary when a visual timeline would help the user compare stops.',
-      inputSchema: { itinerary: WorkdayItinerarySchema },
+      inputSchema: { itinerary: RenderInputArgumentSchema },
       annotations: READ_ONLY_ANNOTATIONS,
       _meta: renderToolMeta,
     },

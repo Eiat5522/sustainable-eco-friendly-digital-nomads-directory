@@ -137,4 +137,48 @@ describe('/mcp route', () => {
       },
     });
   });
+
+  it('renders a stringified itinerary payload through the MCP route', async () => {
+    const response = await POST(
+      new Request('http://localhost/mcp', {
+        method: 'POST',
+        headers: {
+          accept: 'application/json, text/event-stream',
+          'content-type': 'application/json',
+          'mcp-session-id': 'route-test-session',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 4,
+          method: 'tools/call',
+          params: {
+            name: 'render_workday_itinerary',
+            arguments: {
+              itinerary: JSON.stringify({
+                city: 'Bangkok',
+                generatedAt: '2026-05-08T01:00:00.000Z',
+                summary: 'A sustainable workday.',
+                stops: [],
+                notices: [],
+              }),
+            },
+          },
+        }),
+      })
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({
+      jsonrpc: '2.0',
+      id: 4,
+      result: {
+        structuredContent: {
+          itinerary: {
+            city: 'Bangkok',
+            summary: 'A sustainable workday.',
+          },
+        },
+      },
+    });
+  });
 });

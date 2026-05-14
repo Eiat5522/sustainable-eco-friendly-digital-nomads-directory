@@ -126,6 +126,20 @@ const run = async () => {
   validateItinerary(itinerary);
   pass('plan_sustainable_workday returned structured itinerary');
 
+  logStep('Call render_workday_itinerary with the stringified plan payload');
+  const renderResult = await rpc('tools/call', {
+    name: 'render_workday_itinerary',
+    arguments: { itinerary: JSON.stringify(itinerary) },
+  });
+  const renderedItinerary = extractItinerary(renderResult);
+  assert(renderedItinerary, 'render_workday_itinerary did not return structuredContent.itinerary');
+  validateItinerary(renderedItinerary);
+  assert(
+    renderedItinerary.summary === itinerary.summary,
+    'render_workday_itinerary changed the itinerary summary'
+  );
+  pass('render_workday_itinerary accepted the stringified itinerary payload');
+
   console.log('\n[done] MCP smoke test passed');
 };
 

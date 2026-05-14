@@ -94,18 +94,24 @@ describe('ChatGPT workday MCP server helpers', () => {
 
   it('renders the itinerary with widget metadata', async () => {
     const result = await callWorkdayTool('render_workday_itinerary', {
-      itinerary: {
+      itinerary: JSON.stringify({
         city: 'Bangkok',
         generatedAt: '2026-05-08T01:00:00.000Z',
         summary: 'A sustainable workday.',
         stops: [],
         notices: [],
-      },
+      }),
     });
 
     expect(result._meta).toMatchObject({
       ui: { resourceUri: WORKDAY_WIDGET_RESOURCE.uri },
       'openai/outputTemplate': WORKDAY_WIDGET_RESOURCE.uri,
+    });
+    expect(result.structuredContent).toEqual({
+      itinerary: expect.objectContaining({
+        city: 'Bangkok',
+        summary: 'A sustainable workday.',
+      }),
     });
   });
 

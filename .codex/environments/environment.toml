@@ -12,7 +12,7 @@ pnpm build
 [[actions]]
 name = "Run"
 icon = "run"
-command = "pnpm dev"
+command = "pnpm dev:next"
 
 [[actions]]
 name = "UJnit Test"

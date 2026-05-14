@@ -123,6 +123,29 @@ curl -sS http://localhost:3000/mcp \
   }'
 ```
 
+4. Render the planned itinerary with the same payload serialized as a string:
+
+```bash
+curl -sS http://localhost:3000/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -H 'MCP-Protocol-Version: 2025-03-26' \
+  -H 'Mcp-Session-Id: local-dev-session' \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": "tools-call-3",
+    "method": "tools/call",
+    "params": {
+      "name": "render_workday_itinerary",
+      "arguments": {
+        "itinerary": "{\"city\":\"Bangkok\",\"generatedAt\":\"2026-05-08T01:00:00.000Z\",\"summary\":\"A balanced sustainable workday in Bangkok.\",\"stops\":[],\"notices\":[\"Listing data may be limited without Sanity credentials.\"]}"
+      }
+    }
+  }'
+```
+
+Both MCP surfaces accept the `render_workday_itinerary` payload either as a normal JSON object or as the same itinerary serialized to a JSON string, which is useful when a caller forwards tool output through text-only transport.
+
 ## Standalone MCP Apps workspace
 
 Create `mcp-apps-server/.env.local` from [`mcp-apps-server/.env.sample`](../../mcp-apps-server/.env.sample)
@@ -147,6 +170,7 @@ The standalone smoke test covers:
 
 - MCP initialization and `tools/list`
 - `search`, `plan_sustainable_workday`, and `render_workday_itinerary`
+- passing the planned itinerary into `render_workday_itinerary` as a JSON string
 - compiled widget routes at `/mcp-use/widgets/workday-search` and `/mcp-use/widgets/workday-itinerary`
 
 If Sanity variables are missing, listing-backed tools may return empty results; the validation still passes as long as responses remain schema-valid and include explanatory notices.

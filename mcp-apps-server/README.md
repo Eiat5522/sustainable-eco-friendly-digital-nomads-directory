@@ -14,7 +14,7 @@ Both paths reuse the shared workday planner domain modules so ChatGPT behavior s
 - `search` — search published sustainable directory listings and browse results in a widget
 - `fetch` — fetch one listing by id or slug with normalized details
 - `plan_sustainable_workday` — build a sustainable workday itinerary from shared domain logic
-- `render_workday_itinerary` — render a browsable itinerary widget for an existing plan
+- `render_workday_itinerary` — render a browsable itinerary widget for an existing plan, whether the itinerary is passed as an object or a JSON string
 
 ## Shared domain reuse
 
@@ -84,7 +84,7 @@ Start the standalone server first, then run:
 MCP_BASE_URL=http://127.0.0.1:3337 pnpm test:mcp-apps:smoke
 ```
 
-The smoke test verifies MCP initialization, required tool registration, schema-valid tool responses, and that the compiled widget HTML routes are reachable.
+The smoke test verifies MCP initialization, required tool registration, schema-valid tool responses, that `render_workday_itinerary` accepts the stringified itinerary produced by `plan_sustainable_workday`, and that the compiled widget HTML routes are reachable.
 
 If Sanity variables are missing, listing-backed tools can still return empty results. That is acceptable as long as the responses stay schema-valid and include notices explaining the missing data.
 

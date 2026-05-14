@@ -204,7 +204,19 @@ export const searchToolOutputSchema = z.object({
 });
 
 export const renderWorkdayInputSchema = z.object({
-  itinerary: workdayItinerarySchema.describe('Previously generated itinerary to render in a widget.'),
+  itinerary: z.preprocess(
+    value => {
+      if (typeof value !== 'string') {
+        return value;
+      }
+      try {
+        return JSON.parse(value) as unknown;
+      } catch {
+        return value;
+      }
+    },
+    workdayItinerarySchema
+  ).describe('Previously generated itinerary to render in a widget.'),
 });
 
 export type ListingCandidate = z.infer<typeof listingCandidateSchema>;

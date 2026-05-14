@@ -143,6 +143,9 @@ const run = (): void => {
 
   assert(workdayPlanOutputSchema.safeParse({ itinerary: sampleItinerary }).success);
   assert(renderWorkdayInputSchema.safeParse({ itinerary: sampleItinerary }).success);
+  assert(
+    renderWorkdayInputSchema.safeParse({ itinerary: JSON.stringify(sampleItinerary) }).success
+  );
   logPass('plan/render itinerary schemas accept shared itinerary payloads');
 
   assertWidgetMetadata(

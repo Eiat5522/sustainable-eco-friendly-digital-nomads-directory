@@ -1,5 +1,6 @@
 import {
   ListingCandidateSchema,
+  RenderWorkdayInputSchema,
   WorkdayPlanInputSchema,
   WorkdayItinerarySchema,
 } from '../workday-schemas';
@@ -80,5 +81,39 @@ describe('ChatGPT workday planner schemas', () => {
 
     expect(parsed.stops).toHaveLength(1);
     expect(parsed.notices).toEqual(['Opening hours were unavailable for one stop.']);
+  });
+
+  it('accepts a stringified itinerary payload for widget rendering', () => {
+    const parsed = RenderWorkdayInputSchema.parse({
+      itinerary: JSON.stringify({
+        city: 'Bangkok',
+        generatedAt: '2026-05-08T01:00:00.000Z',
+        summary: 'A balanced sustainable workday in Bangkok.',
+        stops: [
+          {
+            id: 'stop-1',
+            slot: 'morning',
+            title: 'Start with focused cafe work',
+            startTime: '09:00',
+            endTime: '11:00',
+            listing: {
+              id: 'listing-1',
+              name: 'Green Cup',
+              slug: 'green-cup',
+              type: 'cafe',
+              city: { name: 'Bangkok', country: 'Thailand', slug: 'bangkok' },
+              ecoFocusTags: [],
+              digitalNomadFeatures: [],
+              amenities: [],
+            },
+            reasons: ['Matches cafe work style'],
+          },
+        ],
+        notices: ['Opening hours were unavailable for one stop.'],
+      }),
+    });
+
+    expect(parsed.itinerary.summary).toBe('A balanced sustainable workday in Bangkok.');
+    expect(parsed.itinerary.stops).toHaveLength(1);
   });
 });
