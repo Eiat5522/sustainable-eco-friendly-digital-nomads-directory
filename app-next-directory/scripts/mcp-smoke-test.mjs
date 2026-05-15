@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
-import { validatePlannedItinerary } from './mcp-smoke-test-validators.mjs';
+import smokeTestValidators from './mcp-smoke-test-validators.cjs';
+
+const { validatePlannedItinerary } = smokeTestValidators;
 
 const DEFAULT_BASE_URL = 'http://localhost:3000/mcp';
 const baseUrl = (process.env.MCP_BASE_URL || DEFAULT_BASE_URL).replace(/\/$/, '');

@@ -86,7 +86,7 @@ MCP_BASE_URL=http://127.0.0.1:3337 pnpm test:mcp-apps:smoke
 
 The smoke test verifies MCP initialization, required tool registration, schema-valid tool responses, that `render_workday_itinerary` accepts the stringified itinerary produced by `plan_sustainable_workday`, and that the compiled widget HTML routes are reachable.
 
-If Sanity variables are missing, listing-backed tools can still return empty results. That is acceptable as long as the responses stay schema-valid and include notices explaining the missing data.
+If Sanity variables are missing, listing-backed tools can still return empty results. That is acceptable when `plan_sustainable_workday` returns an empty itinerary with explanatory notices and the payload remains schema-valid.
 
 ## Coexisting with the ChatGPT path
 

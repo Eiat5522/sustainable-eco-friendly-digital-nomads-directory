@@ -173,4 +173,6 @@ The standalone smoke test covers:
 - passing the planned itinerary into `render_workday_itinerary` as a JSON string
 - compiled widget routes at `/mcp-use/widgets/workday-search` and `/mcp-use/widgets/workday-itinerary`
 
-If Sanity variables are missing, listing-backed tools may return empty results; the validation still passes as long as responses remain schema-valid and include explanatory notices.
+If Sanity variables are missing, listing-backed tools may return empty results. That is acceptable when `plan_sustainable_workday` returns an empty itinerary with explanatory notices and the payload remains schema-valid.
+
+The app-side smoke test and the standalone `mcp-apps-server` smoke test now share that expectation.
