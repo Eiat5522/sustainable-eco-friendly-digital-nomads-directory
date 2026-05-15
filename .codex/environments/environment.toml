@@ -8,13 +8,3 @@ cd "$CODEX_WORKTREE_PATH"
 pnpm install
 pnpm build
 '''
-
-[[actions]]
-name = "Run"
-icon = "run"
-command = "pnpm dev:next"
-
-[[actions]]
-name = "UJnit Test"
-icon = "run"
-command = "pnpm test:unit"
