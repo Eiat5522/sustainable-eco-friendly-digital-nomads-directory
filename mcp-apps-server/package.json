@@ -26,6 +26,7 @@
     "check-types": "tsc --noEmit",
     "dev": "mcp-use dev",
     "start": "mcp-use start",
+    "start:tunnel": "mcp-use start --port=3777 --tunnel",
     "test:smoke": "tsx scripts/mcp-smoke-test.ts",
     "test:validate": "tsx scripts/validate-mcp-apps.ts",
     "type-check": "tsc --noEmit",
