@@ -35,20 +35,24 @@ export default function WorkdayItineraryWidget() {
   const theme = useWidgetTheme();
 
   const colors = {
-    background: theme === 'dark' ? '#0f1b16' : '#f7fbf8',
-    surface: theme === 'dark' ? '#15241d' : '#ffffff',
-    surfaceMuted: theme === 'dark' ? '#1d342a' : '#eef6f0',
-    border: theme === 'dark' ? '#315043' : '#d7e6db',
-    text: theme === 'dark' ? '#edf7f1' : '#16281f',
-    textMuted: theme === 'dark' ? '#acc2b5' : '#5f786a',
-    accent: theme === 'dark' ? '#88e5a8' : '#2a7d4c',
-    notice: theme === 'dark' ? '#f3cd72' : '#8c6112',
+    background: theme === 'dark' ? '#0f1712' : '#f8fafc',
+    surface: theme === 'dark' ? '#1a2e24' : '#ffffff',
+    surfaceActive: theme === 'dark' ? '#2d4d3e' : '#f1f5f9',
+    border: '#000000',
+    text: theme === 'dark' ? '#f1f5f9' : '#1e293b',
+    textMuted: theme === 'dark' ? '#94a3b8' : '#64748b',
+    primary: '#10b981', // Emerald
+    secondary: '#4f46e5', // Indigo
+    accent: '#f59e0b', // Amber
+    shadow: '#000000',
   };
 
   if (isPending) {
     return (
       <McpUseProvider autoSize>
-        <div style={{ padding: 20, fontFamily: 'Inter, system-ui, sans-serif' }}>Loading itinerary…</div>
+        <div style={{ padding: 20, fontFamily: 'Inter, system-ui, sans-serif', color: colors.text }}>
+          Loading itinerary…
+        </div>
       </McpUseProvider>
     );
   }
@@ -61,38 +65,53 @@ export default function WorkdayItineraryWidget() {
     <McpUseProvider autoSize>
       <div
         style={{
-          display: 'grid',
-          gap: 16,
-          padding: 18,
+          padding: 24,
           backgroundColor: colors.background,
           color: colors.text,
-          fontFamily: 'Inter, system-ui, sans-serif',
+          fontFamily: "'Space Grotesk', 'Inter', system-ui, sans-serif",
         }}
       >
-        <header style={{ display: 'grid', gap: 6 }}>
-          <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: colors.accent }}>
-            Sustainable workday itinerary
-          </span>
-          <h2 style={{ margin: 0, fontSize: 22 }}>{props.itinerary.city}</h2>
-          <p style={{ margin: 0, fontSize: 14, color: colors.textMuted }}>{props.itinerary.summary}</p>
-          <span style={{ fontSize: 12, color: colors.textMuted }}>
-            Generated {new Date(props.itinerary.generatedAt).toLocaleString()}
-          </span>
+        <header style={{ marginBottom: 24 }}>
+          <div
+            style={{
+              display: 'inline-block',
+              padding: '4px 12px',
+              backgroundColor: colors.primary,
+              border: `2px solid ${colors.border}`,
+              boxShadow: `3px 3px 0px 0px ${colors.shadow}`,
+              fontSize: 12,
+              fontWeight: 800,
+              textTransform: 'uppercase',
+              marginBottom: 12,
+            }}
+          >
+            Sustainable Workday
+          </div>
+          <h2 style={{ margin: 0, fontSize: 32, fontWeight: 800 }}>{props.itinerary.city}</h2>
+          <p style={{ margin: '8px 0 0', fontSize: 16, color: colors.textMuted, fontWeight: 500 }}>
+            {props.itinerary.summary}
+          </p>
         </header>
 
-        <div style={{ display: 'grid', gap: 16, gridTemplateColumns: 'minmax(0, 0.92fr) minmax(0, 1.08fr)' }}>
-          <section style={{ display: 'grid', gap: 10 }} aria-label="Itinerary stops">
+        <div
+          style={{
+            display: 'grid',
+            gap: 24,
+            gridTemplateColumns: 'minmax(0, 0.9fr) minmax(0, 1.1fr)',
+          }}
+        >
+          {/* Stops List */}
+          <section style={{ display: 'grid', gap: 12, alignContent: 'start' }} aria-label="Itinerary stops">
             {props.itinerary.stops.length === 0 ? (
               <div
                 style={{
-                  padding: 16,
-                  borderRadius: 14,
-                  border: `1px solid ${colors.border}`,
+                  padding: 20,
+                  border: `3px solid ${colors.border}`,
                   backgroundColor: colors.surface,
-                  color: colors.textMuted,
+                  boxShadow: `4px 4px 0px 0px ${colors.shadow}`,
                 }}
               >
-                No stops were available for this itinerary.
+                No stops scheduled.
               </div>
             ) : (
               props.itinerary.stops.map(stop => {
@@ -105,23 +124,38 @@ export default function WorkdayItineraryWidget() {
                     style={{
                       width: '100%',
                       textAlign: 'left',
-                      padding: 14,
-                      borderRadius: 14,
-                      border: `1px solid ${isSelected ? colors.accent : colors.border}`,
-                      backgroundColor: isSelected ? colors.surfaceMuted : colors.surface,
+                      padding: 16,
+                      border: `3px solid ${colors.border}`,
+                      backgroundColor: isSelected ? colors.surfaceActive : colors.surface,
                       color: colors.text,
+                      boxShadow: isSelected
+                        ? `2px 2px 0px 0px ${colors.shadow}`
+                        : `6px 6px 0px 0px ${colors.shadow}`,
+                      transform: isSelected ? 'translate(4px, 4px)' : 'none',
                       cursor: 'pointer',
+                      transition: 'all 0.1s ease',
                     }}
                   >
                     <div style={{ display: 'grid', gap: 4 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'baseline' }}>
-                        <strong style={{ textTransform: 'capitalize', fontSize: 14 }}>{stop.slot}</strong>
-                        <span style={{ fontSize: 12, color: colors.textMuted }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span
+                          style={{
+                            fontSize: 10,
+                            fontWeight: 800,
+                            textTransform: 'uppercase',
+                            backgroundColor: colors.secondary,
+                            color: '#ffffff',
+                            padding: '2px 6px',
+                            border: `1px solid ${colors.border}`,
+                          }}
+                        >
+                          {stop.slot}
+                        </span>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: colors.textMuted }}>
                           {stop.startTime} – {stop.endTime}
                         </span>
                       </div>
-                      <span style={{ fontSize: 15, fontWeight: 700 }}>{stop.listing.name}</span>
-                      <span style={{ fontSize: 13, color: colors.textMuted }}>{stop.title}</span>
+                      <strong style={{ fontSize: 17, fontWeight: 800 }}>{stop.listing.name}</strong>
                     </div>
                   </button>
                 );
@@ -129,47 +163,56 @@ export default function WorkdayItineraryWidget() {
             )}
           </section>
 
+          {/* Stop Details */}
           <section
             aria-label="Selected stop details"
             style={{
-              minHeight: 260,
-              padding: 16,
-              borderRadius: 16,
-              border: `1px solid ${colors.border}`,
+              minHeight: 400,
+              padding: 24,
+              border: `4px solid ${colors.border}`,
               backgroundColor: colors.surface,
+              boxShadow: `12px 12px 0px 0px ${colors.shadow}`,
               display: 'grid',
-              gap: 12,
+              gap: 20,
               alignContent: 'start',
             }}
           >
             {selectedStop ? (
               <>
-                <div style={{ display: 'grid', gap: 4 }}>
-                  <span style={{ fontSize: 12, color: colors.accent, fontWeight: 700, textTransform: 'uppercase' }}>
-                    {selectedStop.slot}
+                <div style={{ display: 'grid', gap: 8 }}>
+                  <span style={{ fontSize: 12, color: colors.primary, fontWeight: 800, textTransform: 'uppercase' }}>
+                    {selectedStop.slot} Profile
                   </span>
-                  <h3 style={{ margin: 0, fontSize: 20 }}>{selectedStop.listing.name}</h3>
-                  <p style={{ margin: 0, fontSize: 13, color: colors.textMuted }}>
-                    {selectedStop.startTime} – {selectedStop.endTime} · {selectedStop.listing.city.name}, {selectedStop.listing.city.country}
+                  <h3 style={{ margin: 0, fontSize: 28, fontWeight: 800, lineHeight: 1 }}>
+                    {selectedStop.listing.name}
+                  </h3>
+                  <p style={{ margin: 0, fontSize: 14, color: colors.textMuted, fontWeight: 500 }}>
+                    {selectedStop.startTime} – {selectedStop.endTime} · {selectedStop.listing.city.name}
                   </p>
                 </div>
 
-                <p style={{ margin: 0, lineHeight: 1.5 }}>
-                  {selectedStop.listing.longDescription ?? selectedStop.listing.shortDescription ?? selectedStop.title}
+                <div style={{ padding: 16, backgroundColor: colors.surfaceActive, border: `2px solid ${colors.border}`, fontStyle: 'italic', fontSize: 14 }}>
+                   "{selectedStop.title}"
+                </div>
+
+                <p style={{ margin: 0, lineHeight: 1.6, fontSize: 15 }}>
+                  {selectedStop.listing.longDescription ?? selectedStop.listing.shortDescription}
                 </p>
 
-                <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ display: 'grid', gap: 8 }}>
+                  <h4 style={{ margin: 0, fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: colors.textMuted }}>Selection Rationale</h4>
                   {selectedStop.reasons.map(reason => (
                     <div
                       key={reason}
                       style={{
-                        padding: '8px 10px',
-                        borderRadius: 10,
-                        backgroundColor: colors.surfaceMuted,
+                        padding: '8px 12px',
+                        border: `2px solid ${colors.border}`,
+                        backgroundColor: colors.surface,
                         fontSize: 13,
+                        fontWeight: 500,
                       }}
                     >
-                      {reason}
+                      • {reason}
                     </div>
                   ))}
                 </div>
@@ -182,10 +225,11 @@ export default function WorkdayItineraryWidget() {
                         key={tag}
                         style={{
                           padding: '4px 10px',
-                          borderRadius: 999,
-                          backgroundColor: colors.surfaceMuted,
-                          color: colors.accent,
-                          fontSize: 12,
+                          border: `1px solid ${colors.border}`,
+                          backgroundColor: colors.primary + '15',
+                          color: colors.primary,
+                          fontSize: 11,
+                          fontWeight: 700,
                         }}
                       >
                         {tag}
@@ -193,60 +237,59 @@ export default function WorkdayItineraryWidget() {
                     ))}
                 </div>
 
-                <div style={{ display: 'grid', gap: 6, fontSize: 13, color: colors.textMuted }}>
-                  {selectedStop.listing.address ? <span>Address: {selectedStop.listing.address}</span> : null}
-                  {selectedStop.listing.priceRange ? <span>Budget band: {selectedStop.listing.priceRange}</span> : null}
-                  {selectedStop.listing.planningNotes.slice(0, 3).map(note => (
-                    <span key={note}>{note}</span>
-                  ))}
-                </div>
-
-                {safeHref(selectedStop.listing.canonicalUrl) ? (
+                {safeHref(selectedStop.listing.canonicalUrl) && (
                   <a
                     href={safeHref(selectedStop.listing.canonicalUrl) ?? undefined}
                     target="_blank"
                     rel="noreferrer"
                     style={{
                       justifySelf: 'start',
-                      padding: '8px 12px',
-                      borderRadius: 10,
-                      backgroundColor: colors.accent,
-                      color: theme === 'dark' ? '#082012' : '#ffffff',
+                      padding: '12px 20px',
+                      backgroundColor: colors.primary,
+                      color: colors.border,
+                      border: `3px solid ${colors.border}`,
+                      boxShadow: `4px 4px 0px 0px ${colors.shadow}`,
                       textDecoration: 'none',
-                      fontWeight: 700,
-                      fontSize: 13,
+                      fontWeight: 800,
+                      fontSize: 14,
                     }}
                   >
-                    Open listing
+                    View Venue Details
                   </a>
-                ) : null}
+                )}
               </>
             ) : (
-              <div style={{ color: colors.textMuted }}>Select a stop to inspect it in more detail.</div>
+              <div style={{ display: 'grid', placeItems: 'center', height: '100%', color: colors.textMuted }}>
+                Select a stop to view details.
+              </div>
             )}
           </section>
         </div>
 
-        {props.itinerary.notices.length > 0 ? (
+        {props.itinerary.notices.length > 0 && (
           <section
             aria-label="Planning notices"
             style={{
-              display: 'grid',
-              gap: 8,
-              padding: 14,
-              borderRadius: 14,
-              border: `1px solid ${colors.border}`,
-              backgroundColor: colors.surface,
+              marginTop: 24,
+              padding: 20,
+              border: `3px solid ${colors.border}`,
+              backgroundColor: colors.accent + '20',
+              boxShadow: `4px 4px 0px 0px ${colors.shadow}`,
             }}
           >
-            <strong style={{ color: colors.notice }}>Planning notices</strong>
-            {props.itinerary.notices.map(notice => (
-              <span key={notice} style={{ color: colors.textMuted, fontSize: 13, lineHeight: 1.5 }}>
-                {notice}
-              </span>
-            ))}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <span style={{ fontSize: 20 }}>⚠️</span>
+              <strong style={{ textTransform: 'uppercase', fontSize: 14, fontWeight: 800 }}>Planning Notices</strong>
+            </div>
+            <div style={{ display: 'grid', gap: 8 }}>
+              {props.itinerary.notices.map(notice => (
+                <div key={notice} style={{ fontSize: 13, fontWeight: 500, lineHeight: 1.5 }}>
+                  • {notice}
+                </div>
+              ))}
+            </div>
           </section>
-        ) : null}
+        )}
       </div>
     </McpUseProvider>
   );

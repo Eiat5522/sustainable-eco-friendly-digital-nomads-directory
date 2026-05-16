@@ -33,13 +33,15 @@ export default function WorkdaySearchWidget() {
   const { callToolAsync, data, isPending: isFetchingDetails } = useCallTool('fetch');
 
   const colors = {
-    background: theme === 'dark' ? '#102018' : '#f6fbf7',
-    surface: theme === 'dark' ? '#163026' : '#ffffff',
-    surfaceMuted: theme === 'dark' ? '#1c3b2f' : '#edf6ef',
-    border: theme === 'dark' ? '#2d5b47' : '#cfe1d4',
-    text: theme === 'dark' ? '#eff9f1' : '#173323',
-    textMuted: theme === 'dark' ? '#b5cabb' : '#547260',
-    accent: theme === 'dark' ? '#7fe2a2' : '#217a46',
+    background: theme === 'dark' ? '#0f1712' : '#f8fafc',
+    surface: theme === 'dark' ? '#1a2e24' : '#ffffff',
+    surfaceActive: theme === 'dark' ? '#2d4d3e' : '#f1f5f9',
+    border: '#000000',
+    text: theme === 'dark' ? '#f1f5f9' : '#1e293b',
+    textMuted: theme === 'dark' ? '#94a3b8' : '#64748b',
+    primary: '#10b981', // Emerald
+    secondary: '#4f46e5', // Indigo
+    shadow: '#000000',
   };
 
   const fetchResult = useMemo(() => {
@@ -50,51 +52,68 @@ export default function WorkdaySearchWidget() {
   if (isPending) {
     return (
       <McpUseProvider autoSize>
-        <div style={{ padding: 20, fontFamily: 'Inter, system-ui, sans-serif' }}>Loading results…</div>
+        <div style={{ padding: 20, fontFamily: 'Inter, system-ui, sans-serif', color: colors.text }}>
+          Loading results…
+        </div>
       </McpUseProvider>
     );
   }
 
   const selectedListing = fetchResult?.listing ?? null;
-  const selectedListingHref = safeHref(fetchResult?.url ?? selectedListing?.website ?? selectedListing?.canonicalUrl);
+  const selectedListingHref = safeHref(
+    fetchResult?.url ?? selectedListing?.website ?? selectedListing?.canonicalUrl
+  );
 
   return (
     <McpUseProvider autoSize>
       <div
         style={{
-          display: 'grid',
-          gap: 16,
-          padding: 18,
+          padding: 24,
           backgroundColor: colors.background,
           color: colors.text,
-          fontFamily: 'Inter, system-ui, sans-serif',
+          fontFamily: "'Space Grotesk', 'Inter', system-ui, sans-serif",
         }}
       >
-        <header style={{ display: 'grid', gap: 6 }}>
-          <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: colors.accent }}>
-            Sustainable directory search
-          </span>
-          <h2 style={{ margin: 0, fontSize: 22 }}>Results for “{props.query}”</h2>
-          <p style={{ margin: 0, fontSize: 14, color: colors.textMuted }}>
-            {props.results.length === 0
-              ? 'No published listings matched this query.'
-              : `Select a listing to inspect richer details and reuse it in a plan.`}
-          </p>
+        <header style={{ marginBottom: 24 }}>
+          <div
+            style={{
+              display: 'inline-block',
+              padding: '4px 12px',
+              backgroundColor: colors.primary,
+              border: `2px solid ${colors.border}`,
+              boxShadow: `3px 3px 0px 0px ${colors.shadow}`,
+              fontSize: 12,
+              fontWeight: 800,
+              textTransform: 'uppercase',
+              marginBottom: 12,
+            }}
+          >
+            Sustainable Discovery
+          </div>
+          <h2 style={{ margin: 0, fontSize: 32, fontWeight: 800, letterSpacing: '-0.02em' }}>
+            Results for “{props.query}”
+          </h2>
         </header>
 
-        <div style={{ display: 'grid', gap: 16, gridTemplateColumns: 'minmax(0, 0.95fr) minmax(0, 1.05fr)' }}>
-          <section style={{ display: 'grid', gap: 10 }} aria-label="Search results">
+        <div
+          style={{
+            display: 'grid',
+            gap: 24,
+            gridTemplateColumns: 'minmax(0, 0.8fr) minmax(0, 1.2fr)',
+          }}
+        >
+          {/* Results List */}
+          <section style={{ display: 'grid', gap: 12, alignContent: 'start' }} aria-label="Search results">
             {props.results.length === 0 ? (
               <div
                 style={{
-                  padding: 16,
-                  borderRadius: 14,
-                  border: `1px solid ${colors.border}`,
+                  padding: 20,
+                  border: `3px solid ${colors.border}`,
                   backgroundColor: colors.surface,
-                  color: colors.textMuted,
+                  boxShadow: `4px 4px 0px 0px ${colors.shadow}`,
                 }}
               >
-                Try a different search term or broader city/category keyword.
+                No listings found. Try a broader search.
               </div>
             ) : (
               props.results.map(result => {
@@ -110,18 +129,21 @@ export default function WorkdaySearchWidget() {
                     style={{
                       width: '100%',
                       textAlign: 'left',
-                      padding: 14,
-                      borderRadius: 14,
-                      border: `1px solid ${isSelected ? colors.accent : colors.border}`,
-                      backgroundColor: isSelected ? colors.surfaceMuted : colors.surface,
+                      padding: 16,
+                      border: `3px solid ${colors.border}`,
+                      backgroundColor: isSelected ? colors.surfaceActive : colors.surface,
                       color: colors.text,
+                      boxShadow: isSelected
+                        ? `2px 2px 0px 0px ${colors.shadow}`
+                        : `6px 6px 0px 0px ${colors.shadow}`,
+                      transform: isSelected ? 'translate(4px, 4px)' : 'none',
                       cursor: 'pointer',
+                      transition: 'all 0.1s ease',
                     }}
                   >
-                    <div style={{ display: 'grid', gap: 6 }}>
-                      <strong style={{ fontSize: 15 }}>{result.title}</strong>
+                    <div style={{ display: 'grid', gap: 4 }}>
+                      <strong style={{ fontSize: 16, fontWeight: 700 }}>{result.title}</strong>
                       <span style={{ fontSize: 12, color: colors.textMuted }}>{result.id}</span>
-                      <span style={{ fontSize: 12, color: colors.accent }}>{result.url}</span>
                     </div>
                   </button>
                 );
@@ -129,34 +151,78 @@ export default function WorkdaySearchWidget() {
             )}
           </section>
 
+          {/* Details Bento */}
           <section
             aria-label="Selected listing details"
             style={{
-              minHeight: 220,
-              padding: 16,
-              borderRadius: 16,
-              border: `1px solid ${colors.border}`,
+              minHeight: 400,
+              padding: 24,
+              border: `4px solid ${colors.border}`,
               backgroundColor: colors.surface,
+              boxShadow: `12px 12px 0px 0px ${colors.shadow}`,
               display: 'grid',
-              gap: 12,
+              gap: 20,
               alignContent: 'start',
             }}
           >
             {isFetchingDetails ? (
-              <div style={{ color: colors.textMuted }}>Loading listing details…</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: colors.textMuted }}>
+                <div style={{ width: 20, height: 20, border: `2px solid ${colors.primary}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                <span>Loading Details...</span>
+                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+              </div>
             ) : selectedListing ? (
               <>
-                <div style={{ display: 'grid', gap: 4 }}>
-                  <span style={{ fontSize: 12, color: colors.accent, fontWeight: 700, textTransform: 'uppercase' }}>
-                    {selectedListing.type}
-                  </span>
-                  <h3 style={{ margin: 0, fontSize: 20 }}>{selectedListing.name}</h3>
-                  <p style={{ margin: 0, fontSize: 13, color: colors.textMuted }}>
+                {selectedListing.imageUrl && (
+                  <div
+                    style={{
+                      width: '100%',
+                      height: 180,
+                      border: `3px solid ${colors.border}`,
+                      overflow: 'hidden',
+                      marginBottom: 8,
+                    }}
+                  >
+                    <img
+                      src={selectedListing.imageUrl}
+                      alt={selectedListing.name}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </div>
+                )}
+
+                <div style={{ display: 'grid', gap: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span
+                      style={{
+                        padding: '2px 8px',
+                        backgroundColor: colors.secondary,
+                        color: '#ffffff',
+                        fontSize: 10,
+                        fontWeight: 800,
+                        textTransform: 'uppercase',
+                        border: `1px solid ${colors.border}`,
+                      }}
+                    >
+                      {selectedListing.type}
+                    </span>
+                    {selectedListing.priceRange && (
+                      <span style={{ fontSize: 12, fontWeight: 600 }}>
+                        {selectedListing.priceRange === 'premium' ? '$$$' : selectedListing.priceRange === 'moderate' ? '$$' : '$'}
+                      </span>
+                    )}
+                  </div>
+                  <h3 style={{ margin: 0, fontSize: 28, fontWeight: 800, lineHeight: 1 }}>
+                    {selectedListing.name}
+                  </h3>
+                  <p style={{ margin: 0, fontSize: 14, color: colors.textMuted, fontWeight: 500 }}>
                     {selectedListing.city.name}, {selectedListing.city.country}
                   </p>
                 </div>
 
-                <p style={{ margin: 0, lineHeight: 1.5 }}>{fetchResult?.text ?? selectedListing.shortDescription ?? 'No additional description available.'}</p>
+                <p style={{ margin: 0, lineHeight: 1.6, fontSize: 15 }}>
+                  {fetchResult?.text ?? selectedListing.shortDescription ?? 'No additional description available.'}
+                </p>
 
                 {selectedListing.ecoFocusTags.length > 0 && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
@@ -164,11 +230,12 @@ export default function WorkdaySearchWidget() {
                       <span
                         key={tag}
                         style={{
-                          padding: '4px 10px',
-                          borderRadius: 999,
-                          backgroundColor: colors.surfaceMuted,
-                          fontSize: 12,
-                          color: colors.accent,
+                          padding: '4px 12px',
+                          backgroundColor: colors.primary + '20',
+                          border: `2px solid ${colors.primary}`,
+                          fontSize: 11,
+                          fontWeight: 700,
+                          color: colors.primary,
                         }}
                       >
                         {tag}
@@ -177,31 +244,43 @@ export default function WorkdaySearchWidget() {
                   </div>
                 )}
 
-                <div style={{ display: 'grid', gap: 6, fontSize: 13, color: colors.textMuted }}>
-                  {selectedListing.address ? <span>Address: {selectedListing.address}</span> : null}
-                  {selectedListing.priceRange ? <span>Budget band: {selectedListing.priceRange}</span> : null}
-                  {selectedListing.planningNotes.slice(0, 3).map(note => (
-                    <span key={note}>{note}</span>
-                  ))}
+                <div style={{ display: 'grid', gap: 8, fontSize: 13 }}>
+                  {selectedListing.address && (
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <span style={{ fontWeight: 700 }}>📍</span>
+                      <span style={{ color: colors.textMuted }}>{selectedListing.address}</span>
+                    </div>
+                  )}
+                  {selectedListing.planningNotes.length > 0 && (
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <span style={{ fontWeight: 700 }}>⚡</span>
+                      <span style={{ color: colors.textMuted }}>{selectedListing.planningNotes[0]}</span>
+                    </div>
+                  )}
                 </div>
 
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 12 }}>
                   {selectedListingHref ? (
                     <a
                       href={selectedListingHref}
                       target="_blank"
                       rel="noreferrer"
                       style={{
-                        padding: '8px 12px',
-                        borderRadius: 10,
-                        backgroundColor: colors.accent,
-                        color: theme === 'dark' ? '#082012' : '#ffffff',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '12px',
+                        backgroundColor: '#ffffff',
+                        color: colors.border,
+                        border: `3px solid ${colors.border}`,
+                        boxShadow: `4px 4px 0px 0px ${colors.shadow}`,
                         textDecoration: 'none',
-                        fontWeight: 700,
-                        fontSize: 13,
+                        fontWeight: 800,
+                        fontSize: 14,
+                        textAlign: 'center',
                       }}
                     >
-                      Open listing
+                      Visit Directory
                     </a>
                   ) : null}
                   <button
@@ -212,23 +291,29 @@ export default function WorkdaySearchWidget() {
                       )
                     }
                     style={{
-                      padding: '8px 12px',
-                      borderRadius: 10,
-                      border: `1px solid ${colors.border}`,
-                      backgroundColor: 'transparent',
-                      color: colors.text,
+                      padding: '12px',
+                      backgroundColor: colors.primary,
+                      color: colors.border,
+                      border: `3px solid ${colors.border}`,
+                      boxShadow: `4px 4px 0px 0px ${colors.shadow}`,
                       cursor: 'pointer',
-                      fontWeight: 600,
-                      fontSize: 13,
+                      fontWeight: 800,
+                      fontSize: 14,
+                      transition: 'all 0.1s ease',
                     }}
                   >
-                    Ask AI to use this listing
+                    Add to Workday Plan
                   </button>
                 </div>
               </>
             ) : (
-              <div style={{ color: colors.textMuted, lineHeight: 1.5 }}>
-                Select a result to inspect its workday-planning details.
+              <div style={{ display: 'grid', placeItems: 'center', height: '100%', textAlign: 'center' }}>
+                <div style={{ display: 'grid', gap: 12 }}>
+                  <div style={{ fontSize: 48 }}>🌿</div>
+                  <p style={{ margin: 0, fontSize: 16, fontWeight: 600, color: colors.textMuted }}>
+                    Select a listing to explore its sustainability impact and remote-work features.
+                  </p>
+                </div>
               </div>
             )}
           </section>

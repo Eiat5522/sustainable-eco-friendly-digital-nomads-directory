@@ -8,3 +8,13 @@ cd "$CODEX_WORKTREE_PATH"
 pnpm install
 pnpm build
 '''
+
+[[actions]]
+name = "pnpm install"
+icon = "tool"
+command = "pnpm dev"
+
+[[actions]]
+name = "Dev Server"
+icon = "run"
+command = "pnpm dev"
