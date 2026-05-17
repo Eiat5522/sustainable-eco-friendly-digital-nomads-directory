@@ -1,6 +1,16 @@
-import { McpUseProvider, useCallTool, useWidget, useWidgetTheme, type WidgetMetadata } from 'mcp-use/react';
+import {
+  McpUseProvider,
+  useCallTool,
+  useWidget,
+  useWidgetTheme,
+  type WidgetMetadata,
+} from 'mcp-use/react';
 import { useMemo, useState } from 'react';
-import { fetchResultSchema, workdaySearchWidgetPropsSchema, type WorkdaySearchWidgetProps } from './types';
+import {
+  fetchResultSchema,
+  type WorkdaySearchWidgetProps,
+  workdaySearchWidgetPropsSchema,
+} from './types';
 
 export const widgetMetadata: WidgetMetadata = {
   description:
@@ -30,6 +40,7 @@ export default function WorkdaySearchWidget() {
   const { props, isPending, sendFollowUpMessage } = useWidget<WorkdaySearchWidgetProps>();
   const theme = useWidgetTheme();
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [isDirectoryPreviewOpen, setIsDirectoryPreviewOpen] = useState(false);
   const { callToolAsync, data, isPending: isFetchingDetails } = useCallTool('fetch');
 
   const colors = {
@@ -52,7 +63,9 @@ export default function WorkdaySearchWidget() {
   if (isPending) {
     return (
       <McpUseProvider autoSize>
-        <div style={{ padding: 20, fontFamily: 'Inter, system-ui, sans-serif', color: colors.text }}>
+        <div
+          style={{ padding: 20, fontFamily: 'Inter, system-ui, sans-serif', color: colors.text }}
+        >
           Loading results…
         </div>
       </McpUseProvider>
@@ -103,7 +116,10 @@ export default function WorkdaySearchWidget() {
           }}
         >
           {/* Results List */}
-          <section style={{ display: 'grid', gap: 12, alignContent: 'start' }} aria-label="Search results">
+          <section
+            style={{ display: 'grid', gap: 12, alignContent: 'start' }}
+            aria-label="Search results"
+          >
             {props.results.length === 0 ? (
               <div
                 style={{
@@ -166,8 +182,19 @@ export default function WorkdaySearchWidget() {
             }}
           >
             {isFetchingDetails ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: colors.textMuted }}>
-                <div style={{ width: 20, height: 20, border: `2px solid ${colors.primary}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+              <div
+                style={{ display: 'flex', alignItems: 'center', gap: 12, color: colors.textMuted }}
+              >
+                <div
+                  style={{
+                    width: 20,
+                    height: 20,
+                    border: `2px solid ${colors.primary}`,
+                    borderTopColor: 'transparent',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite',
+                  }}
+                />
                 <span>Loading Details...</span>
                 <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
               </div>
@@ -208,7 +235,11 @@ export default function WorkdaySearchWidget() {
                     </span>
                     {selectedListing.priceRange && (
                       <span style={{ fontSize: 12, fontWeight: 600 }}>
-                        {selectedListing.priceRange === 'premium' ? '$$$' : selectedListing.priceRange === 'moderate' ? '$$' : '$'}
+                        {selectedListing.priceRange === 'premium'
+                          ? '$$$'
+                          : selectedListing.priceRange === 'moderate'
+                            ? '$$'
+                            : '$'}
                       </span>
                     )}
                   </div>
@@ -221,7 +252,9 @@ export default function WorkdaySearchWidget() {
                 </div>
 
                 <p style={{ margin: 0, lineHeight: 1.6, fontSize: 15 }}>
-                  {fetchResult?.text ?? selectedListing.shortDescription ?? 'No additional description available.'}
+                  {fetchResult?.text ??
+                    selectedListing.shortDescription ??
+                    'No additional description available.'}
                 </p>
 
                 {selectedListing.ecoFocusTags.length > 0 && (
@@ -254,17 +287,25 @@ export default function WorkdaySearchWidget() {
                   {selectedListing.planningNotes.length > 0 && (
                     <div style={{ display: 'flex', gap: 8 }}>
                       <span style={{ fontWeight: 700 }}>⚡</span>
-                      <span style={{ color: colors.textMuted }}>{selectedListing.planningNotes[0]}</span>
+                      <span style={{ color: colors.textMuted }}>
+                        {selectedListing.planningNotes[0]}
+                      </span>
                     </div>
                   )}
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 12 }}>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: 16,
+                    marginTop: 12,
+                  }}
+                >
                   {selectedListingHref ? (
-                    <a
-                      href={selectedListingHref}
-                      target="_blank"
-                      rel="noreferrer"
+                    <button
+                      type="button"
+                      onClick={() => setIsDirectoryPreviewOpen(true)}
                       style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -274,14 +315,14 @@ export default function WorkdaySearchWidget() {
                         color: colors.border,
                         border: `3px solid ${colors.border}`,
                         boxShadow: `4px 4px 0px 0px ${colors.shadow}`,
-                        textDecoration: 'none',
                         fontWeight: 800,
                         fontSize: 14,
                         textAlign: 'center',
+                        cursor: 'pointer',
                       }}
                     >
-                      Visit Directory
-                    </a>
+                      View Directory
+                    </button>
                   ) : null}
                   <button
                     type="button"
@@ -307,7 +348,14 @@ export default function WorkdaySearchWidget() {
                 </div>
               </>
             ) : (
-              <div style={{ display: 'grid', placeItems: 'center', height: '100%', textAlign: 'center' }}>
+              <div
+                style={{
+                  display: 'grid',
+                  placeItems: 'center',
+                  height: '100%',
+                  textAlign: 'center',
+                }}
+              >
                 <div style={{ display: 'grid', gap: 12 }}>
                   <div style={{ fontSize: 48 }}>🌿</div>
                   <p style={{ margin: 0, fontSize: 16, fontWeight: 600, color: colors.textMuted }}>
@@ -318,6 +366,94 @@ export default function WorkdaySearchWidget() {
             )}
           </section>
         </div>
+
+        {isDirectoryPreviewOpen && selectedListingHref ? (
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Directory preview"
+            style={{
+              position: 'fixed',
+              inset: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              display: 'grid',
+              placeItems: 'center',
+              zIndex: 9999,
+              padding: 16,
+            }}
+          >
+            <div
+              style={{
+                width: 'min(1024px, 100%)',
+                height: 'min(80vh, 780px)',
+                backgroundColor: colors.surface,
+                border: `4px solid ${colors.border}`,
+                boxShadow: `12px 12px 0px 0px ${colors.shadow}`,
+                display: 'grid',
+                gridTemplateRows: 'auto 1fr',
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 12,
+                  padding: '12px 16px',
+                  borderBottom: `3px solid ${colors.border}`,
+                  backgroundColor: colors.surfaceActive,
+                }}
+              >
+                <strong style={{ fontSize: 14 }}>Directory Preview</strong>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <a
+                    href={selectedListingHref}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      padding: '8px 10px',
+                      border: `2px solid ${colors.border}`,
+                      backgroundColor: '#ffffff',
+                      color: colors.border,
+                      textDecoration: 'none',
+                      fontWeight: 700,
+                      fontSize: 12,
+                    }}
+                  >
+                    Open in New Tab
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => setIsDirectoryPreviewOpen(false)}
+                    style={{
+                      padding: '8px 10px',
+                      border: `2px solid ${colors.border}`,
+                      backgroundColor: colors.primary,
+                      color: colors.border,
+                      cursor: 'pointer',
+                      fontWeight: 700,
+                      fontSize: 12,
+                    }}
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+              <iframe
+                title="Selected listing website"
+                src={selectedListingHref}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  border: 'none',
+                  backgroundColor: '#ffffff',
+                }}
+                referrerPolicy="no-referrer"
+              />
+            </div>
+          </div>
+        ) : null}
       </div>
     </McpUseProvider>
   );
