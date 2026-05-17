@@ -29,7 +29,7 @@
       "source": "mcp-use/mcp-use",
       "sourceType": "github",
       "skillPath": "skills/mcp-apps-builder/SKILL.md",
-      "computedHash": "1ec6f723a71085572364a11fc2932c908754c6849594a310d2cb0661d44df8c0"
+      "computedHash": "935809ff8d3a12d0ce7a0bc1353f63d10391260b56c600db0aa6e081ef618e67"
     },
     "migrate-oai-app": {
       "source": "modelcontextprotocol/ext-apps",
