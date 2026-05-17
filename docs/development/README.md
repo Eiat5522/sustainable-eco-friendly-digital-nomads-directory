@@ -20,7 +20,7 @@ sustainable-eco-friendly-digital-nomads-directory/
 │   ├── __mocks__/               # Jest mocks for external dependencies
 │   ├── jest.config.cjs          # Jest configuration with complex mocking
 │   ├── playwright.config.ts     # E2E testing configuration
-│   ├── next.config.mjs          # Next.js config with image domains, redirects
+│   ├── next.config.ts           # Next.js config with image domains, redirects
 │   └── eslint.config.mjs        # ESLint flat config
 ├── sanity/                      # Sanity CMS configuration
 │   ├── schemas/                 # Content type definitions

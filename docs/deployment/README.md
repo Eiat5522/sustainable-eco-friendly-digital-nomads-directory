@@ -286,7 +286,7 @@ jobs:
 
 ### **Production Security Headers**
 
-**File**: `app-next-directory/next.config.mjs`
+**File**: `app-next-directory/next.config.ts`
 
 ```javascript
 const securityHeaders = [
@@ -566,7 +566,7 @@ export function ErrorBoundary({ children }: { children: React.ReactNode }) {
 
 #### **Next.js Configuration**
 ```javascript
-// app-next-directory/next.config.mjs
+// app-next-directory/next.config.ts
 export default {
   experimental: {
     optimizeCss: true,

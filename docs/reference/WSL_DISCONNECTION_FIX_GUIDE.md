@@ -227,7 +227,7 @@ Ensure VS Code Remote-WSL connection remains stable for at least 5-10 minutes of
 
 If the issue persists, you can disable parallel worker threads in Next.js.
 
-Edit `app-next-directory/next.config.mjs`:
+Edit `app-next-directory/next.config.ts`:
 
 ```javascript
 const nextConfig = {
@@ -385,7 +385,7 @@ npm run build:types
 
 ### Related Configuration Files
 
-- **Next.js Config**: `app-next-directory/next.config.mjs` - Main Next.js configuration
+- **Next.js Config**: `app-next-directory/next.config.ts` - Main Next.js configuration
 - **Package Config**: `app-next-directory/package.json` - Dependencies and scripts
 - **TypeScript Config**: `app-next-directory/tsconfig.json` - TypeScript settings
 - **Cleanup Script**: `scripts/clean-build-artifacts.sh` - Automated cleanup tool

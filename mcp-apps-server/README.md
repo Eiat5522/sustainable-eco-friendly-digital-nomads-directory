@@ -45,19 +45,19 @@ pnpm install
 pnpm dev:mcp-apps
 ```
 
-The standalone server defaults to `http://localhost:3000`, so use a different port when you want to run it alongside the Next.js app:
+The standalone server defaults to `http://localhost:3000`. Use `--port` to run alongside the Next.js app:
 
 ```bash
-PORT=3337 MCP_URL=http://127.0.0.1:3337 pnpm dev:mcp-apps
+pnpm dev:mcp-apps -- --port 3337
 ```
 
 Useful local URLs:
 
-- landing page: `http://127.0.0.1:3337/`
-- MCP endpoint: `http://127.0.0.1:3337/mcp`
+- landing page: `http://127.0.0.1:3000/` (or your `--port`)
+- MCP endpoint: `http://127.0.0.1:3000/mcp`
 - widget routes:
-  - `http://127.0.0.1:3337/mcp-use/widgets/workday-search`
-  - `http://127.0.0.1:3337/mcp-use/widgets/workday-itinerary`
+  - `http://127.0.0.1:3000/mcp-use/widgets/workday-search`
+  - `http://127.0.0.1:3000/mcp-use/widgets/workday-itinerary`
 
 ## Validation
 
@@ -79,6 +79,12 @@ The schema validation script checks:
 ## Live smoke check
 
 Start the standalone server first, then run:
+
+```bash
+pnpm test:mcp-apps:smoke
+```
+
+Connect to a custom port by setting `MCP_BASE_URL`:
 
 ```bash
 MCP_BASE_URL=http://127.0.0.1:3337 pnpm test:mcp-apps:smoke

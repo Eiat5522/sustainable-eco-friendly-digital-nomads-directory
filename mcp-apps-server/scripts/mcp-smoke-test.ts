@@ -5,7 +5,7 @@ import {
   workdayPlanOutputSchema,
 } from '../src/lib/workday-schemas';
 
-const defaultBaseUrl = `http://127.0.0.1:${process.env.PORT ?? '3337'}`;
+const defaultBaseUrl = `http://127.0.0.1:${process.env.PORT ?? '3000'}`;
 const baseUrl = (process.env.MCP_BASE_URL ?? defaultBaseUrl).replace(/\/$/, '');
 const endpoint = baseUrl.endsWith('/mcp') ? baseUrl : `${baseUrl}/mcp`;
 
@@ -102,12 +102,7 @@ const run = async (): Promise<void> => {
   const tools = Array.isArray(toolsList.result.tools)
     ? (toolsList.result.tools as Array<Record<string, unknown>>)
     : [];
-  const requiredTools = [
-    'search',
-    'fetch',
-    'plan_sustainable_workday',
-    'render_workday_itinerary',
-  ];
+  const requiredTools = ['search', 'fetch', 'plan_sustainable_workday', 'render_workday_itinerary'];
 
   for (const toolName of requiredTools) {
     assert(

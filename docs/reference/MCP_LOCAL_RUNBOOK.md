@@ -151,10 +151,10 @@ Both MCP surfaces accept the `render_workday_itinerary` payload either as a norm
 Create `mcp-apps-server/.env.local` from [`mcp-apps-server/.env.sample`](../../mcp-apps-server/.env.sample)
 if you want the server to load local values automatically.
 
-Run the standalone server on another port so the ChatGPT route can remain untouched:
+Run the standalone server on a different port so the ChatGPT route can remain untouched:
 
 ```bash
-PORT=3337 MCP_URL=http://127.0.0.1:3337 pnpm dev:mcp-apps
+pnpm dev:mcp-apps -- --port 3337
 ```
 
 Then validate it from the repository root:

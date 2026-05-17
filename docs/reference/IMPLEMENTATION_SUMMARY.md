@@ -215,7 +215,7 @@ All success criteria met:
 
 The guide includes three alternative solutions:
 
-1. **Disable worker threads** - Modify `next.config.mjs`
+1. **Disable worker threads** - Modify `next.config.ts`
 2. **Use Webpack** - Start with `--webpack` flag
 3. **Downgrade Next.js** - Revert to 15.4.x
 
@@ -260,7 +260,7 @@ This fix addresses:
 
 - **Main Guide**: `WSL_DISCONNECTION_FIX_GUIDE.md` - Complete troubleshooting documentation
 - **Script Docs**: `scripts/README.md` - Utility scripts documentation
-- **Next.js Config**: `app-next-directory/next.config.mjs` - Configuration reference
+- **Next.js Config**: `app-next-directory/next.config.ts` - Configuration reference
 - **Package Files**: `package.json` files - Available scripts and dependencies
 
 ---

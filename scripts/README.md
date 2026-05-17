@@ -70,7 +70,7 @@ TURBO_CONCURRENCY=4 scripts/turbo-wsl-safe-run.sh build
 ## Related Documentation
 
 - **WSL Disconnection Fix Guide**: `../WSL_DISCONNECTION_FIX_GUIDE.md` - Complete troubleshooting guide
-- **Next.js Config**: `../app-next-directory/next.config.mjs` - Next.js configuration
+- **Next.js Config**: `../app-next-directory/next.config.ts` - Next.js configuration
 - **Package Scripts**: Check `package.json` files for additional cleanup and development scripts
 
 ## Adding New Scripts

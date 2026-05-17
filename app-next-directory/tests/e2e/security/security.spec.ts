@@ -477,7 +477,7 @@ test.describe('Security Testing', () => {
         expect(csp).toContain('img-src');
       } else {
         // CSP not configured - this is acceptable for test environments
-        // In production, CSP should be configured via next.config.mjs
+        // In production, CSP should be configured via next.config.ts
         console.log('CSP headers not found - may not be configured in test environment');
       }
     });
