@@ -1,0 +1,10 @@
+HTTP/1.1 200 OK
+access-control-allow-origin: *
+access-control-expose-headers: mcp-session-id
+cache-control: no-cache, no-transform
+connection: keep-alive
+content-type: text/event-stream
+mcp-session-id: a28b6726-5a76-4026-a417-d3dd69dd0987
+Date: Mon, 18 May 2026 06:36:09 GMT
+Transfer-Encoding: chunked
+

@@ -210,6 +210,7 @@ export default function WorkdaySearchWidget() {
                       marginBottom: 8,
                     }}
                   >
+                    {/* biome-ignore lint/performance/noImgElement: This standalone MCP widget runs on mcp-use, not Next.js, so next/image is unavailable here. */}
                     <img
                       src={selectedListing.imageUrl}
                       alt={selectedListing.name}

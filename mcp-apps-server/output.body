@@ -1,0 +1,3 @@
+event: message
+data: {"result":{"protocolVersion":"2025-06-18","capabilities":{"logging":{},"completions":{},"tools":{"listChanged":true},"prompts":{"listChanged":true},"resources":{"subscribe":true,"listChanged":true}},"serverInfo":{"name":"sustainable-workday-planner","version":"0.1.0","description":"Phase 1 MCP Apps server for sustainable workday planning and itinerary browsing.","title":"Sustainable Workday Planner MCP Apps Server","websiteUrl":"https://github.com/Eiat5522/sustainable-eco-friendly-digital-nomads-directory","icons":[{"src":"http://localhost:3000/mcp-use/public/icon.svg","mimeType":"image/svg+xml","sizes":["512x512"]}]}},"jsonrpc":"2.0","id":1}
+
