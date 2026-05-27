@@ -6,7 +6,9 @@ import {
 } from '../src/lib/workday-schemas';
 
 const defaultBaseUrl = `http://127.0.0.1:${process.env.PORT ?? '3000'}`;
+const MCP_PROTOCOL_VERSION = '2025-06-18';
 const baseUrl = (process.env.MCP_BASE_URL ?? defaultBaseUrl).replace(/\/$/, '');
+const baseOrigin = new URL(baseUrl).origin;
 const endpoint = baseUrl.endsWith('/mcp') ? baseUrl : `${baseUrl}/mcp`;
 
 let nextId = 1;
@@ -41,7 +43,7 @@ const rpc = async (
     headers: {
       'content-type': 'application/json',
       accept: 'application/json, text/event-stream',
-      'mcp-protocol-version': '2025-03-26',
+      'mcp-protocol-version': MCP_PROTOCOL_VERSION,
       ...(sessionId ? { 'mcp-session-id': sessionId } : {}),
     },
     body: JSON.stringify({
@@ -83,12 +85,21 @@ const fetchHtml = async (path: string): Promise<string> => {
   return body;
 };
 
+const assertNoMismatchedLocalhostOrigin = (label: string, value: string): void => {
+  if (baseOrigin !== 'http://localhost:3000') {
+    assert(
+      !value.includes('http://localhost:3000'),
+      `${label} should not reference http://localhost:3000 when server origin is ${baseOrigin}`
+    );
+  }
+};
+
 const run = async (): Promise<void> => {
   console.log(`[info] MCP Apps smoke test endpoint: ${endpoint}`);
 
   logStep('Initialize MCP session');
   const initialize = await rpc('initialize', {
-    protocolVersion: '2025-03-26',
+    protocolVersion: MCP_PROTOCOL_VERSION,
     capabilities: {},
     clientInfo: {
       name: 'mcp-apps-smoke-test',
@@ -96,6 +107,21 @@ const run = async (): Promise<void> => {
     },
   });
   pass(`initialize succeeded (${initialize.sessionId})`);
+
+  const serverInfo = initialize.result.serverInfo as Record<string, unknown> | undefined;
+  const icons = Array.isArray(serverInfo?.icons)
+    ? (serverInfo.icons as Array<Record<string, unknown>>)
+    : [];
+  assert(icons.length > 0, 'initialize did not advertise app icons');
+  for (const icon of icons) {
+    assert.equal(typeof icon.src, 'string');
+    assert(
+      (icon.src as string).startsWith(`${baseOrigin}/`),
+      `icon URL ${(icon.src as string) || '<missing>'} should use ${baseOrigin}`
+    );
+    assertNoMismatchedLocalhostOrigin('icon URL', icon.src as string);
+  }
+  pass(`initialize advertises icon URLs on ${baseOrigin}`);
 
   logStep('Verify required tools and widget metadata');
   const toolsList = await rpc('tools/list', {}, initialize.sessionId);
@@ -183,6 +209,13 @@ const run = async (): Promise<void> => {
   const itineraryWidgetHtml = await fetchHtml('/mcp-use/widgets/workday-itinerary');
   assert(searchWidgetHtml.toLowerCase().includes('<!doctype html>'));
   assert(itineraryWidgetHtml.toLowerCase().includes('<!doctype html>'));
+  assert(searchWidgetHtml.includes(baseOrigin), 'search widget assets should use server origin');
+  assert(
+    itineraryWidgetHtml.includes(baseOrigin),
+    'itinerary widget assets should use server origin'
+  );
+  assertNoMismatchedLocalhostOrigin('search widget HTML', searchWidgetHtml);
+  assertNoMismatchedLocalhostOrigin('itinerary widget HTML', itineraryWidgetHtml);
   pass('compiled widget routes are reachable');
 
   console.log('\n[done] MCP Apps smoke test passed');

@@ -2,9 +2,15 @@
 
 import smokeTestValidators from './mcp-smoke-test-validators.cjs';
 
-const { validatePlannedItinerary } = smokeTestValidators;
+const {
+  validatePlannedItinerary,
+  validateSearchStructuredContent,
+  validateToolWidgetMetadata,
+  validateWidgetResource,
+} = smokeTestValidators;
 
 const DEFAULT_BASE_URL = 'http://localhost:3000/mcp';
+const MCP_PROTOCOL_VERSION = '2025-06-18';
 const baseUrl = (process.env.MCP_BASE_URL || DEFAULT_BASE_URL).replace(/\/$/, '');
 const endpoint = baseUrl.endsWith('/mcp') ? baseUrl : `${baseUrl}/mcp`;
 
@@ -46,7 +52,7 @@ const rpc = async (method, params = undefined) => {
       headers: {
         'content-type': 'application/json',
         accept: 'application/json, text/event-stream',
-        'mcp-protocol-version': '2025-03-26',
+        'mcp-protocol-version': MCP_PROTOCOL_VERSION,
         'mcp-session-id': 'local-dev-session',
       },
       body: JSON.stringify(payload),
@@ -76,6 +82,8 @@ const getToolNames = result => {
   return tools.map(tool => tool?.name).filter(name => typeof name === 'string');
 };
 
+const getTools = result => (Array.isArray(result?.tools) ? result.tools : []);
+
 const extractItinerary = result => {
   const itinerary = result?.structuredContent?.itinerary;
   if (itinerary && typeof itinerary === 'object') {
@@ -84,12 +92,35 @@ const extractItinerary = result => {
   return null;
 };
 
+const extractJsonTextContent = result => {
+  const textPart = Array.isArray(result?.content)
+    ? result.content.find(part => part?.type === 'text' && typeof part.text === 'string')
+    : null;
+
+  if (!textPart) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(textPart.text);
+  } catch {
+    return null;
+  }
+};
+
+const getToolResourceUri = tool => {
+  const meta = tool && typeof tool._meta === 'object' && tool._meta ? tool._meta : {};
+  const ui = meta.ui && typeof meta.ui === 'object' ? meta.ui : {};
+  const resourceUri = ui.resourceUri || meta['ui/resourceUri'] || meta['openai/outputTemplate'];
+  return typeof resourceUri === 'string' ? resourceUri : null;
+};
+
 const run = async () => {
   console.log(`[info] MCP smoke test endpoint: ${endpoint}`);
 
   logStep('Initialize MCP session');
   const initializeResult = await rpc('initialize', {
-    protocolVersion: '2025-03-26',
+    protocolVersion: MCP_PROTOCOL_VERSION,
     capabilities: {},
     clientInfo: {
       name: 'mcp-smoke-test',
@@ -104,6 +135,7 @@ const run = async () => {
 
   logStep('Verify required tools are listed');
   const toolsListResult = await rpc('tools/list', {});
+  const tools = getTools(toolsListResult);
   const names = getToolNames(toolsListResult);
   const requiredTools = ['search', 'fetch', 'plan_sustainable_workday', 'render_workday_itinerary'];
 
@@ -111,6 +143,26 @@ const run = async () => {
     assert(names.includes(toolName), `Missing required tool: ${toolName}`);
   }
   pass(`tools/list includes required tools: ${requiredTools.join(', ')}`);
+
+  logStep('Verify widget tool metadata and resource');
+  validateToolWidgetMetadata(tools, ['render_workday_itinerary']);
+  const renderTool = tools.find(tool => tool?.name === 'render_workday_itinerary');
+  const resourceUri = getToolResourceUri(renderTool);
+  assert(resourceUri, 'render_workday_itinerary did not advertise a widget resource URI');
+
+  const resourceResult = await rpc('resources/read', { uri: resourceUri });
+  const resource = Array.isArray(resourceResult?.contents) ? resourceResult.contents[0] : null;
+  validateWidgetResource(resource);
+  pass('render_workday_itinerary advertises a readable MCP Apps widget resource');
+
+  logStep('Call search for Bangkok workday candidates');
+  const searchResult = await rpc('tools/call', {
+    name: 'search',
+    arguments: { query: 'eco cafe bangkok' },
+  });
+  const searchContent = searchResult?.structuredContent || extractJsonTextContent(searchResult);
+  validateSearchStructuredContent(searchContent);
+  pass('search returned valid listing references');
 
   logStep('Call plan_sustainable_workday for Bangkok');
   const callResult = await rpc('tools/call', {

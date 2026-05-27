@@ -12,7 +12,7 @@ pnpm build
 [[actions]]
 name = "pnpm install"
 icon = "tool"
-command = "pnpm dev"
+command = "pnpm install"
 
 [[actions]]
 name = "Dev Server"

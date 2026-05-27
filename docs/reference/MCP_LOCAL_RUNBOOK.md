@@ -45,6 +45,8 @@ Current tool names:
 
 All v1 tools are read-only and non-destructive.
 
+Use MCP protocol version `2025-06-18` for local smoke checks.
+
 ### Minimal JSON-RPC test flow (curl)
 
 Use a single session id for all calls below.
@@ -55,14 +57,14 @@ Use a single session id for all calls below.
 curl -sS http://localhost:3000/mcp \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json, text/event-stream' \
-  -H 'MCP-Protocol-Version: 2025-03-26' \
+  -H 'MCP-Protocol-Version: 2025-06-18' \
   -H 'Mcp-Session-Id: local-dev-session' \
   -d '{
     "jsonrpc": "2.0",
     "id": "init-1",
     "method": "initialize",
     "params": {
-      "protocolVersion": "2025-03-26",
+      "protocolVersion": "2025-06-18",
       "capabilities": {},
       "clientInfo": { "name": "curl", "version": "1.0.0" }
     }
@@ -75,7 +77,7 @@ curl -sS http://localhost:3000/mcp \
 curl -sS http://localhost:3000/mcp \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json, text/event-stream' \
-  -H 'MCP-Protocol-Version: 2025-03-26' \
+  -H 'MCP-Protocol-Version: 2025-06-18' \
   -H 'Mcp-Session-Id: local-dev-session' \
   -d '{
     "jsonrpc": "2.0",
@@ -91,7 +93,7 @@ curl -sS http://localhost:3000/mcp \
 curl -sS http://localhost:3000/mcp \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json, text/event-stream' \
-  -H 'MCP-Protocol-Version: 2025-03-26' \
+  -H 'MCP-Protocol-Version: 2025-06-18' \
   -H 'Mcp-Session-Id: local-dev-session' \
   -d '{
     "jsonrpc": "2.0",
@@ -110,7 +112,7 @@ Optional second call example (`plan_sustainable_workday`):
 curl -sS http://localhost:3000/mcp \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json, text/event-stream' \
-  -H 'MCP-Protocol-Version: 2025-03-26' \
+  -H 'MCP-Protocol-Version: 2025-06-18' \
   -H 'Mcp-Session-Id: local-dev-session' \
   -d '{
     "jsonrpc": "2.0",
@@ -129,7 +131,7 @@ curl -sS http://localhost:3000/mcp \
 curl -sS http://localhost:3000/mcp \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json, text/event-stream' \
-  -H 'MCP-Protocol-Version: 2025-03-26' \
+  -H 'MCP-Protocol-Version: 2025-06-18' \
   -H 'Mcp-Session-Id: local-dev-session' \
   -d '{
     "jsonrpc": "2.0",

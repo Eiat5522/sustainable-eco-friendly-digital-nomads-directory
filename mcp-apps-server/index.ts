@@ -20,12 +20,15 @@ import {
   workdayPlanToolSchema,
 } from './src/lib/workday-schemas';
 
+const serverPort = process.env.PORT ?? '3000';
+const serverBaseUrl = process.env.MCP_URL || `http://127.0.0.1:${serverPort}`;
+
 const server = new MCPServer({
   name: 'sustainable-workday-planner',
   title: 'Sustainable Workday Planner MCP Apps Server',
   version: '0.1.0',
   description: 'Phase 1 MCP Apps server for sustainable workday planning and itinerary browsing.',
-  baseUrl: process.env.MCP_URL || 'http://localhost:3000',
+  baseUrl: serverBaseUrl,
   favicon: 'favicon.ico',
   websiteUrl: 'https://github.com/Eiat5522/sustainable-eco-friendly-digital-nomads-directory',
   icons: [
