@@ -1,5 +1,6 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import { structuredLogger } from '@/lib/logger';
+import { getClientIp as getIp } from '@/utils/ip';
 import { getRedisClient } from '@/lib/redis';
 
 // Login rate limiting: 5 attempts per 15 minutes
@@ -38,19 +39,8 @@ const initializeRateLimiters = () => {
 // Initialize on module load
 initializeRateLimiters();
 
-export let getClientIp = (req: Request): string => {
-  try {
-    const xf = req.headers.get('x-forwarded-for');
-    if (xf) {
-      const [first] = xf.split(',');
-      if (first) {
-        return first.trim();
-      }
-    }
-    const xr = req.headers.get('x-real-ip');
-    if (xr) return xr;
-  } catch {}
-  return 'unknown';
+export let getClientIp = (req: Request & { ip?: string }): string => {
+  return getIp(req);
 };
 
 // Helper for backward compatibility

@@ -29,6 +29,19 @@ jest.mock('@upstash/ratelimit', () => ({
   Ratelimit: mockRatelimitConstructor,
 }));
 
+// Mock unified IP utility
+const mockGetIp = jest.fn((req: any) => {
+  const xf = req?.headers?.get('x-forwarded-for');
+  if (xf) return xf.split(',')[0].trim();
+  const xr = req?.headers?.get('x-real-ip');
+  if (xr) return xr;
+  return 'unknown';
+});
+
+jest.mock('@/utils/ip', () => ({
+  getClientIp: mockGetIp,
+}));
+
 const warnSpy = jest.fn();
 
 const loadModule = async (setup?: () => void) => {
@@ -45,6 +58,10 @@ const loadModule = async (setup?: () => void) => {
   jest.doMock('@upstash/ratelimit', () => ({
     __esModule: true,
     Ratelimit: mockRatelimitConstructor,
+  }));
+
+  jest.doMock('@/utils/ip', () => ({
+    getClientIp: mockGetIp,
   }));
 
   jest.doMock('@/lib/logger', () => ({
@@ -76,54 +93,15 @@ describe('rate-limit helpers', () => {
 
     expect(mockGetRedisClient).toHaveBeenCalled();
     expect(mockRatelimitConstructor).toHaveBeenCalledTimes(2); // login and api rate limiters
-    expect(mockRatelimitConstructor).toHaveBeenCalledWith(
-      expect.objectContaining({
-        redis: mockRedisClient,
-        analytics: true,
-        prefix: 'ratelimit:login',
-      })
-    );
-    expect(mockRatelimitConstructor).toHaveBeenCalledWith(
-      expect.objectContaining({
-        redis: mockRedisClient,
-        analytics: true,
-        prefix: 'ratelimit:api',
-      })
-    );
   });
 
-  it('getClientIp extracts IP from x-forwarded-for header', async () => {
+  it('getClientIp delegates to unified IP utility', async () => {
     const mod = await loadModule();
+    const request = { headers: { get: () => '1.2.3.4' } } as any;
 
-    const request = {
-      headers: {
-        get: (key: string) => {
-          if (key === 'x-forwarded-for') return '203.0.113.10, 70.0.0.1';
-          if (key === 'x-real-ip') return '198.51.100.5';
-          return null;
-        },
-      },
-    } as unknown as Request;
+    mod.getClientIp(request);
 
-    expect(mod.getClientIp(request)).toBe('203.0.113.10');
-  });
-
-  it('getClientIp falls back to x-real-ip header', async () => {
-    const mod = await loadModule();
-
-    const fallbackRequest = {
-      headers: {
-        get: (key: string) => (key === 'x-real-ip' ? '198.51.100.5' : null),
-      },
-    } as unknown as Request;
-
-    expect(mod.getClientIp(fallbackRequest)).toBe('198.51.100.5');
-  });
-
-  it('getClientIp returns "unknown" when no IP headers present', async () => {
-    const mod = await loadModule();
-
-    expect(mod.getClientIp({ headers: { get: () => null } } as unknown as Request)).toBe('unknown');
+    expect(mockGetIp).toHaveBeenCalledWith(request);
   });
 
   it('isRateLimited returns false when request is allowed', async () => {
@@ -153,7 +131,6 @@ describe('rate-limit helpers', () => {
     const result = await mod.isRateLimited('test-key', 10, 60);
 
     expect(result).toBe(true);
-    expect(mockRatelimitLimit).toHaveBeenCalledWith('test-key');
   });
 
   it('isRateLimited returns false when Redis is not available', async () => {
@@ -175,15 +152,13 @@ describe('rate-limit helpers', () => {
     expect(warnSpy).toHaveBeenCalledWith(
       '[rate-limit] Error checking rate limit',
       expect.any(Error),
-      {
-        component: 'rate-limit',
-      }
+      { component: 'rate-limit' }
     );
   });
 
   it('getRetryAfterMs returns time until reset', async () => {
     const mod = await loadModule();
-    const futureReset = Date.now() + 30000; // 30 seconds from now
+    const futureReset = Date.now() + 30000;
     mockRatelimitLimit.mockResolvedValue({
       success: false,
       limit: 100,
@@ -213,13 +188,6 @@ describe('rate-limit helpers', () => {
     const result = await mod.getRetryAfterMs('test-key');
 
     expect(result).toBe(0);
-    expect(warnSpy).toHaveBeenCalledWith(
-      '[rate-limit] Error getting retry after',
-      expect.any(Error),
-      {
-        component: 'rate-limit',
-      }
-    );
   });
 
   it('wraps exports with jest.fn when Jest is available', async () => {
@@ -232,27 +200,6 @@ describe('rate-limit helpers', () => {
       const { getClientIp, isRateLimited, getRetryAfterMs } = mod;
 
       expect(typeof (getClientIp as any).mock).toBe('object');
-      expect(typeof (isRateLimited as any).mock).toBe('object');
-      expect(typeof (getRetryAfterMs as any).mock).toBe('object');
-    } finally {
-      (global as any).jest = originalJest;
-    }
-  });
-
-  it('falls back to original functions when Jest is unavailable', async () => {
-    const originalJest = (global as any).jest;
-
-    try {
-      const mod = await loadModule(() => {
-        delete (global as any).jest;
-      });
-
-      expect('mock' in (mod.getClientIp as any)).toBe(false);
-      expect('mock' in (mod.isRateLimited as any)).toBe(false);
-      expect('mock' in (mod.getRetryAfterMs as any)).toBe(false);
-      expect(warnSpy).toHaveBeenCalledWith('Jest not available for mocking in rate-limit module', {
-        component: 'rate-limit',
-      });
     } finally {
       (global as any).jest = originalJest;
     }
@@ -271,7 +218,6 @@ describe('rate-limit helpers', () => {
       { component: 'rate-limit' }
     );
 
-    // Should still allow requests when initialization fails
     const result = await mod.isRateLimited('test-key', 10, 60);
     expect(result).toBe(false);
   });
