@@ -1,6 +1,7 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import { structuredLogger } from '@/lib/logger';
 import { getRedisClient } from '@/lib/redis';
+import validator from 'validator';
 
 // Login rate limiting: 5 attempts per 15 minutes
 export let loginRateLimit: Ratelimit | undefined;
@@ -38,17 +39,30 @@ const initializeRateLimiters = () => {
 // Initialize on module load
 initializeRateLimiters();
 
+/**
+ * Validates and extracts the first IP address from a header value.
+ * @param value - The header value (e.g., from x-forwarded-for)
+ * @returns The validated IP address, or undefined if invalid
+ */
+const getValidatedIP = (value: string | null | undefined): string | undefined => {
+  if (!value) return undefined;
+  const first = value.split(',')[0]?.trim();
+  return first && validator.isIP(first) ? first : undefined;
+};
+
 export let getClientIp = (req: Request): string => {
   try {
     const xf = req.headers.get('x-forwarded-for');
-    if (xf) {
-      const [first] = xf.split(',');
-      if (first) {
-        return first.trim();
-      }
-    }
+    const validatedXf = getValidatedIP(xf);
+    if (validatedXf) return validatedXf;
+
     const xr = req.headers.get('x-real-ip');
-    if (xr) return xr;
+    const validatedXr = getValidatedIP(xr);
+    if (validatedXr) return validatedXr;
+
+    const cf = req.headers.get('cf-connecting-ip');
+    const validatedCf = getValidatedIP(cf);
+    if (validatedCf) return validatedCf;
   } catch {}
   return 'unknown';
 };
