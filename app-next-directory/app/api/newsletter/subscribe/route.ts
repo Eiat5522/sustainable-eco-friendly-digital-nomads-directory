@@ -4,6 +4,7 @@ import dbConnect from '@/lib/dbConnect';
 import { buildNewsletterConfirmEmail, sendMail } from '@/lib/email';
 import { signNewsletterConfirmToken } from '@/lib/newsletterTokens';
 import NewsletterSubscriber from '@/models/NewsletterSubscriber';
+import { getClientIp } from '@/utils/ip';
 
 const newsletterSubscriptionSchema = z
   .object({
@@ -49,19 +50,7 @@ export async function POST(request: Request) {
       const { email } = validationResult.data;
 
       // IP rate limiting for Jest tests
-      const forwardedFor =
-        request.headers.get('x-forwarded-for') || request.headers.get('X-Forwarded-For');
-      const cfConnecting = request.headers.get('cf-connecting-ip');
-      let ip = 'unknown';
-
-      if (forwardedFor && typeof forwardedFor === 'string') {
-        const segments = forwardedFor.split(',');
-        if (segments.length > 0 && segments[0]) {
-          ip = segments[0].trim();
-        }
-      } else if (cfConnecting) {
-        ip = cfConnecting;
-      }
+      const ip = getClientIp(request);
       const ipKey = `newsletter:ip:${ip}`;
       const ipCount = await storeIncr(ipKey, RATE_LIMIT_PER_IP_WINDOW);
       if (ipCount > RATE_LIMIT_PER_IP) {
@@ -168,19 +157,7 @@ export async function POST(request: Request) {
 
     // --- Rate limit checks ---
     // Determine IP (best-effort using headers)
-    const forwardedFor =
-      request.headers.get('x-forwarded-for') || request.headers.get('X-Forwarded-For');
-    const cfConnecting = request.headers.get('cf-connecting-ip');
-    let ip = 'unknown';
-
-    if (forwardedFor && typeof forwardedFor === 'string') {
-      const segments = forwardedFor.split(',');
-      if (segments.length > 0 && segments[0]) {
-        ip = segments[0].trim();
-      }
-    } else if (cfConnecting) {
-      ip = cfConnecting;
-    }
+    const ip = getClientIp(request);
     const ipKey = `newsletter:ip:${ip}`;
     const ipCount = await storeIncr(ipKey, RATE_LIMIT_PER_IP_WINDOW);
     if (ipCount > RATE_LIMIT_PER_IP) {

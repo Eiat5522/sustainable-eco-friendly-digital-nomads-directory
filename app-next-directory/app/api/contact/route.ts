@@ -8,6 +8,7 @@ import { sendMail } from '@/lib/email';
 import { structuredLogger } from '@/lib/logger';
 import ContactSubmission from '@/models/ContactSubmission';
 import { ApiResponseHandler } from '@/utils/api-response';
+import { getClientIp } from '@/utils/ip';
 import { rateLimit } from '@/utils/rate-limit';
 
 const CONTACT_RECIPIENT = String(
@@ -83,8 +84,7 @@ export async function POST(request: NextRequest) {
   try {
     await dbConnect();
     // Rate limiting
-    const ip =
-      request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'anonymous';
+    const ip = getClientIp(request);
     const rateLimitResult = await limiter(request);
     if (!rateLimitResult.success) {
       return ApiResponseHandler.error('Too many requests. Please try again later.', 429);

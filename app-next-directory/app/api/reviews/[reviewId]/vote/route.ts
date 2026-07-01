@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { getRequestContext, structuredLogger } from '@/lib/logger';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { getCollection } from '@/utils/db-helpers';
+import { getClientIp } from '@/utils/ip';
 
 const voteSchema = z.object({
   helpful: z.boolean(),
@@ -66,8 +67,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     }
 
     // Use IP address if no user ID provided
-    const voterIdentifier =
-      userId || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anonymous';
+    const voterIdentifier = userId || getClientIp(request);
 
     // Check for existing vote
     const existingVote = (await reviewVotes.findOne({
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
       voterIdentifier,
       helpful,
       createdAt: new Date(),
-      ipAddress: request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown',
+      ipAddress: getClientIp(request),
     });
 
     // Update review helpful counts

@@ -87,6 +87,15 @@ jest.mock('@/lib/auth/config', () => ({
   isAdminEmail,
 }));
 
+// Mock @/utils/ip to avoid 127.0.0.1 fallback from node environment
+jest.mock('@/utils/ip', () => ({
+  getClientIp: jest.fn((req: any) => {
+    const xf = req?.headers?.get('x-forwarded-for');
+    if (xf) return xf.split(',')[0].trim();
+    return 'unknown';
+  }),
+}));
+
 const importAuthModule = async () => {
   jest.resetModules();
   // Re-establish manual mocks after resetModules
@@ -130,6 +139,13 @@ const importAuthModule = async () => {
   }));
   jest.doMock('@/lib/auth/config', () => ({
     isAdminEmail,
+  }));
+  jest.doMock('@/utils/ip', () => ({
+    getClientIp: jest.fn((req: any) => {
+      const xf = req?.headers?.get('x-forwarded-for');
+      if (xf) return xf.split(',')[0].trim();
+      return 'unknown';
+    }),
   }));
 
   return import('../auth');
@@ -224,7 +240,7 @@ describe('auth module', () => {
 
       expect(recordLoginAttempt).toHaveBeenCalledWith({
         email: 'blocked@example.com',
-        ip: null,
+        ip: 'unknown',
         success: false,
         reason: 'rate_limited',
       });

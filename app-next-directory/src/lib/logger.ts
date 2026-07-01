@@ -1,4 +1,5 @@
 import pino from 'pino';
+import { getClientIp } from '@/utils/ip';
 
 // Environment check for safe logging configuration
 // Guard access to `process` so this module can be imported in Edge or client contexts
@@ -444,7 +445,7 @@ export const getRequestContext = (req: RequestLike | undefined): LogContext => {
     method: req?.method,
     path: req?.url ?? req?.nextUrl?.pathname,
     userAgent: getHeaderValue(headers, 'user-agent'),
-    ip: req?.ip ?? getHeaderValue(headers, 'x-forwarded-for'),
+    ip: req ? getClientIp(req) : undefined,
     requestId: getHeaderValue(headers, 'x-request-id'),
   };
 };
