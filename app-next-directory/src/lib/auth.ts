@@ -16,6 +16,7 @@ import { syncUserToSanity } from '@/lib/auth/userService';
 import dbConnect from '@/lib/dbConnect';
 import { structuredLogger } from '@/lib/logger';
 import User, { type IUser } from '@/models/User';
+import validator from 'validator';
 import type { UserRole } from '@/types/auth';
 import type { HeadersLike } from '@/types/request';
 
@@ -47,7 +48,8 @@ const providers: NextAuthConfig['providers'] = [
         const password = String(credentials.password);
         const forwardedFor =
           request?.headers?.get('x-forwarded-for') ?? request?.headers?.get('x-real-ip') ?? '';
-        const ip = forwardedFor.split(',')[0]?.trim() || null;
+        const firstIp = forwardedFor.split(',')[0]?.trim();
+        const ip = firstIp && validator.isIP(firstIp) ? firstIp : null;
         const identifier = ip ? `${email}:${ip}` : email;
 
         const rateLimit = await enforceLoginRateLimit(identifier);
