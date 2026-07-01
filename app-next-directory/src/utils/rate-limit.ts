@@ -5,6 +5,7 @@
 
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
+import validator from 'validator';
 
 interface RateLimitInfo {
   count: number;
@@ -14,28 +15,60 @@ interface RateLimitInfo {
 // In-memory store for rate limiting (fallback when Redis is not available)
 const rateLimitStore = new Map<string, RateLimitInfo>();
 
+/**
+ * Cleans up expired entries from the in-memory rate limit store
+ */
+export function cleanupRateLimitStore() {
+  const now = Date.now();
+  for (const [key, info] of rateLimitStore.entries()) {
+    if (now > info.resetTime) {
+      rateLimitStore.delete(key);
+    }
+  }
+}
+
 // Avoid keeping a long-lived timer alive in unit tests – Jest's leak detector
 // treats background intervals as open handles. Only start the cleanup loop
 // outside of test environments so tests can run leak-free.
 const shouldStartCleanup = process.env.NODE_ENV !== 'test' && !process.env.JEST_WORKER_ID;
 const cleanupInterval = shouldStartCleanup
-  ? setInterval(
-      () => {
-        const now = Date.now();
-        for (const [key, info] of rateLimitStore.entries()) {
-          if (now > info.resetTime) {
-            rateLimitStore.delete(key);
-          }
-        }
-      },
-      10 * 60 * 1000
-    )
+  ? setInterval(cleanupRateLimitStore, 10 * 60 * 1000)
   : null;
 
 cleanupInterval?.unref?.();
 
 // Initialize Redis client if credentials are available
-let redis: Redis | null = null;
+// Use undefined initially to signal that initialization hasn't been attempted
+let redis: Redis | null | undefined;
+let activeLimiter: Ratelimit | null = null;
+let currentLimiterParams: { max: number; windowMs: number } | null = null;
+
+/**
+ * Resets the Redis client to allow re-initialization (mainly for testing)
+ */
+export function resetRedisClient() {
+  redis = undefined;
+  activeLimiter = null;
+  currentLimiterParams = null;
+}
+
+/**
+ * Clears all rate limiters to force re-initialization with current Redis client state
+ */
+export function clearRateLimiters() {
+  (rateLimiters as any).contactForm = rateLimit({
+    max: 5,
+    windowMs: 15 * 60 * 1000,
+  });
+  (rateLimiters as any).apiGeneral = rateLimit({
+    max: 100,
+    windowMs: 60 * 60 * 1000,
+  });
+  (rateLimiters as any).search = rateLimit({
+    max: 50,
+    windowMs: 10 * 60 * 1000,
+  });
+}
 
 function initializeRedis() {
   if (redis !== undefined) {
@@ -128,23 +161,32 @@ function inMemoryRateLimit(key: string, max: number, windowMs: number): RateLimi
 export function rateLimit(options: RateLimitOptions) {
   const { max, windowMs, keyGenerator } = options;
 
-  // Lazy initialize Redis
-  const redisClient = initializeRedis();
+  return async (request: Request): Promise<RateLimitResult> => {
+    // Lazy initialize Redis per request to pick up latest env/client state
+    const redisClient = initializeRedis();
 
-  // If Redis is available, create a Redis-based rate limiter
-  if (redisClient) {
-    const limiter = new Ratelimit({
-      redis: redisClient,
-      limiter: Ratelimit.slidingWindow(max, `${windowMs} ms`),
-      analytics: false, // Disable analytics for better performance
-    });
-
-    return async (request: Request): Promise<RateLimitResult> => {
+    // If Redis is available, create a Redis-based rate limiter
+    if (redisClient) {
       try {
+        // Reuse limiter if parameters are the same and redis hasn't changed
+        if (
+          !activeLimiter ||
+          !currentLimiterParams ||
+          currentLimiterParams.max !== max ||
+          currentLimiterParams.windowMs !== windowMs
+        ) {
+          activeLimiter = new Ratelimit({
+            redis: redisClient,
+            limiter: Ratelimit.slidingWindow(max, `${windowMs} ms`),
+            analytics: false, // Disable analytics for better performance
+          });
+          currentLimiterParams = { max, windowMs };
+        }
+
         // Generate key for rate limiting (default to IP)
         const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
 
-        const { success, limit, remaining, reset } = await limiter.limit(key);
+        const { success, limit, remaining, reset } = await activeLimiter.limit(key);
 
         return {
           success,
@@ -157,11 +199,9 @@ export function rateLimit(options: RateLimitOptions) {
         const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
         return inMemoryRateLimit(key, max, windowMs);
       }
-    };
-  }
+    }
 
-  // In-memory fallback
-  return async (request: Request): Promise<RateLimitResult> => {
+    // In-memory fallback
     const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
     return inMemoryRateLimit(key, max, windowMs);
   };
@@ -175,8 +215,10 @@ export function rateLimit(options: RateLimitOptions) {
  * - x-real-ip
  * - cf-connecting-ip (Cloudflare)
  *
+ * All extracted values are validated using validator.isIP to prevent IP spoofing hotspots.
+ *
  * @param request - The incoming HTTP request
- * @returns The client IP address, or 'unknown' if none found
+ * @returns The client IP address, or 'unknown' if none found or if the IP is invalid
  */
 function getClientIP(request: Request): string {
   // Try various headers for IP address
@@ -184,17 +226,20 @@ function getClientIP(request: Request): string {
   if (forwarded) {
     const [first] = forwarded.split(',');
     if (first) {
-      return first.trim();
+      const trimmed = first.trim();
+      if (validator.isIP(trimmed)) {
+        return trimmed;
+      }
     }
   }
 
   const realIP = request.headers.get('x-real-ip');
-  if (realIP) {
+  if (realIP && validator.isIP(realIP)) {
     return realIP;
   }
 
   const cfConnectingIP = request.headers.get('cf-connecting-ip');
-  if (cfConnectingIP) {
+  if (cfConnectingIP && validator.isIP(cfConnectingIP)) {
     return cfConnectingIP;
   }
 
