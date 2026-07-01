@@ -87,6 +87,16 @@ jest.mock('@/lib/auth/config', () => ({
   isAdminEmail,
 }));
 
+jest.mock('@/lib/rate-limit', () => ({
+  getClientIp: jest.fn((req: any) => {
+    const xf = req.headers.get('x-forwarded-for');
+    if (xf) return xf.split(',')[0].trim();
+    const xr = req.headers.get('x-real-ip');
+    if (xr) return xr.trim();
+    return 'unknown';
+  }),
+}));
+
 const importAuthModule = async () => {
   jest.resetModules();
   // Re-establish manual mocks after resetModules

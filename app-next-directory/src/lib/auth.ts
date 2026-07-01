@@ -11,6 +11,7 @@ import Google from 'next-auth/providers/google';
 import { createAuthAdapter } from '@/lib/auth/adapter';
 import { isAdminEmail } from '@/lib/auth/config';
 import { authenticateUserCredentials, getUserById } from '@/lib/auth/dal';
+import { getClientIp } from '@/lib/rate-limit';
 import { enforceLoginRateLimit, recordLoginAttempt } from '@/lib/auth/rateLimit';
 import { syncUserToSanity } from '@/lib/auth/userService';
 import dbConnect from '@/lib/dbConnect';
@@ -45,21 +46,29 @@ const providers: NextAuthConfig['providers'] = [
 
         const email = String(credentials.email).trim().toLowerCase();
         const password = String(credentials.password);
-        const forwardedFor =
-          request?.headers?.get('x-forwarded-for') ?? request?.headers?.get('x-real-ip') ?? '';
-        const ip = forwardedFor.split(',')[0]?.trim() || null;
-        const identifier = ip ? `${email}:${ip}` : email;
+
+        // Use central IP extraction logic to avoid spoofing and handle IPv6 correctly
+        let ip: string | null = null;
+        if (request instanceof Request) {
+          ip = getClientIp(request);
+        } else if (request && typeof request === 'object' && 'headers' in (request as object)) {
+          ip = getClientIp(request as unknown as Request);
+        }
+
+        // If IP extraction was attempted but failed/unknown, treat as null for consistency with existing tests
+        const finalIp = ip === 'unknown' ? null : ip;
+        const identifier = finalIp ? `${email}:${finalIp}` : email;
 
         const rateLimit = await enforceLoginRateLimit(identifier);
         if (!rateLimit.success) {
-          await recordLoginAttempt({ email, ip, success: false, reason: 'rate_limited' });
+          await recordLoginAttempt({ email, ip: finalIp, success: false, reason: 'rate_limited' });
           throw new Error('Too many login attempts. Please try again later.');
         }
 
         const user = await authenticateUserCredentials(email, password);
         await recordLoginAttempt({
           email,
-          ip,
+          ip: finalIp,
           success: Boolean(user),
           reason: user ? 'success' : 'invalid_credentials',
         });

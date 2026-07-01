@@ -108,6 +108,21 @@ describe('rate-limit helpers', () => {
     expect(mod.getClientIp(request)).toBe('203.0.113.10');
   });
 
+  it('getClientIp handles IPv6 correctly', async () => {
+    const mod = await loadModule();
+
+    const request = {
+      headers: {
+        get: (key: string) => {
+          if (key === 'x-forwarded-for') return '[2001:db8::1]:8080';
+          return null;
+        },
+      },
+    } as unknown as Request;
+
+    expect(mod.getClientIp(request)).toBe('2001:db8::1');
+  });
+
   it('getClientIp falls back to x-real-ip header', async () => {
     const mod = await loadModule();
 
