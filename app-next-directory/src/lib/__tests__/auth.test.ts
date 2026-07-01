@@ -68,6 +68,14 @@ jest.mock('@/lib/auth/dal', () => ({
   getUserById: jest.fn((...args: unknown[]) => getUserById(...args)),
 }));
 
+jest.mock('@/lib/rate-limit', () => ({
+  getClientIp: jest.fn((req: any) => {
+    const xf = req.headers.get('x-forwarded-for');
+    if (xf) return xf.split(',')[0].trim();
+    return req.headers.get('x-real-ip') || 'unknown';
+  }),
+}));
+
 jest.mock('@/lib/auth/rateLimit', () => ({
   enforceLoginRateLimit: jest.fn((...args: unknown[]) => enforceLoginRateLimit(...args)),
   recordLoginAttempt: jest.fn((...args: unknown[]) => recordLoginAttempt(...args)),
@@ -115,6 +123,13 @@ const importAuthModule = async () => {
       authenticateUserCredentials(...args)
     ),
     getUserById: jest.fn((...args: unknown[]) => getUserById(...args)),
+  }));
+  jest.doMock('@/lib/rate-limit', () => ({
+    getClientIp: jest.fn((req: any) => {
+      const xf = req.headers.get('x-forwarded-for');
+      if (xf) return xf.split(',')[0].trim();
+      return req.headers.get('x-real-ip') || 'unknown';
+    }),
   }));
   jest.doMock('@/lib/auth/rateLimit', () => ({
     enforceLoginRateLimit: jest.fn((...args: unknown[]) => enforceLoginRateLimit(...args)),
@@ -218,13 +233,17 @@ describe('auth module', () => {
       await expect(
         provider.authorize(
           { email: 'blocked@example.com', password: 'pw' },
-          { headers: { get: () => null } }
+          {
+            headers: {
+              get: (key: string) => null,
+            },
+          }
         )
       ).rejects.toThrow('Too many login attempts');
 
       expect(recordLoginAttempt).toHaveBeenCalledWith({
         email: 'blocked@example.com',
-        ip: null,
+        ip: 'unknown',
         success: false,
         reason: 'rate_limited',
       });

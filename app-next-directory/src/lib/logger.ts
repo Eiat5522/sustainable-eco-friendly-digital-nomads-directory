@@ -1,4 +1,5 @@
 import pino from 'pino';
+import validator from 'validator';
 
 // Environment check for safe logging configuration
 // Guard access to `process` so this module can be imported in Edge or client contexts
@@ -440,11 +441,37 @@ export const logError = (message: string, error?: unknown, context?: LogContext)
 // Helper to extract request context from Next.js request objects
 export const getRequestContext = (req: RequestLike | undefined): LogContext => {
   const headers = req?.headers;
+  let ip = req?.ip;
+
+  if (!ip || !validator.isIP(ip)) {
+    const forwarded = getHeaderValue(headers, 'x-forwarded-for');
+    if (forwarded) {
+      const first = (forwarded.split(',')[0] || '').trim();
+      if (first && validator.isIP(first)) {
+        ip = first;
+      }
+    }
+  }
+
+  if (!ip || !validator.isIP(ip)) {
+    const realIP = getHeaderValue(headers, 'x-real-ip');
+    if (realIP && validator.isIP(realIP)) {
+      ip = realIP;
+    }
+  }
+
+  if (!ip || !validator.isIP(ip)) {
+    const cfConnectingIP = getHeaderValue(headers, 'cf-connecting-ip');
+    if (cfConnectingIP && validator.isIP(cfConnectingIP)) {
+      ip = cfConnectingIP;
+    }
+  }
+
   return {
     method: req?.method,
     path: req?.url ?? req?.nextUrl?.pathname,
     userAgent: getHeaderValue(headers, 'user-agent'),
-    ip: req?.ip ?? getHeaderValue(headers, 'x-forwarded-for'),
+    ip: ip && validator.isIP(ip) ? ip : undefined,
     requestId: getHeaderValue(headers, 'x-request-id'),
   };
 };
