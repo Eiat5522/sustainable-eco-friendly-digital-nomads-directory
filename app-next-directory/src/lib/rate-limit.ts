@@ -1,4 +1,5 @@
 import { Ratelimit } from '@upstash/ratelimit';
+import { getClientIp as extractIp } from '@/utils/ip';
 import { structuredLogger } from '@/lib/logger';
 import { getRedisClient } from '@/lib/redis';
 
@@ -39,18 +40,7 @@ const initializeRateLimiters = () => {
 initializeRateLimiters();
 
 export let getClientIp = (req: Request): string => {
-  try {
-    const xf = req.headers.get('x-forwarded-for');
-    if (xf) {
-      const [first] = xf.split(',');
-      if (first) {
-        return first.trim();
-      }
-    }
-    const xr = req.headers.get('x-real-ip');
-    if (xr) return xr;
-  } catch {}
-  return 'unknown';
+  return extractIp(req);
 };
 
 // Helper for backward compatibility

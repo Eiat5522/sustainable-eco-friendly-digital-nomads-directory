@@ -11,6 +11,7 @@ import Google from 'next-auth/providers/google';
 import { createAuthAdapter } from '@/lib/auth/adapter';
 import { isAdminEmail } from '@/lib/auth/config';
 import { authenticateUserCredentials, getUserById } from '@/lib/auth/dal';
+import { getClientIp } from '@/utils/ip';
 import { enforceLoginRateLimit, recordLoginAttempt } from '@/lib/auth/rateLimit';
 import { syncUserToSanity } from '@/lib/auth/userService';
 import dbConnect from '@/lib/dbConnect';
@@ -45,10 +46,8 @@ const providers: NextAuthConfig['providers'] = [
 
         const email = String(credentials.email).trim().toLowerCase();
         const password = String(credentials.password);
-        const forwardedFor =
-          request?.headers?.get('x-forwarded-for') ?? request?.headers?.get('x-real-ip') ?? '';
-        const ip = forwardedFor.split(',')[0]?.trim() || null;
-        const identifier = ip ? `${email}:${ip}` : email;
+        const ip = request ? getClientIp(request as unknown as Request) : 'unknown';
+        const identifier = ip !== 'unknown' ? `${email}:${ip}` : email;
 
         const rateLimit = await enforceLoginRateLimit(identifier);
         if (!rateLimit.success) {
