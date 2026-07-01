@@ -87,6 +87,10 @@ jest.mock('@/lib/auth/config', () => ({
   isAdminEmail,
 }));
 
+// Unmock @/lib/rate-limit to use the actual implementation (which uses validator.isIP)
+// or at least override the global mock's default return value.
+jest.unmock('@/lib/rate-limit');
+
 const importAuthModule = async () => {
   jest.resetModules();
   // Re-establish manual mocks after resetModules
@@ -181,11 +185,11 @@ describe('auth module', () => {
 
       const { authOptions } = await importAuthModule();
       const provider = extractCredentialsProvider(authOptions);
-      const request = {
+      const request = new Request('http://localhost', {
         headers: {
-          get: (key: string) => (key === 'x-forwarded-for' ? '203.0.113.5, 70.0.0.1' : null),
+          'x-forwarded-for': '203.0.113.5, 70.0.0.1',
         },
-      };
+      });
 
       const result = await provider.authorize(
         { email: '  Jane@Example.com ', password: 'secret' },
