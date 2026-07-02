@@ -108,6 +108,22 @@ describe('rate-limit helpers', () => {
     expect(mod.getClientIp(request)).toBe('203.0.113.10');
   });
 
+  it('getClientIp validates IP addresses', async () => {
+    const mod = await loadModule();
+
+    const invalidRequest = {
+      headers: {
+        get: (key: string) => {
+          if (key === 'x-forwarded-for') return 'not-an-ip';
+          if (key === 'x-real-ip') return '198.51.100.5';
+          return null;
+        },
+      },
+    } as unknown as Request;
+
+    expect(mod.getClientIp(invalidRequest)).toBe('198.51.100.5');
+  });
+
   it('getClientIp falls back to x-real-ip header', async () => {
     const mod = await loadModule();
 
@@ -118,6 +134,18 @@ describe('rate-limit helpers', () => {
     } as unknown as Request;
 
     expect(mod.getClientIp(fallbackRequest)).toBe('198.51.100.5');
+  });
+
+  it('getClientIp falls back to cf-connecting-ip header', async () => {
+    const mod = await loadModule();
+
+    const cfRequest = {
+      headers: {
+        get: (key: string) => (key === 'cf-connecting-ip' ? '203.0.113.20' : null),
+      },
+    } as unknown as Request;
+
+    expect(mod.getClientIp(cfRequest)).toBe('203.0.113.20');
   });
 
   it('getClientIp returns "unknown" when no IP headers present', async () => {

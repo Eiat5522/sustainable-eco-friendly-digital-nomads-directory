@@ -5,6 +5,7 @@
 
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
+import { getClientIp } from './ip-utils';
 
 interface RateLimitInfo {
   count: number;
@@ -14,28 +15,31 @@ interface RateLimitInfo {
 // In-memory store for rate limiting (fallback when Redis is not available)
 const rateLimitStore = new Map<string, RateLimitInfo>();
 
+/**
+ * Cleans up expired entries from the in-memory rate limit store.
+ * Exported for testing purposes.
+ */
+export function cleanupRateLimitStore() {
+  const now = Date.now();
+  for (const [key, info] of rateLimitStore.entries()) {
+    if (now > info.resetTime) {
+      rateLimitStore.delete(key);
+    }
+  }
+}
+
 // Avoid keeping a long-lived timer alive in unit tests – Jest's leak detector
 // treats background intervals as open handles. Only start the cleanup loop
 // outside of test environments so tests can run leak-free.
 const shouldStartCleanup = process.env.NODE_ENV !== 'test' && !process.env.JEST_WORKER_ID;
 const cleanupInterval = shouldStartCleanup
-  ? setInterval(
-      () => {
-        const now = Date.now();
-        for (const [key, info] of rateLimitStore.entries()) {
-          if (now > info.resetTime) {
-            rateLimitStore.delete(key);
-          }
-        }
-      },
-      10 * 60 * 1000
-    )
+  ? setInterval(cleanupRateLimitStore, 10 * 60 * 1000)
   : null;
 
 cleanupInterval?.unref?.();
 
 // Initialize Redis client if credentials are available
-let redis: Redis | null = null;
+let redis: Redis | null | undefined;
 
 function initializeRedis() {
   if (redis !== undefined) {
@@ -65,6 +69,14 @@ function initializeRedis() {
   }
 
   return redis;
+}
+
+/**
+ * Clears the cached Redis client, allowing for re-initialization.
+ * Primarily used for testing.
+ */
+export function clearRedisClient() {
+  redis = undefined;
 }
 
 /**
@@ -168,38 +180,19 @@ export function rateLimit(options: RateLimitOptions) {
 }
 
 /**
- * Extracts the client IP address from the request headers.
+ * Extracts the client IP address from the request headers and validates it.
  *
  * Checks multiple common headers used by proxies and load balancers:
+ * - req.ip
  * - x-forwarded-for (first IP in the list)
  * - x-real-ip
  * - cf-connecting-ip (Cloudflare)
  *
  * @param request - The incoming HTTP request
- * @returns The client IP address, or 'unknown' if none found
+ * @returns The validated client IP address, or 'unknown' if none found or invalid
  */
 function getClientIP(request: Request): string {
-  // Try various headers for IP address
-  const forwarded = request.headers.get('x-forwarded-for');
-  if (forwarded) {
-    const [first] = forwarded.split(',');
-    if (first) {
-      return first.trim();
-    }
-  }
-
-  const realIP = request.headers.get('x-real-ip');
-  if (realIP) {
-    return realIP;
-  }
-
-  const cfConnectingIP = request.headers.get('cf-connecting-ip');
-  if (cfConnectingIP) {
-    return cfConnectingIP;
-  }
-
-  // Fallback to a default if no IP found
-  return 'unknown';
+  return getClientIp(request);
 }
 
 /**
@@ -224,6 +217,25 @@ export const rateLimiters = {
     windowMs: 10 * 60 * 1000, // 10 minutes
   }),
 };
+
+/**
+ * Clears all rate limiters to force re-initialization.
+ * Used for testing purposes.
+ */
+export function clearRateLimiters() {
+  rateLimiters.contactForm = rateLimit({
+    max: 5,
+    windowMs: 15 * 60 * 1000,
+  });
+  rateLimiters.apiGeneral = rateLimit({
+    max: 100,
+    windowMs: 60 * 60 * 1000,
+  });
+  rateLimiters.search = rateLimit({
+    max: 50,
+    windowMs: 10 * 60 * 1000,
+  });
+}
 
 export { rateLimitStore };
 export default rateLimit;
