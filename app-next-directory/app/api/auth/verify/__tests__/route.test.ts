@@ -41,7 +41,7 @@ jest.mock('mongoose', () => ({
 }));
 
 const rateLimitMock = jest.requireMock('@/lib/rate-limit') as jest.Mocked<{
-  getClientIp: (...args: any[]) => string;
+  getClientIP: (...args: any[]) => string;
   isRateLimited: (...args: any[]) => boolean;
   getRetryAfterMs: (...args: any[]) => number;
 }>;
@@ -78,7 +78,7 @@ describe('GET /api/auth/verify', () => {
     jest.clearAllMocks();
     process.env = { ...originalEnv, MONGODB_URI: 'mongodb://localhost/test' };
 
-    rateLimitMock.getClientIp.mockReturnValue('192.168.1.1');
+    rateLimitMock.getClientIP.mockReturnValue('192.168.1.1');
     rateLimitMock.isRateLimited.mockReturnValue(false);
     rateLimitMock.getRetryAfterMs.mockReturnValue(30000);
 
@@ -197,7 +197,7 @@ describe('GET /api/auth/verify', () => {
       const request = createRequest('token');
       await GET(request);
 
-      expect(rateLimitMock.getClientIp).toHaveBeenCalledWith(request);
+      expect(rateLimitMock.getClientIP).toHaveBeenCalledWith(request);
       expect(rateLimitMock.isRateLimited).toHaveBeenCalledWith('auth:verify:192.168.1.1', 10, 60);
     });
   });

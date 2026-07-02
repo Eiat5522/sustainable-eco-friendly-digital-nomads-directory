@@ -1,6 +1,7 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import { structuredLogger } from '@/lib/logger';
 import { getRedisClient } from '@/lib/redis';
+import { extractClientIP } from '@/utils/ip-utils';
 
 // Login rate limiting: 5 attempts per 15 minutes
 export let loginRateLimit: Ratelimit | undefined;
@@ -38,19 +39,8 @@ const initializeRateLimiters = () => {
 // Initialize on module load
 initializeRateLimiters();
 
-export let getClientIp = (req: Request): string => {
-  try {
-    const xf = req.headers.get('x-forwarded-for');
-    if (xf) {
-      const [first] = xf.split(',');
-      if (first) {
-        return first.trim();
-      }
-    }
-    const xr = req.headers.get('x-real-ip');
-    if (xr) return xr;
-  } catch {}
-  return 'unknown';
+export let getClientIP = (req: Request): string => {
+  return extractClientIP(req.headers);
 };
 
 // Helper for backward compatibility
@@ -111,11 +101,11 @@ if (process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID) {
   const maybeJest = (globalThis as { jest?: JestLike }).jest;
 
   if (maybeJest) {
-    const originalGetClientIp = getClientIp;
+    const originalGetClientIP = getClientIP;
     const originalIsRateLimited = isRateLimited;
     const originalGetRetryAfterMs = getRetryAfterMs;
 
-    getClientIp = maybeJest.fn(originalGetClientIp) as typeof getClientIp;
+    getClientIP = maybeJest.fn(originalGetClientIP) as typeof getClientIP;
     isRateLimited = maybeJest.fn(originalIsRateLimited) as typeof isRateLimited;
     getRetryAfterMs = maybeJest.fn(originalGetRetryAfterMs) as typeof getRetryAfterMs;
   } else {

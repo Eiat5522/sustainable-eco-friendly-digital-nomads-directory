@@ -557,7 +557,7 @@ jest.mock('@/lib/rate-limit', () => {
   // Using the module-level `jest` import instead of requiring it.
   return {
     __esModule: true,
-    getClientIp: jest.fn(() => '127.0.0.1'),
+    getClientIP: jest.fn(() => '127.0.0.1'),
     isRateLimited: jest.fn(() => false),
     getRetryAfterMs: jest.fn(() => 60_000),
   };

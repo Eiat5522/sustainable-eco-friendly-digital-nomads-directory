@@ -28,7 +28,7 @@ jest.mock('@/models/PasswordResetToken', () => ({
 }));
 
 const rateLimitMock = jest.requireMock('@/lib/rate-limit') as jest.Mocked<{
-  getClientIp: (...args: any[]) => string;
+  getClientIP: (...args: any[]) => string;
   isRateLimited: (...args: any[]) => boolean;
   getRetryAfterMs: (...args: any[]) => number;
 }>;
@@ -74,7 +74,7 @@ describe('POST /api/auth/request-password-reset', () => {
     jest.clearAllMocks();
     process.env = { ...originalEnv, MONGODB_URI: 'mongodb://localhost/test' };
 
-    rateLimitMock.getClientIp.mockReturnValue('198.51.100.10');
+    rateLimitMock.getClientIP.mockReturnValue('198.51.100.10');
     rateLimitMock.isRateLimited.mockReturnValue(false);
     rateLimitMock.getRetryAfterMs.mockReturnValue(90_000);
 

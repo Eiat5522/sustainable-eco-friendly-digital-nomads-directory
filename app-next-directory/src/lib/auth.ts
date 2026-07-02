@@ -45,9 +45,14 @@ const providers: NextAuthConfig['providers'] = [
 
         const email = String(credentials.email).trim().toLowerCase();
         const password = String(credentials.password);
-        const forwardedFor =
-          request?.headers?.get('x-forwarded-for') ?? request?.headers?.get('x-real-ip') ?? '';
-        const ip = forwardedFor.split(',')[0]?.trim() || null;
+
+        let ip: string | null = null;
+        if (request?.headers) {
+          const { extractClientIP } = await import('@/utils/ip-utils');
+          const extractedIP = extractClientIP(request.headers);
+          ip = extractedIP === 'unknown' ? null : extractedIP;
+        }
+
         const identifier = ip ? `${email}:${ip}` : email;
 
         const rateLimit = await enforceLoginRateLimit(identifier);
