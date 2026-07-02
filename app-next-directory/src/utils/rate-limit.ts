@@ -5,6 +5,7 @@
 
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
+import { extractClientIP } from './ip-utils';
 
 interface RateLimitInfo {
   count: number;
@@ -35,7 +36,15 @@ const cleanupInterval = shouldStartCleanup
 cleanupInterval?.unref?.();
 
 // Initialize Redis client if credentials are available
-let redis: Redis | null = null;
+let redis: Redis | null | undefined;
+
+/**
+ * Resets the Redis client singleton.
+ * Used for testing purposes.
+ */
+export function clearRedisClient() {
+  redis = undefined;
+}
 
 function initializeRedis() {
   if (redis !== undefined) {
@@ -84,6 +93,19 @@ export interface RateLimitResult {
   limit: number;
   remaining: number;
   resetTime: number;
+}
+
+/**
+ * Manually trigger cleanup of the in-memory rate limit store.
+ * Used for testing purposes.
+ */
+export function cleanupRateLimitStore() {
+  const now = Date.now();
+  for (const [key, info] of rateLimitStore.entries()) {
+    if (now > info.resetTime) {
+      rateLimitStore.delete(key);
+    }
+  }
 }
 
 /**
@@ -179,27 +201,7 @@ export function rateLimit(options: RateLimitOptions) {
  * @returns The client IP address, or 'unknown' if none found
  */
 function getClientIP(request: Request): string {
-  // Try various headers for IP address
-  const forwarded = request.headers.get('x-forwarded-for');
-  if (forwarded) {
-    const [first] = forwarded.split(',');
-    if (first) {
-      return first.trim();
-    }
-  }
-
-  const realIP = request.headers.get('x-real-ip');
-  if (realIP) {
-    return realIP;
-  }
-
-  const cfConnectingIP = request.headers.get('cf-connecting-ip');
-  if (cfConnectingIP) {
-    return cfConnectingIP;
-  }
-
-  // Fallback to a default if no IP found
-  return 'unknown';
+  return extractClientIP(request.headers);
 }
 
 /**
