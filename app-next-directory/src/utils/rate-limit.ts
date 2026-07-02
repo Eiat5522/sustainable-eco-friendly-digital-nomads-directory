@@ -5,6 +5,7 @@
 
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
+import validator from 'validator';
 
 interface RateLimitInfo {
   count: number;
@@ -14,28 +15,42 @@ interface RateLimitInfo {
 // In-memory store for rate limiting (fallback when Redis is not available)
 const rateLimitStore = new Map<string, RateLimitInfo>();
 
+/**
+ * Internal cleanup function for the in-memory rate limit store.
+ * Exported for testing purposes.
+ */
+export function cleanupRateLimitStore() {
+  const now = Date.now();
+  for (const [key, info] of rateLimitStore.entries()) {
+    if (now > info.resetTime) {
+      rateLimitStore.delete(key);
+    }
+  }
+}
+
 // Avoid keeping a long-lived timer alive in unit tests – Jest's leak detector
 // treats background intervals as open handles. Only start the cleanup loop
 // outside of test environments so tests can run leak-free.
 const shouldStartCleanup = process.env.NODE_ENV !== 'test' && !process.env.JEST_WORKER_ID;
 const cleanupInterval = shouldStartCleanup
-  ? setInterval(
-      () => {
-        const now = Date.now();
-        for (const [key, info] of rateLimitStore.entries()) {
-          if (now > info.resetTime) {
-            rateLimitStore.delete(key);
-          }
-        }
-      },
-      10 * 60 * 1000
-    )
+  ? setInterval(cleanupRateLimitStore, 10 * 60 * 1000)
   : null;
 
 cleanupInterval?.unref?.();
 
 // Initialize Redis client if credentials are available
-let redis: Redis | null = null;
+// Use globalThis to persist the client across hot reloads in development
+// and to allow easier resetting in tests.
+let redis: Redis | null | undefined = (globalThis as { _redisClient?: Redis | null })._redisClient;
+
+/**
+ * Resets the internal Redis client singleton.
+ * Exported for testing purposes.
+ */
+export function clearRedisClient() {
+  redis = undefined;
+  (globalThis as { _redisClient?: Redis | null })._redisClient = undefined;
+}
 
 function initializeRedis() {
   if (redis !== undefined) {
@@ -64,6 +79,7 @@ function initializeRedis() {
     redis = null;
   }
 
+  (globalThis as { _redisClient?: Redis | null })._redisClient = redis;
   return redis;
 }
 
@@ -182,23 +198,32 @@ function getClientIP(request: Request): string {
   // Try various headers for IP address
   const forwarded = request.headers.get('x-forwarded-for');
   if (forwarded) {
-    const [first] = forwarded.split(',');
-    if (first) {
-      return first.trim();
+    const parts = forwarded.split(',');
+    for (const part of parts) {
+      const ip = part.trim();
+      if (ip && validator.isIP(ip)) {
+        return ip;
+      }
     }
   }
 
   const realIP = request.headers.get('x-real-ip');
   if (realIP) {
-    return realIP;
+    const ip = realIP.trim();
+    if (ip && validator.isIP(ip)) {
+      return ip;
+    }
   }
 
   const cfConnectingIP = request.headers.get('cf-connecting-ip');
   if (cfConnectingIP) {
-    return cfConnectingIP;
+    const ip = cfConnectingIP.trim();
+    if (ip && validator.isIP(ip)) {
+      return ip;
+    }
   }
 
-  // Fallback to a default if no IP found
+  // Fallback to a default if no valid IP found
   return 'unknown';
 }
 
