@@ -5,6 +5,7 @@
 
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
+import { extractClientIP } from './ip-utils';
 
 interface RateLimitInfo {
   count: number;
@@ -14,28 +15,38 @@ interface RateLimitInfo {
 // In-memory store for rate limiting (fallback when Redis is not available)
 const rateLimitStore = new Map<string, RateLimitInfo>();
 
+/**
+ * Cleans up expired entries from the in-memory rate limit store.
+ */
+export function cleanupRateLimitStore() {
+  const now = Date.now();
+  for (const [key, info] of rateLimitStore.entries()) {
+    if (now > info.resetTime) {
+      rateLimitStore.delete(key);
+    }
+  }
+}
+
 // Avoid keeping a long-lived timer alive in unit tests – Jest's leak detector
 // treats background intervals as open handles. Only start the cleanup loop
 // outside of test environments so tests can run leak-free.
 const shouldStartCleanup = process.env.NODE_ENV !== 'test' && !process.env.JEST_WORKER_ID;
 const cleanupInterval = shouldStartCleanup
-  ? setInterval(
-      () => {
-        const now = Date.now();
-        for (const [key, info] of rateLimitStore.entries()) {
-          if (now > info.resetTime) {
-            rateLimitStore.delete(key);
-          }
-        }
-      },
-      10 * 60 * 1000
-    )
+  ? setInterval(cleanupRateLimitStore, 10 * 60 * 1000)
   : null;
 
 cleanupInterval?.unref?.();
 
 // Initialize Redis client if credentials are available
-let redis: Redis | null = null;
+let redis: Redis | null | undefined;
+
+/**
+ * Resets the Redis client singleton.
+ * Primarily used for testing purposes to force re-initialization.
+ */
+export function clearRedisClient() {
+  redis = undefined;
+}
 
 function initializeRedis() {
   if (redis !== undefined) {
@@ -127,24 +138,33 @@ function inMemoryRateLimit(key: string, max: number, windowMs: number): RateLimi
  */
 export function rateLimit(options: RateLimitOptions) {
   const { max, windowMs, keyGenerator } = options;
+  const state = {
+    limiter: null as Ratelimit | null,
+    lastRedisClient: undefined as Redis | null | undefined,
+  };
 
-  // Lazy initialize Redis
-  const redisClient = initializeRedis();
+  return async (request: Request): Promise<RateLimitResult> => {
+    // Lazy initialize Redis on each request to handle configuration changes (important for tests)
+    const redisClient = initializeRedis();
+    const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
 
-  // If Redis is available, create a Redis-based rate limiter
-  if (redisClient) {
-    const limiter = new Ratelimit({
-      redis: redisClient,
-      limiter: Ratelimit.slidingWindow(max, `${windowMs} ms`),
-      analytics: false, // Disable analytics for better performance
-    });
+    // If redis client changed (e.g. cleared in tests), reset the limiter
+    if (redisClient !== state.lastRedisClient || (redisClient && !state.limiter)) {
+      state.lastRedisClient = redisClient;
+      if (redisClient) {
+        state.limiter = new Ratelimit({
+          redis: redisClient,
+          limiter: Ratelimit.slidingWindow(max, `${windowMs} ms`),
+          analytics: false,
+        });
+      } else {
+        state.limiter = null;
+      }
+    }
 
-    return async (request: Request): Promise<RateLimitResult> => {
+    if (state.limiter) {
       try {
-        // Generate key for rate limiting (default to IP)
-        const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
-
-        const { success, limit, remaining, reset } = await limiter.limit(key);
+        const { success, limit, remaining, reset } = await state.limiter.limit(key);
 
         return {
           success,
@@ -154,15 +174,11 @@ export function rateLimit(options: RateLimitOptions) {
         };
       } catch (_error) {
         // Fallback to in-memory on error
-        const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
         return inMemoryRateLimit(key, max, windowMs);
       }
-    };
-  }
+    }
 
-  // In-memory fallback
-  return async (request: Request): Promise<RateLimitResult> => {
-    const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
+    // In-memory fallback
     return inMemoryRateLimit(key, max, windowMs);
   };
 }
@@ -178,28 +194,8 @@ export function rateLimit(options: RateLimitOptions) {
  * @param request - The incoming HTTP request
  * @returns The client IP address, or 'unknown' if none found
  */
-function getClientIP(request: Request): string {
-  // Try various headers for IP address
-  const forwarded = request.headers.get('x-forwarded-for');
-  if (forwarded) {
-    const [first] = forwarded.split(',');
-    if (first) {
-      return first.trim();
-    }
-  }
-
-  const realIP = request.headers.get('x-real-ip');
-  if (realIP) {
-    return realIP;
-  }
-
-  const cfConnectingIP = request.headers.get('cf-connecting-ip');
-  if (cfConnectingIP) {
-    return cfConnectingIP;
-  }
-
-  // Fallback to a default if no IP found
-  return 'unknown';
+export function getClientIP(request: Request): string {
+  return extractClientIP(request.headers) || 'unknown';
 }
 
 /**
