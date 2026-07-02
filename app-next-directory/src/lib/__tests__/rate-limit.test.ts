@@ -126,6 +126,23 @@ describe('rate-limit helpers', () => {
     expect(mod.getClientIp({ headers: { get: () => null } } as unknown as Request)).toBe('unknown');
   });
 
+  it('getClientIp ignores invalid IPs', async () => {
+    const mod = await loadModule();
+
+    const invalidRequest = {
+      headers: {
+        get: (key: string) => {
+          if (key === 'x-forwarded-for') return 'invalid-ip, 127.0.0.1';
+          if (key === 'x-real-ip') return '192.168.1.1';
+          return null;
+        },
+      },
+    } as unknown as Request;
+
+    // Should skip invalid x-forwarded-for and use x-real-ip
+    expect(mod.getClientIp(invalidRequest)).toBe('192.168.1.1');
+  });
+
   it('isRateLimited returns false when request is allowed', async () => {
     const mod = await loadModule();
     mockRatelimitLimit.mockResolvedValue({
