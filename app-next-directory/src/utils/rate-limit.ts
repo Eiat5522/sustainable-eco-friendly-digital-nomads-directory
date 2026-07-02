@@ -5,6 +5,7 @@
 
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
+import { getClientIPFromHeaders } from './ip-utils';
 
 interface RateLimitInfo {
   count: number;
@@ -35,9 +36,30 @@ const cleanupInterval = shouldStartCleanup
 cleanupInterval?.unref?.();
 
 // Initialize Redis client if credentials are available
-let redis: Redis | null = null;
+let redis: Redis | null | undefined;
 
-function initializeRedis() {
+/**
+ * Resets the Redis client to undefined.
+ * Used primarily for testing purposes to allow re-initialization with different env vars.
+ */
+export function clearRedisClient() {
+  redis = undefined;
+}
+
+/**
+ * Manually triggers cleanup of the in-memory rate limit store.
+ * Useful for testing the cleanup logic.
+ */
+export function cleanupRateLimitStore() {
+  const now = Date.now();
+  for (const [key, info] of rateLimitStore.entries()) {
+    if (now > info.resetTime) {
+      rateLimitStore.delete(key);
+    }
+  }
+}
+
+function initializeRedis(): Redis | null | undefined {
   if (redis !== undefined) {
     return redis;
   }
@@ -128,78 +150,44 @@ function inMemoryRateLimit(key: string, max: number, windowMs: number): RateLimi
 export function rateLimit(options: RateLimitOptions) {
   const { max, windowMs, keyGenerator } = options;
 
-  // Lazy initialize Redis
-  const redisClient = initializeRedis();
+  let limiter: Ratelimit | null = null;
+  let lastRedisClient: Redis | null | undefined;
 
-  // If Redis is available, create a Redis-based rate limiter
-  if (redisClient) {
-    const limiter = new Ratelimit({
-      redis: redisClient,
-      limiter: Ratelimit.slidingWindow(max, `${windowMs} ms`),
-      analytics: false, // Disable analytics for better performance
-    });
+  return async (request: Request): Promise<RateLimitResult> => {
+    // Lazy initialize Redis
+    const redisClient = initializeRedis();
 
-    return async (request: Request): Promise<RateLimitResult> => {
+    // Re-create limiter if Redis client has changed
+    if (redisClient !== lastRedisClient) {
+      lastRedisClient = redisClient;
+      if (redisClient) {
+        limiter = new Ratelimit({
+          redis: redisClient,
+          limiter: Ratelimit.slidingWindow(max, `${windowMs} ms`),
+          analytics: false, // Disable analytics for better performance
+        });
+      } else {
+        limiter = null;
+      }
+    }
+
+    // Generate key for rate limiting (default to IP)
+    const key = keyGenerator ? keyGenerator(request) : getClientIPFromHeaders(request.headers);
+
+    // If Redis is available, use the Redis-based rate limiter
+    if (limiter) {
       try {
-        // Generate key for rate limiting (default to IP)
-        const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
-
-        const { success, limit, remaining, reset } = await limiter.limit(key);
-
-        return {
-          success,
-          limit,
-          remaining,
-          resetTime: reset,
-        };
+        const { success, limit: l, remaining, reset } = await limiter.limit(key);
+        return { success, limit: l, remaining, resetTime: reset };
       } catch (_error) {
         // Fallback to in-memory on error
-        const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
         return inMemoryRateLimit(key, max, windowMs);
       }
-    };
-  }
+    }
 
-  // In-memory fallback
-  return async (request: Request): Promise<RateLimitResult> => {
-    const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
+    // In-memory fallback
     return inMemoryRateLimit(key, max, windowMs);
   };
-}
-
-/**
- * Extracts the client IP address from the request headers.
- *
- * Checks multiple common headers used by proxies and load balancers:
- * - x-forwarded-for (first IP in the list)
- * - x-real-ip
- * - cf-connecting-ip (Cloudflare)
- *
- * @param request - The incoming HTTP request
- * @returns The client IP address, or 'unknown' if none found
- */
-function getClientIP(request: Request): string {
-  // Try various headers for IP address
-  const forwarded = request.headers.get('x-forwarded-for');
-  if (forwarded) {
-    const [first] = forwarded.split(',');
-    if (first) {
-      return first.trim();
-    }
-  }
-
-  const realIP = request.headers.get('x-real-ip');
-  if (realIP) {
-    return realIP;
-  }
-
-  const cfConnectingIP = request.headers.get('cf-connecting-ip');
-  if (cfConnectingIP) {
-    return cfConnectingIP;
-  }
-
-  // Fallback to a default if no IP found
-  return 'unknown';
 }
 
 /**

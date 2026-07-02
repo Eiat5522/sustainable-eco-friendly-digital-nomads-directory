@@ -17,6 +17,7 @@ import dbConnect from '@/lib/dbConnect';
 import { structuredLogger } from '@/lib/logger';
 import User, { type IUser } from '@/models/User';
 import type { UserRole } from '@/types/auth';
+import { getClientIPFromHeaders } from '@/utils/ip-utils';
 import type { HeadersLike } from '@/types/request';
 
 // Central NextAuth configuration used by route handlers and auth() helper
@@ -45,10 +46,8 @@ const providers: NextAuthConfig['providers'] = [
 
         const email = String(credentials.email).trim().toLowerCase();
         const password = String(credentials.password);
-        const forwardedFor =
-          request?.headers?.get('x-forwarded-for') ?? request?.headers?.get('x-real-ip') ?? '';
-        const ip = forwardedFor.split(',')[0]?.trim() || null;
-        const identifier = ip ? `${email}:${ip}` : email;
+        const ip = getClientIPFromHeaders(request?.headers);
+        const identifier = ip !== 'unknown' ? `${email}:${ip}` : email;
 
         const rateLimit = await enforceLoginRateLimit(identifier);
         if (!rateLimit.success) {
