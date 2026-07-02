@@ -1,4 +1,5 @@
 import pino from 'pino';
+import { getClientIPFromHeaders, getHeaderValue as getHeaderValueUtil } from '@/utils/ip-utils';
 
 // Environment check for safe logging configuration
 // Guard access to `process` so this module can be imported in Edge or client contexts
@@ -87,30 +88,7 @@ const getHeaderValue = (
   headers: HeaderCollection | undefined,
   name: string
 ): string | undefined => {
-  if (!headers) return undefined;
-
-  const lower = name.toLowerCase();
-  const getter = (headers as { get?: HeaderGetter }).get;
-  if (typeof getter === 'function') {
-    const viaGetter = getter.call(headers, name) ?? getter.call(headers, lower);
-    if (typeof viaGetter === 'string') {
-      return viaGetter;
-    }
-  }
-
-  const record = headers as Record<string, HeaderValue>;
-  const direct = record[name] ?? record[lower];
-  if (typeof direct === 'string') {
-    return direct;
-  }
-  if (Array.isArray(direct)) {
-    const first = direct.find((entry): entry is string => typeof entry === 'string');
-    if (first) {
-      return first;
-    }
-  }
-
-  return undefined;
+  return getHeaderValueUtil(headers as HeaderCollection, name) || undefined;
 };
 
 const shouldRedactKey = (key: string): boolean =>
@@ -444,7 +422,7 @@ export const getRequestContext = (req: RequestLike | undefined): LogContext => {
     method: req?.method,
     path: req?.url ?? req?.nextUrl?.pathname,
     userAgent: getHeaderValue(headers, 'user-agent'),
-    ip: req?.ip ?? getHeaderValue(headers, 'x-forwarded-for'),
+    ip: req?.ip ?? getClientIPFromHeaders(headers),
     requestId: getHeaderValue(headers, 'x-request-id'),
   };
 };

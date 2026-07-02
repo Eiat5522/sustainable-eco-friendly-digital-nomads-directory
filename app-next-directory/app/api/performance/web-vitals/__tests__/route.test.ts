@@ -273,7 +273,7 @@ describe('Web Vitals Performance API - POST /api/performance/web-vitals', () => 
   });
 
   describe('IP Address Handling', () => {
-    it('should use "Unknown" when x-forwarded-for is missing', async () => {
+    it('should use "unknown" when x-forwarded-for is missing', async () => {
       const metricData = {
         name: 'LCP',
         value: 2000,
@@ -289,10 +289,10 @@ describe('Web Vitals Performance API - POST /api/performance/web-vitals', () => 
       const response = await POST(request);
       const data = await response.json();
 
-      expect(data.data.ip).toBe('Unknown');
+      expect(data.data.ip).toBe('unknown');
     });
 
-    it('should handle multiple IPs in x-forwarded-for', async () => {
+    it('should handle multiple IPs in x-forwarded-for by taking the first valid one', async () => {
       const metricData = {
         name: 'LCP',
         value: 2000,
@@ -311,7 +311,7 @@ describe('Web Vitals Performance API - POST /api/performance/web-vitals', () => 
       const response = await POST(request);
       const data = await response.json();
 
-      expect(data.data.ip).toBe('203.0.113.1, 198.51.100.1');
+      expect(data.data.ip).toBe('203.0.113.1');
     });
   });
 

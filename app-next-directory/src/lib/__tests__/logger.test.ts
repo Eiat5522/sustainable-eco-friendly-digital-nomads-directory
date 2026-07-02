@@ -124,7 +124,7 @@ describe('Logger Utilities', () => {
       expect(context.method).toBe('GET');
       expect(context.path).toBe('/api/test');
       expect(context.userAgent).toBeUndefined();
-      expect(context.ip).toBeUndefined();
+      expect(context.ip).toBe('unknown');
       expect(context.requestId).toBeUndefined();
     });
 
@@ -134,7 +134,7 @@ describe('Logger Utilities', () => {
       expect(context.method).toBeUndefined();
       expect(context.path).toBeUndefined();
       expect(context.userAgent).toBeUndefined();
-      expect(context.ip).toBeUndefined();
+      expect(context.ip).toBe('unknown');
       expect(context.requestId).toBeUndefined();
     });
 
@@ -288,7 +288,7 @@ describe('Logger Utilities', () => {
       expect(context.ip).toBe('2001:0db8:85a3::8a2e:0370:7334');
     });
 
-    it('handles requests with multiple forwarded IPs', () => {
+    it('handles requests with multiple forwarded IPs by taking the first valid one', () => {
       const headers = {
         get: (name: string) =>
           name.toLowerCase() === 'x-forwarded-for' ? '192.168.1.1, 10.0.0.1, 172.16.0.1' : null,
@@ -301,7 +301,7 @@ describe('Logger Utilities', () => {
 
       const context = getRequestContext(req);
 
-      expect(context.ip).toBe('192.168.1.1, 10.0.0.1, 172.16.0.1');
+      expect(context.ip).toBe('192.168.1.1');
     });
   });
 

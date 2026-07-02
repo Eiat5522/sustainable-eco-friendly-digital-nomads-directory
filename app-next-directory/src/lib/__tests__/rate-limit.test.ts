@@ -51,6 +51,16 @@ const loadModule = async (setup?: () => void) => {
     structuredLogger: { warn: warnSpy, error: jest.fn(), info: jest.fn(), debug: jest.fn() },
   }));
 
+  jest.doMock('@/utils/ip-utils', () => ({
+    getClientIPFromHeaders: jest.fn((headers: any) => {
+      const xf = typeof headers.get === 'function' ? headers.get('x-forwarded-for') : headers['x-forwarded-for'];
+      if (xf) return xf.split(',')[0].trim();
+      const xr = typeof headers.get === 'function' ? headers.get('x-real-ip') : headers['x-real-ip'];
+      if (xr) return xr;
+      return 'unknown';
+    }),
+  }));
+
   return jest.requireActual<typeof import('../rate-limit')>('../rate-limit');
 };
 
