@@ -1,4 +1,5 @@
 import { Ratelimit } from '@upstash/ratelimit';
+import { getClientIp as _getClientIp } from '@/utils/ip';
 import { structuredLogger } from '@/lib/logger';
 import { getRedisClient } from '@/lib/redis';
 
@@ -7,6 +8,23 @@ export let loginRateLimit: Ratelimit | undefined;
 
 // API rate limiting: 100 requests per minute
 export let apiRateLimit: Ratelimit | undefined;
+
+/**
+ * Resets the rate limiters for testing purposes.
+ */
+export function resetRateLimiters() {
+  loginRateLimit = undefined;
+  apiRateLimit = undefined;
+  initializeRateLimiters();
+}
+
+/**
+ * Force clear the rate limiters for testing purposes.
+ */
+export function clearRateLimiters() {
+  loginRateLimit = undefined;
+  apiRateLimit = undefined;
+}
 
 // Initialize rate limiters with Redis client
 const initializeRateLimiters = () => {
@@ -39,17 +57,8 @@ const initializeRateLimiters = () => {
 initializeRateLimiters();
 
 export let getClientIp = (req: Request): string => {
-  try {
-    const xf = req.headers.get('x-forwarded-for');
-    if (xf) {
-      const [first] = xf.split(',');
-      if (first) {
-        return first.trim();
-      }
-    }
-    const xr = req.headers.get('x-real-ip');
-    if (xr) return xr;
-  } catch {}
+  const ip = _getClientIp(req);
+  if (ip && ip !== '127.0.0.1') return ip;
   return 'unknown';
 };
 
@@ -111,13 +120,13 @@ if (process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID) {
   const maybeJest = (globalThis as { jest?: JestLike }).jest;
 
   if (maybeJest) {
-    const originalGetClientIp = getClientIp;
     const originalIsRateLimited = isRateLimited;
     const originalGetRetryAfterMs = getRetryAfterMs;
+    const originalGetClientIp = getClientIp;
 
-    getClientIp = maybeJest.fn(originalGetClientIp) as typeof getClientIp;
     isRateLimited = maybeJest.fn(originalIsRateLimited) as typeof isRateLimited;
     getRetryAfterMs = maybeJest.fn(originalGetRetryAfterMs) as typeof getRetryAfterMs;
+    getClientIp = maybeJest.fn(originalGetClientIp) as typeof getClientIp;
   } else {
     structuredLogger.warn('Jest not available for mocking in rate-limit module', {
       component: 'rate-limit',
