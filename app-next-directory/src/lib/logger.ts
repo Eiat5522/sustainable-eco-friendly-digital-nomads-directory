@@ -1,4 +1,5 @@
 import pino from 'pino';
+import { getHeaderValue } from '@/utils/ip-utils';
 
 // Environment check for safe logging configuration
 // Guard access to `process` so this module can be imported in Edge or client contexts
@@ -83,36 +84,6 @@ type SanitizedError = Record<string, unknown> | undefined;
 const toRedacted = (value: string | undefined): string | undefined =>
   value ? '[REDACTED]' : undefined;
 
-const getHeaderValue = (
-  headers: HeaderCollection | undefined,
-  name: string
-): string | undefined => {
-  if (!headers) return undefined;
-
-  const lower = name.toLowerCase();
-  const getter = (headers as { get?: HeaderGetter }).get;
-  if (typeof getter === 'function') {
-    const viaGetter = getter.call(headers, name) ?? getter.call(headers, lower);
-    if (typeof viaGetter === 'string') {
-      return viaGetter;
-    }
-  }
-
-  const record = headers as Record<string, HeaderValue>;
-  const direct = record[name] ?? record[lower];
-  if (typeof direct === 'string') {
-    return direct;
-  }
-  if (Array.isArray(direct)) {
-    const first = direct.find((entry): entry is string => typeof entry === 'string');
-    if (first) {
-      return first;
-    }
-  }
-
-  return undefined;
-};
-
 const shouldRedactKey = (key: string): boolean =>
   redactPaths.some(path => key.toLowerCase().includes(path.toLowerCase()));
 
@@ -132,9 +103,9 @@ const loggerConfig: pino.LoggerOptions = {
     error: pino.stdSerializers.err,
     req: (req: RequestLike | undefined) => {
       const headers = req?.headers;
-      const authorization = getHeaderValue(headers, 'authorization');
-      const cookie = getHeaderValue(headers, 'cookie');
-      const userAgent = getHeaderValue(headers, 'user-agent');
+      const authorization = headers ? getHeaderValue(headers, 'authorization') : undefined;
+      const cookie = headers ? getHeaderValue(headers, 'cookie') : undefined;
+      const userAgent = headers ? getHeaderValue(headers, 'user-agent') : undefined;
 
       return {
         method: req?.method,
@@ -143,19 +114,20 @@ const loggerConfig: pino.LoggerOptions = {
         userAgent,
         headers: headers
           ? {
-              authorization: toRedacted(authorization),
-              cookie: toRedacted(cookie),
+              authorization: toRedacted(authorization || undefined),
+              cookie: toRedacted(cookie || undefined),
             }
           : undefined,
       };
     },
     res: (res: ResponseLike | undefined) => {
       const headers = res?.headers;
+      const setCookie = headers ? getHeaderValue(headers, 'set-cookie') : undefined;
       return {
         statusCode: res?.statusCode,
         headers: headers
           ? {
-              'set-cookie': toRedacted(getHeaderValue(headers, 'set-cookie')),
+              'set-cookie': toRedacted(setCookie || undefined),
             }
           : undefined,
       };
@@ -443,9 +415,9 @@ export const getRequestContext = (req: RequestLike | undefined): LogContext => {
   return {
     method: req?.method,
     path: req?.url ?? req?.nextUrl?.pathname,
-    userAgent: getHeaderValue(headers, 'user-agent'),
-    ip: req?.ip ?? getHeaderValue(headers, 'x-forwarded-for'),
-    requestId: getHeaderValue(headers, 'x-request-id'),
+    userAgent: headers ? getHeaderValue(headers, 'user-agent') || undefined : undefined,
+    ip: req?.ip ?? (headers ? getHeaderValue(headers, 'x-forwarded-for') || undefined : undefined),
+    requestId: headers ? getHeaderValue(headers, 'x-request-id') || undefined : undefined,
   };
 };
 
