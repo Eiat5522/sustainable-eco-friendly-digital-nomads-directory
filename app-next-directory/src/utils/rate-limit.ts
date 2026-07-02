@@ -5,6 +5,7 @@
 
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
+import validator from 'validator';
 
 interface RateLimitInfo {
   count: number;
@@ -35,7 +36,28 @@ const cleanupInterval = shouldStartCleanup
 cleanupInterval?.unref?.();
 
 // Initialize Redis client if credentials are available
-let redis: Redis | null = null;
+let redis: Redis | null | undefined;
+
+/**
+ * Clears the Redis client singleton.
+ * Used for testing to force re-initialization.
+ */
+export function clearRedisClient() {
+  redis = undefined;
+}
+
+/**
+ * Manually trigger cleanup of the in-memory rate limit store.
+ * Used for testing.
+ */
+export function cleanupRateLimitStore() {
+  const now = Date.now();
+  for (const [key, info] of rateLimitStore.entries()) {
+    if (now > info.resetTime) {
+      rateLimitStore.delete(key);
+    }
+  }
+}
 
 function initializeRedis() {
   if (redis !== undefined) {
@@ -142,7 +164,7 @@ export function rateLimit(options: RateLimitOptions) {
     return async (request: Request): Promise<RateLimitResult> => {
       try {
         // Generate key for rate limiting (default to IP)
-        const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
+        const key = keyGenerator ? keyGenerator(request) : getClientIp(request);
 
         const { success, limit, remaining, reset } = await limiter.limit(key);
 
@@ -154,7 +176,7 @@ export function rateLimit(options: RateLimitOptions) {
         };
       } catch (_error) {
         // Fallback to in-memory on error
-        const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
+        const key = keyGenerator ? keyGenerator(request) : getClientIp(request);
         return inMemoryRateLimit(key, max, windowMs);
       }
     };
@@ -162,7 +184,7 @@ export function rateLimit(options: RateLimitOptions) {
 
   // In-memory fallback
   return async (request: Request): Promise<RateLimitResult> => {
-    const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
+    const key = keyGenerator ? keyGenerator(request) : getClientIp(request);
     return inMemoryRateLimit(key, max, windowMs);
   };
 }
@@ -178,27 +200,22 @@ export function rateLimit(options: RateLimitOptions) {
  * @param request - The incoming HTTP request
  * @returns The client IP address, or 'unknown' if none found
  */
-function getClientIP(request: Request): string {
-  // Try various headers for IP address
-  const forwarded = request.headers.get('x-forwarded-for');
-  if (forwarded) {
-    const [first] = forwarded.split(',');
-    if (first) {
-      return first.trim();
+export function getClientIp(request: Request | { headers: { get: (name: string) => string | null } }): string {
+  const ipHeaders = ['x-forwarded-for', 'x-real-ip', 'cf-connecting-ip'];
+
+  for (const header of ipHeaders) {
+    const value = request.headers.get(header);
+    if (value) {
+      const candidate =
+        header === 'x-forwarded-for' ? (value.split(',')[0] || '').trim() : value.trim();
+
+      if (candidate && validator.isIP(candidate)) {
+        return candidate;
+      }
     }
   }
 
-  const realIP = request.headers.get('x-real-ip');
-  if (realIP) {
-    return realIP;
-  }
-
-  const cfConnectingIP = request.headers.get('cf-connecting-ip');
-  if (cfConnectingIP) {
-    return cfConnectingIP;
-  }
-
-  // Fallback to a default if no IP found
+  // Fallback to a default if no valid IP found
   return 'unknown';
 }
 

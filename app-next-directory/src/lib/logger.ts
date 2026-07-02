@@ -1,4 +1,5 @@
 import pino from 'pino';
+import validator from 'validator';
 
 // Environment check for safe logging configuration
 // Guard access to `process` so this module can be imported in Edge or client contexts
@@ -136,11 +137,27 @@ const loggerConfig: pino.LoggerOptions = {
       const cookie = getHeaderValue(headers, 'cookie');
       const userAgent = getHeaderValue(headers, 'user-agent');
 
+      const ipHeaders = ['x-forwarded-for', 'x-real-ip', 'cf-connecting-ip'];
+      let extractedIp: string | undefined;
+
+      for (const header of ipHeaders) {
+        const value = getHeaderValue(headers, header);
+        if (value) {
+          const candidate =
+            header === 'x-forwarded-for' ? (value.split(',')[0] || '').trim() : value.trim();
+          if (candidate && validator.isIP(candidate)) {
+            extractedIp = candidate;
+            break;
+          }
+        }
+      }
+
       return {
         method: req?.method,
         url: req?.url,
         path: req?.path ?? req?.nextUrl?.pathname,
         userAgent,
+        ip: req?.ip ?? extractedIp,
         headers: headers
           ? {
               authorization: toRedacted(authorization),
@@ -440,11 +457,25 @@ export const logError = (message: string, error?: unknown, context?: LogContext)
 // Helper to extract request context from Next.js request objects
 export const getRequestContext = (req: RequestLike | undefined): LogContext => {
   const headers = req?.headers;
+  const ipHeaders = ['x-forwarded-for', 'x-real-ip', 'cf-connecting-ip'];
+  let extractedIp: string | undefined;
+
+  for (const header of ipHeaders) {
+    const value = getHeaderValue(headers, header);
+    if (value) {
+      const candidate = header === 'x-forwarded-for' ? (value.split(',')[0] || '').trim() : value.trim();
+      if (candidate && validator.isIP(candidate)) {
+        extractedIp = candidate;
+        break;
+      }
+    }
+  }
+
   return {
     method: req?.method,
     path: req?.url ?? req?.nextUrl?.pathname,
     userAgent: getHeaderValue(headers, 'user-agent'),
-    ip: req?.ip ?? getHeaderValue(headers, 'x-forwarded-for'),
+    ip: req?.ip ?? extractedIp,
     requestId: getHeaderValue(headers, 'x-request-id'),
   };
 };
